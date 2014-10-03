@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 
 def is_profile_link(link):
-    if re.match(profile_re, link):
+    if link and re.match(profile_re, link):
 	return True
     return False
 
@@ -81,7 +81,8 @@ def process_forever():
     while True:
 	process_next_request()
 	logging.debug('Processed request #{}'.format(i))
-	
+	i+=1
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--add-url')
@@ -90,9 +91,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.process:
+    if args.process_one:
 	process_next_request()
     elif args.add_url:
 	add_url(args.add_url)
     elif args.process_forever:
-	process_forevor()
+	process_forever()
