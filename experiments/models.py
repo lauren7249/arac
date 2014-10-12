@@ -4,6 +4,7 @@ import code
 from sqlalchemy import create_engine, Column, Integer, Boolean, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine.url import URL
 
 import settings
 
@@ -19,8 +20,14 @@ class ScrapeRequest(Base):
 
     @classmethod
     def get_unfinished_request(cls, session):
-	return session.query(ScrapeRequest).filter(ScrapeRequest.done == False).first()
+	return cls.get_all_unfinished_requests(session).first() 
     
+    @classmethod
+    def get_all_unfinished_requests(cls, session):
+	return session.query(ScrapeRequest).filter(
+	    ScrapeRequest.done == False)
+    
+
     def __repr__(self):
 	return '<ScrapeRequest id={0} done={1} url={2}>'.format(
 	    self.id,
@@ -28,7 +35,12 @@ class ScrapeRequest(Base):
 	    self.url
 	)
 
-engine = create_engine(settings.DB_CONNECTION)
+engine_url = URL(
+    settings.DB_CONNECTION['drivername'], 
+    **settings.DB_CONNECTION['kwargs']
+)
+
+engine = create_engine(engine_url)
 Session = sessionmaker(bind=engine)
 
 def create():
@@ -43,6 +55,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--create', action='store_true')
     parser.add_argument('--shell',  action='store_true')
+
     args = parser.parse_args()
 
     if args.create:
