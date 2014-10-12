@@ -11,4 +11,9 @@ DB_CONNECTION = {
 
 PHANTOMJS_PATH	= '~/phantomjs-1.9.7-linux-x86_64/bin/phantomjs' 
 
-REDIS = {}
+REDIS = {
+    'host': 'redis.edpv6s.0001.use1.cache.amazonaws.com',
+    'port': 6379
+}
+
+PROJECT_ROOT = '/home/ubuntu/arachnid/arachnid/experiments'

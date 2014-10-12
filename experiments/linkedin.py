@@ -109,6 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('--process-one', action='store_true')
     parser.add_argument('--process-forever', action='store_true')
     parser.add_argument('--add-unfinished', action='store_true')
+    parser.add_argument('--process-request-id', type=int)
     args = parser.parse_args()
 
     if args.process_one:
@@ -117,5 +118,7 @@ if __name__ == '__main__':
 	add_url(args.add_url)
     elif args.process_forever:
 	process_forever()
+    elif args.process_request_id:
+	process_next_request(args.process_request_id)
     elif args.add_unfinished:
 	add_unfinished()
