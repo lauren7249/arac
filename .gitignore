@@ -1,0 +1,7 @@
+src/
+lib/
+bin/
+.Python
+*.pyc
+*.db
+include
