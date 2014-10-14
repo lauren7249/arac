@@ -5,9 +5,14 @@ import argparse
 from itertools import islice
 from contextlib import contextmanager
 
+from py2neo import neo4j, node, rel
+
 from bs4 import BeautifulSoup
 
 csv.field_size_limit(sys.maxsize)
+
+graph_db = neo4j.GraphDatabaseService("http://localhost:7474/db/data/")
+
 
 def main(filename):
     i = 0
@@ -20,10 +25,43 @@ def main(filename):
             soup = BeautifulSoup(html)
 
             result = parse_html(html)
-            if result.get('full_name') == 'James Johnson':
-                print result
-            if 'Yale University' in result.get('schools', []):
-                print result
+            if result.get('full_name'):
+                for school in result.get('schools', []):
+                    res = list(graph_db.find('School', property_key='name', property_value=school))
+                    if not res:
+                        school_node, = graph_db.create(node(name=school))
+                        school_node.add_labels('School')
+                        print 'Added School', school
+                for company in result.get('companies', []):
+                    res = list(graph_db.find('Company', property_key='name', property_value=company))
+                    if not res:
+                        company_node, = graph_db.create(node(name=company))
+                        company_node.add_labels('Company')
+                        print 'Added Company', company
+
+                res = list(graph_db.find('Person', property_key='url', property_value=url))
+                if not res:
+                    person_node, = graph_db.create(node(
+                        name=result.get('full_name'),
+                        url=url
+                    ))
+                    person_node.add_labels('Person')
+
+                # ok now generate the links
+                for person in graph_db.find('Person', property_key='url', property_value=url):
+                    for company in result.get('companies', []):
+                        companies = list(graph_db.find('Company', property_key='name', property_value=company))
+                        for company in companies:
+                            graph_db.create( (person, 'WorkedAt', company) )
+                    for school in result.get('schools', []):
+                        schools = list(graph_db.find('School', property_key='name', property_value=school))
+                        for school in schools:
+                            graph_db.create( (person, 'WentTo', school) )
+
+            if i % 100 == 0:
+                print i, ' ith time'
+
+            i+=1
 
 def first_or_none(l):
     result = l[0] if l else None
