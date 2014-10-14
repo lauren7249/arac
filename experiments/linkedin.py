@@ -4,10 +4,13 @@ import json
 import logging
 import urlparse
 
+from rq.decorators import job
+
 from bs4 import BeautifulSoup
 
 import phantomrunner
 from models import ScrapeRequest, Session
+from queues import redis_conn
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -20,7 +23,6 @@ def is_profile_link(link):
 
 def get_linked_profiles(html):
     soup = BeautifulSoup(html)
-
     profile_links = filter(is_profile_link, [ link.get('href') for link in soup.find_all('a') ])
 
     return [clean_url(pl) for pl in list(set(profile_links)) ]
@@ -38,43 +40,50 @@ def clean_url(s):
     ))   
 
 def clean_str(s):
-    return s.decode('utf-8')
+    return s.decode('utf-8', 'ignore')
 
-def process_next_request():
+def process_next_request(request_id=None):
     session = Session()
 
-    request = ScrapeRequest.get_unfinished_request(session)
+    if request_id is None:
+	request = ScrapeRequest.get_unfinished_request(session)
+    else:
+	request = session.query(ScrapeRequest).get(request_id)
+
     if request:
 	logging.debug('Processing request {}'.format(request))
-
-	content = clean_str(phantomrunner.get_content(request.url))
+	
+	content = phantomrunner.get_content(request.url)
 	linked_profiles = get_linked_profiles(content)
 	request.done = True
-	request.html = content
+	request.html = clean_str(content)
 
 	for link in linked_profiles:
-	    add_url(link, session, commit=False)
+	    add_url(link, session, commit=False, add_task=True)
     else:
 	logging.debug('There are currently no unfinished requests')
 
     session.commit()
 
-def add_url(url, session=None, commit=True):
+def add_url(url, session=None, commit=True, add_task=True):
     if session is None:
 	session = Session()
 
     if not session.query(ScrapeRequest).filter(ScrapeRequest.url==url).count():
 	logging.debug('Adding scrape request for {} to the queue'.format(url))
-	session.add(
-	    ScrapeRequest(
-		url = url
-	    )
+	new_request =  ScrapeRequest(
+	    url = url
 	)
+	session.add(new_request)
+	session.commit()
+
+	if add_task:
+	    process_next_request_task.delay(new_request.id)
+	    
     else:
 	logging.debug('Skipping adding {} to the queue, already exists'.format(url))
 
-    if session.commit:
-	session.commit()
+    session.commit()
 
 def process_forever():
     i = 0
@@ -83,12 +92,24 @@ def process_forever():
 	logging.debug('Processed request #{}'.format(i))
 	i+=1
 
+def add_unfinished():
+    session = Session()
+    requests = ScrapeRequest.get_all_unfinished_requests(session)
+
+    for request in requests:
+	process_next_request_task.delay(request.id)
+    
+@job('linkedin', connection = redis_conn)
+def process_next_request_task(request_id):
+    process_next_request(request_id)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--add-url')
     parser.add_argument('--process-one', action='store_true')
     parser.add_argument('--process-forever', action='store_true')
-
+    parser.add_argument('--add-unfinished', action='store_true')
+    parser.add_argument('--process-request-id', type=int)
     args = parser.parse_args()
 
     if args.process_one:
@@ -97,3 +118,7 @@ if __name__ == '__main__':
 	add_url(args.add_url)
     elif args.process_forever:
 	process_forever()
+    elif args.process_request_id:
+	process_next_request(args.process_request_id)
+    elif args.add_unfinished:
+	add_unfinished()
