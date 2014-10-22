@@ -1,6 +1,7 @@
 import os
 import json
 import urlparse
+import time
 from datetime import datetime
 
 from redis import Redis
@@ -43,6 +44,7 @@ def process_request_job(url):
 	return
 
     # process the url
+    time.sleep(5)
     results = process_request(url)
     results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
