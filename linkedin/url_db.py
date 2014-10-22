@@ -5,8 +5,8 @@ class UrlDB(object):
 	self.redis = redis
     
     def is_url_finished(self, url):
-	return self.redis.sismember(url, self.FINISHED_URL_SET)
+	return self.redis.sismember(self.FINISHED_URL_SET, url)
 
     def mark_url_finished(self, url):
-	return self.redis.sadd(url, self.FINISHED_URL_SET)
+	return self.redis.sadd(self.FINISHED_URL_SET, url)
     
