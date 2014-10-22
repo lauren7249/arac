@@ -50,7 +50,6 @@ def shell():
     session = Session()
     code.InteractiveConsole(locals=locals()).interact()
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--create', action='store_true')

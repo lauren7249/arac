@@ -1,9 +1,14 @@
 import logging
 import json
+import os
+
+from sqlalchemy import create_engine
 
 from kinesis_consumer.consumer import Consumer
+from kinesis_consumer import models as kinesis_models
 
-from . import models
+from .models import LinkedInScrape, Session
+from .run_redis_scraper import process_request_job
 
 class LinkedInConsumer(Consumer):
     def __init__(self, db_session, *args, **kwargs):
@@ -25,22 +30,23 @@ class LinkedInConsumer(Consumer):
 
         row = json.loads(row_json)
 
+        print row
+
         # try to get the result corresponding to this row
         return True
 
+if __name__ == '__main__':
+    db_url        = os.getenv('RESULTS_DB_URL')
+    stream_db_url = os.getenv('STREAM_DB_URL')
+    stream        = os.getenv('KINESIS_STREAM')
+    shard_id      = os.getenv('KINESIS_SHARD')
 
-def add_url(url, session=None, commit=True, add_task=True):
-    if session is None:
-    session = Session()
+    engine = create_engine(db_url)
+    stream_engine = create_engine(stream_db_url)
 
-    if not session.query(ScrapeRequest).filter(ScrapeRequest.url==url).count():
-    logging.debug('Adding scrape request for {} to the queue'.format(url))
-    new_request =  ScrapeRequest(
-        url = url
-    )
-    session.add(new_request)
-    session.commit()
+    db_session         = Session(bind=engine)
+    kinesis_db_session = kinesis_models.Session(bind=engine)
 
-    if add_task:
-        process_next_request_task.delay(new_request.id)
- 
+    consumer = LinkedInConsumer(db_session, stream, shard_id, kinesis_db_session)
+    consumer.process()
+

@@ -46,11 +46,3 @@ def process_request(url):
     }
 
     session.commit()
-
-
-redis_conn = Redis(os.getenv(
-queue = Queue(connection=redis_conn)
-
-
-
-

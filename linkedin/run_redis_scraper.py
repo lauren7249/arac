@@ -21,7 +21,6 @@ urlparse.uses_netloc.append('redis')
 url = urlparse.urlparse(redis_url)
 redis_conn = Redis(host=url.hostname, port=url.port, db=0, password=url.password)
 
-
 kinesis_conn = KinesisConnection()
 
 @job('linkedin', connection = redis_conn)
@@ -33,9 +32,8 @@ def process_request_job(url):
     # get the kinesis connection and push the data through
     kinesis_conn.put_record(kinesis_stream, result_str, '0')
 
-with Connection(conn):
-    q = Queue('linkedin', connection=redis_conn)
-    w = Worker(q, connection=redis_conn)
-    w.work()
-
-
+if __name__ == '__main__':
+    with Connection(conn):
+        q = Queue('linkedin', connection=redis_conn)
+        w = Worker(q, connection=redis_conn)
+        w.work()
