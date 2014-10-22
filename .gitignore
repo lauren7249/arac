@@ -5,3 +5,4 @@ bin/
 *.pyc
 *.db
 include
+*.swp

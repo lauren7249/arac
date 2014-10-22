@@ -14,5 +14,8 @@ setup(
         'beautifulsoup4>=4.3.2',
         'redis>=2.10.3',
         'rq>=0.4.6'
+    ],
+    dependency_links = [
+        'git+git://git@github.com:ibebrett/python-kinesis-consumer.git#egg=python-kinesis-consumer',
     ]
 )
