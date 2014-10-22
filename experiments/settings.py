@@ -1,3 +1,4 @@
+'postgres://arachnid:gradiusdevlin@arachnid.c5vjkeilta4u.us-east-1.rds.amazonaws.com/arachnid'
 DB_CONNECTION = {
     "drivername": "postgresql",
     "kwargs": dict(

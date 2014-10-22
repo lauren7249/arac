@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 from boto import kinesis
 
-import phantomrunner
+import phantom_runner
 
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 

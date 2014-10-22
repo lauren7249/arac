@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+print find_packages()
 setup(
     name='arachnid',
     version='0.2',
@@ -16,6 +17,6 @@ setup(
         'rq>=0.4.6'
     ],
     dependency_links = [
-        'git+git://git@github.com:ibebrett/python-kinesis-consumer.git#egg=python-kinesis-consumer',
+        'git+git://git@github.com:ibebrett/python-kinesis-consumer.git'
     ]
 )

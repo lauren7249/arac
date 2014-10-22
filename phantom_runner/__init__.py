@@ -2,9 +2,7 @@ import subprocess
 import tempfile
 import os
 
-import settings
-
-GET_CONTENT_PATH = os.path.realpath(__file__).split(os.path.sep)[:-1].join(os.path.sep)
+GET_CONTENT_PATH = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-1])
 
 class PhantomException(Exception):
     pass

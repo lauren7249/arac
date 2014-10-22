@@ -7,7 +7,7 @@ from rq.decorators import job
 
 from boto.kinesis.layer1 import KinesisConnection
 
-from .scraper import process_request
+from scraper import process_request
 
 kinesis_stream = os.getenv('KINESIS_STREAM')
 if not kinesis_stream:
