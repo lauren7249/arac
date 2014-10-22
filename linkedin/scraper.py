@@ -51,7 +51,7 @@ def process_request(url):
         'links': linked_profiles,
         'content': content
     }
-    print linked_profiles
+
     return result
 
 if __name__ == '__main__':
