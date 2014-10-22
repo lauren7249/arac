@@ -1,6 +1,7 @@
 import os
 import json
 import urlparse
+from datetime import datetime
 
 from redis import Redis
 from rq import Queue, Worker
@@ -43,16 +44,17 @@ def process_request_job(url):
 
     # process the url
     results = process_request(url)
+    results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # get the result links and create jobs from 
     # them if they are not finished
     for link in results['links']:
 	if not url_db.is_url_finished(link):
-	    process_request_job(link)
+	    process_request_job.delay(link)
 
     # upload the results to s3
     key = Key(s3_bucket)
-    key.key = results['url'].replace('/', '-')
+    key.key = results['url'].replace('/', '')
     key.set_contents_from_string(json.dumps(results))
 
     url_db.mark_url_finished(url)
