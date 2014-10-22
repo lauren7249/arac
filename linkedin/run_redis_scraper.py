@@ -1,8 +1,9 @@
 import os
 import json
+import urlparse
 
 from redis import Redis
-from rq import Queue
+from rq import Queue, Worker
 from rq.decorators import job
 
 from boto.kinesis.layer1 import KinesisConnection
@@ -23,17 +24,16 @@ redis_conn = Redis(host=url.hostname, port=url.port, db=0, password=url.password
 
 kinesis_conn = KinesisConnection()
 
-@job('linkedin', connection = redis_conn)
+@job('arachnid_linkedin', connection = redis_conn)
 def process_request_job(url):
     # process the url
-    results = proess_request(url)
+    results = process_request(url)
     result_str = json.load(results)
 
     # get the kinesis connection and push the data through
     kinesis_conn.put_record(kinesis_stream, result_str, '0')
 
 if __name__ == '__main__':
-    with Connection(conn):
-        q = Queue('linkedin', connection=redis_conn)
-        w = Worker(q, connection=redis_conn)
-        w.work()
+    q = Queue('arachnid_linkedin', connection=redis_conn)
+    w = Worker(q, connection=redis_conn)
+    w.work()
