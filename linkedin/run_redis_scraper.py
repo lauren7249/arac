@@ -2,6 +2,7 @@ import os
 import json
 import urlparse
 import time
+import argparse
 from datetime import datetime
 
 from redis import Redis
@@ -34,14 +35,14 @@ redis = Redis(
 
 url_db = UrlDB(redis)
 
-s3_conn	   = S3Connection()
+s3_conn    = S3Connection()
 s3_bucket  = s3_conn.get_bucket(s3_bucket_name)
 
 @job('arachnid_linkedin', connection = redis)
 def process_request_job(url):
     # check if this url has been procesed
     if url_db.is_url_finished(url):
-	return
+        return
 
     # process the url
     time.sleep(5)
@@ -51,8 +52,8 @@ def process_request_job(url):
     # get the result links and create jobs from 
     # them if they are not finished
     for link in results['links']:
-	if not url_db.is_url_finished(link):
-	    process_request_job.delay(link)
+        if not url_db.is_url_finished(link):
+            process_request_job.delay(link)
 
     # upload the results to s3
     key = Key(s3_bucket)
@@ -62,6 +63,9 @@ def process_request_job(url):
     url_db.mark_url_finished(url)
 
 if __name__ == '__main__':
-    q = Queue('arachnid_linkedin', connection=redis)
-    w = Worker(q, connection=redis)
-    w.work()
+    if args.url:
+        process_request_job.delay(args.url)
+    else:
+        q = Queue('arachnid_linkedin', connection=redis)
+        w = Worker(q, connection=redis)
+        w.work()
