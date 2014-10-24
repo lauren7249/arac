@@ -37,7 +37,7 @@ def process_request_job(url):
         return
 
     # process the url
-    time.sleep(5)
+    time.sleep(2)
     results = process_request(url)
     results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -54,10 +54,18 @@ def process_request_job(url):
 
     url_db.mark_url_finished(url)
 
-if __name__ == '__main__':
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--delay', type=int, default=0)
+
+    args = parser.parse_args()
     if args.delay:
         time.sleep(delay)
 
     q = Queue('arachnid_linkedin', connection=redis)
     w = Worker(q, connection=redis)
     w.work()
+
+if __name__ == '__main__':
+    main()
+

@@ -9,8 +9,8 @@ setup(
     packages=find_packages(),
     entry_points = {
         'console_scripts': [
-            'run_redis_scraper = linkedin.run_redis_scraper',
-            'add_url = linkedin.add_url',
+            'run_redis_scraper = linkedin.run_redis_scraper:main',
+            'add_url = linkedin.add_url:main',
             'health_check = linkedin.health_check'
         ]
     },

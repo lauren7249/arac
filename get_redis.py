@@ -15,3 +15,5 @@ def get_redis():
         db=0,
         password=redis_url_parsed.password
     )
+
+    return redis
