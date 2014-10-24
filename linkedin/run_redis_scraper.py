@@ -24,7 +24,7 @@ s3_bucket_name = os.getenv('S3_BUCKET')
 if not s3_bucket_name:
     raise RuntimeError('S3_BUCKET  must be defined to run the redis scraper')
 
-redis = get_redis.get_redis()
+redis = get_redis()
 
 url_db = UrlDB(redis)
 
