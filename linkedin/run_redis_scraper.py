@@ -37,7 +37,7 @@ def process_request_job(url):
         return
 
     # process the url
-    time.sleep(2)
+    #time.sleep(2)
     results = process_request(url)
     results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
