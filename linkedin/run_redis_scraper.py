@@ -5,13 +5,13 @@ import time
 import argparse
 from datetime import datetime
 
-from redis import Redis
 from rq import Queue, Worker
 from rq.decorators import job
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
+from get_redis import get_redis
 from scraper import process_request
 
 from url_db import UrlDB
@@ -24,14 +24,7 @@ s3_bucket_name = os.getenv('S3_BUCKET')
 if not s3_bucket_name:
     raise RuntimeError('S3_BUCKET  must be defined to run the redis scraper')
 
-urlparse.uses_netloc.append('redis')
-redis_url_parsed = urlparse.urlparse(redis_url)
-redis = Redis(
-    host=redis_url_parsed.hostname,
-    port=redis_url_parsed.port, 
-    db=0, 
-    password=redis_url_parsed.password
-)
+redis = get_redis.get_redis()
 
 url_db = UrlDB(redis)
 
@@ -63,9 +56,9 @@ def process_request_job(url):
     url_db.mark_url_finished(url)
 
 if __name__ == '__main__':
-    if args.url:
-        process_request_job.delay(args.url)
-    else:
-        q = Queue('arachnid_linkedin', connection=redis)
-        w = Worker(q, connection=redis)
-        w.work()
+    if args.delay:
+        time.sleep(delay)
+
+    q = Queue('arachnid_linkedin', connection=redis)
+    w = Worker(q, connection=redis)
+    w.work()
