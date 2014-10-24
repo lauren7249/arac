@@ -1,4 +1,5 @@
 import os
+import urlparse
 from redis import Redis
 
 redis_url = os.getenv('REDIS_URL')
