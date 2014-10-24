@@ -1,4 +1,5 @@
 import re
+import requests
 import os
 import logging
 import urlparse
@@ -7,20 +8,21 @@ import argparse
 from bs4 import BeautifulSoup
 
 from boto import kinesis
+from fake_useragent import UserAgent
 
-import phantom_runner
+#import phantom_runner
 
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 
 def is_profile_link(link):
-    
+
     if link and re.match(profile_re, link):
         return True
     return False
 
 def get_linked_profiles(html):
     soup = BeautifulSoup(html)
-    profile_links = filter(is_profile_link, [ 
+    profile_links = filter(is_profile_link, [
 	clean_url(link.get('href')) for link in
 	soup.find_all('a') if link.get('href')
      ])
@@ -43,12 +45,18 @@ def clean_str(s):
     return s.decode('utf-8', 'ignore')
 
 def process_request(url):
-    content = phantom_runner.get_content(url)
+    #content = phantom_runner.get_content(url)
+
+    ua = UserAgent()
+    response = requests.get(url, headers={'User-agent': ua.random})
+    content = response.content
+
     linked_profiles = get_linked_profiles(content)
 
     result = {
         'url': url,
         'links': linked_profiles,
+        'status': response.status_code,
         'content': content
     }
 
