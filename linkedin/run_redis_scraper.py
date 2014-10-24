@@ -30,7 +30,7 @@ url_db = UrlDB(redis)
 s3_conn    = S3Connection()
 s3_bucket  = s3_conn.get_bucket(s3_bucket_name)
 
-@job('arachnid_linkedin', connection = redis)
+@job('arachnid_linkedin', connection = redis, timeout=15)
 def process_request_job(url):
     # check if this url has been procesed
     if url_db.is_url_finished(url):
@@ -41,7 +41,7 @@ def process_request_job(url):
     results = process_request(url)
     results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    # get the result links and create jobs from 
+    # get the result links and create jobs from
     # them if they are not finished
     for link in results['links']:
         if not url_db.is_url_finished(link):

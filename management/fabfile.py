@@ -23,3 +23,10 @@ def get_bad():
     else:
         print 'Host is ok', env.host
 
+
+def update():
+    get_all()
+    run("cd /home/ubuntu/arachnid")
+    run("git pull origin feature/onlyredis")
+    run("sudo service supervisor restart")
+    print "Done", env.host
