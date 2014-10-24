@@ -26,6 +26,9 @@ def get_bad():
     else:
         print 'Host is ok', env.host
 
+def get_tail():
+    tailed = run("tail -n 10 /var/log/supervisor/scraper-0")
+
 
 def update():
     with cd("/home/ubuntu/arachnid"):
@@ -36,7 +39,7 @@ def update():
 def update_supervisor():
     with cd("/home/ubuntu/arachnid"):
         run("git pull origin feature/onlyredis")
-    with cd("etc/supervisor/conf.d/"):
+    with cd("/etc/supervisor/conf.d/"):
         sudo("cp /home/ubuntu/arachnid/conf/scraper.conf /etc/supervisor/conf.d/scraper.conf")
         sudo("service supervisor restart")
 

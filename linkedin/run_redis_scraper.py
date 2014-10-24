@@ -33,26 +33,33 @@ s3_bucket  = s3_conn.get_bucket(s3_bucket_name)
 @job('arachnid_linkedin', connection = redis, timeout=15)
 def process_request_job(url):
     # check if this url has been procesed
+    print "Check Redis"
     if url_db.is_url_finished(url):
         return
 
     # process the url
     #time.sleep(2)
+    print "Processing URL"
     results = process_request(url)
     results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # get the result links and create jobs from
     # them if they are not finished
     for link in results['links']:
+        print "Check Redis Again"
         if not url_db.is_url_finished(link):
+            print "New Job"
             process_request_job.delay(link)
 
     # upload the results to s3
+    print "Saving to s3"
     key = Key(s3_bucket)
     key.key = results['url'].replace('/', '')
     key.set_contents_from_string(json.dumps(results))
 
+    print "Mark as finished in Redis"
     url_db.mark_url_finished(url)
+    print "Done"
 
 def main():
     parser = argparse.ArgumentParser()
