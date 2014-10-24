@@ -10,7 +10,7 @@ class UrlDB(object):
 
         # get a unique id through boto
         self.server_id = boto.utils.get_instance_metadata()['local-hostname']
-        self.failure_key = FALURE_KEY_TEMPLATE.format(self.server_id)
+        self.failure_key = self.FALURE_KEY_TEMPLATE.format(self.server_id)
 
     def is_url_finished(self, url):
         return self.redis.sismember(self.FINISHED_URL_SET, url)
