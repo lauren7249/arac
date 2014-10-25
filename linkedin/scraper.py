@@ -13,7 +13,7 @@ profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 
 MINIMUM_CONTENT_SIZE = 1000
 
-class ScraperLimitedException(object):
+class ScraperLimitedException(Exception):
     pass
 
 def is_profile_link(link):

@@ -60,7 +60,7 @@ class RedisQueue(object):
         # push to failure queue
         self.redis.smove(self.working_set, self.fail_set, value)
         if self.fail_key:
-            self.redis.hincr(self.fail_prefix, self.work_key)
+            self.redis.hincrby(self.fail_prefix, self.fail_key)
 
     def succeed(self, value):
         # push to success queue
@@ -70,7 +70,7 @@ class RedisQueue(object):
         # push from the working queue back to the pending set
         self.redis.smove(self.working_set, self.pending_set, value)
         if self.retry_key:
-            self.redis.hincr(self.retry_prefix, self.retry_key)
+            self.redis.hincrby(self.retry_prefix, self.retry_key)
 
     def seen(self, value, filter_failed=True):
         has_seen = self.redis.sismember(self.pending_set, value) or \

@@ -53,14 +53,14 @@ def main():
 
         try:
             process_request_q(q, url)
-        except ScraperLimitedException as ex:
+        except ScraperLimitedException:
             logger.exception('Retry exception when processing {}'.format(url))
             q.retry(url)
-            raise ex
-        except Exception as ex:
+            raise
+        except Exception:
             logger.exception('Exception while processing {}'.format(url))
             q.fail(url)
-            raise ex
+            raise
         else:
             q.succeed(url)
 
