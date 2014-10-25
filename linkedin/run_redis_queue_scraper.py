@@ -48,7 +48,7 @@ def main():
 
         while True:
             try:
-                process_request_q(url)
+                process_request_q(q, url)
             except Exception as ex:
                 q.fail(url)
                 logging.exception('Exception while processing {}'.format(url))
