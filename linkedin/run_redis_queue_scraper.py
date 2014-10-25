@@ -1,6 +1,9 @@
 import logging
 import os
 
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+
 from redis_queue import RedisQueue
 from get_redis import get_redis
 
