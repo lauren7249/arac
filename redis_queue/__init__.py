@@ -101,8 +101,8 @@ class RedisQueue(object):
 
         return {
             'working': self.redis.scard(self.working_set),
-            'pending': self.redis.scard(self.fail_set),
-            'fail':    self.redis.scard(self.success_set),
+            'pending': self.redis.scard(self.pending_set),
+            'fail':    self.redis.scard(self.fail_set),
             'success': self.redis.scard(self.working_set),
             'failures': workers
         }
