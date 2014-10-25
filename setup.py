@@ -14,6 +14,7 @@ setup(
             'add_url = linkedin.add_url:main',
             'queue_url = linkedin.queue_url:main',
             'health_check = linkedin.health_check',
+            'monitor_queue = redis_queue:main'
         ]
     },
     install_requires = [

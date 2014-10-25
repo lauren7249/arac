@@ -1,5 +1,4 @@
 import argparse
-from get_redis import get_redis
 from redis_queue import RedisQueue
 
 def main():
@@ -9,7 +8,7 @@ def main():
     args = parser.parse_args()
 
     redis = get_redis()
-    q = RedisQueue(redis, 'linkedin')
+    q = RedisQueue('linkedin')
 
     q.push(args.url)
 

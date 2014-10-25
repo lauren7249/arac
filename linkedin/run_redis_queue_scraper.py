@@ -1,14 +1,19 @@
 import logging
 import os
+import json
 from datetime import datetime
 
+import boto
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
 from redis_queue import RedisQueue
-from get_redis import get_redis
 
 from scraper import process_request
+
+logger = logging.getLogger('scraper')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
 
 s3_bucket_name = os.getenv('S3_BUCKET')
 if not s3_bucket_name:
@@ -16,9 +21,10 @@ if not s3_bucket_name:
 
 s3_conn    = S3Connection()
 s3_bucket  = s3_conn.get_bucket(s3_bucket_name)
+instance_id = boto.utils.get_instance_metadata()['local-hostname']
 
 def process_request_q(q, url):
-    logging.debug('processing url {}'.format(url))
+    logger.debug('processing url {}'.format(url))
     results = process_request(url)
 
     results['datetime'] = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -26,22 +32,21 @@ def process_request_q(q, url):
     # get the result links and create jobs from
     # them if they are not finished
     for link in results['links']:
-        logging.debug('pushing url {}'.format(link))
+        logger.debug('pushing url {}'.format(link))
         q.push(link)
 
     # upload the results to s3
-    logging.debug('uploading results for {} to s3'.format(url))
+    logger.debug('uploading results for {} to s3'.format(url))
     key = Key(s3_bucket)
     key.key = results['url'].replace('/', '')
     key.set_contents_from_string(json.dumps(results))
 
     # succeed
-    logging.debug('uploading results for {} to s3'.format(url))
+    logger.debug('uploading results for {} to s3'.format(url))
     q.succeed(url)
 
 def main():
-    redis = get_redis()
-    q = RedisQueue(redis, 'linkedin')
+    q = RedisQueue('linkedin', instance_id)
 
     # grab the next piece of work
     while True:
@@ -52,7 +57,7 @@ def main():
                 process_request_q(q, url)
             except Exception as ex:
                 q.fail(url)
-                logging.exception('Exception while processing {}'.format(url))
+                logger.exception('Exception while processing {}'.format(url))
                 raise ex
             else:
                 q.succeed(url)

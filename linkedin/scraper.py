@@ -24,7 +24,7 @@ def get_linked_profiles(html):
         soup.find_all('a') if link.get('href')
     ])
 
-    return profile_links
+    return list(set(profile_links))
 
 def clean_url(s):
     pr = urlparse.urlparse(s)
@@ -43,7 +43,7 @@ def clean_str(s):
 
 def process_request(url):
     ua = UserAgent()
-    response = requests.get(url, headers={'User-agent': ua.random})
+    response = requests.get(url, headers={'User-agent': ua.random}, timeout=10)
     content = response.content
 
     linked_profiles = get_linked_profiles(content)
