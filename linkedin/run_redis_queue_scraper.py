@@ -47,6 +47,7 @@ def process_request_q(q, url):
         q.succeed(url)
     else:
         q.fail(url)
+        time.sleep(600)
         logger.exception('Rate Limit by Linkedin {}'.format(url))
 
 def main():
