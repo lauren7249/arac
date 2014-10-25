@@ -52,17 +52,16 @@ def main():
     while True:
         url = q.pop_block()
 
-        while True:
-            try:
-                process_request_q(q, url)
-            except Exception as ex:
-                q.fail(url)
-                logger.exception('Exception while processing {}'.format(url))
-                raise ex
-            else:
-                q.succeed(url)
+        try:
+            process_request_q(q, url)
+        except Exception as ex:
+            q.fail(url)
+            logger.exception('Exception while processing {}'.format(url))
+            raise ex
+        else:
+            q.succeed(url)
 
-            url = q.pop_block()
+        url = q.pop_block()
 
 if __name__ == '__main__':
     main()
