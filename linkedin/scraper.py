@@ -7,10 +7,7 @@ import argparse
 
 from bs4 import BeautifulSoup
 
-from boto import kinesis
 from fake_useragent import UserAgent
-
-#import phantom_runner
 
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 
@@ -23,9 +20,9 @@ def is_profile_link(link):
 def get_linked_profiles(html):
     soup = BeautifulSoup(html)
     profile_links = filter(is_profile_link, [
-	clean_url(link.get('href')) for link in
-	soup.find_all('a') if link.get('href')
-     ])
+        clean_url(link.get('href')) for link in
+        soup.find_all('a') if link.get('href')
+    ])
 
     return profile_links
 
@@ -45,8 +42,6 @@ def clean_str(s):
     return s.decode('utf-8', 'ignore')
 
 def process_request(url):
-    #content = phantom_runner.get_content(url)
-
     ua = UserAgent()
     response = requests.get(url, headers={'User-agent': ua.random})
     content = response.content

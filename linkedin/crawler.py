@@ -7,8 +7,6 @@ monkey.patch_all()
 
 from scraper import process_request
 
-
-
 def gen_chunks(reader, chunksize=10):
     chunk = []
     for i, line in enumerate(reader):
