@@ -42,7 +42,7 @@ def process_request_q(q, url):
     key.set_contents_from_string(json.dumps(results))
 
     # succeed
-    logger.debug('uploading results for {} to s3'.format(url))
+    logger.debug('succesfully processed {}'.format(url))
     q.succeed(url)
 
 def main():
