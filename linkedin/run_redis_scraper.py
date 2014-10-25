@@ -15,10 +15,6 @@ from scraper import process_request
 
 from url_db import UrlDB
 
-redis_url = os.getenv('REDIS_URL')
-if not redis_url:
-    raise RuntimeError('REDIS_URL must be defined to run the redis scraper')
-
 s3_bucket_name = os.getenv('S3_BUCKET')
 if not s3_bucket_name:
     raise RuntimeError('S3_BUCKET  must be defined to run the redis scraper')

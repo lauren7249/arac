@@ -10,6 +10,7 @@ setup(
     entry_points = {
         'console_scripts': [
             'run_redis_scraper = linkedin.run_redis_scraper:main',
+            'run_redis_queue_scraper = linkedin.run_redis_queue_scraper:main',
             'add_url = linkedin.add_url:main',
             'queue_url = linkedin.queue_url:main',
             'health_check = linkedin.health_check',
