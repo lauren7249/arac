@@ -37,31 +37,24 @@ class RedisQueue(object):
         self.retry_prefix = '{}-retry'.format(key)
         self.retry_key    = instance_id
 
-    def pop(self, block = True, timeout=1):
-        item = self.redis.spop(self.self.working_set)
-        if item is not None:
-            self.redis.sadd(self.working_set, item)
-        return item
-
     def pop_block(self, wait=1, tries = None):
-        item = self.redis.spop(self.pending_set)
+        # grab a rnndom element
         i = 0
+        item = None
         while True:
+            item = self.redis.srandmember(self.pending_set)
+            
             if item:
-                break
-
+                if self.redis.smove(self.pending_set, self.working_set, item):
+                    return item
+                
             sleep(wait)
 
             i += 1
             if tries and i > tries:
                 break
 
-            item = self.redis.spop(self.pending_set)
-
-        if item is not None:
-            self.redis.sadd(self.working_set, item)
-
-        return item
+        return None
 
     def fail(self, value):
         # push to failure queue

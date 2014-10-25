@@ -43,7 +43,6 @@ def process_request_q(q, url):
 
     # succeed
     logger.debug('succesfully processed {}'.format(url))
-    q.succeed(url)
 
 def main():
     q = RedisQueue('linkedin', instance_id)
@@ -59,13 +58,11 @@ def main():
             q.retry(url)
             raise ex
         except Exception as ex:
-            q.fail(url)
             logger.exception('Exception while processing {}'.format(url))
+            q.fail(url)
             raise ex
         else:
             q.succeed(url)
-
-        url = q.pop_block()
 
 if __name__ == '__main__':
     main()
