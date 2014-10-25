@@ -37,6 +37,13 @@ class RedisQueue(object):
         self.retry_prefix = '{}-retry'.format(key)
         self.retry_key    = instance_id
 
+        self.work_prefix = '{}-work'.format(key)
+
+        self.work_key    = instance_id
+
+        if self.work_key:
+            self.redis.hincrby(self.work_prefix, self.work_key)
+
     def pop_block(self, wait=1, tries = None):
         # grab a rnndom element
         i = 0
@@ -104,6 +111,7 @@ class RedisQueue(object):
         # get all workers
         failures = self.redis.hgetall(self.fail_prefix)
         retries  = self.redis.hgetall(self.retry_prefix)
+        workers  = self.redis.hgetall(self.work_prefix)
 
         return {
             'working': self.redis.scard(self.working_set),
@@ -111,7 +119,8 @@ class RedisQueue(object):
             'fail':    self.redis.scard(self.fail_set),
             'success': self.redis.scard(self.success_set),
             'failures': failures,
-            'retries': retries
+            'retries': retries,
+            'workers': workers
         }
 
 def main():
