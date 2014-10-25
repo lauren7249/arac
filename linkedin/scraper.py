@@ -11,6 +11,11 @@ from fake_useragent import UserAgent
 
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 
+MINIMUM_CONTENT_SIZE = 1000
+
+class ScraperLimitedException(object):
+    pass
+
 def is_profile_link(link):
 
     if link and re.match(profile_re, link):
@@ -45,6 +50,16 @@ def process_request(url):
     ua = UserAgent()
     response = requests.get(url, headers={'User-agent': ua.random}, timeout=10)
     content = response.content
+
+    if len(content) < MINIMUM_CONTENT_SIZE: 
+        raise ScraperLimitedException(
+            'Server response is less than {} in size'.format(
+                MINIMUM_CONTENT_SIZE
+            )
+        )
+
+    if response.status_code == 999:
+        raise ScraperLimitedException('Server responded with 999')
 
     linked_profiles = get_linked_profiles(content)
 

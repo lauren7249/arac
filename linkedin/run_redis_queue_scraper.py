@@ -9,7 +9,7 @@ from boto.s3.key import Key
 
 from redis_queue import RedisQueue
 
-from scraper import process_request
+from scraper import process_request, ScraperLimitedException
 
 logger = logging.getLogger('scraper')
 logger.addHandler(logging.StreamHandler())
@@ -43,12 +43,7 @@ def process_request_q(q, url):
 
     # succeed
     logger.debug('succesfully processed {}'.format(url))
-    if results.status_code == 200:
-        q.succeed(url)
-    else:
-        q.fail(url)
-        time.sleep(600)
-        logger.exception('Rate Limit by Linkedin {}'.format(url))
+    q.succeed(url)
 
 def main():
     q = RedisQueue('linkedin', instance_id)
@@ -59,6 +54,10 @@ def main():
 
         try:
             process_request_q(q, url)
+        except ScraperLimitedException as ex:
+            logger.exception('Retry exception when processing {}'.format(url))
+            q.retry(url)
+            raise ex
         except Exception as ex:
             q.fail(url)
             logger.exception('Exception while processing {}'.format(url))

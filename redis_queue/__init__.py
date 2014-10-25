@@ -31,14 +31,20 @@ class RedisQueue(object):
         self.pending_set   = '{}-pending-set'.format(key)
         self.working_set   = '{}-working-set'.format(key)
 
-        self.work_prefix = '{}-work'.format(key)
-        self.work_key = instance_id
+        self.fail_prefix = '{}-fail'.format(key)
+        self.fail_key = instance_id
+
+        self.retry_prefix = '{}-retry'.format(key)
+        self.retry_key    = instance_id
 
     def pop(self, block = True, timeout=1):
-        return self.redis.spop(self.working_set)
+        item = self.redis.spop(self.self.working_set)
+        if item is not None:
+            self.redis.sadd(self.working_set, item)
+        return item
 
     def pop_block(self, wait=1, tries = None):
-        item = self.redis.spop(self.working_set)
+        item = self.redis.spop(self.pending_set)
         i = 0
         while True:
             if item:
@@ -50,7 +56,7 @@ class RedisQueue(object):
             if tries and i > tries:
                 break
 
-            item = self.redis.spop(self.working_set)
+            item = self.redis.spop(self.pending_set)
 
         if item is not None:
             self.redis.sadd(self.working_set, item)
@@ -60,12 +66,18 @@ class RedisQueue(object):
     def fail(self, value):
         # push to failure queue
         self.redis.smove(self.working_set, self.fail_set, value)
-        if self.work_key:
-            self.redis.hincr(self.work_prefix, self.work_key)
+        if self.fail_key:
+            self.redis.hincr(self.fail_prefix, self.work_key)
 
     def succeed(self, value):
         # push to success queue
         self.redis.smove(self.working_set, self.success_set, value)
+
+    def retry(self, value):
+        # push from the working queue back to the pending set
+        self.redis.smove(self.working_set, self.pending_set, value)
+        if self.retry_key:
+            self.redis.hincr(self.retry_prefix, self.retry_key)
 
     def seen(self, value, filter_failed=True):
         has_seen = self.redis.sismember(self.pending_set, value) or \
@@ -85,7 +97,7 @@ class RedisQueue(object):
 
         # push on the queue if we are not filtered
         if not filtered:
-            self.redis.sadd(self.working_set, value)
+            self.redis.sadd(self.pending_set, value)
 
     def unfail_all(self):
         failed = self.redis.smembers(self.fail_set)
@@ -97,14 +109,16 @@ class RedisQueue(object):
 
     def get_stats(self):
         # get all workers
-        workers = self.redis.hgetall(self.work_prefix)
+        failures = self.redis.hgetall(self.fail_prefix)
+        retries  = self.redis.hgetall(self.retry_prefix)
 
         return {
             'working': self.redis.scard(self.working_set),
             'pending': self.redis.scard(self.pending_set),
             'fail':    self.redis.scard(self.fail_set),
             'success': self.redis.scard(self.success_set),
-            'failures': workers
+            'failures': failures,
+            'retries': retries
         }
 
 def main():
