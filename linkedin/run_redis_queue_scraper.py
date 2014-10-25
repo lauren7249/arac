@@ -43,7 +43,11 @@ def process_request_q(q, url):
 
     # succeed
     logger.debug('succesfully processed {}'.format(url))
-    q.succeed(url)
+    if results.status_code == 200:
+        q.succeed(url)
+    else:
+        q.fail(url)
+        logger.exception('Rate Limit by Linkedin {}'.format(url))
 
 def main():
     q = RedisQueue('linkedin', instance_id)
