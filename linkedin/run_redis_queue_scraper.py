@@ -26,27 +26,22 @@ def fake(url):
 
 def main():
     redis = get_redis()
-    q = RedisQueue(
-        redis,
-        'linkedin_pending',
-        'linkedin_working',
-        'linkedin_fail',
-        'linkedin_success',
-        'linkedin_seen')
+    q = RedisQueue(redis, 'linkedin')
 
     # grab the next piece of work
-    url = q.pop()
-
     while True:
-        try:
-            fake(url)
-        except Exception as ex:
-            q.fail(url)
-            raise ex
-        else:
-            q.succeed(url)
+        url = q.pop_block()
 
-        url = q.pop()
+        while True:
+            try:
+                fake(url)
+            except Exception as ex:
+                q.fail(url)
+                raise ex
+            else:
+                q.succeed(url)
+
+            url = q.pop_block()
 
 if __name__ == '__main__':
     main()

@@ -9,13 +9,7 @@ def main():
     args = parser.parse_args()
 
     redis = get_redis()
-    q = RedisQueue(
-        redis,
-        'linkedin_pending',
-        'linkedin_working',
-        'linkedin_fail',
-        'linkedin_success',
-        'linkedin_seen')
+    q = RedisQueue(redis, 'linkedin')
 
     q.push(args.url)
 

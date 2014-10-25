@@ -1,41 +1,59 @@
+from time import sleep
+
 class RedisQueue(object):
-    def __init__(
-            self, redis,
-            pending_queue, working_queue,
-            fail_queue, success_queue, seen_set):
+    def __init__(self, redis, key):
         self.redis = redis
-        self.pending_queue = pending_queue
-        self.working_queue = working_queue
-        self.fail_queue    = fail_queue
-        self.success_queue = success_queue
-        self.seen_set      = seen_set
 
-    def __get_push(self, block=False):
-        if block:
-            return self.redis.brpoplpush
-        else:
-            return self.redis.rpoplpush
+        self.fail_set      = '{}-fail-set'.format(key)
+        self.success_set   = '{}-success-set'.format(key)
+        self.pending_set   = '{}-pending-set'.format(key)
+        self.working_set   = '{}-working-set'.format(key)
 
-    def pop(self, block=True):
-        return self.__get_push(block)(self.pending_queue, self.working_queue)
+    def pop(self, block = True, timeout=1):
+        return self.redis.spop(self.working_set)
+
+    def pop_block(self, wait=1, tries = None):
+        item = self.redis.spop(self.working_set)
+        i = 0
+        while True:
+            if item:
+                break
+
+            sleep(wait)
+
+            i += 1
+            if tries and i > tries:
+                break
+
+            item = self.redis.spop(self.working_set)
+
+        if item is not None:
+            self.redis.sadd(self.working_set, item)
+
+        return item
 
     def fail(self, value):
         # push to failure queue
-        self.redis.rpush(self.fail_queue, value)
-        self.redis.lrem(self.working_queue, 0, value)
+        self.redis.smove(self.working_set, self.fail_set, value)
 
     def succeed(self, value):
         # push to success queue
-        self.redis.rpush(self.fail_queue, value)
-        self.redis.lrem(self.working_queue, 0, value)
+        self.redis.smove(self.working_set, self.success_set, value)
+
+    def seen(self, value):
+        return self.redis.sismember(self.pending_set, value) or \
+               self.redis.sismember(self.fail_set, value)    or \
+               self.redis.sismember(self.success_set, value) or \
+               self.redis.sismember(self.working_set, value)
 
     def push(self, value, filter_seen=True):
         # check if the value is in our seen set, if it is
         # let it in
         filtered = False
         if filter_seen:
-            filtered = self.redis.sismember(self.seen_set, value)
+            filtered = self.seen(value)
 
         # push on the queue if we are not filtered
         if not filtered:
-            self.redis.rpush(self.pending_queue, value)
+            self.redis.sadd(self.working_set, value)
+
