@@ -1,4 +1,9 @@
 src/
+data/
+*.pem
+list.txt
+share/
+vars.sh
 lib/
 bin/
 .Python
