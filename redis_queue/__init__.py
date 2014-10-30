@@ -37,6 +37,13 @@ class RedisQueue(object):
         self.retry_prefix = '{}-retry'.format(key)
         self.retry_key    = instance_id
 
+        self.work_prefix = '{}-work'.format(key)
+
+        self.work_key    = instance_id
+
+        if self.work_key:
+            self.redis.hincrby(self.work_prefix, self.work_key)
+
     def pop_block(self, wait=1, tries = None):
         # grab a rnndom element
         i = 0
@@ -60,7 +67,7 @@ class RedisQueue(object):
         # push to failure queue
         self.redis.smove(self.working_set, self.fail_set, value)
         if self.fail_key:
-            self.redis.hincr(self.fail_prefix, self.work_key)
+            self.redis.hincrby(self.fail_prefix, self.fail_key)
 
     def succeed(self, value):
         # push to success queue
@@ -70,7 +77,7 @@ class RedisQueue(object):
         # push from the working queue back to the pending set
         self.redis.smove(self.working_set, self.pending_set, value)
         if self.retry_key:
-            self.redis.hincr(self.retry_prefix, self.retry_key)
+            self.redis.hincrby(self.retry_prefix, self.retry_key)
 
     def seen(self, value, filter_failed=True):
         has_seen = self.redis.sismember(self.pending_set, value) or \
@@ -104,6 +111,7 @@ class RedisQueue(object):
         # get all workers
         failures = self.redis.hgetall(self.fail_prefix)
         retries  = self.redis.hgetall(self.retry_prefix)
+        workers  = self.redis.hgetall(self.work_prefix)
 
         return {
             'working': self.redis.scard(self.working_set),
@@ -111,7 +119,8 @@ class RedisQueue(object):
             'fail':    self.redis.scard(self.fail_set),
             'success': self.redis.scard(self.success_set),
             'failures': failures,
-            'retries': retries
+            'retries': retries,
+            'workers': workers
         }
 
 def main():

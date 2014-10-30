@@ -1,7 +1,9 @@
 import logging
 import os
 import json
+import time
 from datetime import datetime
+from time import sleep
 
 import boto
 from boto.s3.connection import S3Connection
@@ -10,6 +12,8 @@ from boto.s3.key import Key
 from redis_queue import RedisQueue
 
 from scraper import process_request, ScraperLimitedException
+
+RETRY_WAIT = 60*5
 
 logger = logging.getLogger('scraper')
 logger.addHandler(logging.StreamHandler())
@@ -53,14 +57,14 @@ def main():
 
         try:
             process_request_q(q, url)
-        except ScraperLimitedException as ex:
+        except ScraperLimitedException:
             logger.exception('Retry exception when processing {}'.format(url))
             q.retry(url)
-            raise ex
-        except Exception as ex:
+            raise
+        except Exception:
             logger.exception('Exception while processing {}'.format(url))
             q.fail(url)
-            raise ex
+            sleep(RETRY_WAIT)
         else:
             q.succeed(url)
 
