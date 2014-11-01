@@ -24,6 +24,8 @@ setup(
         'rq>=0.4.6',
         'flask>=0.10.1',
         'requests>=2.4.3',
-        'fake-useragent>=0.0.6'
+        'fake-useragent>=0.0.6',
+        'sqlalchemy>=0.9.8',
+        'psycopg2>=2.5.4'
     ]
 )

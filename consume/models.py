@@ -1,12 +1,18 @@
 import argparse
 import code
+import os
 
-from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine.url import URL
 
-import settings
+def get_engine(db_url=None):
+    db_url = db_url or os.getenv('DB_URL')
+    if not db_url:
+        raise RuntimeError('DB_URL must be defined to run the redis scraper')
+
+    return create_engine(db_url)
 
 Base = declarative_base()
 
@@ -14,8 +20,8 @@ class Prospect(Base):
     __tablename__ = 'prospect'
 
     id = Column(Integer, primary_key=True)
-    url = Column(String(120))
-    name = Column(String(100))
+    url = Column(String(255))
+    name = Column(String(255))
     location = Column(Integer, ForeignKey("location.id"))
     industry = Column(Integer, ForeignKey("industry.id"))
 
@@ -31,7 +37,7 @@ class Location(Base):
     __tablename__ = "location"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String)
 
     def __repr__(self):
         return '<Location id={0} name={1}>'.format(
@@ -43,7 +49,7 @@ class Industry(Base):
     __tablename__ = "industry"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String)
 
     def __repr__(self):
         return '<Industry id={0} name={1}>'.format(
@@ -55,7 +61,7 @@ class Company(Base):
     __tablename__ = "company"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String)
 
     def __repr__(self):
         return '<Company id={0} name={1}>'.format(
@@ -76,7 +82,7 @@ class Job(Base):
     def __repr__(self):
         return '<Job id={0} name={1} user={2}>'.format(
                 self.id,
-                self.company.name
+                self.company.name,
                 self.user.name
                 )
 
@@ -85,7 +91,7 @@ class School(Base):
     __tablename__ = "school"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String)
 
     def __repr__(self):
         return '<School id={0} name={1}>'.format(
@@ -95,27 +101,21 @@ class School(Base):
 
 
 class Education(Base):
-    __tablename__ = "school"
+    __tablename__ = "prospect_school"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String)
     company = Column(Integer, ForeignKey("school.id"))
     user = Column(Integer, ForeignKey("prospect.id"))
 
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
                 self.id,
-                self.company.name
+                self.company.name,
                 self.user.name
                 )
 
-
-engine_url = URL(
-    settings.DB_CONNECTION['drivername'],
-    **settings.DB_CONNECTION['kwargs']
-)
-
-engine = create_engine(engine_url)
+engine = get_engine()
 Session = sessionmaker(bind=engine)
 
 def create():
