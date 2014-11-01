@@ -5,6 +5,7 @@ import os
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 
 def get_engine(db_url=None):
@@ -20,10 +21,23 @@ class Prospect(Base):
     __tablename__ = 'prospect'
 
     id = Column(Integer, primary_key=True)
-    url = Column(String(255))
-    name = Column(String(255))
+
+    url = Column(String(1024))
+    name = Column(String(1024))
+    linkedin_id = Column(String(1024))
+
     location = Column(Integer, ForeignKey("location.id"))
+    location_raw = Column(String)
+
     industry = Column(Integer, ForeignKey("industry.id"))
+    industry_raw = Column(String(1024))
+
+    @classmethod
+    def linkedin_exists(cls, session, linkedin_id):
+        (ret, ) = session.query(exists().where(
+            Prospect.linkedin_id==linkedin_id
+        ))
+        return ret[0]
 
     def __repr__(self):
         return '<Prospect id={0} name={1} url={2}>'.format(
@@ -37,7 +51,7 @@ class Location(Base):
     __tablename__ = "location"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String(1024))
 
     def __repr__(self):
         return '<Location id={0} name={1}>'.format(
@@ -49,7 +63,7 @@ class Industry(Base):
     __tablename__ = "industry"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String(1024))
 
     def __repr__(self):
         return '<Industry id={0} name={1}>'.format(
@@ -61,7 +75,7 @@ class Company(Base):
     __tablename__ = "company"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String(1024))
 
     def __repr__(self):
         return '<Company id={0} name={1}>'.format(
@@ -69,13 +83,15 @@ class Company(Base):
                 self.name
                 )
 
-
 class Job(Base):
     __tablename__ = "job"
 
     id = Column(Integer, primary_key=True)
     company = Column(Integer, ForeignKey("company.id"))
+    company_raw = Column(String(1024))
+
     user = Column(Integer, ForeignKey("prospect.id"))
+    title = Column(String(1024))
     start_date = Column(Date)
     end_date = Column(Date)
 
@@ -86,12 +102,11 @@ class Job(Base):
                 self.user.name
                 )
 
-
 class School(Base):
     __tablename__ = "school"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String(1024))
 
     def __repr__(self):
         return '<School id={0} name={1}>'.format(
@@ -105,7 +120,8 @@ class Education(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    company = Column(Integer, ForeignKey("school.id"))
+    school = Column(Integer, ForeignKey("school.id"))
+    school_raw = Column(String(1024))
     user = Column(Integer, ForeignKey("prospect.id"))
 
     def __repr__(self):

@@ -1,16 +1,8 @@
-from eventlet import *
-patcher.monkey_patch(all=True)
-import csv
-import urlparse
-import os
 import json
-import sys
 import re
 import argparse
-from itertools import islice
-from contextlib import contextmanager
-
-from py2neo import neo4j, node, rel
+import urlparse
+import logging
 
 from bs4 import BeautifulSoup
 
@@ -97,9 +89,6 @@ def find_jobs(soup):
             jobs.append(dict_item)
         return jobs
     except Exception, e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        #print(exc_type, fname, exc_tb.tb_lineno)
         pass
 
     try:
@@ -119,10 +108,8 @@ def find_jobs(soup):
             jobs.append(dict_item)
         return jobs
     except Exception, e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        #print(exc_type, fname, exc_tb.tb_lineno)
         pass
+
     return None
 
 def find_schools(soup):
@@ -146,9 +133,6 @@ def find_schools(soup):
             schools.append(dict_item)
         return schools
     except Exception, e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        #print(exc_type, fname, exc_tb.tb_lineno)
         pass
 
     try:
@@ -168,16 +152,13 @@ def find_schools(soup):
 
             dict_item["description"] = getnattr(item.find("p.description"), 'text')
             schools.append(dict_item)
-        return schools
     except Exception, e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        #print(exc_type, fname, exc_tb.tb_lineno)
         pass
-    return None
+
+    return schools
 
 def parse_html(html):
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'lxml')
 
     full_name = None
     full_name_el = first_or_none(soup.find_all(class_='full-name'))
@@ -208,6 +189,7 @@ def parse_html(html):
             connections = soup.find("dd", {'class': "overview-connections"}).text
         except:
             connections = None
+
     experiences = find_jobs(soup)
     schools = find_schools(soup)
     skills = [e.text for e in soup.find_all("li", {'class': 'endorse-item'})]

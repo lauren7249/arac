@@ -26,6 +26,7 @@ setup(
         'requests>=2.4.3',
         'fake-useragent>=0.0.6',
         'sqlalchemy>=0.9.8',
-        'psycopg2>=2.5.4'
+        'psycopg2>=2.5.4',
+        'lxml>=3.4.0'
     ]
 )
