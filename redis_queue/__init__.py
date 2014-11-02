@@ -10,9 +10,9 @@ redis_url = os.getenv('REDIS_URL')
 if not redis_url:
     raise RuntimeError('REDIS_URL must be defined to run the redis scraper')
 
-def get_redis():
+def get_redis(url=redis_url):
     urlparse.uses_netloc.append('redis')
-    redis_url_parsed = urlparse.urlparse(redis_url)
+    redis_url_parsed = urlparse.urlparse(url)
     redis = Redis(
         host=redis_url_parsed.hostname,
         port=redis_url_parsed.port,
@@ -23,8 +23,10 @@ def get_redis():
     return redis
 
 class RedisQueue(object):
-    def __init__(self, key, instance_id=None):
-        self.redis = get_redis()
+    def __init__(self, key, instance_id=None, redis=None):
+        self.redis = redis
+        if not self.redis:    
+            self.redis = get_redis()
 
         self.fail_set      = '{}-fail-set'.format(key)
         self.success_set   = '{}-success-set'.format(key)
@@ -79,21 +81,22 @@ class RedisQueue(object):
         if self.retry_key:
             self.redis.hincrby(self.retry_prefix, self.retry_key)
 
-    def seen(self, value, filter_failed=True):
+    def seen(self, value, filter_failed=True, filter_working=True):
         has_seen = self.redis.sismember(self.pending_set, value) or \
-                   self.redis.sismember(self.success_set, value) or \
-                   self.redis.sismember(self.working_set, value)
+                   self.redis.sismember(self.success_set, value)
+        if filter_working:
+            has_seen |= self.redis.sismember(self.working_set, value)
         if filter_failed:
             has_seen |= self.redis.sismember(self.fail_set, value)
 
         return has_seen
 
-    def push(self, value, filter_seen=True, filter_failed=True):
+    def push(self, value, filter_seen=True, filter_failed=True, filter_working=True):
         # check if the value is in our seen set, if it is
         # let it in
         filtered = False
         if filter_seen:
-            filtered = self.seen(value, filter_failed=filter_failed)
+            filtered = self.seen(value, filter_failed=filter_failed, filter_working=filter_working)
 
         # push on the queue if we are not filtered
         if not filtered:
@@ -106,6 +109,11 @@ class RedisQueue(object):
 
         # delete the rest of the failures
         self.redis.delete(self.fail_set)
+
+    def unwork_all(self):
+        working = self.redis.smembers(self.working_set)
+        for w in working:
+            self.push(w, filter_woring=False)
 
     def get_stats(self):
         # get all workers

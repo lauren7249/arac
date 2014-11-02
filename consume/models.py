@@ -32,12 +32,24 @@ class Prospect(Base):
     industry = Column(Integer, ForeignKey("industry.id"))
     industry_raw = Column(String(1024))
 
+    s3_key = Column(String(1024))
+    complete = Column(Boolean)
+
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
         (ret, ) = session.query(exists().where(
             Prospect.linkedin_id==linkedin_id
         ))
         return ret[0]
+
+    @classmethod
+    def s3_exists(cls, session, s3_key):
+        (ret, ) = session.query(exists().where(
+            Prospect.s3_key==s3_key
+        ))
+        return ret[0]
+
+
 
     def __repr__(self):
         return '<Prospect id={0} name={1} url={2}>'.format(

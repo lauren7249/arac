@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 
 logging.basicConfig(filename="convert.txt", level=logging.INFO)
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
+member_re  = re.compile("member-")
+
 
 def convert(filename, writefile):
     file = open(filename, 'r').read()
@@ -45,6 +47,11 @@ def get_linked_profiles(html):
 
     return list(set(profile_links))
 
+def safe_clean_str(s):
+    if s:
+        return s.strip()
+    return s
+
 def clean_url(s):
     pr = urlparse.urlparse(s)
 
@@ -75,8 +82,8 @@ def find_jobs(soup):
     try:
         for item in soup.find(id="profile-experience").find_all("div", {"class": "position"}):
             dict_item = {}
-            dict_item["title"] = getnattr(item.find("h3"), 'text')
-            dict_item["company"] = getnattr(item.find("h4"), 'text')
+            dict_item["title"] = safe_clean_str(getnattr(item.find("h3"), 'text'))
+            dict_item["company"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
             dates = item.find_all("abbr")
             if len(dates) > 1:
                 dict_item["start_date"] = getnattr(dates[0], 'text')
@@ -85,7 +92,7 @@ def find_jobs(soup):
                 dict_item["start_date"] = getnattr(dates[0], 'text')
                 dict_item["end_date"] = "Present"
 
-            dict_item["description"] = getnattr(item.find("p.description"), 'text')
+            dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
             jobs.append(dict_item)
         return jobs
     except Exception, e:
@@ -94,9 +101,9 @@ def find_jobs(soup):
     try:
         for item in soup.find(id="background-experience").find_all("div"):
             dict_item = {}
-            dict_item["title"] = getnattr(item.find("h4"), 'text')
-            dict_item["company"] = getnattr(item.find("h5"), 'text')
-            dict_item["description"] = getnattr(item.find(".description"), 'text')
+            dict_item["title"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
+            dict_item["company"] = safe_clean_str(getnattr(item.find("h5"), 'text'))
+            dict_item["description"] = safe_clean_str(getnattr(item.find(".description"), 'text'))
             dates = item.find_all("time")
             if len(dates) > 1:
                 dict_item["start_date"] = getnattr(dates[0], 'text')
@@ -110,15 +117,15 @@ def find_jobs(soup):
     except Exception, e:
         pass
 
-    return None
+    return jobs
 
 def find_schools(soup):
     schools = []
     try:
         for item in soup.find(id="profile-education").find_all("div", {"class": "position"}):
             dict_item = {}
-            dict_item["college"] = getnattr(item.find("h3"), 'text')
-            dict_item["degree"] = getnattr(item.find("h4"), 'text')
+            dict_item["college"] = safe_clean_str(getnattr(item.find("h3"), 'text'))
+            dict_item["degree"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
             dates = item.find_all("abbr")
             if len(dates) > 1:
                 dict_item["start_date"] = getnattr(dates[0], 'text')
@@ -129,7 +136,7 @@ def find_schools(soup):
                 dict_item["start_date"] = getnattr(dates[0], 'text')
                 dict_item["end_date"] = "Present"
 
-            dict_item["description"] = getnattr(item.find("p.description"), 'text')
+            dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
             schools.append(dict_item)
         return schools
     except Exception, e:
@@ -138,8 +145,8 @@ def find_schools(soup):
     try:
         for item in soup.find(id="background-education").find_all("div"):
             dict_item = {}
-            dict_item["college"] = getnattr(item.find("h4"), 'text')
-            dict_item["degree"] = getnattr(item.find("h5"), 'text')
+            dict_item["college"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
+            dict_item["degree"] = safe_clean_str(getnattr(item.find("h5"), 'text'))
             dates = item.find_all("time")
             if len(dates) > 1:
                 dict_item["start_date"] = getnattr(dates[0], 'text')
@@ -150,8 +157,9 @@ def find_schools(soup):
                 dict_item["start_date"] = getnattr(dates[0], 'text')
                 dict_item["end_date"] = "Present"
 
-            dict_item["description"] = getnattr(item.find("p.description"), 'text')
+            dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
             schools.append(dict_item)
+        return schools
     except Exception, e:
         pass
 
@@ -161,19 +169,19 @@ def parse_html(html):
     soup = BeautifulSoup(html, 'lxml')
 
     full_name = None
-    full_name_el = first_or_none(soup.find_all(class_='full-name'))
+    full_name_el = soup.find(class_='full-name')
     if full_name_el:
         full_name = full_name_el.text.strip()
-
     try:
-        div = soup.find("div", id=re.compile("member-"))
+        div = soup.find("div", id=member_re)
         linkedin_id = div.get("id").split("-")[1]
     except:
         linkedin_id = None
 
     try:
-        location = soup.find("div", id='location').find_all("dd")[0].text
-        industry = soup.find("div", id='location').find_all("dd")[1].text
+        all_dd = soup.find("div", id='location').find_all("dd")
+        location = all_dd[0].text
+        industry = all_dd[1].text
     except:
         try:
             location = soup.find("span", {'class': 'locality'}).text
@@ -181,6 +189,9 @@ def parse_html(html):
         except:
             location = None
             industry = None
+
+    location = safe_clean_str(location)
+    industry = safe_clean_str(industry)
 
     try:
         connections = soup.find("div", {"class": "member-connections"}).text.split("connections")[0]
@@ -190,8 +201,11 @@ def parse_html(html):
         except:
             connections = None
 
+
     experiences = find_jobs(soup)
+
     schools = find_schools(soup)
+
     skills = [e.text for e in soup.find_all("li", {'class': 'endorse-item'})]
     people = get_linked_profiles(html)
 
