@@ -61,7 +61,7 @@ def process_from_file(url_file=None, start=0, end=-1):
                 info = get_info_for_url(url)
                 if info_is_valid(info):
                     cleaned_id = info['linkedin_id'].strip()
-                 
+
                     new_prospect = models.Prospect(
                         url=url,
                         name         = info['full_name'],
@@ -73,12 +73,28 @@ def process_from_file(url_file=None, start=0, end=-1):
 
                     session.add(new_prospect)
                     session.flush()
-                    
+
                     college_set = set([ s['college'] for s in info.get('schools', []) ])
                     for college in college_set:
+
+                        try:
+                            extra['start_date'] = parser.parse(college.get('start_date', ''))
+                        except TypeError:
+                            pass
+
+                        try:
+                            extra['end_date'] = parser.parse(college.get('end_date', ''))
+                        except TypeError:
+                            try:
+                                extra['end_date'] = parser.parse(college.get('graduation_date', ''))
+                            except TypeError:
+                                pass
+
+
                         new_education = models.Education(
                             user = new_prospect.id,
                             school_raw = college
+                            **extra
                         )
                         session.add(new_education)
 
