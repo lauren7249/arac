@@ -135,6 +135,8 @@ class Education(Base):
     school = Column(Integer, ForeignKey("school.id"))
     school_raw = Column(String(1024))
     user = Column(Integer, ForeignKey("prospect.id"))
+    start_date = Column(Date)
+    end_date = Column(Date)
 
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
