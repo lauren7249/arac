@@ -34,6 +34,9 @@ def get_info_for_url(url):
 
     return info
 
+def college_is_valid(e):
+    return bool(e.get('college'))
+
 def experience_is_valid(e):
     return bool(e.get('company'))
 
@@ -74,9 +77,7 @@ def process_from_file(url_file=None, start=0, end=-1):
                     session.add(new_prospect)
                     session.flush()
 
-                    college_set = set([ s['college'] for s in info.get('schools', []) ])
-                    for college in college_set:
-
+                    for college in filter(college_is_valid, dedupe_dict(info.get("schools", []))):
                         try:
                             extra['start_date'] = parser.parse(college.get('start_date', ''))
                         except TypeError:
@@ -93,7 +94,7 @@ def process_from_file(url_file=None, start=0, end=-1):
 
                         new_education = models.Education(
                             user = new_prospect.id,
-                            school_raw = college
+                            school_raw = college['college'],
                             **extra
                         )
                         session.add(new_education)
