@@ -63,11 +63,12 @@ def main():
     parser.add_argument('--url-file')
     parser.add_argument('--start', type=int)
     parser.add_argument('--end', type=int)
- 
+    parser.add_argument('--range', action='store_true')
+
     args = parser.parse_args()
 
     if args.queue_range:
-        queue_range(args.url_file, args.start, args.end)
+        queue_range(args.url_file, args.start, args.end, args.range)
     elif args.retry_all:
         retry_all()   
     else:

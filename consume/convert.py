@@ -6,7 +6,6 @@ import logging
 
 from bs4 import BeautifulSoup
 
-logging.basicConfig(filename="convert.txt", level=logging.INFO)
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 member_re  = re.compile("member-")
 
