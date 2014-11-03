@@ -78,6 +78,7 @@ def process_from_file(url_file=None, start=0, end=-1):
                     session.flush()
 
                     for college in filter(college_is_valid, dedupe_dict(info.get("schools", []))):
+                        extra = {}
                         try:
                             extra['start_date'] = parser.parse(college.get('start_date', ''))
                         except TypeError:
