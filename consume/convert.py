@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import argparse
 import urlparse
@@ -30,6 +31,15 @@ def main():
         sys.stdout.write("\r%.2f%% %s" % (float(i)/10000, i))
         sys.stdout.flush()
     pool.waitall()
+
+def debug():
+    os.chdir("data")
+    for filename in os.listdir(os.getcwd()):
+        file = open(filename, 'r').read()
+        html = json.loads(file).get("content")
+        soup = BeautifulSoup(html)
+        cleaned = parse_html(html)
+        print cleaned
 
 def is_profile_link(link):
 
@@ -76,95 +86,121 @@ def getnattr(item, attribute, default=None):
         return getattr(item, attribute, default)
     return None
 
+def find_profile_jobs(profile_jobs, soup):
+    jobs = []
+    for item in profile_jobs.find_all("div", {"class": "position"}):
+        dict_item = {}
+        dict_item["title"] = safe_clean_str(getnattr(item.find("h3"), 'text'))
+        dict_item["company"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
+        dates = item.find_all("abbr")
+        if len(dates) > 1:
+            dict_item["start_date"] = dates[0].get('title')
+            dict_item["end_date"] = dates[1].get('title')
+        if len(dates) == 1:
+            dict_item["start_date"] = dates[0].get('text')
+            dict_item["end_date"] = "Present"
+        dict_item['location'] = safe_clean_str(getnattr(item.find("span",\
+            {"class": "location"}), 'text'))
+        dict_item["description"] = safe_clean_str(getnattr(item.find("p",\
+                class_='description'), 'text'))
+
+        jobs.append(dict_item)
+    return jobs
+
+def find_background_jobs(background_jobs):
+    jobs = []
+    for item in background_jobs.find_all("div"):
+        dict_item = {}
+        dict_item["title"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
+        company = item.find_all("h5")
+        if len(company) == 2:
+            dict_item["company"] = safe_clean_str(getnattr(company[1], 'text'))
+        else:
+            dict_item["company"] = safe_clean_str(getnattr(company[0], 'text'))
+        dict_item['location'] = safe_clean_str(getnattr(item.find("span",\
+            {"class": "locality"}), 'text'))
+        dict_item["description"] = safe_clean_str(getnattr(item.find("p",\
+                class_='description'), 'text'))
+        dates = item.find_all("time")
+        if len(dates) > 1:
+            dict_item["start_date"] = getnattr(dates[0], 'text')
+            dict_item["end_date"] = getnattr(dates[1], 'text')
+        if len(dates) == 1:
+            dict_item["start_date"] = getnattr(dates[0], 'text')
+            dict_item["end_date"] = "Present"
+
+        jobs.append(dict_item)
+    return jobs
+
 def find_jobs(soup):
     jobs = []
-    try:
-        for item in soup.find(id="profile-experience").find_all("div", {"class": "position"}):
-            dict_item = {}
-            dict_item["title"] = safe_clean_str(getnattr(item.find("h3"), 'text'))
-            dict_item["company"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
-            dates = item.find_all("abbr")
-            if len(dates) > 1:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = getnattr(dates[1], 'text')
-            if len(dates) == 1:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = "Present"
-
-            dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
-            jobs.append(dict_item)
-        return jobs
-    except Exception, e:
-        pass
-
-    try:
-        for item in soup.find(id="background-experience").find_all("div"):
-            dict_item = {}
-            dict_item["title"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
-            dict_item["company"] = safe_clean_str(getnattr(item.find("h5"), 'text'))
-            dict_item["description"] = safe_clean_str(getnattr(item.find(".description"), 'text'))
-            dates = item.find_all("time")
-            if len(dates) > 1:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = getnattr(dates[1], 'text')
-            if len(dates) == 1:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = "Present"
-
-            jobs.append(dict_item)
-        return jobs
-    except Exception, e:
-        pass
+    profile_jobs = soup.find(id="profile-experience")
+    background_jobs = soup.find(id="background-experience")
+    if profile_jobs:
+        jobs = find_profile_jobs(profile_jobs, soup)
+    if background_jobs:
+        jobs = find_background_jobs(background_jobs)
 
     return jobs
 
+def find_profile_schools(profile_schools):
+    schools = []
+    for item in profile_schools.find_all("div", {"class": "position"}):
+        dict_item = {}
+        dict_item["college"] = safe_clean_str(getnattr(item.find("h3"), 'text'))
+        dict_item["degree"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
+        dates = item.find_all("abbr")
+        if len(dates) > 1:
+            dict_item["start_date"] = dates[0].get('title')
+            dict_item["end_date"] = dates[1].get('title')
+        if len(dates) == 1 and not "Present" in item:
+            dict_item["graduation_date"] = dates[0].get('title')
+        if len(dates) == 1 and "Present" in item:
+            dict_item["start_date"] = dates[0].get('title')
+            dict_item["end_date"] = "Present"
+
+        dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
+        schools.append(dict_item)
+    return schools
+
+def find_background_schools(background_schools):
+    schools = []
+    for item in background_schools.find_all("div"):
+        dict_item = {}
+        dict_item["college"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
+        degrees = item.find_all("h5")
+        if len(degrees) == 2:
+            dict_item["degree"] = safe_clean_str(getnattr(degrees[1], 'text'))
+        if len(degrees) == 1:
+            dict_item["degree"] = safe_clean_str(getnattr(degrees[0], 'text'))
+        dates = item.find_all("time")
+        if len(dates) > 1:
+            dict_item["start_date"] = getnattr(dates[0], 'text')
+            dict_item["end_date"] = safe_clean_str(getnattr(dates[1], 'text').encode('ascii', 'ignore'))
+        if len(dates) == 1 and not "Present" in item:
+            dict_item["graduation_date"] = getnattr(dates[0], 'text')
+        if len(dates) == 1 and "Present" in item:
+            dict_item["start_date"] = getnattr(dates[0], 'text')
+            dict_item["end_date"] = "Present"
+
+        dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
+        schools.append(dict_item)
+    return schools
+
 def find_schools(soup):
     schools = []
-    try:
-        for item in soup.find(id="profile-education").find_all("div", {"class": "position"}):
-            dict_item = {}
-            dict_item["college"] = safe_clean_str(getnattr(item.find("h3"), 'text'))
-            dict_item["degree"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
-            dates = item.find_all("abbr")
-            if len(dates) > 1:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = getnattr(dates[1], 'text')
-            if len(dates) == 1 and not "Present" in item:
-                dict_item["graduation_date"] = getnattr(dates[0], 'text')
-            if len(dates) == 1 and "Present" in item:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = "Present"
 
-            dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
-            schools.append(dict_item)
-        return schools
-    except Exception, e:
-        pass
-
-    try:
-        for item in soup.find(id="background-education").find_all("div"):
-            dict_item = {}
-            dict_item["college"] = safe_clean_str(getnattr(item.find("h4"), 'text'))
-            dict_item["degree"] = safe_clean_str(getnattr(item.find("h5"), 'text'))
-            dates = item.find_all("time")
-            if len(dates) > 1:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = getnattr(dates[1], 'text')
-            if len(dates) == 1 and not "Present" in item:
-                dict_item["graduation_date"] = getnattr(dates[0], 'text')
-            if len(dates) == 1 and "Present" in item:
-                dict_item["start_date"] = getnattr(dates[0], 'text')
-                dict_item["end_date"] = "Present"
-
-            dict_item["description"] = safe_clean_str(getnattr(item.find("p.description"), 'text'))
-            schools.append(dict_item)
-        return schools
-    except Exception, e:
-        pass
-
+    #Linkedin has two different kinds of public pages HTML
+    profile_schools = soup.find(id="profile-education")
+    background_schools = soup.find(id="background-education")
+    if profile_schools:
+        schools = find_profile_schools(profile_schools)
+    if background_schools:
+        schools = find_background_schools(background_schools)
     return schools
 
 def parse_html(html):
+    #TODO put back in 'lxml'
     soup = BeautifulSoup(html, 'lxml')
 
     full_name = None
@@ -222,4 +258,7 @@ def parse_html(html):
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--noresults')
+    args = parser.parse_args()
+    debug()

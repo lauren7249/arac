@@ -133,6 +133,7 @@ class Education(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     school = Column(Integer, ForeignKey("school.id"))
+    degree = Column(String(200))
     school_raw = Column(String(1024))
     user = Column(Integer, ForeignKey("prospect.id"))
     start_date = Column(Date)

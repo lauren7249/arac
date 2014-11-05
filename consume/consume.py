@@ -91,11 +91,12 @@ def process_from_file(url_file=None, start=0, end=-1):
                                 extra['end_date'] = parser.parse(college.get('graduation_date', ''))
                             except TypeError:
                                 pass
-
+                        try:
 
                         new_education = models.Education(
                             user = new_prospect.id,
                             school_raw = college['college'],
+                            degree = college.get("degree")
                             **extra
                         )
                         session.add(new_education)
