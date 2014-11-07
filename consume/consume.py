@@ -130,6 +130,90 @@ def process_from_file(url_file=None, start=0, end=-1):
             except S3ResponseError:
                 logger.error('couldn\'t get url {} from s3'.format(url))
 
+
+def upgrade_from_file(url_file=None, start=0, end=-1):
+    session = models.Session()
+    count = 0
+    with open(url_file, 'r') as f:
+        for url in islice(f, start, end):
+            url = url.strip()
+            try:
+                count += 1
+                s3_key = url_to_key(url)
+
+                prospect = session.query(Prospect).options(joinedload("prospect_school")).get(s3_key=s3_key)
+
+                """
+                info = get_info_for_url(url)
+                if info_is_valid(info):
+                    cleaned_id = info['linkedin_id'].strip()
+
+                    new_prospect = models.Prospect(
+                        url=url,
+                        name         = info['full_name'],
+                        linkedin_id  = cleaned_id,
+                        location_raw = info.get('location'),
+                        industry_raw = info.get('industry'),
+                        s3_key       = s3_key
+                    )
+
+                    session.add(new_prospect)
+                    session.flush()
+
+                    for college in filter(college_is_valid, dedupe_dict(info.get("schools", []))):
+                        extra = {}
+                        try:
+                            extra['start_date'] = parser.parse(college.get('start_date', ''))
+                        except TypeError:
+                            pass
+
+                        try:
+                            extra['end_date'] = parser.parse(college.get('end_date', ''))
+                        except TypeError:
+                            try:
+                                extra['end_date'] = parser.parse(college.get('graduation_date', ''))
+                            except TypeError:
+                                pass
+                        try:
+
+                        new_education = models.Education(
+                            user = new_prospect.id,
+                            school_raw = college['college'],
+                            degree = college.get("degree")
+                            **extra
+                        )
+                        session.add(new_education)
+
+                    for e in filter(experience_is_valid, dedupe_dict(info.get('experiences', []))):
+                        extra = {}
+                        try:
+                            extra['start_date'] = parser.parse(e.get('start_date', ''))
+                        except TypeError:
+                            pass
+
+                        try:
+                            extra['end_date']   = parser.parse(e.get('end_date', ''))
+                        except TypeError:
+                            pass
+
+                        new_job = models.Job(
+                            user = new_prospect.id,
+                            title = e['title'],
+                            company_raw = e['company'],
+                            **extra
+                        )
+                        session.add(new_job)
+
+                    session.commit()
+
+                    logger.debug('successfully consumed {}th {}'.format(count, url))
+                else:
+                    logger.error('could not get valid info for {}'.format(url))
+
+            except S3ResponseError:
+                logger.error('couldn\'t get url {} from s3'.format(url))
+            """
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('url_file')
