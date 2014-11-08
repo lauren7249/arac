@@ -154,13 +154,13 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 start_date = parser.parse(info_job.get("start_date"))
                                 job.start_date = start_date
                             except Exception, e:
-                                print e
+                                print e, "157"
                                 pass
                             try:
                                 end_date = parser.parse(info_job.get("end_date"))
                                 job.end_date = end_date
                             except Exception, e:
-                                print e
+                                print e, "163"
                                 pass
                             job.location_raw = info_job.get("location_raw")
                             session.add(job)
@@ -169,20 +169,20 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 schools = session.query(models.Education).filter_by(user=prospect.id)
                 for school in schools:
                     for info_school in info_schools:
-                        school_raw = info_school.get("schools")
+                        school_raw = info_school.get("college")
                         if school_raw == school.school_raw:
                             print school_raw
                             try:
                                 start_date = parser.parse(info_school.get("start_date"))
                                 school.start_date = start_date
                             except Exception, e:
-                                print e
+                                print e, "179"
                                 pass
                             try:
                                 end_date = parser.parse(info_school.get("end_date"))
                                 school.end_date = end_date
                             except Exception, e:
-                                print e
+                                print e, "185"
                                 pass
                             school.degree =info_school.get("degree")
                             session.add(school)
