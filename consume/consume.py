@@ -138,8 +138,35 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
             url = url.strip()
             count += 1
             s3_key = url_to_key(url)
-            prospect = session.query(Prospect).options(joinedload("prospect_school")).get(s3_key=s3_key)
-            print prospect
+            prospect = session.query(Prospect).filter_by(s3_key=s3_key).first()
+            info = get_info_for_url(url)
+            if info_is_valid(info):
+                prospect.linkedin_id = info.get("linkedin_id")
+                session.add(prospect)
+                info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
+                jobs = session.query(Job).filter_by(user=prospect.id)
+                for job in jobs:
+                    for info_job in info_jobs:
+                        company = info_job.find("company")
+                        if company == job.company_raw:
+                            job.start_date = info_job.get("start_date")
+                            job.end_date = info_job.get("end_date")
+                            job.location_raw = info_job.get("location_raw")
+                            session.add(job)
+
+                info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
+                schools = session.query(Education).filter(user=prospect.id)
+                for school in schools:
+                    for info_school in info_schools:
+                        school_raw = info_school.find("schools")
+                        if school_raw == school.school_raw:
+                            school.start_date = info_school.get("start_date")
+                            school.end_date = info_school.get("end_date")
+                            school.degree =info_school.get("degree")
+                            session.add(school)
+            session.commit()
+
+
 
 
 def main():

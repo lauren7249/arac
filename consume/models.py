@@ -101,6 +101,7 @@ class Job(Base):
     id = Column(Integer, primary_key=True)
     company = Column(Integer, ForeignKey("company.id"))
     company_raw = Column(String(1024))
+    location_raw = Column(String(1024))
 
     user = Column(Integer, ForeignKey("prospect.id"))
     title = Column(String(1024))
@@ -142,7 +143,7 @@ class Education(Base):
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
                 self.id,
-                self.company.name,
+                self.school.name,
                 self.user.name
                 )
 

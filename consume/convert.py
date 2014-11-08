@@ -39,7 +39,7 @@ def debug():
         html = json.loads(file).get("content")
         soup = BeautifulSoup(html)
         cleaned = parse_html(html)
-        print cleaned
+        print cleaned.get("linkedin_id")
 
 def is_profile_link(link):
 
@@ -210,8 +210,17 @@ def parse_html(html):
     try:
         div = soup.find("div", id=member_re)
         linkedin_id = div.get("id").split("-")[1]
+        if len(linkedin_id) < 3:
+            linkedin_index = str(soup).find("newTrkInfo='") + 12
+            end_index = str(soup)[linkedin_index:].find("'")
+            linkedin_id = str(soup)[linkedin_index:linkedin_index + end_index].replace(",", "")
     except:
-        linkedin_id = None
+        try:
+            linkedin_index = str(soup).find("newTrkInfo='") + 12
+            end_index = str(soup)[linkedin_index:].find("'")
+            linkedin_id = str(soup)[linkedin_index:linkedin_index+end_index].replace(",", "")
+        except:
+            linkedin_id = None
 
     try:
         all_dd = soup.find("div", id='location').find_all("dd")
