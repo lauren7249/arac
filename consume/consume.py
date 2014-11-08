@@ -182,7 +182,13 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 end_date = parser.parse(info_school.get("end_date"))
                                 school.end_date = end_date
                             except Exception, e:
-                                print e, "185"
+                                try:
+                                    end_date = parser.parse(info_job.get("graduation_date"))
+                                    job.end_date = end_date
+                                except Exception, e:
+                                    print e, "189"
+                                    pass
+                                print e, "191"
                                 pass
                             school.degree =info_school.get("degree")
                             session.add(school)
