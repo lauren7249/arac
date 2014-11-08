@@ -155,7 +155,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                             session.add(job)
 
                 info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
-                schools = session.query(models.Education).filter(user=prospect.id)
+                schools = session.query(models.Education).filter_by(user=prospect.id)
                 for school in schools:
                     for info_school in info_schools:
                         school_raw = info_school.find("schools")
