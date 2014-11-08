@@ -138,13 +138,13 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
             url = url.strip()
             count += 1
             s3_key = url_to_key(url)
-            prospect = session.query(Prospect).filter_by(s3_key=s3_key).first()
+            prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
             info = get_info_for_url(url)
             if info_is_valid(info):
                 prospect.linkedin_id = info.get("linkedin_id")
                 session.add(prospect)
                 info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                jobs = session.query(Job).filter_by(user=prospect.id)
+                jobs = session.query(models.Job).filter_by(user=prospect.id)
                 for job in jobs:
                     for info_job in info_jobs:
                         company = info_job.find("company")
@@ -155,7 +155,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                             session.add(job)
 
                 info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
-                schools = session.query(Education).filter(user=prospect.id)
+                schools = session.query(models.Education).filter(user=prospect.id)
                 for school in schools:
                     for info_school in info_schools:
                         school_raw = info_school.find("schools")
@@ -165,9 +165,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                             school.degree =info_school.get("degree")
                             session.add(school)
             session.commit()
-
-
-
 
 def main():
     parser = argparse.ArgumentParser()
