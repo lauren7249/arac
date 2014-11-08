@@ -150,8 +150,18 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                         company = info_job.get("company")
                         if company == job.company_raw:
                             print company
-                            job.start_date = info_job.get("start_date")
-                            job.end_date = info_job.get("end_date")
+                            try:
+                                start_date = parser.parse(info_job.get("start_date"))
+                                job.start_date = start_date
+                            except Exception, e:
+                                print e
+                                pass
+                            try:
+                                end_date = parser.parse(info_job.get("end_date"))
+                                job.end_date = end_date
+                            except Exception, e:
+                                print e
+                                pass
                             job.location_raw = info_job.get("location_raw")
                             session.add(job)
 
@@ -162,8 +172,18 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                         school_raw = info_school.get("schools")
                         if school_raw == school.school_raw:
                             print school_raw
-                            school.start_date = info_school.get("start_date")
-                            school.end_date = info_school.get("end_date")
+                            try:
+                                start_date = parser.parse(info_school.get("start_date"))
+                                school.start_date = start_date
+                            except Exception, e:
+                                print e
+                                pass
+                            try:
+                                end_date = parser.parse(info_school.get("end_date"))
+                                school.end_date = end_date
+                            except Exception, e:
+                                print e
+                                pass
                             school.degree =info_school.get("degree")
                             session.add(school)
             session.commit()
