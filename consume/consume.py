@@ -147,8 +147,9 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 jobs = session.query(models.Job).filter_by(user=prospect.id)
                 for job in jobs:
                     for info_job in info_jobs:
-                        company = info_job.find("company")
+                        company = info_job.get("company")
                         if company == job.company_raw:
+                            print company
                             job.start_date = info_job.get("start_date")
                             job.end_date = info_job.get("end_date")
                             job.location_raw = info_job.get("location_raw")
@@ -158,8 +159,9 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 schools = session.query(models.Education).filter_by(user=prospect.id)
                 for school in schools:
                     for info_school in info_schools:
-                        school_raw = info_school.find("schools")
+                        school_raw = info_school.get("schools")
                         if school_raw == school.school_raw:
+                            print school_raw
                             school.start_date = info_school.get("start_date")
                             school.end_date = info_school.get("end_date")
                             school.degree =info_school.get("degree")
