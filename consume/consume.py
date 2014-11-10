@@ -154,13 +154,11 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 start_date = parser.parse(info_job.get("start_date"))
                                 job.start_date = start_date
                             except Exception, e:
-                                print e, "157"
                                 pass
                             try:
                                 end_date = parser.parse(info_job.get("end_date"))
                                 job.end_date = end_date
                             except Exception, e:
-                                print e, "163"
                                 pass
                             job.location_raw = info_job.get("location_raw")
                             session.add(job)
@@ -176,7 +174,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 start_date = parser.parse(info_school.get("start_date"))
                                 school.start_date = start_date
                             except Exception, e:
-                                print e, "179"
                                 pass
                             try:
                                 end_date = parser.parse(info_school.get("end_date"))
@@ -186,9 +183,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                     end_date = parser.parse(info_job.get("graduation_date"))
                                     job.end_date = end_date
                                 except Exception, e:
-                                    print e, "189"
                                     pass
-                                print e, "191"
                                 pass
                             school.degree =info_school.get("degree")
                             session.add(school)
