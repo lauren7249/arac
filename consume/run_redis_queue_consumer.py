@@ -57,8 +57,7 @@ def upload_file_to_redis(url_file):
     file_length = file_len(url_file)
     old_i = 0
     for i in chunks(file_length, 10000):
-        #queue_range(url_file, old_i, i)
-        print url_file, old_i, i
+        queue_range(url_file, old_i, i)
         old_i = i
 
 def queue_range(url_file, start, end):
