@@ -24,7 +24,7 @@ def get_q():
 def consume_q(q, args):
     real_args = json.loads(args)
     process_from_file(**real_args)
-    
+
 def run_q():
     q = get_q()
 
@@ -41,9 +41,29 @@ def run_q():
             logger.debug('Successfully processed {}'.format(args))
             q.succeed(args)
 
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+def chunks(number, chunk):
+    i = 0
+    while i > number:
+        i += chunk
+        yield i
+
+def upload_file_to_redis(url_file):
+    file_length = file_len(url_file)
+    old_i = 0
+    for i in chunks(file_length, 10000):
+        #queue_range(url_file, old_i, i)
+        print url_file, old_i, i
+        old_i = i
+
 def queue_range(url_file, start, end):
     q = get_q()
-    
+
     q.push(json.dumps({
         'url_file': url_file,
         'start':    start,
@@ -70,9 +90,9 @@ def main():
     if args.queue_range:
         queue_range(args.url_file, args.start, args.end, args.range)
     elif args.retry_all:
-        retry_all()   
+        retry_all()
     else:
-        run_q()   
+        run_q()
 
 if __name__ == '__main__':
     main()
