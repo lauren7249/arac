@@ -49,7 +49,7 @@ def file_len(fname):
 
 def chunks(number, chunk):
     i = 0
-    while i > number:
+    while i < number:
         i += chunk
         yield i
 
