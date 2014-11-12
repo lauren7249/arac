@@ -35,6 +35,8 @@ class Prospect(Base):
     s3_key = Column(String(1024))
     complete = Column(Boolean)
     updated = Column(Date)
+    connections = Column(Integer)
+    people_raw = Column(Text)
 
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):

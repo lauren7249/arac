@@ -142,9 +142,15 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
             count += 1
             s3_key = url_to_key(url)
             info = get_info_for_url(url)
-            if info_is_valid(info):
+            if info_is_valid(info) and info:
                 prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
                 cleaned_id = info['linkedin_id']
+                try:
+                    connections = info.get("connections")
+                    prospect.connections = int(connections)
+                except Exception, e:
+                    pass
+                prospect.people_raw = ";".join(info["people"])
                 prospect.linkedin_id = cleaned_id
                 prospect.updated = datetime.date.today()
                 session.add(prospect)

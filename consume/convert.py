@@ -244,9 +244,11 @@ def parse_html(html):
 
     try:
         connections = soup.find("div", {"class": "member-connections"}).text.split("connections")[0]
+        connections = "".join(re.findall("\d+", connections))
     except:
         try:
             connections = soup.find("dd", {'class': "overview-connections"}).text
+            connections = "".join(re.findall("\d+", connections))
         except:
             connections = None
 
