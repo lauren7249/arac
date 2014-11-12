@@ -51,6 +51,7 @@ def run_upgrade_q():
     # grab the next piece of work
     while True:
         args = q.pop_block()
+        print "upgrading Q"
 
         try:
             consume_upgrade_q(q, args)
@@ -112,6 +113,7 @@ def main():
     elif args.retry_all:
         retry_all()
     elif args.upgrade_all:
+        print "upgrade"
         run_upgrade_q()
     else:
         run_q()
