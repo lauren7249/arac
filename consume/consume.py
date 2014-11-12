@@ -1,10 +1,12 @@
 import argparse
+import datetime
 import boto
 import logging
 import models
 import json
 from itertools import islice
 from dateutil import parser
+
 
 from boto.s3.key import Key
 from boto.exception import S3ResponseError
@@ -144,6 +146,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
                 cleaned_id = info['linkedin_id']
                 prospect.linkedin_id = cleaned_id
+                prospect.updated = datetime.date.today()
                 session.add(prospect)
                 info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                 jobs = session.query(models.Job).filter_by(user=prospect.id)
