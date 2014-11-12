@@ -34,7 +34,6 @@ def get_info_for_url(url):
 
     info = parse_html(data['content'])
 
-    print info
     return info
 
 def college_is_valid(e):
@@ -139,64 +138,71 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
     with open(url_file, 'r') as f:
         for url in islice(f, start, end):
             url = url.strip()
-            count += 1
-            s3_key = url_to_key(url)
-            info = get_info_for_url(url)
-            if info_is_valid(info) and info:
-                prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
-                cleaned_id = info['linkedin_id']
-                try:
-                    connections = info.get("connections")
-                    prospect.connections = int(connections)
-                except Exception, e:
-                    pass
-                prospect.people_raw = ";".join(info["people"])
-                prospect.linkedin_id = cleaned_id
-                prospect.updated = datetime.date.today()
-                session.add(prospect)
-                info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                jobs = session.query(models.Job).filter_by(user=prospect.id)
-                for job in jobs:
-                    for info_job in info_jobs:
-                        company = info_job.get("company")
-                        if company == job.company_raw:
-                            try:
-                                start_date = parser.parse(info_job.get("start_date"))
-                                job.start_date = start_date
-                            except Exception, e:
-                                pass
-                            try:
-                                end_date = parser.parse(info_job.get("end_date"))
-                                job.end_date = end_date
-                            except Exception, e:
-                                pass
-                            job.location_raw = info_job.get("location_raw")
-                            session.add(job)
-
-                info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
-                schools = session.query(models.Education).filter_by(user=prospect.id)
-                for school in schools:
-                    for info_school in info_schools:
-                        school_raw = info_school.get("college")
-                        if school_raw == school.school_raw:
-                            try:
-                                start_date = parser.parse(info_school.get("start_date"))
-                                school.start_date = start_date
-                            except Exception, e:
-                                pass
-                            try:
-                                end_date = parser.parse(info_school.get("end_date"))
-                                school.end_date = end_date
-                            except Exception, e:
+            try:
+                count += 1
+                s3_key = url_to_key(url)
+                info = get_info_for_url(url)
+                if info_is_valid(info):
+                    prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+                    cleaned_id = info['linkedin_id']
+                    try:
+                        connections = info.get("connections")
+                        prospect.connections = int(connections)
+                    except Exception, e:
+                        pass
+                    prospect.people_raw = ";".join(info["people"])
+                    prospect.linkedin_id = cleaned_id
+                    prospect.updated = datetime.date.today()
+                    session.add(prospect)
+                    info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
+                    jobs = session.query(models.Job).filter_by(user=prospect.id)
+                    for job in jobs:
+                        for info_job in info_jobs:
+                            company = info_job.get("company")
+                            if company == job.company_raw:
                                 try:
-                                    end_date = parser.parse(info_school.get("graduation_date"))
+                                    start_date = parser.parse(info_job.get("start_date"))
+                                    job.start_date = start_date
+                                except Exception, e:
+                                    pass
+                                try:
+                                    end_date = parser.parse(info_job.get("end_date"))
                                     job.end_date = end_date
                                 except Exception, e:
                                     pass
-                                pass
-                            school.degree =info_school.get("degree")
-                            session.add(school)
-            session.commit()
+                                job.location_raw = info_job.get("location_raw")
+                                session.add(job)
+
+                    info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
+                    schools = session.query(models.Education).filter_by(user=prospect.id)
+                    for school in schools:
+                        for info_school in info_schools:
+                            school_raw = info_school.get("college")
+                            if school_raw == school.school_raw:
+                                try:
+                                    start_date = parser.parse(info_school.get("start_date"))
+                                    school.start_date = start_date
+                                except Exception, e:
+                                    pass
+                                try:
+                                    end_date = parser.parse(info_school.get("end_date"))
+                                    school.end_date = end_date
+                                except Exception, e:
+                                    try:
+                                        end_date = parser.parse(info_school.get("graduation_date"))
+                                        job.end_date = end_date
+                                    except Exception, e:
+                                        pass
+                                    pass
+                                school.degree =info_school.get("degree")
+                                session.add(school)
+                    session.commit()
+                    logger.debug('successfully consumed {}th {}'.format(count, url))
+                else:
+                    logger.error('could not get valid info for {}'.format(url))
+
+            except S3ResponseError:
+                logger.error('couldn\'t get url {} from s3'.format(url))
 
 def main():
     parser = argparse.ArgumentParser()
