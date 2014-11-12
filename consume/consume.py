@@ -32,6 +32,7 @@ def get_info_for_url(url):
 
     info = parse_html(data['content'])
 
+    print info
     return info
 
 def college_is_valid(e):
@@ -138,10 +139,11 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
             url = url.strip()
             count += 1
             s3_key = url_to_key(url)
-            prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
             info = get_info_for_url(url)
             if info_is_valid(info):
-                prospect.linkedin_id = info.get("linkedin_id")
+                prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+                cleaned_id = info['linkedin_id']
+                prospect.linkedin_id = cleaned_id
                 session.add(prospect)
                 info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                 jobs = session.query(models.Job).filter_by(user=prospect.id)
@@ -149,7 +151,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     for info_job in info_jobs:
                         company = info_job.get("company")
                         if company == job.company_raw:
-                            print company
                             try:
                                 start_date = parser.parse(info_job.get("start_date"))
                                 job.start_date = start_date
@@ -169,7 +170,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     for info_school in info_schools:
                         school_raw = info_school.get("college")
                         if school_raw == school.school_raw:
-                            print school_raw
                             try:
                                 start_date = parser.parse(info_school.get("start_date"))
                                 school.start_date = start_date
@@ -180,7 +180,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 school.end_date = end_date
                             except Exception, e:
                                 try:
-                                    end_date = parser.parse(info_job.get("graduation_date"))
+                                    end_date = parser.parse(info_school.get("graduation_date"))
                                     job.end_date = end_date
                                 except Exception, e:
                                     pass
