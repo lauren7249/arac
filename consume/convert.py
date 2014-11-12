@@ -39,7 +39,12 @@ def debug():
         html = json.loads(file).get("content")
         soup = BeautifulSoup(html)
         cleaned = parse_html(html)
-        print cleaned.get("linkedin_id")
+        for school in cleaned.get("schools"):
+            print school.get("end_date"), school.get("start_date"),\
+                    school.get("graduation_date")
+
+        for job in cleaned.get("experiences"):
+            print job.get("end_date"), job.get("start_date")
 
 def is_profile_link(link):
 
