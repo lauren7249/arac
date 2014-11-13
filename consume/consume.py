@@ -153,7 +153,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     prospect.people_raw = ";".join(info["people"])
                     prospect.linkedin_id = cleaned_id
                     prospect.updated = datetime.date.today()
-                    session.add(prospect)
+                    #session.add(prospect)
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                     jobs = session.query(models.Job).filter_by(user=prospect.id)
                     for job in jobs:
@@ -171,7 +171,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 except Exception, e:
                                     pass
                                 job.location_raw = info_job.get("location_raw")
-                                session.add(job)
+                                #session.add(job)
 
                     info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
                     schools = session.query(models.Education).filter_by(user=prospect.id)
@@ -195,7 +195,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                         pass
                                     pass
                                 school.degree =info_school.get("degree")
-                                session.add(school)
+                                #session.add(school)
                     session.commit()
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:
