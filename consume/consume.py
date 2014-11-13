@@ -143,18 +143,18 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 s3_key = url_to_key(url)
                 info = get_info_for_url(url)
                 if info_is_valid(info):
-                    prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
-                    cleaned_id = info['linkedin_id']
                     connections = None
+                    cleaned_id = info['linkedin_id']
                     try:
                         connections = int(info.get("connections"))
                     except Exception, e:
                         pass
-                    prospect.update({"people_raw" :";".join(info["people"]),
+                    prospect = session.query(models.Prospect)\
+                            .filter_by(s3_key=s3_key).update({
+                                    "people_raw" :";".join(info["people"]),
                                     "linkedin_id": cleaned_id,
                                     "connections": connections,
                                     "updated": datetime.date.today()})
-                    session.commit()
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                     jobs = session.query(models.Job).filter_by(user=prospect.id)
                     for job in jobs:
@@ -171,11 +171,10 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                     end_date = parser.parse(info_job.get("end_date"))
                                 except Exception, e:
                                     pass
-                                job.update({"location_raw":info_job.get("location_raw"),
+                                session.query(job).update({"location_raw":info_job.get("location_raw"),
                                             "start_date": start_date,
                                             "end_date": end_date})
 
-                    session.commit()
                     info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
                     schools = session.query(models.Education).filter_by(user=prospect.id)
                     for school in schools:
@@ -196,7 +195,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                     except Exception, e:
                                         pass
                                     pass
-                                school.update({"degree":info_school.get("degree"),
+                                session.query(school).update({"degree":info_school.get("degree"),
                                                 "start_date": start_date,
                                                 "end_date": end_date})
                     session.commit()
