@@ -32,7 +32,8 @@ def get_tail():
 
 def update():
     with cd("/home/ubuntu/arachnid"):
-        run("git pull origin feature/onlyredis")
+        run("git fetch --all")
+        run("git reset --hard origin/feature/onlyredis")
         sudo("service supervisor restart")
     print "Done", env.host
 

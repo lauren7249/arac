@@ -154,7 +154,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     prospect.linkedin_id = cleaned_id
                     prospect.updated = datetime.date.today()
                     #session.add(prospect)
-                    session.commit()
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                     jobs = session.query(models.Job).filter_by(user=prospect.id)
                     for job in jobs:
@@ -174,7 +173,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                                 job.location_raw = info_job.get("location_raw")
                                 #session.add(job)
 
-                    session.commit()
                     info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
                     schools = session.query(models.Education).filter_by(user=prospect.id)
                     for school in schools:
