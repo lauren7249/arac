@@ -143,61 +143,61 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 s3_key = url_to_key(url)
                 info = get_info_for_url(url)
                 if info_is_valid(info):
-                    connections = None
+                    prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
                     cleaned_id = info['linkedin_id']
                     try:
-                        connections = int(info.get("connections"))
+                        connections = info.get("connections")
+                        prospect.connections = int(connections)
                     except Exception, e:
                         pass
-                    prospect = session.query(models.Prospect)\
-                            .filter_by(s3_key=s3_key).update({
-                                    "people_raw" :";".join(info["people"]),
-                                    "linkedin_id": cleaned_id,
-                                    "connections": connections,
-                                    "updated": datetime.date.today()})
+                    prospect.people_raw = ";".join(info["people"])
+                    prospect.linkedin_id = cleaned_id
+                    prospect.updated = datetime.date.today()
+                    #session.add(prospect)
+                    session.commit()
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                     jobs = session.query(models.Job).filter_by(user=prospect.id)
                     for job in jobs:
                         for info_job in info_jobs:
                             company = info_job.get("company")
                             if company == job.company_raw:
-                                start_date = None
-                                end_date = None
                                 try:
                                     start_date = parser.parse(info_job.get("start_date"))
+                                    job.start_date = start_date
                                 except Exception, e:
                                     pass
                                 try:
                                     end_date = parser.parse(info_job.get("end_date"))
+                                    job.end_date = end_date
                                 except Exception, e:
                                     pass
-                                session.query(job).update({"location_raw":info_job.get("location_raw"),
-                                            "start_date": start_date,
-                                            "end_date": end_date})
+                                job.location_raw = info_job.get("location_raw")
+                                #session.add(job)
 
+                    session.commit()
                     info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
                     schools = session.query(models.Education).filter_by(user=prospect.id)
                     for school in schools:
                         for info_school in info_schools:
                             school_raw = info_school.get("college")
                             if school_raw == school.school_raw:
-                                start_date = None
-                                end_date = None
                                 try:
                                     start_date = parser.parse(info_school.get("start_date"))
+                                    school.start_date = start_date
                                 except Exception, e:
                                     pass
                                 try:
                                     end_date = parser.parse(info_school.get("end_date"))
+                                    school.end_date = end_date
                                 except Exception, e:
                                     try:
                                         end_date = parser.parse(info_school.get("graduation_date"))
+                                        job.end_date = end_date
                                     except Exception, e:
                                         pass
                                     pass
-                                session.query(school).update({"degree":info_school.get("degree"),
-                                                "start_date": start_date,
-                                                "end_date": end_date})
+                                school.degree =info_school.get("degree")
+                                #session.add(school)
                     session.commit()
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:
