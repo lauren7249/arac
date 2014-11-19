@@ -46,18 +46,12 @@ class Prospect(Base):
         ))
         return ret[0]
 
-    def __init__(self):
-        self.linked_profiles = self.people_raw.split(";")
-
-
     @classmethod
     def s3_exists(cls, session, s3_key):
         (ret, ) = session.query(exists().where(
             Prospect.s3_key==s3_key
         ))
         return ret[0]
-
-
 
     def __repr__(self):
         return '<Prospect id={0} name={1} url={2}>'.format(
@@ -119,7 +113,7 @@ class Job(Base):
     def __repr__(self):
         return '<Job id={0} name={1} user={2}>'.format(
                 self.id,
-                self.company.name,
+                self.company_raw,
                 self.user.name
                 )
 
@@ -152,7 +146,7 @@ class Education(Base):
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
                 self.id,
-                self.school.name,
+                self.school_raw,
                 self.user.name
                 )
 
