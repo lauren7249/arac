@@ -77,9 +77,9 @@ def search_jobs():
                         job.end_date.year, job.start_date.year,\
                         job.end_date.year))
             else:
-                    job_prospects = session.execute(JOB_SQL %\
-                            (job.company_raw, job.start_date.year, "2014",\
-                            job.start_date.year, "2014"))
+                job_prospects = session.execute(JOB_SQL %\
+                        (job.company_raw, job.start_date.year, "2014",\
+                        job.start_date.year, "2014"))
             for prospect in job_prospects:
                 result = {}
                 result['name'] = prospect[0]
