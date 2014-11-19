@@ -215,6 +215,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
 #TODO Fix
 def generate_prospect_from_url(url):
     url = url.strip()
+    session = models.Session()
     try:
         s3_key = url_to_key(url)
         info = get_info_for_url(url)
@@ -261,9 +262,9 @@ def generate_prospect_from_url(url):
                 new_education = models.Education(
                     user = new_prospect.id,
                     school_raw = college['college'],
-                    degree = college.get("degree")
                     **extra
                 )
+                new_education.degree = college.get("degree")
                 session.add(new_education)
 
             for e in filter(experience_is_valid, dedupe_dict(info.get('experiences', []))):
@@ -277,7 +278,7 @@ def generate_prospect_from_url(url):
                     extra['end_date']   = parser.parse(e.get('end_date', ''))
                 except TypeError:
                     pass
-                extra['location_raw'] = e.get("location_raw")
+                extra['location'] = e.get("location_raw")
 
                 new_job = models.Job(
                     user = new_prospect.id,
