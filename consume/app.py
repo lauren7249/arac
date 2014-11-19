@@ -53,7 +53,7 @@ def search_schools():
     return render_template('home.html', school_results=school_results)
 
 JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
-job_location, propsect.location_raw, propsect.industry_raw \
+job_location, prospect.location_raw, prospect.industry_raw \
 from (select * from (\
 select id as job_id, start_date, end_date, job.user as job_user, company_raw,location as job_location \
 from job where company_raw='%s') as JOBS \
