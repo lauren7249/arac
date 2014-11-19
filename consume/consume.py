@@ -221,7 +221,7 @@ def generate_prospect_from_url(url):
         info = get_info_for_url(url)
         if info_is_valid(info):
             if models.Prospect.s3_exists(session, s3_key):
-                return session.query(Prospect).filter_by(s3_key=s3_key).first()
+                return session.query(models.Prospect).filter_by(s3_key=s3_key).first()
 
             cleaned_id = info['linkedin_id']
             try:
