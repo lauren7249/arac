@@ -32,10 +32,7 @@ inner join prospect on prospect.id=prospect_school_user;\
 def search_schools():
     school_results = None
     if request.args.get("url"):
-        s3_key = url_to_key(request.args.get("url"))
-        #s3_key = "http:www.linkedin.compubjoey-petracca46941201"
-        #s3_key = request.POST.GET("s3_key", "")
-        prospect = generate_prospect_from_url(s3_key=s3_key)
+        prospect = generate_prospect_from_url(request.args.get("url"))
         schools = session.query(Education).filter_by(user=prospect.id)
         school_results = []
         for school in schools:
@@ -66,8 +63,7 @@ INNER JOIN prospect on prospect.id=job_user;\
 def search_jobs():
     job_results = None
     if request.args.get("url"):
-        s3_key = url_to_key(request.args.get("url"))
-        prospect = generate_prospect_from_url(s3_key=s3_key)
+        prospect = generate_prospect_from_url(request.args.get("url"))
         jobs = session.query(Job).filter_by(user=prospect.id)
         job_results = []
         for job in jobs:
