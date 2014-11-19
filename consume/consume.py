@@ -234,11 +234,11 @@ def generate_prospect_from_url(url):
                 linkedin_id = cleaned_id,
                 location_raw = info.get('location'),
                 industry_raw = info.get('industry'),
-                s3_key = s3_key,
-                updated = updated,
-                people_raw = people_raw,
-                connections = connections
+                s3_key = s3_key
             )
+            new_prospect.updated = updated
+            new_prospect.people_raw = people_raw
+            new_prospect.connections = connections
 
             session.add(new_prospect)
             session.flush()
