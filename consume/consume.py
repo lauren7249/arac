@@ -213,7 +213,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
 
 #This is so hacky its embarassing,but don't want to risk breaking the importer
 #TODO Fix
-def generate_prospect_from_url(url)
+def generate_prospect_from_url(url):
     url = url.strip()
     try:
         s3_key = url_to_key(url)
