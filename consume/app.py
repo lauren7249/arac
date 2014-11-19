@@ -71,20 +71,15 @@ def search_jobs():
         jobs = session.query(Job).filter_by(user=prospect.id)
         job_results = []
         for job in jobs:
-            if job.end_date is not None:
-                print JOB_SQL % (job.company_raw, job.start_date.year,\
-                        job.end_date.year, job.start_date.year,\
-                        job.end_date.year)
-
-            if job.end_date:
-                job_prospects = session.execute(JOB_SQL %\
-                        (job.company_raw, job.start_date.year,\
-                        job.end_date.year, job.start_date.year,\
-                        job.end_date.year))
-            else:
-                job_prospects = session.execute(JOB_SQL %\
-                        (job.company_raw, job.start_date.year, "2014",\
-                        job.start_date.year, "2014"))
+            start_date = job.start_date.year if job.start_date else "2000"
+            end_date = job.end_date.year if job.end_date else "2015"
+            print JOB_SQL % (job.company_raw, start_date,\
+                    end_date, start_date,\
+                    end_date)
+            job_prospects = session.execute(JOB_SQL %\
+                    (job.company_raw, start_date,\
+                    end_date, start_date,\
+                    end_date))
             for prospect in job_prospects:
                 result = {}
                 result['name'] = prospect[0]
