@@ -56,7 +56,7 @@ JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
 job_location, propsect.location_raw, propsect.industry_raw \
 from (select * from (\
 select id as job_id, start_date, end_date, job.user as job_user, company_raw,location as job_location \
-from job where company_raw='%s') as JOBS
+from job where company_raw='%s') as JOBS \
 where to_char(start_date, 'YYYY') between '%s' and '%s' OR \
 to_char(end_date, 'YYYY') between '%s' and '%s') AS YEARS \
 INNER JOIN prospect on prospect.id=job_user;\
