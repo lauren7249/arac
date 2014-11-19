@@ -3,8 +3,8 @@
   <head>
     <title>Advisorconnect</title>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://bootswatch.com/superhero/bootstrap.css" media="screen">
     <link href='http://bootswatch.com/assets/css/bootswatch.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="http://bootswatch.com/united/bootstrap.css" media="screen">
 
     <link rel='shortcut icon' href='/favicon.ico' />
     <link rel='apple-touch-icon' href="">
@@ -28,7 +28,15 @@
 
   </head>
   <body>
+  <div class="navbar navbar-default">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Home</a>
+    </div>
+  </div>
+  <div class='bs-docs-section'>
+    <h1>Advisor Connect <span>Prime</span></h1>
     {% block content %}{% endblock %}
+  </div>
     </body>
 </html>
 
