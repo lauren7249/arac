@@ -16,7 +16,7 @@ app.debug = True
 app.config['DEBUG'] = True
 
 SCHOOL_SQL = """\
-select prospect.name, school_raw, end_date, degree, prospect.location, prospect.industry \
+select prospect.name, school_raw, end_date, degree, prospect.location_raw, prospect.industry_raw \
 from ( \
 select * from ( \
 select id AS school_id, end_date, prospect_school.user as \
@@ -32,15 +32,16 @@ inner join prospect on prospect.id=prospect_school_user;\
 def search():
     school_results = None
     if request.args.get("url"):
-        s3_key = url_to_key(request["url"])
+        s3_key = url_to_key(request.args.get("url"))
         #s3_key = "http:www.linkedin.compubjoey-petracca46941201"
         #s3_key = request.POST.GET("s3_key", "")
         prospect = session.query(Prospect).filter_by(s3_key=s3_key).first()
         schools = session.query(Education).filter_by(user=prospect.id)
         school_results = []
         for school in schools:
-            school_prospects = session.execute(SCHOOL_SQL % (school, school.end_date.year))
-            for prospect in school_propsects:
+            print SCHOOL_SQL % (school.school_raw, school.end_date.year)
+            school_prospects = session.execute(SCHOOL_SQL % (school.school_raw, school.end_date.year))
+            for prospect in school_prospects:
                 result = {}
                 result['name'] = prospect[0]
                 result['school'] = prospect[1]
