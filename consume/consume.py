@@ -39,7 +39,7 @@ def get_info_for_url(url):
 
         return info
     except:
-        content = process_request(url)
+        data = process_request(url)
         info = parse_html(data['content'])
         return info
 
