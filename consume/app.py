@@ -60,9 +60,17 @@ to_char(end_date, 'YYYY') between '%s' and '%s') AS YEARS \
 INNER JOIN prospect on prospect.id=job_user;\
 """
 
+NO_YEAR_JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
+job_location, prospect.location_raw, prospect.industry_raw \
+from (\
+select id as job_id, start_date, end_date, job.user as job_user, company_raw,location as job_location \
+from job where company_raw='%s') as JOBS \
+INNER JOIN prospect on prospect.id=job_user;\
+"""
+
 @app.route("/jobs")
 def search_jobs():
-    job_results = None
+    job_results = []
     if request.args.get("url"):
         prospect = generate_prospect_from_url(request.args.get("url"))
         jobs = session.query(Job).filter_by(user=prospect.id)
@@ -87,6 +95,20 @@ def search_jobs():
                 result['current_location'] = prospect[5]
                 result['industry'] = prospect[6]
                 job_results.append(result)
+        if len(job_results) == 0:
+            for job in jobs:
+                job_prospects = session.execute(NO_YEAR_JOB_SQL % job.company_raw)
+                for prospect in job_prospects:
+                    result = {}
+                    result['name'] = prospect[0]
+                    result['company'] = prospect[1]
+                    result['start_date'] = prospect[2]
+                    result['end_date'] = prospect[3]
+                    result['job_location'] = prospect[4]
+                    result['current_location'] = prospect[5]
+                    result['industry'] = prospect[6]
+                    job_results.append(result)
+
     return render_template('home.html', job_results=job_results)
 
 

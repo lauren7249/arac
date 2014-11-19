@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='row'>
-<form method='GET'>
-<div class="form-group">
-<div class='row'>
-<div class='col-lg-6'>
-<div class="input-group">
-<input class="form-control" id="focusedInput" type="text" placeholder="Enter in a public linkedin profile URL">
-<span class="input-group-btn">
-<button class="btn btn-success" type="submit">SUBMIT</button>
-</span>
-</div>
-</div>
-</div>
-</div>
-</form>
+  <form method='GET'>
+    <div class="form-group">
+      <div class='row'>
+        <div class='col-lg-6'>
+          <div class="input-group">
+            <input class="form-control" name='url' id="focusedInput" type="text" placeholder="Enter in a public linkedin profile URL">
+            <span class="input-group-btn">
+              <button class="btn btn-success" type="submit">SUBMIT</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
 <div class='row'>   
 {% if school_results %}
