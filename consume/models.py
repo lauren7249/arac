@@ -3,6 +3,7 @@ import code
 import os
 
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
@@ -44,6 +45,10 @@ class Prospect(Base):
             Prospect.linkedin_id==linkedin_id
         ))
         return ret[0]
+
+    def __init__(self):
+        self.linked_profiles = self.people_raw.split(";")
+
 
     @classmethod
     def s3_exists(cls, session, s3_key):
@@ -142,6 +147,7 @@ class Education(Base):
     user = Column(Integer, ForeignKey("prospect.id"))
     start_date = Column(Date)
     end_date = Column(Date)
+    body_tsv = Column(TSVECTOR)
 
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
