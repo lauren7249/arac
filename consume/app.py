@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template
+from flask import render_template, request
 
 from models import Session, Prospect, Job, Education
 
@@ -8,14 +8,13 @@ from consume import url_to_key
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
+
 session = Session()
 
-import instagram
 app = Flask(__name__)
+app.debug = True
+app.config['DEBUG'] = True
 
-INSTAGRAM_KEY = "393749080807444a975e11c6060a58be"
-INSTAGRAM_SECRET = "95775738376b4cb58b2b69e30492cd91"
-INSTAGRAM_REDIRECT = "http://localhost/instagram/oauth"
 SCHOOL_SQL = """\
 select prospect.name, school_raw, end_date, degree, prospect.location, prospect.industry \
 from ( \
@@ -32,10 +31,10 @@ inner join prospect on prospect.id=prospect_school_user;\
 @app.route("/")
 def search():
     school_results = None
-    if request.GET.get("url"):
-        url = url_to_key(request["url"])
-        key = "http:www.linkedin.compubjoey-petracca46941201"
-        s3_key = request.POST.GET("s3_key", "")
+    if request.args.get("url"):
+        s3_key = url_to_key(request["url"])
+        #s3_key = "http:www.linkedin.compubjoey-petracca46941201"
+        #s3_key = request.POST.GET("s3_key", "")
         prospect = session.query(Prospect).filter_by(s3_key=s3_key).first()
         schools = session.query(Education).filter_by(user=prospect.id)
         school_results = []
@@ -59,3 +58,13 @@ def search():
 #        Prospect.s3_key)\
 #        .filter(Prospect.s3_key.in_(prospect.linked_profiles))
 #school_propsects
+
+print "made it"
+"""
+if __name__ == '__main__':
+    try:
+        app.run(debug=True)
+    except Exception:
+        app.logger.exception('Failed')
+"""
+
