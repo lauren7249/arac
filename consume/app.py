@@ -36,6 +36,7 @@ def search_schools():
         schools = session.query(Education).filter_by(user=prospect.id)
         school_results = []
         for school in schools:
+            end_date = school.end_date.year if school.end_date else "2000"
             print SCHOOL_SQL % (school.school_raw, school.end_date.year)
             school_prospects = session.execute(SCHOOL_SQL % (school.school_raw, school.end_date.year))
             for prospect in school_prospects:
