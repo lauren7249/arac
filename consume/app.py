@@ -3,7 +3,7 @@ from flask import render_template, request
 
 from models import Session, Prospect, Job, Education
 
-from consume import url_to_key
+from consume import url_to_key, generate_prospect_from_url
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
@@ -35,7 +35,7 @@ def search_schools():
         s3_key = url_to_key(request.args.get("url"))
         #s3_key = "http:www.linkedin.compubjoey-petracca46941201"
         #s3_key = request.POST.GET("s3_key", "")
-        prospect = session.query(Prospect).filter_by(s3_key=s3_key).first()
+        prospect = generate_prospect_from_url(s3_key=s3_key)
         schools = session.query(Education).filter_by(user=prospect.id)
         school_results = []
         for school in schools:
@@ -67,7 +67,7 @@ def search_jobs():
     job_results = None
     if request.args.get("url"):
         s3_key = url_to_key(request.args.get("url"))
-        prospect = session.query(Prospect).filter_by(s3_key=s3_key).first()
+        prospect = generate_prospect_from_url(s3_key=s3_key)
         jobs = session.query(Job).filter_by(user=prospect.id)
         job_results = []
         for job in jobs:
