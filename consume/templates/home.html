@@ -33,7 +33,7 @@
   <tbody>
     {% for result in school_results %}
     <tr>
-      <td></td>
+      <td>{{ result.id }}</td>
       <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.name }}</td>
       <td>{{ result.school }}</td>
       <td>{{ result.end_date }}</td>
@@ -62,7 +62,7 @@
   <tbody>
     {% for result in job_results %}
     <tr>
-      <td></td>
+      <td>{{ result.id }}</td>
       <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.name }}</td>
       <td>{{ result.company }}</td>
       <td>{{ result.start_date }}</td>
