@@ -115,6 +115,7 @@ def search_jobs():
                     result['current_location'] = prospect[5]
                     result['industry'] = prospect[6]
                     result['url'] = prospect[7]
+                    result['id'] = prospect[8]
                     job_results.append(result)
 
     return render_template('home.html', job_results=job_results)
