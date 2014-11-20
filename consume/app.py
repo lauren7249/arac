@@ -16,7 +16,8 @@ app.debug = True
 app.config['DEBUG'] = True
 
 SCHOOL_SQL = """\
-select prospect.name, school_raw, end_date, degree, prospect.location_raw, prospect.industry_raw \
+select prospect.name, school_raw, end_date, degree, prospect.location_raw, \
+prospect.industry_raw, prospect.url, prospect.id as prospect_id \
 from ( \
 select * from ( \
 select id AS school_id, end_date, prospect_school.user as \
@@ -47,11 +48,14 @@ def search_schools():
                 result['degree'] = prospect[3]
                 result['current_location'] = prospect[4]
                 result['industry'] = prospect[5]
+                result['url'] = prospect[6]
+                result['id'] = prospect[7]
                 school_results.append(result)
     return render_template('home.html', school_results=school_results)
 
 JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
-job_location, prospect.location_raw, prospect.industry_raw \
+job_location, prospect.location_raw, prospect.industry_raw, prospect.url, \
+prospect.id as prospect_id \
 from (select * from (\
 select id as job_id, start_date, end_date, job.user as job_user, company_raw,location as job_location \
 from job where company_raw='%s') as JOBS \
@@ -61,7 +65,8 @@ INNER JOIN prospect on prospect.id=job_user;\
 """
 
 NO_YEAR_JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
-job_location, prospect.location_raw, prospect.industry_raw \
+job_location, prospect.location_raw, prospect.industry_raw, prospect.url, \
+prospect.id as prospect_id \
 from (\
 select id as job_id, start_date, end_date, job.user as job_user, company_raw,location as job_location \
 from job where company_raw='%s') as JOBS \
@@ -94,6 +99,8 @@ def search_jobs():
                 result['job_location'] = prospect[4]
                 result['current_location'] = prospect[5]
                 result['industry'] = prospect[6]
+                result['url'] = prospect[7]
+                result['id'] = prospect[8]
                 job_results.append(result)
         if len(job_results) == 0:
             for job in jobs:
@@ -107,6 +114,7 @@ def search_jobs():
                     result['job_location'] = prospect[4]
                     result['current_location'] = prospect[5]
                     result['industry'] = prospect[6]
+                    result['url'] = prospect[7]
                     job_results.append(result)
 
     return render_template('home.html', job_results=job_results)

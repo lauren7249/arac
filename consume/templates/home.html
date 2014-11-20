@@ -34,7 +34,7 @@
     {% for result in school_results %}
     <tr>
       <td></td>
-      <td>{{ result.name }}</td>
+      <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.name }}</td>
       <td>{{ result.school }}</td>
       <td>{{ result.end_date }}</td>
       <td>{{ result.degree }}</td>
@@ -63,7 +63,7 @@
     {% for result in job_results %}
     <tr>
       <td></td>
-      <td>{{ result.name }}</td>
+      <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.name }}</td>
       <td>{{ result.company }}</td>
       <td>{{ result.start_date }}</td>
       <td>{{ result.end_date }}</td>
@@ -76,5 +76,5 @@
 </table>
 {% endif %}
 </div>
-
+<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 {% endblock %}
