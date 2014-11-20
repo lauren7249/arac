@@ -4,6 +4,7 @@ from flask import render_template, request
 from models import Session, Prospect, Job, Education
 
 from consume import url_to_key, generate_prospect_from_url
+from convert import clean_url
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
@@ -33,7 +34,8 @@ inner join prospect on prospect.id=prospect_school_user;\
 def search_schools():
     school_results = None
     if request.args.get("url"):
-        prospect = generate_prospect_from_url(request.args.get("url"))
+        url = clean_url(request.args.get("url"))
+        prospect = generate_prospect_from_url(url)
         schools = session.query(Education).filter_by(user=prospect.id)
         school_results = []
         for school in schools:
@@ -77,7 +79,8 @@ INNER JOIN prospect on prospect.id=job_user;\
 def search_jobs():
     job_results = []
     if request.args.get("url"):
-        prospect = generate_prospect_from_url(request.args.get("url"))
+        url = clean_url(request.args.get("url"))
+        prospect = generate_prospect_from_url(url)
         jobs = session.query(Job).filter_by(user=prospect.id)
         job_results = []
         for job in jobs:
