@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='row'>
+  <ul class="nav nav-tabs">
+    <li {% if school_results %}class="active"{% endif %}><a href="" data-toggle="tab">Schools</a></li>
+    <li {% if job_results %}class="active"{% endif %}><a href="" data-toggle="tab">Jobs</a></li>
+    <li><a>Linkedin Profiles</a></li>
+</ul>
+</div>
+<div class='row'>
   <form method='GET'>
     <div class="form-group">
       <div class='row'>
