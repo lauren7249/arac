@@ -3,10 +3,12 @@ import requests
 import datetime
 import boto
 import logging
-import models
 import json
 from itertools import islice
 from dateutil import parser
+
+from prime.prospects import models
+from prime import db
 
 
 from boto.s3.key import Key
@@ -19,8 +21,8 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-s3conn = boto.connect_s3()
-bucket = s3conn.get_bucket('arachid-results')
+session = db.session
+
 
 def dedupe_dict(ds):
     return map(dict, set(tuple(sorted(d.items())) for d in ds))
@@ -55,7 +57,6 @@ def info_is_valid(info):
            info.get('linkedin_id')
 
 def process_from_file(url_file=None, start=0, end=-1):
-    session = models.Session()
     count = 0
     with open(url_file, 'r') as f:
         for url in islice(f, start, end):
@@ -140,7 +141,6 @@ def process_from_file(url_file=None, start=0, end=-1):
 
 
 def upgrade_from_file(url_file=None, start=0, end=-1):
-    session = models.Session()
     count = 0
     with open(url_file, 'r') as f:
         for url in islice(f, start, end):
@@ -215,7 +215,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
 #TODO Fix
 def generate_prospect_from_url(url):
     url = url.strip()
-    session = models.Session()
     try:
         s3_key = url_to_key(url)
         info = get_info_for_url(url)
@@ -305,6 +304,8 @@ def main():
     parser.add_argument('--end', type=int, default=None)
 
     args = parser.parse_args()
+    s3conn = boto.connect_s3()
+    bucket = s3conn.get_bucket('arachid-results')
     process_from_file(url_flie=args.url_file, start=args.start, end=args.end)
 
 if __name__ == '__main__':
