@@ -7,7 +7,7 @@ from prime.prospects.models import Prospect, Job, Education
 from prime import db
 
 #from consume.consume import generate_prospect_from_url
-from consume.convert import clean_url
+#from consume.convert import clean_url
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast

@@ -1,4 +1,5 @@
 import argparse
+import os
 import requests
 import datetime
 import boto
@@ -8,8 +9,9 @@ from itertools import islice
 from dateutil import parser
 
 from prime.prospects import models
-from prime import db
+from prime import create_app
 
+from flask.ext.sqlalchemy import SQLAlchemy
 
 from boto.s3.key import Key
 from boto.exception import S3ResponseError
@@ -21,8 +23,11 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
+app = create_app(os.getenv('AC_CONFIG', 'beta'))
+db = SQLAlchemy(app)
 session = db.session
-
+s3conn = boto.connect_s3()
+bucket = s3conn.get_bucket('arachid-results')
 
 def dedupe_dict(ds):
     return map(dict, set(tuple(sorted(d.items())) for d in ds))
