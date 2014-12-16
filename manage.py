@@ -7,7 +7,7 @@ from flask.ext.script import Manager, Shell
 from prime import create_app, db
 
 
-app = create_app(os.getenv('FITZROY_CONFIG', 'default'))
+app = create_app(os.getenv('AC_CONFIG', 'beta'))
 migrate = Migrate(app, db)
 
 if __name__ == '__main__':
