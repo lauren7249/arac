@@ -84,6 +84,7 @@ def upload_file_to_redis(url_file):
 def queue_range(url_file, start, end):
     q = get_q()
 
+    print "pushing", url_file, start, end
     q.push(json.dumps({
         'url_file': url_file,
         'start':    start,

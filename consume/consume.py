@@ -168,12 +168,12 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                             company = info_job.get("company")
                             if company == job.company_raw:
                                 try:
-                                    start_date = parser.parse(info_job.get("start_date"))
+                                    start_date = parser.parse(info_job.get("start_date")).replace(tzinfo=None)
                                     job.start_date = start_date
                                 except Exception, e:
                                     pass
                                 try:
-                                    end_date = parser.parse(info_job.get("end_date"))
+                                    end_date = parser.parse(info_job.get("end_date")).replace(tzinfo=None)
                                     job.end_date = end_date
                                 except Exception, e:
                                     pass
@@ -187,16 +187,16 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                             school_raw = info_school.get("college")
                             if school_raw == school.school_raw:
                                 try:
-                                    start_date = parser.parse(info_school.get("start_date"))
+                                    start_date = parser.parse(info_school.get("start_date")).replace(tzinfo=None)
                                     school.start_date = start_date
                                 except Exception, e:
                                     pass
                                 try:
-                                    end_date = parser.parse(info_school.get("end_date"))
+                                    end_date = parser.parse(info_school.get("end_date")).replace(tzinfo=None)
                                     school.end_date = end_date
                                 except Exception, e:
                                     try:
-                                        end_date = parser.parse(info_school.get("graduation_date"))
+                                        end_date = parser.parse(info_school.get("graduation_date")).replace(tzinfo=None)
                                         job.end_date = end_date
                                     except Exception, e:
                                         pass
