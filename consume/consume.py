@@ -209,6 +209,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     logger.error('could not get valid info for {}'.format(url))
 
             except S3ResponseError:
+                session.rollback()
                 logger.error('couldn\'t get url {} from s3'.format(url))
 
 #This is so hacky its embarassing,but don't want to risk breaking the importer
