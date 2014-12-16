@@ -31,19 +31,14 @@ def url_to_key(url):
     return url.replace('/', '')
 
 def get_info_for_url(url):
-    try:
-        key = Key(bucket)
-        key.key = url_to_key(url)
+    key = Key(bucket)
+    key.key = url_to_key(url)
 
-        data = json.loads(key.get_contents_as_string())
+    data = json.loads(key.get_contents_as_string())
 
-        info = parse_html(data['content'])
+    info = parse_html(data['content'])
 
-        return info
-    except:
-        data = process_request(url)
-        info = parse_html(data['content'])
-        return info
+    return info
 
 def college_is_valid(e):
     return bool(e.get('college'))
@@ -208,9 +203,10 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 else:
                     logger.error('could not get valid info for {}'.format(url))
 
-            except S3ResponseError:
+            except Exception, e:
                 session.rollback()
                 logger.error('couldn\'t get url {} from s3'.format(url))
+                pass
 
 #This is so hacky its embarassing,but don't want to risk breaking the importer
 #TODO Fix
