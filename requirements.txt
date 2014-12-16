@@ -28,9 +28,7 @@ ecdsa==0.11
 eventlet==0.15.2
 fake-useragent==0.0.6
 flup==1.0.2
-gevent==1.0.1
-gnureadline==6.3.3
-greenlet==0.4.5
+#gevent==1.0.1
 ipython==2.3.0
 itsdangerous==0.24
 lxml==3.4.0
@@ -39,7 +37,6 @@ pbr==0.10.0
 psycopg2==2.5.4
 py2neo==1.6.4
 pycrypto==2.6.1
-pydns==3.0.1
 python-dateutil==2.2
 python-openid==2.2.5
 pytz==2014.10

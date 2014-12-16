@@ -19,8 +19,8 @@ class Config(object):
 
 
 class BetaConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgres_string'
-    ARACHNID_SERVER_URL = 'http://prime.advisorconnect.co'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
+    #ARACHNID_SERVER_URL = 'http://prime.advisorconnect.co'
 
 
 class DevelopmentConfig(Config):
