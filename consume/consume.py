@@ -38,12 +38,10 @@ def url_to_key(url):
 def get_info_for_url(url):
     key = Key(bucket)
     key.key = url_to_key(url)
-
     data = json.loads(key.get_contents_as_string())
-
-    info = parse_html(data['content'])
-
-    return info
+    logger.debug("parse")
+    logger.debug("parsed")
+    return parse_html(data['content'])
 
 def college_is_valid(e):
     return bool(e.get('college'))
@@ -151,6 +149,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 info = get_info_for_url(url)
                 if info_is_valid(info):
                     prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+    
                     cleaned_id = info['linkedin_id']
                     try:
                         connections = info.get("connections")
@@ -162,7 +161,9 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     prospect.updated = datetime.date.today()
                     #session.add(prospect)
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
+                    print "looking up job"
                     jobs = session.query(models.Job).filter_by(user=prospect.id)
+                    print "got job"
                     for job in jobs:
                         for info_job in info_jobs:
                             company = info_job.get("company")
