@@ -52,7 +52,7 @@ def process_request(url):
     content = response.content
     print content
 
-    if len(content) < MINIMUM_CONTENT_SIZE: 
+    if len(content) < MINIMUM_CONTENT_SIZE:
         raise ScraperLimitedException(
             'Server response is less than {} in size'.format(
                 MINIMUM_CONTENT_SIZE

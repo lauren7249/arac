@@ -143,3 +143,15 @@ class Education(db.Model):
                 self.user.name
                 )
 
+"""
+class ProspectList(db.Model):
+    __tablename__ = "prospect_list"
+
+    id = db.Column(Integer, primary_key=True)
+    prospect_ids = db.Column(Text)
+
+    def __repr__(self):
+        return '<ProspectList id={0}>'.format(
+                self.id
+                )
+"""
