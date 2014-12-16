@@ -51,7 +51,7 @@ def process_request(url):
     response = requests.get(url, headers={'User-agent': ua.random}, timeout=10)
     content = response.content
 
-    if len(content) < MINIMUM_CONTENT_SIZE: 
+    if len(content) < MINIMUM_CONTENT_SIZE:
         raise ScraperLimitedException(
             'Server response is less than {} in size'.format(
                 MINIMUM_CONTENT_SIZE
