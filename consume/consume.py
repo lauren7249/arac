@@ -39,9 +39,8 @@ def get_info_for_url(url):
     key = Key(bucket)
     key.key = url_to_key(url)
     data = json.loads(key.get_contents_as_string())
-    logger.debug("parse")
-    logger.debug("parsed")
-    return parse_html(data['content'])
+    info = parse_html(data['content'])
+    return info
 
 def college_is_valid(e):
     return bool(e.get('college'))
@@ -161,9 +160,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                     prospect.updated = datetime.date.today()
                     #session.add(prospect)
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                    print "looking up job"
                     jobs = session.query(models.Job).filter_by(user=prospect.id)
-                    print "got job"
                     for job in jobs:
                         for info_job in info_jobs:
                             company = info_job.get("company")
@@ -211,7 +208,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
 
             except Exception, e:
                 session.rollback()
-                logger.error('couldn\'t get url {} from s3'.format(url))
+                logger.error('couldn\'t get url {} from s3, error: {}'.format(url, e))
                 pass
 
 #This is so hacky its embarassing,but don't want to risk breaking the importer
