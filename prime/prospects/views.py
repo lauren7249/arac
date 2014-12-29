@@ -7,6 +7,9 @@ from prime.prospects.models import Prospect, Job, Education
 from prime.prospects.prospect_list import ProspectList
 from prime import db
 
+from consume.consume import generate_prospect_from_url
+from consume.convert import clean_url
+
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
@@ -16,13 +19,13 @@ session = db.session
 
 @prospects.route("/")
 def search():
-    school_results = None
+    results = None
     if request.args.get("url"):
         raw_url = urllib.unquote(request.args.get("url")).decode('utf8')
         url = clean_url(raw_url)
         prospect = generate_prospect_from_url(url)
         prospect_list = ProspectList(prospect)
-        results = prospect_list.calculate_score()
+        results = prospect_list.get_results()
     return render_template('home.html', results=results)
 
 JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \

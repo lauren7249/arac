@@ -255,75 +255,7 @@ def generate_prospect_from_url(url):
         if info_is_valid(info):
             if models.Prospect.s3_exists(session, s3_key):
                 return session.query(models.Prospect).filter_by(s3_key=s3_key).first()
-
-            cleaned_id = info['linkedin_id']
-            try:
-                connections = info.get("connections")
-                prospect.connections = int(connections)
-            except Exception, e:
-                pass
-            people_raw = ";".join(info["people"])
-            updated = datetime.date.today()
-
-            new_prospect = models.Prospect(
-                url=url,
-                name = info['full_name'],
-                linkedin_id = cleaned_id,
-                location_raw = info.get('location'),
-                industry_raw = info.get('industry'),
-                s3_key = s3_key
-            )
-            new_prospect.updated = updated
-            new_prospect.people_raw = people_raw
-            new_prospect.connections = connections
-
-            session.add(new_prospect)
-            session.flush()
-
-            for college in filter(college_is_valid, dedupe_dict(info.get("schools", []))):
-                extra = {}
-                try:
-                    extra['start_date'] = parser.parse(college.get('start_date', ''))
-                except TypeError:
-                    pass
-
-                try:
-                    extra['end_date'] = parser.parse(college.get('end_date', ''))
-                except TypeError:
-                    try:
-                        extra['end_date'] = parser.parse(college.get('graduation_date', ''))
-                    except TypeError:
-                        pass
-
-                new_education = models.Education(
-                    user = new_prospect.id,
-                    school_raw = college['college'],
-                    **extra
-                )
-                new_education.degree = college.get("degree")
-                session.add(new_education)
-
-            for e in filter(experience_is_valid, dedupe_dict(info.get('experiences', []))):
-                extra = {}
-                try:
-                    extra['start_date'] = parser.parse(e.get('start_date', ''))
-                except TypeError:
-                    pass
-
-                try:
-                    extra['end_date']   = parser.parse(e.get('end_date', ''))
-                except TypeError:
-                    pass
-                extra['location'] = e.get("location_raw")
-
-                new_job = models.Job(
-                    user = new_prospect.id,
-                    title = e['title'],
-                    company_raw = e['company'],
-                    **extra
-                )
-                session.add(new_job)
-
+            create_prospect_from_info(info, url)
             session.commit()
             return new_prospect
 

@@ -208,10 +208,12 @@ class ProspectList(object):
             schools = result[1].get("schools")
             if jobs:
                 user = self._organize_job(user, jobs, score, id)
-                results.append(user)
+                if user.get("url") != self.prospect.url:
+                    results.append(user)
             if schools:
                 user = self._organize_jschool(user, schools, score, id)
-                results.append(user)
+                if user.get("url") != self.prospect.url:
+                    results.append(user)
         return sorted(results, key=lambda x:x['score'], reverse=True)
 
 
