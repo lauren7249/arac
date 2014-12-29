@@ -80,16 +80,16 @@ def create_schools(info, new_prospect):
     for college in filter(college_is_valid, dedupe_dict(info.get("schools", []))):
         extra = {}
         try:
-            extra['start_date'] = parser.parse(college.get('start_date', ''))
-        except TypeError:
+            extra['start_date'] = parser.parse(college.get('start_date')).replace(tzinfo=None)
+        except:
             pass
 
         try:
-            extra['end_date'] = parser.parse(college.get('end_date', ''))
-        except TypeError:
+            extra['end_date'] = parser.parse(college.get('end_date')).replace(tzinfo=None)
+        except:
             try:
-                extra['end_date'] = parser.parse(college.get('graduation_date', ''))
-            except TypeError:
+                extra['end_date'] = parser.parse(college.get('graduation_date')).replace(tzinfo=None)
+            except:
                 pass
 
         new_education = models.Education(
@@ -106,13 +106,13 @@ def create_jobs(info, new_prospect):
     for e in filter(experience_is_valid, dedupe_dict(info.get('experiences', []))):
         extra = {}
         try:
-            extra['start_date'] = parser.parse(e.get('start_date', ''))
-        except TypeError:
+            extra['start_date'] = parser.parse(e.get('start_date')).replace(tzinfo=None)
+        except:
             pass
 
         try:
-            extra['end_date']   = parser.parse(e.get('end_date', ''))
-        except TypeError:
+            extra['end_date']   = parser.parse(e.get('end_date')).replace(tzinfo=None)
+        except:
             pass
 
         new_job = models.Job(
@@ -156,6 +156,7 @@ def load_test_data():
     count = 0
     os.chdir("data")
     for filename in os.listdir(os.getcwd()):
+        count += 1
         file = open(filename, 'r').read()
         content = json.loads(file)
         url = content.get("url")
@@ -165,9 +166,9 @@ def load_test_data():
                 create_prospect_from_info(info, url)
                 logger.debug('successfully consumed {}th {}'.format(count, url))
         except Exception, e:
+            logger.error('could not get valid info for {}'.format(url))
             import pdb
             pdb.set_trace()
-            logger.error('could not get valid info for {}'.format(url))
 
 
 def upgrade_from_file(url_file=None, start=0, end=-1):

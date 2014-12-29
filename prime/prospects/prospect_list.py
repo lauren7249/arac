@@ -12,17 +12,16 @@ from prime import db
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
+session = db.session
+
+SCHOOL_SCORE = 0.6
+SCHOOL_DEGREE_SCORE = 1.0
+JOB_SCORE = 0.7
+JOB_LOCATION_SCORE = 0.9
+JOB_GROUP_SCORE = 1.5
 
 class ProspectList(object):
 
-    session = db.session
-
-    SCHOOL_SCORE = 0.6
-    SCHOOL_DEGREE_SCORE = 1.0
-
-    JOB_SCORE = 0.7
-    JOB_LOCATION_SCORE = 0.9
-    JOB_GROUP_SCORE = 1.5
 
     def __init__(self, prospect, *args, **kwargs):
 
@@ -50,16 +49,19 @@ class ProspectList(object):
         ) AS YEARS \
         inner join prospect on prospect.id=prospect_school_user;\
         """
+        prospect_degree = school.degree
         end_date = school.end_date.year if school.end_date else "2000"
         school_prospects = session.execute(SCHOOL_SQL % (school.school_raw, end_date))
-
+        prospects = []
         for prospect in school_prospects:
             #Check if they worked at the same location
+            prospect = [p for p in prospect]
             if prospect[3] == prospect_degree:
                 prospect.append(SCHOOL_DEGREE_SCORE)
             else:
                 prospect.append(SCHOOL_SCORE)
-        return job_prospects
+            prospects.append(prospect)
+        return prospects
 
     def _set_schools(self):
         for prospect_school in self.prospect_schools:
@@ -106,13 +108,16 @@ class ProspectList(object):
                 (job.company_raw, start_date,\
                 end_date, start_date,\
                 end_date))
+        prospects = []
         for prospect in job_prospects:
             #Check if they worked at the same location
+            prospect = [p for p in prospect]
             if prospect[4] == prospect_location:
                 prospect.append(JOB_LOCATION_SCORE)
             else:
                 prospect.append(JOB_SCORE)
-        return job_prospects
+            prospects.append(prospect)
+        return prospects
 
 
     def _set_jobs(self):

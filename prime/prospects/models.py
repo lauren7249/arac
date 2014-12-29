@@ -5,6 +5,7 @@ import os
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
@@ -31,6 +32,10 @@ class Prospect(db.Model):
     updated = db.Column(Date)
     connections = db.Column(Integer)
     people_raw = db.Column(Text)
+
+
+    jobs = relationship('Job', foreign_keys='Job.user')
+    schools = relationship('Education', foreign_keys='Education.user')
 
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
@@ -99,6 +104,7 @@ class Job(db.Model):
     location = db.Column(String(1024))
 
     user = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect = relationship('Prospect', foreign_keys='Job.user')
     title = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
@@ -107,7 +113,7 @@ class Job(db.Model):
         return '<Job id={0} name={1} user={2}>'.format(
                 self.id,
                 self.company_raw,
-                self.user.name
+                self.prospect.name
                 )
 
 class School(db.Model):
@@ -132,6 +138,7 @@ class Education(db.Model):
     degree = db.Column(String(200))
     school_raw = db.Column(String(1024))
     user = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect = relationship('Prospect', foreign_keys='Education.user')
     start_date = db.Column(Date)
     end_date = db.Column(Date)
     body_tsv = db.Column(TSVECTOR)
@@ -140,7 +147,7 @@ class Education(db.Model):
         return '<Education id={0} name={1} user={2}>'.format(
                 self.id,
                 self.school_raw,
-                self.user.name
+                self.prospect.name
                 )
 
 """
