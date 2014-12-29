@@ -70,7 +70,7 @@ class ProspectList(object):
                 id = school[7]
                 score = school[8]
                 result = {"name":school[0],
-                            "company": school[1],
+                            "school": school[1],
                             "end_date": school[2],
                             "degree": school[3],
                             "current_location": school[4],
@@ -144,11 +144,75 @@ class ProspectList(object):
         return True
 
 
-    def calculate_score(self):
+    def _calculate_score(self):
         print "Getting Schools"
         schools = self._set_schools()
         print "Getting Jobs"
         jobs = self._set_jobs()
-        return self.results
+        return self.results.items()
+
+    def _organize_job(self, user, jobs, score, id):
+        start_date = jobs.get("start_date")
+        end_date = jobs.get("end_date", "Present")
+        prospect_name = jobs.get("name")
+        company_name = jobs.get("company")
+        current_location = jobs.get("current_location")
+        current_industry = jobs.get("industry")
+        url = jobs.get("url")
+        if start_date:
+            relationship = "Worked together at {} from {} to\
+            {}".format(company_name, start_date, end_date)
+        else:
+            relationship = "Worked together at {}".format(\
+                    company_name, start_date, end_date)
+        user['start_date'] = start_date
+        user['end_date'] = end_date
+        user['prospect_name'] = prospect_name
+        user['company_name'] = company_name
+        user['current_location'] = current_location
+        user['current_industry'] = current_industry
+        user['url'] = url
+        user['relationship'] = relationship
+        user['score'] = score
+        user['id'] = id
+        return user
+
+    def _organize_school(self, user, schools, score, id):
+        end_date = schools.get("end_date", "Present")
+        prospect_name = schools.get("name")
+        school_name = schools.get("school")
+        current_location = schools.get("current_location")
+        current_industry = schools.get("industry")
+        url = schools.get("url")
+        relationship = "Went to school together at {} in {}"\
+                .format(school_name, end_date)
+        user['end_date'] = end_date
+        user['prospect_name'] = prospect_name
+        user['school'] = school_name
+        user['current_location'] = current_location
+        user['current_industry'] = current_industry
+        user['url'] = url
+        user['relationship'] = relationship
+        user['score'] = score
+        user['id'] = id
+        return user
+
+    def get_results(self):
+        results = []
+        raw_results = self._calculate_score()
+        for result in raw_results:
+            user = {}
+            id = result[0]
+            score = result[1].get("score")
+            jobs = result[1].get("jobs")
+            schools = result[1].get("schools")
+            if jobs:
+                user = self._organize_job(user, jobs, score, id)
+                results.append(user)
+            if schools:
+                user = self._organize_jschool(user, schools, score, id)
+                results.append(user)
+        return sorted(results, key=lambda x:x['score'], reverse=True)
+
 
 

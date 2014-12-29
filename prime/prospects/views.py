@@ -4,10 +4,8 @@ from flask import render_template, request
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education
+from prime.prospects.prospect_list import ProspectList
 from prime import db
-
-#from consume.consume import generate_prospect_from_url
-#from consume.convert import clean_url
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
@@ -15,45 +13,17 @@ from sqlalchemy import select, cast
 
 session = db.session
 
-SCHOOL_SQL = """\
-select prospect.name, school_raw, end_date, degree, prospect.location_raw, \
-prospect.industry_raw, prospect.url, prospect.id as prospect_id \
-from ( \
-select * from ( \
-select id AS school_id, end_date, prospect_school.user as \
-prospect_school_user, school_raw, degree \
-from prospect_school where school_raw='%s' \
-) as SCHOOLS \
-where to_char(end_date, 'YYYY')='%s'\
-) AS YEARS \
-inner join prospect on prospect.id=prospect_school_user;\
-"""
 
 @prospects.route("/")
-def search_schools():
+def search():
     school_results = None
     if request.args.get("url"):
         raw_url = urllib.unquote(request.args.get("url")).decode('utf8')
         url = clean_url(raw_url)
         prospect = generate_prospect_from_url(url)
-        schools = session.query(Education).filter_by(user=prospect.id)
-        school_results = []
-        for school in schools:
-            end_date = school.end_date.year if school.end_date else "2000"
-            print SCHOOL_SQL % (school.school_raw, end_date)
-            school_prospects = session.execute(SCHOOL_SQL % (school.school_raw, end_date))
-            for prospect in school_prospects:
-                result = {}
-                result['name'] = prospect[0]
-                result['school'] = prospect[1]
-                result['end_date'] = prospect[2]
-                result['degree'] = prospect[3]
-                result['current_location'] = prospect[4]
-                result['industry'] = prospect[5]
-                result['url'] = prospect[6]
-                result['id'] = prospect[7]
-                school_results.append(result)
-    return render_template('home.html', school_results=school_results)
+        prospect_list = ProspectList(prospect)
+        results = prospect_list.calculate_score()
+    return render_template('home.html', results=results)
 
 JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
 job_location, prospect.location_raw, prospect.industry_raw, prospect.url, \
