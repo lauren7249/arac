@@ -259,7 +259,6 @@ def parse_html(html):
     skills = [e.text_content() for e in raw_html.xpath("//li[@class='endorse-item']")]
     people = get_linked_profiles(html)
 
-    print experiences
     return {
         'linkedin_id': linkedin_id,
         'full_name': full_name,
