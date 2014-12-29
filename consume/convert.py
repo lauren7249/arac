@@ -27,9 +27,9 @@ def main():
         file = open(filename, 'r').read()
         html = json.loads(file).get("content")
         results =  parse_html(html)
-        #print "File:{0}, Jobs: {1}, Schools:{2}".format(filename,\
-        #        len(results.get("experiences", 0)),
-        #        len(results.get("schools", 0)))
+        print "File:{0}, Jobs: {1}, Schools:{2}".format(filename,\
+                len(results.get("experiences", 0)),
+                len(results.get("schools", 0)))
 
 def debug():
     #file = open("data/http:www.linkedin.compubzachary-kowalski37372872", 'r').read()

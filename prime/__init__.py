@@ -23,17 +23,8 @@ def create_app(config_name):
     log_format = ('%(asctime)s %(levelname)s: %(message)s '
                   '[%(pathname)s:%(lineno)d]')
     app.debug_log_format = log_format
-    if app.debug:
-        app.logger.setLevel(logging.DEBUG)
-    else:
-        app.logger.setLevel(logging.INFO)
-        handler = SysLogHandler(address='/dev/log')
-        handler.setLevel(logging.INFO)
-        handler.setFormatter(logging.Formatter(log_format))
-        app.logger.addHandler(handler)
-
+    app.logger.setLevel(logging.DEBUG)
     app.logger.info('Using config: {}'.format(config_name))
-
     db.init_app(app)
     login_manager.init_app(app)
 
