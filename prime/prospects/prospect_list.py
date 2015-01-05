@@ -30,28 +30,23 @@ class ProspectList(object):
         self.prospect_schools = session.query(Education).filter_by(user=prospect.id)
         self.results = {}
 
-    def _get_school(self, school):
+    def _get_school(self, education):
         """
         We are going to get everyone who went to the same school during the same
         time period.
         """
 
         SCHOOL_SQL = """\
-        select prospect.name, school_raw, end_date, degree, prospect.location_raw, \
-        prospect.industry_raw, prospect.url, prospect.id as prospect_id \
-        from ( \
-        select * from ( \
-        select id AS school_id, end_date, prospect_school.user as \
-        prospect_school_user, school_raw, degree \
-        from prospect_school where school_raw='%s' \
-        ) as SCHOOLS \
-        where to_char(end_date, 'YYYY')='%s'\
-        ) AS YEARS \
-        inner join prospect on prospect.id=prospect_school_user;\
+        select distinct on (id) id, educations.school_id, prospect.name, \
+        degree, start_date, end_date, location_raw, industry_raw, url from \
+        (select * from (select id as education_id, school_id, prospect_id, \
+        degree, start_date, end_date from education where school_id=%s) \
+        as schools where to_char(end_date, 'YYYY')=%s) as educations \
+        inner join prospect on educations.prospect_id=prospect.id;
         """
-        prospect_degree = school.degree
-        end_date = school.end_date.year if school.end_date else "2000"
-        school_prospects = session.execute(SCHOOL_SQL % (school.school_raw, end_date))
+        prospect_degree = education.degree
+        end_date = education.end_date.year if education.end_date else "2000"
+        school_prospects = session.execute(SCHOOL_SQL % (education.school_id, end_date))
         prospects = []
         for prospect in school_prospects:
             #Check if they worked at the same location
@@ -90,16 +85,17 @@ class ProspectList(object):
         Get all prospects who worked at the same job at the same time
         """
 
-        JOB_SQL = """select prospect.name, company_raw, start_date, end_date, \
-        job_location, prospect.location_raw, prospect.industry_raw, prospect.url, \
-        prospect.id as prospect_id \
+        JOB_SQL = """
+        select distinct on (id) id, jobs.company_id, prospect.name, title, \
+        start_date, end_date, jobs.location, location_raw, industry_raw, url \
         from (select * from (\
-        select id as job_id, start_date, end_date, job.user as job_user, company_raw,location as job_location \
-        from job where company_raw='%s') as JOBS \
-        where to_char(start_date, 'YYYY') between '%s' and '%s' OR \
-        to_char(end_date, 'YYYY') between '%s' and '%s') AS YEARS \
-        INNER JOIN prospect on prospect.id=job_user;\
+        select id as job_id, company_id, prospect_id, title, start_date, end_date, location \
+        from job where company_id=%s) as companies where \
+        to_char(start_date, 'YYYY') between '%s' and '%s' or \
+        to_char(end_date, 'YYYY') between '%s' and '%s') as jobs \
+        inner join prospect on jobs.prospect_id=prospect.id;
         """
+
         prospect_location = job.location
         prospect_group = None #TODO
         start_date = job.start_date.year if job.start_date else "2000"

@@ -33,10 +33,14 @@ class DevelopmentConfig(Config):
     COOKIE_SECURE = False
     ARACHNID_SERVER_URL = 'http://localhost:5000'
 
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'postgresql://acprime:acprime101B@localhost:5432/acprime'
+
 
 
 config = {
     'development': DevelopmentConfig,
     'beta': BetaConfig,
-    'default': DevelopmentConfig
+    'default': DevelopmentConfig,
+    'production': ProductionConfig
 }
