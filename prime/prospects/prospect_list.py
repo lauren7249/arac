@@ -41,7 +41,7 @@ class ProspectList(object):
         degree, start_date, end_date, location_raw, industry_raw, url from \
         (select * from (select id as education_id, school_id, prospect_id, \
         degree, start_date, end_date from education where school_id=%s) \
-        as schools where to_char(end_date, 'YYYY')=%s) as educations \
+        as schools where to_char(end_date, 'YYYY')='%s') as educations \
         inner join prospect on educations.prospect_id=prospect.id;
         """
         prospect_degree = education.degree
