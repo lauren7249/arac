@@ -37,7 +37,7 @@ class ProspectList(object):
         """
 
         SCHOOL_SQL = """\
-        select distinct on (id) id, educations.school_name as education_name, educations.school_id, prospect.name, \
+        select distinct on (id) id, educations.school_name as education_name, educations.school_id, name, \
         degree, end_date, location_raw, industry_raw, url from \
         (select * from (select id as education_id, school_id, prospect_id, \
         degree, start_date, end_date, school.name as school_name from education inner join school on \
@@ -88,7 +88,7 @@ class ProspectList(object):
         """
 
         JOB_SQL = """
-        select distinct on (id) id, jobs.company_name, jobs.company_id, prospect.name, title, \
+        select distinct on (id) id, jobs.company_name, jobs.company_id, name, title, \
         start_date, end_date, jobs.location, location_raw, industry_raw, url \
         from (select * from (\
         select id as job_id, company_id, prospect_id, title, start_date, \
