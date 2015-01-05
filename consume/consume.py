@@ -27,11 +27,8 @@ logger.setLevel(logging.DEBUG)
 app = create_app(os.getenv('AC_CONFIG', 'beta'))
 db = SQLAlchemy(app)
 session = db.session
-try:
-    s3conn = boto.connect_s3()
-    bucket = s3conn.get_bucket('arachid-results')
-except:
-    pass
+s3conn = boto.connect_s3("AKIAIWG5K3XHEMEN3MNA", "luf+RyH15uxfq05BlI9xsx8NBeerRB2yrxLyVFJd")
+bucket = s3conn.get_bucket('arachid-results')
 
 def dedupe_dict(ds):
     return map(dict, set(tuple(sorted(d.items())) for d in ds))

@@ -36,6 +36,8 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     #REDSHIFT_DATABASE_URI = 'postgresql://acprime:acprime101B@localhost:5432/acprime'
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
+    AWS_ACCESS_KEY_ID='AKIAIWG5K3XHEMEN3MNA'
+    AWS_SECRET_ACCESS_KEY='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'
 
 
 

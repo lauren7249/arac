@@ -8,6 +8,7 @@ from prime import create_app, db
 
 
 app = create_app(os.getenv('AC_CONFIG', 'beta'))
+app.debug=True
 migrate = Migrate(app, db)
 
 if __name__ == '__main__':
