@@ -104,7 +104,7 @@ class ProspectList(object):
         start_date = job.start_date.year if job.start_date else "2000"
         end_date = job.end_date.year if job.end_date else "2015"
         job_prospects = session.execute(JOB_SQL %\
-                (job.company_raw, start_date,\
+                (job.company_id, start_date,\
                 end_date, start_date,\
                 end_date))
         prospects = []
@@ -157,6 +157,7 @@ class ProspectList(object):
         end_date = jobs.get("end_date", "Present")
         prospect_name = jobs.get("prospect_name")
         company_name = jobs.get("company_name")
+        company_id = jobs.get("company_id")
         current_location = jobs.get("current_location")
         current_industry = jobs.get("industry")
         url = jobs.get("url")
@@ -172,6 +173,7 @@ class ProspectList(object):
         user['prospect_name'] = prospect_name
         user['title'] = title
         user['company_name'] = company_name
+        user['company_id'] = company_id
         user['current_location'] = current_location
         user['current_industry'] = current_industry
         user['url'] = url
@@ -184,6 +186,7 @@ class ProspectList(object):
         end_date = schools.get("end_date", "Present")
         prospect_name = schools.get("prospect_name")
         school_name = schools.get("school_name")
+        school_id = schools.get("school_id")
         current_location = schools.get("current_location")
         current_industry = schools.get("industry")
         url = schools.get("url")
@@ -191,7 +194,8 @@ class ProspectList(object):
                 .format(school_name, end_date)
         user['end_date'] = end_date
         user['prospect_name'] = prospect_name
-        user['school'] = school_name
+        user['school_name'] = school_name
+        user['school_id'] = school_id
         user['current_location'] = current_location
         user['current_industry'] = current_industry
         user['url'] = url
