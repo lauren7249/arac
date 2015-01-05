@@ -215,7 +215,7 @@ class ProspectList(object):
                 user = self._organize_jschool(user, schools, score, id)
                 if user.get("url") != self.prospect.url:
                     results.append(user)
-        return sorted(results, key=lambda x:x['score'], reverse=True)
+        return sorted(results, key=lambda x:x['score'], reverse=True)[:100]
 
 
 
