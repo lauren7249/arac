@@ -131,7 +131,6 @@ class Education(db.Model):
     __tablename__ = "education"
 
     id = db.Column(Integer, primary_key=True)
-    name = db.Column(String)
     school_id = db.Column(Integer, ForeignKey("school.id"))
     degree = db.Column(String(200))
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
