@@ -130,7 +130,7 @@ def create_prospect_from_info(info, url):
     schools = create_schools(info, new_prospect)
     jobs = create_jobs(info, new_prospect)
     session.commit()
-    return True
+    return new_prospect
 
 def process_from_file(url_file=None, start=0, end=-1):
     count = 0
@@ -255,7 +255,7 @@ def generate_prospect_from_url(url):
         if info_is_valid(info):
             if models.Prospect.s3_exists(session, s3_key):
                 return session.query(models.Prospect).filter_by(s3_key=s3_key).first()
-            create_prospect_from_info(info, url)
+            new_prospect = create_prospect_from_info(info, url)
             session.commit()
             return new_prospect
 
