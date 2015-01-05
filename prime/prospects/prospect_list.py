@@ -26,8 +26,8 @@ class ProspectList(object):
     def __init__(self, prospect, *args, **kwargs):
 
         self.prospect = prospect
-        self.prospect_jobs = session.query(Job).filter_by(user=prospect.id)
-        self.prospect_schools = session.query(Education).filter_by(user=prospect.id)
+        self.prospect_jobs = session.query(Job).filter_by(prospect=prospect)
+        self.prospect_schools = session.query(Education).filter_by(prospect=prospect)
         self.results = {}
 
     def _get_school(self, education):
