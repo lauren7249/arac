@@ -37,10 +37,11 @@ class ProspectList(object):
         """
 
         SCHOOL_SQL = """\
-        select distinct on (id) id, educations.school_id, prospect.name, \
-        degree, start_date, end_date, location_raw, industry_raw, url from \
+        select distinct on (id) id, educations.school_name as education_name, educations.school_id, prospect.name, \
+        degree, end_date, location_raw, industry_raw, url from \
         (select * from (select id as education_id, school_id, prospect_id, \
-        degree, start_date, end_date from education where school_id=%s) \
+        degree, start_date, end_date, school.name as school_name from education inner join school on \
+        education.school_id=school.id where school_id=%s) \
         as schools where to_char(end_date, 'YYYY')='%s') as educations \
         inner join prospect on educations.prospect_id=prospect.id;
         """
@@ -62,16 +63,17 @@ class ProspectList(object):
         for prospect_school in self.prospect_schools:
             schools = self._get_school(prospect_school)
             for school in schools:
-                id = school[7]
-                score = school[8]
-                result = {"name":school[0],
-                            "school": school[1],
-                            "end_date": school[2],
-                            "degree": school[3],
-                            "current_location": school[4],
-                            "industry": school[5],
-                            "url": school[6],
+                id = school[0]
+                result = {"school_name": school[1],
+                            "school_id": school[2],
+                            "prospect_name":school[3],
+                            "degree": school[4],
+                            "end_date": school[5],
+                            "current_location": school[6],
+                            "industry": school[7],
+                            "url": school[8],
                             "id": id}
+                score = school[9]
                 exisiting  = self.results.get(id)
                 if exisiting:
                     score += exisiting.get("score")
@@ -86,11 +88,12 @@ class ProspectList(object):
         """
 
         JOB_SQL = """
-        select distinct on (id) id, jobs.company_id, prospect.name, title, \
+        select distinct on (id) id, jobs.company_name, jobs.company_id, prospect.name, title, \
         start_date, end_date, jobs.location, location_raw, industry_raw, url \
         from (select * from (\
-        select id as job_id, company_id, prospect_id, title, start_date, end_date, location \
-        from job where company_id=%s) as companies where \
+        select id as job_id, company_id, prospect_id, title, start_date, \
+        end_date, location, company.name as company_name \
+        from job inner join company on company.id=job.company_id where company_id=%s) as companies where \
         to_char(start_date, 'YYYY') between '%s' and '%s' or \
         to_char(end_date, 'YYYY') between '%s' and '%s') as jobs \
         inner join prospect on jobs.prospect_id=prospect.id;
@@ -120,9 +123,9 @@ class ProspectList(object):
         for prospect_job in self.prospect_jobs:
             jobs = self._get_job(prospect_job)
             for job in jobs:
-                id = job[8]
+                id = job[0]
                 score = job[9]
-                result = {"name":job[0],
+                result = {"company_name":job[0],
                             "company": job[1],
                             "start_date": job[2],
                             "end_date": job[3],
