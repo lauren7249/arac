@@ -73,10 +73,10 @@ class ProspectList(object):
                             "industry": school[7],
                             "url": school[8],
                             "id": id}
-                score = school[9]
+                score = float(school[9])
                 exisiting  = self.results.get(id)
                 if exisiting:
-                    score += exisiting.get("score")
+                    score += float(exisiting.get("score"))
                 self.results[id] = {"score":score,
                                     "school":result}
         return True
@@ -124,17 +124,19 @@ class ProspectList(object):
             jobs = self._get_job(prospect_job)
             for job in jobs:
                 id = job[0]
-                score = job[9]
-                result = {"company_name":job[0],
-                            "company": job[1],
-                            "start_date": job[2],
-                            "end_date": job[3],
-                            "job_location": job[4],
-                            "current_location": job[5],
-                            "industry": job[6],
-                            "url": job[7],
+                result = {"company_name":job[1],
+                            "company_id": job[2],
+                            "prospect_name": job[3],
+                            "title": job[4],
+                            "start_date": job[5],
+                            "end_date": job[6],
+                            "job_location": job[7],
+                            "current_location": job[8],
+                            "industry": job[9],
+                            "url": job[10],
                             "id": id,
                             "type": "job"}
+                score = float(job[11])
                 exisiting  = self.results.get(id)
                 if exisiting:
                     score += exisiting.get("score")
