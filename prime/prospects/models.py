@@ -34,8 +34,8 @@ class Prospect(db.Model):
     people_raw = db.Column(Text)
 
 
-    jobs = relationship('Job', foreign_keys='Job.user')
-    schools = relationship('Education', foreign_keys='Education.user')
+    jobs = relationship('Job', foreign_keys='Job.prospect_id')
+    schools = relationship('Education', foreign_keys='Education.prospect_id')
 
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
@@ -103,7 +103,7 @@ class Job(db.Model):
     location = db.Column(String(1024))
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
-    prospect = relationship('Prospect', foreign_keys='Job.user')
+    prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
     title = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
@@ -129,14 +129,14 @@ class School(db.Model):
 
 
 class Education(db.Model):
-    __tablename__ = "prospect_school"
+    __tablename__ = "education"
 
     id = db.Column(Integer, primary_key=True)
     name = db.Column(String)
     school_id = db.Column(Integer, ForeignKey("school.id"))
     degree = db.Column(String(200))
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
-    prospect = relationship('Prospect', foreign_keys='Education.user')
+    prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
     start_date = db.Column(Date)
     end_date = db.Column(Date)
 
