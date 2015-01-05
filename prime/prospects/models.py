@@ -31,7 +31,6 @@ class Prospect(db.Model):
     complete = db.Column(Boolean)
     updated = db.Column(Date)
     connections = db.Column(Integer)
-    people_raw = db.Column(Text)
 
 
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
