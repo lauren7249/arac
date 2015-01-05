@@ -180,8 +180,8 @@ class ProspectList(object):
 
     def _organize_school(self, user, schools, score, id):
         end_date = schools.get("end_date", "Present")
-        prospect_name = schools.get("name")
-        school_name = schools.get("school")
+        prospect_name = schools.get("prospect_name")
+        school_name = schools.get("school_name")
         current_location = schools.get("current_location")
         current_industry = schools.get("industry")
         url = schools.get("url")
