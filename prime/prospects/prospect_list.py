@@ -155,8 +155,8 @@ class ProspectList(object):
     def _organize_job(self, user, jobs, score, id):
         start_date = jobs.get("start_date")
         end_date = jobs.get("end_date", "Present")
-        prospect_name = jobs.get("name")
-        company_name = jobs.get("company")
+        prospect_name = jobs.get("prospect_name")
+        company_name = jobs.get("company_name")
         current_location = jobs.get("current_location")
         current_industry = jobs.get("industry")
         url = jobs.get("url")
