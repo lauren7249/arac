@@ -34,7 +34,8 @@ class DevelopmentConfig(Config):
     ARACHNID_SERVER_URL = 'http://localhost:5000'
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql://acprime:acprime101B@localhost:5432/acprime'
+    #REDSHIFT_DATABASE_URI = 'postgresql://acprime:acprime101B@localhost:5432/acprime'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
 
 
 

@@ -78,7 +78,7 @@ class ProspectList(object):
                 if exisiting:
                     score += float(exisiting.get("score"))
                 self.results[id] = {"score":score,
-                                    "school":result}
+                                    "schools":result}
         return True
 
 
@@ -160,6 +160,7 @@ class ProspectList(object):
         current_location = jobs.get("current_location")
         current_industry = jobs.get("industry")
         url = jobs.get("url")
+        title = jobs.get("title")
         if start_date:
             relationship = "Worked together at {} from {} to\
             {}".format(company_name, start_date, end_date)
@@ -169,6 +170,7 @@ class ProspectList(object):
         user['start_date'] = start_date
         user['end_date'] = end_date
         user['prospect_name'] = prospect_name
+        user['title'] = title
         user['company_name'] = company_name
         user['current_location'] = current_location
         user['current_industry'] = current_industry
@@ -212,7 +214,7 @@ class ProspectList(object):
                 if user.get("url") != self.prospect.url:
                     results.append(user)
             if schools:
-                user = self._organize_jschool(user, schools, score, id)
+                user = self._organize_school(user, schools, score, id)
                 if user.get("url") != self.prospect.url:
                     results.append(user)
         return sorted(results, key=lambda x:x['score'], reverse=True)[:100]
