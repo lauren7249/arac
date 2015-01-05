@@ -99,11 +99,10 @@ class Job(db.Model):
     __tablename__ = "job"
 
     id = db.Column(Integer, primary_key=True)
-    company = db.Column(Integer, ForeignKey("company.id"))
-    company_raw = db.Column(String(1024))
+    company_id = db.Column(Integer, ForeignKey("company.id"))
     location = db.Column(String(1024))
 
-    user = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
     prospect = relationship('Prospect', foreign_keys='Job.user')
     title = db.Column(String(1024))
     start_date = db.Column(Date)
@@ -134,14 +133,12 @@ class Education(db.Model):
 
     id = db.Column(Integer, primary_key=True)
     name = db.Column(String)
-    school = db.Column(Integer, ForeignKey("school.id"))
+    school_id = db.Column(Integer, ForeignKey("school.id"))
     degree = db.Column(String(200))
-    school_raw = db.Column(String(1024))
-    user = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
     prospect = relationship('Prospect', foreign_keys='Education.user')
     start_date = db.Column(Date)
     end_date = db.Column(Date)
-    body_tsv = db.Column(TSVECTOR)
 
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
