@@ -37,6 +37,28 @@ def debug():
     html = json.loads(file).get("content")
     return parse_html(html)
 
+def parse_images(html):
+    raw_html = lxml.html.fromstring(html)
+    images = raw_html.xpath("//img")
+    images = [img.get("src") for img in images]
+    for img in images:
+        if "mpr" in img:
+            return img
+    return None
+
+def find_images():
+    count = 0
+    exists = 0
+    os.chdir("data")
+    for filename in os.listdir(os.getcwd()):
+        count += 1
+        file = open(filename, 'r').read()
+        html = json.loads(file).get("content")
+        if parse_images(html):
+            exists += 1
+    print "Attempted: {} Exists: {}".format(count, exists)
+
+
 def is_profile_link(link):
 
     if link and re.match(profile_re, link):
@@ -275,12 +297,15 @@ def parse_html(html):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--benchmark', action='store_true')
+    parser.add_argument('--images', action='store_true')
     args = parser.parse_args()
 
     if args.benchmark:
         import timeit
         print(timeit.timeit("debug()", setup="from __main__ import debug",
             number=10000))
+    elif args.images:
+        find_images()
     else:
         main()
 

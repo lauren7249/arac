@@ -1,17 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='row'>
-    <h1>Advisor Connect <span>Prime</span></h1>
-</div>
-<div class='row'>
-  <ul class="nav nav-tabs">
-    <li {% if school_results %}class="active"{% endif %}><a href="/" data-toggle="tab">Schools</a></li>
-    <li {% if job_results %}class="active"{% endif %}><a href="/jobs" data-toggle="tab">Jobs</a></li>
-    <li><a>Linkedin Profiles</a></li>
-  </ul>
-<br/>
-</div>
-<div class='row'>
   <form method='GET'>
     <div class="form-group">
       <div class='row'>
@@ -35,7 +24,6 @@
       <th>#</th>
       <th>Name</th>
       <th>Relationship</th>
-      <th>Company</th>
       <th>Current Location</th>
       <th>Current Industry</th>
       <th>User Score</th>
@@ -46,11 +34,6 @@
   <tr>
     <td>{{ result.id }}</td>
     <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.prospect_name }}</td>
-    {% if result.company_id %}
-    <td><a href='/company/{{ result.company_id }}'>{{ result.company.name }}</a></td>
-    {% else %}
-    <td><a href='/school/{{ result.school_id }}'>{{ result.school.name }}</a></td>
-    {% endif %}
     <td>{{ result.relationship }}</td>
     <td>{{ result.current_location }}</td>
     <td>{{ result.industry }}</td>
