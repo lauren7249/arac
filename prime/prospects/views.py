@@ -32,21 +32,18 @@ def search():
 
 @prospects.route("/company/<int:company_id>")
 def company():
-    company_id = request.args.get("company_id")
     company = session.query(Company).get(company_id)
     prospects = session.query(Prospect).filter_by(company=company)
     return render_template('company.html', company=company, prospects=prospects)
 
 @prospects.route("/company/<int:school_id>")
 def school():
-    school_id = request.args.get("school_id")
     school = session.query(School).get(school_id)
     prospects = session.query(Prospect).filter_by(school=school)
     return render_template('school.html', school=school, prospects=prospects)
 
 @prospects.route("/prospect/<int:prospect_id>")
 def prospect():
-    prospect_id = request.args.get("prospect_id")
     prospect = session.query(Prospect).get(prospect_id)
     jobs = prospect.jobs
     schools = prospect.schools
