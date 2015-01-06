@@ -29,6 +29,7 @@
       <th>#</th>
       <th>Name</th>
       <th>Relationship</th>
+      <th>Institution</th>
       <th>Current Location</th>
       <th>Current Industry</th>
       <th>User Score</th>
@@ -40,6 +41,11 @@
     <td>{{ result.id }}</td>
     <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.prospect_name }}</td>
     <td>{{ result.relationship }}</td>
+    {% if result.company_id %}
+    <td><a href='/company/{{ result.company_id }}'>{{ result.company.name }}</a></td>
+    {% else %}
+     <td><a href='/school/{{ result.school_id }}'>{{ result.school.name }}</a></td>
+    {% endif %}
     <td>{{ result.current_location }}</td>
     <td>{{ result.industry }}</td>
     <td>{{ result.score }}</td>
