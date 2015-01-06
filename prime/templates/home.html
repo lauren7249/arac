@@ -42,9 +42,9 @@
     <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.prospect_name }}</td>
     <td>{{ result.relationship }}</td>
     {% if result.company_id %}
-    <td><a href='/company/{{ result.company_id }}'>{{ result.company.name }}</a></td>
+    <td><a href='/company/{{ result.company_id }}'>{{ result.company_name }}</a></td>
     {% else %}
-     <td><a href='/school/{{ result.school_id }}'>{{ result.school.name }}</a></td>
+     <td><a href='/school/{{ result.school_id }}'>{{ result.school_name }}</a></td>
     {% endif %}
     <td>{{ result.current_location }}</td>
     <td>{{ result.industry }}</td>
