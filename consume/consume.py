@@ -184,14 +184,15 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 if info_is_valid(info):
                     prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
                     prospect.updated = datetime.date.today()
-                    prospect.image_url = info.get("image_url")
+                    prospect.image_url = info.get("image")
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
                     jobs = session.query(models.Job).filter_by(prospect=prospect)
                     for job in jobs:
                         for info_job in info_jobs:
                             company = info_job.get("company")
                             if company == job.company.name:
-                                job.location_raw = info_job.get("location_raw")
+                                print info_job.get("location")
+                                job.location = info_job.get("location")
                     session.commit()
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:
