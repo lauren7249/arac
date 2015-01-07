@@ -24,6 +24,8 @@ class Prospect(db.Model):
     location = db.Column(Integer, ForeignKey("location.id"))
     location_raw = db.Column(String)
 
+    image_url = db.Column(String(1024))
+
     industry = db.Column(Integer, ForeignKey("industry.id"))
     industry_raw = db.Column(String(1024))
 
@@ -99,6 +101,7 @@ class Job(db.Model):
 
     id = db.Column(Integer, primary_key=True)
     company_id = db.Column(Integer, ForeignKey("company.id"))
+    company = relationship('Company', foreign_keys='Job.company_id')
     location = db.Column(String(1024))
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
