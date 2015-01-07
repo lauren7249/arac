@@ -152,6 +152,7 @@ def process_from_file(url_file=None, start=0, end=-1):
             except S3ResponseError:
                 logger.error('couldn\'t get url {} from s3'.format(url))
 
+
 def load_test_data():
     count = 0
     os.chdir("data")
@@ -182,59 +183,15 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 info = get_info_for_url(url)
                 if info_is_valid(info):
                     prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
-
-                    cleaned_id = info['linkedin_id']
-                    try:
-                        connections = info.get("connections")
-                        prospect.connections = int(connections)
-                    except Exception, e:
-                        pass
-                    prospect.people_raw = ";".join(info["people"])
-                    prospect.linkedin_id = cleaned_id
                     prospect.updated = datetime.date.today()
-                    #session.add(prospect)
+                    prospect.image_url = info.get("image_url")
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                    jobs = session.query(models.Job).filter_by(user=prospect.id)
+                    jobs = session.query(models.Job).filter_by(prospect=prospect)
                     for job in jobs:
                         for info_job in info_jobs:
                             company = info_job.get("company")
-                            if company == job.company_raw:
-                                try:
-                                    start_date = parser.parse(info_job.get("start_date")).replace(tzinfo=None)
-                                    job.start_date = start_date
-                                except Exception, e:
-                                    pass
-                                try:
-                                    end_date = parser.parse(info_job.get("end_date")).replace(tzinfo=None)
-                                    job.end_date = end_date
-                                except Exception, e:
-                                    pass
+                            if company == job.company.name:
                                 job.location_raw = info_job.get("location_raw")
-                                #session.add(job)
-
-                    info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
-                    schools = session.query(models.Education).filter_by(user=prospect.id)
-                    for school in schools:
-                        for info_school in info_schools:
-                            school_raw = info_school.get("college")
-                            if school_raw == school.school_raw:
-                                try:
-                                    start_date = parser.parse(info_school.get("start_date")).replace(tzinfo=None)
-                                    school.start_date = start_date
-                                except Exception, e:
-                                    pass
-                                try:
-                                    end_date = parser.parse(info_school.get("end_date")).replace(tzinfo=None)
-                                    school.end_date = end_date
-                                except Exception, e:
-                                    try:
-                                        end_date = parser.parse(info_school.get("graduation_date")).replace(tzinfo=None)
-                                        job.end_date = end_date
-                                    except Exception, e:
-                                        pass
-                                    pass
-                                school.degree =info_school.get("degree")
-                                #session.add(school)
                     session.commit()
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:

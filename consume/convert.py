@@ -37,13 +37,14 @@ def debug():
     html = json.loads(file).get("content")
     return parse_html(html)
 
-def parse_images(html):
-    raw_html = lxml.html.fromstring(html)
+def parse_images(raw_html):
     images = raw_html.xpath("//img")
     images = [img.get("src") for img in images]
     for img in images:
-        if "mpr" in img:
+        if "mpr/shrink_200_200" in img:
             return img
+        if "mpr/shrink_500_500" in img:
+            return img.replace("500_500", "200_200")
     return None
 
 def find_images():
@@ -247,6 +248,11 @@ def parse_html(html):
         except:
             pass
 
+    try:
+        image = parse_images(raw_html)
+    except:
+        image = None
+
 
     location = safe_clean_str(location)
     industry = safe_clean_str(industry)
@@ -282,6 +288,7 @@ def parse_html(html):
     people = get_linked_profiles(html)
 
     return {
+        'image': image,
         'linkedin_id': linkedin_id,
         'full_name': full_name,
         'schools': schools,
