@@ -7,8 +7,11 @@ from prime.prospects.models import Prospect, Job, Education, Company, School
 from prime.prospects.prospect_list import ProspectList
 from prime import db
 
-from consume.consume import generate_prospect_from_url
-from consume.convert import clean_url
+try:
+    from consume.consume import generate_prospect_from_url
+    from consume.convert import clean_url
+except:
+    pass
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
@@ -33,8 +36,8 @@ def search():
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
     company = session.query(Company).get(company_id)
-    prospects = session.query(Prospect).filter_by(company=company)
-    return render_template('company.html', company=company, prospects=prospects)
+    jobs = session.query(Job).filter_by(company_id=company.id).limit(100)
+    return render_template('company.html', company=company, jobs=jobs)
 
 @prospects.route("/company/<int:school_id>")
 def school(school_id):

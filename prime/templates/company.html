@@ -4,10 +4,14 @@
   <h1>{{ company.name }}</h1>
 </div>
 <div class='row'>
+  <form action='GET'>
   <ul class="nav nav-tabs">
-    <li {% if school_results %}class="active"{% endif %}><a href="/" data-toggle="tab">Schools</a></li>
-    <li {% if job_results %}class="active"{% endif %}><a href="/jobs" data-toggle="tab">Jobs</a></li>
+    <li>Filter:</li>
+    <li><input class='form-control' type='text' placeholder='Start Date' name='start_date' /></li>
+    <li><input class='form-control' type='text' placeholder='End Date' name='end_date' /></li>
+    <li><button class='btn btn-warning' value='submit'>Submit</button></li>
   </ul>
+  </form>  
 <br/>
 </div>
 <div class='row'>   
@@ -23,19 +27,18 @@
     </tr>
   </thead>
   <tbody>
-  {% for company in companies %}
+  {% for job in jobs %}
   <tr>
     <td><script type="IN/MemberProfile" data-id="{{ job.prospect.url }}" data-format="hover"></script>{{ job.prospect.name }}</td>
     <td>{{ job.title }}</td>
-    <td>{{ job.prospect.current_location }}</td>
-    <td>{{ job.prospect.industry }}</td>
+    <td>{{ job.prospect.location_raw }}</td>
+    <td>{{ job.prospect.industry_raw }}</td>
     <td>{{ job.start_date }}</td>
     <td>{{ job.end_date }}</td>
   </tr>
   {% endfor %}
   </tbody>
 </table>
-{% endif %}
 </div>
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 {% endblock %}
