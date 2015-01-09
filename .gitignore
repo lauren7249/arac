@@ -1,4 +1,7 @@
 src/
+.sass-cache/
+prime/static/.webassets-cache/
+prime/static/css/gen/
 data/
 *.pem
 list.txt

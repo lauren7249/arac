@@ -1,0 +1,54 @@
+@import "compass/css3";
+
+@mixin placeholder {
+  &::-webkit-input-placeholder {@content}
+  &:-moz-placeholder {@content}
+  &::-moz-placeholder {@content}
+  &:-ms-input-placeholder {@content}
+}
+
+$noto: 'Noto Sans', sans-serif;;
+$bold: 700;
+
+.clear {
+  clear: both;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.select {
+  position: relative;
+  background-position: 320px 21px;
+  background-color: #fff;
+  border: 1px solid #dddddd;
+  display: block;
+  margin: 0 auto 16px;
+  font-size: 20px;
+  color: #a0a0a1;
+  @include box-shadow(#eee 0px 1px 2px);
+  @include border-radius(2px);
+  margin-bottom: 16px;
+
+  select {
+    -webkit-appearance: none;
+    -moz-appearance:window;
+    appearance: none;
+    background: transparent;
+    padding-left: 10px;
+    border: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+button:focus {
+ outline: none;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}

@@ -2,7 +2,7 @@ import logging
 from logging.handlers import SysLogHandler
 
 from flask import Flask
-#from flask.ext.assets import Environment
+from flask.ext.assets import Environment
 from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -29,7 +29,7 @@ def create_app(config_name):
     login_manager.init_app(app)
 
     #mail.init_app(app)
-    #init_assets(app)
+    init_assets(app)
     register_blueprints(app)
 
     return app
@@ -37,7 +37,7 @@ def create_app(config_name):
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/reset.css', 'css/slider.css', 'css/gen/main.css', 'css/gen/styles.css',
+    css = Bundle('css/main.css','css/styles.css', 'css/bootswatch.min.css',
                  output='css/gen/main.%(version)s-fitzmin.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)

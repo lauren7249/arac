@@ -3,8 +3,12 @@
   <head>
     <title>Advisorconnect</title>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    <link href='http://bootswatch.com/assets/css/bootswatch.min.css' rel='stylesheet' />
-    <link rel="stylesheet" href="http://bootswatch.com/united/bootstrap.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
+    {% assets "css_all" %}
+      <link rel='stylesheet' href="{{ ASSET_URL }}">
+    {% endassets %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
     <link rel='shortcut icon' href='/favicon.ico' />
     <link rel='apple-touch-icon' href="">
@@ -32,6 +36,9 @@
       <div class='container'>
           <div class="navbar-header">
           <a class="navbar-brand active" href="#">Home</a>
+          </div>
+          <div class="navbar-header">
+          <a class="navbar-brand" href="#">My Clients</a>
           </div>
       </div>
   </div>

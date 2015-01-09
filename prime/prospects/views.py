@@ -13,13 +13,29 @@ from consume.convert import clean_url
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
+from prime.prospects.helper import LinkedinResults
+
 session = db.session
 
 @prospects.route("/clients")
 def clients():
     pass
 
-@prospects.route("/")
+@prospects.route("/", methods=['GET', 'POST'])
+def upload():
+    results = None
+    if request.method == 'POST':
+        query = request.form.get("query")
+        results = LinkedinResults(query).process()
+    return render_template('upload.html', results=results)
+
+@prospects.route("/", methods=['POST'])
+def select_client():
+    if request.method == 'POST':
+        url = request.form.get("url")
+    return render_template('upload.html', results=results)
+
+@prospects.route("/search")
 def search():
     results = None
     if request.args.get("url"):
@@ -28,7 +44,7 @@ def search():
         prospect = generate_prospect_from_url(url)
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
-    return render_template('home.html', results=results)
+    return render_template('search.html', results=results)
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
