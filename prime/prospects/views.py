@@ -57,11 +57,13 @@ def company(company_id):
             False)
     return render_template('company.html', company=company, jobs=jobs)
 
-@prospects.route("/company/<int:school_id>")
+@prospects.route("/school/<int:school_id>")
 def school(school_id):
+    page = int(request.args.get("p", 1))
     school = session.query(School).get(school_id)
-    prospects = session.query(Prospect).filter_by(school=school)
-    return render_template('school.html', school=school, prospects=prospects)
+    educations = Education.query.filter_by(school_id=school.id).paginate(page,
+            50, False)
+    return render_template('school.html', school=school, educations=educations)
 
 @prospects.route("/prospect/<int:prospect_id>")
 def prospect(prospect_id):

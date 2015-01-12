@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='row'>
-  <h1>{{ company.name }}</h1>
+  <h1>{{ school.name }}</h1>
 </div>
 <div class='row'>
   <form action='GET'>
@@ -22,26 +22,24 @@
       <th>Title</th>
       <th>Current Location</th>
       <th>Current Industry</th>
-      <th>Start Date</th>
-      <th>End Date</th>
+      <th>Graduation Date</th>
     </tr>
   </thead>
   <tbody>
-  {% for job in jobs.items %}
+  {% for education in educations.items %}
   <tr>
-    <td><script type="IN/MemberProfile" data-id="{{ job.prospect.url }}" data-format="hover"></script><a href='{{ job.prospect.get_url }}'>{{ job.prospect.name }}</a></td>
-    <td>{{ job.title }}</td>
-    <td>{{ job.prospect.location_raw }}</td>
-    <td>{{ job.prospect.industry_raw }}</td>
-    <td>{{ job.start_date }}</td>
-    <td>{{ job.end_date }}</td>
+    <td><script type="IN/MemberProfile" data-id="{{ education.prospect.url }}" data-format="hover"></script><a href='{{ education.prospect.get_url }}'>{{ education.prospect.name }}</a></td>
+    <td>{{ education.degree }}</td>
+    <td>{{ education.prospect.location_raw }}</td>
+    <td>{{ education.prospect.industry_raw }}</td>
+    <td>{{ education.end_date }}</td>
   </tr>
   {% endfor %}
   </tbody>
 </table>
 <div class='pagination'>
-  <p>{% if jobs.has_prev %}<a href="{{ company.get_url }}?p={{ jobs.prev_num }}"><< Previous Page</a>{% endif %}
-  {% if jobs.has_next %}<a href="{{ company.get_url }}?p={{ jobs.next_num }}">Next Page >></a>{% endif %}</p>
+  <p>{% if educations.has_prev %}<a href="{{ school.get_url }}?p={{ educations.prev_num }}"><< Previous Page</a>{% endif %}
+  {% if educations.has_next %}<a href="{{ school.get_url }}?p={{ educations.next_num }}">Next Page >></a>{% endif %}</p>
 </div>
 </div>
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
