@@ -40,8 +40,8 @@
   </tbody>
 </table>
 <div class='pagination'>
-  <p>{% if jobs.has_prev %}<a href="{{ jobs.prev_num }}"><< Previous Page</a>{% endif %}
-  {% if jobs.has_next %}<a href="{{ jobs.next_num }}">Next Page >></a>{% endif %}</p>
+  <p>{% if jobs.has_prev %}<a href="{{ company.get_url }}?p={{ jobs.prev_num }}"><< Previous Page</a>{% endif %}
+  {% if jobs.has_next %}<a href="{{ company.get_url }}?p={{ jobs.next_num }}">Next Page >></a>{% endif %}</p>
 </div>
 </div>
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
