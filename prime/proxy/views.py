@@ -14,7 +14,7 @@ from prime import db
 from consume.convert import clean_url
 from consume.convert import parse_html
 from consume.consumer import create_prospect_from_info as new_prospect
-from linkedin.run_redis_queue_scraper import process_request_q
+from linkedin.scraper import process_request
 
 session = db.session
 
