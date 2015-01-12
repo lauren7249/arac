@@ -54,7 +54,7 @@ def company(company_id):
     page = int(request.args.get("p", 1))
     company = session.query(Company).get(company_id)
     jobs = Job.query.filter_by(company_id=company_id).paginate(page, 50,
-            False).items
+            False)
     return render_template('company.html', company=company, jobs=jobs)
 
 @prospects.route("/company/<int:school_id>")

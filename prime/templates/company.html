@@ -27,7 +27,7 @@
     </tr>
   </thead>
   <tbody>
-  {% for job in jobs %}
+  {% for job in jobs.items %}
   <tr>
     <td><script type="IN/MemberProfile" data-id="{{ job.prospect.url }}" data-format="hover"></script>{{ job.prospect.name }}</td>
     <td>{{ job.title }}</td>
