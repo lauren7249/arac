@@ -46,7 +46,9 @@ def init_assets(app):
 
 def register_blueprints(app):
     from .prospects import prospects as prospects_blueprint
+    from .proxy import proxy as proxy_blueprint
     app.register_blueprint(prospects_blueprint)
+    app.register_blueprint(proxy_blueprint)
 
 
     #from .auth import auth as auth_blueprint

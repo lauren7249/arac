@@ -135,6 +135,7 @@ class Education(db.Model):
 
     id = db.Column(Integer, primary_key=True)
     school_id = db.Column(Integer, ForeignKey("school.id"))
+    school = relationship('School', foreign_keys='Education.school_id')
     degree = db.Column(String(200))
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')

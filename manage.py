@@ -8,6 +8,7 @@ from prime import create_app, db
 
 
 app = create_app(os.getenv('AC_CONFIG', 'beta'))
+print app.config.get("SQLALCHEMY_DATABASE_URI")
 app.debug=True
 migrate = Migrate(app, db)
 

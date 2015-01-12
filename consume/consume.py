@@ -92,9 +92,17 @@ def create_schools(info, new_prospect):
             except:
                 pass
 
+        school = session.query(models.School).filter_by(name=college['college']).first()
+        if not school:
+            school = models.School(
+                    name=college['college']
+                    )
+            session.add(school)
+            session.flush()
+
         new_education = models.Education(
-            user = new_prospect.id,
-            school_raw = college['college'],
+            prospect = new_prospect,
+            school = school,
             degree = college.get("degree"),
             **extra
         )
@@ -115,10 +123,18 @@ def create_jobs(info, new_prospect):
         except:
             pass
 
+        company = session.query(models.Company).filter_by(name=e['company']).first()
+        if not company:
+            company = models.Company(
+                    name=e['company']
+                    )
+            session.add(company)
+            session.flush()
+
         new_job = models.Job(
-            user = new_prospect.id,
+            prospect = new_prospect,
             title = e['title'],
-            company_raw = e['company'],
+            company=company,
             **extra
         )
         session.add(new_job)
@@ -162,7 +178,7 @@ def load_test_data():
         content = json.loads(file)
         url = content.get("url")
         try:
-            info =  parse_html(content.get("content"))
+            info = parse_html(content.get("content"))
             if info_is_valid(info):
                 create_prospect_from_info(info, url)
                 logger.debug('successfully consumed {}th {}'.format(count, url))

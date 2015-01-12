@@ -10,6 +10,7 @@ from prime import db
 try:
     from consume.consume import generate_prospect_from_url
     from consume.convert import clean_url
+    from consume.convert import parse_html
 except:
     pass
 
@@ -17,6 +18,7 @@ from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
 from prime.prospects.helper import LinkedinResults
+from prime.prospects.arequest import aRequest
 
 session = db.session
 
@@ -36,6 +38,7 @@ def upload():
 def select_client():
     if request.method == 'POST':
         url = request.form.get("url")
+        raw_html = aRequest(url)
     return render_template('upload.html', results=results)
 
 @prospects.route("/search")
