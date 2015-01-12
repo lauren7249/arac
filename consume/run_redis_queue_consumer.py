@@ -9,7 +9,7 @@ from time import sleep
 
 from redis_queue import RedisQueue, get_redis
 
-from consume import process_from_file, upgrade_from_file
+from consumer import process_from_file, upgrade_from_file
 
 logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())

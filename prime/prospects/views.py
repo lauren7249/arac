@@ -1,18 +1,14 @@
 from flask import Flask
 import urllib
-from flask import render_template, request
+from flask import render_template, request, redirect
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School
 from prime.prospects.prospect_list import ProspectList
 from prime import db
 
-try:
-    from consume.consume import generate_prospect_from_url
-    from consume.convert import clean_url
-    from consume.convert import parse_html
-except:
-    pass
+from consume.consumer import generate_prospect_from_url as generate_prospect
+from consume.convert import clean_url as _clean_url
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
@@ -34,23 +30,24 @@ def upload():
         results = LinkedinResults(query).process()
     return render_template('upload.html', results=results)
 
-@prospects.route("/", methods=['POST'])
+@prospects.route("/select", methods=['POST'])
 def select_client():
     if request.method == 'POST':
         url = request.form.get("url")
-        raw_html = aRequest(url)
-    return render_template('upload.html', results=results)
+        rq = aRequest(url)
+        url = rq.get().get("prospect_url")
+        return redirect("/search?url=" + url)
 
 @prospects.route("/search")
 def search():
     results = None
     if request.args.get("url"):
         raw_url = urllib.unquote(request.args.get("url")).decode('utf8')
-        url = clean_url(raw_url)
-        prospect = generate_prospect_from_url(url)
+        url = _clean_url(raw_url)
+        prospect = generate_prospect(url)
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
-    return render_template('search.html', results=results)
+    return render_template('search.html', results=results, prospect=prospect)
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):

@@ -66,8 +66,9 @@ def is_profile_link(link):
         return True
     return False
 
-def get_linked_profiles(html):
-    return list(set(re.findall('https?://www.linkedin.com/pub/.*/.*/.*', html)))
+def get_linked_profiles(raw_html):
+    urls = [link[2] for link in raw_html.iterlinks() if 'com/pub' in link[2] and not 'dir' in link[2]]
+    return list(set(urls))
 
 def safe_clean_str(s):
     if s:
@@ -281,11 +282,11 @@ def parse_html(html):
         schools = find_profile_schools(raw_html)
 
     if len(raw_html.xpath("//div[@id='background-education']")) > 0:
-        experiences = find_background_schools(raw_html)
+        schools = find_background_schools(raw_html)
 
 
     skills = [e.text_content() for e in raw_html.xpath("//li[@class='endorse-item']")]
-    people = get_linked_profiles(html)
+    people = get_linked_profiles(raw_html)
 
     return {
         'image': image,

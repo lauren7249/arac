@@ -45,7 +45,11 @@
       {% for result in results %}
       <tr>
         <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="inline"></script></td>
-        <td><button data-id='{{ result.url }}' class='btn btn-warning'>Select</button></td>
+        <td>
+          <form action='/select' method='POST'>
+            <input type='hidden' name='url' value='{{ result.url }}' />
+            <button data-id='{{ result.url }}' type='submit' class='btn btn-warning'>Select</button></td>
+        </form>
       </tr>
       {% endfor %}
       </tbody>

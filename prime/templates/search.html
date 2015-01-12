@@ -1,25 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='row'>
-    <h1>Advisor Connect <span>Prime</span></h1>
-    <p>Upload your clients to build feederlists.</p>
+  {% if prospect.image_url %}
+  <div class='image'>
+    <img src='{{ prospect.image_url }}' />
+  </div>
+  {% endif %}
+  <h1>{{ prospect.name }} <span>Prime</span></h1>
+  <h3>Work History</h3>
+  {% for job in prospect.jobs %}
+  <div class='item'>
+    <h4><a href='{{ job.get_url }}'>{{ job.company.name }}</a></h4>
+    <p>{{ job.title }} | {{ job.location_raw }}</p>
+    <p>{{ job.start_date }} - {% if job.end_date %}{{ job.end_date }}{% else %}Present{% endif %}</p>
+  </div>
+  {% endfor %}
+  <h3>Schools</h3>
+  {% for education in prospect.schools %}
+  <div class='item'>
+    <h4><a href='{{ education.get_url }}'>{{ education.school.name }}</a></h4>
+    <p>{{ education.degree }}</p>
+    <p>{{ education.end_date }}</p>
+  </div>
+  {% endfor %}
 <br/>
-</div>
-<div class='row'>
-  <form method='GET'>
-    <div class="form-group">
-      <div class='row'>
-        <div class='col-lg-6'>
-          <div class="input-group">
-            <input class="form-control" name='url' id="focusedInput" type="text" placeholder="Enter in a public linkedin profile URL">
-            <span class="input-group-btn">
-              <button class="btn btn-success" type="submit">SUBMIT</button>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
 </div>
 <div class='row'>   
 {% if results %}

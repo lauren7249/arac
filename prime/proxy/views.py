@@ -9,7 +9,7 @@ from prime import db
 
 from consume.convert import clean_url
 from consume.convert import parse_html
-from consume.consume import create_prospect_from_info
+from consume.consumer import create_prospect_from_info as new_prospect
 from linkedin.scraper import process_request
 
 session = db.session
@@ -22,10 +22,12 @@ def proxy():
         url = clean_url(raw_url)
         content = process_request(url)
         processed = parse_html(content.get("content"))
+        import pdb
+        pdb.set_trace()
         linkedin_id = processed.get("linkedin_id")
         prospect = session.query(Prospect).filter_by(linkedin_id=linkedin_id).first()
         if not prospect:
-            prospect = create_prospect_from_info(processed, url.replace("https",
+            prospect = new_prospect(processed, url.replace("https",
                 "http"))
 
         return jsonify({"prospect_url": prospect.url})
