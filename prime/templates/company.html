@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='row'>
+<div class='row filters'>
   <h1>{{ company.name }}</h1>
-</div>
-<div class='row'>
   <form action='GET'>
-  <ul class="nav nav-tabs">
-    <li>Filter:</li>
+  <ul class="filters">
+    <li><span>Filter:</span></li>
     <li><input class='form-control' type='text' placeholder='Start Date' name='start_date' /></li>
     <li><input class='form-control' type='text' placeholder='End Date' name='end_date' /></li>
     <li><button class='btn btn-warning' value='submit'>Submit</button></li>

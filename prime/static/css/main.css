@@ -45,3 +45,26 @@ button:focus {
   -moz-box-shadow: none !important;
   box-shadow: none !important;
 }
+
+div.filters h1 {
+  float: left;
+}
+div.filters ul.filters {
+  float: right;
+  width: 366px;
+  padding: 35px 0 15px;
+}
+div.filters ul.filters li {
+  list-style-type: none;
+  float: left;
+}
+div.filters ul.filters li input {
+  width: 100px;
+  height: auto;
+  margin: 0 5px;
+  font-size: 12px;
+}
+div.filters ul.filters li span {
+  margin-top: 10px;
+  display: block;
+}

@@ -1,2 +1,33 @@
 @import "compass/css3";
 @import 'styles';
+
+
+div.filters {
+  
+  h1 {
+    float: left;
+  }
+
+  ul.filters {
+    float: right;
+    width: 366px;
+    padding: 35px 0 15px;
+
+    li {
+      list-style-type: none;
+      float: left;
+
+      input {
+        width: 100px;
+        height: auto;
+        margin: 0 5px;
+        font-size: 12px;
+      }
+
+      span {
+        margin-top: 10px;
+        display: block;
+      }
+    }
+  }
+}
