@@ -47,6 +47,7 @@ def search():
         prospect = generate_prospect(url)
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
+        print prospect
     return render_template('search.html', results=results, prospect=prospect)
 
 @prospects.route("/company/<int:company_id>")
