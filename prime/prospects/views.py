@@ -44,7 +44,10 @@ def search():
     if request.args.get("url"):
         raw_url = urllib.unquote(request.args.get("url")).decode('utf8')
         url = _clean_url(raw_url)
-        prospect = generate_prospect_from_url(url)
+        prospect = session.query(Prospect).filter_by(s3_key=url.replace("/",
+            "")).first()
+        if not prospect:
+            prospect = generate_prospect_from_url(url)
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
         print prospect
