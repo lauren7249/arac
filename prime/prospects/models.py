@@ -52,6 +52,10 @@ class Prospect(db.Model):
         ))
         return ret[0]
 
+    @property
+    def get_url(self):
+        return "/prospect/{}".format(self.id)
+
     def __repr__(self):
         return '<Prospect id={0} name={1} url={2}>'.format(
                 self.id,
@@ -110,10 +114,14 @@ class Job(db.Model):
     start_date = db.Column(Date)
     end_date = db.Column(Date)
 
+    @property
+    def get_url(self):
+        return "/company/{}".format(self.company.id)
+
     def __repr__(self):
         return '<Job id={0} name={1} user={2}>'.format(
                 self.id,
-                self.company_raw,
+                self.company.name,
                 self.prospect.name
                 )
 
@@ -142,10 +150,14 @@ class Education(db.Model):
     start_date = db.Column(Date)
     end_date = db.Column(Date)
 
+    @property
+    def get_url(self):
+        return "/school/{}".format(self.school.id)
+
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
                 self.id,
-                self.school_raw,
+                self.school.name,
                 self.prospect.name
                 )
 

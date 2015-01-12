@@ -22,8 +22,6 @@ def proxy():
         url = clean_url(raw_url)
         content = process_request(url)
         processed = parse_html(content.get("content"))
-        import pdb
-        pdb.set_trace()
         linkedin_id = processed.get("linkedin_id")
         prospect = session.query(Prospect).filter_by(linkedin_id=linkedin_id).first()
         if not prospect:
