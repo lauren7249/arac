@@ -1,4 +1,7 @@
 import argparse
+import time
+import sys
+import csv
 import os
 import requests
 import datetime
@@ -8,6 +11,7 @@ import json
 from itertools import islice
 from dateutil import parser
 
+sys.path.append(".")
 from prime.prospects import models
 from prime import create_app
 
@@ -19,6 +23,8 @@ from boto.exception import S3ResponseError
 from parser import lxml_parse_html
 from convert import parse_html
 from linkedin.scraper import process_request
+
+from multiprocessing import Process, Queue
 
 logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
@@ -174,23 +180,78 @@ def process_from_file(url_file=None, start=0, end=-1):
                 logger.error('couldn\'t get url {} from s3'.format(url))
 
 
+def decode(s):
+    if s:
+        return unicode(s).encode("utf-8")
+    return None
+
+
+def worker(input, output):
+    for func, args in iter(input.get, 'STOP'):
+        result = calculate(func, args)
+        output.put(result)
+
+# Function 'calculate' is a general function allowing any function/args to be passed
+# from a Task-List/Queue
+def calculate(func, args):
+    result = func(*args)
+    return result
+
+
+def process_test_data(filename):
+    all_data = []
+    try:
+        #file = open(filename.strip("\n"), 'r').read()
+        info = get_info_for_url(filename.strip("\n"))
+        if info_is_valid(info):
+            linkedin_id = info.get("linkedin_id")
+            info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
+            for job in info_jobs:
+                company = decode(job.get("company"))
+                start_date = decode(job.get("start_date"))
+                end_date = decode(job.get("end_date"))
+                title = decode(job.get("title"))
+                data = [linkedin_id, company, title, start_date, end_date]
+                all_data.append(data)
+        return all_data
+    except Exception, e:
+        print e
+        pass
+
 def load_test_data():
-    count = 0
+    start = time.time()
+    task_queue = Queue()
+    done_queue = Queue()
     os.chdir("data")
-    for filename in os.listdir(os.getcwd()):
-        count += 1
-        file = open(filename, 'r').read()
-        content = json.loads(file)
-        url = content.get("url")
+    with open("testing.txt", 'w+') as f:
+        a = csv.writer(f, delimiter='\t')
+        file = open("names.txt", "r")
+        filenames = ((process_test_data, [f]) for f in file.readlines())
+        for task in filenames:
+            task_queue.put(task)
+
+        for i in range(10):
+            Process(target=worker, args=(task_queue, done_queue)).start()
+
+        # Get results
+        file = open("names.txt", "r")
+        filenames = (f for f in file.readlines())
         try:
-            info = parse_html(content.get("content"))
-            if info_is_valid(info):
-                create_prospect_from_info(info, url)
-                logger.debug('successfully consumed {}th {}'.format(count, url))
-        except Exception, e:
-            logger.error('could not get valid info for {}'.format(url))
-            import pdb
-            pdb.set_trace()
+            while filenames.next():
+                out = done_queue.get()
+                if out:
+                    for item in out:
+                        a.writerow(item) # write to output file
+        except:
+            pass
+
+        # Tell child processes to stop
+        for i in range(10):
+            task_queue.put('STOP')
+
+        print 'Total time elapsed:  %.10s seconds' % (time.time()-start)
+
+
 
 
 def upgrade_from_file(url_file=None, start=0, end=-1):
@@ -203,17 +264,12 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 s3_key = url_to_key(url)
                 info = get_info_for_url(url)
                 if info_is_valid(info):
-                    prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
-                    prospect.updated = datetime.date.today()
-                    prospect.image_url = info.get("image")
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                    jobs = session.query(models.Job).filter_by(prospect=prospect)
-                    for job in jobs:
-                        for info_job in info_jobs:
-                            company = info_job.get("company")
-                            if company == job.company.name:
-                                print info_job.get("location")
-                                job.location = info_job.get("location")
+                    for info_job in info_jobs:
+                        company = info_job.get("company")
+                        if company == job.company.name:
+                            print info_job.get("location")
+                            job.location = info_job.get("location")
                     session.commit()
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:

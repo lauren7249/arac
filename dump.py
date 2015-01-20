@@ -85,8 +85,6 @@ def export(id, path):
     prospect_schools_file.close()
 
 if __name__ == '__main__':
-    print "okay"
-
     parser = argparse.ArgumentParser()
     parser.add_argument('id')
     parser.add_argument('path')
