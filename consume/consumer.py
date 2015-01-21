@@ -223,30 +223,29 @@ def load_test_data():
     task_queue = Queue()
     done_queue = Queue()
     os.chdir("data")
-    with open("testing.txt", 'w+') as f:
+    count = 0
+    with open("testing2.txt", 'w+') as f:
         a = csv.writer(f, delimiter='\t')
-        file = open("names.txt", "r")
-        filenames = ((process_test_data, [f]) for f in file.readlines())
+        filenames = ((process_test_data, [f]) for f in open("/home/ubuntu/remaining_oct30.txt", "r"))
         for task in filenames:
             task_queue.put(task)
+            count += 1
 
-        for i in range(10):
+        for i in range(100):
             Process(target=worker, args=(task_queue, done_queue)).start()
 
         # Get results
-        file = open("names.txt", "r")
-        filenames = (f for f in file.readlines())
-        try:
-            while filenames.next():
+        for i in range(0, count):
+            try:
                 out = done_queue.get()
                 if out:
                     for item in out:
                         a.writerow(item) # write to output file
-        except:
-            pass
+            except:
+                pass
 
         # Tell child processes to stop
-        for i in range(10):
+        for i in range(100):
             task_queue.put('STOP')
 
         print 'Total time elapsed:  %.10s seconds' % (time.time()-start)
