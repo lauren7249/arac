@@ -177,7 +177,7 @@ def find_profile_schools(raw_html):
 
         present = "Present" in etree.tostring(item, pretty_print=True)
         if len(dates) == 1 and not present:
-            dict_item["graduation_date"] = dates[0].get('title')
+            dict_item["end_date"] = dates[0].get('title')
         if len(dates) == 1 and present:
             dict_item["start_date"] = dates[0].get('title')
             dict_item["end_date"] = "Present"
@@ -208,7 +208,7 @@ def find_background_schools(raw_html):
 
         present = "Present" in etree.tostring(item, pretty_print=True)
         if len(dates) == 1 and not present:
-            dict_item["graduation_date"] = dates[0].text_content()
+            dict_item["end_date"] = dates[0].text_content()
         if len(dates) == 1 and present:
             dict_item["start_date"] = dates[0].text_content()
             dict_item["end_date"] = "Present"

@@ -41,30 +41,6 @@ except:
     from prime import db
     session = db.session
 
-def dedupe_dict(ds):
-    return map(dict, set(tuple(sorted(d.items())) for d in ds))
-
-def url_to_key(url):
-    return url.replace('/', '')
-
-def get_info_for_url(url):
-    key = Key(bucket)
-    key.key = url_to_key(url)
-    data = json.loads(key.get_contents_as_string())
-    info = parse_html(data['content'])
-    return info
-
-def college_is_valid(e):
-    return bool(e.get('college'))
-
-def experience_is_valid(e):
-    return bool(e.get('company'))
-
-
-def info_is_valid(info):
-    return info.get('full_name') and \
-           info.get('linkedin_id')
-
 def prospect_exists(session, s3_key):
     if models.Prospect.s3_exists(session, s3_key):
         logger.debug('already processed s3_key {}'.format(s3_key))
@@ -185,6 +161,12 @@ def decode(s):
         return unicode(s).encode("utf-8")
     return None
 
+def parse_date(date):
+    try:
+        return parser.parse(date).replace(tzinfo=None)
+    except:
+        None
+
 
 def worker(input, output):
     for func, args in iter(input.get, 'STOP'):
@@ -201,8 +183,10 @@ def calculate(func, args):
 def process_test_data(filename):
     all_data = []
     try:
-        #file = open(filename.strip("\n"), 'r').read()
-        info = get_info_for_url(filename.strip("\n"))
+        file = open(filename.strip("\n"), 'r').read()
+        data = json.loads(file)
+        info = parse_html(data['content'])
+        #info = get_info_for_url(filename.strip("\n"))
         if info_is_valid(info):
             linkedin_id = info.get("linkedin_id")
             info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
@@ -211,7 +195,9 @@ def process_test_data(filename):
                 start_date = decode(job.get("start_date"))
                 end_date = decode(job.get("end_date"))
                 title = decode(job.get("title"))
-                data = [linkedin_id, company, title, start_date, end_date]
+                location = decode(job.get("location"))
+                data = [linkedin_id, company, title, start_date, end_date,
+                        location]
                 all_data.append(data)
         return all_data
     except Exception, e:
@@ -251,6 +237,156 @@ def load_test_data():
         print 'Total time elapsed:  %.10s seconds' % (time.time()-start)
 
 
+def dedupe_dict(ds):
+    return map(dict, set(tuple(sorted(d.items())) for d in ds))
+
+def url_to_key(url):
+    return url.replace('/', '')
+
+def get_info_for_url(url):
+    key = Key(bucket)
+    key.key = url_to_key(url)
+    data = json.loads(key.get_contents_as_string())
+    info = parse_html(data['content'])
+    return info
+
+def college_is_valid(e):
+    return bool(e.get('college'))
+
+def experience_is_valid(e):
+    return bool(e.get('company'))
+
+
+def info_is_valid(info):
+    return info.get('full_name') and \
+           info.get('linkedin_id')
+
+
+class LinkedinProcesser(object):
+
+    __slots__ = ['filename', 'type', 'test', 'info', 'results']
+
+    def __init__(self, filename, type="prospect", test=False, *args, **kwargs):
+        self.filename = filename.strip("\n")
+        self.test = test
+        self.type = type
+        self.results = self.run()
+
+    def get_info(self, filename):
+        if self.test:
+            file = open(self.filename).read()
+            data = json.loads(file)
+            return parse_html(data['content'])
+        else:
+            return get_info_for_url(filename)
+
+    def get_schools(self):
+        schools = []
+        info = self.info
+        linkedin_id = info.get("linkedin_id")
+        info_schools = filter(college_is_valid, dedupe_dict(info.get('schools', [])))
+        for school in info_schools:
+            school = decode(school.get("college"))
+            start_date = parse_date(school.get("start_date"))
+            end_date = parse_date(school.get("end_date"))
+            degree = decode(school.get("degree"))
+            description = decode(school.get("description"))
+            school = [linkedin_id, school, degree, start_date, end_date,
+                    description]
+            schools.append(school)
+        return schools
+
+    def get_jobs(self):
+        jobs = []
+        info = self.info
+        linkedin_id = info.get("linkedin_id")
+        info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
+        for job in info_jobs:
+            company = decode(job.get("company"))
+            start_date = parse_date(job.get("start_date"))
+            end_date = parse_date(job.get("end_date"))
+            title = decode(job.get("title"))
+            location = decode(job.get("location"))
+            description = decode(job.get("description"))
+            job = [linkedin_id, company, title, location, description,
+                    start_date, end_date]
+            jobs.append(job)
+        return jobs
+
+    def get_prospects(self):
+        info = self.info
+        linkedin_id = info.get("linkedin_id")
+        name = info.get("full_name")
+        connections = info.get("connections")
+        location = info.get("location")
+        industry = info.get("industry")
+        image = info.get("image")
+        return [[linkedin_id, name, connections, location, industry, image]]
+
+
+    def run(self):
+        self.info = self.get_info(self.filename)
+        if self.type == 'prospect':
+            return self.get_prospects()
+        if self.type == 'schools':
+            return self.get_schools()
+        if self.type == 'jobs':
+            return self.get_jobs()
+
+
+class ConsumerMultiProcessing(object):
+
+    __slots__ = ['input_file', 'output_file', 'processer', 'test', 'type',
+            'workers', 'task_queue', 'done_queue']
+
+    def __init__(self, input_file, output_file, processer, test=False, \
+            type=None, workers=10, *args, **kwargs):
+        self.input_file = input_file
+        self.output_file = output_file
+        self.processer = processer
+        self.workers = workers
+        self.test = test
+        self.type = type
+        self.task_queue = Queue()
+        self.done_queue = Queue()
+
+    def worker(self, input, output):
+        for func, args in iter(input.get, 'STOP'):
+            result = self.calculate(func, args)
+            output.put(result)
+
+    def calculate(self, func, args):
+        result = func(*args)
+        return result
+
+    def run(self):
+        start = time.time()
+        os.chdir("data")
+        count = 0
+        writefile = open(self.output_file, "w+")
+        a = csv.writer(writefile, delimiter='\t')
+        filenames = ((self.processer, [f, self.type, self.test]) for f in open(self.input_file, "r"))
+        for task in filenames:
+            self.task_queue.put(task)
+            count += 1
+
+        for i in range(self.workers):
+            Process(target=self.worker, args=(self.task_queue, self.done_queue)).start()
+
+        for i in range(0, count):
+            try:
+                out = self.done_queue.get()
+                if out.results:
+                    for item in out.results:
+                        a.writerow(item) # write to output file
+            except Exception, e:
+                print e
+
+        # Tell child processes to stop
+        for i in range(self.workers):
+            self.task_queue.put('STOP')
+
+        print 'Total time elapsed:  %.10s seconds' % (time.time()-start)
 
 
 def upgrade_from_file(url_file=None, start=0, end=-1):
@@ -299,18 +435,30 @@ def generate_prospect_from_url(url):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('url_file')
+    parser.add_argument('input')
+    parser.add_argument('output')
+    parser.add_argument('type')
     parser.add_argument('--start', type=int, default=0)
     parser.add_argument('--end', type=int, default=None)
     parser.add_argument('--test', action='store_true')
-
+    parser.add_argument('--with-object', action='store_true')
     args = parser.parse_args()
+
+    processer = LinkedinProcesser
+
+    consumer = ConsumerMultiProcessing(args.input, args.output,
+            processer, test=True, type="jobs")
+    consumer.run()
+
+    """
     if args.test:
         load_test_data()
+    elif:
     else:
         s3conn = boto.connect_s3()
         bucket = s3conn.get_bucket('arachid-results')
         process_from_file(url_flie=args.url_file, start=args.start, end=args.end)
+    """
 
 if __name__ == '__main__':
     main()
