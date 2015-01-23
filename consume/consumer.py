@@ -268,6 +268,7 @@ class LinkedinProcesser(object):
 
     def __init__(self, filename, type="prospect", test=False, *args, **kwargs):
         self.filename = filename.strip("\n")
+        self.s3_key = url_to_key(self.filename)
         self.test = test
         self.type = type
         self.results = self.run()
@@ -291,7 +292,7 @@ class LinkedinProcesser(object):
             end_date = parse_date(school.get("end_date"))
             degree = decode(school.get("degree"))
             description = decode(school.get("description"))
-            school = [linkedin_id, school, degree, start_date, end_date,
+            school = [self.s3_key, linkedin_id, school, degree, start_date, end_date,
                     description]
             schools.append(school)
         return schools
@@ -308,7 +309,7 @@ class LinkedinProcesser(object):
             title = decode(job.get("title"))
             location = decode(job.get("location"))
             description = decode(job.get("description"))
-            job = [linkedin_id, company, title, location, description,
+            job = [self.s3_key, linkedin_id, company, title, location, description,
                     start_date, end_date]
             jobs.append(job)
         return jobs
@@ -321,7 +322,7 @@ class LinkedinProcesser(object):
         location = info.get("location")
         industry = info.get("industry")
         image = info.get("image")
-        return [[linkedin_id, name, connections, location, industry, image]]
+        return [[self.s3_key, linkedin_id, name, connections, location, industry, image]]
 
 
     def run(self):
@@ -377,8 +378,7 @@ class ConsumerMultiProcessing(object):
             try:
                 out = self.done_queue.get()
                 if out.results:
-                    for item in out.results:
-                        a.writerow(item) # write to output file
+                    a.writerows(out.results)
             except Exception, e:
                 print e
 
