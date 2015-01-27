@@ -28,28 +28,34 @@ class ProspectList(object):
         self.prospect = prospect
         self.prospect_jobs = session.query(Job).filter_by(prospect=prospect)
         self.prospect_schools = session.query(Education).filter_by(prospect=prospect)
+        self.prospect_job_count = 0
+        self.prospect_school_count = 0
         self.results = {}
 
     def _get_school(self, education):
         """
         We are going to get everyone who went to the same school during the same
         time period.
+
+        goes above as educations
         """
 
         SCHOOL_SQL = """\
         select distinct on (id) id, educations.school_name as education_name, educations.school_id, name, \
-        degree, end_date, location_raw, industry_raw, url from \
+        degree, end_date, location_raw, industry_raw, url, image_url from \
         (select * from (select education.id as education_id, school_id, prospect_id, \
         degree, start_date, end_date, school.name as school_name from education inner join school on \
         education.school_id=school.id where school_id=%s) \
-        as schools where to_char(end_date, 'YYYY')='%s') as educations \
+        as schools where to_char(end_date, 'YYYY')='%s') \
+        as educations \
         inner join prospect on educations.prospect_id=prospect.id;
         """
         prospect_degree = education.degree
         end_date = education.end_date.year if education.end_date else "2000"
-        school_prospects = session.execute(SCHOOL_SQL % (education.school_id, end_date))
+        school_prospects = session.execute(SCHOOL_SQL % (education.school_id))#,end_date))
         prospects = []
         for prospect in school_prospects:
+            self.prospect_school_count += 1
             #Check if they worked at the same location
             prospect = [p for p in prospect]
             if prospect[3] == prospect_degree:
@@ -72,8 +78,9 @@ class ProspectList(object):
                             "current_location": school[6],
                             "industry": school[7],
                             "url": school[8],
+                            "image_url": school[9],
                             "id": id}
-                score = float(school[9])
+                score = float(school[10])
                 exisiting  = self.results.get(id)
                 if exisiting:
                     score += float(exisiting.get("score"))
@@ -89,7 +96,7 @@ class ProspectList(object):
 
         JOB_SQL = """
         select distinct on (id) id, jobs.company_name, jobs.company_id, name, title, \
-        start_date, end_date, jobs.location, location_raw, industry_raw, url \
+        start_date, end_date, jobs.location, location_raw, industry_raw, url, image_url \
         from (select * from (\
         select job.id as job_id, company_id, prospect_id, title, start_date, \
         end_date, location, company.name as company_name \
@@ -110,6 +117,7 @@ class ProspectList(object):
         prospects = []
         for prospect in job_prospects:
             #Check if they worked at the same location
+            self.prospect_job_count += 1
             prospect = [p for p in prospect]
             if prospect[4] == prospect_location:
                 prospect.append(JOB_LOCATION_SCORE)
@@ -134,9 +142,10 @@ class ProspectList(object):
                             "current_location": job[8],
                             "industry": job[9],
                             "url": job[10],
+                            "image_url": job[11],
                             "id": id,
                             "type": "job"}
-                score = float(job[11])
+                score = float(job[12])
                 exisiting  = self.results.get(id)
                 if exisiting:
                     score += exisiting.get("score")
@@ -161,6 +170,7 @@ class ProspectList(object):
         current_location = jobs.get("current_location")
         current_industry = jobs.get("industry")
         url = jobs.get("url")
+        image_url = jobs.get("image_url")
         title = jobs.get("title")
         if start_date:
             relationship = "Worked together at {} from {} to\
@@ -168,8 +178,8 @@ class ProspectList(object):
         else:
             relationship = "Worked together at {}".format(\
                     company_name, start_date, end_date)
-        user['start_date'] = start_date
-        user['end_date'] = end_date
+        user['start_date'] = start_date.strftime("%y") if start_date else None
+        user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
         user['title'] = title
         user['company_name'] = company_name
@@ -180,6 +190,7 @@ class ProspectList(object):
         user['relationship'] = relationship
         user['score'] = score
         user['id'] = id
+        user['image_url'] = image_url
         return user
 
     def _organize_school(self, user, schools, score, id):
@@ -190,9 +201,10 @@ class ProspectList(object):
         current_location = schools.get("current_location")
         current_industry = schools.get("industry")
         url = schools.get("url")
+        image_url = schools.get("image_url")
         relationship = "Went to school together at {} in {}"\
                 .format(school_name, end_date)
-        user['end_date'] = end_date
+        user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
         user['school_name'] = school_name
         user['school_id'] = school_id
@@ -202,6 +214,7 @@ class ProspectList(object):
         user['relationship'] = relationship
         user['score'] = score
         user['id'] = id
+        user['image_url'] = image_url
         return user
 
     def get_results(self):
@@ -221,7 +234,7 @@ class ProspectList(object):
                 user = self._organize_school(user, schools, score, id)
                 if user.get("url") != self.prospect.url:
                     results.append(user)
-        return sorted(results, key=lambda x:x['score'], reverse=True)[:100]
+        return sorted(results, key=lambda x:x['score'], reverse=True)
 
 
 

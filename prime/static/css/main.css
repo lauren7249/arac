@@ -1,9 +1,22 @@
+body {
+  font-family: "Quicksand", sans-serif;
+}
+
 .clear {
   clear: both;
 }
 
 a:hover {
   text-decoration: none;
+}
+
+.centered {
+  margin: 0 auto;
+  float: none;
+}
+
+.navbar {
+  margin-bottom: 0;
 }
 
 .select {
@@ -46,6 +59,14 @@ button:focus {
   box-shadow: none !important;
 }
 
+h1, h2, h3, h4 {
+  font-family: "Quicksand", sans-serif;
+}
+
+div.clear {
+  clear: both;
+}
+
 div.filters h1 {
   float: left;
 }
@@ -67,4 +88,191 @@ div.filters ul.filters li input {
 div.filters ul.filters li span {
   margin-top: 10px;
   display: block;
+}
+
+div.navbar {
+  background: #525252;
+}
+div.navbar .navbar-header {
+  float: none;
+}
+div.navbar #header {
+  padding: 20.5px 20px;
+  font-family: "Quicksand", sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+div.navbar #header span {
+  color: #2196f3;
+}
+div.navbar a.navbar-brand {
+  font-size: 15px;
+  color: #fff;
+}
+div.navbar #settings {
+  position: relative;
+  color: #fff;
+  font-size: 15px;
+}
+div.navbar #settings:hover div.autocomplete {
+  height: 120px;
+}
+div.navbar #settings div.autocomplete {
+  width: 240px;
+  position: absolute;
+  height: 0;
+  overflow: hidden;
+  top: 63px;
+  right: 7px;
+  background: #525252;
+  -webkit-transition: all 2;
+  -moz-transition: all 2;
+  -o-transition: all 2;
+  transition: all 2;
+}
+div.navbar #settings div.autocomplete ul {
+  display: block;
+  font-size: 14px;
+  margin: 0;
+  padding: 0 30px;
+}
+div.navbar #settings div.autocomplete ul li {
+  display: block;
+  text-transform: uppercase;
+  text-align: right;
+  padding: 10px 0;
+}
+div.navbar #settings div.autocomplete ul li a {
+  color: #fff;
+}
+
+div.signup h1 {
+  font-family: "Quicksand", sans-serif;
+  font-size: 30px;
+  text-transform: uppercase;
+  color: #2196f3;
+  text-align: center;
+}
+div.signup div.well {
+  padding: 30px 80px;
+  float: none;
+  margin: 0 auto;
+}
+div.signup div.well fieldset legend {
+  text-transform: uppercase;
+  text-align: center;
+}
+
+div.sidebar {
+  float: left;
+  height: 100%;
+  width: 20%;
+}
+div.sidebar div.inner {
+  min-height: 300px;
+  padding: 20px 40px;
+  background: #fff;
+}
+div.sidebar div.inner h3 {
+  font-size: 25px;
+  color: #525252;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+div.sidebar div.inner ul {
+  padding-left: 10px;
+}
+div.sidebar div.inner ul li {
+  font-size: 16px;
+  padding: 5px;
+  text-transform: uppercase;
+  list-style-type: none;
+}
+div.sidebar div.inner ul li a {
+  color: #113196;
+  font-weight: 500;
+  position: relative;
+}
+div.sidebar div.inner ul li a span {
+  width: 3px;
+  background: #9E9FAE;
+  display: none;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: -10px;
+}
+div.sidebar div.inner ul li a:hover {
+  color: #525252;
+}
+div.sidebar div.inner ul li a.active span {
+  display: block;
+}
+
+div.items {
+  float: left;
+  width: 80%;
+  background: #fafafa;
+  padding: 50px;
+  border-left: 1px solid #dedede;
+}
+
+div.stats {
+  padding-bottom: 40px;
+}
+div.stats h4 {
+  font-size: 28px;
+}
+div.stats div.stat {
+  width: 24%;
+  display: inline-block;
+  vertical-align: top;
+}
+div.stats div.stat h5 {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+div.results {
+  width: 100%;
+}
+div.results div.search-box {
+  padding: 10px 25px 40px;
+  width: auto;
+}
+div.results div.search-box input.search {
+  width: 90%;
+  float: left;
+}
+div.results div.search-box input[type='submit'] {
+  float: left;
+}
+div.results h4 {
+  color: #2196f3;
+  font-size: 18px;
+  margin: 0 0 15px;
+  padding: 0 25px;
+  text-transform: uppercase;
+}
+div.results div.result {
+  width: 45%;
+  margin: 0 2.5% 2.5%;
+  float: left;
+  background: #fff;
+  border: 1px solid #c8c7cc;
+  padding: 20px;
+}
+div.results div.result h3 {
+  color: #2196f3;
+}
+div.results div.result h5 {
+  font-size: 15px;
+}
+div.results div.result a {
+  margin: 4px;
+  display: inline-block;
+}
+
+div.person {
+  width: 80%;
 }
