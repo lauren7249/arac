@@ -1,6 +1,8 @@
 from flask import Flask
+import json
 import urllib
-from flask import render_template, request, redirect
+from flask import render_template, request, redirect, url_for, flash, session
+from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School
@@ -24,10 +26,15 @@ def clients():
 
 @prospects.route("/", methods=['GET', 'POST'])
 def upload():
+    if current_user.is_anonymous():
+        return redirect(url_for('auth.login'))
     results = None
     if request.method == 'POST':
         query = request.form.get("query")
         results = LinkedinResults(query).process()
+    else:
+        if current_user.linkedin_url:
+            return redirect("/search?url=" + current_user.linkedin_url)
     return render_template('upload.html', results=results)
 
 @prospects.route("/select", methods=['POST'])
@@ -35,7 +42,12 @@ def select_client():
     if request.method == 'POST':
         url = request.form.get("url")
         rq = aRequest(url)
-        url = rq.get().get("prospect_url")
+        content = rq.get()
+        url = content.get("prospect_url")
+        if not current_user.linkedin_url:
+            current_user.linkedin_url = url
+            session.add(current_user)
+            session.commit()
         return redirect("/search?url=" + url)
 
 @prospects.route("/search")
@@ -50,8 +62,12 @@ def search():
             prospect = generate_prospect_from_url(url)
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
+        school_count = prospect_list.prospect_school_count
+        job_count = prospect_list.prospect_job_count
         print prospect
-    return render_template('search.html', results=results, prospect=prospect)
+    return render_template('search.html', results=results, prospect=prospect,
+            school_count=school_count, job_count=job_count,
+            json_results=json.dumps(results))
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):

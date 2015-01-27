@@ -1,5 +1,6 @@
 @import "compass/css3";
 
+
 @mixin placeholder {
   &::-webkit-input-placeholder {@content}
   &:-moz-placeholder {@content}
@@ -8,14 +9,32 @@
 }
 
 $noto: 'Noto Sans', sans-serif;;
+$quick: 'Quicksand', sans-serif;
 $bold: 700;
+
+$darkblue: rgb(17, 49, 150);
+$blue: #2196f3;
+
+body {
+  font-family: $quick;
+}
 
 .clear {
   clear: both;
 }
 
+
 a:hover {
   text-decoration: none;
+}
+
+.centered {
+  margin: 0 auto;
+  float: none;
+}
+
+.navbar {
+  margin-bottom: 0;
 }
 
 .select {
@@ -51,4 +70,8 @@ button:focus {
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   box-shadow: none !important;
+}
+
+h1, h2, h3, h4 {
+  font-family: $quick;
 }

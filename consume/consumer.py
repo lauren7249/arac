@@ -264,13 +264,13 @@ def info_is_valid(info):
 
 class LinkedinProcesser(object):
 
-    __slots__ = ['filename', 'type', 'test', 'info', 'results']
+    __slots__ = ['filename', 'item_type', 'test', 'info', 'results', 's3_key']
 
-    def __init__(self, filename, type="prospect", test=False, *args, **kwargs):
+    def __init__(self, filename, item_type="prospect", test=False, *args, **kwargs):
         self.filename = filename.strip("\n")
         self.s3_key = url_to_key(self.filename)
         self.test = test
-        self.type = type
+        self.item_type = item_type
         self.results = self.run()
 
     def get_info(self, filename):
@@ -327,27 +327,27 @@ class LinkedinProcesser(object):
 
     def run(self):
         self.info = self.get_info(self.filename)
-        if self.type == 'prospect':
+        if self.item_type == 'prospect':
             return self.get_prospects()
-        if self.type == 'schools':
+        if self.item_type == 'schools':
             return self.get_schools()
-        if self.type == 'jobs':
+        if self.item_type == 'jobs':
             return self.get_jobs()
 
 
 class ConsumerMultiProcessing(object):
 
-    __slots__ = ['input_file', 'output_file', 'processer', 'test', 'type',
+    __slots__ = ['input_file', 'output_file', 'processer', 'test', 'item_type',
             'workers', 'task_queue', 'done_queue']
 
     def __init__(self, input_file, output_file, processer, test=False, \
-            type=None, workers=10, *args, **kwargs):
+            item_type=None, workers=10, *args, **kwargs):
         self.input_file = input_file
         self.output_file = output_file
         self.processer = processer
         self.workers = workers
         self.test = test
-        self.type = type
+        self.item_type = item_type
         self.task_queue = Queue()
         self.done_queue = Queue()
 
@@ -366,7 +366,7 @@ class ConsumerMultiProcessing(object):
         count = 0
         writefile = open(self.output_file, "w+")
         a = csv.writer(writefile, delimiter='\t')
-        filenames = ((self.processer, [f, self.type, self.test]) for f in open(self.input_file, "r"))
+        filenames = ((self.processer, [f, self.item_type, self.test]) for f in open(self.input_file, "r"))
         for task in filenames:
             self.task_queue.put(task)
             count += 1
@@ -437,7 +437,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input')
     parser.add_argument('output')
-    parser.add_argument('type')
+    parser.add_argument('itemtype')
     parser.add_argument('--start', type=int, default=0)
     parser.add_argument('--end', type=int, default=None)
     parser.add_argument('--test', action='store_true')
@@ -447,7 +447,7 @@ def main():
     processer = LinkedinProcesser
 
     consumer = ConsumerMultiProcessing(args.input, args.output,
-            processer, test=True, type="jobs")
+            processer, test=True, item_type=args.itemtype)
     consumer.run()
 
     """

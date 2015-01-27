@@ -1,63 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='row'>
-  {% if prospect.image_url %}
-  <div class='image'>
-    <img src='{{ prospect.image_url }}' />
+  <div class='sidebar'>
+    <div class='inner'>
+      <h3>Dashboard</h3>
+      <ul>
+        <li><a class='active' href=''><span></span>New Prospects</a></li>
+        <li><a href=''><span></span>Centers Of Influence</a></li>
+        <li><a href=''><span></span>Your Clients</a></li>
+      </ul>
+    </div>
   </div>
-  {% endif %}
-  <h1>{{ prospect.name }} <span>Prime</span></h1>
-  <h3>Work History</h3>
-  {% for job in prospect.jobs %}
-  <div class='item'>
-    <h4><a href='{{ job.get_url }}'>{{ job.company.name }}</a></h4>
-    <p>{{ job.title }} | {{ job.location_raw }}</p>
-    <p>{{ job.start_date }} - {% if job.end_date %}{{ job.end_date }}{% else %}Present{% endif %}</p>
+  <div class='items'>
+    <div class='stats'>
+      <h4>Network Analysis</h4>
+      <div class='stat' id='g-one'>
+        <h5>Work Conections</h5>
+        <canvas id='one'><canvas>
+      </div>
+      <div class='stat' id='g-two'>
+        <h5>School Conections</h5>
+        <canvas id='two'><canvas>
+      </div>
+      <div class='stat' id='g-three'>
+        <h5>Industry Analysis</h5>
+        <canvas id='three'><canvas>
+      </div>
+      <div class='stat' id='g-four'>
+        <h5>Location Analysis</h5>
+        <canvas id='four'><canvas>
+      </div>
+    </div>
+    <div class='results'>
+      <div class='search-box'>
+        <form action='/' method='POST'>
+          <input type=hidden name=_csrf_token value="{{ csrf_token() }}">
+          <input class='form-control search' name='query' placeholder='Search for a prospect' />
+          <input type='submit' class='btn btn-success' />
+          <div class='clear'></div>
+        </form>
+      </div>
+      <h4>Your Prospects</h4>
+      <div class='clear'></div>
+    </div>
   </div>
-  {% endfor %}
-  <h3>Schools</h3>
-  {% for education in prospect.schools %}
-  <div class='item'>
-    <h4><a href='{{ education.get_url }}'>{{ education.school.name }}</a></h4>
-    <p>{{ education.degree }}</p>
-    <p>{{ education.end_date }}</p>
-  </div>
-  {% endfor %}
-<br/>
 </div>
-<div class='row'>   
-{% if results %}
-<table class="table table-striped table-hover ">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Name</th>
-      <th>Relationship</th>
-      <th>Institution</th>
-      <th>Current Location</th>
-      <th>Current Industry</th>
-      <th>User Score</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for result in results %}
-  <tr>
-    <td>{{ result.id }}</td>
-    <td><script type="IN/MemberProfile" data-id="{{ result.url }}" data-format="hover"></script>{{ result.prospect_name }}</td>
-    <td>{{ result.relationship }}</td>
-    {% if result.company_id %}
-    <td><a href='/company/{{ result.company_id }}'>{{ result.company_name }}</a></td>
-    {% else %}
-     <td><a href='/school/{{ result.school_id }}'>{{ result.school_name }}</a></td>
-    {% endif %}
-    <td>{{ result.current_location }}</td>
-    <td>{{ result.industry_raw }}</td>
-    <td>{{ result.score }}</td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
-{% endif %}
-</div>
+<script type='text/javascript'>
+var userData = {{ json_results|safe }};
+window._userData = {results:userData}
+</script>
+<script src="/static/js/chart.js" type="text/javascript"></script>
+<script src="/static/js/app.js" type="text/javascript"></script>
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 {% endblock %}

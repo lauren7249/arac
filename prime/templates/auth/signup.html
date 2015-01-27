@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class='signup'>
+  <div class='row'>
+    <h1>Prime Login</h1>
+    <br/>
+  </div>
+  <div class='well col-lg-7 center'>
+    <div class='row'>
+      <form class="form-horizontal" action='' method='POST'>
+        {% if signup_form.errors %}
+        <div class='alert alert-dismissable alert-danger'>
+          {% for error in signup_form.errors.items() %}
+          <div>
+            <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
+          </div>
+          {% endfor %}
+        </div>
+        {%endif%}
+        <input type=hidden name=_csrf_token value="{{ csrf_token() }}">
+        <fieldset>
+          <legend>Enter your credentials below</legend>
+          <div class="form-group">
+            <label for="inputEmail" class="col-lg-2 control-label">First Name:</label>
+            <div class="col-lg-10">
+              <input type="text" name='first_name' class="form-control" id="inputEmail" placeholder="First">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail" class="col-lg-2 control-label">Last Name:</label>
+            <div class="col-lg-10">
+              <input type="text" name='last_name' class="form-control" id="inputEmail" placeholder="Last">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+            <div class="col-lg-10">
+              <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+            <div class="col-lg-10">
+              <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputPassword" class="col-lg-2 control-label">Confirmation</label>
+            <div class="col-lg-10">
+              <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Password">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox"> By Clicking this box you agree to our <a href=''>Terms</a> and <a href=''>Privacy</a>.
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-10 col-lg-offset-2">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <br />
+  <div class="alert alert-dismissable alert-success col-lg-7 centered">
+    Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
+  </div>
+  <br/>
+</div>
+{% endblock %}
