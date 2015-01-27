@@ -29,38 +29,39 @@ def export(id, path):
     #Export schools
     schools = "copy (select * from (select school_id as s_id \
             from education where prospect_id={}) as educations \
-            inner join school on school.id=educations.s_id) TO STDOUT with CSV DELIMITER E'\t';"
+            inner join school on school.id=educations.s_id) TO STDOUT with CSV DELIMITER E'\t' \
+            HEADER;"
 
     #Export companies
     companies = "copy (select * from (select company_id as c_id \
             from job where prospect_id={}) as jobs inner join \
             company on company.id=jobs.c_id) TO STDOUT \
-            with CSV DELIMITER E'\t';"
+            with CSV DELIMITER E'\t' HEADER;"
 
     #Export jobs
     jobs = "copy (select * from (select company_id as c_id from job \
             where prospect_id={}) as c_ids inner join job on \
             job.company_id=c_ids.c_id) TO STDOUT with \
-            CSV DELIMITER E'\t';"
+            CSV DELIMITER E'\t' HEADER;"
 
     #Export schools
     educations = "copy (select * from (select school_id as e_id \
             from education where prospect_id={}) as e_ids \
             inner join education on education.school_id=e_ids.e_id) TO STDOUT \
-            with CSV DELIMITER E'\t';"
+            with CSV DELIMITER E'\t' HEADER;"
 
     #Export people from jobs
     prospect_jobs = "copy (select * from (select prospect_id from \
             (select company_id as e_id from job where prospect_id={}) \
             as e_ids inner join job on job.company_id=e_ids.e_id) as p \
             inner join prospect on prospect.id=p.prospect_id) TO STDOUT \
-            with CSV DELIMITER E'\t';"
+            with CSV DELIMITER E'\t' HEADER;"
 
     prospect_schools = "copy (select * from (select prospect_id from \
             (select school_id as e_id from education where \
             prospect_id={}) as e_ids inner join education on \
             education.school_id=e_ids.e_id) as p inner join prospect on \
-            prospect.id=p.prospect_id) TO STDOUT with CSV DELIMITER E'\t';"
+            prospect.id=p.prospect_id) TO STDOUT with CSV DELIMITER E'\t' HEADER;"
 
 
     school_file = open('{}/training_data/{}/schools.csv'.format(path, id), "w+")
