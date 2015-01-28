@@ -1,4 +1,5 @@
 var industries = {}
+var offset = 0;
 var colors = ["#B7D085", "#F9EBB5", "#D3102E", "#DCD6D5", "#39272A", "#27ACBE", "#3D9275", "#C7E1B8", "#BEC25D"];
 var locations = {}
 var school_connections = {}
@@ -24,11 +25,15 @@ function resultHTML(result) {
 
 function buildResults() {
     data = window._userData.results;
+    var limit = offset + 20;
     var $result = $("div.results");
     for (var a in data) {
-        $result.append(resultHTML(data[a]))
+        if (a < offset) {
+            $result.append(resultHTML(data[a]))
+        }
         calculateResults(data[a])
     }
+    offset+=20;
 }
 
 function calculateResults(data) {
