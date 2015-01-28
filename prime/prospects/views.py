@@ -1,7 +1,7 @@
 from flask import Flask
 import json
 import urllib
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask.ext.login import current_user
 
 from . import prospects
@@ -95,4 +95,7 @@ def prospect(prospect_id):
     return render_template('prospect.html', prospect=prospect, jobs=jobs,
             schools=schools)
 
-print "made it"
+@prospects.route("/ajax/prospect/<int:prospect_id>")
+def ajax_prospect(prospect_id):
+    prospect = Prospect.query.get(prospect_id)
+    return jsonify(prospect.to_json)

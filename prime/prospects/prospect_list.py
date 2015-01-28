@@ -37,6 +37,7 @@ class ProspectList(object):
         We are going to get everyone who went to the same school during the same
         time period.
 
+        as schools where to_char(end_date, 'YYYY')='%s') \
         goes above as educations
         """
 
@@ -46,13 +47,13 @@ class ProspectList(object):
         (select * from (select education.id as education_id, school_id, prospect_id, \
         degree, start_date, end_date, school.name as school_name from education inner join school on \
         education.school_id=school.id where school_id=%s) \
-        as schools where to_char(end_date, 'YYYY')='%s') \
+        as schools) \
         as educations \
         inner join prospect on educations.prospect_id=prospect.id;
         """
         prospect_degree = education.degree
         end_date = education.end_date.year if education.end_date else "2000"
-        school_prospects = session.execute(SCHOOL_SQL % (education.school_id, end_date))
+        school_prospects = session.execute(SCHOOL_SQL % (education.school_id))#, end_date))
         prospects = []
         for prospect in school_prospects:
             self.prospect_school_count += 1

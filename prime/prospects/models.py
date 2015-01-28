@@ -1,4 +1,6 @@
 import argparse
+import requests
+import lxml.html
 import code
 import os
 
@@ -11,6 +13,7 @@ from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 
 from prime import db
+from prime.prospects.helper import BingSearch
 
 class Prospect(db.Model):
     __tablename__ = 'prospect'
@@ -19,7 +22,7 @@ class Prospect(db.Model):
 
     url = db.Column(String(1024))
     name = db.Column(String(1024))
-    linkedin_id = db.Column(String(1024))
+    linkedin_id = db.Column(String(1024), index=True)
 
     location = db.Column(Integer, ForeignKey("location.id"))
     location_raw = db.Column(String)
@@ -29,7 +32,7 @@ class Prospect(db.Model):
     industry = db.Column(Integer, ForeignKey("industry.id"))
     industry_raw = db.Column(String(1024))
 
-    s3_key = db.Column(String(1024))
+    s3_key = db.Column(String(1024), index=True)
     complete = db.Column(Boolean)
     updated = db.Column(Date)
     connections = db.Column(Integer)
@@ -55,6 +58,58 @@ class Prospect(db.Model):
     @property
     def get_url(self):
         return "/prospect/{}".format(self.id)
+
+    @property
+    def current_job(self):
+        jobs = self.jobs
+        if len(jobs) > 0:
+            return sorted(jobs, key=lambda x:x.start_date, reverse=True)[0]
+        return None
+
+    @property
+    def calculate_salary(self):
+        if self.current_job:
+            position = self.current_job.title
+            headers = {
+                    'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'
+                    }
+            url =  "http://www.indeed.com/salary?q1=%s&l1=#%s" % (position,
+                    self.location_raw)
+            try:
+                response = requests.get(url, headers=headers)
+                clean = lxml.html.fromstring(response.content)
+                salary = clean.xpath("//span[@class='salary']")[0].text
+                return salary
+            except Exception, err:
+                pass
+        return "N/A"
+
+    @property
+    def relevant_content(self):
+        try:
+            company = self.current_job.company.name
+            bing = BingSearch("%s %s" % (self.name, company))
+            results = bing.search()
+            return results
+        except:
+            return None
+
+
+    @property
+    def to_json(self):
+        return {
+            "name": self.name,
+            "jobs": [job.to_json for job in self.jobs],
+            "schools": [school.to_json for school in self.schools],
+            "industry": self.industry_raw,
+            "location": self.location_raw,
+            "connections": self.connections,
+            "url": self.url,
+            "news": self.relevant_content[:5],
+            "salary": self.calculate_salary,
+            "wealthscore": "98/100"}
+
+
 
     def __repr__(self):
         return '<Prospect id={0} name={1} url={2}>'.format(
@@ -104,15 +159,29 @@ class Job(db.Model):
     __tablename__ = "job"
 
     id = db.Column(Integer, primary_key=True)
-    company_id = db.Column(Integer, ForeignKey("company.id"))
+    company_id = db.Column(Integer, ForeignKey("company.id"), index=True)
     company = relationship('Company', foreign_keys='Job.company_id')
     location = db.Column(String(1024))
 
-    prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
     title = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
+
+    @property
+    def to_json(self):
+        date_to_str = lambda x:x.strftime("%Y") if x else ""
+        if not self.end_date:
+            dates = "{} - Present".format(date_to_str(self.start_date))
+        else:
+            dates = "{} - {}".format(
+                    date_to_str(self.start_date),
+                    date_to_str(self.end_date))
+        return {"company_name":self.company.name,
+                "title": self.title,
+                "location": self.location,
+                "dates": dates}
 
     @property
     def get_url(self):
@@ -142,13 +211,20 @@ class Education(db.Model):
     __tablename__ = "education"
 
     id = db.Column(Integer, primary_key=True)
-    school_id = db.Column(Integer, ForeignKey("school.id"))
+    school_id = db.Column(Integer, ForeignKey("school.id"), index=True)
     school = relationship('School', foreign_keys='Education.school_id')
     degree = db.Column(String(200))
-    prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
     start_date = db.Column(Date)
     end_date = db.Column(Date)
+
+    @property
+    def to_json(self):
+        date_to_str = lambda x:x.strftime("%Y") if x else ""
+        return {"school_name":self.school.name,
+                "degree": self.degree,
+                "graduation": date_to_str(self.end_date)}
 
     @property
     def get_url(self):

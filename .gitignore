@@ -1,6 +1,8 @@
 src/
 .sass-cache/
 prime/static/.webassets-cache/
+prime/static/js/build/.module/
+prime/static/js/build/.module-cache/
 prime/static/css/gen/
 data/
 *.pem
