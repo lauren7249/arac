@@ -28,7 +28,7 @@ function buildResults() {
     var limit = offset + 20;
     var $result = $("div.results");
     for (var a in data) {
-        if (a < offset) {
+        if (a < limit) {
             $result.append(resultHTML(data[a]))
         }
         calculateResults(data[a])
