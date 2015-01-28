@@ -52,7 +52,7 @@ class ProspectList(object):
         """
         prospect_degree = education.degree
         end_date = education.end_date.year if education.end_date else "2000"
-        school_prospects = session.execute(SCHOOL_SQL % (education.school_id))#,end_date))
+        school_prospects = session.execute(SCHOOL_SQL % (education.school_id, end_date))
         prospects = []
         for prospect in school_prospects:
             self.prospect_school_count += 1
