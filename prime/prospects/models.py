@@ -90,9 +90,9 @@ class Prospect(db.Model):
             company = self.current_job.company.name
             bing = BingSearch("%s %s" % (self.name, company))
             results = bing.search()
-            return results
+            return results[:5]
         except:
-            return None
+            return []
 
 
     @property
@@ -105,7 +105,7 @@ class Prospect(db.Model):
             "location": self.location_raw,
             "connections": self.connections,
             "url": self.url,
-            "news": self.relevant_content[:5],
+            "news": self.relevant_content,
             "salary": self.calculate_salary,
             "wealthscore": "98/100"}
 
