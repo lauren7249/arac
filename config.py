@@ -3,9 +3,12 @@ import os
 
 class Config(object):
     SECRET_KEY = os.getenv('PRIME_SECRET_KEY', 'jfiesjof3920uf90esc09w3fj903w3')
-
-    SESSION_COOKIE_SECURE = True
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    CSRF_SESSION_KEY = "iejfjenosvfse87r3729rfu8ej"
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
+    ASSETS_DEBUG = True
+    MAIL_SUPPRESS_SEND = True
+    COOKIE_SECURE = False
 
     MAIL_SERVER = 'aws_string_goes_here'
     MAIL_PORT = 587

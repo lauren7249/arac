@@ -7,7 +7,7 @@ from flask.ext.login import current_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School
 from prime.prospects.prospect_list import ProspectList
-from prime import db
+from prime import db, csrf
 
 from consume.consumer import generate_prospect_from_url
 from consume.convert import clean_url as _clean_url
@@ -24,6 +24,7 @@ session = db.session
 def clients():
     pass
 
+@csrf.exempt
 @prospects.route("/", methods=['GET', 'POST'])
 def upload():
     if current_user.is_anonymous():
@@ -37,6 +38,7 @@ def upload():
             return redirect("/search?url=" + current_user.linkedin_url)
     return render_template('upload.html', results=results)
 
+@csrf.exempt
 @prospects.route("/select", methods=['POST'])
 def select_client():
     if request.method == 'POST':

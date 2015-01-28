@@ -4,14 +4,13 @@ from flask import redirect, request, url_for, flash, render_template
 from flask.ext.login import login_user, logout_user, current_user, fresh_login_required
 
 from . import auth
-from prime import db
+from prime import db, csrf
 from prime.customers.models import Customer
 from .forms import SignUpForm, LoginForm
 from prime.users.models import User
 
 
 logger = logging.getLogger(__name__)
-
 
 @auth.route('/auth/login', methods=['GET', 'POST'])
 def login():
@@ -23,14 +22,13 @@ def login():
         if form.validate():
             user = User.query.filter_by(email=form.email.data).first()
             if user is not None and user.check_password(form.password.data):
-                login_user(user, True)
+                login_user(user)
                 return redirect(request.args.get('next') or
                         url_for('prospects.upload'))
         valid = False
         form.email.data = ''
         form.password.data = ''
     return render_template('auth/login.html', form=form, valid=valid)
-
 
 @auth.route('/auth/signup/<customer_slug>', methods=['GET', 'POST'])
 def signup(customer_slug):
