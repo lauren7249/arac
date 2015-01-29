@@ -98,6 +98,7 @@ function buildGraphs() {
         sortableIndustry.push([industry, industries[industry]])
     }
     sortableIndustry.sort(function(a, b) {return a[1] - b[1]})
+    console.log(sortableIndustry);
     industries = {}
 
     for (var location in locations) {
@@ -105,6 +106,7 @@ function buildGraphs() {
     }
 
     sortableLocation.sort(function(a, b) {return a[1] - b[1]})
+    console.log(sortableLocation);
     locations = {}
 
     //If less than 10, we need to do the length
