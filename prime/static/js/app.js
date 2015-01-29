@@ -90,6 +90,17 @@ $(function() {
 
 function buildGraphs() {
 
+    var sortableIndustry = []
+
+    for (var industry in industry) {
+        sortableIndustry.push([industry, industries[industry])
+    }
+    sortableIndustry.sort(function(a, b) {return a[1] - b[1]})
+    industries = {}
+    for (var item in 10) {
+        industries[sortableIndustry[item][0]] = sortableIndustry[item][1]
+    }
+
     var workData = [];
     for (var wKey in company_connections) {
         workData.push({
