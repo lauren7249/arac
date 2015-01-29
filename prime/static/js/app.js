@@ -91,14 +91,32 @@ $(function() {
 function buildGraphs() {
 
     var sortableIndustry = []
+    var sortableLocation = []
 
-    for (var industry in industry) {
-        sortableIndustry.push([industry, industries[industry])
+    //lets sort dict so we only get 10 industries max
+    for (var industry in industries) {
+        sortableIndustry.push([industry, industries[industry]])
     }
     sortableIndustry.sort(function(a, b) {return a[1] - b[1]})
     industries = {}
-    for (var item in 10) {
-        industries[sortableIndustry[item][0]] = sortableIndustry[item][1]
+
+    for (var location in locations) {
+        sortableLocation.push([location, locations[location]])
+    }
+
+    sortableLocation.sort(function(a, b) {return a[1] - b[1]})
+    locations = {}
+
+    //If less than 10, we need to do the length
+    var industryLimit = (sortableIndustry.length > 10) ? 10 : sortableIndustry.length;
+    var locationLimit = (sortableLocation.length > 10) ? 10 : sortableLocation.length;
+
+    for (var i=0;i<industryLimit;i++) {
+        industries[sortableIndustry[i][0]] = sortableIndustry[i][1]
+    }
+
+    for (var i=0;i<locationLimit;i++) {
+        locations[sortableLocation[i][0]] = sortableLocation[i][1]
     }
 
     var workData = [];
@@ -116,7 +134,6 @@ function buildGraphs() {
             color: randColor(colors),
             label: sKey});
     }
-    console.log(schoolData);
 
     var industryData = [];
     for (var iKey in industries) {
