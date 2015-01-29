@@ -1,6 +1,12 @@
 @import "compass/css3";
 @import 'styles';
 
+div.perma-container {
+  width: 90%;
+  display: block;
+  margin: 0 auto;
+}
+
 
 div.clear {
   clear: both;
