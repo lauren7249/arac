@@ -1,4 +1,6 @@
 import argparse
+import string
+import json
 import requests
 import lxml.html
 import code
@@ -67,6 +69,25 @@ class Prospect(db.Model):
         return None
 
     @property
+    def pipl_info(self):
+        info = {}
+        try:
+            base_url ="http://api.pipl.com/search/v3/json/?username="
+            linkedin_id = str(self.linkedin_id)
+            end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
+            url = "".join([base_url, linkedin_id, end_query])
+            response = requests.get(url)
+            content = json.loads(response.content)
+            emails = content.get('person').get("emails")
+            images = content.get('person').get("images")
+            if len(emails) > 0:
+                info['email'] = emails[0].get("address")
+        except:
+            pass
+        return info
+
+
+    @property
     def calculate_salary(self):
         if self.current_job:
             position = self.current_job.title
@@ -82,7 +103,7 @@ class Prospect(db.Model):
                 return salary
             except Exception, err:
                 pass
-        return "N/A"
+        return None
 
     @property
     def relevant_content(self):
@@ -97,8 +118,15 @@ class Prospect(db.Model):
 
     @property
     def to_json(self):
+        salary = self.calculate_salary
+        if salary:
+            first_letter = self.name[0]
+            amount = string.lowercase.index(str(first_letter.lower()))
+            wealthscore = amount + 65
+
         return {
             "name": self.name,
+            "id": self.id,
             "jobs": [job.to_json for job in self.jobs],
             "schools": [school.to_json for school in self.schools],
             "industry": self.industry_raw,
@@ -106,8 +134,8 @@ class Prospect(db.Model):
             "connections": self.connections,
             "url": self.url,
             "news": self.relevant_content,
-            "salary": self.calculate_salary,
-            "wealthscore": "98/100"}
+            "salary": salary if salary else "N/A",
+            "wealthscore": wealthscore}
 
 
 

@@ -99,3 +99,9 @@ def prospect(prospect_id):
 def ajax_prospect(prospect_id):
     prospect = Prospect.query.get(prospect_id)
     return jsonify(prospect.to_json)
+
+@prospects.route("/ajax/pipl/<int:prospect_id>")
+def ajax_pipl(prospect_id):
+    prospect = Prospect.query.get(prospect_id)
+    return jsonify(prospect.pipl_info)
+
