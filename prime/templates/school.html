@@ -29,7 +29,7 @@
       <tbody>
       {% for education in educations.items %}
       <tr>
-        <td><script type="IN/MemberProfile" data-id="{{ education.prospect.url }}" data-format="hover"></script><a href='{{ education.prospect.get_url }}'>{{ education.prospect.name }}</a></td>
+        <td><script type="IN/MemberProfile" data-id="{{ education.prospect.url }}" data-format="hover"></script><a href='javascript:loadProfile({{ education.prospect.id}});'>{{ education.prospect.name }}</a></td>
         <td>{{ education.degree }}</td>
         <td>{{ education.prospect.location_raw }}</td>
         <td>{{ education.prospect.industry_raw }}</td>
