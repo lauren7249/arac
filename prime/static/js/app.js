@@ -11,7 +11,7 @@ function randColor(colors) {
 
 function resultHTML(result) {
     var $parent = $("<div class='result'></div>");
-    var $h3 = $("<h3><a result-prospect='" + result.url + "' href='javascript:loadProfile(" + result.id + ");'>" + result.prospect_name + "</a>");
+    var $h3 = $("<h3><a result-prospect='" + result.url + "' href='javascript:loadProfile(" + result.id + ",\"" + result.url +  "\");'>" + result.prospect_name + "</a>");
     var $h5 = $("<h5>" + result.relationship + "</h5>")
     if (result.company_name) {
         var $entity = $("<a href='/company/" + result.company_id + "'><button class='btn btn-success'>" + result.company_name + "</button></a>")

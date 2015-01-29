@@ -102,10 +102,10 @@ var Profile = React.createClass({displayName: "Profile",
     },
     componentDidMount: function() {
         this.loadProfileFromServer();
-        setTimeout(this.loadInLinkedinScript, 500);
+        setTimeout(this.loadInLinkedinScript, 1000);
     },
     loadInLinkedinScript: function() {
-        var $html = $('<script type="IN/MemberProfile" data-id="' + this.state.data.url + '" data-related="false" data-format="inline"></script>')
+        var $html = $('<script type="IN/MemberProfile" data-id="' + this.props.linkedin_url + '" data-related="false" data-format="inline"></script>')
         $(".leftTop").append($html);
         IN.parse(document.body);
     },
@@ -146,13 +146,13 @@ var Profile = React.createClass({displayName: "Profile",
 });
 
 
-function loadProfile(id) {
+function loadProfile(id, linkedin_url) {
 
     $(".overlay").show();
 
     url = "/ajax/prospect/" + id;
     React.render(
-        React.createElement(Profile, {url: url}),
+        React.createElement(Profile, {url: url, linkedin_url: linkedin_url}),
         document.getElementById('person')
     );
     IN.parse();
