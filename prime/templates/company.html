@@ -30,7 +30,7 @@
       <tbody>
       {% for job in jobs.items %}
       <tr>
-        <td><script type="IN/MemberProfile" data-id="{{ job.prospect.url }}" data-format="hover"></script><a href='javascript:loadProfile({{ education.prospect.id}});'>{{ job.prospect.name }}</a></td>
+        <td><script type="IN/MemberProfile" data-id="{{ job.prospect.url }}" data-format="hover"></script><a href='javascript:loadProfile({{ job.prospect.id}});'>{{ job.prospect.name }}</a></td>
         <td>{{ job.title }}</td>
         <td>{{ job.prospect.location_raw }}</td>
         <td>{{ job.prospect.industry_raw }}</td>
