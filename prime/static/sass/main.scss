@@ -1,6 +1,14 @@
 @import "compass/css3";
 @import 'styles';
 
+$quick: "Quicksand", sans-serif;
+$noto: "Noto Sans", sans-serif;
+
+body {
+  background: #354661;
+  font-family: $quick;
+}
+
 div.perma-container {
   width: 90%;
   display: block;
@@ -44,7 +52,8 @@ div.filters {
 }
 
 div.navbar {
-  background: #525252;
+  background: #414154;
+  @include border-radius(0px);
 
   .navbar-header {
     float: none;
@@ -113,18 +122,33 @@ div.navbar {
 
 div.signup {
 
+  div.top-box {
+    float: none;
+    margin: 0 auto;
+  }
+
   h1 {
     font-family: $quick;
-    font-size: 30px;
+    font-size: 26px;
     text-transform: uppercase;
     color: $blue;
-    text-align: center;
+    text-align: left;
   }
 
   div.well {
-    padding: 30px 80px;
+    width: 988px;
+    padding: 30px 40px;
+    @include box-shadow(rgba(0,0,0,0.3) 0 0 1px 2px);
     float: none;
     margin: 0 auto;
+
+    div {
+      padding: 0 20px;
+    }
+
+    ul, li {
+      list-style-type: decimal;
+    }
 
     fieldset {
 
@@ -144,11 +168,10 @@ div.sidebar {
   div.inner {
     min-height: 300px;
     padding: 20px 40px;
-    background: #fff;
 
     h3 {
       font-size: 25px;
-      color: #525252;
+      color: #ccc;
       font-weight: 700;
       text-transform: uppercase;
     }
@@ -157,14 +180,14 @@ div.sidebar {
       padding-left: 10px;
 
       li {
-        font-size: 16px;
+        font-size: 14px;
         padding: 5px;
-        text-transform: uppercase;
         list-style-type: none;
 
         a {
-          color: $darkblue;
-          font-weight: 500;
+          color: #fff;
+          @include text-shadow(#333 1px 1px 0);
+          font-weight: bold;
           position: relative;
 
           span {
@@ -192,17 +215,98 @@ div.sidebar {
   }
 }
 
+div.welcome {
+  background: #eff2f8;
+  width: auto;
+  padding-bottoM: 30px;
+  @include box-shadow(#999 0 0px 2px 0px);
+
+  h1 {
+    padding: 30px 30px 15px;
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    margin: 0;
+
+    a {
+      color: #505977;
+      text-decoration: none;
+    }
+  }
+
+  p {
+    padding: 0 30px;
+    font-size: 16px;
+    width: 80%;
+    line-height: 170%;
+  }
+}
+
+div.upload {
+  div.well {
+    background: #fff;
+    padding: 30px 40px;
+    @include box-shadow(rgba(0,0,0,0.3) 0 0 1px 2px);
+    float: none;
+    margin: 40px auto;
+
+    div.row-one {
+      padding: 0 20px;
+    }
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+}
+
+div.top-box {
+  h5 {
+    color: #fff;
+    font-weight: bold;
+  }
+}
+
+div.confirm {
+  div.well {
+    background: #fff;
+    padding: 30px 40px;
+    @include box-shadow(rgba(0,0,0,0.3) 0 0 1px 2px);
+    float: none;
+    margin: 40px auto;
+
+    div.row-one {
+      padding: 0 20px;
+    }
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+}
+
+h2.empty {
+  background: #eee;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 18px;
+  padding: 30px;
+
+  a {
+    color: #2196f3;
+  }
+}
 
 div.items {
   float: left;
   width: 80%;
   background: #fafafa;
-  padding: 50px;
   border-left: 1px solid #dedede;
 }
 
 div.stats {
   padding-bottom: 40px;
+  padding: 50px;
   
   h4 {
     font-size: 28px;
@@ -222,7 +326,8 @@ div.stats {
 }
 
 div.results {
-  width: 100%;
+  width: auto;
+  padding: 50px;
 
   div.search-box {
     padding: 10px 25px 40px;
@@ -286,7 +391,7 @@ div.overlay {
   z-index: 99;
   background: rgba(255, 255, 255, 0.8);
 
-  div#person {
+  div#person, div#search-box {
     width: 1000px;
     margin: 20px auto;
     background: #fff;
@@ -399,4 +504,50 @@ div.overlay {
       }
     }
   }
+}
+
+div#search-box {
+  width: 1000px;
+  margin: 20px auto;
+  background: #fff;
+  @include box-shadow(#ccc 0 0 4px 0);
+  min-height: 150px;
+
+  h1 {
+    font-size: 25px;
+    color: #525252;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  div.search-box {
+    padding: 40px;
+
+    input[type='text'] {
+      width: 80%;
+      margin-right: 15px;
+    }
+  }
+
+  label {
+    margin-right: 20px;
+  }
+
+  input[type='date'] {
+    border: 0px;
+    margin-right: 10px;
+  }
+}
+
+fieldset.margin-bottom {
+  margin-bottom: 50px;
+
+  h4 {
+    padding-bottom: 15px;
+  }
+}
+
+#ex1 .slider-selection {
+	background: #8283FF;
 }

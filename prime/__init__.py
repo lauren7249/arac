@@ -40,8 +40,9 @@ def create_app(config_name):
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/bootswatch.min.css','css/main.css',
-                 output='css/gen/main.%(version)s-fitzmin.css',
+    css = Bundle('css/bootswatch.min.css','css/main.css', 'css/chosen.css', \
+            'css/bootstrap-slider.css',
+                 output='css/gen/main.%(version)s-min.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)
 

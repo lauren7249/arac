@@ -1,0 +1,5 @@
+<ul>
+  {% for result in results %}
+  <li>{{ result.name }} <a href='javascript:;' data-name='{{ result.name }}' data-id='{{ result.id }}'>Select</a></li>
+  {% endfor %}
+</ul>

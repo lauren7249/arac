@@ -9,15 +9,20 @@ import sqlalchemy.event
 from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, Text
+from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, \
+        Text, Enum
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.types import SchemaType, TypeDecorator, Enum
+
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 
 from prime import db, login_manager
+from prime.prospects.models import Prospect
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +42,7 @@ class User(db.Model, UserMixin):
     customer = relationship('Customer', foreign_keys='User.customer_id')
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
+    json = db.Column(JSON)
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -53,10 +59,10 @@ class User(db.Model, UserMixin):
 
     def is_authenticated(self):
         return True
- 
+
     def is_active(self):
         return True
- 
+
     def is_anonymous(self):
         return False
 
@@ -92,3 +98,33 @@ class User(db.Model, UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class ClientType(db.Model):
+    __tablename__ = "client_type"
+
+    client_type_id = db.Column(postgresql.INTEGER, primary_key=True)
+    processed = db.Column(Boolean, default=False)
+    good = db.Column(Boolean, default=False)
+    status = db.Column(String(100))
+
+
+
+class Client(db.Model):
+    __tablename__ = "clients"
+
+    client_id = db.Column(postgresql.INTEGER, primary_key=True)
+
+    user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True)
+    user = relationship('User', foreign_keys='Client.user_id')
+
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
+    prospect = relationship('Prospect', foreign_keys='Client.prospect_id')
+
+    type_id = db.Column(Integer, ForeignKey("client_type.client_type_id"), index=True)
+    type = relationship("ClientType", foreign_keys='Client.type_id')
+
+
+
+    def __str__(self):
+        return '{}:{})'.format(self.user.first_name, self.prospect.first_name)

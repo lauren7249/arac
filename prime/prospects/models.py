@@ -7,6 +7,7 @@ import code
 import os
 
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
