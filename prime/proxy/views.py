@@ -26,8 +26,14 @@ def proxy():
     if request.args.get("url"):
         raw_url = urllib.unquote(request.args.get("url")).decode('utf8')
         url = clean_url(raw_url)
+        prospect = session.query(Prospect).filter_by(s3_key=url.replace("https", "http").replace("/", "")).first()
+        if prospect:
+            print "found prospect"
+            return jsonify({"prospect_url": prospect.url})
+
         content = process_request(url)
         processed = parse_html(content.get("content"))
+        """
         s3_bucket_name = 'arachid-results'
         s3_conn = S3Connection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
@@ -35,6 +41,7 @@ def proxy():
         key = Key(s3_bucket)
         key.key = content['url'].replace('/', '')
         key.set_contents_from_string(json.dumps(content))
+        """
         linkedin_id = processed.get("linkedin_id")
         prospect = session.query(Prospect).filter_by(linkedin_id=linkedin_id).first()
         if not prospect:

@@ -47,8 +47,8 @@ def clean_str(s):
     return s.decode('utf-8', 'ignore')
 
 def process_request(url):
-    ua = UserAgent()
-    response = requests.get(url, headers={'User-agent': ua.random}, timeout=10)
+    ua = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)"
+    response = requests.get(url, headers={'User-agent': ua}, timeout=10)
     content = response.content
     print content
 
