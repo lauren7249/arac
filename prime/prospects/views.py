@@ -8,6 +8,7 @@ from flask.ext.login import current_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry
+from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
 from prime import db, csrf
 
@@ -25,7 +26,10 @@ session = db.session
 
 @prospects.route("/clients")
 def clients():
-    pass
+    if request.method == 'POST':
+        pass
+    client_lists = ClientList.query.filter_by(user=current_user).all()
+    return render_template('clients.html', client_lists=client_lists)
 
 @csrf.exempt
 @prospects.route("/", methods=['GET', 'POST'])

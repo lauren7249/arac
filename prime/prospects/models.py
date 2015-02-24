@@ -141,7 +141,7 @@ class Prospect(db.Model):
 
 
     def __repr__(self):
-        return '<Prospect id={0} url={2}>'.format(self.id, self.url)
+        return '<Prospect id={0} url={1}>'.format(self.id, self.url)
 
 
 class Location(db.Model):

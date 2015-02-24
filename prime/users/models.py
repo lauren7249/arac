@@ -94,37 +94,50 @@ class User(db.Model, UserMixin):
     def __str__(self):
         return '{} {} ({})'.format(self.first_name, self.last_name, self.user_id)
 
+    def __repr__(self):
+        return '{} {} ({})'.format(self.first_name, self.last_name, self.user_id)
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class ClientType(db.Model):
-    __tablename__ = "client_type"
+class ClientProspect(db.Model):
+    __tablename__ = "client_prospect"
 
-    client_type_id = db.Column(postgresql.INTEGER, primary_key=True)
+    id = db.Column(postgresql.INTEGER, primary_key=True)
+    client_list_id = db.Column(Integer, ForeignKey("client_list.id"),
+            index=True)
+    client_list = relationship('ClientList', \
+            foreign_keys='ClientProspect.client_list_id')
+
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"),
+            index=True)
+    prospect = relationship("Prospect", \
+            foreign_keys="ClientProspect.prospect_id")
     processed = db.Column(Boolean, default=False)
     good = db.Column(Boolean, default=False)
-    status = db.Column(String(100))
+
+    def __repr__(self):
+        return '{} {}'.format(self.prospect.url, self.client_list.user.name)
 
 
+class ClientList(db.Model):
+    __tablename__ = "client_list"
 
-class Client(db.Model):
-    __tablename__ = "clients"
-
-    client_id = db.Column(postgresql.INTEGER, primary_key=True)
+    id = db.Column(postgresql.INTEGER, primary_key=True)
 
     user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True)
-    user = relationship('User', foreign_keys='Client.user_id')
+    user = relationship('User', foreign_keys='ClientList.user_id')
 
-    prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
-    prospect = relationship('Prospect', foreign_keys='Client.prospect_id')
+    prospects = db.relationship('Prospect', secondary="client_prospect", \
+                               backref=db.backref('prospects', lazy='dynamic'))
 
-    type_id = db.Column(Integer, ForeignKey("client_type.client_type_id"), index=True)
-    type = relationship("ClientType", foreign_keys='Client.type_id')
-
-
+    @property
+    def prospect_count(self):
+        return len(self.prospects)
 
     def __str__(self):
         return '{}:{})'.format(self.user.first_name, self.prospect.first_name)
+
