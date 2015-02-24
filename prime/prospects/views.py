@@ -1,11 +1,14 @@
 from flask import Flask
+import datetime
 import json
 import urllib
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask.ext.login import current_user
 
 from . import prospects
-from prime.prospects.models import Prospect, Job, Education, Company, School
+from prime.prospects.models import Prospect, Job, Education, Company, School, \
+Industry
+from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
 from prime import db, csrf
 
@@ -17,12 +20,16 @@ from sqlalchemy import select, cast
 
 from prime.prospects.helper import LinkedinResults
 from prime.prospects.arequest import aRequest
+from prime.search.search import SearchRequest
 
 session = db.session
 
 @prospects.route("/clients")
 def clients():
-    pass
+    if request.method == 'POST':
+        pass
+    client_lists = ClientList.query.filter_by(user=current_user).all()
+    return render_template('clients.html', client_lists=client_lists)
 
 @csrf.exempt
 @prospects.route("/", methods=['GET', 'POST'])
@@ -35,12 +42,31 @@ def upload():
         results = LinkedinResults(query).process()
     else:
         if current_user.linkedin_url:
-            return redirect("/search?url=" + current_user.linkedin_url)
+            return redirect("dashboard")
     return render_template('upload.html', results=results)
 
 @csrf.exempt
 @prospects.route("/select", methods=['POST'])
-def select_client():
+def select_profile():
+    if request.method == 'POST':
+        import pdb
+        pdb.set_trace()
+        url = request.form.get("url")
+        rq = aRequest(url)
+        content = rq.get()
+        url = content.get("prospect_url")
+        if not current_user.linkedin_url:
+            current_user.linkedin_url = url
+            session.add(current_user)
+            session.commit()
+        return redirect("confirm")
+
+@csrf.exempt
+@prospects.route("/confirm", methods=['GET'])
+def confirm_profile():
+    if not current_user.linkedin_url:
+        return redirect("auth.login")
+    prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
     if request.method == 'POST':
         url = request.form.get("url")
         rq = aRequest(url)
@@ -50,24 +76,25 @@ def select_client():
             current_user.linkedin_url = url
             session.add(current_user)
             session.commit()
-        return redirect("/search?url=" + url)
+        return redirect("dashboard")
+    return render_template('confirm.html', prospect=prospect)
 
-@prospects.route("/search")
-def search():
+@prospects.route("/dashboard")
+def dashboard():
     results = None
-    if request.args.get("url"):
-        raw_url = urllib.unquote(request.args.get("url")).decode('utf8')
-        url = _clean_url(raw_url)
-        prospect = session.query(Prospect).filter_by(s3_key=url.replace("/",
-            "")).first()
-        if not prospect:
-            prospect = generate_prospect_from_url(url)
-        prospect_list = ProspectList(prospect)
-        results = prospect_list.get_results()
-        school_count = prospect_list.prospect_school_count
-        job_count = prospect_list.prospect_job_count
-        print prospect
-    return render_template('search.html', results=results, prospect=prospect,
+    linkedin_url = current_user.linkedin_url
+    raw_url = urllib.unquote(linkedin_url).decode('utf8')
+    url = _clean_url(raw_url)
+    prospect = session.query(Prospect).filter_by(s3_key=url.replace("/",
+        "")).first()
+    if not prospect:
+        prospect = generate_prospect_from_url(url)
+    prospect_list = ProspectList(prospect)
+    results = prospect_list.get_results()
+    school_count = prospect_list.prospect_school_count
+    job_count = prospect_list.prospect_job_count
+    print prospect
+    return render_template('dashboard.html', results=results, prospect=prospect,
             school_count=school_count, job_count=job_count,
             json_results=json.dumps(results))
 
@@ -105,3 +132,97 @@ def ajax_pipl(prospect_id):
     prospect = Prospect.query.get(prospect_id)
     return jsonify(prospect.pipl_info)
 
+@csrf.exempt
+@prospects.route("/educations/create", methods=['GET', 'POST'])
+def educations_create():
+    if request.method == 'POST':
+        school_id = request.form.get("school_id")
+        school = School.query.get(school_id)
+        if not school:
+            school = School.query.first()
+        prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("start_date")
+        degree = request.form.get("degree")
+        new_education = Education(
+                prospect = prospect,
+                school = school,
+                degree = degree,
+                start_date = start_date,
+                end_date = end_date
+                )
+        session.add(new_education)
+        session.commit()
+        return redirect("confirm")
+
+@csrf.exempt
+@prospects.route("/jobs/create", methods=['GET', 'POST'])
+def jobs_create():
+    if request.method == 'POST':
+        company_id = request.form.get("company_id")
+        company = Company.query.get(company_id)
+        if not company:
+            company = Company.query.first()
+        prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("start_date")
+        title = request.form.get("title")
+        new_job = Job(
+                prospect = prospect,
+                company = company,
+                title = title,
+                start_date = start_date,
+                end_date = end_date
+                )
+        session.add(new_job)
+        session.commit()
+        return redirect("confirm")
+
+
+@prospects.route("/elastic_search")
+def elastic_search():
+    type = request.args.get("type", "school")
+    term = request.args.get("term")
+    search = SearchRequest(term, type=type)
+    data = search.search()
+    return render_template('ajax/search.html', results=data)
+
+@csrf.exempt
+@prospects.route("/investor_profile", methods=['GET', 'POST'])
+def investor_profile():
+    industries = Industry.query.all()
+    if request.method == 'POST':
+        return redirect("dashboard")
+    return render_template('investor_profile.html', industries=industries)
+
+@prospects.route("/search", methods=['GET'])
+def search_view():
+    page = int(request.args.get("p", 1))
+    company_id = request.args.get("company_id", None)
+    school_id = request.args.get("school_id", None)
+    start_date = datetime.datetime.strptime(request.args.get("start_date", \
+        "1900-01-01"), "%Y-%m-%d").date()
+    end_date = datetime.datetime.strptime(request.args.get("end_date", \
+            "2016-01-01"), "%Y-%m-%d").date()
+    prospects = []
+    prospect_results = []
+    if company_id:
+        prospects = session.query(Prospect, Job).distinct(Prospect.name)\
+                .join(Job).filter_by(company_id=company_id)
+        if start_date:
+            prospects = prospects.join(Job).filter(Job.start_date>=start_date)
+        if end_date:
+            prospects = prospects.join(Job).filter(Job.end_date<=end_date)
+    if school_id:
+        prospects = session.query(Prospect, Education).distinct(Prospect.name).join(Education)\
+                .filter_by(school_id=school_id)
+        if start_date:
+            prospects = prospects.join(Education).filter(Education.start_date>=start_date)
+        if end_date:
+            prospects = prospects.join(Education).filter(Education.end_date<=end_date)
+    for prospect in prospects:
+        setattr(prospect[0], "relevant_item", prospect[1])
+        prospect_results.append(prospect[0])
+    number = 50 * (page - 1)
+    return render_template("search.html", \
+            prospects=prospect_results[number:number+50])

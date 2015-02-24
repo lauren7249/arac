@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class='overlay'>
+  <div id='search-box'>
+  </div>
+</div>
+<div class='container'>
+  <div class='top-box'>
+    <h5>STEP 3/4</h5>
+    <div class="progress">
+      <div class="progress-bar progress-bar-success" style="width: 75%"></div>
+    </div>
+  </div>
+  <div class='bs-docs-section confirm'>
+    <div class='well col-lg-12'>
+      <div class='row row-one'>
+        <h1>Confirm Your Account <div class='pull-right'><a href='/investor_profile'><button class='btn btn-success'>NEXT > </button></a></div></h1>
+        <p>Add in any missing information to increase the accuracy of our lead scoring</p>
+        <hr />
+      </div>
+      <div class='row row-one'>
+        <h4>Personal Information</h4>
+        <fieldset>
+          <label>First Name: {{ current_user.first_name }}</label>
+        </fieldset>
+        <fieldset>
+          <label>Last Name: {{ current_user.first_name }}</label>
+        </fieldset>
+        <fieldset>
+          <label>Email: {{ current_user.email }}</label>
+        </fieldset>
+        <h4>Work History</h4>
+        {% for job in prospect.jobs %}
+        <fieldset>
+          <label>{{ job.company.name }} - {{ job.title }} | {{ job.start_date }} - {% if job.end_date %}{{ job.end_date }}{% else %}Present{% endif %}</label>
+        </fieldset>
+        {% endfor %}
+        <a href='javascript:addJob();'>Add Job + </a>
+        <h4>Education History</h4>
+        {% for education in prospect.schools %}
+        <fieldset>
+          <label>{{ education.school.name }} - {{ education.degree }} | {{ education.end_date }}</label>
+        </fieldset>
+        {% endfor %}
+        <a href='javascript:addSchool();'>Add Education + </a>
+        <h4>Skills and Interests</h4>
+        <fieldset>
+          <input type='text' class='form-group'>
+          <a href=''><button class='btn btn-success'>Add +</button> </a>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+</div>
+<script type='text/javascript' src='/static/js/build/confirm.js'></script>
+{% endblock %}

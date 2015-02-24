@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class='overlay'>
+  <div id='search-box'>
+  </div>
+</div>
+<div class='container'>
+  <div class='top-box'>
+    <h5>STEP 4/4</h5>
+    <div class="progress">
+      <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+    </div>
+  </div>
+  <div class='bs-docs-section confirm'>
+    <div class='well col-lg-12'>
+      <div class='row row-one'>
+        <h1>Who Are You Looking For <div class='pull-right'><a href='/dashboard'><button class='btn btn-success'>SKIP > </button></a></div></h1>
+        <p>Let us know your ideal prospect profile. You can come back and change this at any point.</p>
+        <hr />
+      </div>
+      <div class='row row-one'>
+        <form action='' method='POST'>
+          <h4>Select Preferred Industry</h4>
+          <fieldset class='margin-bottom'>
+            <select class='chosen-select' multiple name='industry'>
+              {% for industry in industries %}
+              <option name='industry' value='{{ industry.id }}'>{{ industry.name }}</option>
+              {% endfor %}
+            </select>
+          </fieldset>
+          <h4>Select Preferred Locations</h4>
+          <fieldset class='margin-bottom'>
+            <select class='chosen-select' multiple name='industry'>
+              {% for industry in industries %}
+              <option name='industry' value='{{ industry.id }}'>{{ industry.name }}</option>
+              {% endfor %}
+            </select>
+          </fieldset>
+          <h4>Select Preferred Job Titles</h4>
+          <fieldset class='margin-bottom'>
+            <select class='chosen-select' multiple name='industry'>
+              {% for industry in industries %}
+              <option name='industry' value='{{ industry.id }}'>{{ industry.name }}</option>
+              {% endfor %}
+            </select>
+          </fieldset>
+          <h4>Gender Preference</h4>
+          <fieldset class='margin-bottom'>
+            <label for='gender'>Male</label>
+            <input type='radio' name='gender' id='gender' />
+            <label for='gender'>Female</label>
+            <input type='radio' name='gender' id='gender' />
+            <label for='gender'>Both</label>
+            <input type='radio' name='gender' id='gender' />
+          </fieldset>
+          <h4>Ideal Age Preference</h4>
+          <fieldset class='margin-bottom'>
+            <input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="20" data-slider-max="100" data-slider-step="5" data-slider-value="[0,100]"/>
+          </fieldset>
+          <h4>Ideal Company Size</h4>
+          <fieldset class='margin-bottom'>
+            <input id="ex2" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="10000" data-slider-step="500" data-slider-value="[0,10000]"/>
+          </fieldset>
+          <h4>Certifications</h4>
+          <fieldset class='margin-bottom'>
+            <select class='chosen-select' multiple name='certifications'>
+              <option name='industry' value=''>MD</option>
+              <option name='industry' value=''>JD</option>
+              <option name='industry' value=''>PHD</option>
+              <option name='industry' value=''>CFA</option>
+            </select>
+          </fieldset>
+          <fieldset class='margin-bottom'>
+            <button type='submit' class='btn btn-success'>Submit</button>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
+<script type='text/javascript' src='/static/js/bootstrap-slider.js'></script>
+<script type='text/javascript' src='/static/js/build/investor_profile.js'></script>
+{% endblock %}

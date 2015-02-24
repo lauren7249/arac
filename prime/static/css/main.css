@@ -63,6 +63,11 @@ h1, h2, h3, h4 {
   font-family: "Quicksand", sans-serif;
 }
 
+body {
+  background: #354661;
+  font-family: "Quicksand", sans-serif;
+}
+
 div.perma-container {
   width: 90%;
   display: block;
@@ -97,7 +102,12 @@ div.filters ul.filters li span {
 }
 
 div.navbar {
-  background: #525252;
+  background: #414154;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
 }
 div.navbar .navbar-header {
   float: none;
@@ -152,17 +162,31 @@ div.navbar #settings div.autocomplete ul li a {
   color: #fff;
 }
 
-div.signup h1 {
-  font-family: "Quicksand", sans-serif;
-  font-size: 30px;
-  text-transform: uppercase;
-  color: #2196f3;
-  text-align: center;
-}
-div.signup div.well {
-  padding: 30px 80px;
+div.signup div.top-box {
   float: none;
   margin: 0 auto;
+}
+div.signup h1 {
+  font-family: "Quicksand", sans-serif;
+  font-size: 26px;
+  text-transform: uppercase;
+  color: #2196f3;
+  text-align: left;
+}
+div.signup div.well {
+  width: 988px;
+  padding: 30px 40px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  float: none;
+  margin: 0 auto;
+}
+div.signup div.well div {
+  padding: 0 20px;
+}
+div.signup div.well ul, div.signup div.well li {
+  list-style-type: decimal;
 }
 div.signup div.well fieldset legend {
   text-transform: uppercase;
@@ -177,11 +201,10 @@ div.sidebar {
 div.sidebar div.inner {
   min-height: 300px;
   padding: 20px 40px;
-  background: #fff;
 }
 div.sidebar div.inner h3 {
   font-size: 25px;
-  color: #525252;
+  color: #ccc;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -189,19 +212,19 @@ div.sidebar div.inner ul {
   padding-left: 10px;
 }
 div.sidebar div.inner ul li {
-  font-size: 16px;
+  font-size: 14px;
   padding: 5px;
-  text-transform: uppercase;
   list-style-type: none;
 }
 div.sidebar div.inner ul li a {
-  color: #113196;
-  font-weight: 500;
+  color: #fff;
+  text-shadow: #333333 1px 1px 0;
+  font-weight: bold;
   position: relative;
 }
 div.sidebar div.inner ul li a span {
   width: 3px;
-  background: #9E9FAE;
+  background: #2196f3;
   display: none;
   height: 100%;
   position: absolute;
@@ -211,20 +234,98 @@ div.sidebar div.inner ul li a span {
 div.sidebar div.inner ul li a:hover {
   color: #525252;
 }
+div.sidebar div.inner ul li a.active {
+  color: #eee;
+}
 div.sidebar div.inner ul li a.active span {
   display: block;
+}
+
+div.welcome {
+  background: #eff2f8;
+  width: auto;
+  padding-bottoM: 30px;
+  -webkit-box-shadow: #999999 0 0px 2px 0px;
+  -moz-box-shadow: #999999 0 0px 2px 0px;
+  box-shadow: #999999 0 0px 2px 0px;
+}
+div.welcome h1 {
+  padding: 30px 30px 15px;
+  font-family: 'Noto Sans', sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  margin: 0;
+}
+div.welcome h1 a {
+  color: #505977;
+  text-decoration: none;
+}
+div.welcome p {
+  padding: 0 30px;
+  font-size: 16px;
+  width: 80%;
+  line-height: 170%;
+}
+
+div.upload div.well {
+  background: #fff;
+  padding: 30px 40px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  float: none;
+  margin: 40px auto;
+}
+div.upload div.well div.row-one {
+  padding: 0 20px;
+}
+div.upload h1 {
+  font-size: 28px;
+}
+
+div.top-box h5 {
+  color: #fff;
+  font-weight: bold;
+}
+
+div.confirm div.well {
+  background: #fff;
+  padding: 30px 40px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 0 1px 2px;
+  float: none;
+  margin: 40px auto;
+}
+div.confirm div.well div.row-one {
+  padding: 0 20px;
+}
+div.confirm h1 {
+  font-size: 28px;
+}
+
+h2.empty {
+  background: #eee;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 18px;
+  padding: 30px;
+}
+h2.empty a {
+  color: #2196f3;
 }
 
 div.items {
   float: left;
   width: 80%;
   background: #fafafa;
-  padding: 50px;
   border-left: 1px solid #dedede;
+  min-height: 600px;
 }
 
 div.stats {
   padding-bottom: 40px;
+  padding: 50px;
 }
 div.stats h4 {
   font-size: 28px;
@@ -241,10 +342,11 @@ div.stats div.stat h5 {
 }
 
 div.results {
-  width: 100%;
+  width: auto;
+  padding: 20px 50px 0;
 }
 div.results div.search-box {
-  padding: 10px 25px 40px;
+  padding: 10px 0px 40px;
   width: auto;
 }
 div.results div.search-box input.search {
@@ -253,6 +355,42 @@ div.results div.search-box input.search {
 }
 div.results div.search-box input[type='submit'] {
   float: left;
+}
+div.results div.search-box .fieldset {
+  width: 300px;
+  float: left;
+}
+div.results div.search-box .fieldset input[type='text'] {
+  width: 90%;
+  padding: 10px;
+  background: #fff;
+  margin: 0;
+}
+div.results div.search-box .fieldset label {
+  padding-right: 10px;
+}
+div.results div.search-box .fieldset select {
+  padding: 13px 10px 12px;
+  width: 60%;
+  background-color: #fff;
+  margin: 0;
+}
+div.results div.search-page-results {
+  display: none;
+  -webkit-box-shadow: #dddddd 0 0 1px 2px;
+  -moz-box-shadow: #dddddd 0 0 1px 2px;
+  box-shadow: #dddddd 0 0 1px 2px;
+  margin-top: 30px;
+  padding: 30px;
+}
+div.results div.search-page-results ul {
+  padding: 0;
+  list-style-type: none;
+}
+div.results div.search-page-results ul li {
+  list-style-type: none;
+  font-weight: bold;
+  padding-bottom: 10px;
 }
 div.results h4 {
   color: #2196f3;
@@ -296,7 +434,7 @@ div.overlay {
   z-index: 99;
   background: rgba(255, 255, 255, 0.8);
 }
-div.overlay div#person {
+div.overlay div#person, div.overlay div#search-box {
   width: 1000px;
   margin: 20px auto;
   background: #fff;
@@ -305,12 +443,12 @@ div.overlay div#person {
   box-shadow: #cccccc 0 0 4px 0;
   min-height: 150px;
 }
-div.overlay div#person div.top {
+div.overlay div#person div.top, div.overlay div#search-box div.top {
   background: #525252;
   padding: 15px 20px;
   width: auto;
 }
-div.overlay div#person div.top p {
+div.overlay div#person div.top p, div.overlay div#search-box div.top p {
   text-transform: uppercase;
   font-weight: 700;
   color: #fff;
@@ -319,39 +457,39 @@ div.overlay div#person div.top p {
   padding: 0;
   font-family: "Quicksand", sans-serif;
 }
-div.overlay div#person div.top p a {
+div.overlay div#person div.top p a, div.overlay div#search-box div.top p a {
   float: right;
   color: #fff;
   font-size: 20px;
 }
-div.overlay div#person div.inner {
+div.overlay div#person div.inner, div.overlay div#search-box div.inner {
   padding: 20px;
 }
-div.overlay div#person div.inner div.leftTop {
+div.overlay div#person div.inner div.leftTop, div.overlay div#search-box div.inner div.leftTop {
   width: 40%;
   float: left;
   margin-bottom: 20px;
 }
-div.overlay div#person div.inner div.rightTop {
+div.overlay div#person div.inner div.rightTop, div.overlay div#search-box div.inner div.rightTop {
   width: 60%;
   float: left;
   margin-bottom: 20px;
 }
-div.overlay div#person div.inner div.rightTop div.group {
+div.overlay div#person div.inner div.rightTop div.group, div.overlay div#search-box div.inner div.rightTop div.group {
   width: 50%;
   float: left;
 }
-div.overlay div#person div.inner div.rightTop h4.wealth {
+div.overlay div#person div.inner div.rightTop h4.wealth, div.overlay div#search-box div.inner div.rightTop h4.wealth {
   font-size: 18px;
   color: #525252;
   text-transform: uppercase;
   font-weight: 400;
 }
-div.overlay div#person div.inner div.rightTop h4.wealth span.inner {
+div.overlay div#person div.inner div.rightTop h4.wealth span.inner, div.overlay div#search-box div.inner div.rightTop h4.wealth span.inner {
   color: #4caf50;
   font-weight: 700;
 }
-div.overlay div#person div.inner div.rightTop h1 {
+div.overlay div#person div.inner div.rightTop h1, div.overlay div#search-box div.inner div.rightTop h1 {
   font-size: 18px;
   color: #113196;
   font-weight: 700;
@@ -359,38 +497,84 @@ div.overlay div#person div.inner div.rightTop h1 {
   margin: 0;
   padding-top: 10px;
 }
-div.overlay div#person div.inner div.rightTop p {
+div.overlay div#person div.inner div.rightTop p, div.overlay div#search-box div.inner div.rightTop p {
   font-size: 15px;
 }
-div.overlay div#person div.inner div.rightTop button {
+div.overlay div#person div.inner div.rightTop button, div.overlay div#search-box div.inner div.rightTop button {
   margin: 0 5px 0 0;
   font-size: 12px;
   text-transform: capitalize;
   font-weight: 700;
 }
-div.overlay div#person div.inner hr {
+div.overlay div#person div.inner hr, div.overlay div#search-box div.inner hr {
   clear: both;
   padding: 20px 0 0;
   margin: 0;
 }
-div.overlay div#person div.inner div.jobsList, div.overlay div#person div.inner div.schoolList, div.overlay div#person div.inner div.newsList, div.overlay div#person div.inner div.salaryList {
+div.overlay div#person div.inner div.jobsList, div.overlay div#person div.inner div.schoolList, div.overlay div#person div.inner div.newsList, div.overlay div#person div.inner div.salaryList, div.overlay div#search-box div.inner div.jobsList, div.overlay div#search-box div.inner div.schoolList, div.overlay div#search-box div.inner div.newsList, div.overlay div#search-box div.inner div.salaryList {
   width: 50%;
   padding: 0 5% 5%;
   float: left;
 }
-div.overlay div#person div.inner div.jobsList h3, div.overlay div#person div.inner div.schoolList h3, div.overlay div#person div.inner div.newsList h3, div.overlay div#person div.inner div.salaryList h3 {
+div.overlay div#person div.inner div.jobsList h3, div.overlay div#person div.inner div.schoolList h3, div.overlay div#person div.inner div.newsList h3, div.overlay div#person div.inner div.salaryList h3, div.overlay div#search-box div.inner div.jobsList h3, div.overlay div#search-box div.inner div.schoolList h3, div.overlay div#search-box div.inner div.newsList h3, div.overlay div#search-box div.inner div.salaryList h3 {
   font-size: 20px;
   color: #113196;
   font-weight: 400;
   padding: 0;
   margin: 0 0 10px;
 }
-div.overlay div#person div.inner div.jobsList h4, div.overlay div#person div.inner div.schoolList h4, div.overlay div#person div.inner div.newsList h4, div.overlay div#person div.inner div.salaryList h4 {
+div.overlay div#person div.inner div.jobsList h4, div.overlay div#person div.inner div.schoolList h4, div.overlay div#person div.inner div.newsList h4, div.overlay div#person div.inner div.salaryList h4, div.overlay div#search-box div.inner div.jobsList h4, div.overlay div#search-box div.inner div.schoolList h4, div.overlay div#search-box div.inner div.newsList h4, div.overlay div#search-box div.inner div.salaryList h4 {
   font-size: 19px;
   color: #525252;
   font-weight: 700;
   text-transform: uppercase;
 }
-div.overlay div#person div.inner div.jobsList h5, div.overlay div#person div.inner div.schoolList h5, div.overlay div#person div.inner div.newsList h5, div.overlay div#person div.inner div.salaryList h5 {
+div.overlay div#person div.inner div.jobsList h5, div.overlay div#person div.inner div.schoolList h5, div.overlay div#person div.inner div.newsList h5, div.overlay div#person div.inner div.salaryList h5, div.overlay div#search-box div.inner div.jobsList h5, div.overlay div#search-box div.inner div.schoolList h5, div.overlay div#search-box div.inner div.newsList h5, div.overlay div#search-box div.inner div.salaryList h5 {
   font-size: 14px;
+}
+
+div#search-box {
+  width: 1000px;
+  margin: 20px auto;
+  background: #fff;
+  -webkit-box-shadow: #cccccc 0 0 4px 0;
+  -moz-box-shadow: #cccccc 0 0 4px 0;
+  box-shadow: #cccccc 0 0 4px 0;
+  min-height: 150px;
+}
+div#search-box h1 {
+  font-size: 25px;
+  color: #525252;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+div#search-box div.search-box {
+  padding: 40px;
+}
+div#search-box div.search-box input[type='text'] {
+  width: 80%;
+  margin-right: 15px;
+}
+div#search-box label {
+  margin-right: 20px;
+}
+div#search-box input[type='date'] {
+  border: 0px;
+  margin-right: 10px;
+}
+
+fieldset.margin-bottom {
+  margin-bottom: 50px;
+}
+fieldset.margin-bottom h4 {
+  padding-bottom: 15px;
+}
+
+#ex1 .slider-selection {
+  background: #8283FF;
+}
+
+div.padding {
+  padding: 10px 40px;
 }

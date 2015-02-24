@@ -1,12 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='signup'>
-  <div class='row'>
-    <h1>Prime Login</h1>
-    <br/>
+  <div class='top-box col-lg-9 center'>
+    <h5>STEP 1/4</h5>
+    <div class="progress">
+      <div class="progress-bar progress-bar-success" style="width: 25%"></div>
+    </div>
   </div>
-  <div class='well col-lg-7 center'>
-    <div class='row'>
+  <div class='clear'></div>
+  <div class='well col-lg-9 center'>
+    <div class='row col-md-5'>
+      <h1>Welcome To ACPrime</h1>
+      <p>This is copy that will tell you what we do and how we do it</p>
+      <p>This is copy that will tell you what we do and how we do it</p>
+      <ul>
+        <li>This is what will happen first</li>
+        <li>This is what will happen first</li>
+        <li>This is what will happen first</li>
+      </ul>
+      <p>This is copy that will tell you what we do and how we do it</p>
+      <p>- ACPrime</p>
+    </div>
+    <div class='row col-md-7'>
       <form class="form-horizontal" action='' method='POST'>
         {% if signup_form.errors %}
         <div class='alert alert-dismissable alert-danger'>
@@ -21,13 +36,13 @@
         <fieldset>
           <legend>Enter your credentials below</legend>
           <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">First Name:</label>
+            <label for="inputEmail" class="col-lg-2 control-label">First:</label>
             <div class="col-lg-10">
               <input type="text" name='first_name' class="form-control" id="inputEmail" placeholder="First">
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">Last Name:</label>
+            <label for="inputEmail" class="col-lg-2 control-label">Last:</label>
             <div class="col-lg-10">
               <input type="text" name='last_name' class="form-control" id="inputEmail" placeholder="Last">
             </div>
@@ -63,6 +78,7 @@
         </fieldset>
       </form>
     </div>
+    <div class='clear'></div>
   </div>
   <br />
   <div class="alert alert-dismissable alert-success col-lg-7 centered">
