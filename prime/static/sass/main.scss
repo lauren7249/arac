@@ -192,7 +192,7 @@ div.sidebar {
 
           span {
             width: 3px;
-            background: #9E9FAE;
+            background: #2196f3;
             display: none;
             height: 100%;
             position: absolute;
@@ -205,6 +205,7 @@ div.sidebar {
           }
 
           &.active {
+            color: #eee;
             span {
               display: block;
             }
@@ -302,6 +303,7 @@ div.items {
   width: 80%;
   background: #fafafa;
   border-left: 1px solid #dedede;
+  min-height: 600px;
 }
 
 div.stats {
@@ -327,10 +329,10 @@ div.stats {
 
 div.results {
   width: auto;
-  padding: 50px;
+  padding: 20px 50px 0;
 
   div.search-box {
-    padding: 10px 25px 40px;
+    padding: 10px 0px 40px;
     width: auto;
 
     input.search {
@@ -340,6 +342,46 @@ div.results {
 
     input[type='submit'] {
       float: left;
+    }
+
+    .fieldset {
+      width: 300px;
+      float: left;
+
+      input[type='text'] {
+        width: 90%;
+        padding: 10px;
+        background: #fff;
+        margin: 0;
+      }
+
+      label {
+        padding-right: 10px;
+      }
+      select {
+        padding: 13px 10px 12px;
+        width: 60%;
+        background-color: #fff;
+        margin: 0;
+      }
+    }
+  }
+
+  div.search-page-results {
+    display: none;
+    @include box-shadow(#ddd 0 0 1px 2px);
+    margin-top: 30px;
+    padding: 30px;
+
+    ul {
+      padding: 0;
+      list-style-type: none;
+      
+      li {
+        list-style-type: none;
+        font-weight: bold;
+        padding-bottom: 10px;
+      }
     }
   }
 
@@ -550,4 +592,8 @@ fieldset.margin-bottom {
 
 #ex1 .slider-selection {
 	background: #8283FF;
+}
+
+div.padding {
+  padding: 10px 40px;
 }

@@ -224,7 +224,7 @@ div.sidebar div.inner ul li a {
 }
 div.sidebar div.inner ul li a span {
   width: 3px;
-  background: #9E9FAE;
+  background: #2196f3;
   display: none;
   height: 100%;
   position: absolute;
@@ -233,6 +233,9 @@ div.sidebar div.inner ul li a span {
 }
 div.sidebar div.inner ul li a:hover {
   color: #525252;
+}
+div.sidebar div.inner ul li a.active {
+  color: #eee;
 }
 div.sidebar div.inner ul li a.active span {
   display: block;
@@ -317,6 +320,7 @@ div.items {
   width: 80%;
   background: #fafafa;
   border-left: 1px solid #dedede;
+  min-height: 600px;
 }
 
 div.stats {
@@ -339,10 +343,10 @@ div.stats div.stat h5 {
 
 div.results {
   width: auto;
-  padding: 50px;
+  padding: 20px 50px 0;
 }
 div.results div.search-box {
-  padding: 10px 25px 40px;
+  padding: 10px 0px 40px;
   width: auto;
 }
 div.results div.search-box input.search {
@@ -351,6 +355,42 @@ div.results div.search-box input.search {
 }
 div.results div.search-box input[type='submit'] {
   float: left;
+}
+div.results div.search-box .fieldset {
+  width: 300px;
+  float: left;
+}
+div.results div.search-box .fieldset input[type='text'] {
+  width: 90%;
+  padding: 10px;
+  background: #fff;
+  margin: 0;
+}
+div.results div.search-box .fieldset label {
+  padding-right: 10px;
+}
+div.results div.search-box .fieldset select {
+  padding: 13px 10px 12px;
+  width: 60%;
+  background-color: #fff;
+  margin: 0;
+}
+div.results div.search-page-results {
+  display: none;
+  -webkit-box-shadow: #dddddd 0 0 1px 2px;
+  -moz-box-shadow: #dddddd 0 0 1px 2px;
+  box-shadow: #dddddd 0 0 1px 2px;
+  margin-top: 30px;
+  padding: 30px;
+}
+div.results div.search-page-results ul {
+  padding: 0;
+  list-style-type: none;
+}
+div.results div.search-page-results ul li {
+  list-style-type: none;
+  font-weight: bold;
+  padding-bottom: 10px;
 }
 div.results h4 {
   color: #2196f3;
@@ -533,4 +573,8 @@ fieldset.margin-bottom h4 {
 
 #ex1 .slider-selection {
   background: #8283FF;
+}
+
+div.padding {
+  padding: 10px 40px;
 }

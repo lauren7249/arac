@@ -141,11 +141,7 @@ class Prospect(db.Model):
 
 
     def __repr__(self):
-        return '<Prospect id={0} name={1} url={2}>'.format(
-                self.id,
-                self.name,
-                self.url
-                )
+        return '<Prospect id={0} url={2}>'.format(self.id, self.url)
 
 
 class Location(db.Model):
@@ -199,6 +195,10 @@ class Job(db.Model):
     end_date = db.Column(Date)
 
     @property
+    def name(self):
+        return self.company.name
+
+    @property
     def to_json(self):
         date_to_str = lambda x:x.strftime("%Y") if x else ""
         if not self.end_date:
@@ -247,6 +247,10 @@ class Education(db.Model):
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
     start_date = db.Column(Date)
     end_date = db.Column(Date)
+
+    @property
+    def name(self):
+        return self.school.name
 
     @property
     def to_json(self):

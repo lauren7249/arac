@@ -1,4 +1,5 @@
 from flask import Flask
+import datetime
 import json
 import urllib
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
@@ -44,6 +45,8 @@ def upload():
 @prospects.route("/select", methods=['POST'])
 def select_profile():
     if request.method == 'POST':
+        import pdb
+        pdb.set_trace()
         url = request.form.get("url")
         rq = aRequest(url)
         content = rq.get()
@@ -190,8 +193,32 @@ def investor_profile():
 
 @prospects.route("/search", methods=['GET'])
 def search_view():
+    page = int(request.args.get("p", 1))
     company_id = request.args.get("company_id", None)
     school_id = request.args.get("school_id", None)
-    start_date = request.args.get("start_date")
-    if company:
-        session.query(Prospect, Job, Company).join(Company).join(Job).filter_by(company_id=company_id)
+    start_date = datetime.datetime.strptime(request.args.get("start_date", \
+        "1900-01-01"), "%Y-%m-%d").date()
+    end_date = datetime.datetime.strptime(request.args.get("end_date", \
+            "2016-01-01"), "%Y-%m-%d").date()
+    prospects = []
+    prospect_results = []
+    if company_id:
+        prospects = session.query(Prospect, Job).distinct(Prospect.name)\
+                .join(Job).filter_by(company_id=company_id)
+        if start_date:
+            prospects = prospects.join(Job).filter(Job.start_date>=start_date)
+        if end_date:
+            prospects = prospects.join(Job).filter(Job.end_date<=end_date)
+    if school_id:
+        prospects = session.query(Prospect, Education).distinct(Prospect.name).join(Education)\
+                .filter_by(school_id=school_id)
+        if start_date:
+            prospects = prospects.join(Education).filter(Education.start_date>=start_date)
+        if end_date:
+            prospects = prospects.join(Education).filter(Education.end_date<=end_date)
+    for prospect in prospects:
+        setattr(prospect[0], "relevant_item", prospect[1])
+        prospect_results.append(prospect[0])
+    number = 50 * (page - 1)
+    return render_template("search.html", \
+            prospects=prospect_results[number:number+50])
