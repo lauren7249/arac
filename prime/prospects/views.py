@@ -49,8 +49,6 @@ def upload():
 @prospects.route("/select", methods=['POST'])
 def select_profile():
     if request.method == 'POST':
-        import pdb
-        pdb.set_trace()
         url = request.form.get("url")
         rq = aRequest(url)
         content = rq.get()
