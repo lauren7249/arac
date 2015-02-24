@@ -1,4 +1,5 @@
 src/
+migrations/
 .sass-cache/
 prime/static/.webassets-cache/
 prime/static/js/build/.module/
