@@ -1,4 +1,4 @@
-import re, glob
+import re, pandas
 from flask import Flask
 import urllib
 from boto.s3.connection import S3Connection
@@ -28,8 +28,19 @@ class ProspectList(object):
 
     def get_results(self):
         results = []
-        print list(bucket.list("by_prospect_id/" + str(self.prospect.id) + "/processed_"))
 
+        processed_dfs = []
+        processed_files = list(bucket.list("by_prospect_id/" + str(self.prospect.id) + "/processed_"))
+        for key in processed_files:
+            path = "https://s3.amazonaws.com/advisorconnect-bigfiles/" + key.name
+            df = pandas.read_csv(path, delimiter='\t', index_col=0)
+            processed_dfs.append(df)
+
+        processed_df = processed_dfs[0]
+        if len(processed_dfs)>0:
+            processed_df = processed_df.join(processed_dfs[1:], how='inner')
+
+        print processed_df
         '''
         for result in raw_results:
             user = {}
