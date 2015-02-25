@@ -16,14 +16,15 @@
     </div>
   </div>
   <div class='items'>
-    <div class='results'>
+    <div class='welcome'>
       <h1>Your Clients</h1>
       <p>Add clients to a list to export, bulk email and track your performance.</p>
-      <div class='clear'></div>
     </div>
     <div class='padding'>
       <table class="table table-striped table-hover ">
         <thead>
+        {% if client_lists %}
+        {% for client_list in client_lists %}
           <tr>
             <th>Client List</th>
             <th>Status</th>
@@ -32,8 +33,6 @@
           </tr>
         </thead>
         <tbody>
-        {% if client_lists %}
-        {% for client_list in client_lists %}
         <tr>
           <td>{{ client_list.id }}</td>
           <td>Exported</td>
@@ -41,6 +40,10 @@
           <td><a href=''>View List</a></td>
         </tr>
         {% endfor %}
+        {% else %}
+        <tr>
+          <td><h2 class='empty'>Go to the dashboard to add clients</h2></td>
+        </tr>
         {% endif %}
         </tbody>
       </table>
