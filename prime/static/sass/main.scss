@@ -241,6 +241,41 @@ div.welcome {
     width: 80%;
     line-height: 170%;
   }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background: #ccc;
+    border-bottom: 1px solid #fff;
+  }
+
+  ul {
+    padding: 0px 30px;
+    height: 21px;
+    margin: 0;
+
+    li {
+      display: inline;
+      font-weight: bold;
+      margin: 0 5px 0 0;
+
+      a {
+        padding: 5px 15px;
+        font-family: $quick;
+        text-decoration: none;
+        color: #bbb;
+        @include border-radius(30px);
+      }
+    }
+
+    .active {
+
+      a {
+        background: #4daff1;
+        color: #fff;
+      }
+    }
+  }
 }
 
 div.upload {
@@ -326,6 +361,10 @@ div.stats {
       text-transform: uppercase;
     }
   }
+}
+
+div.result-dashboard {
+  display: none;
 }
 
 div.results {

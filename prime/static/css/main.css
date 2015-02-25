@@ -266,6 +266,37 @@ div.welcome p {
   width: 80%;
   line-height: 170%;
 }
+div.welcome hr {
+  border: 0;
+  height: 1px;
+  background: #ccc;
+  border-bottom: 1px solid #fff;
+}
+div.welcome ul {
+  padding: 0px 30px;
+  height: 21px;
+  margin: 0;
+}
+div.welcome ul li {
+  display: inline;
+  font-weight: bold;
+  margin: 0 5px 0 0;
+}
+div.welcome ul li a {
+  padding: 5px 15px;
+  font-family: "Quicksand", sans-serif;
+  text-decoration: none;
+  color: #bbb;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  -ms-border-radius: 30px;
+  -o-border-radius: 30px;
+  border-radius: 30px;
+}
+div.welcome ul .active a {
+  background: #4daff1;
+  color: #fff;
+}
 
 div.upload div.well {
   background: #fff;
@@ -340,6 +371,10 @@ div.stats div.stat h5 {
   font-size: 18px;
   text-align: center;
   text-transform: uppercase;
+}
+
+div.result-dashboard {
+  display: none;
 }
 
 div.results {
