@@ -373,7 +373,7 @@ div.stats div.stat h5 {
   text-transform: uppercase;
 }
 
-div.results-dashboard {
+div.results-dashboard, div.person-search {
   display: none;
 }
 
