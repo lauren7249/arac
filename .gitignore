@@ -1,4 +1,5 @@
 src/
+training_data/
 migrations/
 .sass-cache/
 prime/static/.webassets-cache/
