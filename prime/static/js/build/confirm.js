@@ -1,3 +1,20 @@
+var Skills = React.createClass({displayName: "Skills",
+    render: function() {
+        var skills = this.props.data.map(function(skill) {
+            return (
+                React.createElement("div", {className: "skill"}, 
+                    skill, 
+                    React.createElement("span", {"data-delete": skill, className: "delete"}, "X")
+                )
+                )
+        });
+        return (
+            React.createElement("div", {className: "skills"}, 
+                skills
+            )
+            )
+    }
+});
 
 var NewJob = React.createClass({displayName: "NewJob",
     render: function() {
@@ -113,6 +130,30 @@ function addSchool() {
 
 }
 
+function addSkill() {
+    var skill = $('.skill-box').val()
+    $('.skill-box').val('')
+    $.post("/user/skills/add", params={skill:skill}, function(data) {
+        React.render(
+            React.createElement(Skills, {data: data.skills}),
+            document.getElementById("skills")
+            );
+        bindDeleteSkill();
+    });
+}
+
+function bindDeleteSkill() {
+    $("[data-delete]").click(function(e) {
+        var skill = $(this).data('delete');
+        $.post("/user/skills/delete", params={skill:skill}, function(data) {
+            React.render(
+                React.createElement(Skills, {data: data.skills}),
+                document.getElementById("skills")
+                );
+        });
+    });
+}
+
 function closeProfile() {
     $(".overlay").fadeOut();
     $("#search-box").html("");
@@ -154,3 +195,13 @@ function bindButtons() {
         });
     });
 }
+
+function bindSkill() {
+    React.render(
+        React.createElement(Skills, {data: window.sharedData.skills.skills}),
+        document.getElementById("skills")
+        );
+
+    bindDeleteSkill();
+}
+bindSkill();

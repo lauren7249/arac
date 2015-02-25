@@ -45,12 +45,17 @@
         <a href='javascript:addSchool();'>Add Education + </a>
         <h4>Skills and Interests</h4>
         <fieldset>
-          <input type='text' class='form-group'>
-          <a href=''><button class='btn btn-success'>Add +</button> </a>
+          <input type='text' class='form-group skill-box'>
+          <a href='javascript:addSkill();'><button class='btn btn-success'>Add +</button> </a>
         </fieldset>
+        <div id='skills'>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<script type='text/javascript'>
+window.sharedData = {"skills": {{ current_user.json|tojson|safe }} }
+</script>
 <script type='text/javascript' src='/static/js/build/confirm.js'></script>
 {% endblock %}

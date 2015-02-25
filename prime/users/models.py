@@ -42,7 +42,7 @@ class User(db.Model, UserMixin):
     customer = relationship('Customer', foreign_keys='User.customer_id')
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
-    json = db.Column(JSON)
+    json = db.Column(JSON, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
         super(User, self).__init__(**kwargs)
