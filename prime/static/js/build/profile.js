@@ -127,9 +127,9 @@ var Profile = React.createClass({displayName: "Profile",
                     React.createElement("h4", {className: "wealth"}, "Wealthscore: ", React.createElement("span", {className: "inner"}, this.state.data.wealthscore))
                 ), 
                 React.createElement("div", {className: "clear"}), 
-                React.createElement("button", {className: "btn btn-success"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List"), 
-                React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"), 
-                React.createElement("button", {className: "btn btn-primary prospect-request"}, React.createElement("input", {type: "hidden", value: this.state.data.id}), React.createElement("i", {className: "fa fa-info-circle"}), " Request Contact Information")
+                React.createElement("a", {"data-success": this.state.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
+                React.createElement("a", {"data-skip": this.state.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect")), 
+                React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-primary prospect-request"}, React.createElement("input", {type: "hidden", value: this.state.data.id}), React.createElement("i", {className: "fa fa-info-circle"}), " Request Contact Information"))
             ), 
             React.createElement("hr", null), 
             React.createElement(ProfileJobs, {data: this.state.data.jobs}), 

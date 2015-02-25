@@ -319,6 +319,24 @@ div.confirm {
   h1 {
     font-size: 28px;
   }
+
+  div#skills {
+    div.skill {
+      background: #2196f3;
+      padding: 5px 10px;
+      font-weight: bold;
+      display: inline-block;
+      text-transform: uppercase;
+      color: #fff;
+      @include border-radius(4px);
+      margin-right: 10px;
+
+      span {
+        cursor: pointer;
+        padding-left: 10px;
+      }
+    }
+  }
 }
 
 h2.empty {
