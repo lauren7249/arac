@@ -266,6 +266,37 @@ div.welcome p {
   width: 80%;
   line-height: 170%;
 }
+div.welcome hr {
+  border: 0;
+  height: 1px;
+  background: #ccc;
+  border-bottom: 1px solid #fff;
+}
+div.welcome ul {
+  padding: 0px 30px;
+  height: 21px;
+  margin: 0;
+}
+div.welcome ul li {
+  display: inline;
+  font-weight: bold;
+  margin: 0 5px 0 0;
+}
+div.welcome ul li a {
+  padding: 5px 15px;
+  font-family: "Quicksand", sans-serif;
+  text-decoration: none;
+  color: #bbb;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  -ms-border-radius: 30px;
+  -o-border-radius: 30px;
+  border-radius: 30px;
+}
+div.welcome ul .active a {
+  background: #4daff1;
+  color: #fff;
+}
 
 div.upload div.well {
   background: #fff;
@@ -305,6 +336,7 @@ div.confirm h1 {
 }
 
 h2.empty {
+  line-height: 180%;
   background: #eee;
   text-transform: uppercase;
   text-align: center;
@@ -341,6 +373,10 @@ div.stats div.stat h5 {
   text-transform: uppercase;
 }
 
+div.result-dashboard {
+  display: none;
+}
+
 div.results {
   width: auto;
   padding: 20px 50px 0;
@@ -348,6 +384,15 @@ div.results {
 div.results div.search-box {
   padding: 10px 0px 40px;
   width: auto;
+}
+div.results div.search-box h5 {
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #525252;
+  font-size: 12px;
+}
+div.results div.search-box h5 a {
+  color: #525252;
 }
 div.results div.search-box input.search {
   width: 90%;
@@ -357,12 +402,23 @@ div.results div.search-box input[type='submit'] {
   float: left;
 }
 div.results div.search-box .fieldset {
-  width: 300px;
+  width: 230px;
   float: left;
 }
 div.results div.search-box .fieldset input[type='text'] {
   width: 90%;
   padding: 10px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: white 0 1px 0 1px;
+  -moz-box-shadow: white 0 1px 0 1px;
+  box-shadow: white 0 1px 0 1px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 12px;
   background: #fff;
   margin: 0;
 }
@@ -370,10 +426,30 @@ div.results div.search-box .fieldset label {
   padding-right: 10px;
 }
 div.results div.search-box .fieldset select {
-  padding: 13px 10px 12px;
-  width: 60%;
+  padding: 13px 10px 11px;
+  font-weight: bold;
+  font-size: 12px;
+  width: 50%;
   background-color: #fff;
   margin: 0;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: white 0 1px 0 1px;
+  -moz-box-shadow: white 0 1px 0 1px;
+  box-shadow: white 0 1px 0 1px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+div.results div.search-box .fieldset button {
+  padding: 10px 20px;
+}
+div.results div.search-box div.advanced-filters {
+  display: none;
+}
+div.results div.search-box div.date {
+  width: 180px;
 }
 div.results div.search-page-results {
   display: none;

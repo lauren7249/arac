@@ -241,6 +241,41 @@ div.welcome {
     width: 80%;
     line-height: 170%;
   }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background: #ccc;
+    border-bottom: 1px solid #fff;
+  }
+
+  ul {
+    padding: 0px 30px;
+    height: 21px;
+    margin: 0;
+
+    li {
+      display: inline;
+      font-weight: bold;
+      margin: 0 5px 0 0;
+
+      a {
+        padding: 5px 15px;
+        font-family: $quick;
+        text-decoration: none;
+        color: #bbb;
+        @include border-radius(30px);
+      }
+    }
+
+    .active {
+
+      a {
+        background: #4daff1;
+        color: #fff;
+      }
+    }
+  }
 }
 
 div.upload {
@@ -287,6 +322,7 @@ div.confirm {
 }
 
 h2.empty {
+  line-height: 180%;
   background: #eee;
   text-transform: uppercase;
   text-align: center;
@@ -327,6 +363,10 @@ div.stats {
   }
 }
 
+div.result-dashboard {
+  display: none;
+}
+
 div.results {
   width: auto;
   padding: 20px 50px 0;
@@ -334,6 +374,17 @@ div.results {
   div.search-box {
     padding: 10px 0px 40px;
     width: auto;
+
+    h5 {
+      text-transform: uppercase;
+      font-weight: bold;
+      color: #525252;
+      font-size: 12px;
+
+      a {
+        color: #525252;
+      }
+    }
 
     input.search {
       width: 90%;
@@ -345,25 +396,49 @@ div.results {
     }
 
     .fieldset {
-      width: 300px;
+      width: 230px;
       float: left;
 
       input[type='text'] {
         width: 90%;
         padding: 10px;
+        font-weight: bold;
+        border: 1px solid #ddd;
+        @include box-shadow(#fff 0 1px 0 1px);
+        @include border-radius(4px);
+        font-size: 12px;
         background: #fff;
         margin: 0;
       }
+
 
       label {
         padding-right: 10px;
       }
       select {
-        padding: 13px 10px 12px;
-        width: 60%;
+        padding: 13px 10px 11px;
+        font-weight: bold;
+        font-size: 12px;
+        width: 50%;
         background-color: #fff;
         margin: 0;
+        border: 1px solid #ddd;
+        @include box-shadow(#fff 0 1px 0 1px);
+        @include border-radius(4px);
       }
+
+      button {
+        padding: 10px 20px;
+      }
+
+    }
+
+    div.advanced-filters {
+      display: none;
+    }
+
+    div.date {
+      width: 180px;
     }
   }
 

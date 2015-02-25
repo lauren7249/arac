@@ -86,6 +86,7 @@ function calculateResults(data) {
 $(function() {
     buildResults();
     buildGraphs();
+    bindButtons();
 });
 
 function buildGraphs() {
@@ -168,3 +169,18 @@ function buildGraphs() {
 }
 
 
+function bindButtons() {
+    $("#show-analytics").click(function() {
+        $(".results-dashboard").hide();
+        $(".stats").fadeIn();
+        $(".tabs li").removeClass("active");
+        $(this).parent().addClass("active");
+    });
+
+    $("#show-leads").click(function() {
+        $(".stats").hide();
+        $(".results-dashboard").fadeIn();
+        $(".tabs li").removeClass("active");
+        $(this).parent().addClass("active");
+    });
+}

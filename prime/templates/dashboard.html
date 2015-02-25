@@ -19,6 +19,11 @@
     <div class='welcome'>
       <h1>Your New Lead Dashboard</h1>
       <p>New leads will be provided to you in this dashboard. Delete them or mark them as good leads and our system will provide more based on your activity</p>
+      <hr />
+      <ul class='tabs'>
+        <li class='active'><a id='show-analytics' href='javascript:;'>Analytics</a><li>
+        <li><a id='show-leads' href='javascript:;'>Leads</a><li>
+      </ul>
     </div>
     <div class='stats'>
       <h4>Network Analysis</h4>
@@ -39,7 +44,7 @@
         <canvas id='four'><canvas>
       </div>
     </div>
-    <div class='results'>
+    <div class='results results-dashboard'>
       <div class='search-box'>
         <form action='/' method='POST'>
           <input type=hidden name=_csrf_token value="{{ csrf_token() }}">
