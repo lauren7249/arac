@@ -15,6 +15,7 @@ class aRequest(object):
         self.url = url
 
     def _find_proxy(self):
+        """
         conn = boto.ec2.connect_to_region('us-east-1',
                 aws_access_key_id=AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
@@ -23,6 +24,8 @@ class aRequest(object):
                 )
         ip_addresses = [i.ip_address for reservation in reservations for i in
         reservation.instances]
+        """
+        ip_addresses = ['54.152.186.2', '54.152.181.248']
         return random.choice(ip_addresses)
 
     def _make_request(self):

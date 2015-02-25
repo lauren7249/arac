@@ -49,11 +49,11 @@ def upload():
 @prospects.route("/select", methods=['POST'])
 def select_profile():
     if request.method == 'POST':
-        import pdb
-        pdb.set_trace()
         url = request.form.get("url")
+        print "started request"
         rq = aRequest(url)
         content = rq.get()
+        print "got content"
         url = content.get("prospect_url")
         if not current_user.linkedin_url:
             current_user.linkedin_url = url
