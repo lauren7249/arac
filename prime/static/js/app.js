@@ -12,9 +12,15 @@ function randColor(colors) {
 function resultHTML(result) {
     var $parent = $("<div class='result'></div>");
     var $h3 = $("<h3><a result-prospect='" + result.url + "' href='javascript:loadProfile(" + result.id + ",\"" + result.url +  "\");'>" + result.prospect_name + "</a>");
-    var $h5 = $("<h5>" + result.relationship + "</h5>")
+    if (result.relationship !== undefined) {
+        var $h5 = $("<h5>" + result.relationship + "</h5>")
+    } else {
+        var $h5 = $("<h5>Worked with each other.</h5>")
+    }
     if (result.company_name) {
-        var $entity = $("<a href='/company/" + result.company_id + "'><button class='btn btn-success'>" + result.company_name + "</button></a>")
+        if (result.company_name !== undefined) {
+            var $entity = $("<a href='/company/" + result.company_id + "'><button class='btn btn-success'>" + result.company_name + "</button></a>")
+        }
     } else {
         var $entity = $("<a href='/school/" + result.school_id + "'><button class='btn btn-success'>" + result.school_name + "</button></a>")
     }
