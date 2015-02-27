@@ -92,15 +92,14 @@ def dashboard():
     prospect_list = ProspectList(prospect)
     results = prospect_list.get_results()
     if prospect.json:
-        boosted_results = prospect.json.get("boosted_profiles")
-        if boosted_profiles:
-            pass
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
     school_count = prospect_list.prospect_school_count
     job_count = prospect_list.prospect_job_count
-    print prospect
-    return render_template('dashboard.html', results=results, prospect=prospect,
-            school_count=school_count, job_count=job_count,
-            json_results=json.dumps(results))
+    return render_template('dashboard.html', results=results,
+            prospect=prospect, school_count=school_count,
+            job_count=job_count, json_results=json.dumps(results))
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):

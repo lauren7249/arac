@@ -67,7 +67,10 @@ class Prospect(db.Model):
     def current_job(self):
         jobs = self.jobs
         if len(jobs) > 0:
-            return sorted(jobs, key=lambda x:x.start_date, reverse=True)[0]
+            start_date_jobs = [job for job in jobs if job.start_date]
+            if len(start_date_jobs) == 0:
+                return jobs[0]
+            return sorted(start_date_jobs, key=lambda x:x.start_date, reverse=True)[0]
         return None
 
     @property
@@ -117,14 +120,46 @@ class Prospect(db.Model):
         except:
             return []
 
+    @property
+    def boosted_profiles(self):
+        session = db.session
+        if self.json:
+            boosted_ids = self.json.get("boosted_ids")
+            if boosted_ids:
+                profiles = []
+                extra_prospects = session.query(Prospect).filter(\
+                        Prospect.linkedin_id.in_(\
+                        tuple(self.json.get("boosted_ids")))).all()
+                for prospect in extra_prospects:
+                    user = {}
+                    user['prospect_name'] = prospect.name
+                    user['current_location'] = prospect.location_raw
+                    user['current_industry'] = prospect.industry_raw
+                    user['url'] = prospect.url
+                    user['score'] = "N/A"
+                    user['id'] = prospect.id
+                    user['image_url'] = prospect.image_url
+                    current_job = prospect.current_job
+                    if current_job:
+                        user['start_date'] = current_job.start_date.strftime("%y") if current_job.start_date else None
+                        user['end_date'] = current_job.end_date.strftime("%y") if current_job.end_date else None
+                        user['title'] = current_job.title
+                        user['company_name'] = current_job.company.name
+                        user['company_id'] = current_job.company_id
+                        user['relationship'] = current_job.company.name
+                    profiles.append(user)
+                return profiles
+        return []
+
 
     @property
     def to_json(self):
-        salary = self.calculate_salary
-        if salary:
-            first_letter = self.name[0]
-            amount = string.lowercase.index(str(first_letter.lower()))
-            wealthscore = amount + 65
+        salary = None
+        #salary = self.calculate_salary
+        #if salary:
+        #    first_letter = self.name[0]
+        #    amount = string.lowercase.index(str(first_letter.lower()))
+        wealthscore = 65
 
         return {
             "name": self.name,
