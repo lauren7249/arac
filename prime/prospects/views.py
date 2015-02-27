@@ -91,6 +91,10 @@ def dashboard():
         prospect = generate_prospect_from_url(url)
     prospect_list = ProspectList(prospect)
     results = prospect_list.get_results()
+    if prospect.json:
+        boosted_results = prospect.json.get("boosted_profiles")
+        if boosted_profiles:
+            pass
     school_count = prospect_list.prospect_school_count
     job_count = prospect_list.prospect_job_count
     print prospect
