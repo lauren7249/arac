@@ -39,6 +39,7 @@ class Prospect(db.Model):
     complete = db.Column(Boolean)
     updated = db.Column(Date)
     connections = db.Column(Integer)
+    json = db.Column(JSON)
 
 
     jobs = relationship('Job', foreign_keys='Job.prospect_id')

@@ -1,4 +1,6 @@
 src/
+/migrations/
+migrations/versions/
 training_data/
 migrations/
 .sass-cache/
