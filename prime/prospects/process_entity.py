@@ -5,6 +5,8 @@ from collections import defaultdict
 from sklearn.externals import joblib	
 from prime import db
 from prime.prospects.models import Prospect, Job, Education
+from datetime import date
+import time
 
 AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
 AWS_SECRET = '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'
@@ -49,8 +51,30 @@ def process_prospects():
 
 def process_prospect(id):
 	prospect = session.query(Prospect).get(id)
-	schools = prospect.schools
-	print schools
+	educations = prospect.schools
+	jobs = prospect.jobs
+	for education in educations:
+		school_id = education.school_id
+		start_date = education.start_date
+		end_date = education.end_date
+		degree = education.degree
+
+		if end_date==None: end_date=date.today()
+		if start_date==None: start_date=end_date.replace(year = end_date.year - 4)
+		print start_date
+		print end_date
+
+	for job in jobs:
+		company_id = job.company_id
+		start_date = job.start_date
+		end_date = job.end_date
+		title = job.title
+		start_date=None
+		if end_date==None: end_date=date.today()
+		if start_date==None: start_date=end_date.replace(year = end_date.year - 2)
+
+		print start_date 
+		print end_date
 
 def print_locations():
 	k = Key(bucket)
