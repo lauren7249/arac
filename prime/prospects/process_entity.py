@@ -3,18 +3,26 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from collections import defaultdict
 from sklearn.externals import joblib	
+from prime import db
+from prime.prospects.models import Prospect, Job, Education
 
 AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
 AWS_SECRET = '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'
 aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
 bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
+session = db.session
 
-def process_entity(entity_type):
-	df = pandas.read_csv("https://s3.amazonaws.com/advisorconnect-bigfiles/raw/" + entity_type + ".txt", delimiter='\t')
+def process_schools(entity_filter=None):
+	df = pandas.read_csv("https://s3.amazonaws.com/advisorconnect-bigfiles/raw/schools.txt", delimiter='\t')
+	if entity_filter!=None:
+			df = df[df["id"]==entity_filter]
 	for index, row in df.iterrows():
 		k = Key(bucket)
-		k.key = "/entities/" + entity_type + "/" + str(row["id"]) + "/name"
+		k.key = "/entities/schools/" + str(row["id"]) + "/name"
 		k.set_contents_from_string(str(row["name"]))		
+		#make dicts of all prospect ids 
+		#prospects = session.execute(ENTITY_SQL % (row["id"]))
+		educations = session.query(Education).filter_by(school_id=row["id"]).all()
 
 def process_prospects():
 	location_dict = defaultdict(int)
@@ -28,7 +36,7 @@ def process_prospects():
 			location_dict[location] += 1			
 			industry_dict[industry] += 1	
 			lines += 1
-			
+
 	joblib.dump(location_dict, "temp.txt")
 	k = Key(bucket)
 	k.key = "/entities/locations/counts.dict" 
@@ -39,9 +47,17 @@ def process_prospects():
 	k.key = "/entities/industries/counts.dict" 
 	k.set_contents_from_filename("temp.txt")		
 
+def process_prospect(id):
+	prospect = session.query(Prospect).get(id)
+	schools = prospect.schools
+	print schools
+
 def print_locations():
 	k = Key(bucket)
 	k.key = "/entities/locations/counts.dict" 
 	k.get_contents_to_filename("tmp.txt")	
 	mydict = joblib.load("tmp.txt")
 	print mydict
+
+if __name__ == "__main__":
+	process_entity("schools", 5525527)
