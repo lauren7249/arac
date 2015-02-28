@@ -46,9 +46,8 @@ def upload():
         query = request.form.get("query")
         results = LinkedinResults(query).process()
     else:
-        pass
-        #if current_user.linkedin_url:
-        #    return redirect("dashboard")
+        if current_user.linkedin_url:
+            return redirect("dashboard")
     return render_template('upload.html', results=results)
 
 @csrf.exempt
