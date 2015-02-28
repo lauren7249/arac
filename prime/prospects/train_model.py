@@ -31,8 +31,8 @@ def create_model(training_file):
 	clf = GridSearchCV(LinearSVC(C=1), tuned_parameters, cv=cv, scoring='roc_auc')
 	clf.fit(X_train, y_train)
 	y_true, y_pred = y_test, clf.predict(X_test)
-	joblib.dump(clf, 'model.txt') 	
-	joblib.dump(classification_report(y_true, y_pred), 'GridSearchCV_report.txt') 
+	joblib.dump(clf, 'model.txt', compress=1) 	
+	joblib.dump(classification_report(y_true, y_pred), 'GridSearchCV_report.txt', compress=1) 
 
 	k = Key(bucket)
 	k.key = "/models/GridSearchCV.model" 
@@ -43,7 +43,7 @@ def create_model(training_file):
 	k.set_contents_from_filename("GridSearchCV_report.txt")		
 
 	predictors = list(X.columns.values)
-	joblib.dump(predictors, 'predictors.txt') 	
+	joblib.dump(predictors, 'predictors.txt', compress=1) 	
 	k = Key(bucket)
 	k.key = "/models/model_predictors" 
 	k.set_contents_from_filename("predictors.txt")	

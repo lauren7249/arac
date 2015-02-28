@@ -28,7 +28,7 @@ k = Key(bucket)
 k.key = "/models/model_predictors" 
 k.get_contents_to_filename("model_predictors")
 predictors = joblib.load("model_predictors")
-PROSPECT_SQL = """select * from prospect where id=%s;"""
+
 class ProspectList(object):
 
 
@@ -39,16 +39,25 @@ class ProspectList(object):
 
     def get_results(self):
 
-        processed_dfs = []
+        processed_df = None
         processed_files = list(bucket.list("by_prospect_id/" + str(self.prospect.id) + "/processed_"))
+        common_columns = []
         for key in processed_files:
             path = "https://s3.amazonaws.com/advisorconnect-bigfiles/" + key.name
             df = pandas.read_csv(path, delimiter='\t', index_col=0)
-            processed_dfs.append(df)
+            if processed_df is None:
+                processed_df = df
+            else:
+                common_columns = common_columns + list(processed_df.columns & df.columns)
+                processed_df = processed_df.join(df, how='outer', rsuffix="_")
+        
+        print common_columns
+        for column in common_columns:
+            to_sum = processed_df.filter(regex="^"+column)
+            processed_df[column] = to_sum.sum(axis=1)                
 
-        processed_df = processed_dfs[0]
-        if len(processed_dfs)>0:
-            processed_df = processed_df.join(processed_dfs[1:], how='inner')
+        processed_df.fillna(value=0, inplace=True)
+        print processed_df
 
         y_pred = model.decision_function(processed_df[predictors])
         y = pandas.DataFrame(y_pred)
