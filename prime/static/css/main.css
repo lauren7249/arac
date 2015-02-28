@@ -517,6 +517,18 @@ div.person {
   width: 80%;
 }
 
+div#uploading {
+  width: 600px;
+  text-align: center;
+  margin: 50px auto;
+  padding: 50px;
+  background: #fff;
+  -webkit-box-shadow: #cccccc 0 0 4px 0;
+  -moz-box-shadow: #cccccc 0 0 4px 0;
+  box-shadow: #cccccc 0 0 4px 0;
+  min-height: 150px;
+}
+
 div.overlay {
   position: fixed;
   overflow-y: scroll;

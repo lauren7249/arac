@@ -40,14 +40,15 @@ def clients():
 @prospects.route("/", methods=['GET', 'POST'])
 def upload():
     if current_user.is_anonymous():
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth/login'))
     results = None
     if request.method == 'POST':
         query = request.form.get("query")
         results = LinkedinResults(query).process()
     else:
-        if current_user.linkedin_url:
-            return redirect("dashboard")
+        pass
+        #if current_user.linkedin_url:
+        #    return redirect("dashboard")
     return render_template('upload.html', results=results)
 
 @csrf.exempt
