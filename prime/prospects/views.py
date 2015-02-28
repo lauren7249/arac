@@ -24,6 +24,11 @@ from prime.search.search import SearchRequest
 
 session = db.session
 
+@prospects.route("/terms")
+def terms():
+    return render_template('terms.html')
+
+
 @prospects.route("/clients")
 def clients():
     if request.method == 'POST':
@@ -59,13 +64,13 @@ def select_profile():
             current_user.linkedin_url = url
             session.add(current_user)
             session.commit()
-        return redirect("confirm")
+    return jsonify({"success": True})
 
 @csrf.exempt
 @prospects.route("/confirm", methods=['GET'])
 def confirm_profile():
     if not current_user.linkedin_url:
-        return redirect("auth.login")
+        return redirect("auth/login")
     prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
     if request.method == 'POST':
         url = request.form.get("url")
@@ -74,7 +79,6 @@ def confirm_profile():
         url = content.get("prospect_url")
         if not current_user.linkedin_url:
             current_user.linkedin_url = url
-            session.add(current_user)
             session.commit()
         return redirect("dashboard")
     return render_template('confirm.html', prospect=prospect)
