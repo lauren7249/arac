@@ -42,7 +42,7 @@ def clients():
 @prospects.route("/", methods=['GET', 'POST'])
 def upload():
     if current_user.is_anonymous():
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth/login'))
     results = None
     if request.method == 'POST':
         query = request.form.get("query")
