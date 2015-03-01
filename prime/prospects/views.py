@@ -199,6 +199,9 @@ def elastic_search():
 def investor_profile():
     industries = Industry.query.all()
     if request.method == 'POST':
+        locations = request.form.get("locations")
+        industries = request.form.get("industries")
+        gender = request.form.get("gender")
         return redirect("dashboard")
     return render_template('investor_profile.html', industries=industries)
 
