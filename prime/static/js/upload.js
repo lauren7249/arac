@@ -6,7 +6,7 @@ function selectProfile(url) {
             if (data.success) {
                 setTimeout(function() {
                     window.location = "/confirm"
-                }, ,10000)
+                },10000)
             }
         });
     } catch(err) {
