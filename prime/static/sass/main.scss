@@ -653,6 +653,40 @@ div.overlay {
   }
 }
 
+div#modal {
+  width: 700px;
+  margin: 20px auto;
+  background: #fff;
+  @include box-shadow(#ccc 0 0 4px 0);
+  min-height: 150px;
+  padding: 40px 90px;
+
+  h2 {
+    font-size: 45px;
+    color: #525252;
+    margin-top: 0;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  p {
+    font-size: 15px;
+    padding: 20px;
+    text-align: center;
+
+    span {
+      color: #08db44;
+    }
+  }
+
+  button {
+    font-size: 25px;
+    display: block;
+    margin: 20px auto;
+  }
+}
+
 div#search-box {
   width: 1000px;
   margin: 20px auto;

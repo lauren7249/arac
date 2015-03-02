@@ -4,7 +4,8 @@ import requests
 import datetime
 import json
 import urllib
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
+from flask import render_template, request, redirect, url_for, flash, \
+session as flask_session, jsonify
 from flask.ext.login import current_user
 
 from . import prospects
@@ -42,7 +43,7 @@ def clients():
 @prospects.route("/", methods=['GET', 'POST'])
 def upload():
     if current_user.is_anonymous():
-        return redirect(url_for('auth/login'))
+        return redirect(url_for('auth.login'))
     results = None
     if request.method == 'POST':
         query = request.form.get("query")
@@ -57,16 +58,15 @@ def upload():
 def select_profile():
     if request.method == 'POST':
         url = request.form.get("url")
-        print "started request"
-        ip_addresses = ['54.152.186.2', '54.152.181.248']
-        base_url = random.choice(ip_addresses)
-        try:
+        prospect = Prospect.query.filter_by(url=url).first()
+        if not prospect:
+            print "started request"
+            ip_addresses = ['54.152.186.2', '54.152.181.248']
+            base_url = random.choice(ip_addresses)
             content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
             content = json.loads(content.content)
-        except:
-            return redirect("select")
-        print "got content"
-        url = content.get("prospect_url")
+            print "got content"
+            url = content.get("prospect_url")
         if not current_user.linkedin_url:
             current_user.linkedin_url = url
             session.commit()
@@ -91,6 +91,10 @@ def confirm_profile():
 
 @prospects.route("/dashboard")
 def dashboard():
+    first_time = False
+    if 'first_time' in flask_session:
+        first_time = True
+        del flask_session['first_time']
     results = None
     linkedin_url = current_user.linkedin_url
     print current_user.linkedin_url
@@ -110,7 +114,8 @@ def dashboard():
     job_count = prospect_list.prospect_job_count
     return render_template('dashboard.html', results=results,
             prospect=prospect, school_count=school_count,
-            job_count=job_count, json_results=json.dumps(results))
+            job_count=job_count, json_results=json.dumps(results),
+            first_time=first_time, prospect_count=len(results))
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
