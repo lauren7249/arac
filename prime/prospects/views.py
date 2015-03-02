@@ -35,10 +35,33 @@ session = db.session
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
 
+################
+###   TASKS   ##
+################
+
 def export_file(prospects, email):
     exporter = Exporter(prospects, email)
     exporter.export()
     return True
+
+def save_linkedin(user, email):
+    print "started request"
+    ip_addresses = ['54.152.186.2', '54.152.181.248']
+    base_url = random.choice(ip_addresses)
+    content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
+    content = json.loads(content.content)
+    print "got content"
+    url = content.get("prospect_url")
+    if not user.linkedin_url:
+        user.linkedin_url = url
+        session.commit()
+    return True
+
+
+################
+###   VIEWS   ##
+################
+
 
 @prospects.route("/terms")
 def terms():
@@ -95,19 +118,12 @@ def upload():
 @prospects.route("/select", methods=['POST'])
 def select_profile():
     if request.method == 'POST':
-        url = request.form.get("url")
+        url = request.form.get("url").replace("https", "http")
         prospect = Prospect.query.filter_by(url=url).first()
         if not prospect:
-            print "started request"
-            ip_addresses = ['54.152.186.2', '54.152.181.248']
-            base_url = random.choice(ip_addresses)
-            content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
-            content = json.loads(content.content)
-            print "got content"
-            url = content.get("prospect_url")
-        if not current_user.linkedin_url:
-            current_user.linkedin_url = url
-            session.commit()
+            q.enqueue(save_linkedin, current_user, url)
+        current_user.linkedin_url = url
+        session.commit()
     return jsonify({"success": True})
 
 @csrf.exempt
