@@ -6,7 +6,10 @@ import os
 import sys
 sys.path.append(sys.path[0].split("/services")[0])
 
-import DNS
+try:
+    import DNS
+except:
+    import dns as DNS
 
 from email_perumutations import generate_email_perms
 from prime.prospects.helper import BingSearch

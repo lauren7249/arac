@@ -7,6 +7,7 @@ from . import prospects
 from prime.prospects.models import Prospect, Job, Education
 from prime import db
 from sklearn.externals import joblib
+from prime.prospects.process_entity import *
 
 #from consume.consume import generate_prospect_from_url
 #from consume.convert import clean_url
@@ -38,24 +39,24 @@ class ProspectList(object):
         self.results = {}
 
     def get_results(self):
-
+        process_prospect(self.prospect.id)
         processed_df = None
         processed_files = list(bucket.list("by_prospect_id/" + str(self.prospect.id) + "/processed_"))
         common_columns = []
         for key in processed_files:
             path = "https://s3.amazonaws.com/advisorconnect-bigfiles/" + key.name
-            df = pandas.read_csv(path, delimiter='\t', index_col=0)
+            path = re.sub(' ','+',path)
+            df = pandas.read_csv(path, delimiter=',', index_col=0)
             if processed_df is None:
                 processed_df = df
             else:
-                common_columns = common_columns + list(processed_df.columns & df.columns)
-                processed_df = processed_df.join(df, how='outer', rsuffix="_")
-        
-        for column in common_columns:
-            to_sum = processed_df.filter(regex="^"+column)
-            processed_df[column] = to_sum.sum(axis=1)                
-
-        processed_df.fillna(value=0, inplace=True)
+                common_columns = list(processed_df.columns & df.columns)
+                processed_df = processed_df.join(df, how='outer', lsuffix="_")
+                for column in common_columns:
+                    to_sum = processed_df.filter(regex="^"+column)
+                    processed_df[column] = to_sum.sum(axis=1)        
+                    processed_df.drop(column+"_", axis=1, inplace=True)    
+        processed_df.fillna(value=0, inplace=True)     
 
         missing_cols = list(set(predictors) - set(processed_df.columns))
         for missing_col in missing_cols:
@@ -68,11 +69,12 @@ class ProspectList(object):
         prospect_ids = pandas.DataFrame(processed_df.index.get_values())
         prospect_ids.columns = ["prospect_id"]
         prospects_scored = pandas.concat([prospect_ids,y], axis=1)
-        prospects_scored.sort(columns="prospect_id", ascending=False, inplace=True)
+        prospects_scored = prospects_scored.sort(columns="score", ascending=False).head(100)
 
         results = []
         for index, row in prospects_scored.iterrows():
             prospect_id = int(row["prospect_id"])
+            if prospect_id==self.prospect.id: continue
             prospect = session.query(Prospect).get(prospect_id)
             #prospect = session.execute(PROSPECT_SQL % (prospect_id))[0]
             
