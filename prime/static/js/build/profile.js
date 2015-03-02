@@ -89,7 +89,7 @@ var Profile = React.createClass({displayName: "Profile",
           url: this.props.url,
           dataType: 'json',
           success: function(data) {
-            this.setState({data: data});
+            this.setState({data: data.prospect, client_lists:data.client_lists});
           }.bind(this),
           error: function(xhr, status, err) {
             console.log(data)
@@ -98,7 +98,7 @@ var Profile = React.createClass({displayName: "Profile",
         });
     },
     getInitialState: function() {
-        return {data:{"jobs":[],"news": [], "schools": []}};
+        return {data:{"jobs":[],"news": [], "schools": []}, client_lists:[]};
     },
     componentDidMount: function() {
         this.loadProfileFromServer();
@@ -110,6 +110,14 @@ var Profile = React.createClass({displayName: "Profile",
         IN.parse(document.body);
     },
     render: function() {
+    var prospectId = this.state.data.id
+    var clientLists = this.state.client_lists.map(function(cl) {
+        return (
+            React.createElement("h4", null, "Select:",  
+            React.createElement("a", {href: "javascript:addToList();", className: "add-to-list", "data-id": cl.id, "data-prospect-id": prospectId}, " ", cl.name)
+            )
+            )
+    });
     return (
       React.createElement("div", {className: "profileBox"}, 
         React.createElement("div", {className: "top"}, 
@@ -127,9 +135,17 @@ var Profile = React.createClass({displayName: "Profile",
                     React.createElement("h4", {className: "wealth"}, "Wealthscore: ", React.createElement("span", {className: "inner"}, this.state.data.wealthscore))
                 ), 
                 React.createElement("div", {className: "clear"}), 
-                React.createElement("a", {"data-success": this.state.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
+                React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
                 React.createElement("a", {"data-skip": this.state.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect")), 
-                React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-primary prospect-request"}, React.createElement("input", {type: "hidden", value: this.state.data.id}), React.createElement("i", {className: "fa fa-info-circle"}), " Request Contact Information"))
+                React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-primary prospect-request"}, React.createElement("input", {type: "hidden", value: this.state.data.id}), React.createElement("i", {className: "fa fa-info-circle"}), " Request Contact Information")), 
+                React.createElement("div", {className: "clear"}), 
+                React.createElement("fieldset", {className: "hidden-select"}, 
+                    clientLists, 
+                    React.createElement("div", null, 
+                        React.createElement("input", {type: "text", className: "form-group", id: "new-list-name", placeholder: "enter name"}), React.createElement("button", {id: "create-new", "data-prospect-id": prospectId, className: "btn btn-success"}, "Create New +")
+                    )
+                ), 
+                React.createElement("div", {className: "clear"})
             ), 
             React.createElement("hr", null), 
             React.createElement(ProfileJobs, {data: this.state.data.jobs}), 
@@ -137,7 +153,6 @@ var Profile = React.createClass({displayName: "Profile",
             React.createElement("div", {className: "clear"}), 
             React.createElement("hr", null), 
             React.createElement(ProfileNews, {data: this.state.data.news}), 
-            React.createElement(ProfileSalary, {salary: this.state.data.salary}), 
             React.createElement("div", {className: "clear"})
         )
       )
@@ -160,6 +175,7 @@ function loadProfile(id, linkedin_url) {
         closeProfile();
     });
     bindProspectRequest();
+    bindClientListButtons();
 }
 
 function closeProfile() {
@@ -172,6 +188,38 @@ function bindProspectRequest() {
         var val = $(this).find("input").val()
         $.get("/ajax/pipl/" + val, function(data) {
             alert("email:" + data.email);
+        });
+    });
+}
+
+function bindClientListButtons() {
+    $(function() {
+        $(".chosen-select").chosen({width: "95%"}); 
+        $("button.prospect-add").click(function(e) {
+            $(".hidden-select").slideDown();
+            addToList();
+        });
+    });
+}
+
+function addToList() {
+    $(".add-to-list").click(function() {
+        var id = $(this).data("id");
+        var prospectId = $(this).data("prospect-id")
+        $.post("/user/" + id + "/prospect/add/" + prospectId, function(data) {
+            closeProfile();
+            bootbox.alert("Client Processed!");
+        })
+    });
+
+    $("#create-new").click(function() {
+        var name = $("#new-list-name").val();
+        var prospectId = $(this).data("prospect-id")
+        params= {"name": name,
+                "create_new": true}
+        $.post("/user/1/prospect/add/" + prospectId, params, function(data) {
+            closeProfile();
+            bootbox.alert("Client Processed!");
         });
     });
 }

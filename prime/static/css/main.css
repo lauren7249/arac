@@ -733,3 +733,8 @@ fieldset.margin-bottom h4 {
 div.padding {
   padding: 10px 40px;
 }
+
+.hidden-select {
+  margin-top: 30px;
+  display: none;
+}
