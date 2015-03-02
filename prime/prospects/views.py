@@ -1,4 +1,8 @@
 from flask import Flask
+
+from rq import Queue
+from redis import Redis
+
 import random
 import requests
 import datetime
@@ -20,12 +24,21 @@ from consume.convert import clean_url as _clean_url
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
+from sqlalchemy.orm import joinedload
 
 from prime.prospects.helper import LinkedinResults
 from prime.prospects.arequest import aRequest
 from prime.search.search import SearchRequest
+from services.exporter import Exporter
 
 session = db.session
+redis_conn = Redis()
+q = Queue(connection=redis_conn)
+
+def export_file(prospects, email):
+    exporter = Exporter(prospects, email)
+    exporter.export()
+    return True
 
 @prospects.route("/terms")
 def terms():
@@ -57,7 +70,11 @@ def clients_list(id):
 def export():
     if request.method == 'POST':
         prospect_ids = request.form.get("ids").split(",")
-        prospects = session.query(Prospect).filter(Prospect.id.in_(prospect_ids)).all()
+        prospects = session.query(Prospect).filter(\
+                Prospect.id.in_(prospect_ids))\
+                .options(joinedload('jobs'), joinedload('jobs.company')).all()
+        job = q.enqueue(export_file, prospects, current_user.email)
+    return jsonify({"success": True})
 
 
 @csrf.exempt

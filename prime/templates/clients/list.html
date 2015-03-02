@@ -22,7 +22,7 @@
   </div>
   <div class='items'>
     <div class='welcome'>
-      <h1>Client List: {{ client_list.name }}<div class='pull-right'><a href=''><button class='btn btn-success'>Export With Contact Information</button></a></h1>
+      <h1>Client List: {{ client_list.name }}<div class='pull-right'><a href=''><button id='export-list' class='btn btn-success'>Export With Contact Information</button></a></h1>
       <p>Add clients to a list to export, bulk email and track your performance.</p>
     </div>
     <div class='padding'>
@@ -41,10 +41,15 @@
         <tbody>
         {% for prospect in prospects %}
         <tr>
-          <td><input type='checkbox' checked value='{{ prospect.id }}' /></td>
+          <td><input type='checkbox' checked value='{{ prospect.id }}' class='prospect-checkbox' name='prospect' /></td>
           <td>{{ prospect.name }}</td>
+          {% if prospect.current_job %}
           <td>{{ prospect.current_job.company.name }}</td>
           <td>{{ prospect.current_job.title }}</td>
+          {% else %}
+          <td>None</td>
+          <td>None</td>
+          {% endif %}
           <td>{{ prospect.industry_raw }}</td>
           <td>{{ prospect.location_raw }}</td>
         </tr>
@@ -68,32 +73,22 @@
 <script src="/static/js/chart.js" type="text/javascript"></script>
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type='text/javascript'>
-var searchType;
+
 $(function() {
-    $("#search-submit").click(function() {
-      searchType = $('#search-type').val();
-      if (searchType == 1) {
-        searchType = "schools"
-      } else {
-        searchType = "companys"
-      }
-      var term = $("#term").val()
-      $(".search-page-results").show();
-      $(".search-page-results").load("/elastic_search?type=" + searchType +"&term=" + term, function() {
-        bindButtons();
-      })
+    $("#export-list").click(function(e) {
+      e.preventDefault();
+      exportList();
     });
 });
 
-function bindButtons() {
-  $("[data-name]").click(function() {
-      var dataId = $(this).data("id");
-      var dataName = $(this).data("name")
-      if (searchType == "companys") {
-        window.location = "/search?company_id=" + dataId;
-      } else {
-        window.location = "/search?school_id=" + dataId;
-      }
+function exportList() {
+  var vals = []
+  $(".prospect-checkbox:checked").each(function() {
+      vals.push($(this).val())
+  });
+  var params={"ids": vals.join()}
+  $.post("/export", params, function(data) {
+      bootbox.alert("The export is being emailed to you");
   });
 }
 
