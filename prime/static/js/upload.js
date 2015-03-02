@@ -4,9 +4,7 @@ function selectProfile(url) {
     try {
         $.post("/select", params, function(data) {
             if (data.success) {
-                setTimeout(function() {
-                    window.location = "/confirm"
-                },10000)
+                window.location = "/confirm"
             }
         });
     } catch(err) {
