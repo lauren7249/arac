@@ -641,6 +641,35 @@ div.overlay div#person div.inner div.jobsList h5, div.overlay div#person div.inn
   font-size: 14px;
 }
 
+div#modal {
+  width: 700px;
+  margin: 20px auto;
+  background: #fff;
+  -webkit-box-shadow: #cccccc 0 0 4px 0;
+  -moz-box-shadow: #cccccc 0 0 4px 0;
+  box-shadow: #cccccc 0 0 4px 0;
+  min-height: 150px;
+  padding: 40px 90px;
+}
+div#modal h2 {
+  font-size: 45px;
+  color: #525252;
+  margin-top: 0;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+div#modal p {
+  font-size: 15px;
+  padding: 20px;
+  text-align: center;
+}
+div#modal button {
+  font-size: 25px;
+  display: block;
+  margin: 20px auto;
+}
+
 div#search-box {
   width: 1000px;
   margin: 20px auto;

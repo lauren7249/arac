@@ -1,6 +1,7 @@
 import logging
 
-from flask import redirect, request, url_for, flash, render_template
+from flask import redirect, request, url_for, flash, render_template, session \
+as flask_session
 from flask.ext.login import login_user, logout_user, current_user, fresh_login_required
 
 from . import auth
@@ -43,6 +44,7 @@ def signup(customer_slug):
             db.session.add(newuser)
             db.session.commit()
             login_user(newuser, True)
+            flask_session['first_time'] = True
             return redirect("/")
     return render_template('auth/signup.html', signup_form=form)
 

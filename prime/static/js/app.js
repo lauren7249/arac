@@ -190,3 +190,8 @@ function bindButtons() {
         $(this).parent().addClass("active");
     });
 }
+
+function hideOverlay() {
+    $(".overlay").hide();
+}
+
