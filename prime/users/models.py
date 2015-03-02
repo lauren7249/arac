@@ -23,6 +23,7 @@ from sqlalchemy.engine.url import URL
 
 from prime import db, login_manager
 from prime.prospects.models import Prospect
+from prime.customers.models import Customer
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +128,7 @@ class ClientList(db.Model):
     __tablename__ = "client_list"
 
     id = db.Column(postgresql.INTEGER, primary_key=True)
+    name = db.Column(String(1024))
 
     user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True)
     user = relationship('User', foreign_keys='ClientList.user_id')

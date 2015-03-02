@@ -134,6 +134,7 @@ div.navbar #settings {
 }
 div.navbar #settings:hover div.autocomplete {
   height: 120px;
+  z-index: 4;
 }
 div.navbar #settings div.autocomplete {
   width: 240px;
@@ -639,6 +640,20 @@ div.overlay div#person div.inner div.jobsList h4, div.overlay div#person div.inn
 }
 div.overlay div#person div.inner div.jobsList h5, div.overlay div#person div.inner div.schoolList h5, div.overlay div#person div.inner div.newsList h5, div.overlay div#person div.inner div.salaryList h5, div.overlay div#search-box div.inner div.jobsList h5, div.overlay div#search-box div.inner div.schoolList h5, div.overlay div#search-box div.inner div.newsList h5, div.overlay div#search-box div.inner div.salaryList h5 {
   font-size: 14px;
+}
+
+div#client-list {
+  width: 700px;
+  margin: 20px auto;
+  background: #fff;
+  -webkit-box-shadow: #cccccc 0 0 4px 0;
+  -moz-box-shadow: #cccccc 0 0 4px 0;
+  box-shadow: #cccccc 0 0 4px 0;
+  min-height: 150px;
+  padding: 40px 100px;
+}
+div#client-list input[type='text'] {
+  width: 80%;
 }
 
 div#modal {

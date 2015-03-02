@@ -29,13 +29,34 @@ session = db.session
 def terms():
     return render_template('terms.html')
 
-
-@prospects.route("/clients")
+@csrf.exempt
+@prospects.route("/clients", methods=["GET", "POST"])
 def clients():
     if request.method == 'POST':
-        pass
+        name = request.form.get("name")
+        client_list = ClientList(user=current_user,
+                name=name)
+        session.add(client_list)
+        session.commit()
+        return redirect("/clients")
     client_lists = ClientList.query.filter_by(user=current_user).all()
     return render_template('clients.html', client_lists=client_lists)
+
+@csrf.exempt
+@prospects.route("/clients/<int:id>", methods=["GET", "POST"])
+def clients_list(id):
+    client_list = ClientList.query.get(id)
+    prospects = client_list.prospects
+    return render_template('clients/list.html', prospects=prospects,
+            client_list=client_list)
+
+@csrf.exempt
+@prospects.route("/export", methods=["POST"])
+def export():
+    if request.method == 'POST':
+        prospect_ids = request.form.get("ids").split(",")
+        prospects = session.query(Prospect).filter(Prospect.id.in_(prospect_ids)).all()
+
 
 @csrf.exempt
 @prospects.route("/", methods=['GET', 'POST'])

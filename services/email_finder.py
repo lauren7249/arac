@@ -45,14 +45,18 @@ class EmailFinder(object):
     def find_smtp_information(self):
         results = DNS.mxlookup(self.email_domain)
         from_email = "sam@google.com"
-        result = results[0][1]
-        server = smtplib.SMTP(result, 25)
-        server.helo()
-        server.mail(from_email, "")
-        for permutation in self.permutations:
-            code, info = server.rcpt(permutation)
-            if code == 250:
-                return permutation
+        if len(results) > 0:
+            result = results[0][1]
+            server = smtplib.SMTP(result, 25)
+            server.helo()
+            server.mail(from_email, "")
+            for permutation in self.permutations:
+                try:
+                    code, info = server.rcpt(permutation)
+                    if code == 250:
+                        return permutation
+                except:
+                    pass
         pass
 
     def find_whois_information(self):

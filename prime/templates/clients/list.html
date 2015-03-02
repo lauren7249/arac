@@ -22,27 +22,31 @@
   </div>
   <div class='items'>
     <div class='welcome'>
-      <h1>Your Clients <a href='javascript:showCreateForm();'><div class='pull-right'><button class='btn btn-success'>Create List</button></a></div></h1>
+      <h1>Client List: {{ client_list.name }}<div class='pull-right'><a href=''><button class='btn btn-success'>Export With Contact Information</button></a></h1>
       <p>Add clients to a list to export, bulk email and track your performance.</p>
     </div>
     <div class='padding'>
       <table class="table table-striped table-hover ">
+        {% if prospects %}
         <thead>
-        {% if client_lists %}
-        {% for client_list in client_lists %}
           <tr>
-            <th>Client List</th>
-            <th>Status</th>
-            <th>Prospect Count (Max 50)</th>
-            <th>View List</th>
+            <th>Include</th>
+            <th>Name</th>
+            <th>Current Company</th>
+            <th>Current Title</th>
+            <th>Current Industry</th>
+            <th>Current Location</th>
           </tr>
         </thead>
         <tbody>
+        {% for prospect in prospects %}
         <tr>
-          <td>{{ client_list.name }}</td>
-          <td>Exported</td>
-          <td>{{ client_list.prospect_count }}</td>
-          <td><a href='/clients/{{ client_list.id }}'>View List</a></td>
+          <td><input type='checkbox' checked value='{{ prospect.id }}' /></td>
+          <td>{{ prospect.name }}</td>
+          <td>{{ prospect.current_job.company.name }}</td>
+          <td>{{ prospect.current_job.title }}</td>
+          <td>{{ prospect.industry_raw }}</td>
+          <td>{{ prospect.location_raw }}</td>
         </tr>
         {% endfor %}
         {% else %}
