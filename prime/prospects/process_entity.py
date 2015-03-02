@@ -25,15 +25,17 @@ def process_schools(entity_filter=None):
 	#iterate over schools
 	for index, row in df.iterrows():
 		process_school(row)
-
+		print row["id"]
+		
 def process_school(row):
 	id=row["id"]
+	'''
 	name=row["name"]
 	k = Key(bucket)
 	prefix = "/entities/schools/" + str(id) + "/"
 	k.key = prefix + "name"
 	k.set_contents_from_string(name)		
-
+	'''
 	#iterate over transactions
 	#dict where key is year+degree, value is dict of prospect ids
 	degrees_dict = {}
@@ -75,52 +77,55 @@ def process_school(row):
 				prospects_in_year_degree = []
 			prospects_in_year_degree.append(prospect_id)
 			degrees_years_dict.update({(year,degree):prospects_in_year_degree})			
-		
-	df = pandas.DataFrame.from_records({"prospect_id":all_prospects})
-	df["same_school_id"] = 1
-	df["weight_school_id"] = 1/len(all_prospects)
-	df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
-	k = Key(bucket)
-	k.key = get_file_path(school_id=school_id)
-	k.set_contents_from_filename(str(os.getpid())+"temp.csv")		
+	if len(all_prospects)>0:
+		df = pandas.DataFrame.from_records({"prospect_id":all_prospects})
+		df["same_school_id"] = 1
+		df["weight_school_id"] = 1/len(all_prospects)
+		df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
+		k = Key(bucket)
+		k.key = get_file_path(school_id=school_id)
+		k.set_contents_from_filename(str(os.getpid())+"temp.csv")		
 	
 	for by_degree in degrees_dict.items():
 		degree = by_degree[0]
 		prospects = by_degree[1]
-		weight = 1/len(prospects)
-		df = pandas.DataFrame.from_records({"prospect_id":prospects})
-		df["same_school_id_degree"] = 1
-		df["weight_school_id_degree"] = 1/len(prospects)
-		df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
-		k = Key(bucket)
-		k.key = get_file_path(school_id=school_id, degree=degree)
-		k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
+		if len(prospects)>0:
+			weight = 1/len(prospects)
+			df = pandas.DataFrame.from_records({"prospect_id":prospects})
+			df["same_school_id_degree"] = 1
+			df["weight_school_id_degree"] = 1/len(prospects)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
+			k = Key(bucket)
+			k.key = get_file_path(school_id=school_id, degree=degree)
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
 
 	for by_year in years_dict.items():
 		year = by_year[0]
 		prospects = by_year[1]
-		weight = 1/len(prospects)
-		df = pandas.DataFrame.from_records({"prospect_id":prospects})
-		df["same_school_id_year"] = 1
-		df["weight_school_id_year"] = 1/len(prospects)
-		df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
-		k = Key(bucket)
-		k.key = get_file_path(school_id=school_id, year=year)
-		k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
+		if len(prospects)>0:
+			weight = 1/len(prospects)
+			df = pandas.DataFrame.from_records({"prospect_id":prospects})
+			df["same_school_id_year"] = 1
+			df["weight_school_id_year"] = 1/len(prospects)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
+			k = Key(bucket)
+			k.key = get_file_path(school_id=school_id, year=year)
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
 		
 	for by_year_degree in degrees_years_dict.items():
 		year_degree = by_year_degree[0]
 		year = year_degree[0]
 		degree = year_degree[1]
 		prospects = by_year_degree[1]
-		weight = 1/len(prospects)
-		df = pandas.DataFrame.from_records({"prospect_id":prospects})
-		df["same_school_id_degree_year"] = 1
-		df["weight_school_id_degree_year"] = 1/len(prospects)
-		df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
-		k = Key(bucket)
-		k.key = get_file_path(school_id=school_id, year=year, degree=degree)
-		k.set_contents_from_filename(str(os.getpid())+"temp.csv")				
+		if len(prospects)>0:
+			weight = 1/len(prospects)
+			df = pandas.DataFrame.from_records({"prospect_id":prospects})
+			df["same_school_id_degree_year"] = 1
+			df["weight_school_id_degree_year"] = 1/len(prospects)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
+			k = Key(bucket)
+			k.key = get_file_path(school_id=school_id, year=year, degree=degree)
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")				
 
 def process_prospects():
 	location_dict = defaultdict(int)
