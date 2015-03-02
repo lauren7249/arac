@@ -44,19 +44,6 @@ def export_file(prospects, email):
     exporter.export()
     return True
 
-def save_linkedin(user, email):
-    print "started request"
-    ip_addresses = ['54.152.186.2', '54.152.181.248']
-    base_url = random.choice(ip_addresses)
-    content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
-    content = json.loads(content.content)
-    print "got content"
-    url = content.get("prospect_url")
-    if not user.linkedin_url:
-        user.linkedin_url = url
-        session.commit()
-    return True
-
 
 ################
 ###   VIEWS   ##
@@ -121,7 +108,17 @@ def select_profile():
         url = request.form.get("url").replace("https", "http")
         prospect = Prospect.query.filter_by(url=url).first()
         if not prospect:
-            q.enqueue(save_linkedin, current_user, url)
+            ip_addresses = ['54.152.186.2', '54.152.181.248']
+            base_url = random.choice(ip_addresses)
+            content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
+            content = json.loads(content.content)
+            print "got content"
+            url = content.get("prospect_url")
+            if not current_user.linkedin_url:
+                current_user.linkedin_url = url
+                session.commit()
+            return jsonify({"success": True})
+
         current_user.linkedin_url = url
         session.commit()
     return jsonify({"success": True})
