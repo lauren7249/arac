@@ -51,14 +51,16 @@ class ProspectList(object):
                 common_columns = common_columns + list(processed_df.columns & df.columns)
                 processed_df = processed_df.join(df, how='outer', rsuffix="_")
         
-        print common_columns
         for column in common_columns:
             to_sum = processed_df.filter(regex="^"+column)
             processed_df[column] = to_sum.sum(axis=1)                
 
         processed_df.fillna(value=0, inplace=True)
-        print processed_df
 
+        missing_cols = list(set(predictors) - set(processed_df.columns))
+        for missing_col in missing_cols:
+            processed_df[missing_col] = 0
+        
         y_pred = model.decision_function(processed_df[predictors])
         y = pandas.DataFrame(y_pred)
         y.columns = ["score"]

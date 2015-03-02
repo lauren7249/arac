@@ -1,3 +1,4 @@
+from __future__ import division
 import pandas, csv
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -6,6 +7,7 @@ from sklearn.externals import joblib
 from prime import db
 from prime.prospects.models import Prospect, Job, Education
 from prime.prospects.normalization import *
+from prime.prospects.filepaths import * 
 from datetime import date
 import time, re
 
@@ -34,7 +36,11 @@ def process_schools(entity_filter=None):
 		#iterate over transactions
 		#dict where key is year+degree, value is dict of prospect ids
 		degrees_dict = {}
+		years_dict = {}
+		degrees_years_dict = {}
+		all_prospects = []
 		educations = session.query(Education).filter_by(school_id=row["id"]).all()
+		print len(educations)
 		for education in educations:
 			prospect_id = education.prospect_id
 			school_id = education.school_id
@@ -46,31 +52,77 @@ def process_schools(entity_filter=None):
 			degree = normalized_degree(degree)
 
 			if degrees_dict.has_key(degree):
-				years_dict = degrees_dict.get(degree)
+				prospects_in_degree = degrees_dict.get(degree)
 			else:
-				years_dict = {}
+				prospects_in_degree = []
+			prospects_in_degree.append(prospect_id)
+			degrees_dict.update({degree:prospects_in_degree})
+			all_prospects.append(prospect_id)
 
 			if end_date==None: end_date=date.today()
 			if start_date==None: start_date=end_date.replace(year = end_date.year - 4)			
 
 			for year in xrange(start_date.year, end_date.year+1):
 				if years_dict.has_key(year):
-					prospects = years_dict.get(year)
+					prospects_in_year = years_dict.get(year)
 				else:
-					prospects = []
-				prospects.append(prospect_id)
-				years_dict.update({year:prospects})
+					prospects_in_year = []
+				prospects_in_year.append(prospect_id)
+				years_dict.update({year:prospects_in_year})
+				if degrees_years_dict.has_key((year,degree)):
+					prospects_in_year_degree = degrees_years_dict.get((year,degree))
+				else:
+					prospects_in_year_degree = []
+				prospects_in_year_degree.append(prospect_id)
+				degrees_years_dict.update({(year,degree):prospects_in_year_degree})			
 			
-			degrees_dict.update({degree:years_dict})
-
+		df = pandas.DataFrame.from_records({"prospect_id":all_prospects})
+		df["same_school_id"] = 1
+		df["weight_school_id"] = 1/len(all_prospects)
+		df.to_csv(path_or_buf="temp.csv", index=False)
+		k = Key(bucket)
+		k.key = get_file_path(school_id=school_id)
+		k.set_contents_from_filename("temp.csv")		
+		'''
 		for by_degree in degrees_dict.items():
 			degree = by_degree[0]
-			years_dict = by_degree[1]
-			for by_year in years_dict.items():
-				year = by_year[0]
-				prospects = by_year[1]
-				summary = degree + ", " + str(year) + ": " + str(len(prospects))
-				print summary
+			prospects = by_degree[1]
+			weight = 1/len(prospects_in_degree)
+			df = pandas.DataFrame.from_records({"prospect_id":prospects})
+			df["same_school_id_degree"] = 1
+			df["weight_school_id_degree"] = 1/len(prospects)
+			df.to_csv(path_or_buf="temp.csv", index=False)
+			k = Key(bucket)
+			k.key = get_file_path(school_id=school_id, degree=degree)
+			k.set_contents_from_filename("temp.csv")	
+
+		for by_year in years_dict.items():
+			year = by_year[0]
+			prospects = by_year[1]
+			weight = 1/len(prospects_in_year)
+			df = pandas.DataFrame.from_records({"prospect_id":prospects})
+			df["same_school_id_year"] = 1
+			df["weight_school_id_year"] = 1/len(prospects)
+			df.to_csv(path_or_buf="temp.csv", index=False)
+			k = Key(bucket)
+			k.key = get_file_path(school_id=school_id, year=year)
+			k.set_contents_from_filename("temp.csv")	
+			'''
+		for by_year_degree in degrees_years_dict.items():
+			year_degree = by_year_degree[0]
+			year = year_degree[0]
+			degree = year_degree[1]
+			prospects = by_year_degree[1]
+			weight = 1/len(prospects_in_year_degree)
+			df = pandas.DataFrame.from_records({"prospect_id":prospects})
+			df["same_school_id_degree_year"] = 1
+			df["weight_school_id_degree_year"] = 1/len(prospects)
+			df.to_csv(path_or_buf="temp.csv", index=False)
+			k = Key(bucket)
+			k.key = get_file_path(school_id=school_id, year=year, degree=degree)
+			k.set_contents_from_filename("temp.csv")				
+		print get_file_path(school_id=school_id, year=year, degree=degree) 
+
 def process_prospects():
 	location_dict = defaultdict(int)
 	industry_dict = defaultdict(int)
@@ -109,17 +161,17 @@ def process_prospect(id):
 		if end_date==None: end_date=date.today()
 		if start_date==None: start_date=end_date.replace(year = end_date.year - 4)
 
-		bucket.copy_key("by_prospect_id/" + str(id) + "/processed_school_id_" + str(school_id) + ".csv", 
-			bucket, "entities/schools/" + str(school_id) + "/all.csv")
-		bucket.copy_key("by_prospect_id/" + str(id) + "/processed_school_id_" + str(school_id) + "_degree_" + degree, bucket, 
-			"entities/schools/" + str(school_id) + "/degree_" + degree + ".csv")
+		bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id), 
+			'advisorconnect-bigfiles', get_file_path(school_id=school_id))
+	'''	bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, degree=degree), 'advisorconnect-bigfiles', 
+			get_file_path(school_id=school_id, degree=degree))
 
 		for year in xrange(start_date.year, end_date.year+1):
-			bucket.copy_key("by_prospect_id/" + str(id) + "/processed_school_id_" + str(school_id) + "_year_" + year + ".csv", 
-				bucket, "entities/schools/" + str(school_id) + "/year_" + year +  ".csv")
-			bucket.copy_key("by_prospect_id/" + str(id) + "/processed_school_id_" + str(school_id) + "_year_" + year + "_degree_" + degree, bucket, 
-				"entities/schools/" + str(school_id) + "/year_" + year + "_degree_" + degree + ".csv")
-'''
+			bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, year=year), 
+				'advisorconnect-bigfiles', get_file_path(school_id=school_id, year=year))
+			bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, degree=degree, year=year), 'advisorconnect-bigfiles', 
+				get_file_path(school_id=school_id, degree=degree, year=year))
+
 	for job in jobs:
 		company_id = job.company_id
 		start_date = job.start_date
