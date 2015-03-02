@@ -1,4 +1,6 @@
 from flask import Flask
+import random
+import requests
 import datetime
 import json
 import urllib
@@ -80,13 +82,14 @@ def select_profile():
         prospect = Prospect.query.filter_by(url=url).first()
         if not prospect:
             print "started request"
-            rq = aRequest(url)
-            content = rq.get()
+            ip_addresses = ['54.152.186.2', '54.152.181.248']
+            base_url = random.choice(ip_addresses)
+            content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
+            content = json.loads(content.content)
             print "got content"
             url = content.get("prospect_url")
         if not current_user.linkedin_url:
             current_user.linkedin_url = url
-            session.add(current_user)
             session.commit()
     return jsonify({"success": True})
 
@@ -115,6 +118,7 @@ def dashboard():
         del flask_session['first_time']
     results = None
     linkedin_url = current_user.linkedin_url
+    print current_user.linkedin_url
     raw_url = urllib.unquote(linkedin_url).decode('utf8')
     url = _clean_url(raw_url)
     prospect = session.query(Prospect).filter_by(s3_key=url.replace("/",
