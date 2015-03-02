@@ -111,7 +111,7 @@ def dashboard():
     return render_template('dashboard.html', results=results,
             prospect=prospect, school_count=school_count,
             job_count=job_count, json_results=json.dumps(results),
-            first_time=first_time)
+            first_time=first_time, prospect_count=len(results))
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):

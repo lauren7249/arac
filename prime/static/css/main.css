@@ -664,6 +664,9 @@ div#modal p {
   padding: 20px;
   text-align: center;
 }
+div#modal p span {
+  color: #08db44;
+}
 div#modal button {
   font-size: 25px;
   display: block;
