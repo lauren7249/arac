@@ -198,7 +198,9 @@ def prospect(prospect_id):
 @prospects.route("/ajax/prospect/<int:prospect_id>")
 def ajax_prospect(prospect_id):
     prospect = Prospect.query.get(prospect_id)
-    return jsonify(prospect.to_json)
+    client_lists = ClientList.query.filter_by(user=current_user)
+    return jsonify({"prospect":prospect.to_json,
+        "client_lists": [{"id": cl.id, "name": cl.name} for cl in client_lists]})
 
 @prospects.route("/ajax/pipl/<int:prospect_id>")
 def ajax_pipl(prospect_id):
