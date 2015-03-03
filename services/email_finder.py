@@ -28,10 +28,11 @@ class EmailFinder(object):
     def find_url(self):
         bing = BingSearch("{} website".format(self.company))
         items = bing.search()
-        self.domain = items[0].get("Url")
-        self.email_domain = urlparse.urlparse(items[0].get("Url")).netloc.replace("www.", "")
-        self.permutations = generate_email_perms(self.first_name,
-                self.last_name, self.email_domain)
+        if len(items) > 0:
+            self.domain = items[0].get("Url")
+            self.email_domain = urlparse.urlparse(items[0].get("Url")).netloc.replace("www.", "")
+            self.permutations = generate_email_perms(self.first_name,
+                    self.last_name, self.email_domain)
 
     def find_fullcontact_information(self):
         return None
