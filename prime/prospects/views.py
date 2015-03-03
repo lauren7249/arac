@@ -114,7 +114,7 @@ def select_profile():
 @prospects.route("/confirm", methods=['GET'])
 def confirm_profile():
     if not current_user.linkedin_url:
-        return redirect("auth/login")
+        return redirect("select")
     prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
     if request.method == 'POST':
         url = request.form.get("url")
