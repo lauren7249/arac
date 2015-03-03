@@ -203,7 +203,8 @@ def educations_create():
         school = School.query.get(school_id)
         if not school:
             school = School.query.first()
-        prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
+        prospect = Prospect.query.filter_by(s3_key=current_user.linkedin_url.replace("/",
+        "")).first()
         start_date = request.form.get("start_date")
         end_date = request.form.get("start_date")
         degree = request.form.get("degree")
@@ -226,7 +227,8 @@ def jobs_create():
         company = Company.query.get(company_id)
         if not company:
             company = Company.query.first()
-        prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
+        prospect = Prospect.query.filter_by(s3_key=current_user.linkedin_url.replace("/",
+        "")).first()
         start_date = request.form.get("start_date")
         end_date = request.form.get("start_date")
         title = request.form.get("title")
