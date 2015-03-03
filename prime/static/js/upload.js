@@ -6,8 +6,13 @@ function selectProfile(url) {
     try {
         $.ajax({
             url: item + ":9090/proxy?url=" + url,
-            dataType: 'jsonp',
-            jsonpCallback: 'redirect',
+            dataType: 'json',
+            success: function(data) {
+                var url = data.prospect_url;
+                $.post("/select", {url:url}, function(data) {
+                    window.location = "/confirm"
+                });
+            },
             error:function(){
                 alert("Error");
             }
@@ -17,10 +22,6 @@ function selectProfile(url) {
         $(".overlay").hide();
         alert("Whoops, something went wrong. Please try again");
     }
-}
-
-var redirect = function(data) {
-    alert(data.prospect_url)
 }
 
 function choose(choices) {
