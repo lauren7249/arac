@@ -105,14 +105,17 @@ def upload():
 @prospects.route("/select", methods=['POST'])
 def select_profile():
     if request.method == 'POST':
+        print "started"
         url = request.form.get("url")
         current_user.linkedin_url = url
         session.commit()
-        return redirect("confirm")
+        print "user saved"
+    return jsonify({"success": True})
 
 @csrf.exempt
 @prospects.route("/confirm", methods=['GET'])
 def confirm_profile():
+    print "request started"
     if not current_user.linkedin_url:
         return redirect("select")
     prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
