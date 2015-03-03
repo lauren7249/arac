@@ -105,20 +105,7 @@ def upload():
 @prospects.route("/select", methods=['POST'])
 def select_profile():
     if request.method == 'POST':
-        url = request.form.get("url").replace("https", "http")
-        prospect = Prospect.query.filter_by(url=url).first()
-        if not prospect:
-            ip_addresses = ['54.152.186.2', '54.152.181.248']
-            base_url = random.choice(ip_addresses)
-            content = requests.get("http://" + base_url + ":9090/proxy?url=" + url)
-            content = json.loads(content.content)
-            print "got content"
-            url = content.get("prospect_url")
-            if not current_user.linkedin_url:
-                current_user.linkedin_url = url
-                session.commit()
-            return jsonify({"success": True})
-
+        url = request.form.get("url")
         current_user.linkedin_url = url
         session.commit()
     return jsonify({"success": True})
