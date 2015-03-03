@@ -118,7 +118,8 @@ def confirm_profile():
     print "request started"
     if not current_user.linkedin_url:
         return redirect("select")
-    prospect = Prospect.query.filter_by(url=current_user.linkedin_url).first()
+    prospect = Prospect.query.filter_by(\
+            s3_key=current_user.linkedin_url.replace("/", "")).first()
     if request.method == 'POST':
         url = request.form.get("url")
         rq = aRequest(url)
