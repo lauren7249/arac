@@ -108,7 +108,7 @@ def select_profile():
         url = request.form.get("url")
         current_user.linkedin_url = url
         session.commit()
-    return jsonify({"success": True})
+        return redirect("confirm")
 
 @csrf.exempt
 @prospects.route("/confirm", methods=['GET'])
