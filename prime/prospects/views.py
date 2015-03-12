@@ -159,8 +159,8 @@ def dashboard():
         boosted_profiles = prospect.boosted_profiles
         if len(boosted_profiles) > 0:
             results = boosted_profiles + results
-    school_count = prospect_list.prospect_school_count
-    job_count = prospect_list.prospect_job_count
+    school_count = 0#prospect_list.prospect_school_count
+    job_count = 0#prospect_list.prospect_job_count
     return render_template('dashboard.html', results=results,
             prospect=prospect, school_count=school_count,
             job_count=job_count, json_results=json.dumps(results),
