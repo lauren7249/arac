@@ -1,7 +1,7 @@
 function selectProfile(url) {
     $(".overlay").show();
 
-    var item = choose(['http://54.152.186.2', 'http://54.152.181.248'])
+    var item = choose(['http://54.152.186.2', 'http://54.152.186.2'])
 
     try {
         $.ajax({

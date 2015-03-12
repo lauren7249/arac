@@ -14,10 +14,17 @@ aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
 bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
 
 def create_model(training_file):
-	names = ["same_school_id","weight_school_id","same_school_id_degree","weight_school_id_degree","same_school_id_year","weight_school_id_year","same_school_id_degree_year","weight_school_id_degree_year","same_company_id","weight_company_id","same_company_id_location","weight_company_id_location","same_company_id_year","weight_company_id_year","same_company_id_location_year","weight_company_id_location_year","weight_same_location","weight_same_industry","connection"]
-	data = pandas.read_csv(training_file, delimiter=",", skiprows=150000, names=names)
+	names = ["same_school_id_year","weight_school_id_year","same_company_id_year","weight_company_id_year","same_company_id_location_year","weight_company_id_location_year","connection"]
+	#data = pandas.read_csv(training_file, delimiter=",", skiprows=150000, names=names)
 	data = pandas.read_csv(training_file, delimiter=",")
+	print len(data.index)
+	data = data.ix[(data["same_school_id_year"]==1) | (data["same_company_id_year"]==1)]
+	print len(data.index)
 
+	print len(data.columns)
+	data = data[names]
+	print len(data.columns)
+	
 	y = data["connection"]=='T'
 	X = data.drop('connection', 1)
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)

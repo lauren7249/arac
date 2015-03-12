@@ -1,0 +1,17 @@
+{
+    "nodes": [
+        {
+            "id": "name_entity",
+            "playcount": 10,
+            "name": "name",
+            "match": 0.5,
+            "entity": "entity"
+        }
+    ],
+    "links": [
+        {
+            "source": "fred_fred_defilippo",
+            "target": "name_entity"
+        }
+    ]
+}

@@ -17,6 +17,7 @@ from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry
 from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
+from prime.prospects.prospect_list2 import ProspectList as ProspectList2
 from prime import db, csrf
 
 try:
@@ -149,7 +150,10 @@ def dashboard():
         "")).first()
     if not prospect:
         prospect = generate_prospect_from_url(url)
-    prospect_list = ProspectList(prospect)
+    if prospect.id == 24357727:
+        prospect_list = ProspectList2(prospect)
+    else:
+        prospect_list = ProspectList(prospect)
     results = prospect_list.get_results()
     if prospect.json:
         boosted_profiles = prospect.boosted_profiles

@@ -16,15 +16,15 @@ import boto
 from prime.prospects import models
 import os
 from flask.ext.sqlalchemy import SQLAlchemy
+import tinys3
 
-boto.config.add_section('Boto')
-boto.config.set('Boto','http_socket_timeout','10')
 
 AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
 AWS_SECRET = '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'
-aws_connection = S3Connection(AWS_KEY, AWS_SECRET, host='s3.amazonaws.com')
-bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
 
+conn = tinys3.Connection(AWS_KEY,AWS_SECRET,tls=True)
+aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
+bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
 session = db.session
 
 def process_schools(entity_filter=None):
@@ -101,23 +101,21 @@ def process_school(id, selected_degree=None, selected_year=None):
 		df["same_school_id"] = 1
 		df["weight_school_id"] = 1/len(all_prospects)
 		df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
-		k = Key(bucket)
-		k.key = get_file_path(school_id=school_id)
-		k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id),'r+'))		
+		print '/mnt/big/' + get_file_path(school_id=school_id)
+		conn.upload(get_file_path(school_id=school_id), open('/mnt/big/' + get_file_path(school_id=school_id),'r+'), 'advisorconnect-bigfiles')
 	
 	for by_degree in degrees_dict.items():
 		degree = by_degree[0]
 		if selected_degree is not None and degree != selected_degree: continue
 		prospects = by_degree[1]
-		if len(prospects) and len(degree)>0:
+		if len(prospects)>0 and len(degree)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_school_id_degree"] = 1
 			df["weight_school_id_degree"] = 1/len(prospects)
 			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id, degree=degree), index=False)
-			k = Key(bucket)
-			k.key = get_file_path(school_id=school_id, degree=degree)
-			k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id, degree=degree),'r+'))	
+			print '/mnt/big/' + get_file_path(school_id=school_id, degree=degree)
+			conn.upload(get_file_path(school_id=school_id, degree=degree), open('/mnt/big/' + get_file_path(school_id=school_id, degree=degree),'r+'), 'advisorconnect-bigfiles')
 
 	for by_year in years_dict.items():
 		year = by_year[0]
@@ -129,9 +127,9 @@ def process_school(id, selected_degree=None, selected_year=None):
 			df["same_school_id_year"] = 1
 			df["weight_school_id_year"] = 1/len(prospects)
 			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id, year=year), index=False)
-			k = Key(bucket)
-			k.key = get_file_path(school_id=school_id, year=year)
-			k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id, year=year),'r+'))	
+			print '/mnt/big/' + get_file_path(school_id=school_id, year=year)
+			conn.upload(get_file_path(school_id=school_id, year=year), open('/mnt/big/' + get_file_path(school_id=school_id, year=year),'r+'), 'advisorconnect-bigfiles')
+	
 		
 	for by_year_degree in degrees_years_dict.items():
 		year_degree = by_year_degree[0]
@@ -146,12 +144,11 @@ def process_school(id, selected_degree=None, selected_year=None):
 			df["same_school_id_degree_year"] = 1
 			df["weight_school_id_degree_year"] = 1/len(prospects)
 			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id, degree=degree, year=year), index=False)
-			k = Key(bucket)
-			k.key = get_file_path(school_id=school_id, year=year, degree=degree)
-			k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id, degree=degree, year=year),'r+'))				
-	
+			print '/mnt/big/' + get_file_path(school_id=school_id, degree=degree, year=year)
+			conn.upload(get_file_path(school_id=school_id, degree=degree, year=year), open('/mnt/big/' + get_file_path(school_id=school_id, degree=degree, year=year),'r+'), 'advisorconnect-bigfiles')
 
-def process_company(id):
+
+def process_company(id, selected_location=None, selected_year=None):
 	try:
 		app = create_app(os.getenv('AC_CONFIG', 'beta'))
 		db = SQLAlchemy(app)
@@ -159,6 +156,9 @@ def process_company(id):
 	except:
 		from prime import db
 		session = db.session
+
+	if not os.path.exists('/mnt/big/entities/companies'): os.mkdir('/mnt/big/entities/companies')	
+	if not os.path.exists('/mnt/big/entities/companies/'+str(id)): os.mkdir('/mnt/big/entities/companies/'+str(id))		
 	#iterate over transactions
 	#dict where key is year+location, value is dict of prospect ids
 	locations_dict = {}
@@ -204,51 +204,56 @@ def process_company(id):
 		df = pandas.DataFrame.from_records({"prospect_id":all_prospects})
 		df["same_company_id"] = 1
 		df["weight_company_id"] = 1/len(all_prospects)
-		df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
-		k = Key(bucket)
-		k.key = get_file_path(company_id=company_id)
-		k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))		
+		df.to_csv(path_or_buf='/mnt/big/' + get_file_path(company_id=company_id), index=False)
+		print '/mnt/big/' + get_file_path(company_id=company_id)
+		conn.upload(get_file_path(company_id=company_id), open('/mnt/big/' + get_file_path(company_id=company_id),'r+'), 'advisorconnect-bigfiles')	
 	
 	for by_location in locations_dict.items():
 		location = by_location[0]
+		if selected_location is not None and location != selected_location: continue
 		prospects = by_location[1]
 		if len(prospects)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_company_id_location"] = 1
 			df["weight_company_id_location"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
-			k = Key(bucket)
-			k.key = get_file_path(company_id=company_id, location=location)
-			k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))	
+			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(company_id=company_id, location=location), index=False)
+			print '/mnt/big/' + get_file_path(company_id=company_id, location=location)
+			conn.upload(get_file_path(company_id=company_id, location=location), 
+				open('/mnt/big/' + get_file_path(company_id=company_id, location=location),'r+'), 'advisorconnect-bigfiles')	
+
 
 	for by_year in years_dict.items():
 		year = by_year[0]
+		if selected_year is not None and year != selected_year: continue
 		prospects = by_year[1]
 		if len(prospects)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_company_id_year"] = 1
 			df["weight_company_id_year"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
-			k = Key(bucket)
-			k.key = get_file_path(company_id=company_id, year=year)
-			k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))	
+			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(company_id=company_id, year=year), index=False)
+			print '/mnt/big/' + get_file_path(company_id=company_id, year=year)
+			conn.upload(get_file_path(company_id=company_id, year=year), 
+				open('/mnt/big/' + get_file_path(company_id=company_id, year=year),'r+'), 'advisorconnect-bigfiles')	
+
 		
 	for by_year_location in locations_years_dict.items():
 		year_location = by_year_location[0]
 		year = year_location[0]
 		location = year_location[1]
+		if selected_location is not None and location != selected_location: continue
+		if selected_year is not None and year != selected_year: continue
 		prospects = by_year_location[1]
 		if len(prospects)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_company_id_location_year"] = 1
 			df["weight_company_id_location_year"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
-			k = Key(bucket)
-			k.key = get_file_path(company_id=company_id, year=year, location=location)
-			k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))				
+			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(company_id=company_id, year=year, location=location), index=False)
+			print '/mnt/big/' + get_file_path(company_id=company_id, year=year, location=location)
+			conn.upload(get_file_path(company_id=company_id, year=year, location=location), 
+				open('/mnt/big/' + get_file_path(company_id=company_id, year=year, location=location),'r+'), 'advisorconnect-bigfiles')					
 	print id	
 	
 def process_prospect(id):
@@ -263,20 +268,22 @@ def process_prospect(id):
 
 		degree = normalized_degree(degree)
 
+		print degree
+
 		if end_date==None: end_date=date.today()
 		if start_date==None: start_date=end_date.replace(year = end_date.year - 4)
 
 		if degree is not None and len(degree)>0:
 			k = Key(bucket)
 			k.key = get_file_path(school_id=school_id, degree=degree)
-			if not k.exists(): process_school(school_id, selected_degree=degree)			
+			if not k.exists():  process_school(school_id, selected_degree=degree)				
 			bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, degree=degree), 'advisorconnect-bigfiles', 
 				get_file_path(school_id=school_id, degree=degree))
 
 		for year in xrange(start_date.year, end_date.year+1):
 			k = Key(bucket)
 			k.key = get_file_path(school_id=school_id, year=year)
-			if not k.exists(): process_school(school_id, selected_year=year)				
+			if not k.exists():  process_school(school_id, selected_year=year, selected_degree=degree)		
 			bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, year=year), 
 				'advisorconnect-bigfiles', get_file_path(school_id=school_id, year=year))
 			if degree is not None and len(degree)>0:
@@ -304,20 +311,20 @@ def process_prospect(id):
 		if location is not None and len(location)>0:
 			k = Key(bucket)
 			k.key = get_file_path(company_id=company_id, location=location)
-			if not k.exists(): process_company(company_id)			
+			if not k.exists(): process_company(company_id, selected_location=location)			
 			bucket.copy_key(get_file_path(prospect_id=id,company_id=company_id, location=location), 'advisorconnect-bigfiles', 
 				get_file_path(company_id=company_id, location=location))
 
 		for year in xrange(start_date.year, end_date.year+1):
 			k = Key(bucket)
 			k.key = get_file_path(company_id=company_id, year=year)
-			if not k.exists(): process_company(company_id)			
+			if not k.exists(): process_company(company_id, selected_year=year)			
 			bucket.copy_key(get_file_path(prospect_id=id,company_id=company_id, year=year), 
 				'advisorconnect-bigfiles', get_file_path(company_id=company_id, year=year))
 			if location is not None and len(location)>0:
 				k = Key(bucket)
 				k.key = get_file_path(company_id=company_id, year=year, location=location)
-				if not k.exists(): process_company(company_id)					
+				if not k.exists(): process_company(company_id, selected_location=location, selected_year=year)					
 				bucket.copy_key(get_file_path(prospect_id=id,company_id=company_id, location=location, year=year), 'advisorconnect-bigfiles', 
 					get_file_path(company_id=company_id, location=location, year=year))
 
