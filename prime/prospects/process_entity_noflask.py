@@ -7,25 +7,20 @@ from sklearn.externals import joblib
 from prime.prospects.models import Prospect, Job, Education
 from prime.prospects.normalization import *
 from prime.prospects.filepaths import * 
-from datetime import date
+from datetime import datetime
 import time, re, os
 import urllib2
-import os
+import os, math, numpy
 from prime import create_app, db
-import boto
+
 from prime.prospects import models
 import os
 from flask.ext.sqlalchemy import SQLAlchemy
 
-boto.config.add_section('Boto')
-boto.config.set('Boto','http_socket_timeout','10')
-
 AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
 AWS_SECRET = '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'
-aws_connection = S3Connection(AWS_KEY, AWS_SECRET, host='s3.amazonaws.com')
+aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
 bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
-
-session = db.session
 
 def process_schools(entity_filter=None):
 	df = pandas.read_csv("https://s3.amazonaws.com/advisorconnect-bigfiles/raw/schools.txt", delimiter='\t')
@@ -36,7 +31,14 @@ def process_schools(entity_filter=None):
 	for index, row in df.iterrows():
 		process_school(row)
 
-def process_school(id, selected_degree=None, selected_year=None):
+def process_school(id, educations_df):
+	try:
+		ret = urllib2.urlopen('https://s3.amazonaws.com/advisorconnect-bigfiles/entities/schools/' + str(id) + '/all.csv')
+		return
+	except:
+		pass
+
+		'''
 	try:
 		app = create_app(os.getenv('AC_CONFIG', 'beta'))
 		db = SQLAlchemy(app)
@@ -45,29 +47,25 @@ def process_school(id, selected_degree=None, selected_year=None):
 		from prime import db
 		session = db.session
 
-	if not os.path.exists('/mnt/big/entities/schools/'+str(id)): os.mkdir('/mnt/big/entities/schools/'+str(id))		
-	'''
 	name=row["name"]
 	k = Key(bucket)
 	prefix = "/entities/schools/" + str(id) + "/"
 	k.key = prefix + "name"
 	k.set_contents_from_string(name)		
 	'''
-	print 'school' + str(id)
-
 	#iterate over transactions
 	#dict where key is year+degree, value is dict of prospect ids
 	degrees_dict = {}
 	years_dict = {}
 	degrees_years_dict = {}
 	all_prospects = []
-	educations = session.query(Education).filter_by(school_id=id).all()
-	for education in educations:
-		prospect_id = education.prospect_id
-		school_id = education.school_id
-		start_date = education.start_date
-		end_date = education.end_date
-		degree = education.degree
+	educations = educations_df[educations_df.school_id == id]
+	for index, row in educations.iterrows():
+		prospect_id = row.prospect_id
+		school_id = row.school_id
+		start_date = row.start_date
+		end_date = row.end_date
+		degree = row.degree
 
 		if degree is None: degree=""
 		degree = normalized_degree(degree)
@@ -80,10 +78,7 @@ def process_school(id, selected_degree=None, selected_year=None):
 		degrees_dict.update({degree:prospects_in_degree})
 		all_prospects.append(prospect_id)
 
-		if end_date==None: end_date=date.today()
-		if start_date==None: start_date=end_date.replace(year = end_date.year - 4)			
-
-		for year in xrange(start_date.year, end_date.year+1):
+		for year in xrange(int(start_date), int(end_date)+1):
 			if years_dict.has_key(year):
 				prospects_in_year = years_dict.get(year)
 			else:
@@ -100,58 +95,62 @@ def process_school(id, selected_degree=None, selected_year=None):
 		df = pandas.DataFrame.from_records({"prospect_id":all_prospects})
 		df["same_school_id"] = 1
 		df["weight_school_id"] = 1/len(all_prospects)
-		df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
+		df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 		k = Key(bucket)
 		k.key = get_file_path(school_id=school_id)
-		k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id),'r+'))		
+		k.set_contents_from_filename(str(os.getpid())+"temp.csv")		
 	
 	for by_degree in degrees_dict.items():
 		degree = by_degree[0]
-		if selected_degree is not None and degree != selected_degree: continue
 		prospects = by_degree[1]
-		if len(prospects) and len(degree)>0:
+		if len(prospects)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_school_id_degree"] = 1
 			df["weight_school_id_degree"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id, degree=degree), index=False)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 			k = Key(bucket)
 			k.key = get_file_path(school_id=school_id, degree=degree)
-			k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id, degree=degree),'r+'))	
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
 
 	for by_year in years_dict.items():
 		year = by_year[0]
-		if selected_year is not None and year != selected_year: continue
 		prospects = by_year[1]
 		if len(prospects)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_school_id_year"] = 1
 			df["weight_school_id_year"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id, year=year), index=False)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 			k = Key(bucket)
 			k.key = get_file_path(school_id=school_id, year=year)
-			k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id, year=year),'r+'))	
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
 		
 	for by_year_degree in degrees_years_dict.items():
 		year_degree = by_year_degree[0]
 		year = year_degree[0]
 		degree = year_degree[1]
-		if selected_year is not None and year != selected_year: continue
-		if selected_degree is not None and degree != selected_degree: continue
 		prospects = by_year_degree[1]
 		if len(prospects)>0:
 			weight = 1/len(prospects)
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_school_id_degree_year"] = 1
 			df["weight_school_id_degree_year"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id, degree=degree, year=year), index=False)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 			k = Key(bucket)
 			k.key = get_file_path(school_id=school_id, year=year, degree=degree)
-			k.set_contents_from_file(open('/mnt/big/' + get_file_path(school_id=school_id, degree=degree, year=year),'r+'))				
-	
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")				
+	print id
 
 def process_company(id):
+
+	try:
+		ret = urllib2.urlopen('https://s3.amazonaws.com/advisorconnect-bigfiles/entities/companies/' + str(id) + '/all.csv')
+		return
+	except:
+		pass
+
+
 	try:
 		app = create_app(os.getenv('AC_CONFIG', 'beta'))
 		db = SQLAlchemy(app)
@@ -204,10 +203,10 @@ def process_company(id):
 		df = pandas.DataFrame.from_records({"prospect_id":all_prospects})
 		df["same_company_id"] = 1
 		df["weight_company_id"] = 1/len(all_prospects)
-		df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
+		df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 		k = Key(bucket)
 		k.key = get_file_path(company_id=company_id)
-		k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))		
+		k.set_contents_from_filename(str(os.getpid())+"temp.csv")		
 	
 	for by_location in locations_dict.items():
 		location = by_location[0]
@@ -217,10 +216,10 @@ def process_company(id):
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_company_id_location"] = 1
 			df["weight_company_id_location"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 			k = Key(bucket)
 			k.key = get_file_path(company_id=company_id, location=location)
-			k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))	
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
 
 	for by_year in years_dict.items():
 		year = by_year[0]
@@ -230,10 +229,10 @@ def process_company(id):
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_company_id_year"] = 1
 			df["weight_company_id_year"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 			k = Key(bucket)
 			k.key = get_file_path(company_id=company_id, year=year)
-			k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))	
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")	
 		
 	for by_year_location in locations_years_dict.items():
 		year_location = by_year_location[0]
@@ -245,10 +244,10 @@ def process_company(id):
 			df = pandas.DataFrame.from_records({"prospect_id":prospects})
 			df["same_company_id_location_year"] = 1
 			df["weight_company_id_location_year"] = 1/len(prospects)
-			df.to_csv(path_or_buf='/mnt/big/' + get_file_path(school_id=school_id), index=False)
+			df.to_csv(path_or_buf=str(os.getpid())+"temp.csv", index=False)
 			k = Key(bucket)
 			k.key = get_file_path(company_id=company_id, year=year, location=location)
-			k.set_contents_from_filename('/mnt/big/' + get_file_path(school_id=school_id))				
+			k.set_contents_from_filename(str(os.getpid())+"temp.csv")				
 	print id	
 	
 def process_prospect(id):
@@ -267,22 +266,13 @@ def process_prospect(id):
 		if start_date==None: start_date=end_date.replace(year = end_date.year - 4)
 
 		if degree is not None and len(degree)>0:
-			k = Key(bucket)
-			k.key = get_file_path(school_id=school_id, degree=degree)
-			if not k.exists(): process_school(school_id, selected_degree=degree)			
 			bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, degree=degree), 'advisorconnect-bigfiles', 
 				get_file_path(school_id=school_id, degree=degree))
 
 		for year in xrange(start_date.year, end_date.year+1):
-			k = Key(bucket)
-			k.key = get_file_path(school_id=school_id, year=year)
-			if not k.exists(): process_school(school_id, selected_year=year)				
 			bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, year=year), 
 				'advisorconnect-bigfiles', get_file_path(school_id=school_id, year=year))
 			if degree is not None and len(degree)>0:
-				k = Key(bucket)
-				k.key = get_file_path(school_id=school_id, year=year, degree=degree)
-				if not k.exists(): process_school(school_id, selected_year=year, selected_degree=degree)				
 				bucket.copy_key(get_file_path(prospect_id=id,school_id=school_id, degree=degree, year=year), 'advisorconnect-bigfiles', 
 					get_file_path(school_id=school_id, degree=degree, year=year))
 
@@ -297,30 +287,16 @@ def process_prospect(id):
 		if end_date==None: end_date=date.today()
 		if start_date==None: start_date=end_date.replace(year = end_date.year - 2)
 
-		k = Key(bucket)
-		k.key = get_file_path(company_id=company_id)
-		if not k.exists(): process_company(company_id)
-
 		if location is not None and len(location)>0:
-			k = Key(bucket)
-			k.key = get_file_path(company_id=company_id, location=location)
-			if not k.exists(): process_company(company_id)			
 			bucket.copy_key(get_file_path(prospect_id=id,company_id=company_id, location=location), 'advisorconnect-bigfiles', 
 				get_file_path(company_id=company_id, location=location))
 
 		for year in xrange(start_date.year, end_date.year+1):
-			k = Key(bucket)
-			k.key = get_file_path(company_id=company_id, year=year)
-			if not k.exists(): process_company(company_id)			
 			bucket.copy_key(get_file_path(prospect_id=id,company_id=company_id, year=year), 
 				'advisorconnect-bigfiles', get_file_path(company_id=company_id, year=year))
 			if location is not None and len(location)>0:
-				k = Key(bucket)
-				k.key = get_file_path(company_id=company_id, year=year, location=location)
-				if not k.exists(): process_company(company_id)					
 				bucket.copy_key(get_file_path(prospect_id=id,company_id=company_id, location=location, year=year), 'advisorconnect-bigfiles', 
 					get_file_path(company_id=company_id, location=location, year=year))
-
 def print_locations():
 	k = Key(bucket)
 	k.key = "/entities/locations/counts.dict" 

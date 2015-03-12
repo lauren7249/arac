@@ -7,3 +7,11 @@ def normalized_degree(degree):
 	except:
 		pass
 	return degree
+
+def normalized_location(location):
+	try:
+		location = re.sub('[^a-zA-Z ]', ' ', location).lower()
+		location = re.sub(' +',' ',location)
+	except:
+		pass
+	return location	
