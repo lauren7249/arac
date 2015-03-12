@@ -11,9 +11,12 @@ from prime.prospects.models import Prospect, Job, Education, Company, School
 from prime.prospects.prospect_list import ProspectList
 from prime import db
 
-from consume.convert import clean_url
-from consume.convert import parse_html
-from consume.consumer import create_prospect_from_info as new_prospect
+try:
+    from consume.convert import clean_url
+    from consume.convert import parse_html
+    from consume.consumer import create_prospect_from_info as new_prospect
+except:
+    pass
 from linkedin.scraper import process_request
 
 session = db.session

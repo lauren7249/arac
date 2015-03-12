@@ -19,8 +19,11 @@ from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
 from prime import db, csrf
 
-from consume.consumer import generate_prospect_from_url
-from consume.convert import clean_url as _clean_url
+try:
+    from consume.consumer import generate_prospect_from_url
+    from consume.convert import clean_url as _clean_url
+except:
+    pass
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast

@@ -64,7 +64,12 @@ def create_prospect(info, url):
     return new_prospect
 
 def create_schools(info, new_prospect):
-    for college in filter(college_is_valid, dedupe_dict(info.get("schools", []))):
+    if type(info) == list:
+        info_schools = info
+        new_prospect = session.query(models.Prospect).get(new_prospect.id)
+    else:
+        info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
+    for college in info_schools:
         extra = {}
         try:
             extra['start_date'] = parser.parse(college.get('start_date')).replace(tzinfo=None)
@@ -95,10 +100,16 @@ def create_schools(info, new_prospect):
         )
         session.add(new_education)
         session.flush()
+    session.commit()
     return True
 
 def create_jobs(info, new_prospect):
-    for e in filter(experience_is_valid, dedupe_dict(info.get('experiences', []))):
+    if type(info) == list:
+        info_jobs = info
+        new_prospect = session.query(models.Prospect).get(new_prospect.id)
+    else:
+        info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
+    for e in info_jobs:
         extra = {}
         try:
             extra['start_date'] = parser.parse(e.get('start_date')).replace(tzinfo=None)
@@ -126,6 +137,7 @@ def create_jobs(info, new_prospect):
         )
         session.add(new_job)
         session.flush()
+    session.commit()
     return True
 
 def create_prospect_from_info(info, url):
@@ -400,12 +412,6 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
                 info = get_info_for_url(url)
                 if info_is_valid(info):
                     info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                    for info_job in info_jobs:
-                        company = info_job.get("company")
-                        if company == job.company.name:
-                            print info_job.get("location")
-                            job.location = info_job.get("location")
-                    session.commit()
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:
                     logger.error('could not get valid info for {}'.format(url))

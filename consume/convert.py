@@ -1,4 +1,5 @@
 import json
+import sys
 import lxml.html
 from lxml import etree
 import os
@@ -37,6 +38,34 @@ def debug():
     html = json.loads(file).get("content")
     return parse_html(html)
 
+def get_projects(raw_html):
+    projects = []
+    for project in raw_html.xpath("//div[@class='background-projects']/div/div"):
+        dict_item = {}
+        dates = project.xpath("./span/time")
+        if len(dates) > 1:
+            dict_item["start_date"] = dates[0].text_content()
+            dict_item["end_date"] = dates[1].text_content()
+        if len(dates) == 1:
+            dict_item["start_date"] = dates[0].text_content()
+        description = project.xpath("./p")
+        if len(description)> 0:
+            dict_item['description'] = description[0].text_content()
+        title = project.xpath(".//h4/a/span")
+        if len(title) > 0:
+            dict_item['title'] = title[0].text_content()
+        dict_item['other_people'] = raw_html.xpath("//div[@class='background-projects']/div/div")[0].xpath(".//dd/ul/li/a/@href")
+        projects.append(dict_item)
+    return projects
+
+
+
+def get_groups(raw_html):
+    try:
+        return [{"image_url": p.xpath("./a/img")[0].attrib.get("src"), "group_id": p.xpath("./a")[1].attrib.get("href").split("gid=")[1].split("&")[0], "name":p.xpath("./a")[1].text_content()} for p in raw_html.xpath("//p[@class='groups-name']")]
+    except:
+        return []
+
 def parse_images(raw_html):
     images = raw_html.xpath("//img")
     images = [img.get("src") for img in images]
@@ -67,8 +96,9 @@ def is_profile_link(link):
     return False
 
 def get_linked_profiles(raw_html):
-    urls = [link[2] for link in raw_html.iterlinks() if 'com/pub' in link[2] and not 'dir' in link[2]]
-    return list(set(urls))
+    linkedin_profiles = [a.attrib.get("href", "").split("?")[0] for a in \
+            raw_html.xpath("//div[@class='insights-browse-map']/ul/li/a")]
+    return list(set(linkedin_profiles))
 
 def safe_clean_str(s):
     if s:
@@ -111,13 +141,14 @@ def find_profile_jobs(raw_html):
         company = item.find(".//h4")
         if company is not None:
             dict_item["company"] = safe_clean_str(company.text_content())
+            company_link = item.xpath(".//a/@href")
+            if len(company_link) > 1:
+                dict_item["company_id"] = company_link[1].split("?")[0].split("company/")[1]
         dates = item.findall(".//abbr")
         if len(dates) > 1:
             dict_item["start_date"] = dates[0].get('title')
             dict_item["end_date"] = dates[1].get('title')
         if len(dates) == 1:
-            import pdb
-            pdb.set_trace()
             dict_item["start_date"] = dates[0].get('text')
             dict_item["end_date"] = "Present"
         location = item.xpath(".//span[@class='location']")
@@ -140,6 +171,8 @@ def find_background_jobs(raw_html):
         company = item.findall(".//h5")
         if len(company) == 2:
             dict_item["company"] = safe_clean_str(company[1].text_content())
+            dict_item["company_id"] = item.xpath(".//h5/a/@href")[0].split("?")[0].split("company/")[1]
+            dict_item["company_image_url"] = item.xpath(".//h5/a/img/@src")[0]
         else:
             dict_item["company"] = safe_clean_str(company[0].text_content())
         location = item.xpath(".//span[@class='locality']")
@@ -167,6 +200,10 @@ def find_profile_schools(raw_html):
         college = item.find(".//h3")
         if college is not None:
             dict_item["college"] = safe_clean_str(college.text_content())
+            links = college.xpath(".//a/@href")
+            if len(links) > 0:
+                dict_item["college_id"] = links[0].split("?")\
+                        [0].split("edu/")[1].split("-")[-1]
         degree = item.find(".//h4")
         if degree is not None:
             dict_item["degree"] = safe_clean_str(degree.text_content())
@@ -196,6 +233,12 @@ def find_background_schools(raw_html):
         college = item.find(".//h4")
         if college is not None:
             dict_item["college"] = safe_clean_str(college.text_content())
+            links = item.xpath(".//a/@href")
+            if len(links) > 0:
+                dict_item["college_id"] = links[0].split("id=")[1].split("&")[0]
+            college_image = item.xpath(".//img/@src")
+            if len(college_image) > 0:
+                dict_item["college_image_url"] = college_image[0]
         degrees = item.findall(".//h5")
         if len(degrees) == 2:
             dict_item["degree"] = safe_clean_str(degrees[1].text_content())
@@ -285,8 +328,10 @@ def parse_html(html):
         schools = find_background_schools(raw_html)
 
 
-    skills = [e.text_content() for e in raw_html.xpath("//li[@class='endorse-item']")]
+    skills = [e.text_content() for e in raw_html.xpath("//ul[@class='skills-section compact-view']/li") if "jsControl" not in e.text_content()]
     people = get_linked_profiles(raw_html)
+    groups = get_groups(raw_html)
+    projects = get_projects(raw_html)
 
     return {
         'image': image,
@@ -298,7 +343,9 @@ def parse_html(html):
         'people': people,
         'connections': connections,
         'location': location,
-        'industry': industry
+        'industry': industry,
+        'json': {"groups": groups,
+                 "projects": projects}
     }
 
 
@@ -306,6 +353,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--benchmark', action='store_true')
     parser.add_argument('--images', action='store_true')
+    parser.add_argument('--linkedin', action='store')
     args = parser.parse_args()
 
     if args.benchmark:
