@@ -13,7 +13,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from config import config
 from prime import create_app
 
-from consume.consumer import get_info_for_url, experience_is_valid,\
+from consumer import get_info_for_url, experience_is_valid,\
         dedupe_dict, college_is_valid, info_is_valid, create_schools,\
         create_jobs
 
@@ -33,9 +33,15 @@ def merge_jobs(jobs, info_jobs, info):
                 extra = {}
                 extra['title'] = info_job.get("title")
                 if info_job.get("start_date"):
-                    extra['start_date'] = parser.parse(info_job.get("start_date")).replace(tzinfo=None)
+                    try:
+                        extra['start_date'] = parser.parse(info_job.get("start_date")).replace(tzinfo=None)
+                    except:
+                        pass
                 if info_job.get("end_date"):
-                    extra['end_date'] =  parser.parse(info_job.get("end_date")).replace(tzinfo=None)
+                    try:
+                        extra['end_date'] =  parser.parse(info_job.get("end_date")).replace(tzinfo=None)
+                    except:
+                        pass
                 extra['location'] = info_job.get("location")
                 #extra['description'] = info_job.get("description")
                 session.query(Job).filter_by(id=job.id).update(extra)
@@ -58,9 +64,15 @@ def merge_schools(schools, info_schools, info):
                 extra = {}
                 extra['degree'] = info_school.get("degree")
                 if info_school.get("start_date"):
-                    extra['start_date'] = parser.parse(info_school.get("start_date")).replace(tzinfo=None)
+                    try:
+                        extra['start_date'] = parser.parse(info_school.get("start_date")).replace(tzinfo=None)
+                    except:
+                        pass
                 if info_school.get("end_date"):
-                    extra['end_date'] =  parser.parse(info_school.get("end_date")).replace(tzinfo=None)
+                    try:
+                        extra['end_date'] =  parser.parse(info_school.get("end_date")).replace(tzinfo=None)
+                    except:
+                        pass
                 #extra['description'] = info_school.get("description")
                 session.query(Education).filter_by(id=education.id).update(extra)
                 session.commit()
@@ -87,6 +99,7 @@ def update_information(prospect):
 
 
 def update_prospect(linkedin_id):
+    count = 0
     NEW_EDUCATIONS = 0
     NEW_JOBS = 0
     prospect = session.query(Prospect).filter_by(linkedin_id=linkedin_id).first()
@@ -99,18 +112,25 @@ def update_prospect(linkedin_id):
             company_ids)).distinct(Prospect.id).all()
     school_prospects = session.query(Prospect).join(Education)\
             .filter(Education.school_id.in_(school_ids)).distinct(Prospect.id).all()
+    print "Processing:{} company prospects and {} school prospects".format(len(company_prospects), len(school_prospects))
 
+    """
     for school_prospect in school_prospects:
         if prospect.id != school_prospect.id:
             new_jobs, new_educations = update_information(school_prospect)
             NEW_JOBS += new_jobs
             NEW_EDUCATIONS += new_educations
+            count +=1
+            print count
 
     for company_prospect in company_prospects:
         if prospect.id != company_prospect.id:
             new_jobs, new_educations = update_information(company_prospect)
             NEW_JOBS += new_jobs
             NEW_EDUCATIONS += new_educations
+            count +=1
+            print count
+    """
 
     print "{} Schools created and {} jobs created".format(NEW_JOBS,
             NEW_EDUCATIONS)
