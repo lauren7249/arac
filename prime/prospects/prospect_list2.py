@@ -96,6 +96,22 @@ class ProspectList(object):
         except:
             pass
 
+        try:
+            path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/linkedin_ids.csv"
+            known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["linkedin_id"])
+            known_firstdegrees_df.fillna(value="", inplace=True) 
+            for i, row in known_firstdegrees_df.iterrows():
+                linkedin_id = row["linkedin_id"]
+                #print url
+                prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
+                if prospect is not None:
+                    prospect_id = prospect.id
+                    score = 100.0
+                    newrow = {"prospect_id":prospect_id, "score":score}
+                    prospects_scored = prospects_scored.append(newrow, ignore_index=True)
+        except:
+            pass
+
         prospects_scored.drop_duplicates(cols='prospect_id', take_last=True, inplace=True)
         prospects_scored = prospects_scored.sort(columns="score", ascending=False).head(100)
 
