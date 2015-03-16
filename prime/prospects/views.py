@@ -137,6 +137,7 @@ def confirm_profile():
 
 @prospects.route("/dashboard")
 def dashboard():
+    page = request.args.get("p", 0)
     first_time = False
     if 'first_time' in flask_session:
         first_time = True
@@ -164,7 +165,8 @@ def dashboard():
     return render_template('dashboard.html', results=results,
             prospect=prospect, school_count=school_count,
             job_count=job_count, json_results=json.dumps(results),
-            first_time=first_time, prospect_count=len(results))
+            first_time=first_time, prospect_count=len(results),
+            offset=page, next_page=page+20)
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
