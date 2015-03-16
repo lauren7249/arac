@@ -92,7 +92,7 @@ var Results = React.createClass({displayName: "Results",
 function buildResults() {
     var data = window._userData.results;
     React.render(
-        React.createElement(Results, {data: data.slide(offset, offset+20)}),
+        React.createElement(Results, {data: data.slice(offset, offset+20)}),
         document.getElementById('prospects')
     );
 }
