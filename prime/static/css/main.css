@@ -80,6 +80,10 @@ div.clear {
   clear: both;
 }
 
+.row {
+  margin: 0;
+}
+
 div.filters h1 {
   float: left;
 }
