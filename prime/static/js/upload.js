@@ -10,7 +10,6 @@ function selectProfile(url) {
             success: function(data) {
                 var url = data.prospect_url;
                 $.post("/select", {url:url}, function(data) {
-                    console.log("success");
                     window.location = "/confirm"
                 });
             },

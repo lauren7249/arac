@@ -92,8 +92,6 @@ var Profile = React.createClass({displayName: "Profile",
             this.setState({data: data.prospect, client_lists:data.client_lists});
           }.bind(this),
           error: function(xhr, status, err) {
-            console.log(data)
-            console.error(this.props.url, status, err.toString());
           }.bind(this)
         });
     },
