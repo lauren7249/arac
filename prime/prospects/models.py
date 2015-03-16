@@ -138,7 +138,7 @@ class Prospect(db.Model):
                     user['url'] = prospect.url
                     user['score'] = "N/A"
                     user['id'] = prospect.id
-                    user['image_url'] = prospect.image_url
+                    user['image_url'] = prospect.image_url if prospect.image_url else "/static/img/profile.png"
                     current_job = prospect.current_job
                     if current_job:
                         user['start_date'] = current_job.start_date.strftime("%y") if current_job.start_date else None

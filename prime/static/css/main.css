@@ -400,7 +400,7 @@ div.results-dashboard, div.person-search {
 
 div.results {
   width: auto;
-  padding: 20px 50px 0;
+  padding: 20px 20px 0;
 }
 div.results div.search-box {
   padding: 10px 0px 40px;
@@ -478,7 +478,7 @@ div.results div.search-page-results {
   -moz-box-shadow: #dddddd 0 0 1px 2px;
   box-shadow: #dddddd 0 0 1px 2px;
   margin-top: 30px;
-  padding: 30px;
+  padding: 30px 0;
 }
 div.results div.search-page-results ul {
   padding: 0;
@@ -497,16 +497,82 @@ div.results h4 {
   text-transform: uppercase;
 }
 div.results div.result {
-  min-height: 338px;
-  width: 45%;
-  margin: 0 2.5% 2.5%;
+  min-height: 200px;
+  width: 100%;
+  margin: 15px 0;
   float: left;
   background: #fff;
   border: 1px solid #c8c7cc;
   padding: 20px;
 }
+div.results div.result div.first {
+  width: 50px;
+  float: left;
+}
+div.results div.result div.second {
+  width: 320px;
+  float: left;
+}
+div.results div.result div.connections {
+  width: 200px;
+  padding: 0 20px;
+  float: left;
+}
+div.results div.result div.connections h5 {
+  color: #4caf50;
+  text-transform: uppercase;
+  padding: 0;
+  margin: 0 0 5px;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 15px;
+}
+div.results div.result div.connections p {
+  font-size: 12px;
+  margin: 0;
+  color: #525252;
+  font-family: "Quicksand", sans-serif;
+  padding: 10px 0;
+  line-height: 150%;
+}
+div.results div.result div.connections p .small {
+  font-size: 10px;
+}
+div.results div.result div.buttons {
+  padding: 0 20px;
+  float: left;
+  width: 250px;
+}
 div.results div.result h3 {
   color: #2196f3;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: capitalize;
+  margin: 0;
+}
+div.results div.result h3 a {
+  cursor: pointer;
+  margin: 0;
+}
+div.results div.result h4 {
+  font-size: 12px;
+  text-transform: capitalize;
+  font-weight: bold;
+  padding: 5px 0 0;
+  margin: 0;
+  color: #777;
+  line-height: 160%;
+}
+div.results div.result h4 span.grey {
+  color: #333;
+  padding-right: 10px;
+}
+div.results div.result div.image {
+  width: 100px;
+  margin: 0 10px;
+  float: left;
+}
+div.results div.result div.image img {
+  width: 100%;
 }
 div.results div.result h5 {
   font-size: 15px;
