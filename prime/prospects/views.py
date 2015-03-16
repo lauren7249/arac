@@ -137,7 +137,7 @@ def confirm_profile():
 
 @prospects.route("/dashboard")
 def dashboard():
-    page = request.args.get("p", 0)
+    page = int(request.args.get("p", 0))
     first_time = False
     if 'first_time' in flask_session:
         first_time = True
