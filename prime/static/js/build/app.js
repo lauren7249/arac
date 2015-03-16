@@ -9,26 +9,6 @@ function randColor(colors) {
     return colors[Math.floor(Math.random() * colors.length)]
 }
 
-function resultHTML(result) {
-    var $parent = $("<div class='result'></div>");
-    var $h3 = $("<h3><a result-prospect='" + result.url + "' href='javascript:loadProfile(" + result.id + ",\"" + result.url +  "\");'>" + result.prospect_name + "</a>");
-    if (result.relationship !== undefined) {
-        var $h5 = $("<h5>" + result.relationship + "</h5>")
-    } else {
-        var $h5 = $("<h5>Worked with each other.</h5>")
-    }
-    if (result.company_name) {
-        if (result.company_name !== undefined) {
-            var $entity = $("<a href='/company/" + result.company_id + "'><button class='btn btn-success'>" + result.company_name + "</button></a>")
-        }
-    } else {
-        var $entity = $("<a href='/school/" + result.school_id + "'><button class='btn btn-success'>" + result.school_name + "</button></a>")
-    }
-
-    var $more = $("<a href='javascript:;'><button class='btn btn-primary'>" + result.current_industry + "</button></a><a href='javascript:;'><button class='btn btn-warning'>" + result.current_location + "</button></a>")
-    return $parent.append($h3).append($h5).append($entity).append($more)
-}
-
 var Relationship = React.createClass({displayName: "Relationship",
     render: function() {
         return (
@@ -58,7 +38,7 @@ var Results = React.createClass({displayName: "Results",
         setTimeout(this.loadInLinkedinScript, 1000);
     },
     loadInLinkedinScript: function() {
-        IN.parse(document.body);
+        //IN.parse(document.body);
     },
     render: function() {
     var prospects = this.props.data.map(function(prospect) {
@@ -77,8 +57,7 @@ var Results = React.createClass({displayName: "Results",
         }
         return (
             React.createElement("div", {className: "result"}, 
-                React.createElement("div", {className: "first"}, 
-                    React.createElement("script", {type: "IN/MemberProfile", "data-id": prospect.url, "data-related": "false", "data-format": "hover"})
+                React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
                     React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.prospect_name)), 
