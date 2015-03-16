@@ -1,5 +1,4 @@
 var industries = {}
-var offset = 0;
 var colors = ["#B7D085", "#F9EBB5", "#D3102E", "#DCD6D5", "#39272A", "#27ACBE", "#3D9275", "#C7E1B8", "#BEC25D"];
 var locations = {}
 var school_connections = {}
@@ -92,9 +91,8 @@ var Results = React.createClass({displayName: "Results",
 
 function buildResults() {
     var data = window._userData.results;
-    var limit = offset + 20;
     React.render(
-        React.createElement(Results, {data: data}),
+        React.createElement(Results, {data: data.slide(offset, offset+20)}),
         document.getElementById('prospects')
     );
 }

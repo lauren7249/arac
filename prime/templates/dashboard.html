@@ -68,11 +68,13 @@
       <h4>Your Prospects</h4>
       <div class='clear'></div>
       <div id='prospects'></div>
+      <a href='/dashboard?p={{ next_page }}'>
     </div>
   </div>
 </div>
 <script type='text/javascript'>
 var userData = {{ json_results|safe }};
+var offset = {{ offset }};
 window._userData = {results:userData}
 </script>
 <script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
