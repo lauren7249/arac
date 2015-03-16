@@ -25,8 +25,6 @@ var Results = React.createClass({displayName: "Results",
             this.setState({data: data.prospect, client_lists:data.client_lists});
           }.bind(this),
           error: function(xhr, status, err) {
-            console.log(data)
-            console.error(this.props.url, status, err.toString());
           }.bind(this)
         });
     },
@@ -91,6 +89,7 @@ var Results = React.createClass({displayName: "Results",
 
 function buildResults() {
     var data = window._userData.results;
+    calculateResults(data);
     React.render(
         React.createElement(Results, {data: data.slice(offset, offset+20)}),
         document.getElementById('prospects')
