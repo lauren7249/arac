@@ -89,7 +89,9 @@ var Results = React.createClass({displayName: "Results",
 
 function buildResults() {
     var data = window._userData.results;
-    calculateResults(data);
+    for (var a in data) {
+        calculateResults(data[a])
+    }
     React.render(
         React.createElement(Results, {data: data.slice(offset, offset+20)}),
         document.getElementById('prospects')
