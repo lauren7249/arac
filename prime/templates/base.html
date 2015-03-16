@@ -37,7 +37,7 @@ heap.load("113125620");
 {% if current_user.is_authenticated() %}
 heap.identify({name: '{{ current_user.name }}',
               company: '{{ current_user.customer.name }}',
-              email: '{{ current_user.email }}');
+              email: '{{ current_user.email }}'});
 {% endif %}
 
     </script>

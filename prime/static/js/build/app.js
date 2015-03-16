@@ -29,17 +29,95 @@ function resultHTML(result) {
     return $parent.append($h3).append($h5).append($entity).append($more)
 }
 
-function buildResults() {
-    data = window._userData.results;
-    var limit = offset + 20;
-    var $result = $("div.results");
-    for (var a in data) {
-        if (a < limit) {
-            $result.append(resultHTML(data[a]))
-        }
-        calculateResults(data[a])
+var Relationship = React.createClass({displayName: "Relationship",
+    render: function() {
+        return (
+            React.createElement("p", null, "You are connected via ", React.createElement("a", {href: this.props.url}, this.props.name), ". ", React.createElement("a", {className: "small", href: this.props.url}, "View more people like this"))
+            )
     }
-    offset+=20;
+});
+
+var Results = React.createClass({displayName: "Results",
+    loadProfileFromServer: function() {
+        $.ajax({
+          url: this.props.url,
+          dataType: 'json',
+          success: function(data) {
+            this.setState({data: data.prospect, client_lists:data.client_lists});
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.log(data)
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+        });
+    },
+    getInitialState: function() {
+        return {data:[]};
+    },
+    componentDidMount: function() {
+        setTimeout(this.loadInLinkedinScript, 1000);
+    },
+    loadInLinkedinScript: function() {
+        IN.parse(document.body);
+    },
+    render: function() {
+    var prospects = this.props.data.map(function(prospect) {
+        if (prospect.company_name) {
+            var job = prospect.title + ", " + prospect.company_name;
+        } else {
+            var job = "N/A"
+        }
+
+        if (prospect.company_name) {
+            var url = "/company/" + prospect.company_id;
+            var relationship = React.createElement(Relationship, {name: prospect.company_name, url: url})
+        } else {
+            var url = "/school/" + prospect.school_id;
+            var relationship = React.createElement(Relationship, {name: prospect.school_name, url: url})
+        }
+        return (
+            React.createElement("div", {className: "result"}, 
+                React.createElement("div", {className: "first"}, 
+                    React.createElement("script", {type: "IN/MemberProfile", "data-id": prospect.url, "data-related": "false", "data-format": "hover"})
+                ), 
+                React.createElement("div", {className: "second"}, 
+                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.prospect_name)), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", job), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.current_location), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
+                ), 
+                React.createElement("div", {className: "image"}, 
+                    React.createElement("img", {src: prospect.image_url})
+                ), 
+                React.createElement("div", {className: "connections"}, 
+                    React.createElement("h5", null, "Connection Path"), 
+                    relationship
+                ), 
+                React.createElement("div", {className: "buttons"}, 
+                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
+                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
+                ), 
+                React.createElement("div", {className: "clear"})
+            )
+            )
+    });
+    return (
+      React.createElement("div", {className: "results"}, 
+        prospects
+      )
+    );
+  }
+});
+
+
+
+function buildResults() {
+    var data = window._userData.results;
+    var limit = offset + 20;
+    React.render(
+        React.createElement(Results, {data: data}),
+        document.getElementById('prospects')
+    );
 }
 
 function calculateResults(data) {
@@ -93,7 +171,16 @@ $(function() {
     buildResults();
     buildGraphs();
     bindButtons();
+    bindProfiles();
 });
+
+function bindProfiles() {
+    $("[data-prospect]").click(function() {
+        var url = $(this).data('url');
+        var id = $(this).data("prospect");
+        loadProfile(id, url);
+    });
+}
 
 function buildGraphs() {
 

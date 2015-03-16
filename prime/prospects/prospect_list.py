@@ -170,7 +170,7 @@ class ProspectList(object):
         current_location = jobs.get("current_location")
         current_industry = jobs.get("industry")
         url = jobs.get("url")
-        image_url = jobs.get("image_url")
+        image_url = jobs.get("image_url", "/static/img/profile.png")
         title = jobs.get("title")
         if start_date:
             relationship = "Worked together at {} from {} to\
@@ -201,7 +201,7 @@ class ProspectList(object):
         current_location = schools.get("current_location")
         current_industry = schools.get("industry")
         url = schools.get("url")
-        image_url = schools.get("image_url")
+        image_url = schools.get("image_url", "/static/img/profile.png")
         relationship = "Went to school together at {} in {}"\
                 .format(school_name, end_date)
         user['end_date'] = end_date.strftime("%y") if end_date else None

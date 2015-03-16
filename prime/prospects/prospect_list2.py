@@ -16,19 +16,20 @@ from prime.prospects.process_entity3 import *
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
-AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
-AWS_SECRET = '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'
-aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
-bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
-k = Key(bucket)
-k.key = "/models/GridSearchCV.model" 
-k.get_contents_to_filename("model")
-model = joblib.load("model")
+def setup():
+    AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
+    AWS_SECRET = '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'
+    aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
+    bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
+    k = Key(bucket)
+    k.key = "/models/GridSearchCV.model"
+    k.get_contents_to_filename("model")
+    model = joblib.load("model")
 
-k = Key(bucket)
-k.key = "/models/model_predictors" 
-k.get_contents_to_filename("model_predictors")
-predictors = joblib.load("model_predictors")
+    k = Key(bucket)
+    k.key = "/models/model_predictors"
+    k.get_contents_to_filename("model_predictors")
+    predictors = joblib.load("model_predictors")
 
 class ProspectList(object):
 
@@ -38,10 +39,11 @@ class ProspectList(object):
 
         self.prospect = prospect
         self.results = {}
+        setup()
 
     def get_results(self):
         results = []
-        
+
         process_prospect(self.prospect.id)
         processed_df = None
         processed_files = list(bucket.list("entities/prospects/" + str(self.prospect.id) + "/processed_"))
@@ -58,29 +60,29 @@ class ProspectList(object):
                 processed_df = processed_df.join(df, how='outer', lsuffix="_")
                 for column in common_columns:
                     to_sum = processed_df.filter(regex="^"+column)
-                    processed_df[column] = to_sum.sum(axis=1)        
-                    processed_df.drop(column+"_", axis=1, inplace=True)    
+                    processed_df[column] = to_sum.sum(axis=1)
+                    processed_df.drop(column+"_", axis=1, inplace=True)
         if processed_df is None: return results
 
-        processed_df.fillna(value=0, inplace=True)     
+        processed_df.fillna(value=0, inplace=True)
 
         missing_cols = list(set(predictors) - set(processed_df.columns))
         for missing_col in missing_cols:
             processed_df[missing_col] = 0
-        
+
         y_pred = model.decision_function(processed_df[predictors])
         y = pandas.DataFrame(y_pred)
         y.columns = ["score"]
 
         prospect_ids = pandas.DataFrame(processed_df.index.get_values())
         prospect_ids.columns = ["prospect_id"]
-        
+
         prospects_scored = pandas.concat([prospect_ids,y], axis=1)
 
         try:
             path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/known_firstdegrees.csv"
             known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["name", "linkedin_id", "url"])
-            known_firstdegrees_df.fillna(value="", inplace=True) 
+            known_firstdegrees_df.fillna(value="", inplace=True)
             for i, row in known_firstdegrees_df.iterrows():
                 linkedin_id = row["linkedin_id"]
                 url = row["url"]
@@ -99,7 +101,7 @@ class ProspectList(object):
         try:
             path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/linkedin_ids.csv"
             known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["linkedin_id"])
-            known_firstdegrees_df.fillna(value="", inplace=True) 
+            known_firstdegrees_df.fillna(value="", inplace=True)
             for i, row in known_firstdegrees_df.iterrows():
                 linkedin_id = row["linkedin_id"]
                 #print url
@@ -145,15 +147,15 @@ class ProspectList(object):
                 user['title'] = common_jobs[0].title
                 user['company_name'] = common_jobs[0].company.name
                 user['company_id'] = common_jobs[0].company_id
-                
+
             user['current_location'] = prospect.location_raw
             user['current_industry'] = prospect.industry_raw
             user['url'] = prospect.url
             #user['relationship'] = relationship
             user['score'] = row["score"]
             user['id'] = prospect_id
-            user['image_url'] = prospect.image_url  
-            user["connections"] = prospect.connections    
-            user["salary"] = prospect.calculate_salary          
+            user['image_url'] = prospect.image_url
+            user["connections"] = prospect.connections
+            user["salary"] = prospect.calculate_salary
             results.append(user)
         return results
