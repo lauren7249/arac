@@ -383,6 +383,7 @@ div.items {
 div.stats {
   padding-bottom: 40px;
   padding: 50px;
+  display: none;
 }
 div.stats h4 {
   font-size: 28px;
@@ -398,7 +399,7 @@ div.stats div.stat h5 {
   text-transform: uppercase;
 }
 
-div.results-dashboard, div.person-search {
+div.person-search {
   display: none;
 }
 

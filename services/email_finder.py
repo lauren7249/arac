@@ -26,13 +26,17 @@ class EmailFinder(object):
         self.full_contact_params = {"apiKey": self.full_contact_api_key}
 
     def find_url(self):
-        bing = BingSearch("{} website".format(self.company))
+        bing = BingSearch("{}".format(self.company))
         items = bing.search()
-        if len(items) > 0:
-            self.domain = items[0].get("Url")
-            self.email_domain = urlparse.urlparse(items[0].get("Url")).netloc.replace("www.", "")
-            self.permutations = generate_email_perms(self.first_name,
-                    self.last_name, self.email_domain)
+        for item in items:
+            url = item.get("Url")
+            if not "linkedin.com" in url:
+                self.domain = item.get("Url")
+                self.email_domain = urlparse.urlparse(item.get("Url")).netloc.replace("www.", "")
+                print self.email_domain
+                self.permutations = generate_email_perms(self.first_name,
+                        self.last_name, self.email_domain)
+                return True
 
     def find_fullcontact_information(self):
         return None
@@ -48,18 +52,20 @@ class EmailFinder(object):
 
     def find_smtp_information(self):
         results = DNS.mxlookup(self.email_domain)
-        from_email = "sam@google.com"
+        from_email = "sam@gs.com"
         if len(results) > 0:
             result = results[0][1]
             server = smtplib.SMTP(result, 25)
             server.helo()
             server.mail(from_email, "")
             for permutation in self.permutations:
+                print permutation
                 try:
                     code, info = server.rcpt(permutation)
                     if code == 250:
                         return permutation
-                except:
+                except Exception, e:
+                    print e
                     pass
         pass
 

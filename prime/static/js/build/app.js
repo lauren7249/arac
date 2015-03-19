@@ -71,7 +71,8 @@ var Results = React.createClass({displayName: "Results",
                 ), 
                 React.createElement("div", {className: "buttons"}, 
                     React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
-                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
+                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect")), 
+                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-info"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
                 ), 
                 React.createElement("div", {className: "clear"})
             )

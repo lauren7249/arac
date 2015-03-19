@@ -1,6 +1,9 @@
 import argparse
 import string
 
+def first_dot_last(domain, first_name, last_name):
+    return "{}.{}@{}".format(first_name, last_name, domain).lower()
+
 def first(domain, first_name, last_name):
     return "{}@{}".format(first_name, domain).lower()
 
@@ -42,9 +45,6 @@ def first_lastint(domain, first_name, last_name):
 
 def first_init_last(domain, first_name, last_name):
     return "{}{}@{}".format(first_name[0], last_name, domain).lower().lower()
-
-def first_dot_last(domain, first_name, last_name):
-    return "{}.{}@{}".format(first_name, last_name, domain).lower()
 
 def last_score_first(domain, first_name, last_name):
     return "{}_{}@{}".format(last_name, first_name, domain).lower()
@@ -106,6 +106,7 @@ def firstint_middleint_last(domain, first_name, last_name):
 
 def generate_email_perms(first_name, last_name, domain):
     emails = []
+    emails.append(first_dot_last(domain, first_name, last_name))
     emails.append(first(domain, first_name, last_name))
     emails.append(last(domain, first_name, last_name))
     emails.append(first_dash_last(domain, first_name, last_name))
@@ -120,7 +121,6 @@ def generate_email_perms(first_name, last_name, domain):
     emails.append(last_dot_first(domain, first_name, last_name))
     emails.append(first_lastint(domain, first_name, last_name))
     emails.append(first_init_last(domain, first_name, last_name))
-    emails.append(first_dot_last(domain, first_name, last_name))
     emails.append(last_score_first(domain, first_name, last_name))
     emails.append(firsttwoltrsfirst_last(domain, first_name, last_name))
 

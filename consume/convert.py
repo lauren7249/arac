@@ -1,4 +1,5 @@
 import json
+import boto
 import sys
 import lxml.html
 from lxml import etree
@@ -7,17 +8,27 @@ import re
 import argparse
 import urlparse
 import logging
+import StringIO
+import csv
+from boto.s3.key import Key
 
 #from bs4 import BeautifulSoup, SoupStrainer
 
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 member_re  = re.compile("member-")
 
+logger = logging.getLogger('consumer')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
+
+s3conn = boto.connect_s3("AKIAIWG5K3XHEMEN3MNA", "luf+RyH15uxfq05BlI9xsx8NBeerRB2yrxLyVFJd")
+write_bucket = s3conn.get_bucket('advisorconnect-bigfiles')
+read_bucket = s3conn.get_bucket('arachid-results')
+
 
 def convert(filename, writefile):
     file = open(filename, 'r').read()
     html = json.loads(file).get("content")
-    soup = BeautifulSoup(html)
     result = parse_html(html)
     writefile.write(unicode(json.dumps(result)).decode("utf-8", "ignore"))
     return True
@@ -28,9 +39,10 @@ def main():
         file = open(filename, 'r').read()
         html = json.loads(file).get("content")
         results =  parse_html(html)
-        print "File:{0}, Jobs: {1}, Schools:{2}".format(filename,\
-                len(results.get("experiences", 0)),
-                len(results.get("schools", 0)))
+        print results
+        #print "File:{0}, Jobs: {1}, Schools:{2}".format(filename,\
+        #        len(results.get("experiences", 0)),
+        #        len(results.get("schools", 0)))
 
 def debug():
     #file = open("data/http:www.linkedin.compubzachary-kowalski37372872", 'r').read()
@@ -344,9 +356,89 @@ def parse_html(html):
         'connections': connections,
         'location': location,
         'industry': industry,
-        'json': {"groups": groups,
-                 "projects": projects}
+        "groups": groups,
+        "projects": projects
     }
+
+
+def url_to_key(url):
+    return url.replace('/', '')
+
+def get_info_for_url(url):
+    key = Key(read_bucket)
+    key.key = url_to_key(url)
+    data = json.loads(key.get_contents_as_string())
+    info = parse_html(data['content'])
+    #file = open("../data/" + url, 'r').read()
+    #html = json.loads(file).get("content")
+    #info = parse_html(html)
+    return info
+
+def uu(str):
+    if str:
+        return str.encode("ascii", "ignore").decode("utf-8")
+    return None
+
+def write_to_s3(filename):
+    file = open(filename)
+    for line in file:
+        try:
+            info = get_info_for_url(line.strip("\n"))
+        except Exception, e:
+            logger.debug('error processing {}, {}'.format(line, e))
+            pass
+        else:
+            person_file = StringIO.StringIO()
+            person_writer = csv.writer(person_file, delimiter="\t")
+            person = [info.get("linkedin_id"),
+                        info.get("image_url"),
+                        uu(info.get("full_name")),
+                        uu(",".join(info.get("skills"))),
+                        uu(",".join(info.get("people"))),
+                        uu(info.get("connections")),
+                        uu(info.get("location")),
+                        uu(info.get("industry")),
+                        uu(str(info.get("groups"))),
+                        uu(str(info.get("projects")))]
+            person_writer.writerow(person)
+
+            educations = [[uu(school.get("college")),
+                        school.get("college_id"),
+                        school.get("college_image_url"),
+                        uu(school.get("start_date")),
+                        uu(school.get("end_date")),
+                        uu(school.get("degree")),
+                        uu(school.get("description", "").replace("\n", ""))] for school in info.get("schools")]
+            education_file = StringIO.StringIO()
+            education_writer = csv.writer(education_file, delimiter="\t")
+            education_writer.writerows(educations)
+
+            jobs = [[uu(job.get("company")),
+                        job.get("company_id"),
+                        job.get("company_image_url"),
+                        uu(job.get("start_date")),
+                        uu(job.get("end_date")),
+                        uu(job.get("title")),
+                        uu(job.get("description", "").replace("\n", "")),
+                        uu(job.get("location"))] for job in info.get("experiences")]
+            job_file = StringIO.StringIO()
+            job_writer = csv.writer(job_file, delimiter="\t")
+            job_writer.writerows(jobs)
+
+            prospect_key = Key(write_bucket)
+            educations_key = Key(write_bucket)
+            jobs_key = Key(write_bucket)
+
+            prospect_key.key = "processed_data/prospects/{}.csv".format(line)
+            prospect_key.set_contents_from_string(person_file.getvalue())
+
+            educations_key.key = "processed_data/educations/{}.csv".format(line)
+            educations_key.set_contents_from_string(education_file.getvalue())
+
+            jobs_key.key = "processed_data/jobs/{}.csv".format(line)
+            jobs_key.set_contents_from_string(job_file.getvalue())
+
+            logger.debug('succesfully processed {}'.format(line))
 
 
 if __name__ == '__main__':
@@ -363,6 +455,6 @@ if __name__ == '__main__':
     elif args.images:
         find_images()
     else:
-        main()
+        write_to_s3("names.txt")
 
 
