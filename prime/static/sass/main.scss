@@ -370,6 +370,7 @@ div.items {
 div.stats {
   padding-bottom: 40px;
   padding: 50px;
+  display: none;
   
   h4 {
     font-size: 28px;
@@ -388,7 +389,7 @@ div.stats {
   }
 }
 
-div.results-dashboard, div.person-search {
+div.person-search {
   display: none;
 }
 
