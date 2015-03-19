@@ -33,9 +33,25 @@ var Results = React.createClass({displayName: "Results",
     },
     componentDidMount: function() {
         setTimeout(this.loadInLinkedinScript, 1000);
+        this.bindButtons();
     },
     loadInLinkedinScript: function() {
         //IN.parse(document.body);
+    },
+    bindButtons: function() {
+        $(".add-prospect").click(function() {
+            var id = $(this).data("id");
+            $.post("/user/prospect/add/" + id, function(data) {
+                $("[data-result='" + id + "']").fadeOut();
+            });
+        });
+
+        $(".remove-prospect").click(function() {
+            var id = $(this).data("id");
+            $.post("/user/prospect/skip/" + id, function(data) {
+                $("[data-result='" + id + "']").fadeOut();
+            });
+        });
     },
     render: function() {
     var prospects = this.props.data.map(function(prospect) {
@@ -53,7 +69,7 @@ var Results = React.createClass({displayName: "Results",
             var relationship = React.createElement(Relationship, {name: prospect.school_name, url: url})
         }
         return (
-            React.createElement("div", {className: "result"}, 
+            React.createElement("div", {className: "result", "data-result": prospect.id}, 
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
@@ -70,9 +86,8 @@ var Results = React.createClass({displayName: "Results",
                     relationship
                 ), 
                 React.createElement("div", {className: "buttons"}, 
-                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
-                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect")), 
-                    React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-info"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
+                    React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
+                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
                 ), 
                 React.createElement("div", {className: "clear"})
             )

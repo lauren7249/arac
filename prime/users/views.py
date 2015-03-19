@@ -67,19 +67,41 @@ def user_skills_delete():
         return jsonify({"skills": user.json.get("skills")})
 
 @csrf.exempt
-@users.route("/user/<int:client_list_id>/prospect/add/<int:prospect_id>", methods=["POST"])
-def add_prospect_client_list(client_list_id, prospect_id):
+@users.route("/user/prospect/add/<int:prospect_id>", methods=["POST"])
+def add_prospect_client_list(prospect_id):
+    user = current_user
     if request.method == 'POST':
-        if "create_new" in request.form:
-            name = request.form.get("name")
+        name = "Date: {}".format(datetime.date.today())
+        client_list = ClientList.query.filter_by(name=name,
+                user=current_user).first()
+        if client_list:
             client_list = ClientList(name=name, user=current_user)
             session.add(client_list)
             session.commit()
-        else:
-            client_list = ClientList.query.get(client_list_id)
         prospect = Prospect.query.get(prospect_id)
         client_prospect = ClientProspect(client_list=client_list, prospect=prospect)
         session.add(client_prospect)
+        user_json = user.json if user.json else {}
+        good_profiles = user.json.get('good_profiles', [])
+        good_profiles.append(prospect_id)
+        user_json['good_profiles'] = good_profiles
+        session.query(User).filter_by(user_id=user.user_id).update({"json":
+            user_json})
+        session.commit()
+    return jsonify({"success": True})
+
+
+@csrf.exempt
+@users.route("/user/prospect/skip/<int:prospect_id>", methods=["POST"])
+def skip_prospect(prospect_id):
+    user = current_user
+    if request.method == 'POST':
+        user_json = user.json if user.json else {}
+        skipped_profiles = user.json.get('skipped_profiles', [])
+        skipped_profiles.append(prospect_id)
+        user_json['skipped_profiles'] = skipped_profiles
+        session.query(User).filter_by(user_id=user.user_id).update({"json":
+            user_json})
         session.commit()
     return jsonify({"success": True})
 
