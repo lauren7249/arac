@@ -16,7 +16,10 @@ from prime.prospects.process_entity3 import *
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
+
 def setup():
+    global predictors 
+    global model
     AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
     AWS_SECRET = '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'
     aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
