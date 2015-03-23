@@ -74,13 +74,14 @@ def add_prospect_client_list(prospect_id):
         name = "Date: {}".format(datetime.date.today())
         client_list = ClientList.query.filter_by(name=name,
                 user=current_user).first()
-        if client_list:
+        if not client_list:
             client_list = ClientList(name=name, user=current_user)
             session.add(client_list)
             session.commit()
         prospect = Prospect.query.get(prospect_id)
         client_prospect = ClientProspect(client_list=client_list, prospect=prospect)
         session.add(client_prospect)
+        session.commit()
         user_json = user.json if user.json else {}
         good_profiles = user_json.get('good_profiles', [])
         good_profiles.append(prospect_id)
