@@ -81,6 +81,7 @@ def add_prospect_client_list(prospect_id):
         prospect = Prospect.query.get(prospect_id)
         client_prospect = ClientProspect(client_list=client_list, prospect=prospect)
         session.add(client_prospect)
+        session.commit()
         user_json = user.json if user.json else {}
         good_profiles = user.json.get('good_profiles', [])
         good_profiles.append(prospect_id)
