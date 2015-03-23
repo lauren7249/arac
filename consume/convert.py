@@ -402,7 +402,8 @@ def write_to_s3(filename):
                         uu(str(info.get("projects")))]
             person_writer.writerow(person)
 
-            educations = [[uu(school.get("college")),
+            educations = [[info.get("linkedin_id"),
+                        uu(school.get("college")),
                         school.get("college_id"),
                         school.get("college_image_url"),
                         uu(school.get("start_date")),
@@ -413,7 +414,8 @@ def write_to_s3(filename):
             education_writer = csv.writer(education_file, delimiter="\t")
             education_writer.writerows(educations)
 
-            jobs = [[uu(job.get("company")),
+            jobs = [[info.get("linkedin_id"),
+                        uu(job.get("company")),
                         job.get("company_id"),
                         job.get("company_image_url"),
                         uu(job.get("start_date")),
