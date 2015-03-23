@@ -1,0 +1,22 @@
+h1. Demo for How to build an Interactive Network Visualization
+
+h2. Running
+
+You can start up a local webserver by using python's simple server:
+
+<pre>
+python -m SimpleHTTPServer 8888
+</pre>
+
+or @thin@ in ruby
+
+<pre>
+thin start
+# might have to run 'bundle install' first
+</pre>
+
+Now go to http://localhost:3000/
+
+h2. Person Data
+
+Script to pull Person data can be found in @tools/@ directory

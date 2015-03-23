@@ -203,7 +203,7 @@ class ProspectList(object):
         url = schools.get("url")
         image_url = schools.get("image_url", "/static/img/profile.png")
         relationship = "Went to school together at {} in {}"\
-                .format(school_name, end_date)
+                .format(unicode(school_name).encode("utf-8", "ignore"), end_date)
         user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
         user['school_name'] = school_name

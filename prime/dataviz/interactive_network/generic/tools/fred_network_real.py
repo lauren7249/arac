@@ -1,22 +1,9 @@
-import json, re, simplejson, os, pandas
+import json, re, simplejson, os, sys
+from prime.prospects.models import db, Prospect
 from prime.prospects.prospect_list2 import ProspectList
-from flask import Flask
-import urllib
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
-from prime.prospects.models import Prospect, Job, Education
-from prime import db
-from sklearn.externals import joblib
-from prime.prospects.process_entity3 import *
-
-#from consume.consume import generate_prospect_from_url
-#from consume.convert import clean_url
-
-from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy import select, cast
 
 MAX_CUTTOFF = 12
-MAX_TOTAL = 200
+MATCH_CUTTOFF = 0.00
 
 server_folder = "/home/ubuntu/arachnid/prime/dataviz/"
 ids = []
@@ -53,25 +40,18 @@ def get_similar(prospect):
   Persons = []
   # puts results.inspect
   for r in results:
-    Person = {}
-    Person["match"] = r["score"]
-    Person["name"] = r["prospect_name"]
-    if r["current_industry"] is not None: 
-      Person["Entity"] = r["current_industry"]
-    Person["id"] = id_for(r["prospect_name"],r["id"])
-    #Person["playcount"] = r["connections"]
-    Person["salary"] = r["salary"]
-    try:
-      Person["playcount"] = float(re.sub(',','',r["salary"])[1:])
-    except:
-      pass
-    Person["image_url"] = r["image_url"]
-    Person["school_name"] = r.get("school_name")
-    Person["company_name"] = r.get("company_name")  
-    Person["url"] = r["url"]
-    Person["s3_key"] = r["s3_key"]
-    Persons.append(Person)
-    print Person
+    if r["score"] > MATCH_CUTTOFF:
+      Person = {}
+      Person["match"] = r["score"]
+      Person["name"] = r["prospect_name"]
+      Person["entity"] = r["current_industry"]
+      Person["id"] = id_for(r["prospect_name"],r["id"])
+      Person["playcount"] = r["connections"]
+      Person["image_url"] = r["image_url"]
+      Person["url"] = r["url"]
+      Person["s3_key"] = r["s3_key"]
+      Persons.append(Person)
+      print Person
   return Persons
 
 
@@ -97,15 +77,14 @@ def unseen_Persons(current_Persons, new_Persons):
 def expand(Persons, links, root):
   prospect = prospect_for(root)
   new_Persons = get_similar(prospect)
-  unseen = unseen_Persons(Persons, new_Persons)
-  unseen = unseen[0:MAX_CUTTOFF]
+  unseen = unseen_Persons(Persons, new_Persons)[0:MAX_CUTTOFF]
   new_links = links_for(root, unseen)
   return unseen, new_links
 
 
 def grab(root, output_filename):
   links = []
-  all_Persons = [root]
+  all_Persons = []
 
   first_iteration, new_links = expand(all_Persons, links, root)
 
@@ -114,12 +93,12 @@ def grab(root, output_filename):
 
   unlinked_Persons = []
 
-  for Person in first_iteration[:]:
+  for Person in first_iteration[1:]:
     new_Persons, new_links = expand(all_Persons, links, Person)
     all_Persons = all_Persons + new_Persons
     unlinked_Persons = unlinked_Persons + new_Persons
     links = links + new_links
-    #if len(all_Persons)>MAX_TOTAL: break
+    if len(ids)>200: break
 
   data = {}
   data["nodes"] = all_Persons
@@ -133,20 +112,17 @@ def grab(root, output_filename):
 
 
 if __name__ == "__main__":
-  roots = [{"url":"http://www.linkedin.com/pub/fred-defilippo/42/655/339"}]
-
-  for root in roots:
-    url = root["url"]
-    prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
-    print prospect.image_url
-    root["id"]  = id_for(prospect.name, prospect.id)
-    root["filename"] = filename_for(root["id"])
-    root["Entity"] = prospect.industry_raw
-    #root["playcount"] = prospect.connections
-    root["playcount"] = prospect.calculate_salary
-    root["image_url"] = prospect.image_url
-    root["url"] = prospect.url
-    root["s3_key"] = prospect.s3_key
-    #print root["id"]
-    #print root["filename"]
-    grab(root, root["filename"])
+  url = sys.argv[0]
+  prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
+  print prospect.image_url
+  root["name"] = prospect.name
+  root["id"]  = id_for(prospect.name, prospect.id)
+  root["filename"] = filename_for(root["id"])
+  root["entity"] = prospect.industry_raw
+  root["playcount"] = prospect.connections
+  root["image_url"] = prospect.image_url
+  root["url"] = prospect.url
+  root["s3_key"] = prospect.s3_key
+  #print root["id"]
+  #print root["filename"]
+  grab(root, root["filename"])

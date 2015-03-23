@@ -137,6 +137,7 @@ def confirm_profile():
 
 @prospects.route("/dashboard")
 def dashboard():
+    page = int(request.args.get("p", 0))
     page = request.args.get("p", 0)
     user = current_user
     skipped_profiles = [int(prospect_id) for prospect_id in
