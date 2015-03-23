@@ -138,6 +138,12 @@ def confirm_profile():
 @prospects.route("/dashboard")
 def dashboard():
     page = int(request.args.get("p", 0))
+    page = request.args.get("p", 0)
+    user = current_user
+    skipped_profiles = [int(prospect_id) for prospect_id in
+            user.json.get("skipped_profiles", [])]
+    processed_profiles = [int(prospect_id) for prospect_id in
+            user.json.get("good_profiles", [])] + skipped_profiles
     first_time = False
     if 'first_time' in flask_session:
         first_time = True
@@ -160,6 +166,8 @@ def dashboard():
         boosted_profiles = prospect.boosted_profiles
         if len(boosted_profiles) > 0:
             results = boosted_profiles + results
+    results = [result for result in results if result.get("id") not in
+            processed_profiles]
     school_count = 0#prospect_list.prospect_school_count
     job_count = 0#prospect_list.prospect_job_count
     return render_template('dashboard.html', results=results,
