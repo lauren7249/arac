@@ -82,7 +82,7 @@ def add_prospect_client_list(prospect_id):
         client_prospect = ClientProspect(client_list=client_list, prospect=prospect)
         session.add(client_prospect)
         user_json = user.json if user.json else {}
-        good_profiles = user.json.get('good_profiles', [])
+        good_profiles = user_json.get('good_profiles', [])
         good_profiles.append(prospect_id)
         user_json['good_profiles'] = good_profiles
         session.query(User).filter_by(user_id=user.user_id).update({"json":

@@ -1,5 +1,6 @@
 from .mrjob_convert import *
 from boto.s3.connection import S3Connection
+import subprocess, sys, os
 
 def runner(urls_path):
 
@@ -58,7 +59,37 @@ def runner(urls_path):
 	# 	prospects_mp.cancel_upload()
 	# 	print "FAILED on prospects file"	
 
+def start_job(filename, num_processes):
+
+	#append line number 
+	subprocess.call("cat -n '" + filename + "' > '" + filename + "_numbered'", shell=True)
+
+	#figure out how many lines are in the file
+	with open(filename + "_numbered", 'rb') as fh:
+		for line in fh:
+			pass
+	last = line
+	total_parts = int(last.split("\t")[0])	
+
+	#how many lines do we want to give to each process
+	n_lines = total_parts/num_processes
+	
+	#create a folder for chunked files
+	if not os.path.exists(filename + "_numbered"):
+		os.makedirs(filename + "_numbered")
+
+	#how many digits we need in the filename subject
+	suffix_length = len(str(num_processes + 1))
+
+	subprocess.call(["split", "-d", "-a", suffix_length, "-l", n_lines, filename + "_numbered",  filename + "_numbered/f"])
+	#runner('/home/ubuntu/arachnid/names_numbered.txt')
+
+#python -m arachnid.consume.run_mrjob_convert "arachnid/names" 100 > run_mrjob_convert.log
 if __name__=="__main__":
-	#cat -n "arachnid/names.txt" > "arachnid/names_numbered.txt"
-	#python -m arachnid.consume.run_mrjob_convert > run_mrjob_convert.log
-	runner('/home/ubuntu/arachnid/names_numbered.txt')
+
+	filename = sys.argv[1]
+	num_processes = int(sys.argv[2])
+	start_job(filename, num_processes)
+	
+
+	

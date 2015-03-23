@@ -140,10 +140,14 @@ def dashboard():
     page = int(request.args.get("p", 0))
     page = request.args.get("p", 0)
     user = current_user
-    skipped_profiles = [int(prospect_id) for prospect_id in
-            user.json.get("skipped_profiles", [])]
-    processed_profiles = [int(prospect_id) for prospect_id in
-            user.json.get("good_profiles", [])] + skipped_profiles
+    if user.json:
+        skipped_profiles = [int(prospect_id) for prospect_id in
+                user.json.get("skipped_profiles", [])]
+        processed_profiles = [int(prospect_id) for prospect_id in
+                user.json.get("good_profiles", [])] + skipped_profiles
+    else:
+        skipped_profiles = []
+        processed_profiles = []
     first_time = False
     if 'first_time' in flask_session:
         first_time = True
