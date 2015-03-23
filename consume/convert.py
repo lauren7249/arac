@@ -364,14 +364,19 @@ def parse_html(html):
 def url_to_key(url):
     return url.replace('/', '')
 
+def info_is_valid(info):
+    return info.get('full_name') and \
+           info.get('linkedin_id')
+
+
 def get_info_for_url(url):
-    key = Key(read_bucket)
-    key.key = url_to_key(url)
-    data = json.loads(key.get_contents_as_string())
-    info = parse_html(data['content'])
-    #file = open("../data/" + url, 'r').read()
-    #html = json.loads(file).get("content")
-    #info = parse_html(html)
+    #key = Key(read_bucket)
+    #key.key = url_to_key(url)
+    #data = json.loads(key.get_contents_as_string())
+    #info = parse_html(data['content'])
+    file = open("data/" + url_to_key(url), 'r').read()
+    html = json.loads(file).get("content")
+    info = parse_html(html)
     return info
 
 def uu(str):
@@ -388,59 +393,60 @@ def write_to_s3(filename):
             logger.debug('error processing {}, {}'.format(line, e))
             pass
         else:
-            person_file = StringIO.StringIO()
-            person_writer = csv.writer(person_file, delimiter="\t")
-            person = [info.get("linkedin_id"),
-                        info.get("image_url"),
-                        uu(info.get("full_name")),
-                        uu(",".join(info.get("skills"))),
-                        uu(",".join(info.get("people"))),
-                        uu(info.get("connections")),
-                        uu(info.get("location")),
-                        uu(info.get("industry")),
-                        uu(str(info.get("groups"))),
-                        uu(str(info.get("projects")))]
-            person_writer.writerow(person)
+            if info_is_valid(info):
+                person_file = StringIO.StringIO()
+                person_writer = csv.writer(person_file, delimiter="\t")
+                person = [info.get("linkedin_id"),
+                            info.get("image_url"),
+                            uu(info.get("full_name")),
+                            uu(",".join(info.get("skills"))),
+                            uu(",".join(info.get("people"))),
+                            uu(info.get("connections")),
+                            uu(info.get("location")),
+                            uu(info.get("industry")),
+                            uu(str(info.get("groups"))),
+                            uu(str(info.get("projects")))]
+                person_writer.writerow(person)
 
-            educations = [[info.get("linkedin_id"),
-                        uu(school.get("college")),
-                        school.get("college_id"),
-                        school.get("college_image_url"),
-                        uu(school.get("start_date")),
-                        uu(school.get("end_date")),
-                        uu(school.get("degree")),
-                        uu(school.get("description", "").replace("\n", ""))] for school in info.get("schools")]
-            education_file = StringIO.StringIO()
-            education_writer = csv.writer(education_file, delimiter="\t")
-            education_writer.writerows(educations)
+                educations = [[info.get("linkedin_id"),
+                            uu(school.get("college")),
+                            school.get("college_id"),
+                            school.get("college_image_url"),
+                            uu(school.get("start_date")),
+                            uu(school.get("end_date")),
+                            uu(school.get("degree")),
+                            uu(school.get("description", "").replace("\n", ""))] for school in info.get("schools")]
+                education_file = StringIO.StringIO()
+                education_writer = csv.writer(education_file, delimiter="\t")
+                education_writer.writerows(educations)
 
-            jobs = [[info.get("linkedin_id"),
-                        uu(job.get("company")),
-                        job.get("company_id"),
-                        job.get("company_image_url"),
-                        uu(job.get("start_date")),
-                        uu(job.get("end_date")),
-                        uu(job.get("title")),
-                        uu(job.get("description", "").replace("\n", "")),
-                        uu(job.get("location"))] for job in info.get("experiences")]
-            job_file = StringIO.StringIO()
-            job_writer = csv.writer(job_file, delimiter="\t")
-            job_writer.writerows(jobs)
+                jobs = [[info.get("linkedin_id"),
+                            uu(job.get("company")),
+                            job.get("company_id"),
+                            job.get("company_image_url"),
+                            uu(job.get("start_date")),
+                            uu(job.get("end_date")),
+                            uu(job.get("title")),
+                            uu(job.get("description", "").replace("\n", "")),
+                            uu(job.get("location"))] for job in info.get("experiences")]
+                job_file = StringIO.StringIO()
+                job_writer = csv.writer(job_file, delimiter="\t")
+                job_writer.writerows(jobs)
 
-            prospect_key = Key(write_bucket)
-            educations_key = Key(write_bucket)
-            jobs_key = Key(write_bucket)
+                prospect_key = Key(write_bucket)
+                educations_key = Key(write_bucket)
+                jobs_key = Key(write_bucket)
 
-            prospect_key.key = "processed_data/prospects/{}.csv".format(line)
-            prospect_key.set_contents_from_string(person_file.getvalue())
+                prospect_key.key = "processed_data/prospects/{}.csv".format(line)
+                prospect_key.set_contents_from_string(person_file.getvalue())
 
-            educations_key.key = "processed_data/educations/{}.csv".format(line)
-            educations_key.set_contents_from_string(education_file.getvalue())
+                educations_key.key = "processed_data/educations/{}.csv".format(line)
+                educations_key.set_contents_from_string(education_file.getvalue())
 
-            jobs_key.key = "processed_data/jobs/{}.csv".format(line)
-            jobs_key.set_contents_from_string(job_file.getvalue())
+                jobs_key.key = "processed_data/jobs/{}.csv".format(line)
+                jobs_key.set_contents_from_string(job_file.getvalue())
 
-            logger.debug('succesfully processed {}'.format(line))
+                logger.debug('succesfully processed {}'.format(line))
 
 
 if __name__ == '__main__':
