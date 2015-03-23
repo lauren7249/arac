@@ -81,7 +81,7 @@ def start_job(filename, num_processes):
 	#how many digits we need in the filename subject
 	suffix_length = len(str(num_processes + 1))
 
-	subprocess.call(["split", "-d", "-a", suffix_length, "-l", n_lines, filename + "_numbered",  filename + "_numbered/f"])
+	subprocess.call("split -d -a " + str(suffix_length) + " -l " + str(n_lines) + " " + filename + "_numbered " + filename + "_numbered/f", shell=True)
 	#runner('/home/ubuntu/arachnid/names_numbered.txt')
 
 #python -m arachnid.consume.run_mrjob_convert "arachnid/names" 100 > run_mrjob_convert.log
