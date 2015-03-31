@@ -28,10 +28,10 @@
   <div class='items'>
     <div class='welcome'>
       <h1>Your New Prospect Dashboard</h1>
-      <p>New leads will be provided to you in this dashboard. Delete them or mark them as good leads and our system will provide more based on your activity</p>
+      <p>Search for leads on your project dashboard</p>
       <hr />
       <ul class='tabs'>
-        <li class='active'><a id='show-leads' href='javascript:;'>Leads</a><li>
+        <li class='active'><a id='show-leads' href='javascript:;'>Find Leads</a><li>
         <li><a id='show-analytics' href='javascript:;'>Network Analytics</a><li>
       </ul>
     </div>
@@ -54,20 +54,48 @@
         <canvas id='four'><canvas>
       </div>
     </div>
+    <div class='dashboard-search'>
+        <fieldset>
+          <label>Company Name</label>
+          <input type='text' id='ac-input' placeholder='Company Names: eg. Goldman Sachs' />
+          <input type='text' class='small' placeholder='State Date' />
+          <input type='text' class='small' placeholder='End Date' />
+        </fieldset>
+        <fieldset>
+          <label>Job Titles</label>
+          <input type='text' placeholder='Job Titles: eg. CEO, CMO' />
+        </fieldset>
+        <fieldset>
+          <label>Schools</label>
+          <input type='text'  placeholder='Company Names' />
+          <input type='text' class='small' placeholder='Grad. Year' />
+          <input type='text' class='small' placeholder='Degree' />
+        </fieldset>
+        <fieldset>
+          <label>Locations</label>
+          <input type='text'  placeholder='Select Locations' />
+        </fieldset>
+        <fieldset>
+          <label>Industries</label>
+          <input type='text'  placeholder='Select Industries' />
+        </fieldset>
+        <fieldset class='buttons'>
+          <button class='btn btn-success'>Search <i class='fa fa-search'></i></button>
+          <button class='btn btn-primary'>Save Search <i class='fa fa-search'></i></button>
+        </fieldset>
+    </div>
     <div class='results results-dashboard'>
-      <div class='search-box'>
-        <!--
-        <form action='/' method='POST'>
-          <input type=hidden name=_csrf_token value="{{ csrf_token() }}">
-          <input class='form-control search' name='query' placeholder='Search for a prospect' />
-          <input type='submit' class='btn btn-success' />
-          <div class='clear'></div>
-        </form>
-        -->
-      </div>
+      <div class='alert alert-success'>You have <b>{{ prospects_remaining_today }}</b> leads remaining today.</div>
       <h4>Your Prospects</h4>
       <div class='clear'></div>
+      {% if prospects_remaining_today == 0%}
+      <div class='hide-results'>
+        <h2>You have reached your limit for today</h2>
+        <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
+      </div>
+      {% endif %}
       <div id='prospects'></div>
+      <div class'clear'></div>
       <a href='/dashboard?p={{ next_page }}'>
     </div>
   </div>
@@ -77,6 +105,7 @@ var userData = {{ json_results|safe }};
 var offset = {{ offset }};
 window._userData = {results:userData}
 </script>
+<script src="http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
 <script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
 <script src="/static/js/chart.js" type="text/javascript"></script>
 <script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>

@@ -95,7 +95,8 @@ var Results = React.createClass({displayName: "Results",
     });
     return (
       React.createElement("div", {className: "results"}, 
-        prospects
+        prospects, 
+        React.createElement("div", {className: "clear"})
       )
     );
   }
@@ -166,6 +167,7 @@ $(function() {
     buildGraphs();
     bindButtons();
     bindProfiles();
+    bindSearch();
 });
 
 function bindProfiles() {
@@ -276,3 +278,20 @@ function hideOverlay() {
     $(".overlay").hide();
 }
 
+
+function bindSearch() {
+    YUI().use('autocomplete', 'autocomplete-highlighters', function (Y) {
+
+  // Add the yui3-skin-sam class to the body so the default
+  // AutoComplete widget skin will be applied.
+  Y.one('body').addClass('yui3-skin-sam');
+
+  // XHR URL source (no callback). Leave the {query} placeholder
+  // as is; AutoComplete will replace it automatically.
+  Y.one('#ac-input').plug(Y.Plugin.AutoComplete, {
+    resultHighlighter: 'phraseMatch',
+    source: 'http://localhost:5000/search.json?q={query}'
+  });
+
+});
+}

@@ -17,7 +17,7 @@ from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry
 from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
-from prime.prospects.prospect_list2 import ProspectList as ProspectList2
+#from prime.prospects.prospect_list2 import ProspectList as ProspectList2
 from prime import db, csrf
 
 try:
@@ -29,6 +29,7 @@ except:
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import aliased
 
 from prime.prospects.helper import LinkedinResults
 from prime.prospects.arequest import aRequest
@@ -140,6 +141,7 @@ def dashboard():
     page = int(request.args.get("p", 0))
     page = request.args.get("p", 0)
     user = current_user
+    prospects_remaining_today = user.prospects_remaining_today
     if user.json:
         skipped_profiles = [int(prospect_id) for prospect_id in
                 user.json.get("skipped_profiles", [])]
@@ -178,7 +180,8 @@ def dashboard():
             prospect=prospect, school_count=school_count,
             job_count=job_count, json_results=json.dumps(results),
             first_time=first_time, prospect_count=len(results),
-            offset=page, next_page=page+20)
+            offset=page,prospects_remaining_today=prospects_remaining_today,
+            next_page=page+20)
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
@@ -273,6 +276,19 @@ def elastic_search():
     data = search.search()
     return render_template('ajax/search.html', results=data)
 
+@prospects.route("/search.json")
+def elastic_search_json():
+    type = int(request.args.get("type", 1))
+    if type == 1:
+        type = "companys"
+    else:
+        type = "school"
+
+    term = request.args.get("q")
+    search = SearchRequest(term, type=type)
+    data = search.search()
+    return jsonify({"data": data})
+
 @csrf.exempt
 @prospects.route("/investor_profile", methods=['GET', 'POST'])
 def investor_profile():
@@ -315,3 +331,63 @@ def search_view():
     number = 50 * (page - 1)
     return render_template("search.html", \
             prospects=prospect_results[number:number+50])
+
+
+############
+##  API   ##
+############
+
+def get_school_prospects(school_ids, end_date):
+    prospects = session.query(Prospect, Education.degree,
+            School.name.label("school_name")).distinct(Prospect.name)\
+            .join(Education).join(School).filter(School.id.in_(school_ids))
+    if end_date != datetime.date(2016, 01, 01):
+        prospects = prospects.join(Education).filter(Education.end_date<=end_date)
+    return prospects
+
+def get_company_prospects(company_ids, start_date, end_date):
+    prospects = session.query(Prospect, Job.title.label("job_title"),
+            Company.name.label("company_name")).distinct(Prospect.name)\
+            .join(Job).join(Company).filter(Company.id.in_(company_ids))
+    if start_date != datetime.date(1900, 01, 01):
+        prospects = prospects.join(Job).filter(Job.start_date>=start_date)
+    if end_date != datetime.date(2016,01,01):
+        prospects = prospects.join(Job).filter(Job.end_date<=end_date)
+    return prospects
+
+@prospects.route("/api", methods=['GET'])
+def api():
+    page = int(request.args.get("p", 1))
+
+    company_ids = request.args.get("company_ids", None)
+    job_title = request.args.get("title", None)
+    job_start = datetime.datetime.strptime(request.args.get("job_start", \
+        "1900-01-01"), "%Y-%m-%d").date()
+    job_end = datetime.datetime.strptime(request.args.get("job_end", \
+            "2016-01-01"), "%Y-%m-%d").date()
+
+    school_ids = request.args.get("school_ids", None)
+    degree = request.args.get("degree", None)
+    school_end = datetime.datetime.strptime(request.args.get("schol_end", \
+        "2016-01-01"), "%Y-%m-%d").date()
+
+    prospect_results = []
+    if company_ids:
+        company_ids = company_ids.split(",")
+        job_prospects = get_company_prospects(company_ids, job_start, job_end)
+        p_aliased = job_prospects
+    if school_ids:
+        school_ids = school_ids.split(",")
+        school_prospects = get_school_prospects(school_ids, school_end)
+        s_aliased = school_prospects
+
+    prospects = p_aliased.outerjoin(Prospect)\
+            .outerjoin(school_prospects.subquery())
+    if page > 1:
+        prospects.limit(20).offset(20 * (page-1)).all()
+    for prospect in prospects:
+        p = {}
+        p['data'] = prospect[0].to_json
+        p['relevancy'] = prospect[1] + prospect[2]
+        prospect_results.append(p)
+    return jsonify({"success": prospect_results})
