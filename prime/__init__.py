@@ -8,6 +8,8 @@ from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
 from webassets import Bundle
+from flask.ext.admin import Admin
+from flask.ext.admin.contrib.sqla import ModelView
 
 
 from config import config
@@ -34,8 +36,15 @@ def create_app(config_name):
     #mail.init_app(app)
     init_assets(app)
     register_blueprints(app)
+    init_admin(app)
 
     return app
+
+def init_admin(app):
+    from .users.models import User, Plan
+    admin = Admin(app)
+    admin.add_view(ModelView(User, db.session))
+    admin.add_view(ModelView(Plan, db.session))
 
 
 def init_assets(app):

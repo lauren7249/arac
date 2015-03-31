@@ -251,16 +251,18 @@ div.sidebar div.inner ul li a.active span {
 div.welcome {
   background: #eff2f8;
   width: auto;
-  padding-bottoM: 30px;
+  padding-bottoM: 16px;
   -webkit-box-shadow: #999999 0 0px 2px 0px;
   -moz-box-shadow: #999999 0 0px 2px 0px;
   box-shadow: #999999 0 0px 2px 0px;
+  position: relative;
+  z-index: 3;
 }
 div.welcome h1 {
-  padding: 30px 30px 15px;
+  padding: 20px 30px 10px;
   font-family: 'Noto Sans', sans-serif;
   font-weight: 400;
-  font-size: 30px;
+  font-size: 24px;
   margin: 0;
 }
 div.welcome h1 a {
@@ -269,14 +271,15 @@ div.welcome h1 a {
 }
 div.welcome p {
   padding: 0 30px;
-  font-size: 16px;
+  font-size: 14px;
   width: 80%;
-  line-height: 170%;
+  line-height: 150%;
 }
 div.welcome hr {
   border: 0;
   height: 1px;
   background: #ccc;
+  margin: 14px 0;
   border-bottom: 1px solid #fff;
 }
 div.welcome ul {
@@ -403,9 +406,74 @@ div.person-search {
   display: none;
 }
 
+div.dashboard-search {
+  padding: 20px 40px;
+  background: #ecf0f1;
+  z-index: 2;
+  position: relative;
+}
+div.dashboard-search input[type='submit'] {
+  float: left;
+}
+div.dashboard-search fieldset {
+  margin-bottom: 5px;
+  width: 100%;
+}
+div.dashboard-search fieldset input[type='text'] {
+  width: 600px;
+  padding: 10px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: white 0 1px 0 1px;
+  -moz-box-shadow: white 0 1px 0 1px;
+  box-shadow: white 0 1px 0 1px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  margin: 0;
+}
+div.dashboard-search fieldset input.small {
+  width: 105px;
+}
+div.dashboard-search fieldset input.grad {
+  width: 215px;
+}
+div.dashboard-search fieldset label {
+  padding-right: 10px;
+  width: 130px;
+}
+div.dashboard-search fieldset select {
+  padding: 13px 10px 11px;
+  font-weight: bold;
+  font-size: 12px;
+  width: 50%;
+  background-color: #fff;
+  margin: 0;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: white 0 1px 0 1px;
+  -moz-box-shadow: white 0 1px 0 1px;
+  box-shadow: white 0 1px 0 1px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+div.dashboard-search fieldset button {
+  padding: 10px 20px;
+}
+div.dashboard-search fieldset.buttons {
+  margin-top: 20px;
+}
+
 div.results {
   width: auto;
   padding: 20px 20px 0;
+  position: relative;
 }
 div.results div.search-box {
   padding: 10px 0px 40px;
@@ -585,6 +653,25 @@ div.results div.result h5 {
 div.results div.result a {
   margin: 4px;
   display: inline-block;
+}
+div.results div.hide-results {
+  width: 100%;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  left: 0;
+  top: 0;
+  z-index: 100;
+  height: 100%;
+}
+div.results div.hide-results h2 {
+  padding: 80px 30px 20px;
+  color: #4caf50;
+  font-size: 20px;
+  text-align: center;
+}
+div.results div.hide-results p {
+  color: #444;
+  text-align: center;
 }
 
 div.person {

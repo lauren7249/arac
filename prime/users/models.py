@@ -1,4 +1,5 @@
 import os
+import datetime
 import logging
 
 from flask import current_app
@@ -10,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, \
-        Text, Enum
+        Text, Enum, Float
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
@@ -43,6 +44,10 @@ class User(db.Model, UserMixin):
     customer = relationship('Customer', foreign_keys='User.customer_id')
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
+    created = db.Column(Date)
+    plan_id = db.Column(Integer, ForeignKey("plan.id"),
+            index=True)
+    plan = relationship("Plan", foreign_keys="User.plan_id")
     json = db.Column(JSON, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
@@ -89,6 +94,17 @@ class User(db.Model, UserMixin):
         return u
 
     @property
+    def prospects_remaining_today(self):
+        today = datetime.date.today()
+        session = db.session
+        client_prospects = session.query(ClientProspect).distinct(ClientProspect.id)\
+                .filter_by(created=today).join(ClientList)\
+                .filter_by(user=self).all()
+        if self.plan:
+            leads_per_day = self.plan.leads_per_day
+        return leads_per_day - len(client_prospects)
+
+    @property
     def name(self):
         return "{} {}".format(self.first_name, self.last_name)
 
@@ -119,6 +135,8 @@ class ClientProspect(db.Model):
             foreign_keys="ClientProspect.prospect_id")
     processed = db.Column(Boolean, default=False)
     good = db.Column(Boolean, default=False)
+    created = db.Column(Date, default=datetime.datetime.today)
+
 
     def __repr__(self):
         return '{} {}'.format(self.prospect.url, self.client_list.user.name)
@@ -142,4 +160,18 @@ class ClientList(db.Model):
 
     def __str__(self):
         return '{}:{})'.format(self.user.first_name, self.prospect.first_name)
+
+
+class Plan(db.Model):
+    __tablename__ = "plan"
+
+    id = db.Column(postgresql.INTEGER, primary_key=True)
+
+    name = db.Column(String(1024), nullable=False)
+    leads_per_day = db.Column(Integer, nullable=False)
+    cost = db.Column(Float, nullable=False, default=0)
+
+    def __str__(self):
+        return self.name
+
 

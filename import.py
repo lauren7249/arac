@@ -22,7 +22,7 @@ cur = conn.cursor()
 def import(id, path):
     os.chdir("processed_data")
 
-    #Import prospect
+    #Import prospects
     schools = "copy (select * from (select school_id as s_id \
             from education where prospect_id={}) as educations \
             inner join school on school.id=educations.s_id) TO STDOUT with CSV DELIMITER E'\t' \

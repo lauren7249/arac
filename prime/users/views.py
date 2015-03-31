@@ -79,7 +79,9 @@ def add_prospect_client_list(prospect_id):
             session.add(client_list)
             session.commit()
         prospect = Prospect.query.get(prospect_id)
-        client_prospect = ClientProspect(client_list=client_list, prospect=prospect)
+        today = datetime.date.today()
+        client_prospect = ClientProspect(client_list=client_list,
+                prospect=prospect, created=today)
         session.add(client_prospect)
         session.commit()
         user_json = user.json if user.json else {}

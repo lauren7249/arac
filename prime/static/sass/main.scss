@@ -226,14 +226,16 @@ div.sidebar {
 div.welcome {
   background: #eff2f8;
   width: auto;
-  padding-bottoM: 30px;
+  padding-bottoM: 16px;
   @include box-shadow(#999 0 0px 2px 0px);
+  position: relative;
+  z-index: 3;
 
   h1 {
-    padding: 30px 30px 15px;
+    padding: 20px 30px 10px;
     font-family: 'Noto Sans', sans-serif;
     font-weight: 400;
-    font-size: 30px;
+    font-size: 24px;
     margin: 0;
 
     a {
@@ -244,15 +246,16 @@ div.welcome {
 
   p {
     padding: 0 30px;
-    font-size: 16px;
+    font-size: 14px;
     width: 80%;
-    line-height: 170%;
+    line-height: 150%;
   }
 
   hr {
     border: 0;
     height: 1px;
     background: #ccc;
+    margin: 14px 0;
     border-bottom: 1px solid #fff;
   }
 
@@ -393,9 +396,72 @@ div.person-search {
   display: none;
 }
 
+div.dashboard-search {
+  padding: 20px 40px;
+  background: #ecf0f1;
+  z-index: 2;
+  position: relative;
+
+
+  input[type='submit'] {
+    float: left;
+  }
+
+  fieldset {
+    margin-bottom: 5px;
+    width: 100%;
+
+    input[type='text'] {
+      width: 600px;
+      padding: 10px;
+      font-weight: bold;
+      border: 1px solid #ddd;
+      @include box-shadow(#fff 0 1px 0 1px);
+      @include border-radius(4px);
+      font-size: 12px;
+      background: #fff;
+      margin: 0;
+    }
+
+    input.small {
+      width: 105px;
+    }
+
+    input.grad {
+      width: 215px;
+    }
+
+    label {
+      padding-right: 10px;
+      width: 130px;
+    }
+    select {
+      padding: 13px 10px 11px;
+      font-weight: bold;
+      font-size: 12px;
+      width: 50%;
+      background-color: #fff;
+      margin: 0;
+      border: 1px solid #ddd;
+      @include box-shadow(#fff 0 1px 0 1px);
+      @include border-radius(4px);
+    }
+
+    button {
+      padding: 10px 20px;
+    }
+
+  }
+
+  fieldset.buttons {
+    margin-top: 20px;
+  }
+}
+
 div.results {
   width: auto;
   padding: 20px 20px 0;
+  position: relative;
 
   div.search-box {
     padding: 10px 0px 40px;
@@ -592,6 +658,28 @@ div.results {
     a {
       margin: 4px;
       display: inline-block;
+    }
+  }
+
+  div.hide-results {
+    width: 100%;
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    left: 0;
+    top: 0;
+    z-index: 100;
+    height: 100%;
+
+    h2 {
+      padding: 80px 30px 20px;
+      color: #4caf50;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    p {
+      color: #444;
+      text-align: center;
     }
   }
 }
