@@ -1,9 +1,7 @@
-import argparse
 import string
 import json
 import requests
 import lxml.html
-import code
 import os
 
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text

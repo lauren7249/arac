@@ -19,8 +19,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 import tinys3
 
 
-AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
-AWS_SECRET = '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'
+AWS_KEY = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
 
 conn = tinys3.Connection(AWS_KEY,AWS_SECRET,tls=True)
 aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
