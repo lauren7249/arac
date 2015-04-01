@@ -43,6 +43,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DB_URL"]
 db = SQLAlchemy(app)
 SQL = "select max(id) from prospect where linkedin_id='%s';"
+writefiles = ["education", "job", "person"]
 
 class processLinkedIn(MRJob):
 
@@ -54,25 +55,12 @@ class processLinkedIn(MRJob):
 
         Global = mgr.Namespace()
         Global.part_num = int(re.sub("[^0-9]","",filename)) + 1
-        Global.write_bucket = write_bucket
-        Global.read_bucket = read_bucket
 
-        writefiles = mgr.list(["education", "job", "person"])
         for writefile in writefiles:
             try:
                 os.remove(writefile)
             except OSError:
                 pass
-        
-        '''
-        good_titles_dict = mgr.dict()
-        good_degrees_dict = mgr.dict()
-        good_schools_dict = mgr.dict()
-        good_companies_dict = mgr.dict()
-        '''
-        educations_lock = mgr.Lock()
-        jobs_lock = mgr.Lock()
-        prospects_lock = mgr.Lock()
 
         s3conn = boto.connect_s3()
         bucket = s3conn.get_bucket(list_bucket)  
@@ -82,18 +70,12 @@ class processLinkedIn(MRJob):
 
         pool = multiprocessing.Pool(cpu_count*5)
         df = pandas.read_csv(filename, delimiter="\t", names=["num", "key"])
-        for index, row in df.iterrows():
-            file_to_parse = row["key"]
-            '''
-            pool.apply_async(parseFile, (file_to_parse, Global, writefiles, educations_lock, jobs_lock, prospects_lock, good_degrees_dict, good_schools_dict, good_titles_dict, good_companies_dict))
-            '''
-            pool.apply_async(parseFile, (file_to_parse, Global, writefiles))
-        pool.close()
-        pool.join()
+        file_list = df["key"].tolist()
+        pool.map(parseFile, file_list)
 
         pool = multiprocessing.Pool(len(writefiles))
         for writefile in writefiles:
-            pool.apply_async(upload, (writefile, Global, writefiles))
+            pool.apply_async(upload, (writefile, Global))
         pool.close()
         pool.join()
         '''
@@ -126,8 +108,8 @@ class processLinkedIn(MRJob):
         k.set_contents_from_filename(dict_type)
     
     '''
-    
-def upload(name, Global, writefiles):
+
+def upload(name, Global):
     cmd = "cat $(ls -t " + name + "* ) > _" + name
     subprocess.call(cmd, shell=True)
 
@@ -522,9 +504,9 @@ def uu(str):
         return str.encode("ascii", "ignore").decode("utf-8")
     return None
 
-def parseFile(s3_key, Global, writefiles):
+def parseFile(s3_key):
     try:
-        info = get_info_for_url(s3_key.strip("\n"),Global.read_bucket)
+        info = get_info_for_url(s3_key.strip("\n"),read_bucket)
     except Exception, e:
         logger.debug('error processing {}, {}'.format(s3_key, e))
         pass
@@ -551,14 +533,11 @@ def parseFile(s3_key, Global, writefiles):
                     uu(info.get("industry")),
                     uu(str(info.get("groups"))),
                     uu(str(info.get("projects")))]
-        
-        
-        #prospects_lock.acquire()
+
         with open(writefiles[2] + linkedin_id, 'wb') as person_file:
             person_writer = csv.writer(person_file, delimiter="\t")                        
             person_writer.writerow(person)
             person_file.close()
-        #prospects_lock.release()
         
         educations = [[prospect_id, linkedin_id, 
                     uu(school.get("college")),
@@ -568,15 +547,12 @@ def parseFile(s3_key, Global, writefiles):
                     uu(school.get("end_date")),
                     uu(school.get("degree")),
                     uu(school.get("description", "").replace("\n", ""))] for school in info.get("schools")]
-        
 
-        #educations_lock.acquire()
         with open(writefiles[0]+linkedin_id, 'wb') as education_file:
             education_writer = csv.writer(education_file, delimiter="\t")      
             education_writer.writerows(educations)
             education_file.close()
-        #educations_lock.release()
-        
+
         
         jobs = [[prospect_id, linkedin_id, 
                     uu(experience.get("company")),
@@ -588,20 +564,11 @@ def parseFile(s3_key, Global, writefiles):
                     uu(experience.get("description", "").replace("\n", "")),
                     uu(experience.get("location"))] for experience in info.get("experiences")]
         
-        
-        #jobs_lock.acquire()
         with open(writefiles[1]+linkedin_id, 'wb') as job_file:
             job_writer = csv.writer(job_file, delimiter="\t")    
             job_writer.writerows(jobs)
             job_file.close()
-        #jobs_lock.release()
-        
-        '''
-        good_companies_dict.update(info.get("good_companies"))
-        good_schools_dict.update(info.get("good_schools"))
-        good_degrees_dict.update(info.get("good_degrees"))
-        good_titles_dict.update(info.get("good_titles"))
-        '''
+
 
 def _upload_part(mp, filename, part_num, amount_of_retries=4):
     """
