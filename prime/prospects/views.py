@@ -1,4 +1,5 @@
 from flask import Flask
+import urlparse
 
 from rq import Queue
 from redis import Redis
@@ -22,7 +23,6 @@ from prime import db, csrf
 
 try:
     from consume.consumer import generate_prospect_from_url
-    from consume.convert import clean_url as _clean_url
 except:
     pass
 
@@ -39,6 +39,19 @@ from services.exporter import Exporter
 session = db.session
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
+
+def clean_url(s):
+    pr = urlparse.urlparse(s)
+
+    return urlparse.urlunparse((
+        pr.scheme,
+        pr.netloc,
+        pr.path,
+        '',
+        '',
+        ''
+    ))
+
 
 ################
 ###   TASKS   ##
@@ -138,8 +151,6 @@ def confirm_profile():
 
 @prospects.route("/dashboard")
 def dashboard():
-    page = int(request.args.get("p", 0))
-    page = request.args.get("p", 0)
     user = current_user
     prospects_remaining_today = user.prospects_remaining_today
     if user.json:
@@ -154,19 +165,15 @@ def dashboard():
     if 'first_time' in flask_session:
         first_time = True
         del flask_session['first_time']
-    results = None
+    results = []
     linkedin_url = current_user.linkedin_url
-    print current_user.linkedin_url
     raw_url = urllib.unquote(linkedin_url).decode('utf8')
-    url = _clean_url(raw_url)
+    url = clean_url(raw_url)
     prospect = session.query(Prospect).filter_by(s3_key=url.replace("/",
         "")).first()
     if not prospect:
         prospect = generate_prospect_from_url(url)
-    if prospect.id == 24357727:
-        prospect_list = ProspectList2(prospect)
-    else:
-        prospect_list = ProspectList(prospect)
+    prospect_list = ProspectList(prospect)
     results = prospect_list.get_results()
     if prospect.json:
         boosted_profiles = prospect.boosted_profiles
@@ -174,14 +181,10 @@ def dashboard():
             results = boosted_profiles + results
     results = [result for result in results if result.get("id") not in
             processed_profiles]
-    school_count = 0#prospect_list.prospect_school_count
-    job_count = 0#prospect_list.prospect_job_count
-    return render_template('dashboard.html', results=results,
-            prospect=prospect, school_count=school_count,
-            job_count=job_count, json_results=json.dumps(results),
+    return render_template('dashboard.html',prospect=prospect, \
+            json_results=json.dumps(results),
             first_time=first_time, prospect_count=len(results),
-            offset=page,prospects_remaining_today=prospects_remaining_today,
-            next_page=page+20)
+            prospects_remaining_today=prospects_remaining_today)
 
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
@@ -282,7 +285,7 @@ def elastic_search_json():
     if type == 1:
         type = "companys"
     else:
-        type = "school"
+        type = "schools"
 
     term = request.args.get("q")
     search = SearchRequest(term, type=type)
@@ -345,7 +348,7 @@ def get_school_prospects(school_ids, end_date):
         prospects = prospects.join(Education).filter(Education.end_date<=end_date)
     return prospects
 
-def get_company_prospects(company_ids, start_date, end_date):
+def get_company_prospects(company_ids, start_date, end_date, title):
     prospects = session.query(Prospect, Job.title.label("job_title"),
             Company.name.label("company_name")).distinct(Prospect.name)\
             .join(Job).join(Company).filter(Company.id.in_(company_ids))
@@ -353,28 +356,36 @@ def get_company_prospects(company_ids, start_date, end_date):
         prospects = prospects.join(Job).filter(Job.start_date>=start_date)
     if end_date != datetime.date(2016,01,01):
         prospects = prospects.join(Job).filter(Job.end_date<=end_date)
+    if title:
+        prospects = prospects.join(Job).filter(Job.fts_title.match(title))
     return prospects
+
+def blank_string_to_none(value):
+    if value == "":
+        return None
+    return value
 
 @prospects.route("/api", methods=['GET'])
 def api():
     page = int(request.args.get("p", 1))
 
-    company_ids = request.args.get("company_ids", None)
-    job_title = request.args.get("title", None)
+    company_ids = blank_string_to_none(request.args.get("company_ids", None))
+    job_title = blank_string_to_none(request.args.get("title", None))
     job_start = datetime.datetime.strptime(request.args.get("job_start", \
         "1900-01-01"), "%Y-%m-%d").date()
     job_end = datetime.datetime.strptime(request.args.get("job_end", \
             "2016-01-01"), "%Y-%m-%d").date()
 
-    school_ids = request.args.get("school_ids", None)
-    degree = request.args.get("degree", None)
+    school_ids = blank_string_to_none(request.args.get("school_ids", None))
+    degree = blank_string_to_none(request.args.get("degree", None))
     school_end = datetime.datetime.strptime(request.args.get("schol_end", \
         "2016-01-01"), "%Y-%m-%d").date()
 
     prospect_results = []
     if company_ids:
         company_ids = company_ids.split(",")
-        job_prospects = get_company_prospects(company_ids, job_start, job_end)
+        job_prospects = get_company_prospects(company_ids, job_start, job_end,
+                job_title)
         p_aliased = job_prospects
     if school_ids:
         school_ids = school_ids.split(",")
