@@ -32,7 +32,7 @@
       <hr />
       <ul class='tabs'>
         <li class='active'><a id='show-leads' href='javascript:;'>Find Leads</a><li>
-        <li><a id='show-analytics' href='javascript:;'>Network Analytics</a><li>
+        <li><a id='show-analytics' href='javascript:;'>Your Network Analytics</a><li>
       </ul>
     </div>
     <div class='stats'>
@@ -55,19 +55,44 @@
       </div>
     </div>
     <div class='dashboard-search'>
+        <input type='hidden' value='' name='company_ids' id='company_ids' />
+        <input type='hidden' value='' name='school_ids' id='school_ids' />
+        <input type='hidden' value='' name='location_ids' id='location_ids' />
+        <input type='hidden' value='' name='industries_ids' id='industries_ids' />
         <fieldset>
           <label>Company Name</label>
-          <input type='text' id='ac-input' placeholder='Company Names: eg. Goldman Sachs' />
+          <div class='input-holder'>
+            <ul class='search company-search'>
+              <li class='input'>
+              <input type='text' id='company-autocomplete' placeholder='Company Names: eg. Goldman Sachs' />
+              </li>
+            </ul>
+            <div id='company-results-autocomplete'></div>
+          </div>
           <input type='text' class='small' placeholder='State Date' />
           <input type='text' class='small' placeholder='End Date' />
         </fieldset>
         <fieldset>
           <label>Job Titles</label>
-          <input type='text' placeholder='Job Titles: eg. CEO, CMO' />
+          <div class='input-holder'>
+            <ul class='search title-search'>
+              <li class='input'>
+              <input type='text' name='title' id='title' placeholder='eg. CEO - only one title at a time' />
+              </li>
+            </ul>
+            <div id='school-results-autocomplete'></div>
+          </div>
         </fieldset>
         <fieldset>
           <label>Schools</label>
-          <input type='text'  placeholder='Company Names' />
+          <div class='input-holder'>
+            <ul class='search school-search'>
+              <li class='input'>
+              <input type='text' id='school-autocomplete' placeholder='School Names: eg. Harvard' />
+              </li>
+            </ul>
+            <div id='school-results-autocomplete'></div>
+          </div>
           <input type='text' class='small' placeholder='Grad. Year' />
           <input type='text' class='small' placeholder='Degree' />
         </fieldset>
@@ -80,8 +105,8 @@
           <input type='text'  placeholder='Select Industries' />
         </fieldset>
         <fieldset class='buttons'>
-          <button class='btn btn-success'>Search <i class='fa fa-search'></i></button>
-          <button class='btn btn-primary'>Save Search <i class='fa fa-search'></i></button>
+          <button id='big-search' class='btn btn-success'>Search <i class='fa fa-search'></i></button>
+          <button class='btn btn-primary'>Save Search</button>
         </fieldset>
     </div>
     <div class='results results-dashboard'>
@@ -102,10 +127,9 @@
 </div>
 <script type='text/javascript'>
 var userData = {{ json_results|safe }};
-var offset = {{ offset }};
 window._userData = {results:userData}
 </script>
-<script src="http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
 <script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
 <script src="/static/js/chart.js" type="text/javascript"></script>
 <script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>

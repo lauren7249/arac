@@ -18,11 +18,19 @@ var Relationship = React.createClass({displayName: "Relationship",
 
 var Results = React.createClass({displayName: "Results",
     loadProfileFromServer: function() {
+        var params={
+            company_ids: $("#company_ids").val(),
+            school_ids: $("#school_ids").val(),
+            title: $("#title").val(),
+            location_ids: $("#location_ids").val(),
+            industry_ids: $("#industry_ids").val()
+        }
         $.ajax({
-          url: this.props.url,
+          url: "/api",
+          data:params,
           dataType: 'json',
           success: function(data) {
-            this.setState({data: data.prospect, client_lists:data.client_lists});
+            this.setState({data: data});
           }.bind(this),
           error: function(xhr, status, err) {
           }.bind(this)
@@ -39,6 +47,7 @@ var Results = React.createClass({displayName: "Results",
         //IN.parse(document.body);
     },
     bindButtons: function() {
+        var result = this;
         $(".add-prospect").click(function() {
             var id = $(this).data("id");
             $.post("/user/prospect/add/" + id, function(data) {
@@ -51,6 +60,9 @@ var Results = React.createClass({displayName: "Results",
             $.post("/user/prospect/skip/" + id, function(data) {
                 $("[data-result='" + id + "']").fadeOut();
             });
+        });
+        $("#big-search").click(function() {
+            result.loadProfileFromServer()
         });
     },
     render: function() {
@@ -93,12 +105,30 @@ var Results = React.createClass({displayName: "Results",
             )
             )
     });
-    return (
-      React.createElement("div", {className: "results"}, 
-        prospects, 
-        React.createElement("div", {className: "clear"})
-      )
-    );
+    if (this.props.data.length < 1) {
+        return (
+          React.createElement("div", {className: "results"}, 
+            React.createElement("div", {className: "empty"}, 
+                React.createElement("h2", null, "Use the search tool to find leads!"), 
+                React.createElement("p", null, "There are several great ways to use AdvisorConnect to find new leads for your business"), 
+                React.createElement("ul", null, 
+                    React.createElement("li", null, "Look for people with common connections (eg. worked at the same company, went to the same school) who live in your area"), 
+                    React.createElement("li", null, "Focus on companies where you have had previous success"), 
+                    React.createElement("li", null, "Find the whales. Search for high paying job titles at fortune 500 companies.")
+                )
+            ), 
+
+            React.createElement("div", {className: "clear"})
+          )
+        );
+    } else {
+        return (
+          React.createElement("div", {className: "results"}, 
+            prospects, 
+            React.createElement("div", {className: "clear"})
+          )
+        );
+    }
   }
 });
 
@@ -109,8 +139,9 @@ function buildResults() {
     for (var a in data) {
         calculateResults(data[a])
     }
+    var data = []
     React.render(
-        React.createElement(Results, {data: data.slice(offset, offset+20)}),
+        React.createElement(Results, {data: data}),
         document.getElementById('prospects')
     );
 }
@@ -278,20 +309,101 @@ function hideOverlay() {
     $(".overlay").hide();
 }
 
-
 function bindSearch() {
-    YUI().use('autocomplete', 'autocomplete-highlighters', function (Y) {
+    companySearch();
+    schoolSearch();
+}
 
-  // Add the yui3-skin-sam class to the body so the default
-  // AutoComplete widget skin will be applied.
-  Y.one('body').addClass('yui3-skin-sam');
+function companySearch() {
+    var $valuesautocomplete = $("#company_ids");
+    var $autocomplete = $("#company-autocomplete");
+    $autocomplete.autocomplete({
+        source: function(request, response) {
+            var val = request.term
+            $.getJSON("search.json?q=" + val, function(data) {
+                return response(data.data)
+            })
+        },
+        select: function(event, ui) {
+            var span  = $("<li data-company='"  + ui.item.id + "' class='styled'><span>" + ui.item.name + "</span><a href='javascript:removeSpan(1, " + ui.item.id + ");'>X</a></li>")
+            $("ul.company-search").prepend(span);
+            var ids = $valuesautocomplete.val().split();
+            var new_ids = []
+            for (var j in ids) {
+                if (ids[j] !=="") {
+                    new_ids.push(ids[j])
+                }
+            }
+            new_ids.push(ui.item.id)
+            $valuesautocomplete.val(new_ids.join(","))
 
-  // XHR URL source (no callback). Leave the {query} placeholder
-  // as is; AutoComplete will replace it automatically.
-  Y.one('#ac-input').plug(Y.Plugin.AutoComplete, {
-    resultHighlighter: 'phraseMatch',
-    source: 'http://localhost:5000/search.json?q={query}'
-  });
+        },
+        appendTo: '#company-results-autocomplete'
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .data('item.autocomplete', item)
+        .append( "<a data-id='" + item.id + "'>" + item.name + "</a>" )
+        .appendTo( ul );
+    }
+}
 
-});
+function schoolSearch() {
+    var $valuesautocomplete = $("#school_ids");
+    var $autocomplete = $("#school-autocomplete");
+    $autocomplete.autocomplete({
+        source: function(request, response) {
+            var val = request.term
+            $.getJSON("search.json?type=0&q=" + val, function(data) {
+                return response(data.data)
+            })
+        },
+        select: function(event, ui) {
+            var span  = $("<li data-school='"  + ui.item.id + "' class='styled'><span>" + ui.item.name + "</span><a href='javascript:removeSpan(2, " + ui.item.id + ");'>X</a></li>")
+            $("ul.school-search").prepend(span);
+            var ids = $valuesautocomplete.val().split();
+            var new_ids = []
+            for (var j in ids) {
+                if (ids[j] !=="") {
+                    new_ids.push(ids[j])
+                }
+            }
+            new_ids.push(ui.item.id)
+            $valuesautocomplete.val(new_ids.join(","))
+
+        },
+        appendTo: '#school-results-autocomplete'
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .data('item.autocomplete', item)
+        .append( "<a data-id='" + item.id + "'>" + item.name + "</a>" )
+        .appendTo( ul );
+    }
+}
+
+function removeSpan(spanType, id) {
+    if (spanType == 1) {
+        $("[data-company='" + id + "']").remove();
+        var ids = $("#company_ids").val().split(",");
+        var index = ids.indexOf(id.toString())
+        if (index > -1) {
+            ids.splice(index, 1)
+        }
+        $("#company_ids").val(ids.join(","))
+        return;
+    }
+
+    if (spanType == 2) {
+        $("[data-school='" + id + "']").remove();
+        var ids = $("#school_ids").val().split(",");
+        var index = ids.indexOf(id.toString())
+        if (index > -1) {
+            ids.splice(index, 1)
+        }
+        $("#school_ids").val(ids.join(","))
+        return;
+    }
+}
+
+
+function search() {
 }

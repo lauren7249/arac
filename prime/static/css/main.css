@@ -419,9 +419,9 @@ div.dashboard-search fieldset {
   margin-bottom: 5px;
   width: 100%;
 }
-div.dashboard-search fieldset input[type='text'] {
-  width: 600px;
+div.dashboard-search fieldset input.small, div.dashboard-search fieldset input.grad {
   padding: 10px;
+  width: 105px;
   font-weight: bold;
   border: 1px solid #ddd;
   -webkit-box-shadow: white 0 1px 0 1px;
@@ -436,11 +436,88 @@ div.dashboard-search fieldset input[type='text'] {
   background: #fff;
   margin: 0;
 }
-div.dashboard-search fieldset input.small {
-  width: 105px;
-}
 div.dashboard-search fieldset input.grad {
   width: 215px;
+}
+div.dashboard-search fieldset div.input-holder {
+  width: 600px;
+  font-weight: bold;
+  display: inline-block;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: white 0 1px 0 1px;
+  -moz-box-shadow: white 0 1px 0 1px;
+  box-shadow: white 0 1px 0 1px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  position: relative;
+  vertical-align: middle;
+  margin: 0;
+}
+div.dashboard-search fieldset div.input-holder ul.search {
+  min-height: 43px;
+  height: 1%;
+  margin: 0;
+  padding: 0 5px 0 0;
+  position: relative;
+  cursor: text;
+  overflow: hidden;
+}
+div.dashboard-search fieldset div.input-holder ul.search li {
+  float: left;
+  list-style: none;
+  border: 0;
+}
+div.dashboard-search fieldset div.input-holder ul.search li:last-child {
+  float: none;
+  overflow: hidden;
+}
+div.dashboard-search fieldset div.input-holder ul.search li.styled {
+  background: #4daff1;
+  color: #fff;
+  margin: 5px;
+  height: 40px;
+  width: auto;
+  padding: 0 10px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+div.dashboard-search fieldset div.input-holder ul.search li.styled span {
+  height: 100%;
+  display: inline-block;
+  padding-top: 8px;
+}
+div.dashboard-search fieldset div.input-holder ul.search li.styled a {
+  margin-left: 5px;
+  color: #fceeee;
+}
+div.dashboard-search fieldset div.input-holder ul.search li.input {
+  width: auto !important;
+}
+div.dashboard-search fieldset div.input-holder ul.search li.input input {
+  width: 100% !important;
+  -webkit-box-shadow: white 0 0 0;
+  -moz-box-shadow: white 0 0 0;
+  box-shadow: white 0 0 0;
+  font-size: 12px;
+  height: 43px;
+  padding: 5px;
+  border: 0;
+  outline: 0;
+  margin: 0;
+  background: transparent;
+}
+div.dashboard-search fieldset div.input-holder ul.search li.input input:focus {
+  -webkit-box-shadow: white 0 0 0;
+  -moz-box-shadow: white 0 0 0;
+  box-shadow: white 0 0 0;
 }
 div.dashboard-search fieldset label {
   padding-right: 10px;
@@ -895,4 +972,48 @@ div.padding {
 .hidden-select {
   margin-top: 30px;
   display: none;
+}
+
+.ui-widget-content {
+  background: rgba(0, 0, 0, 0.8);
+  position: absolute !important;
+  min-height: 400px;
+}
+.ui-widget-content li {
+  display: block;
+  color: #fff;
+  font-family: "Quicksand", sans-serif;
+  float: none !important;
+}
+.ui-widget-content li a {
+  color: #fff;
+}
+.ui-widget-content .ui-state-hover, .ui-widget-content .ui-state-focus {
+  background: #fff;
+}
+.ui-widget-content .ui-state-hover a, .ui-widget-content .ui-state-focus a {
+  color: #222;
+}
+
+div.empty {
+  padding: 20px 50px;
+  border: 1px solid #ccc;
+  background: #eee;
+  margin-bottom: 100px;
+  -webkit-box-shadow: white 0 1px 0 1px;
+  -moz-box-shadow: white 0 1px 0 1px;
+  box-shadow: white 0 1px 0 1px;
+}
+div.empty h2 {
+  text-transform: uppercase;
+  padding: 0 0 15px;
+  font-size: 30px;
+  color: #525252;
+}
+div.empty p, div.empty li {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+div.empty ul, div.empty li {
+  list-style-type: decimal;
 }
