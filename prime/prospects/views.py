@@ -214,7 +214,7 @@ def prospect(prospect_id):
 def ajax_prospect(prospect_id):
     prospect = Prospect.query.get(prospect_id)
     client_lists = ClientList.query.filter_by(user=current_user)
-    return jsonify({"prospect":prospect.to_json,
+    return jsonify({"prospect":prospect.to_json(),
         "client_lists": [{"id": cl.id, "name": cl.name} for cl in client_lists]})
 
 @prospects.route("/ajax/pipl/<int:prospect_id>")
@@ -392,13 +392,21 @@ def api():
         school_prospects = get_school_prospects(school_ids, school_end)
         s_aliased = school_prospects
 
-    prospects = p_aliased.outerjoin(Prospect)\
-            .outerjoin(school_prospects.subquery())
-    if page > 1:
-        prospects.limit(20).offset(20 * (page-1)).all()
+    if company_ids and school_ids:
+        prospects = p_aliased.outerjoin(Prospect)\
+                .outerjoin(school_prospects.subquery())
+    elif school_ids:
+        prospects = s_aliased
+    else:
+        prospects = p_aliased
+
+    prospects = prospects.limit(20).offset(20 * (page-1)).all()
     for prospect in prospects:
         p = {}
-        p['data'] = prospect[0].to_json
-        p['relevancy'] = prospect[1] + prospect[2]
+        p['data'] = prospect[0].to_json(no_fk=True)
+        item = prospect[1]
+        if not item:
+            item = ""
+        p['relevancy'] = item + prospect[2]
         prospect_results.append(p)
     return jsonify({"success": prospect_results})

@@ -41,7 +41,6 @@ list_bucket_name = 'mrjob-lists'
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
-db = SQLAlchemy(app)
 SQL = "select max(id) from prospect where linkedin_id='%s';"
 writefiles = ["education", "job", "person"]
 good_files = ["companies","schools"]
@@ -70,8 +69,9 @@ class processLinkedIn(MRJob):
         key.get_contents_to_filename(filename)
 
         pool = multiprocessing.Pool(cpu_count*5)
-        df = pandas.read_csv(filename, delimiter="\t", names=["num", "key"], header=None)
-        file_list = df["key"].tolist()
+        df = pandas.read_csv(filename, delimiter="\t", names=["num", "key","prospect_id"], header=None)
+        #file_list = df["key"].tolist()
+        file_list = map(list, df.values)
         pool.map(parseFile, file_list)
 
         pool = multiprocessing.Pool(len(writefiles)+len(good_files))
@@ -495,23 +495,25 @@ def uu(str):
         return str.encode("ascii", "ignore").decode("utf-8")
     return None
 
-def parseFile(s3_key):
+def parseFile(row):
+    s3_key = row[1]
+    prospect_id = row[2]
     try:
         info = get_info_for_url(s3_key.strip("\n"))
     except Exception, e:
-        logger.debug('error processing {}, {}'.format(s3_key, e))
+        #logger.debug('error processing {}, {}'.format(s3_key, e))
         pass
     else:
         if not info_is_valid(info): return
         linkedin_id = info.get("linkedin_id")
-        prospect_id = None
 
-        
-        session = db.session
-        try:
-            prospect_id = session.execute(SQL % (linkedin_id)).first()[0]
-        except:
-            pass
+        if prospect_id is None:
+            db = SQLAlchemy(app)
+            session = db.session
+            try:
+                prospect_id = session.execute(SQL % (linkedin_id)).first()[0]
+            except:
+                pass
             
 
         person = [prospect_id, linkedin_id, 
@@ -562,12 +564,14 @@ def parseFile(s3_key):
 
         with open("companies", 'a') as companies_file:
             for id, name in info.get("good_companies").iteritems():
-                companies_file.write(id + "\t" + uu(name) + "\n")
+                if name is not None and len(name)>0:
+                    companies_file.write(id + "\t" + uu(name) + "\n")
             companies_file.close()
 
         with open("schools", 'a') as schools_file:
             for id, name in info.get("good_schools").iteritems():
-                schools_file.write(id + "\t" + uu(name) + "\n")
+                if name is not None and len(name)>0:
+                    schools_file.write(id + "\t" + uu(name) + "\n")
             schools_file.close()
 
 def _upload_part(mp, filename, part_num, amount_of_retries=4):

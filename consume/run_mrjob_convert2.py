@@ -49,14 +49,15 @@ def start_job(filename, num_processes):
 	total_parts =  int(proc.split(" ")[0])
 
 	#how many lines do we want to give to each process
-	n_lines = (total_parts/num_processes)+1
-	
+	n_lines = (total_parts/3000)+1
+	if n_lines<10000: n_lines = 10000
+
 	#create a folder for chunked files
 	subprocess.call("rm -r " + filename + "_numbered_dir", shell=True)
 	os.makedirs(filename + "_numbered_dir")
 
-	#how many digits we need in the filename subject
-	suffix_length = len(str(num_processes + 1))
+	#how many digits we need in the filename suffix
+	suffix_length = len(str(total_parts/n_lines + 1))
 
 	#split the file
 	subprocess.call("split -d -a " + str(suffix_length) + " -l " + str(n_lines) + " " + filename + "_numbered " + filename + "_numbered_dir/f", shell=True)
