@@ -1,9 +1,7 @@
-import argparse
 import string
 import json
 import requests
 import lxml.html
-import code
 import os
 
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text
@@ -152,8 +150,7 @@ class Prospect(db.Model):
         return []
 
 
-    @property
-    def to_json(self):
+    def to_json(self, no_fk=False):
         salary = None
         #salary = self.calculate_salary
         #if salary:
@@ -161,18 +158,21 @@ class Prospect(db.Model):
         #    amount = string.lowercase.index(str(first_letter.lower()))
         wealthscore = 65
 
-        return {
+        data = {
             "name": self.name,
             "id": self.id,
-            "jobs": [job.to_json for job in self.jobs],
-            "schools": [school.to_json for school in self.schools],
             "industry": self.industry_raw,
             "location": self.location_raw,
             "connections": self.connections,
             "url": self.url,
-            "news": self.relevant_content,
+            "image_url": self.image_url,
             "salary": salary if salary else "N/A",
             "wealthscore": wealthscore}
+        if not no_fk:
+            data['jobs'] = [job.to_json for job in self.jobs]
+            data['schools'] = [school.to_json for school in self.schools]
+            data["news"] =  self.relevant_content
+        return data
 
 
 
