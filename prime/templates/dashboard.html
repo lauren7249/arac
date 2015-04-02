@@ -98,7 +98,14 @@
         </fieldset>
         <fieldset>
           <label>Locations</label>
-          <input type='text'  placeholder='Select Locations' />
+          <div class='input-holder'>
+            <ul class='search location-search'>
+              <li class='input'>
+              <input type='text' name='location' id='location' placeholder='eg. CEO - only one location at a time' />
+              </li>
+            </ul>
+            <div id='location-results-autocomplete'></div>
+          </div>
         </fieldset>
         <fieldset>
           <label>Industries</label>
