@@ -376,7 +376,7 @@ def api():
 
     school_ids = blank_string_to_none(request.args.get("school_ids", None))
     degree = blank_string_to_none(request.args.get("degree", None))
-    school_end = datetime.datetime.strptime(request.args.get("schol_end", \
+    school_end = datetime.datetime.strptime(request.args.get("school_end", \
         "2016-01-01"), "%Y-%m-%d").date()
 
     prospect_results = []
@@ -403,7 +403,7 @@ def api():
             .filter(Job.prospect_id == Prospect.id)\
             .filter(Company.id == Job.company_id)\
             .filter(Job.company_id.in_(company_ids))
-    
+
     prospects = filter_title(prospects, job_title)
     prospects = filter_dates(prospects, job_start, job_end, school_end)
 

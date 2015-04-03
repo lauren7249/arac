@@ -523,6 +523,10 @@ div.dashboard-search {
       padding: 10px 20px;
     }
 
+    div.date-holder {
+      position: relative;
+      display: inline;
+    }
   }
 
   fieldset.buttons {
@@ -1023,6 +1027,47 @@ div.padding {
     a {
       color: #222;
     }
+  }
+}
+
+#ui-datepicker-div {
+  min-height: 0;
+  font-family: $quick;
+
+  th {
+    color: #fff;
+  }
+
+  select {
+    background: transparent;
+    @include box-shadow(#fff 0 0 0);
+    border: 1px solid #fff;
+    margin:0 3px;
+    @include border-radius(4px);
+    padding: 4px;
+  }
+
+  .ui-widget-header {
+    border: 0;
+    background: transparent;
+    color: #fff;
+
+    a {
+      color: #fff;
+      background: #fff;
+    }
+  }
+
+  .ui-state-active {
+    background: transparent;
+    color: #fff;
+    border: 0;
+  }
+
+  .ui-state-default {
+    background: transparent;
+    color: #fff;
+    border: 0;
   }
 }
 

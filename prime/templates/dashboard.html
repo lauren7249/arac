@@ -69,8 +69,12 @@
             </ul>
             <div id='company-results-autocomplete'></div>
           </div>
-          <input type='text' class='small' placeholder='State Date' />
-          <input type='text' class='small' placeholder='End Date' />
+          <div class='date-holder'>
+            <input type='text' class='small datepicker' placeholder='State Date' autocomplete="off" name='job_start' />
+          </div>
+          <div class='date-holder'>
+            <input type='text' class='small datepicker' placeholder='End Date'autocomplete="off"  name='job_end' />
+          </div>
         </fieldset>
         <fieldset>
           <label>Job Titles</label>
@@ -93,7 +97,7 @@
             </ul>
             <div id='school-results-autocomplete'></div>
           </div>
-          <input type='text' class='small' placeholder='Grad. Year' />
+          <input type='text' class='small datepicker' placeholder='Grad. Year' autocomplete="off" name='school_end' />
           <input type='text' class='small' placeholder='Degree' />
         </fieldset>
         <fieldset>

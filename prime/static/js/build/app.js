@@ -30,9 +30,14 @@ var Results = React.createClass({displayName: "Results",
           data:params,
           dataType: 'json',
           success: function(data) {
+            if (data.success.length < 1) {
+                bootbox.alert("There are no results for this query");
+                return
+            }
             this.setProps({data: data.success});
           }.bind(this),
           error: function(xhr, status, err) {
+            bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
           }.bind(this)
         });
     },
@@ -188,6 +193,7 @@ $(function() {
     bindButtons();
     bindProfiles();
     bindSearch();
+    bindDates();
 });
 
 function bindProfiles() {
@@ -394,5 +400,9 @@ function removeSpan(spanType, id) {
 }
 
 
-function search() {
+function bindDates() {
+    $('.datepicker').datepicker({
+        changeYear: true,
+        changeMonth: true
+    });
 }
