@@ -170,6 +170,7 @@ class Prospect(db.Model):
             "wealthscore": wealthscore}
         if not no_fk:
             data['jobs'] = [job.to_json for job in self.jobs]
+            data['current_job'] = self.current_job
             data['schools'] = [school.to_json for school in self.schools]
             #data["news"] =  self.relevant_content
         return data
