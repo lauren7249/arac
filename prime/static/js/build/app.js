@@ -78,7 +78,7 @@ var Results = React.createClass({displayName: "Results",
             page += 1;
             result.loadProfileFromServer();
             $("html, body").animate({
-                scrollTop: 0
+                scrollTop: $(".results").position().top
             }, 100);
         });
     },
