@@ -1,4 +1,5 @@
 var industries = {}
+var page = 1;
 var colors = ["#B7D085", "#F9EBB5", "#D3102E", "#DCD6D5", "#39272A", "#27ACBE", "#3D9275", "#C7E1B8", "#BEC25D"];
 var locations = {}
 var school_connections = {}
@@ -35,6 +36,7 @@ var Results = React.createClass({displayName: "Results",
                 return
             }
             this.setProps({data: data.success});
+            bindProfiles();
           }.bind(this),
           error: function(xhr, status, err) {
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")

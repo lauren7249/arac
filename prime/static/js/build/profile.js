@@ -109,13 +109,15 @@ var Profile = React.createClass({displayName: "Profile",
     },
     render: function() {
     var prospectId = this.state.data.id
-    var clientLists = this.state.client_lists.map(function(cl) {
-        return (
-            React.createElement("h4", null, "Select:",  
-            React.createElement("a", {href: "javascript:addToList();", className: "add-to-list", "data-id": cl.id, "data-prospect-id": prospectId}, " ", cl.name)
-            )
-            )
-    });
+    if (this.state.client_lists) {
+        var clientLists = this.state.client_lists.map(function(cl) {
+            return (
+                React.createElement("h4", null, "Select:",  
+                React.createElement("a", {href: "javascript:addToList();", className: "add-to-list", "data-id": cl.id, "data-prospect-id": prospectId}, " ", cl.name)
+                )
+                )
+        });
+    }
     return (
       React.createElement("div", {className: "profileBox"}, 
         React.createElement("div", {className: "top"}, 
