@@ -16,6 +16,11 @@ from sqlalchemy.engine.url import URL
 from prime import db
 from prime.prospects.helper import BingSearch
 
+def uu(str):
+    if str:
+        return str.encode("ascii", "ignore").decode("utf-8")
+    return None
+
 class Prospect(db.Model):
     __tablename__ = 'prospect'
 
@@ -170,7 +175,8 @@ class Prospect(db.Model):
             "wealthscore": wealthscore}
         if not no_fk:
             data['jobs'] = [job.to_json for job in self.jobs]
-            data['current_job'] = self.current_job
+            data['current_job'] = "{}, {}".format(self.current_job.title,
+                                        self.current_job.company.name)
             data['schools'] = [school.to_json for school in self.schools]
             #data["news"] =  self.relevant_content
         return data

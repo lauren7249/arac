@@ -11,7 +11,7 @@ function randColor(colors) {
 var Relationship = React.createClass({displayName: "Relationship",
     render: function() {
         return (
-            React.createElement("p", null, "You are connected via ", React.createElement("a", {href: this.props.url}, this.props.name), ". ", React.createElement("a", {className: "small", href: this.props.url}, "View more people like this"))
+            React.createElement("p", null, "You are connected via ", React.createElement("a", {href: this.props.url}, this.props.name), ".")
             )
     }
 });
@@ -67,39 +67,28 @@ var Results = React.createClass({displayName: "Results",
     },
     render: function() {
     var prospects = this.props.data.map(function(prospect) {
-        if (prospect.company_name) {
-            var job = prospect.title + ", " + prospect.company_name;
-        } else {
-            var job = "N/A"
-        }
 
-        if (prospect.company_name) {
-            var url = "/company/" + prospect.company_id;
-            var relationship = React.createElement(Relationship, {name: prospect.company_name, url: url})
-        } else {
-            var url = "/school/" + prospect.school_id;
-            var relationship = React.createElement(Relationship, {name: prospect.school_name, url: url})
-        }
+        var relationship = React.createElement(Relationship, {name: prospect.relevancy})
         return (
             React.createElement("div", {className: "result", "data-result": prospect.id}, 
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.name)), 
-                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", job), 
-                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
-                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry)
+                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.data.id, "data-url": prospect.url}, prospect.data.name)), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.data.current_job), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.data.location), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.data.industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("img", {src: prospect.image_url})
+                    React.createElement("img", {src: prospect.data.image_url})
                 ), 
                 React.createElement("div", {className: "connections"}, 
                     React.createElement("h5", null, "Connection Path"), 
                     relationship
                 ), 
                 React.createElement("div", {className: "buttons"}, 
-                    React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
-                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
+                    React.createElement("a", {className: "add-prospect", "data-id": prospect.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
+                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect"))
                 ), 
                 React.createElement("div", {className: "clear"})
             )
