@@ -24,7 +24,8 @@ var Results = React.createClass({displayName: "Results",
             school_ids: $("#school_ids").val(),
             title: $("#title").val(),
             location_ids: $("#location_ids").val(),
-            industry_ids: $("#industry_ids").val()
+            industry_ids: $("#industry_ids").val(),
+            p:page
         }
         $.ajax({
           url: "/api",
@@ -37,6 +38,8 @@ var Results = React.createClass({displayName: "Results",
             }
             this.setProps({data: data.success});
             bindProfiles();
+            this.bindButtons();
+            this.loadInLinkedinScript();
           }.bind(this),
           error: function(xhr, status, err) {
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
@@ -51,7 +54,7 @@ var Results = React.createClass({displayName: "Results",
         this.bindButtons();
     },
     loadInLinkedinScript: function() {
-        //IN.parse(document.body);
+        IN.parse(document.body);
     },
     bindButtons: function() {
         var result = this;
@@ -70,6 +73,13 @@ var Results = React.createClass({displayName: "Results",
         });
         $("#big-search").click(function() {
             result.loadProfileFromServer()
+        });
+        $("#next").click(function() {
+            page += 1;
+            this.loadProfileFromServer();
+            $("html, body").animate({
+                scrollTop: 0
+            }, 100);
         });
     },
     render: function() {
