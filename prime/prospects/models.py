@@ -171,7 +171,7 @@ class Prospect(db.Model):
         if not no_fk:
             data['jobs'] = [job.to_json for job in self.jobs]
             data['schools'] = [school.to_json for school in self.schools]
-            data["news"] =  self.relevant_content
+            #data["news"] =  self.relevant_content
         return data
 
 
@@ -227,6 +227,7 @@ class Job(db.Model):
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
     title = db.Column(String(1024))
+    fts_title = db.Column(TSVECTOR)
     start_date = db.Column(Date)
     end_date = db.Column(Date)
 

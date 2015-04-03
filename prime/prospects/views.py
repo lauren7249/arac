@@ -52,6 +52,10 @@ def clean_url(s):
         ''
     ))
 
+def uu(str):
+    if str:
+        return str.encode("ascii", "ignore").decode("utf-8")
+    return None
 
 ################
 ###   TASKS   ##
@@ -340,24 +344,18 @@ def search_view():
 ##  API   ##
 ############
 
-def get_school_prospects(school_ids, end_date):
-    prospects = session.query(Prospect, Education.degree,
-            School.name.label("school_name")).distinct(Prospect.name)\
-            .join(Education).join(School).filter(School.id.in_(school_ids))
-    if end_date != datetime.date(2016, 01, 01):
-        prospects = prospects.join(Education).filter(Education.end_date<=end_date)
+def filter_title(prospects, title):
+    if title:
+        prospects = prospects.filter(Job.fts_title.match(title))
     return prospects
 
-def get_company_prospects(company_ids, start_date, end_date, title):
-    prospects = session.query(Prospect, Job.title.label("job_title"),
-            Company.name.label("company_name")).distinct(Prospect.name)\
-            .join(Job).join(Company).filter(Company.id.in_(company_ids))
-    if start_date != datetime.date(1900, 01, 01):
-        prospects = prospects.join(Job).filter(Job.start_date>=start_date)
-    if end_date != datetime.date(2016,01,01):
-        prospects = prospects.join(Job).filter(Job.end_date<=end_date)
-    if title:
-        prospects = prospects.join(Job).filter(Job.fts_title.match(title))
+def filter_dates(prospects, job_start, job_end, school_end):
+    if job_end != datetime.date(2016, 01, 01):
+        prospects = prospects.filter(Job.end_date<=job_end)
+    if job_start != datetime.date(1900, 01, 01):
+        prospects = prospects.filter(Job.start_date>=job_start)
+    if school_end != datetime.date(2016, 01, 01):
+        prospects = prospects.filter(Education.end_date<=school_end)
     return prospects
 
 def blank_string_to_none(value):
@@ -383,30 +381,46 @@ def api():
 
     prospect_results = []
     if company_ids:
-        company_ids = company_ids.split(",")
-        job_prospects = get_company_prospects(company_ids, job_start, job_end,
-                job_title)
-        p_aliased = job_prospects
+        company_ids = [int(c) for c in company_ids.split(",")]
     if school_ids:
-        school_ids = school_ids.split(",")
-        school_prospects = get_school_prospects(school_ids, school_end)
-        s_aliased = school_prospects
+        school_ids = [int(c) for c in school_ids.split(",")]
 
     if company_ids and school_ids:
-        prospects = p_aliased.outerjoin(Prospect)\
-                .outerjoin(school_prospects.subquery())
+        prospects=session.query(Prospect, Job.title, Company.name, School.name)\
+            .filter(Job.prospect_id == Prospect.id)\
+            .filter(Company.id == Job.company_id)\
+            .filter(Job.company_id.in_(company_ids))\
+            .filter(Prospect.id == Education.prospect_id)\
+            .filter(School.id == Education.school_id)\
+            .filter(Education.school_id.in_(school_ids))
     elif school_ids:
-        prospects = s_aliased
+        prospects=session.query(Prospect, School.name)\
+            .filter(Prospect.id == Education.prospect_id)\
+            .filter(School.id==Education.school_id)\
+            .filter(Education.school_id.in_(school_ids))
     else:
-        prospects = p_aliased
+        prospects=session.query(Prospect, Job.title, Company.name)\
+            .filter(Job.prospect_id == Prospect.id)\
+            .filter(Company.id == Job.company_id)\
+            .filter(Job.company_id.in_(company_ids))
+    
+    prospects = filter_title(prospects, job_title)
+    prospects = filter_dates(prospects, job_start, job_end, school_end)
 
     prospects = prospects.limit(20).offset(20 * (page-1)).all()
     for prospect in prospects:
         p = {}
-        p['data'] = prospect[0].to_json(no_fk=True)
-        item = prospect[1]
-        if not item:
-            item = ""
-        p['relevancy'] = item + prospect[2]
+        if len(prospect) == 4:
+            p['data'] = prospect[0].to_json()
+            p['relevancy'] = "Worked as a {} at {} and went to school at {}"\
+                            .format(uu(prospect[1]), uu(prospect[2]), uu(prospect[3]))
+        if len(prospect) == 3:
+            p['data'] = prospect[0].to_json()
+            p['relevancy'] = "Worked as a {} at {}"\
+                            .format(uu(prospect[1]), uu(prospect[2]))
+        if len(prospect) == 2:
+            p['data'] = prospect[0].to_json()
+            p['relevancy'] = "Went to schoool at {}"\
+                            .format(uu(prospect[1]))
         prospect_results.append(p)
     return jsonify({"success": prospect_results})

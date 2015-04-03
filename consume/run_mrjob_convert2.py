@@ -20,7 +20,7 @@ def runner(file_list, num_instances):
 		for upload in uploads:
 			upload.cancel_upload()
 	except:
-		print "error canceling multipart uploads - maybe none were there?"
+		print "error canceling multipart uploads"
 		pass
 
 	educations_mp = bucket.initiate_multipart_upload('processed/educations.txt')
@@ -70,7 +70,7 @@ def start_job(filename, num_processes):
 	runner(filename + "_list", num_processes+1)
 
 #nohup time python2.6 -m arachnid.consume.run_mrjob_convert2 finished_oct30 995 > run_mrjob_convert.log
-#nohup time python2.6 -m arachnid.consume.run_mrjob_convert2 arachnid/names 1 > run_mrjob_convert.log
+#nohup time python2.6 -m arachnid.consume.run_mrjob_convert2 names_w_ids 1 > run_mrjob_convert.log
 if __name__=="__main__":
 
 	filename = sys.argv[1]
