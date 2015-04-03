@@ -30,7 +30,7 @@ var Results = React.createClass({displayName: "Results",
           data:params,
           dataType: 'json',
           success: function(data) {
-            this.setState({data: data});
+            this.setProps({data: data.success});
           }.bind(this),
           error: function(xhr, status, err) {
           }.bind(this)
@@ -85,10 +85,10 @@ var Results = React.createClass({displayName: "Results",
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.prospect_name)), 
+                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.name)), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", job), 
-                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.current_location), 
-                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
                     React.createElement("img", {src: prospect.image_url})
