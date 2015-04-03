@@ -105,7 +105,7 @@
           <div class='input-holder'>
             <ul class='search location-search'>
               <li class='input'>
-              <input type='text' name='location' id='location' placeholder='eg. CEO - only one location at a time' />
+              <input type='text' name='location' id='location' placeholder='eg. New York' />
               </li>
             </ul>
             <div id='location-results-autocomplete'></div>
@@ -113,7 +113,14 @@
         </fieldset>
         <fieldset>
           <label>Industries</label>
-          <input type='text'  placeholder='Select Industries' />
+          <div class='input-holder'>
+            <ul class='search industry-search'>
+              <li class='input'>
+              <input type='text' name='industry' id='industry' placeholder='Current Industry' />
+              </li>
+            </ul>
+            <div id='industry-results-autocomplete'></div>
+          </div>
         </fieldset>
         <fieldset class='buttons'>
           <button id='big-search' class='btn btn-success'>Search <i class='fa fa-search'></i></button>
