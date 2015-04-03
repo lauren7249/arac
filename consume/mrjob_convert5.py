@@ -10,7 +10,6 @@ from lxml import etree
 import os
 import re
 import pandas
-import logging
 import StringIO
 import csv, shutil
 from boto.s3.key import Key
@@ -29,12 +28,6 @@ from flask import Flask
 profile_re = re.compile('^https?://www.linkedin.com/pub/.*/.*/.*')
 member_re  = re.compile("member-")
 
-logger = logging.getLogger('consumer')
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
-
-logfile=stderr  
-
 write_bucket_name = 'advisorconnect-bigfiles'
 read_bucket_name = 'arachid-results'
 list_bucket_name = 'mrjob-lists'
@@ -49,12 +42,18 @@ class processLinkedIn(MRJob):
 
     def mapper(self, _, filename):
 
-        cpu_count = multiprocessing.cpu_count()
-        mgr = SyncManager(('127.0.0.1',0))
-        mgr.start()
-
-        Global = mgr.Namespace()
-        Global.part_num = int(re.sub("[^0-9]","",filename)) + 1
+        print "Just started mapper function"
+        try:
+            cpu_count = multiprocessing.cpu_count()
+            mgr = SyncManager(('127.0.0.1',0))
+            mgr.start()
+            Global = mgr.Namespace()
+            Global.part_num = int(re.sub("[^0-9]","",filename)) + 1
+        except:
+            pass
+            print "mapper failed before ANYTHING happened..."
+            yield "none", {}
+            return 
 
         for f in writefiles + good_files:
             try:
@@ -62,65 +61,110 @@ class processLinkedIn(MRJob):
             except OSError:
                 pass
 
-        s3conn = boto.connect_s3()
-        list_bucket = s3conn.get_bucket(list_bucket_name)  
-        key = Key(list_bucket)
-        key.key = filename
-        key.get_contents_to_filename(filename)
+        try:
+            s3conn = boto.connect_s3()
+            list_bucket = s3conn.get_bucket(list_bucket_name)  
+            key = Key(list_bucket)
+            key.key = filename
+            key.get_contents_to_filename(filename)
+            pool = multiprocessing.Pool(cpu_count*5)
+            df = pandas.read_csv(filename, delimiter="\t", names=["num", "key","prospect_id"], header=None)
+            #file_list = df["key"].tolist()
+            file_list = map(list, df.values)            
+        except:
+            pass
+            print "mapper failed at part_num " + str(Global.part_num)
+            yield "none", {}
+            return
 
-        pool = multiprocessing.Pool(cpu_count*5)
-        df = pandas.read_csv(filename, delimiter="\t", names=["num", "key","prospect_id"], header=None)
-        #file_list = df["key"].tolist()
-        file_list = map(list, df.values)
-        pool.map(parseFile, file_list)
+        print "got the list of files to process from s3"
+
+        results = pool.map(parseFile, file_list)
+        for result in results:
+            sys.stdout.write(result)
+
+        print "processed files"
 
         pool = multiprocessing.Pool(len(writefiles)+len(good_files))
+        params = []
         for writefile in writefiles:
-            pool.apply_async(upload, (writefile, Global))
+            param = (writefile, Global)
+            params.append(param)
+        results = pool.map(upload, params)
 
-        good_dicts = pool.map(make_dicts, good_files)
-        pool.close()
-        pool.join()
+        print "uploaded results"
 
-        yield good_files[0], good_dicts[0]
-        yield good_files[1], good_dicts[1]
+        for result in results:
+            print result
 
-    
+        results_tuples = pool.map(make_dicts, good_files)
+
+        print "made dicts"
+        
+        for result_tuple in results_tuples:
+            print "for part num " + str(Global.part_num) + ", dict type " + result_tuple[0] + " yielded " + str(len(result_tuple[1])) + " items"
+            yield result_tuple[0], result_tuple[1]
+
     def combiner(self, dict_type, dicts):
         bigger_dict = {}
+
         for mini_dict in dicts:
-            bigger_dict.update(mini_dict)
+            try:
+                bigger_dict.update(mini_dict)
+            except:
+                pass
+
+        print "for combiner, dict type " + dict_type + " yielded " + str(len(bigger_dict))
         yield dict_type, bigger_dict
-    
 
     def reducer(self, dict_type, dicts):
+        bigger_dict = {}
+
         s3conn = boto.connect_s3()
         write_bucket = s3conn.get_bucket(write_bucket_name)   
 
-        bigger_dict = {}
         for mini_dict in dicts:
-            bigger_dict.update(mini_dict)
-        
-        df = pandas.DataFrame.from_dict(bigger_dict, orient='index')
-        df.to_csv(dict_type, sep="\t", encoding='utf-8', header=False)
-        k = Key(write_bucket)
-        k.key = "processed/" + dict_type + ".txt"
-        k.set_contents_from_filename(dict_type)
+            try:
+                bigger_dict.update(mini_dict)
+            except:
+                pass
+        try:
+            df = pandas.DataFrame.from_dict(bigger_dict, orient='index')
+            df.to_csv(dict_type, sep="\t", encoding='utf-8', header=False)
+            k = Key(write_bucket)
+            k.key = "processed/" + dict_type + ".txt"
+            k.set_contents_from_filename(dict_type)
+        except:
+            print "in reducer, error uploading dict type " + dict_type
+            pass
 
-def upload(name, Global):
-    s3conn = boto.connect_s3()
-    write_bucket = s3conn.get_bucket(write_bucket_name)   
-    uploads = write_bucket.get_all_multipart_uploads() 
-    num = writefiles.index(name)
-    mp = uploads[num]
-    _upload_part(mp, name, Global.part_num)
-    subprocess.call(cmd, shell=True)
+        print "for reducer, dict type " + dict_type + " yielded " + str(len(bigger_dict)) 
+        yield dict_type, bigger_dict
+
+def upload(param):
+    name = param[0] 
+    part_num = param[1].part_num
+    try:
+        s3conn = boto.connect_s3()
+        write_bucket = s3conn.get_bucket(write_bucket_name)   
+        uploads = write_bucket.get_all_multipart_uploads() 
+        num = writefiles.index(name)
+        mp = uploads[num]
+        _upload_part(mp, name, part_num)
+        return "multipart upload for part num " + str(part_num) + " success"
+    except:
+        pass
+        return "multipart upload for part num " + str(part_num) + " failed"
 
 def make_dicts(type):
-    df = pandas.read_csv(type, delimiter="\t", header=None, names=["key","value"])
-    keys = df["key"].tolist()
-    values = df["value"].tolist()
-    return dict(zip(keys,values))
+    try:
+        df = pandas.read_csv(type, delimiter="\t", header=None, names=["key","value"])
+        keys = df["key"].tolist()
+        values = df["value"].tolist()
+        return (type, dict(zip(keys,values)))
+    except:
+        pass
+    return (type, {})
 
 def get_projects(raw_html):
     projects = []
@@ -496,26 +540,32 @@ def uu(str):
     return None
 
 def parseFile(row):
-    s3_key = row[1]
-    prospect_id = row[2]
+    rec_num = None
+    try:
+        rec_num = row[0]
+        s3_key = row[1]
+        prospect_id = row[2]
+    except:
+        pass
+        return "parseFile for record number " + str(rec_num) + " failed"
     try:
         info = get_info_for_url(s3_key.strip("\n"))
     except Exception, e:
-        #logger.debug('error processing {}, {}'.format(s3_key, e))
         pass
-    else:
-        if not info_is_valid(info): return
-        linkedin_id = info.get("linkedin_id")
+        return "parseFile for record number " + str(rec_num) + ", key " + s3_key + " failed"
+    if not info_is_valid(info): return
+    linkedin_id = info.get("linkedin_id")
 
-        if prospect_id is None:
+    if prospect_id is None:
+        try:
             db = SQLAlchemy(app)
             session = db.session
-            try:
-                prospect_id = session.execute(SQL % (linkedin_id)).first()[0]
-            except:
-                pass
-            
+            prospect_id = session.execute(SQL % (linkedin_id)).first()[0]
+        except:
+            pass
+            return "parseFile for record number " + str(rec_num) + ", key " + s3_key + " failed"
 
+    try:
         person = [prospect_id, linkedin_id, 
                     info.get("image_url"),
                     uu(info.get("full_name")),
@@ -573,6 +623,10 @@ def parseFile(row):
                 if name is not None and len(name)>0:
                     schools_file.write(id + "\t" + uu(name) + "\n")
             schools_file.close()
+        return "parseFile for record number " + str(rec_num) + ", key " + s3_key + " successful"
+    except:
+        pass
+        return "parseFile for record number " + str(rec_num) + ", key " + s3_key + " failed"
 
 def _upload_part(mp, filename, part_num, amount_of_retries=4):
     """
@@ -590,11 +644,8 @@ def _upload_part(mp, filename, part_num, amount_of_retries=4):
 
                 _upload(retries_left=retries_left - 1)
             else:
-                logging.info('... Failed uploading part #%d' % part_num)
                 raise exc
-        else:
-            logging.info('... Uploaded part #%d' % part_num)
- 
+
     _upload()
 
 if __name__ == '__main__':
