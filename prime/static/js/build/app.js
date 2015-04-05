@@ -40,6 +40,7 @@ var Results = React.createClass({displayName: "Results",
             bindProfiles();
             this.bindButtons();
             this.loadInLinkedinScript();
+            $(".loading").hide();
           }.bind(this),
           error: function(xhr, status, err) {
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
@@ -72,6 +73,9 @@ var Results = React.createClass({displayName: "Results",
             });
         });
         $("#big-search").click(function() {
+            $(".dashboard-search").slideUp();
+            $(".loading").show();
+            $(".new-search").show();
             result.loadProfileFromServer()
         });
         $("#next").click(function() {
@@ -130,6 +134,10 @@ var Results = React.createClass({displayName: "Results",
     } else {
         return (
           React.createElement("div", {className: "results"}, 
+            React.createElement("div", {className: "loading"}, 
+                React.createElement("h2", null, "Loading"), 
+                React.createElement("p", null, "Finding the best prospects.")
+            ), 
             prospects, 
             React.createElement("div", {className: "clear"})
           )
@@ -299,6 +307,7 @@ function buildGraphs() {
 function bindButtons() {
     $("#show-analytics").click(function() {
         $(".results-dashboard").hide();
+        $(".dashboard-search").hide()
         $(".stats").fadeIn();
         $(".tabs li").removeClass("active");
         $(this).parent().addClass("active");
@@ -306,6 +315,7 @@ function bindButtons() {
 
     $("#show-leads").click(function() {
         $(".stats").hide();
+        $(".dashboard-search").show()
         $(".results-dashboard").fadeIn();
         $(".tabs li").removeClass("active");
         $(this).parent().addClass("active");
@@ -417,4 +427,9 @@ function bindDates() {
         changeYear: true,
         changeMonth: true
     });
+}
+
+function newSearch() {
+    $(".dashboard-search").slideDown();
+    $(".new-search").hide();
 }
