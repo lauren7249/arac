@@ -328,7 +328,7 @@ function companySearch() {
         source: function(request, response) {
             var val = request.term
             $.getJSON("search.json?q=" + val, function(data) {
-                return response(data.data)
+                return response(data.data.slice(0, 8))
             })
         },
         select: function(event, ui) {
@@ -349,7 +349,7 @@ function companySearch() {
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       return $( "<li>" )
         .data('item.autocomplete', item)
-        .append( "<a data-id='" + item.id + "'>" + item.name + "</a>" )
+        .append( "<a data-id='" + item.id + "'>" + item.name + "<p><span>" + item.count + "</span> members</p></a>" )
         .appendTo( ul );
     }
 }
@@ -361,7 +361,7 @@ function schoolSearch() {
         source: function(request, response) {
             var val = request.term
             $.getJSON("search.json?type=0&q=" + val, function(data) {
-                return response(data.data)
+                return response(data.data.slice(0, 8))
             })
         },
         select: function(event, ui) {
@@ -382,7 +382,7 @@ function schoolSearch() {
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       return $( "<li>" )
         .data('item.autocomplete', item)
-        .append( "<a data-id='" + item.id + "'>" + item.name + "</a>" )
+        .append( "<a data-id='" + item.id + "'>" + item.name + "<p><span>" + item.count + "</span> members</p></a>" )
         .appendTo( ul );
     }
 }

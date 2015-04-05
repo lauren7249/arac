@@ -1008,16 +1008,29 @@ div.padding {
 .ui-widget-content {
   background: rgba(0,0,0,0.8);
   position: absolute !important;
-  min-height: 400px;
+  padding: 20px;
 
   li {
     display: block;
     color: #fff;
     font-family: $quick;
     float: none !important;
+    padding: 10px;
 
     a {
       color: #fff;
+
+      p {
+        display: inline;
+        margin-left: 15px;
+        text-align: right;
+
+        span {
+          background: #4caf50;
+          padding: 4px;
+          @include border-radius(4px);
+        }
+      }
     }
   }
 
