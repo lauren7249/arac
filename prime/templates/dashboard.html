@@ -127,7 +127,7 @@
           <button class='btn btn-primary'>Save Search</button>
         </fieldset>
     </div>
-    <div class='results results-dashboard'>
+    <div id='more-padding' class='results results-dashboard'>
       <div class='alert alert-success'>You have <b>{{ prospects_remaining_today }}</b> leads remaining today.</div>
       <h4>Your Prospects</h4>
       <div class='clear'></div>
@@ -137,6 +137,9 @@
         <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
       </div>
       {% endif %}
+      <div class='new-search'>
+          <a href='javascript:newSearch()'>New Search >></a>
+      </div>
       <div id='prospects'></div>
       <div class'clear'></div>
       <a id='next' href='javascript:;'>Next Page</a>
