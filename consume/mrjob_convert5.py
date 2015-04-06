@@ -100,7 +100,7 @@ class processLinkedIn(MRJob):
         results_tuples = pool.map(make_dicts, good_files)
 
         print "made dicts"
-        
+
         for result_tuple in results_tuples:
             print "for part num " + str(Global.part_num) + ", dict type " + result_tuple[0] + " yielded " + str(len(result_tuple[1])) + " items"
             yield result_tuple[0], result_tuple[1]
@@ -577,7 +577,7 @@ def parseFile(row):
                     uu(str(info.get("groups"))),
                     uu(str(info.get("projects")))]
 
-        with open(writefiles[2], 'a') as person_file:
+        with open(writefiles[2], 'ab') as person_file:
             person_writer = csv.writer(person_file, delimiter="\t")                        
             person_writer.writerow(person)
             person_file.close()
@@ -591,7 +591,7 @@ def parseFile(row):
                     uu(school.get("degree")),
                     uu(school.get("description", "").replace("\n", ""))] for school in info.get("schools")]
 
-        with open(writefiles[0], 'a') as education_file:
+        with open(writefiles[0], 'ab') as education_file:
             education_writer = csv.writer(education_file, delimiter="\t")      
             education_writer.writerows(educations)
             education_file.close()
@@ -607,18 +607,18 @@ def parseFile(row):
                     uu(experience.get("description", "").replace("\n", "")),
                     uu(experience.get("location"))] for experience in info.get("experiences")]
         
-        with open(writefiles[1], 'a') as job_file:
+        with open(writefiles[1], 'ab') as job_file:
             job_writer = csv.writer(job_file, delimiter="\t")    
             job_writer.writerows(jobs)
             job_file.close()
 
-        with open("companies", 'a') as companies_file:
+        with open("companies", 'ab') as companies_file:
             for id, name in info.get("good_companies").iteritems():
                 if name is not None and len(name)>0:
                     companies_file.write(id + "\t" + uu(name) + "\n")
             companies_file.close()
 
-        with open("schools", 'a') as schools_file:
+        with open("schools", 'ab') as schools_file:
             for id, name in info.get("good_schools").iteritems():
                 if name is not None and len(name)>0:
                     schools_file.write(id + "\t" + uu(name) + "\n")
