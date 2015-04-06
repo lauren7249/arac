@@ -34,7 +34,6 @@ var Results = React.createClass({displayName: "Results",
           success: function(data) {
             if (data.success.length < 1) {
                 bootbox.alert("There are no results for this query");
-                return
             }
             this.setProps({data: data.success});
             bindProfiles();
@@ -43,7 +42,9 @@ var Results = React.createClass({displayName: "Results",
             $(".loading").hide();
           }.bind(this),
           error: function(xhr, status, err) {
+            console.log(err)
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
+            $(".loading").hide();
           }.bind(this)
         });
     },
@@ -76,14 +77,19 @@ var Results = React.createClass({displayName: "Results",
             $(".dashboard-search").slideUp();
             $(".loading").show();
             $(".new-search").show();
+            $("#next").show();
             result.loadProfileFromServer()
         });
-        $("#next").click(function() {
-            page += 1;
-            result.loadProfileFromServer();
-            $("html, body").animate({
-                scrollTop: $(".results").position().top
-            }, 100);
+        $("#next").click(function(event) {
+            if (event.handled !== true) {
+                page += 1;
+                $("html, body").animate({
+                    scrollTop: $(".results").position().top
+                }, 100);
+                result.loadProfileFromServer();
+                event.handled = true;
+            }
+            return false;
         });
     },
     render: function() {
@@ -134,10 +140,6 @@ var Results = React.createClass({displayName: "Results",
     } else {
         return (
           React.createElement("div", {className: "results"}, 
-            React.createElement("div", {className: "loading"}, 
-                React.createElement("h2", null, "Loading"), 
-                React.createElement("p", null, "Finding the best prospects.")
-            ), 
             prospects, 
             React.createElement("div", {className: "clear"})
           )

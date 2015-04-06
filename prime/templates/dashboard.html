@@ -19,9 +19,7 @@
     <div class='inner'>
       <ul>
         <li><a class='active' href='/dashboard'><span></span>New Prospects</a></li>
-        <li><a href='/search'><span></span>Search</a></li>
         <li><a href='/clients'><span></span>Your Clients</a></li>
-        <li><a href='/investor_profile'><span></span>Your Profile</a></li>
       </ul>
     </div>
   </div>
@@ -140,9 +138,15 @@
       <div class='new-search'>
           <a href='javascript:newSearch()'>New Search >></a>
       </div>
-      <div id='prospects'></div>
+      <div class='prospects-holder'>
+        <div class='loading'>
+            <h2>Loading <img src='/static/img/loader.gif' /></h2>
+            <p>Finding the best prospects.</p>
+        </div>
+        <div id='prospects'></div>
+      </div>
       <div class'clear'></div>
-      <a id='next' href='javascript:;'>Next Page</a>
+      <button class='btn btn-success' id='next'>More Results >></button>
     </div>
   </div>
 </div>
