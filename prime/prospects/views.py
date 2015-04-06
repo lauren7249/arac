@@ -425,7 +425,7 @@ def api():
     prospects = filter_locations(prospects, location_ids)
     prospects = filter_title(prospects, job_title)
     prospects = filter_dates(prospects, job_start, job_end, school_end)
-    
+
     print prospects
 
     prospects = prospects.limit(20).offset(20 * (page-1)).all()

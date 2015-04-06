@@ -41,6 +41,7 @@ def signup(customer_slug):
         if form.validate():
             newuser = User(form.first_name.data, form.last_name.data, form.email.data, form.password.data)
             newuser.customer = customer
+            newuser.plan_id = 1
             db.session.add(newuser)
             db.session.commit()
             login_user(newuser, True)
