@@ -427,7 +427,7 @@ function locationSearch() {
             })
         },
         select: function(event, ui) {
-            var span  = $("<li data-location='"  + ui.item.id + "' class='styled'><span>" + ui.item.name + "</span><a href='javascript:removeSpan(3, " + ui.item.id + ");'>X</a></li>")
+            var span  = $("<li data-location='"  + ui.item.id + "' class='styled'><span>" + ui.item.name + "</span><a href='javascript:removeSpan(3, \"" + ui.item.name + "\");'>X</a></li>")
             $("ul.location-search").prepend(span);
             var ids = $valuesautocomplete.val().split();
             var new_ids = []
@@ -473,7 +473,6 @@ function removeSpan(spanType, id) {
     }
 
     if (spanType == 3) {
-        var id = id.toString()
         $("[data-location='" + id + "']").remove();
         var ids = $("#location_ids").val().split(",");
         var index = ids.indexOf(id.toString())
