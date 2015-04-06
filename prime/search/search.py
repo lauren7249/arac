@@ -77,10 +77,10 @@ class SearchRequest(object):
                     },
                 "size": 100
                 }
-        results = self.es.search(self.type, \
+        results = self.es.search(self.search_type, \
                 q="name:{}".format(self.query.lower()) \
                 , size=100).get("hits").get("hits")
-        if search_type == "locations":
+        if self.search_type == "locations":
             return [{"id": a.get("_id"),"name": a.get("_source").get("name"), \
                     } for a in results[:20]]
         results = sorted(results, key=lambda x: int(x.get("_source")\

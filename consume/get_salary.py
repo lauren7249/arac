@@ -42,20 +42,25 @@ def calculate_salary(title):
 
 def getYear(date):
     try:
-        return date.year
+        return int(date.split("-")[0])
     except:
         pass
     return None
 
-titles = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/jobs.txt', usecols=["title","prospect_id","end_date"], sep="\t", parse_dates=["end_date"])
-titles.fillna("", inplace=True)
-titles.end_date = titles.end_date.apply(getYear)
-today = date.today().year
-titles.end_date.fillna(today, inplace=True)
-titles = titles.groupby('prospect_id', group_keys=False).apply(lambda x: x.ix[x.end_date.idxmax()])
+def getMaxYear(row):
+    return row.ix[row["idxmax"]]
+
+today = date.today()
+titles = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/jobs.txt', usecols=["title","prospect_id","end_date"], sep="\t", nrows=1000)
+titles.end_date.fillna(str(today),inplace=True)
+titles["end_year"] = titles.end_date.apply(getYear)
+
+titles_groupby = titles.groupby('prospect_id',group_keys=False)
+titles["idxmax"] = titles_groupby["end_year"].apply(lambda x: x.idxmax())
+titles = titles.apply(getMaxYear)
 titles.title = titles.title.apply(clean)
 
-titles.to_csv(path_or_buf="current_prospect_jobs.csv", index=False, columns=["prospect_id","title"])
+titles.to_csv(path_or_buf="current_prospect_jobs.csv", index=False, columns=["prospect_id","title","end_year"])
 titles.drop_duplicates(inplace=True, subset=["title"])
 raw_titles = list(titles["title"].values)
 

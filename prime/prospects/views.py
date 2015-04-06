@@ -15,7 +15,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry
+Industry, ProspectLocation, Location
 from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
 #from prime.prospects.prospect_list2 import ProspectList as ProspectList2
@@ -363,7 +363,9 @@ def filter_dates(prospects, job_start, job_end, school_end):
     return prospects
 
 def filter_locations(prospects, location_ids):
-    pass
+    if location_ids:
+        prospects = prospects.filter(ProspectLocation.location_id.in_(location_ids))
+    return prospects
 
 def blank_string_to_none(value):
     if value == "":
@@ -386,11 +388,15 @@ def api():
     school_end = datetime.datetime.strptime(request.args.get("school_end", \
         "2016-01-01"), "%Y-%m-%d").date()
 
+    location_ids = blank_string_to_none(request.args.get("location_ids", None))
+
     prospect_results = []
     if company_ids:
         company_ids = [int(c) for c in company_ids.split(",")]
     if school_ids:
         school_ids = [int(c) for c in school_ids.split(",")]
+    if location_ids:
+        location_ids = [int(c) for c in location_ids.split(",")]
 
     if company_ids and school_ids:
         prospects=session.query(Prospect, Job.title, Company.name, School.name)\
@@ -399,21 +405,28 @@ def api():
             .filter(Job.company_id.in_(company_ids))\
             .filter(Prospect.id == Education.prospect_id)\
             .filter(School.id == Education.school_id)\
+            .filter(Prospect.id == ProspectLocation.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
     elif school_ids:
         prospects=session.query(Prospect, School.name)\
+            .filter(Job.prospect_id == Prospect.id)\
+            .filter(Company.id == Job.company_id)\
             .filter(Prospect.id == Education.prospect_id)\
             .filter(School.id==Education.school_id)\
+            .filter(Prospect.id == ProspectLocation.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
     else:
         prospects=session.query(Prospect, Job.title, Company.name)\
             .filter(Job.prospect_id == Prospect.id)\
             .filter(Company.id == Job.company_id)\
+            .filter(Prospect.id == ProspectLocation.prospect_id)\
             .filter(Job.company_id.in_(company_ids))
 
+    prospects = filter_locations(prospects, location_ids)
     prospects = filter_title(prospects, job_title)
     prospects = filter_dates(prospects, job_start, job_end, school_end)
-    prospects = filter_locations(prospects, location_ids)
+    
+    print prospects
 
     prospects = prospects.limit(20).offset(20 * (page-1)).all()
     for prospect in prospects:
