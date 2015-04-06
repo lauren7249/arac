@@ -4,7 +4,7 @@ import requests
 import lxml.html
 import os
 
-from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text
+from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
@@ -30,7 +30,7 @@ class Prospect(db.Model):
     name = db.Column(String(1024))
     linkedin_id = db.Column(String(1024), index=True)
 
-    location = db.Column(Integer, ForeignKey("location.id"))
+    location = db.Column(Integer)
     location_raw = db.Column(String)
 
     image_url = db.Column(String(1024))
@@ -191,13 +191,27 @@ class Prospect(db.Model):
 class Location(db.Model):
     __tablename__ = "location"
 
-    id = db.Column(Integer, primary_key=True)
+    id = db.Column(BigInteger, primary_key=True)
     name = db.Column(String(1024))
+    lat = db.Column(Float)
+    lng = db.Column(Float)
 
     def __repr__(self):
         return '<Location id={0} name={1}>'.format(
                 self.id,
                 self.name
+                )
+
+class ProspectLocation(db.Model):
+    __tablename__ = "prospect_location"
+
+    prospect_id = db.Column(BigInteger, primary_key=True)
+    location_id = db.Column(BigInteger, primary_key=True)
+
+    def __repr__(self):
+        return '<Prospect Location prospect_id={0} location_id={1}>'.format(
+                self.prospect_id,
+                self.location_id
                 )
 
 class Industry(db.Model):

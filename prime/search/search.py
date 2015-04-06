@@ -31,8 +31,11 @@ class SearchIndexer(object):
         total_count = 0
         count = 0
         items = []
-        self.create_mapping()
-        for line in csv.reader(self.file, delimiter='\t'):
+        try:
+            self.create_mapping()
+        except:
+            pass
+        for line in csv.reader(self.file, delimiter=','):
             try:
                 item_count = int(line[2])
             except Exception, e:
@@ -50,7 +53,7 @@ class SearchIndexer(object):
                             }
                         }
                 items.append(item)
-                count += 1
+            count += 1
             total_count += 1
             if (count % 10000 == 0):
                 helpers.bulk(self.es, items)
@@ -62,10 +65,10 @@ class SearchIndexer(object):
 
 class SearchRequest(object):
 
-    def __init__(self, query, type='schools', *args, **kwargs):
+    def __init__(self, query, search_type='schools', *args, **kwargs):
         self.es = elasticsearch.Elasticsearch(ELASTIC_SEARCH_URL)
         self.query = query
-        self.type = type
+        self.search_type = search_type
 
     def search(self):
         query = {"query":
@@ -77,6 +80,9 @@ class SearchRequest(object):
         results = self.es.search(self.type, \
                 q="name:{}".format(self.query.lower()) \
                 , size=100).get("hits").get("hits")
+        if search_type == "locations":
+            return [{"id": a.get("_id"),"name": a.get("_source").get("name"), \
+                    } for a in results[:20]]
         results = sorted(results, key=lambda x: int(x.get("_source")\
                 .get("item_count")), reverse=True)
         return [{"id": a.get("_id"),"name": a.get("_source").get("name"), \
