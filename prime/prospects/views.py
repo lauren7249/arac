@@ -281,7 +281,7 @@ def jobs_create():
 def elastic_search():
     type = request.args.get("type", "school")
     term = request.args.get("term")
-    search = SearchRequest(term, type=type)
+    search = SearchRequest(term, search_type=type)
     data = search.search()
     return render_template('ajax/search.html', results=data)
 
@@ -290,11 +290,13 @@ def elastic_search_json():
     type = int(request.args.get("type", 1))
     if type == 1:
         type = "companys"
+    elif type == 2:
+        type = "locations"
     else:
         type = "schools"
 
     term = request.args.get("q")
-    search = SearchRequest(term, type=type)
+    search = SearchRequest(term, search_type=type)
     data = search.search()
     return jsonify({"data": data})
 
@@ -360,6 +362,9 @@ def filter_dates(prospects, job_start, job_end, school_end):
         prospects = prospects.filter(Education.end_date<=school_end)
     return prospects
 
+def filter_locations(prospects, location_ids):
+    pass
+
 def blank_string_to_none(value):
     if value == "":
         return None
@@ -408,6 +413,7 @@ def api():
 
     prospects = filter_title(prospects, job_title)
     prospects = filter_dates(prospects, job_start, job_end, school_end)
+    prospects = filter_locations(prospects, location_ids)
 
     prospects = prospects.limit(20).offset(20 * (page-1)).all()
     for prospect in prospects:
