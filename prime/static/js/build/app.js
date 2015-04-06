@@ -78,11 +78,27 @@ var Results = React.createClass({displayName: "Results",
             $(".loading").show();
             $(".new-search").show();
             $("#next").show();
+            $("#prev").show();
             result.loadProfileFromServer()
         });
         $("#next").click(function(event) {
             if (event.handled !== true) {
                 page += 1;
+                $("html, body").animate({
+                    scrollTop: $(".results").position().top
+                }, 100);
+                result.loadProfileFromServer();
+                event.handled = true;
+            }
+            return false;
+        });
+
+        $("#prev").click(function(event) {
+            if (event.handled !== true) {
+                page--;
+                if (page < 1) {
+                    page = 1;
+                }
                 $("html, body").animate({
                     scrollTop: $(".results").position().top
                 }, 100);

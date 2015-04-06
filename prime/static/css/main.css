@@ -1127,7 +1127,7 @@ div.empty ul, div.empty li {
   list-style-type: decimal;
 }
 
-#next {
+#next, #prev {
   margin-bottom: 50px;
   display: none;
 }
