@@ -450,4 +450,6 @@ function bindDates() {
 function newSearch() {
     $(".dashboard-search").slideDown();
     $(".new-search").hide();
+    $("#prev").hide();
+    $("#next").hide();
 }
