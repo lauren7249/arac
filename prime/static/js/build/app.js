@@ -78,12 +78,12 @@ var Results = React.createClass({displayName: "Results",
             $(".loading").show();
             $(".new-search").show();
             $("#next").show();
-            $("#prev").show();
             result.loadProfileFromServer()
         });
         $("#next").click(function(event) {
             if (event.handled !== true) {
                 page += 1;
+                $("#prev").show();
                 $("html, body").animate({
                     scrollTop: $(".results").position().top
                 }, 100);
