@@ -444,7 +444,7 @@ function locationSearch() {
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       return $( "<li>" )
         .data('item.autocomplete', item)
-        .append( "<a data-id='" + item.id + "'>" + item.name + "<p><span>" )
+        .append( "<a data-id='" + item.id + "'>" + item.name + "<p>" )
         .appendTo( ul );
     }
 }
@@ -473,6 +473,7 @@ function removeSpan(spanType, id) {
     }
 
     if (spanType == 3) {
+        var id = id.toString()
         $("[data-location='" + id + "']").remove();
         var ids = $("#location_ids").val().split(",");
         var index = ids.indexOf(id.toString())
