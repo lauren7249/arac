@@ -575,6 +575,10 @@ div.new-search a {
   padding-top: 50px;
 }
 
+div.prospects-holder {
+  position: relative;
+}
+
 div.results {
   width: auto;
   padding: 20px 20px 0;
@@ -781,6 +785,7 @@ div.results div.hide-results p {
 
 div.loading {
   width: 100%;
+  display: none;
   position: absolute;
   background: rgba(255, 255, 255, 0.95);
   left: 0;

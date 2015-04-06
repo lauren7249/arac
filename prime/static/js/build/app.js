@@ -34,13 +34,13 @@ var Results = React.createClass({displayName: "Results",
           success: function(data) {
             if (data.success.length < 1) {
                 bootbox.alert("There are no results for this query");
-                return
+            } else {
+                this.setProps({data: data.success});
+                bindProfiles();
+                this.bindButtons();
+                this.loadInLinkedinScript();
+                $(".loading").hide();
             }
-            this.setProps({data: data.success});
-            bindProfiles();
-            this.bindButtons();
-            this.loadInLinkedinScript();
-            $(".loading").hide();
           }.bind(this),
           error: function(xhr, status, err) {
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
@@ -134,10 +134,6 @@ var Results = React.createClass({displayName: "Results",
     } else {
         return (
           React.createElement("div", {className: "results"}, 
-            React.createElement("div", {className: "loading"}, 
-                React.createElement("h2", null, "Loading"), 
-                React.createElement("p", null, "Finding the best prospects.")
-            ), 
             prospects, 
             React.createElement("div", {className: "clear"})
           )
