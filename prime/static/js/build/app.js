@@ -347,6 +347,7 @@ function hideOverlay() {
 function bindSearch() {
     companySearch();
     schoolSearch();
+    locationSearch()
 }
 
 function companySearch() {
@@ -415,6 +416,39 @@ function schoolSearch() {
     }
 }
 
+function locationSearch() {
+    var $valuesautocomplete = $("#location_ids");
+    var $autocomplete = $("#location-autocomplete");
+    $autocomplete.autocomplete({
+        source: function(request, response) {
+            var val = request.term
+            $.getJSON("search.json?type=2&q=" + val, function(data) {
+                return response(data.data.slice(0, 8))
+            })
+        },
+        select: function(event, ui) {
+            var span  = $("<li data-location='"  + ui.item.id + "' class='styled'><span>" + ui.item.name + "</span><a href='javascript:removeSpan(3, " + ui.item.id + ");'>X</a></li>")
+            $("ul.location-search").prepend(span);
+            var ids = $valuesautocomplete.val().split();
+            var new_ids = []
+            for (var j in ids) {
+                if (ids[j] !=="") {
+                    new_ids.push(ids[j])
+                }
+            }
+            new_ids.push(ui.item.id)
+            $valuesautocomplete.val(new_ids.join(","))
+
+        },
+        appendTo: '#location-results-autocomplete'
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .data('item.autocomplete', item)
+        .append( "<a data-id='" + item.id + "'>" + item.name + "<p><span>" )
+        .appendTo( ul );
+    }
+}
+
 function removeSpan(spanType, id) {
     if (spanType == 1) {
         $("[data-company='" + id + "']").remove();
@@ -435,6 +469,17 @@ function removeSpan(spanType, id) {
             ids.splice(index, 1)
         }
         $("#school_ids").val(ids.join(","))
+        return;
+    }
+
+    if (spanType == 3) {
+        $("[data-location='" + id + "']").remove();
+        var ids = $("#location_ids").val().split(",");
+        var index = ids.indexOf(id.toString())
+        if (index > -1) {
+            ids.splice(index, 1)
+        }
+        $("#location_ids").val(ids.join(","))
         return;
     }
 }
