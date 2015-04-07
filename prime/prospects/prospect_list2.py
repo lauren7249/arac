@@ -1,5 +1,6 @@
-import re
+import re, os
 from pandas import *
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask import Flask
 import urllib
 from boto.s3.connection import S3Connection
@@ -16,12 +17,11 @@ from prime.prospects.process_entity3 import *
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
 
-
 def setup():
     global predictors 
     global model
-    AWS_KEY = 'AKIAIWG5K3XHEMEN3MNA'
-    AWS_SECRET = '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'
+    AWS_KEY = os.environ["AWS_ACCESS_KEY_ID"]
+    AWS_SECRET = os.environ["AWS_SECRET_ACCESS_KEY"]
     aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
     bucket = aws_connection.get_bucket('advisorconnect-bigfiles')
     k = Key(bucket)
@@ -34,19 +34,71 @@ def setup():
     k.get_contents_to_filename("model_predictors")
     predictors = joblib.load("model_predictors")
 
+def add_knowns(prospects_scored):
+    try:
+        path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/known_firstdegrees.csv"
+        known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["name", "linkedin_id", "url"])
+        known_firstdegrees_df.fillna(value="", inplace=True)
+        for i, row in known_firstdegrees_df.iterrows():
+            linkedin_id = row["linkedin_id"]
+            url = row["url"]
+            #print url
+            prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
+            if prospect is None and len(url)>0:
+                prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
+            if prospect is not None:
+                prospect_id = prospect.id
+                score = 100.0
+                newrow = {"prospect_id":prospect_id, "score":score}
+                prospects_scored = prospects_scored.append(newrow, ignore_index=True)
+    except:
+        pass
+
+    try:
+        path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/linkedin_ids.csv"
+        known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["linkedin_id"])
+        known_firstdegrees_df.fillna(value="", inplace=True)
+        for i, row in known_firstdegrees_df.iterrows():
+            linkedin_id = row["linkedin_id"]
+            #print url
+            prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
+            if prospect is not None:
+                prospect_id = prospect.id
+                score = 100.0
+                newrow = {"prospect_id":prospect_id, "score":score}
+                prospects_scored = prospects_scored.append(newrow, ignore_index=True)
+    except:
+        pass
+
+    try:
+        path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/linkedin_id/" +  str(self.prospect.linkedin_id) + "/linkedin_ids.csv"
+        known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["linkedin_id"])
+        known_firstdegrees_df.fillna(value="", inplace=True)
+        for i, row in known_firstdegrees_df.iterrows():
+            linkedin_id = row["linkedin_id"]
+            #print url
+            prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
+            if prospect is not None:
+                prospect_id = prospect.id
+                score = 100.0
+                newrow = {"prospect_id":prospect_id, "score":score}
+                prospects_scored = prospects_scored.append(newrow, ignore_index=True)
+    except:
+        pass      
+    return prospects_scored
+
 class ProspectList(object):
-
+    app = Flask(__name__)
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
+    db = SQLAlchemy(app)
     session = db.session
-
     def __init__(self, prospect, *args, **kwargs):
 
         self.prospect = prospect
         self.results = {}
         setup()
 
-    def get_results(self):
-        results = []
-
+    def get_best_guesses(self):
         process_prospect(self.prospect.id)
         processed_df = None
         processed_files = list(bucket.list("entities/prospects/" + str(self.prospect.id) + "/processed_"))
@@ -82,43 +134,19 @@ class ProspectList(object):
 
         prospects_scored = pandas.concat([prospect_ids,y], axis=1)
 
-        try:
-            path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/known_firstdegrees.csv"
-            known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["name", "linkedin_id", "url"])
-            known_firstdegrees_df.fillna(value="", inplace=True)
-            for i, row in known_firstdegrees_df.iterrows():
-                linkedin_id = row["linkedin_id"]
-                url = row["url"]
-                #print url
-                prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
-                if prospect is None and len(url)>0:
-                    prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
-                if prospect is not None:
-                    prospect_id = prospect.id
-                    score = 100.0
-                    newrow = {"prospect_id":prospect_id, "score":score}
-                    prospects_scored = prospects_scored.append(newrow, ignore_index=True)
-        except:
-            pass
-
-        try:
-            path = "https://s3.amazonaws.com/advisorconnect-bigfiles/entities/prospects/" +  str(self.prospect.id) + "/linkedin_ids.csv"
-            known_firstdegrees_df = pandas.read_csv(path, delimiter=",", names=["linkedin_id"])
-            known_firstdegrees_df.fillna(value="", inplace=True)
-            for i, row in known_firstdegrees_df.iterrows():
-                linkedin_id = row["linkedin_id"]
-                #print url
-                prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
-                if prospect is not None:
-                    prospect_id = prospect.id
-                    score = 100.0
-                    newrow = {"prospect_id":prospect_id, "score":score}
-                    prospects_scored = prospects_scored.append(newrow, ignore_index=True)
-        except:
-            pass
+        prospects_scored = add_knowns(prospects_scored)
 
         prospects_scored.drop_duplicates(cols='prospect_id', take_last=True, inplace=True)
-        prospects_scored = prospects_scored.sort(columns="score", ascending=False).head(100)
+        prospects_scored = prospects_scored.sort(columns="score", ascending=False).head(100)    
+        return prospects_scored
+
+
+    def get_results(self, restrict_to_knowns=False):
+        results = []
+        prospects_scored = pandas.DataFrame(columns=["prospect_id", "score"])
+        prospects_scored = add_knowns(prospects_scored)
+        if not restrict_to_knowns:
+            prospects_scored = prospecs_scored.append(get_best_guesses())
 
         for index, row in prospects_scored.iterrows():
             prospect_id = int(row["prospect_id"])

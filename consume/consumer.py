@@ -10,7 +10,7 @@ import logging
 import json
 from itertools import islice
 from dateutil import parser
-
+import requests
 sys.path.append(".")
 from prime.prospects import models
 from prime import create_app
@@ -30,7 +30,7 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-s3conn = boto.connect_s3("AKIAIZZBJ527CKPNY6YQ", "OCagmcIXQYdmcIYZ3Uafmg1RZo9goNOb83DrRJ8u")
+s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
 bucket = s3conn.get_bucket('arachid-results')
 
 try:
@@ -254,6 +254,14 @@ def dedupe_dict(ds):
 
 def url_to_key(url):
     return url.replace('/', '')
+
+def get_info_for_url_live(url):
+    headers ={'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}   
+    response = requests.get(url, headers=headers)
+    response_text = response.content
+    info = parse_html(response_text)
+    return info
+
 
 def get_info_for_url(url):
     key = Key(bucket)

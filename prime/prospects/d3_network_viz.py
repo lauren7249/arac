@@ -2,14 +2,14 @@ import json, re, simplejson, os, sys
 from prime.prospects.models import db, Prospect
 from prime.prospects.prospect_list2 import ProspectList
 import shutil
+from consume.consumer import *
 
-MAX_CUTTOFF = 18
+MAX_CUTTOFF = 250
 MATCH_CUTTOFF = 0.00
 
 server_folder = "/home/ubuntu/arachnid/prime/dataviz/interactive_network/"
 ids = []
 current_Persons = []
-session = db.session
 
 def id_for(prospect_name, prospect_id):
   id = prospect_name + "_" + str(prospect_id)
@@ -20,7 +20,8 @@ def id_for(prospect_name, prospect_id):
 
 def prospect_for(root):
   url = root["url"]
-  prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
+  info = get_info_for_url_live(url)
+  prospect = create_prospect_from_info(info, url)
   print prospect.name
   return prospect
 
@@ -45,7 +46,7 @@ def get_similar(prospect):
 
   #actually get results
   plist = ProspectList(prospect)
-  results = plist.get_results()
+  results = plist.get_results(restrict_to_knowns=True)
   #print results
   Persons = []
   # puts results.inspect
@@ -126,14 +127,16 @@ def numeric(dollar):
   if num is None or len(num) == 0: return None
   return int(num)
 
-def create_network_viz(public_url, pretty_name):
-  prospect = session.query(Prospect).filter_by(s3_key=public_url.replace("/", "")).first()
+def create_network_viz(search_term, pretty_name):
+  info = get_info_for_url_live(search_term)
+  prospect = create_prospect_from_info(info, search_term)
   root = {}
   copy_dependencies(pretty_name)
   root["name"] = prospect.name
   root["id"]  = id_for(prospect.name, prospect.id)
   root["filename"] = filename_for(pretty_name)
   root["entity"] = prospect.industry_raw
+  root["linkedin_id"] = prospect.linkedin_id
   root["connections"] = prospect.connections
   root["image_url"] = prospect.image_url
   root["url"] = prospect.url
@@ -143,6 +146,6 @@ def create_network_viz(public_url, pretty_name):
   grab(root, root["filename"])
 
 if __name__ == "__main__":
-  url = sys.argv[0]
-  webname = sys.argv[1]
-  create_network_viz(url, webname)
+  search_term = sys.argv[1]
+  webname = sys.argv[2]
+  create_network_viz(search_term, webname)
