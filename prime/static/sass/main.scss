@@ -1055,6 +1055,7 @@ div.padding {
 //AUTOCOMPLETE STUFFS 
 .ui-widget-content {
   background: rgba(0,0,0,0.8);
+  z-index: 1000000;
   position: absolute !important;
   padding: 20px;
 
@@ -1196,4 +1197,8 @@ div.days {
       @include box-shadow(#4caf50 0 0 3px);
     }
   }
+}
+
+.introjs-tooltipReferenceLayer {
+  z-index: 999999;
 }
