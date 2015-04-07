@@ -1,6 +1,7 @@
 import json, re, simplejson, os, sys
 from prime.prospects.models import db, Prospect
 from prime.prospects.prospect_list2 import ProspectList
+from prime.prospects.get_prospect import *
 import shutil
 from consume.consumer import *
 
@@ -20,8 +21,10 @@ def id_for(prospect_name, prospect_id):
 
 def prospect_for(root):
   url = root["url"]
-  info = get_info_for_url_live(url)
-  prospect = create_prospect_from_info(info, url)
+  prospect = from_url(search_term)
+  if prospect is None:
+    info = get_info_for_url_live(url)
+    prospect = create_prospect_from_info(info, url)
   print prospect.name
   return prospect
 
@@ -128,8 +131,15 @@ def numeric(dollar):
   return int(num)
 
 def create_network_viz(search_term, pretty_name):
-  info = get_info_for_url_live(search_term)
-  prospect = create_prospect_from_info(info, search_term)
+  prospect = from_url(search_term)
+  if prospect is None:
+    prospect = from_linkedin_id(search_term)
+  if prospect is None:
+    info = get_info_for_url_live(search_term)
+    prospect = create_prospect_from_info(info, search_term)
+  if prospect is None:
+    print "cant make prospect"
+    return
   root = {}
   copy_dependencies(pretty_name)
   root["name"] = prospect.name

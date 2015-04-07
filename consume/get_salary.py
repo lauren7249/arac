@@ -6,7 +6,7 @@ def clean(str):
     try:
         str = re.sub(" - "," ",str)
         str = re.sub("[^a-zA-Z-]"," ",str)
-        str = re.sub("\s+"," ",str.lower())
+        str = re.sub("\s+"," ",str.lower().strip())
         # wordlist = str.split(" ")
         # wordlist.sort()
         # str = " ".join(wordlist)
@@ -47,10 +47,10 @@ from multiprocessing import Manager
 import re
 from datetime import date
 from joblib import Parallel, delayed
+import csv
 
 global latestJobs
-mgr = Manager()
-latestJobs = mgr.dict()
+latestJobs = {}
 
 
 def getYear(date):
@@ -72,18 +72,34 @@ def updateLatestJob(job):
 today = date.today()
 titles = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/jobs.txt', usecols=["title","prospect_id","end_date"], sep="\t")
 titles.end_date.fillna(str(today),inplace=True)
-titles["end_date"] = titles.end_date.apply(getYear)
-
-pool = multiprocessing.Pool(100)
-pool.map(updateLatestJob, list(titles.values))
-
-titles = pandas.DataFrame.from_records(latestJobs.values(),  columns=["prospect_id","title","end_date"])
+titles.end_date = titles.end_date.apply(getYear)
 titles.title = titles.title.apply(clean)
-titles.to_csv(path_or_buf="current_prospect_jobs.csv", index=False, columns=["prospect_id","title","end_date"])
-titles.drop_duplicates(inplace=True, subset=["title"])
-raw_titles = list(titles["title"].values)
+titles.to_csv(path_or_buf="prospect_jobs.csv", index=False, header=None, columns=["prospect_id","title","end_date"])
+titles = None
 
-print len(raw_titles)
+t = open("prospect_jobs.csv",'rb')
+reader = csv.reader(t, delimiter=',')
+for row in reader:
+    updateLatestJob(row)
+t.close()
+   
+if os.path.isfile("current_prospect_jobs.csv"): os.remove("current_prospect_jobs.csv")
+t = open("current_prospect_jobs.csv","ab")
+writer = csv.writer(t)
+for key, value in latestJobs.iteritems():
+    writer.writerow(value)
+t.close()
+latestJobs = None
+
+titles = pandas.read_csv("current_prospect_jobs.csv", sep=",", names=["prospect_id","title","end_date"], header=None, usecols=["title"])
+titles.drop_duplicates(inplace=True, subset=["title"])
+
 if os.path.isfile(salaries_path): os.remove(salaries_path)
 
-pool.map(calculate_salary,raw_titles)
+pool = multiprocessing.Pool(100)
+for index, row in titles.iterrows():
+    pool.apply_async(calculate_salary,(row.title,))
+
+titles = None
+pool.close()
+pool.join()
