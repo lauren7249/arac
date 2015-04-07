@@ -138,13 +138,17 @@ var Results = React.createClass({displayName: "Results",
                 $("[data-result='" + id + "']").fadeOut();
             });
         });
-        $("#big-search").click(function() {
-            $(".dashboard-search").slideUp();
-            $(".loading").show();
-            $(".new-search").show();
-            $("#next").show();
-            result.loadProfileFromServer()
+        $("#big-search").click(function(event) {
+            if (event.handled !== true) {
+                $(".dashboard-search").slideUp();
+                $(".loading").show();
+                $(".new-search").show();
+                $("#next").show();
+                result.loadProfileFromServer()
+            }
+            return false;
         });
+
         $("#next").click(function(event) {
             if (event.handled !== true) {
                 page += 1;
