@@ -150,6 +150,7 @@ class ClientList(db.Model):
 
     user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True)
     user = relationship('User', foreign_keys='ClientList.user_id')
+    created = db.Column(Date, default=datetime.datetime.today)
 
     prospects = db.relationship('Prospect', secondary="client_prospect", \
                                backref=db.backref('prospects', lazy='dynamic'))
