@@ -1160,6 +1160,7 @@ div.days div.results .neg-top {
   margin-top: -9px;
 }
 div.days div.results div.checked {
+  border: 1px solid #4caf50;
   -webkit-box-shadow: #4caf50 0 0 3px;
   -moz-box-shadow: #4caf50 0 0 3px;
   box-shadow: #4caf50 0 0 3px;

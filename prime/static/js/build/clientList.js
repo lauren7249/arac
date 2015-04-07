@@ -11,8 +11,14 @@ var Relationship = React.createClass({displayName: "Relationship",
 
 
 var Prospect = React.createClass({displayName: "Prospect",
-    getInitialState: function() {
-        return {checked:true};
+    handleChange: function() {
+        var id = this.props.data.id;
+        var $div = $("[data-result='" + id + "']")
+        if ($div.hasClass("checked")) {
+            $div.removeClass("checked");
+        } else {
+            $div.addClass("checked");
+        }
     },
     render: function() {
         var prospect = this.props.data;
@@ -20,7 +26,7 @@ var Prospect = React.createClass({displayName: "Prospect",
         return (
             React.createElement("div", {className: "result checked", "data-result": prospect.id}, 
                 React.createElement("div", {className: "first"}, 
-                    React.createElement("input", {type: "checkbox", checked: this.props.checked})
+                    React.createElement("input", {type: "checkbox", value: prospect.id, defaultChecked: true, onChange: this.handleChange})
                 ), 
                 React.createElement("div", {className: "second"}, 
                     React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.name)), 
@@ -61,8 +67,8 @@ var ClientList = React.createClass({displayName: "ClientList",
                 );
         });
         return (
-          React.createElement("div", {className: "results"}, 
-            React.createElement("h2", {className: "leaders"}, "Date: ", React.createElement("span", {className: "green"}, this.props.name), " ", React.createElement("div", {className: "pull-right neg-top"}, React.createElement("button", {className: "btn btn-success"}, "Export"))), 
+          React.createElement("div", {"data-client-list": this.props.name, className: "results"}, 
+            React.createElement("h2", {className: "leaders"}, "Date: ", React.createElement("span", {className: "green"}, this.props.name), " ", React.createElement("div", {className: "pull-right neg-top"}, React.createElement("button", {"data-export": this.props.name, className: "btn btn-success"}, "Export"))), 
             prospects, 
             React.createElement("div", {className: "clear"})
           )
@@ -82,6 +88,7 @@ var ClientLists = React.createClass({displayName: "ClientLists",
             }
             this.setProps({data: data.success});
             bindProfiles();
+            this.bindExport();
           }.bind(this),
           error: function(xhr, status, err) {
             console.log(err)
@@ -97,9 +104,17 @@ var ClientLists = React.createClass({displayName: "ClientLists",
     componentDidMount: function() {
         setTimeout(this.loadInLinkedinScript, 1000);
         this.loadProfileFromServer()
+        this.bindExport();
     },
     loadInLinkedinScript: function() {
         IN.parse(document.body);
+    },
+    bindExport: function() {
+        $("[data-export]").click(function(e) {
+            var id = $(this).data("export");
+            e.preventDefault();
+            exportList(id);
+        });
     },
     render: function() {
     var prospects = this.props.data.map(function(prospects) {
@@ -128,16 +143,9 @@ var ClientLists = React.createClass({displayName: "ClientLists",
   }
 });
 
-$(function() {
-    $("#export-list").click(function(e) {
-      e.preventDefault();
-      exportList();
-    });
-});
-
-function exportList() {
+function exportList(id) {
   var vals = []
-  $(".prospect-checkbox:checked").each(function() {
+  $("[data-client-list='" + id + "'] input:checked").each(function() {
       vals.push($(this).val())
   });
   var params={"ids": vals.join()}
@@ -165,7 +173,6 @@ $(function() {
 
 function bindProfiles() {
     $("[data-prospect]").click(function() {
-        debugger;
         var url = $(this).data('url');
         var id = $(this).data("prospect");
         loadProfile(id, url);
