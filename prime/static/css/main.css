@@ -1131,3 +1131,7 @@ div.empty ul, div.empty li {
   margin-bottom: 50px;
   display: none;
 }
+
+#user-prospects {
+  display: none;
+}
