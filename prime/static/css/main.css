@@ -1135,3 +1135,32 @@ div.empty ul, div.empty li {
 #user-prospects {
   display: none;
 }
+
+div.days {
+  padding: 15px;
+}
+div.days div.results {
+  padding: 15px;
+}
+div.days div.results h2.leaders {
+  text-transform: uppercase;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  color: #354661;
+  font-weight: bold;
+  font-size: 18px;
+}
+div.days div.results h2.leaders .green {
+  color: #4caf50;
+  text-transform: capitalize;
+  font-weight: normal;
+  margin-left: 10px;
+}
+div.days div.results .neg-top {
+  margin-top: -9px;
+}
+div.days div.results div.checked {
+  -webkit-box-shadow: #4caf50 0 0 3px;
+  -moz-box-shadow: #4caf50 0 0 3px;
+  box-shadow: #4caf50 0 0 3px;
+}

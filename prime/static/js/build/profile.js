@@ -137,7 +137,6 @@ var Profile = React.createClass({displayName: "Profile",
                 React.createElement("div", {className: "clear"}), 
                 React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
                 React.createElement("a", {"data-skip": this.state.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Skip Prospect")), 
-                React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-primary prospect-request"}, React.createElement("input", {type: "hidden", value: this.state.data.id}), React.createElement("i", {className: "fa fa-info-circle"}), " Request Contact Information")), 
                 React.createElement("div", {className: "clear"}), 
                 React.createElement("fieldset", {className: "hidden-select"}, 
                     clientLists, 
@@ -181,15 +180,6 @@ function loadProfile(id, linkedin_url) {
 function closeProfile() {
     $(".overlay").fadeOut();
     $("#person").html("");
-}
-
-function bindProspectRequest() {
-    $("button.prospect-request").click(function(e) {
-        var val = $(this).find("input").val()
-        $.get("/ajax/pipl/" + val, function(data) {
-            alert("email:" + data.email);
-        });
-    });
 }
 
 function bindClientListButtons() {
