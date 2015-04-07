@@ -71,7 +71,7 @@ def user_skills_delete():
 def add_prospect_client_list(prospect_id):
     user = current_user
     if request.method == 'POST':
-        name = "Date: {}".format(datetime.date.today())
+        name = datetime.date.today().strftime("%A, %b %d %Y")
         client_list = ClientList.query.filter_by(name=name,
                 user=current_user).first()
         if not client_list:
@@ -107,4 +107,18 @@ def skip_prospect(prospect_id):
             user_json})
         session.commit()
     return jsonify({"success": True})
+
+
+@users.route("/api/clientlists")
+def api_clientlists():
+    page = 1
+    user = current_user
+    client_lists = ClientList.query.filter_by(user=current_user).all()
+    results = []
+    for list in client_lists:
+        d={}
+        d['name'] =list.name
+        d['data'] = [p.to_json() for p in list.prospects]
+        results.append(d)
+    return jsonify({"success": results})
 
