@@ -18,7 +18,7 @@ from prime.prospects.helper import BingSearch
 
 class EmailFinder(object):
 
-    def __init__(self, name, linkedin_id, company, *args, **kwargs):
+    def __init__(self, name, company, linkedin_id, *args, **kwargs):
         self.first_name, self.last_name = name.split(" ")
         self.company = company
         self.linkedin_id = linkedin_id
@@ -27,7 +27,7 @@ class EmailFinder(object):
         self.full_contact_params = {"apiKey": self.full_contact_api_key}
 
     def find_url(self):
-        bing = BingSearch("{} company website".format(self.company))
+        bing = BingSearch("{}".format(self.company))
         items = bing.search()
         for item in items:
             url = item.get("Url")
@@ -63,28 +63,31 @@ class EmailFinder(object):
             emails = content.get('person').get("emails")
             images = content.get('person').get("images")
             if len(emails) > 0:
-                info['email'] = emails[0].get("address")
+                return emails[0].get("address")
         except:
             return None
 
     def find_smtp_information(self):
-        results = DNS.mxlookup(self.email_domain)
-        from_email = "sam@google.com"
-        if len(results) > 0:
-            result = results[0][1]
-            server = smtplib.SMTP(result, 25)
-            server.helo()
-            server.mail(from_email, "")
-            for permutation in self.permutations:
-                print permutation
-                try:
-                    code, info = server.rcpt(permutation)
-                    if code == 250:
-                        return permutation
-                except Exception, e:
-                    print e
-                    pass
-        pass
+        try:
+            results = DNS.mxlookup(self.email_domain)
+            from_email = "sam@google.com"
+            if len(results) > 0:
+                result = results[0][1]
+                server = smtplib.SMTP(result, 25)
+                server.helo()
+                server.mail(from_email, "")
+                for permutation in self.permutations:
+                    print permutation
+                    try:
+                        code, info = server.rcpt(permutation)
+                        if code == 250:
+                            return permutation
+                    except Exception, e:
+                        print e
+                        pass
+            return None
+        except:
+            return None
 
     def find_whois_information(self):
         pass
