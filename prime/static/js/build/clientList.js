@@ -11,12 +11,16 @@ var Relationship = React.createClass({displayName: "Relationship",
 
 
 var Prospect = React.createClass({displayName: "Prospect",
+    getInitialState: function() {
+        return {checked:true};
+    },
     render: function() {
         var prospect = this.props.data;
         var relationship = React.createElement(Relationship, {name: prospect.relevancy})
         return (
-            React.createElement("div", {className: "result", "data-result": prospect.id}, 
-                React.createElement("div", {className: "first"}
+            React.createElement("div", {className: "result checked", "data-result": prospect.id}, 
+                React.createElement("div", {className: "first"}, 
+                    React.createElement("input", {type: "checkbox", checked: this.props.checked})
                 ), 
                 React.createElement("div", {className: "second"}, 
                     React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.name)), 
@@ -27,13 +31,8 @@ var Prospect = React.createClass({displayName: "Prospect",
                 React.createElement("div", {className: "image"}, 
                     React.createElement("img", {src: prospect.image_url})
                 ), 
-                React.createElement("div", {className: "connections"}, 
-                    React.createElement("h5", null, "Connection Path"), 
-                    relationship
-                ), 
                 React.createElement("div", {className: "buttons"}, 
-                    React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
-                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Mark Prospect"))
+                    React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-warning prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Change Status"))
                 ), 
                 React.createElement("div", {className: "clear"})
             )
@@ -48,7 +47,6 @@ var ClientList = React.createClass({displayName: "ClientList",
     },
     componentDidMount: function() {
         setTimeout(this.loadInLinkedinScript, 1000);
-        this.bindButtons();
     },
     loadInLinkedinScript: function() {
         IN.parse(document.body);
@@ -64,7 +62,7 @@ var ClientList = React.createClass({displayName: "ClientList",
         });
         return (
           React.createElement("div", {className: "results"}, 
-            React.createElement("h2", null, this.props.name), 
+            React.createElement("h2", {className: "leaders"}, "Date: ", React.createElement("span", {className: "green"}, this.props.name), " ", React.createElement("div", {className: "pull-right neg-top"}, React.createElement("button", {className: "btn btn-success"}, "Export"))), 
             prospects, 
             React.createElement("div", {className: "clear"})
           )
@@ -83,6 +81,7 @@ var ClientLists = React.createClass({displayName: "ClientLists",
                 bootbox.alert("There are no results for this query");
             }
             this.setProps({data: data.success});
+            bindProfiles();
           }.bind(this),
           error: function(xhr, status, err) {
             console.log(err)
@@ -129,6 +128,24 @@ var ClientLists = React.createClass({displayName: "ClientLists",
   }
 });
 
+$(function() {
+    $("#export-list").click(function(e) {
+      e.preventDefault();
+      exportList();
+    });
+});
+
+function exportList() {
+  var vals = []
+  $(".prospect-checkbox:checked").each(function() {
+      vals.push($(this).val())
+  });
+  var params={"ids": vals.join()}
+  $.post("/export", params, function(data) {
+      bootbox.alert("The export is being emailed to you");
+  });
+}
+
 
 function buildResults() {
 
@@ -148,6 +165,7 @@ $(function() {
 
 function bindProfiles() {
     $("[data-prospect]").click(function() {
+        debugger;
         var url = $(this).data('url');
         var id = $(this).data("prospect");
         loadProfile(id, url);
