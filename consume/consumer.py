@@ -30,7 +30,7 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-s3conn = boto.connect_s3("AKIAIWG5K3XHEMEN3MNA", "luf+RyH15uxfq05BlI9xsx8NBeerRB2yrxLyVFJd")
+s3conn = boto.connect_s3("AKIAIZZBJ527CKPNY6YQ", "OCagmcIXQYdmcIYZ3Uafmg1RZo9goNOb83DrRJ8u")
 bucket = s3conn.get_bucket('arachid-results')
 
 try:

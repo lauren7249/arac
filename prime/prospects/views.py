@@ -22,7 +22,8 @@ from prime.prospects.prospect_list import ProspectList
 from prime import db, csrf
 
 try:
-    from consume.consumer import generate_prospect_from_url
+    #from consume.consumer import generate_prospect_from_url
+    pass
 except:
     pass
 

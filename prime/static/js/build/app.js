@@ -1,5 +1,6 @@
 var industries = {}
 var page = 1;
+var userPage = 1;
 var colors = ["#B7D085", "#F9EBB5", "#D3102E", "#DCD6D5", "#39272A", "#27ACBE", "#3D9275", "#C7E1B8", "#BEC25D"];
 var locations = {}
 var school_connections = {}
@@ -13,6 +14,38 @@ var Relationship = React.createClass({displayName: "Relationship",
     render: function() {
         return (
             React.createElement("p", null, "You are connected via ", React.createElement("a", {href: this.props.url}, this.props.name), ".")
+            )
+    }
+});
+
+
+var UserProspect = React.createClass({displayName: "UserProspect",
+    render: function() {
+        var prospect = this.props.data;
+        var relationship = React.createElement(Relationship, {name: prospect.relationship})
+        return (
+            React.createElement("div", {className: "result", "data-result": prospect.id}, 
+                React.createElement("div", {className: "first"}
+                ), 
+                React.createElement("div", {className: "second"}, 
+                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.prospect_name)), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.company_name), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.current_location), 
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
+                ), 
+                React.createElement("div", {className: "image"}, 
+                    React.createElement("img", {src: prospect.image_url})
+                ), 
+                React.createElement("div", {className: "connections"}, 
+                    React.createElement("h5", null, "Connection Path"), 
+                    relationship
+                ), 
+                React.createElement("div", {className: "buttons"}, 
+                    React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
+                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Mark Prospect"))
+                ), 
+                React.createElement("div", {className: "clear"})
+            )
             )
     }
 });
@@ -174,12 +207,84 @@ var Results = React.createClass({displayName: "Results",
   }
 });
 
+var UserResults = React.createClass({displayName: "UserResults",
+    getInitialState: function() {
+        data = [];
+        return {data: data};
+    },
+    componentDidMount: function() {
+        var data = window.userData.splice(0, 50);
+        this.setProps({data:data});
+        setTimeout(this.loadInLinkedinScript, 1000);
+        this.bindButtons();
+    },
+    loadInLinkedinScript: function() {
+        IN.parse(document.body);
+    },
+    bindButtons: function() {
+        var result = this;
+        $(".add-prospect").click(function() {
+            var id = $(this).data("id");
+            $.post("/user/prospect/add/" + id, function(data) {
+                $("[data-result='" + id + "']").fadeOut();
+            });
+        });
+
+        $(".remove-prospect").click(function() {
+            var id = $(this).data("id");
+            $.post("/user/prospect/skip/" + id, function(data) {
+                $("[data-result='" + id + "']").fadeOut();
+            });
+        });
+        $("#more-prospect").click(function() {
+            userPage++;
+            var offset = 50 * (userPage - 1);
+            var limit = offset + 50;
+            var data = window.userData.splice(0, 50);
+            result.setProps({data:data});
+            result.bindButtons();
+        });
+    },
+    render: function() {
+    var prospects = this.props.data.map(function(prospect) {
+
+        return (
+                React.createElement(UserProspect, {data: prospect})
+            )
+    });
+    if (this.props.data.length < 1) {
+        return (
+          React.createElement("div", {className: "results"}, 
+            React.createElement("div", {className: "empty"}, 
+                React.createElement("h2", null, "There are no prospects in your network")
+            ), 
+            React.createElement("div", {className: "clear"})
+          )
+        );
+    } else {
+        return (
+          React.createElement("div", {className: "results"}, 
+            prospects, 
+            React.createElement("div", {className: "clear"}), 
+            React.createElement("button", {className: "btn btn-success", id: "more-prospects"}, "More")
+          )
+        );
+    }
+  }
+});
+
 
 function buildResults() {
     var data = window._userData.results;
     for (var a in data) {
         calculateResults(data[a])
     }
+
+    React.render(
+        React.createElement(UserResults, {data: data}),
+        document.getElementById('user-prospects')
+    );
+
     var searchData = []
     React.render(
         React.createElement(Results, {data: searchData}),
@@ -335,6 +440,7 @@ function bindButtons() {
     $("#show-analytics").click(function() {
         $(".results-dashboard").hide();
         $(".dashboard-search").hide()
+        $("#user-prospects").show();
         $(".stats").fadeIn();
         $(".tabs li").removeClass("active");
         $(this).parent().addClass("active");
@@ -343,6 +449,7 @@ function bindButtons() {
     $("#show-leads").click(function() {
         $(".stats").hide();
         $(".dashboard-search").show()
+        $("#user-prospects").hide();
         $(".results-dashboard").fadeIn();
         $(".tabs li").removeClass("active");
         $(this).parent().addClass("active");

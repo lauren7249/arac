@@ -10,7 +10,6 @@ from prime import create_app, db
 app = create_app(os.getenv('AC_CONFIG', 'beta'))
 print app.config.get("SQLALCHEMY_DATABASE_URI")
 app.debug=True
-migrate = Migrate(app, db)
 
 if __name__ == '__main__':
     manager = Manager(app)
@@ -20,8 +19,8 @@ if __name__ == '__main__':
         from prime.users.email import send_daily_email
         send_daily_email()
 
-    manager.add_command('db', MigrateCommand)
-    manager.add_command('shell', Shell(use_ipython=True))
+    #manager.add_command('db', MigrateCommand)
+    #manager.add_command('shell', Shell(use_ipython=True))
     #manager.add_command('shell', Shell(make_context=make_shell_context, use_ipython=True))
     manager.run()
 
