@@ -1,17 +1,15 @@
-import os 
-import pandas
-import requests
-import lxml.html
-import multiprocessing
-import re
-from datetime import date
+
 
 salaries_path = "salaries.csv"
 
 def clean(str):
     try:
+        str = re.sub(" - "," ",str)
+        str = re.sub("[^a-zA-Z-]"," ",str)
         str = re.sub("\s+"," ",str.lower())
-        str = re.sub("\n"," ", str)
+        # wordlist = str.split(" ")
+        # wordlist.sort()
+        # str = " ".join(wordlist)
     except:
         pass
     return str
@@ -40,6 +38,21 @@ def calculate_salary(title):
     except Exception, err:
         pass
 
+import os 
+import pandas
+import requests
+import lxml.html
+import multiprocessing
+from multiprocessing import Manager
+import re
+from datetime import date
+from joblib import Parallel, delayed
+
+global latestJobs
+mgr = Manager()
+latestJobs = mgr.dict()
+
+
 def getYear(date):
     try:
         return int(date.split("-")[0])
@@ -48,24 +61,29 @@ def getYear(date):
     return None
 
 def getMaxYear(row):
-    return row.ix[row["idxmax"]]
+    return row.ix[row["end_date"].idxmax()]
+
+
+def updateLatestJob(job):
+    latestJob = latestJobs.get(job[0])
+    if latestJob is None or latestJob[2] < job[2]:
+        latestJobs.update({job[0]:job})
 
 today = date.today()
-titles = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/jobs.txt', usecols=["title","prospect_id","end_date"], sep="\t", nrows=1000)
+titles = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/jobs.txt', usecols=["title","prospect_id","end_date"], sep="\t")
 titles.end_date.fillna(str(today),inplace=True)
-titles["end_year"] = titles.end_date.apply(getYear)
+titles["end_date"] = titles.end_date.apply(getYear)
 
-titles_groupby = titles.groupby('prospect_id',group_keys=False)
-titles["idxmax"] = titles_groupby["end_year"].apply(lambda x: x.idxmax())
-titles = titles.apply(getMaxYear)
+pool = multiprocessing.Pool(100)
+pool.map(updateLatestJob, list(titles.values))
+
+titles = pandas.DataFrame.from_records(latestJobs.values(),  columns=["prospect_id","title","end_date"])
 titles.title = titles.title.apply(clean)
-
-titles.to_csv(path_or_buf="current_prospect_jobs.csv", index=False, columns=["prospect_id","title","end_year"])
+titles.to_csv(path_or_buf="current_prospect_jobs.csv", index=False, columns=["prospect_id","title","end_date"])
 titles.drop_duplicates(inplace=True, subset=["title"])
 raw_titles = list(titles["title"].values)
 
 print len(raw_titles)
 if os.path.isfile(salaries_path): os.remove(salaries_path)
 
-pool = multiprocessing.Pool(100)
 pool.map(calculate_salary,raw_titles)
