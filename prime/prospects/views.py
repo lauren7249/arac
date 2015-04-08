@@ -15,7 +15,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry, ProspectLocation, Location
+Industry, ProspectLocation, Location, ProspectGender
 from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
 #from prime.prospects.prospect_list2 import ProspectList as ProspectList2
@@ -442,7 +442,7 @@ def api():
 
     print prospects
 
-    prospects = prospects.limit(20).offset(20 * (page-1)).all()
+    prospects = prospects.distinct(Prospect.id).limit(20).offset(20 * (page-1)).all()
     for prospect in prospects:
         p = {}
         if len(prospect) == 4:

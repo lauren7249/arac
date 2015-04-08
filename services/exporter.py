@@ -35,9 +35,12 @@ class Exporter(object):
         self._write_headers()
         for prospect in self.prospects:
             if prospect.current_job:
-                email_finder = EmailFinder(prospect.name,
-                        prospect.current_job.company, prospect.linkedin_id)
-                email = email_finder.find_contact_information()
+                try:
+                    email_finder = EmailFinder(prospect.name,
+                            prospect.current_job.company, prospect.linkedin_id)
+                    email = email_finder.find_contact_information()
+                except:
+                    email = None
                 current_company = prospect.current_job.company.name
                 current_title = prospect.current_job.title
             else:

@@ -30,8 +30,9 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
-bucket = s3conn.get_bucket('arachid-results')
+def bootstrap_s3():
+    s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
+    bucket = s3conn.get_bucket('arachid-results')
 
 try:
     app = create_app(os.getenv('AC_CONFIG', 'beta'))

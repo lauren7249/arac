@@ -21,9 +21,10 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
-write_bucket = s3conn.get_bucket('advisorconnect-bigfiles')
-read_bucket = s3conn.get_bucket('arachid-results')
+def s3():
+    s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
+    write_bucket = s3conn.get_bucket('advisorconnect-bigfiles')
+    read_bucket = s3conn.get_bucket('arachid-results')
 
 
 def convert(filename, writefile):

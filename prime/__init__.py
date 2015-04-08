@@ -63,7 +63,7 @@ def register_blueprints(app):
     from .users import users as users_blueprint
     from .auth import auth as auth_blueprint
     app.register_blueprint(prospects_blueprint)
-    #app.register_blueprint(proxy_blueprint)
+    app.register_blueprint(proxy_blueprint)
     app.register_blueprint(users_blueprint)
     app.register_blueprint(auth_blueprint)
 
