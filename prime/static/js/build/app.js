@@ -94,6 +94,7 @@ var Results = React.createClass({displayName: "Results",
             company_ids: companyIDs,
             school_ids: schoolIDs,
             title: $("#title").val(),
+            gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
             industry_ids: $("#industry_ids").val(),
             p:page
