@@ -369,6 +369,12 @@ def filter_locations(prospects, location_ids):
         prospects = prospects.filter(ProspectLocation.location_id.in_(location_ids))
     return prospects
 
+def filter_gender(prospects, gender):
+    if gender == 1:
+        return prospects.filter(ProspectGender.gender == True)
+    else:
+        return prospects.filter(ProspectGender.gender == False)
+
 def blank_string_to_none(value):
     if value == "":
         return None
@@ -391,6 +397,7 @@ def api():
         "2016-01-01"), "%Y-%m-%d").date()
 
     location_ids = blank_string_to_none(request.args.get("location_ids", None))
+    gender = int(request.args.get("gender", 0))
 
     prospect_results = []
     if company_ids:
@@ -408,6 +415,7 @@ def api():
             .filter(Prospect.id == Education.prospect_id)\
             .filter(School.id == Education.school_id)\
             .filter(Prospect.id == ProspectLocation.prospect_id)\
+            .filter(Prospect.id == ProspectGender.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
     elif school_ids:
         prospects=session.query(Prospect, School.name)\
@@ -416,17 +424,21 @@ def api():
             .filter(Prospect.id == Education.prospect_id)\
             .filter(School.id==Education.school_id)\
             .filter(Prospect.id == ProspectLocation.prospect_id)\
+            .filter(Prospect.id == ProspectGender.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
     else:
         prospects=session.query(Prospect, Job.title, Company.name)\
             .filter(Job.prospect_id == Prospect.id)\
             .filter(Company.id == Job.company_id)\
             .filter(Prospect.id == ProspectLocation.prospect_id)\
+            .filter(Prospect.id == ProspectGender.prospect_id)\
             .filter(Job.company_id.in_(company_ids))
 
     prospects = filter_locations(prospects, location_ids)
     prospects = filter_title(prospects, job_title)
     prospects = filter_dates(prospects, job_start, job_end, school_end)
+    if gender > 0:
+        prospects = filter_gender(prospects, gender)
 
     print prospects
 

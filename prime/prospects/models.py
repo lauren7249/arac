@@ -214,6 +214,17 @@ class ProspectLocation(db.Model):
                 self.location_id
                 )
 
+class ProspectGender(db.Model):
+    __tablename__ = "prospect_gender"
+
+    prospect_id = db.Column(BigInteger, primary_key=True)
+    gender = db.Column(Boolean)
+
+    def __repr__(self):
+        return '<Prospect Gender prospect_id={0}>'.format(
+                self.prospect_id
+                )
+
 class Industry(db.Model):
     __tablename__ = "industry"
 

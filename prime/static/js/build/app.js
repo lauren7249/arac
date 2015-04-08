@@ -83,9 +83,16 @@ var Prospect = React.createClass({displayName: "Prospect",
 
 var Results = React.createClass({displayName: "Results",
     loadProfileFromServer: function() {
+        var companyIDs = $("#company_ids").val()
+        var schoolIDs = $("#school_ids").val()
+        if (companyIDs == "" && schoolIDs == "") {
+            bootbox.alert("You must enter either one school or one company.");
+            $(".loading").hide();
+            return false;
+        }
         var params={
-            company_ids: $("#company_ids").val(),
-            school_ids: $("#school_ids").val(),
+            company_ids: companyIDs,
+            school_ids: schoolIDs,
             title: $("#title").val(),
             location_ids: $("#location_ids").val(),
             industry_ids: $("#industry_ids").val(),
@@ -104,9 +111,9 @@ var Results = React.createClass({displayName: "Results",
             this.bindButtons();
             this.loadInLinkedinScript();
             $(".loading").hide();
+            return false;
           }.bind(this),
           error: function(xhr, status, err) {
-            console.log(err)
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
             $(".loading").hide();
             return false;
