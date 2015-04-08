@@ -106,6 +106,7 @@ var Results = React.createClass({displayName: "Results",
           success: function(data) {
             if (data.success.length < 1) {
                 bootbox.alert("There are no results for this query");
+                return false;
             }
             this.setProps({data: data.success});
             bindProfiles();
