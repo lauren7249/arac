@@ -351,6 +351,7 @@ def search_view():
 
 def filter_title(prospects, title):
     if title:
+        title = "&".join(title.lower().split())
         prospects = prospects.filter(Job.fts_title.match(title))
     return prospects
 
