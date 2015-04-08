@@ -532,6 +532,15 @@ div.dashboard-search {
   fieldset.buttons {
     margin-top: 20px;
   }
+
+  div.gender-box {
+    display: inline-block;
+    padding-top: 10px;
+    label {
+      width: auto;
+      padding: 0 10px;
+    }
+  }
 }
 
 div.new-search {
