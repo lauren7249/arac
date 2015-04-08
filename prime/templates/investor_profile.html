@@ -14,13 +14,14 @@
   <div class='bs-docs-section confirm'>
     <div class='well col-lg-12'>
       <div class='row row-one'>
-        <h1>Who Are You Looking For <div class='pull-right'><a href='/dashboard'><button class='btn btn-success'>SKIP > </button></a></div></h1>
-        <p>Tell us a little about your ideal prospect.</p>
+        <h1>Who Are You Looking For? <div class='pull-right'><a href='/dashboard'><button class='btn btn-success'>SKIP > </button></a></div></h1>
+        <p>Tell us a little about your ideal prospect. We'll use this information to find you better matches.</p>
+        <p>(Skip if you don't know this information yet.  You can update it later!)</p>
         <hr />
       </div>
       <div class='row row-one'>
         <form action='' method='POST'>
-          <h4>Select Preferred Industry</h4>
+          <h4>Select Preferred Industries</h4>
           <fieldset class='margin-bottom'>
             <select class='chosen-select' multiple name='industry'>
               {% for industry in industries %}

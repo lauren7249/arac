@@ -10,14 +10,10 @@
   <div class='clear'></div>
   <div class='well col-lg-9 center'>
     <div class='row col-md-5'>
-      <h1>Welcome to AdvisorConnect.  </h1>
-      <p>Start prospecting in minutes! </p>
-      <ul>
-        <li>When you sign up we'll ask you to provide some information about yourself and confirm your identity.  This will allow us to analyze your extended network and it will help us to match you with compatible prospects.  </li>
-        <li>We'll also ask you to tell us what your ideal prospect looks like (don't worry if you don't know that yet--you can come back to this later!)</li>
-        <li>With this information we can provide you a detailed overview of your extended network and you can begin reviewing recommended prospects.  You can also search and filter prospects.  Just click on the prospect name to see a full profile (including verified contact information).</li>
-      </ul>
-      <p>AdvisorConnect</p>
+      <h1>Welcome to AdvisorConnect!  </h1>
+      <p>Spend less time searching for prospects and more time closing new clients. </p>
+      <p>Looking for prospects with investable assets who are compatible with you?  Only AdvisorConnect allows you to pinpoint qualified prospects in your extended network.</p>
+      <p>Search over 100 million prospects and instantly get access to full profile information including wealth score, colleges attended, work history and contact information.</p>
     </div>
     <div class='row col-md-7'>
       <form class="form-horizontal" action='' method='POST'>
@@ -32,35 +28,35 @@
         {%endif%}
         {{ signup_form.csrf_token }}
         <fieldset>
-          <legend>Enter your credentials below</legend>
+          <legend>Sign Up Below</legend>
           <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">First:</label>
+            <label for="inputEmail" class="col-lg-2 control-label">First Name:</label>
             <div class="col-lg-10">
-              <input type="text" name='first_name' class="form-control" id="inputEmail" placeholder="First">
+              <input type="text" name='first_name' class="form-control" id="inputEmail" placeholder="First Name">
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">Last:</label>
+            <label for="inputEmail" class="col-lg-2 control-label">Last Name:</label>
             <div class="col-lg-10">
-              <input type="text" name='last_name' class="form-control" id="inputEmail" placeholder="Last">
+              <input type="text" name='last_name' class="form-control" id="inputEmail" placeholder="Last Name">
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+            <label for="inputEmail" class="col-lg-2 control-label">Email:</label>
             <div class="col-lg-10">
               <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
             </div>
           </div>
           <div class="form-group">
-            <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+            <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
             <div class="col-lg-10">
               <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
             </div>
           </div>
           <div class="form-group">
-            <label for="inputPassword" class="col-lg-2 control-label">Confirmation</label>
+            <label for="inputPassword" class="col-lg-2 control-label">Confirm Password:</label>
             <div class="col-lg-10">
-              <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Password">
+              <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Confirm Password">
               <span class="checkbox">
                 <label>I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a></label>
               </span>
