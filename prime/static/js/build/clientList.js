@@ -91,7 +91,6 @@ var ClientLists = React.createClass({displayName: "ClientLists",
             this.bindExport();
           }.bind(this),
           error: function(xhr, status, err) {
-            console.log(err)
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
             $(".loading").hide();
             return false;
