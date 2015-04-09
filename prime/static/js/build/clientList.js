@@ -35,7 +35,8 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("img", {src: prospect.image_url})
+                    React.createElement("p", null, "Wealth Score"), 
+                    React.createElement("h4", {className: "alert"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "buttons"}, 
                     React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-warning prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Change Status"))
