@@ -38,7 +38,7 @@ var UserProspect = React.createClass({displayName: "UserProspect",
                     React.createElement("h4", {className: "alert"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
-                    React.createElement("h5", null, "Connection Path"), 
+                    React.createElement("h5", null, "Relevancy"), 
                     relationship
                 ), 
                 React.createElement("div", {className: "buttons"}, 
@@ -70,7 +70,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", {className: "money"}, prospect.data.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
-                    React.createElement("h5", null, "Connection Path"), 
+                    React.createElement("h5", null, "Relevancy"), 
                     relationship
                 ), 
                 React.createElement("div", {className: "buttons"}, 
