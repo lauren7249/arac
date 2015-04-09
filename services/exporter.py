@@ -15,6 +15,10 @@ sys.path.append(sys.path[0].split("/services")[0])
 from email_finder import EmailFinder
 from prime.prospects.models import db
 
+def uu(str):
+    if str:
+        return str.encode("ascii", "ignore").decode("utf-8")
+    return None
 
 class Exporter(object):
 
@@ -48,8 +52,8 @@ class Exporter(object):
                 current_company = None
                 current_title = None
             self.csvwriter.writerow(
-                    [prospect.name, current_title,current_company,
-                        prospect.industry_raw, prospect.location_raw, email])
+                    [uu(prospect.name), uu(current_title), uu(current_company),
+                        uu(prospect.industry_raw), uu(prospect.location_raw), uu(email)])
         return True
 
     def _send_email(self):

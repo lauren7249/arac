@@ -11,7 +11,7 @@ if not redis_url:
 
 urlparse.uses_netloc.append('redis')
 url = urlparse.urlparse(redis_url)
-conn = Redis(host=url.hostname, port=url.port, db=0, password=url.password)
+conn = Redis()
 
 with Connection(conn):
     worker = Worker(map(Queue, listen))
