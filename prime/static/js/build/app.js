@@ -34,7 +34,7 @@ var UserProspect = React.createClass({displayName: "UserProspect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("img", {src: prospect.image_url})
+                    React.createElement("h4", {className: "alert"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
                     React.createElement("h5", null, "Connection Path"), 
@@ -55,7 +55,7 @@ var Prospect = React.createClass({displayName: "Prospect",
         var prospect = this.props.data;
         var relationship = React.createElement(Relationship, {name: prospect.relevancy})
         return (
-            React.createElement("div", {className: "result", "data-result": prospect.id}, 
+            React.createElement("div", {className: "result", "data-result": prospect.data.id}, 
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
@@ -65,7 +65,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.data.industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("img", {src: prospect.data.image_url})
+                    React.createElement("h4", {className: "alert"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
                     React.createElement("h5", null, "Connection Path"), 
