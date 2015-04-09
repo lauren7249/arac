@@ -42,7 +42,7 @@ var UserProspect = React.createClass({displayName: "UserProspect",
                 ), 
                 React.createElement("div", {className: "buttons"}, 
                     React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
-                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Mark Prospect"))
+                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Not A Good Fit"))
                 ), 
                 React.createElement("div", {className: "clear"})
             )
@@ -73,7 +73,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                 ), 
                 React.createElement("div", {className: "buttons"}, 
                     React.createElement("a", {className: "add-prospect", "data-id": prospect.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 
-                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), " Mark Prospect"))
+                    React.createElement("a", {className: "remove-prospect", "data-id": prospect.data.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-danger"}, React.createElement("i", {className: "fa fa-chevron-circle-right"}), "  Not A Good Fit"))
                 ), 
                 React.createElement("div", {className: "clear"})
             )
@@ -97,6 +97,7 @@ var Results = React.createClass({displayName: "Results",
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
             industry_ids: $("#industry_ids").val(),
+            wealthscore: $("#wealthscore").val(),
             p:page
         }
         $.ajax({
@@ -476,7 +477,8 @@ function hideOverlay() {
 function bindSearch() {
     companySearch();
     schoolSearch();
-    locationSearch()
+    locationSearch();
+    bindSlider();
 }
 
 function companySearch() {
@@ -618,6 +620,18 @@ function bindDates() {
     $('.datepicker').datepicker({
         changeYear: true,
         changeMonth: true
+    });
+}
+
+function bindSlider() {
+    $( "#slider-range" ).slider({
+        range: "min",
+        min: 35,
+        max: 100,
+        value: 49,
+        slide: function( event, ui ) {
+            $( "#amount" ).val(ui.value);
+        }
     });
 }
 

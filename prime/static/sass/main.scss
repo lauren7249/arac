@@ -423,6 +423,11 @@ div.dashboard-search {
       margin: 0;
     }
 
+    #amount {
+      width: 30px;
+      background: transparent;
+    }
+
     input.grad {
       width: 215px;
     }
@@ -1211,3 +1216,12 @@ div.days {
 .introjs-tooltipReferenceLayer {
   z-index: 999999;
 }
+
+#slider-range {
+  position: relative !important;
+  display: inline-block;
+  width: 560px;
+  padding: 5px;
+  background: green;
+}
+
