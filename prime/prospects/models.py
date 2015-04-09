@@ -225,6 +225,18 @@ class ProspectGender(db.Model):
                 self.prospect_id
                 )
 
+class ProspectWealthscore(db.Model):
+    __tablename__ = "prospect_wealthscore"
+
+    prospect_id = db.Column(BigInteger, primary_key=True)
+    wealthscore = db.Column(Integer)
+
+    def __repr__(self):
+        return '<Prospect Wealthscore prospect_id={0} wealthscore={1}>'.format(
+                self.prospect_id,
+                self.wealthscore
+                )
+
 class Industry(db.Model):
     __tablename__ = "industry"
 

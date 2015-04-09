@@ -375,6 +375,9 @@ def filter_gender(prospects, gender):
     else:
         return prospects.filter(ProspectGender.gender == False)
 
+def filter_wealthscore(prospects, wealthscore):
+    return prospects.filter(ProspectGender.wealthscore >= wealthscore)
+
 def blank_string_to_none(value):
     if value == "":
         return None
@@ -398,6 +401,7 @@ def api():
 
     location_ids = blank_string_to_none(request.args.get("location_ids", None))
     gender = int(request.args.get("gender", 0))
+    wealthscore = int(request.args.get("wealthscore", 0))
 
     prospect_results = []
     if company_ids:
@@ -416,6 +420,7 @@ def api():
             .filter(School.id == Education.school_id)\
             .filter(Prospect.id == ProspectLocation.prospect_id)\
             .filter(Prospect.id == ProspectGender.prospect_id)\
+            .filter(Prospect.id == ProspectWealthscore.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
     elif school_ids:
         prospects=session.query(Prospect, School.name)\
@@ -425,6 +430,7 @@ def api():
             .filter(School.id==Education.school_id)\
             .filter(Prospect.id == ProspectLocation.prospect_id)\
             .filter(Prospect.id == ProspectGender.prospect_id)\
+            .filter(Prospect.id == ProspectWealthscore.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
     else:
         prospects=session.query(Prospect, Job.title, Company.name)\
@@ -432,6 +438,7 @@ def api():
             .filter(Company.id == Job.company_id)\
             .filter(Prospect.id == ProspectLocation.prospect_id)\
             .filter(Prospect.id == ProspectGender.prospect_id)\
+            .filter(Prospect.id == ProspectWealthscore.prospect_id)\
             .filter(Job.company_id.in_(company_ids))
 
     prospects = filter_locations(prospects, location_ids)
@@ -439,8 +446,8 @@ def api():
     prospects = filter_dates(prospects, job_start, job_end, school_end)
     if gender > 0:
         prospects = filter_gender(prospects, gender)
-
-    print prospects
+    if wealthscore > 50:
+        prospects = filter_wealthscore(prospects, wealthscore)
 
     prospects = prospects.distinct(Prospect.id).limit(20).offset(20 * (page-1)).all()
     for prospect in prospects:
