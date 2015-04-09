@@ -1,6 +1,6 @@
 import requests
+import sendgrid
 import base64
-import mandrill
 import StringIO
 import csv
 
@@ -29,8 +29,6 @@ class Exporter(object):
         self.csvwriter = csv.writer(self.csvfile, quoting=csv.QUOTE_ALL)
         self.headers = ["Name", "Current Title", "Current Company",
                 "Current Industry", "Current Location", "Email"]
-        self.mandrill_client = mandrill.Mandrill('lc6Q5sFphGY7zUCYAcOBLg')
-
 
     def _write_headers(self):
         self.csvwriter.writerow(self.headers)
@@ -57,6 +55,7 @@ class Exporter(object):
         return True
 
     def _send_email(self):
+        """
         message = {'attachments': [{'content': base64.b64encode(self.csvfile.getvalue()),
                           'name': 'export.csv',
                           'type': 'application/octet-stream'}],
@@ -69,10 +68,18 @@ class Exporter(object):
          'text': 'Your Advisorconnect csv export',
          'to': [{'email': self.to_email,
                  'type': 'to'}]}
-        try:
-             result = self.mandrill_client.messages.send(message=message)
-        except:
-             print 'A mandrill error occurred: %s - %s' % (e.__class__, e)
+        result = self.mandrill_client.messages.send(message=message)
+        """ 
+        sg = sendgrid.SendGridClient("advisorconnect", "500advisordevshop")
+        message = sendgrid.Mail()
+
+        message.add_to(self.to_email)
+        message.set_from("jeff@advisorconnect.co")
+        message.set_subject("Your Advisorconnect Export")
+        message.set_html("<p>Your Advisorconnect csv export</p>")
+        message.add_attachment_stream("export.csv", self.csvfile.getvalue())
+
+        sg.send(message)
         return True
 
     def export(self):
