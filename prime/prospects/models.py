@@ -48,6 +48,11 @@ class Prospect(db.Model):
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
 
+    wealthscore = relationship("ProspectWealthscore",
+            foreign_keys="Wealthscore.prospect_id")
+    gender = relationship("ProspectGender",
+            foreign_keys="ProspectGender.prospect_id")
+
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
         (ret, ) = session.query(exists().where(
@@ -179,6 +184,8 @@ class Prospect(db.Model):
                                         uu(self.current_job.company.name)) if self.current_job \
                                         else "N/A"
             data['schools'] = [school.to_json for school in self.schools]
+            data['wealthscore'] = self.wealthscore.wealthscore
+            data['gender'] = self.gender.gender
             #data["news"] =  self.relevant_content
         return data
 
