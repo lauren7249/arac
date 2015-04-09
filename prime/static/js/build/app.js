@@ -34,6 +34,7 @@ var UserProspect = React.createClass({displayName: "UserProspect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
+                    React.createElement("p", null, "Wealth Score"), 
                     React.createElement("h4", {className: "alert"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
@@ -65,7 +66,8 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.data.industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("h4", {className: "alert"}, prospect.wealthscore)
+                    React.createElement("p", null, "Wealth Score"), 
+                    React.createElement("h4", {className: "money"}, prospect.data.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
                     React.createElement("h5", null, "Connection Path"), 

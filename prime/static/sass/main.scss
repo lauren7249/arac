@@ -760,6 +760,13 @@ div.results {
       width: 100px;
       margin:0 10px;
       float: left;
+      text-align: center;
+
+      p {
+        font-size: 14px;
+        color: #525252;
+        text-align: center;
+      }
 
       img {
         width: 100%;
@@ -1225,3 +1232,12 @@ div.days {
   background: green;
 }
 
+
+.money {
+  background: #4caf50;
+  display: inline;
+  color: #fff;
+  font-size: 20px;
+  padding: 20px;
+  @include border-radius(100px);
+}

@@ -764,6 +764,12 @@ div.results div.result div.image {
   width: 100px;
   margin: 0 10px;
   float: left;
+  text-align: center;
+}
+div.results div.result div.image p {
+  font-size: 14px;
+  color: #525252;
+  text-align: center;
 }
 div.results div.result div.image img {
   width: 100%;
@@ -1189,4 +1195,17 @@ div.days div.results div.checked {
   width: 560px;
   padding: 5px;
   background: green;
+}
+
+.money {
+  background: #4caf50;
+  display: inline;
+  color: #fff;
+  font-size: 20px;
+  padding: 20px;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  -ms-border-radius: 100px;
+  -o-border-radius: 100px;
+  border-radius: 100px;
 }
