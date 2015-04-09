@@ -436,6 +436,10 @@ div.dashboard-search fieldset input.small, div.dashboard-search fieldset input.g
   background: #fff;
   margin: 0;
 }
+div.dashboard-search fieldset #amount {
+  width: 30px;
+  background: transparent;
+}
 div.dashboard-search fieldset input.grad {
   width: 215px;
 }
@@ -1177,4 +1181,12 @@ div.days div.results div.checked {
 
 .introjs-tooltipReferenceLayer {
   z-index: 999999;
+}
+
+#slider-range {
+  position: relative !important;
+  display: inline-block;
+  width: 560px;
+  padding: 5px;
+  background: green;
 }
