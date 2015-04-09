@@ -762,6 +762,15 @@ div.results {
       float: left;
       text-align: center;
 
+      h4.money {
+        background: #4caf50;
+        display: inline;
+        color: #fff;
+        font-size: 20px;
+        padding: 20px;
+        @include border-radius(100px);
+      }
+
       p {
         font-size: 14px;
         color: #525252;
@@ -1233,11 +1242,3 @@ div.days {
 }
 
 
-.money {
-  background: #4caf50;
-  display: inline;
-  color: #fff;
-  font-size: 20px;
-  padding: 20px;
-  @include border-radius(100px);
-}
