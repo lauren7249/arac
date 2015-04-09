@@ -15,7 +15,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry, ProspectLocation, Location, ProspectGender
+Industry, ProspectLocation, Location, ProspectGender, ProspectWealthscore
 from prime.users.models import ClientList, User
 from prime.prospects.prospect_list import ProspectList
 #from prime.prospects.prospect_list2 import ProspectList as ProspectList2
@@ -376,7 +376,7 @@ def filter_gender(prospects, gender):
         return prospects.filter(ProspectGender.gender == False)
 
 def filter_wealthscore(prospects, wealthscore):
-    return prospects.filter(ProspectGender.wealthscore >= wealthscore)
+    return prospects.filter(ProspectWealthscore.wealthscore >= wealthscore)
 
 def blank_string_to_none(value):
     if value == "":
