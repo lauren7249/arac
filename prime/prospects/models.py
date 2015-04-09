@@ -156,6 +156,7 @@ class Prospect(db.Model):
 
     @property
     def wealthscore(self):
+        session = db.session
         score = session.query(ProspectWealthscore).filter(ProspectWealthscore.prospect_id == self.id).first()
         if score:
             return score.wealthscore
