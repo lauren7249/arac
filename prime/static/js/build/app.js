@@ -97,7 +97,7 @@ var Results = React.createClass({displayName: "Results",
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
             industry_ids: $("#industry_ids").val(),
-            wealthscore: $("#wealthscore").val(),
+            wealthscore: $("#amount").val(),
             p:page
         }
         $.ajax({
