@@ -163,12 +163,6 @@ class Prospect(db.Model):
 
 
     def to_json(self, no_fk=False):
-        salary = None
-        #salary = self.calculate_salary
-        #if salary:
-        #    first_letter = self.name[0]
-        #    amount = string.lowercase.index(str(first_letter.lower()))
-        wealthscore = 65
 
         data = {
             "name": self.name,
@@ -178,8 +172,7 @@ class Prospect(db.Model):
             "connections": self.connections,
             "url": self.url,
             "image_url": self.image_url,
-            "salary": salary if salary else "N/A",
-            "wealthscore": wealthscore}
+            "wealthscore": self.wealthscore}
         if not no_fk:
             data['jobs'] = [job.to_json for job in self.jobs]
             data['current_job'] = "{}, {}".format(uu(self.current_job.title),\
