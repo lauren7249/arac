@@ -69,9 +69,11 @@ var ClientList = React.createClass({displayName: "ClientList",
         });
         return (
           React.createElement("div", {"data-client-list": this.props.name, className: "results"}, 
-            React.createElement("h2", {className: "leaders"}, "Date: ", React.createElement("span", {className: "green"}, this.props.name), " ", React.createElement("div", {className: "pull-right neg-top"}, React.createElement("button", {"data-export": this.props.name, className: "btn btn-success"}, "Export"))), 
-            prospects, 
-            React.createElement("div", {className: "clear"})
+            React.createElement("div", {className: "wrapper"}, 
+                React.createElement("h2", {className: "leaders"}, "Date: ", React.createElement("span", {className: "green"}, this.props.name), " ", React.createElement("div", {className: "pull-right neg-top"}, React.createElement("button", {"data-export": this.props.name, className: "btn btn-success"}, "Export"))), 
+                prospects, 
+                React.createElement("div", {className: "clear"})
+            )
           )
           )
     }

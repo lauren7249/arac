@@ -69,9 +69,11 @@ var ClientList = React.createClass({
         });
         return (
           <div data-client-list={this.props.name} className="results">
-            <h2 className='leaders'>Date: <span className='green'>{this.props.name}</span> <div className='pull-right neg-top'><button data-export={this.props.name} className='btn btn-success'>Export</button></div></h2>
-            {prospects}
-            <div className='clear'></div>
+            <div className='wrapper'>
+                <h2 className='leaders'>Date: <span className='green'>{this.props.name}</span> <div className='pull-right neg-top'><button data-export={this.props.name} className='btn btn-success'>Export</button></div></h2>
+                {prospects}
+                <div className='clear'></div>
+            </div>
           </div>
           )
     }
