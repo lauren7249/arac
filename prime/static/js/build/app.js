@@ -114,7 +114,6 @@ var Results = React.createClass({displayName: "Results",
                 return false;
             }
             this.setProps({data: data.success});
-            bindProfiles();
             this.bindButtons();
             this.loadInLinkedinScript();
             $(".loading").hide();
