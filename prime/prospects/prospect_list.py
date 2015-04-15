@@ -81,9 +81,9 @@ class ProspectList(object):
                             "industry": school[7],
                             "url": school[8],
                             "image_url": school[9],
-                            "wealthscore": job[11],
+                            "wealthscore": school[10],
                             "id": id}
-                score = float(school[10])
+                score = float(school[11])
                 exisiting  = self.results.get(id)
                 if exisiting:
                     score += float(exisiting.get("score"))
@@ -149,9 +149,9 @@ class ProspectList(object):
                             "url": job[10],
                             "image_url": job[11],
                             "id": id,
-                            "wealthscore": job[13],
+                            "wealthscore": job[12],
                             "type": "job"}
-                score = float(job[12])
+                score = float(job[13])
                 exisiting  = self.results.get(id)
                 if exisiting:
                     score += exisiting.get("score")
@@ -214,7 +214,7 @@ class ProspectList(object):
         user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
         user['school_name'] = school_name
-        user['wealthscore'] = jobs.get("wealthscore")
+        user['wealthscore'] = schools.get("wealthscore")
         user['school_id'] = school_id
         user['current_location'] = current_location
         user['current_industry'] = current_industry
