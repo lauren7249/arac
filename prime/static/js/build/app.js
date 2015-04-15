@@ -36,7 +36,7 @@ var UserProspect = React.createClass({displayName: "UserProspect",
                 ), 
                 React.createElement("div", {className: "image"}, 
                     React.createElement("p", null, "Wealth Score"), 
-                    React.createElement("h4", {className: "alert"}, prospect.wealthscore)
+                    React.createElement("h4", {className: "money"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
                     React.createElement("h5", null, "Relevancy"), 
