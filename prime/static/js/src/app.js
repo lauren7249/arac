@@ -100,14 +100,18 @@ var Results = React.createClass({
             company_ids: companyIDs,
             school_ids: schoolIDs,
             school_end: $("#school_end").val(),
-            job_start: job_start,
-            job_end: job_end,
             title: $("#title").val(),
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
             industry_ids: $("#industry_ids").val(),
             wealthscore: $("#amount").val(),
             p:page
+        }
+        if (job_start) {
+            params[job_start] = job_start;
+        }
+        if (job_end) {
+            params[job_end] = job_end;
         }
         $.ajax({
           url: "/api",
