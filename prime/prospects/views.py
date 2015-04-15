@@ -411,13 +411,13 @@ def api():
     company_ids = blank_string_to_none(request.args.get("company_ids", None))
     job_title = blank_string_to_none(request.args.get("title", None))
     job_start = datetime.datetime.strptime(request.args.get("job_start", \
-        "1900-01-01"), "%Y-%m-%d").date()
+        "01/01/1900"), "%m/%d/%Y").date()
     job_end = datetime.datetime.strptime(request.args.get("job_end", \
-            "2016-01-01"), "%Y-%m-%d").date()
+            "01/01/2016"), "%m/%d/%Y").date()
 
     school_ids = blank_string_to_none(request.args.get("school_ids", None))
     degree = blank_string_to_none(request.args.get("degree", None))
-    school_end = request.args.get("school_end", "1900"
+    school_end = request.args.get("school_end", "1900")
 
     location_ids = blank_string_to_none(request.args.get("location_ids", None))
     gender = int(request.args.get("gender", 0))

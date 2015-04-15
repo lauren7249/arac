@@ -94,6 +94,7 @@ var Results = React.createClass({
             $(".loading").hide();
             return false;
         }
+        debugger;
         var params={
             company_ids: companyIDs,
             school_ids: schoolIDs,
