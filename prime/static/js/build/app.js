@@ -108,10 +108,10 @@ var Results = React.createClass({displayName: "Results",
             p:page
         }
         if (job_start) {
-            params[job_start] = job_start;
+            params["job_start"] = job_start;
         }
         if (job_end) {
-            params[job_end] = job_end;
+            params["job_end"] = job_end;
         }
         $.ajax({
           url: "/api",
