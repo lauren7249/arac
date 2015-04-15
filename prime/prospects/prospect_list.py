@@ -42,13 +42,15 @@ class ProspectList(object):
 
         SCHOOL_SQL = """\
         select distinct on (id) id, educations.school_name as education_name, educations.school_id, name, \
-        degree, end_date, location_raw, industry_raw, url, image_url from \
+        degree, end_date, location_raw, industry_raw, url, image_url, \
+        prospect_wealthscore.wealthscore from \
         (select * from (select education.id as education_id, school_id, prospect_id, \
         degree, start_date, end_date, school.name as school_name from education inner join school on \
         education.school_id=school.id where school_id=%s) \
         as schools where to_char(end_date, 'YYYY')='%s') \
         as educations \
-        inner join prospect on educations.prospect_id=prospect.id;
+        inner join prospect on educations.prospect_id=prospect.id \
+        join prospect_wealthscore on prospect.id=prospect_wealthscore.prospect_id;
         """
         prospect_degree = education.degree
         end_date = education.end_date.year if education.end_date else "2000"
@@ -79,6 +81,7 @@ class ProspectList(object):
                             "industry": school[7],
                             "url": school[8],
                             "image_url": school[9],
+                            "wealthscore": job[11],
                             "id": id}
                 score = float(school[10])
                 exisiting  = self.results.get(id)
@@ -96,14 +99,16 @@ class ProspectList(object):
 
         JOB_SQL = """
         select distinct on (id) id, jobs.company_name, jobs.company_id, name, title, \
-        start_date, end_date, jobs.location, location_raw, industry_raw, url, image_url \
+        start_date, end_date, jobs.location, location_raw, industry_raw, url, \
+        image_url, prospect_wealthscore.wealthscore \
         from (select * from (\
         select job.id as job_id, company_id, prospect_id, title, start_date, \
         end_date, location, company.name as company_name \
         from job inner join company on company.id=job.company_id where company_id=%s) as companies where \
         to_char(start_date, 'YYYY') between '%s' and '%s' or \
         to_char(end_date, 'YYYY') between '%s' and '%s') as jobs \
-        inner join prospect on jobs.prospect_id=prospect.id;
+        inner join prospect on jobs.prospect_id=prospect.id \
+        join prospect_wealthscore on prospect.id=prospect_wealthscore.prospect_id;
         """
 
         prospect_location = job.location
@@ -144,6 +149,7 @@ class ProspectList(object):
                             "url": job[10],
                             "image_url": job[11],
                             "id": id,
+                            "wealthscore": job[13],
                             "type": "job"}
                 score = float(job[12])
                 exisiting  = self.results.get(id)
@@ -181,6 +187,7 @@ class ProspectList(object):
         user['start_date'] = start_date.strftime("%y") if start_date else None
         user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
+        user['wealthscore'] = jobs.get("wealthscore")
         user['title'] = title
         user['company_name'] = company_name
         user['company_id'] = company_id
@@ -207,6 +214,7 @@ class ProspectList(object):
         user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
         user['school_name'] = school_name
+        user['wealthscore'] = jobs.get("wealthscore")
         user['school_id'] = school_id
         user['current_location'] = current_location
         user['current_industry'] = current_industry

@@ -252,13 +252,21 @@ var UserResults = React.createClass({displayName: "UserResults",
                 $("[data-result='" + id + "']").fadeOut();
             });
         });
-        $("#more-prospect").click(function() {
+        $("#more-prospects").click(function() {
             userPage++;
             var offset = 50 * (userPage - 1);
             var limit = offset + 50;
-            var data = window.userData.splice(0, 50);
-            result.setProps({data:data});
-            result.bindButtons();
+            var data = window.userData.splice(offset, limit);
+            if (data.length > 0) {
+                result.setProps({data:data});
+                result.bindButtons();
+                $("html, body").animate({
+                    scrollTop: $(".results").position().top
+                }, 100);
+            } else {
+                bootbox.alert("There are no more Prospects");
+                return false;
+            }
         });
     },
     render: function() {
@@ -271,18 +279,22 @@ var UserResults = React.createClass({displayName: "UserResults",
     if (this.props.data.length < 1) {
         return (
           React.createElement("div", {className: "results"}, 
-            React.createElement("div", {className: "empty"}, 
-                React.createElement("h2", null, "There are no prospects in your network")
-            ), 
-            React.createElement("div", {className: "clear"})
+              React.createElement("div", {className: "wrapper"}, 
+                  React.createElement("div", {className: "empty"}, 
+                      React.createElement("h2", null, "There are no more prospects in your network")
+                      )
+                  ), 
+              React.createElement("div", {className: "clear"})
           )
         );
     } else {
         return (
           React.createElement("div", {className: "results"}, 
-            prospects, 
-            React.createElement("div", {className: "clear"}), 
-            React.createElement("button", {className: "btn btn-success", id: "more-prospects"}, "More")
+            React.createElement("div", {className: "wrapper"}, 
+                prospects, 
+                React.createElement("div", {className: "clear"}), 
+                React.createElement("button", {className: "btn btn-success", id: "more-prospects"}, "More")
+              )
           )
         );
     }
@@ -457,6 +469,7 @@ function bindButtons() {
         $(".results-dashboard").hide();
         $(".dashboard-search").hide()
         $("#user-prospects").show();
+        $(".prospects-holder").hide();
         $(".stats").fadeIn();
         $(".tabs li").removeClass("active");
         $(this).parent().addClass("active");
@@ -466,6 +479,7 @@ function bindButtons() {
         $(".stats").hide();
         $(".dashboard-search").show()
         $("#user-prospects").hide();
+        $(".prospects-holder").show();
         $(".results-dashboard").fadeIn();
         $(".tabs li").removeClass("active");
         $(this).parent().addClass("active");

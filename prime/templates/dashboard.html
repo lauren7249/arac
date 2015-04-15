@@ -18,43 +18,40 @@ introJs().start();
   <div id='person'>
   </div>
 </div>
-<!--<div class='row'>
-  <div class='sidebar'>
-    <div class='inner'>
-      <ul>
-        <li><a class='active' href='/dashboard'><span></span>New Prospects</a></li>
-        <li data-step="2" data-intro="Mark prospects to add them to your saved prospect list and export their contact information"><a href='/clients'><span></span>Saved Prospects</a></li>
-      </ul>
-    </div>
-  </div>-->
-  <div class='items'>
-    <div class='welcome' data-step="3" data-intro="View prospects that have something in common with you in Your Network.  This is great for making a warm introduction!">
+<div class='items'>
+  <div class='welcome' data-step="3" data-intro="View prospects that have something in common with you in Your Network.  This is great for making a warm introduction!">
+    <div class='wrapper'>
       <ul class='tabs'>
-        <li><a id='show-analytics' href='javascript:;'>Your Network</a><li>
-        <li class='active'><a id='show-leads' href='javascript:;'>Search</a><li>
+        <li class='active'><a id='show-analytics' href='javascript:;'>Your Network</a><li>
+        <li><a id='show-leads' href='javascript:;'>Search</a><li>
         <li data-step="2" data-intro="Save good prospects and let us know when a propect is not a good fit for you.  This will help us to recommend better leads for you over time!"><a href='/clients'><span></span>Saved Prospects</a></li>
       </ul>
     </div>
-    <div class='stats'>
+  </div>
+  <div class='stats'>
+    <div class='wrapper'>
       <h4>Network Analysis</h4>
+      <p>Based on your profile, we have identified prospects that are members of your professional network. These are people who went tot he same schools and worked at the same companies as you during the same time period.</p>
       <div class='stat' id='g-one'>
         <h5>Work Connections</h5>
-        <canvas id='one'><canvas>
+        <canvas id='one'></canvas>
       </div>
       <div class='stat' id='g-two'>
         <h5>School Connections</h5>
-        <canvas id='two'><canvas>
+        <canvas id='two'></canvas>
       </div>
       <div class='stat' id='g-three'>
         <h5>Industry Analysis</h5>
-        <canvas id='three'><canvas>
+        <canvas id='three'></canvas>
       </div>
       <div class='stat' id='g-four'>
         <h5>Location Analysis</h5>
-        <canvas id='four'><canvas>
+        <canvas id='four'></canvas>
       </div>
     </div>
-    <div class='dashboard-search' data-step="1" data-intro="Use our search tool to find new prospects.  You can search by company and/or school and you can narrow your search by job title, location and industry.">
+  </div>
+  <div class='dashboard-search' data-step="1" data-intro="Use our search tool to find new prospects.  You can search by company and/or school and you can narrow your search by job title, location and industry.">
+    <div class='wrapper'>
       <input type='hidden' value='' name='company_ids' id='company_ids' />
       <input type='hidden' value='' name='school_ids' id='school_ids' />
       <input type='hidden' value='' name='location_ids' id='location_ids' />
@@ -147,7 +144,9 @@ introJs().start();
         <button class='btn btn-primary'>Save Search</button>
       </fieldset>
     </div>
-    <div id='more-padding' class='results results-dashboard'>
+  </div>
+  <div id='more-padding' class='results results-dashboard'>
+    <div class='wrapper'>
       <div class='alert alert-success'>You have <b>{{ prospects_remaining_today }}</b> leads remaining today.</div>
       <h4>Your Prospects</h4>
       <div class='clear'></div>
@@ -158,12 +157,12 @@ introJs().start();
       </div>
       {% endif %}
       <div class='new-search'>
-          <a href='javascript:newSearch()'>New Search >></a>
+        <a href='javascript:newSearch()'>New Search >></a>
       </div>
       <div class='prospects-holder'>
         <div class='loading'>
-            <h2>Loading <img src='/static/img/loader.gif' /></h2>
-            <p>Finding the best prospects.</p>
+          <h2>Loading <img src='/static/img/loader.gif' /></h2>
+          <p>Finding the best prospects.</p>
         </div>
         <div id='prospects'></div>
       </div>
@@ -171,8 +170,8 @@ introJs().start();
       <button class='btn btn-success' id='prev'><< Previous Page</button>
       <button class='btn btn-success' id='next'>Next Page >></button>
     </div>
-    <div id='user-prospects'></div>
   </div>
+  <div id='user-prospects'></div>
 </div>
 <script type='text/javascript'>
 var userData = {{ json_results|safe }};

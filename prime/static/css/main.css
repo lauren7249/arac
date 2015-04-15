@@ -249,6 +249,7 @@ div.sidebar div.inner ul li a.active span {
 }
 
 div.welcome {
+  padding-top: 20px;
   background: #eff2f8;
   width: auto;
   padding-bottoM: 16px;
@@ -375,9 +376,15 @@ h2.empty a {
   color: #2196f3;
 }
 
+div.wrapper {
+  width: 960px;
+  margin: 0 auto;
+  position: relative;
+}
+
 div.items {
   float: left;
-  width: 80%;
+  width: 100%;
   background: #fafafa;
   border-left: 1px solid #dedede;
   min-height: 600px;
@@ -386,7 +393,6 @@ div.items {
 div.stats {
   padding-bottom: 40px;
   padding: 50px;
-  display: none;
 }
 div.stats h4 {
   font-size: 28px;
@@ -411,6 +417,7 @@ div.dashboard-search {
   background: #ecf0f1;
   z-index: 2;
   position: relative;
+  display: none;
 }
 div.dashboard-search input[type='submit'] {
   float: left;
@@ -589,6 +596,7 @@ div.new-search a {
 
 div.prospects-holder {
   position: relative;
+  display: none;
 }
 
 div.results {
@@ -1160,10 +1168,6 @@ div.empty ul, div.empty li {
 
 #next, #prev {
   margin-bottom: 50px;
-  display: none;
-}
-
-#user-prospects {
   display: none;
 }
 
