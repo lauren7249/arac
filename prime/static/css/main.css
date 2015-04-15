@@ -846,6 +846,130 @@ div.person {
   width: 80%;
 }
 
+div#person {
+  display: none;
+  width: 100%;
+  margin: 0px auto;
+  background: #fff;
+  min-height: 150px;
+}
+div#person div.top {
+  background: #525252;
+  padding: 15px 20px;
+  width: auto;
+}
+div#person div.top p {
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #fff;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+  font-family: "Quicksand", sans-serif;
+}
+div#person div.top p a {
+  float: right;
+  color: #fff;
+  font-size: 20px;
+}
+div#person .prospect-profile-results {
+  display: none;
+}
+div#person ul.tabs {
+  padding: 0px 30px;
+  height: 21px;
+  margin: 0 0 20px;
+}
+div#person ul.tabs li {
+  display: inline;
+  font-weight: bold;
+}
+div#person ul.tabs li a {
+  padding: 5px 15px;
+  font-family: "Quicksand", sans-serif;
+  text-decoration: none;
+  color: #bbb;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  -ms-border-radius: 30px;
+  -o-border-radius: 30px;
+  border-radius: 30px;
+}
+div#person ul.tabs .active a {
+  background: #4daff1;
+  color: #fff;
+}
+div#person div.inner {
+  padding: 20px;
+}
+div#person div.inner div.leftTop {
+  width: 40%;
+  float: left;
+  margin-bottom: 20px;
+}
+div#person div.inner div.rightTop {
+  width: 60%;
+  float: left;
+  margin-bottom: 20px;
+}
+div#person div.inner div.rightTop div.group {
+  width: 50%;
+  float: left;
+}
+div#person div.inner div.rightTop h4.wealth {
+  font-size: 18px;
+  color: #525252;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+div#person div.inner div.rightTop h4.wealth span.inner {
+  color: #4caf50;
+  font-weight: 700;
+}
+div#person div.inner div.rightTop h1 {
+  font-size: 18px;
+  color: #113196;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+  padding-top: 10px;
+}
+div#person div.inner div.rightTop p {
+  font-size: 15px;
+}
+div#person div.inner div.rightTop button {
+  margin: 0 5px 0 0;
+  font-size: 12px;
+  text-transform: capitalize;
+  font-weight: 700;
+}
+div#person div.inner hr {
+  clear: both;
+  padding: 20px 0 0;
+  margin: 0;
+}
+div#person div.inner div.jobsList, div#person div.inner div.schoolList, div#person div.inner div.newsList, div#person div.inner div.salaryList {
+  width: 50%;
+  padding: 0 5% 5%;
+  float: left;
+}
+div#person div.inner div.jobsList h3, div#person div.inner div.schoolList h3, div#person div.inner div.newsList h3, div#person div.inner div.salaryList h3 {
+  font-size: 20px;
+  color: #113196;
+  font-weight: 400;
+  padding: 0;
+  margin: 0 0 10px;
+}
+div#person div.inner div.jobsList h4, div#person div.inner div.schoolList h4, div#person div.inner div.newsList h4, div#person div.inner div.salaryList h4 {
+  font-size: 19px;
+  color: #525252;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+div#person div.inner div.jobsList h5, div#person div.inner div.schoolList h5, div#person div.inner div.newsList h5, div#person div.inner div.salaryList h5 {
+  font-size: 14px;
+}
+
 div#uploading {
   width: 600px;
   text-align: center;

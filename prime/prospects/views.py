@@ -221,7 +221,15 @@ def ajax_prospect(prospect_id):
     client_lists = ClientList.query.filter_by(user=current_user)
     prospect_json = prospect.to_json()
     prospect_json['news'] = prospect.relevant_content
+    prospect_list = ProspectList(prospect)
+    results = prospect_list.get_results()
+    if prospect.json:
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
+    results = [result for result in results if result.get("id")]
     return jsonify({"prospect":prospect_json,
+        "results": results,
         "client_lists": [{"id": cl.id, "name": cl.name} for cl in client_lists]})
 
 @prospects.route("/ajax/pipl/<int:prospect_id>")

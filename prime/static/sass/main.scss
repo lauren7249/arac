@@ -851,6 +851,151 @@ div.person {
   width: 80%;
 }
 
+div#person {
+  display: none;
+  width: 100%;
+  margin: 0px auto;
+  background: #fff;
+  min-height: 150px;
+
+  div.top {
+    background: #525252;
+    padding: 15px 20px;
+    width: auto;
+
+    p {
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #fff;
+      font-size: 18px;
+      margin: 0;
+      padding: 0;
+      font-family: $quick;
+
+      a {
+        float: right;
+        color: #fff;
+        font-size: 20px;
+      }
+    }
+  }
+
+  .prospect-profile-results {
+    display: none;
+  }
+
+  ul.tabs {
+    padding: 0px 30px;
+    height: 21px;
+    margin: 0 0 20px;
+
+    li {
+      display: inline;
+      font-weight: bold;
+
+      a {
+        padding: 5px 15px;
+        font-family: $quick;
+        text-decoration: none;
+        color: #bbb;
+        @include border-radius(30px);
+      }
+    }
+
+    .active {
+
+      a {
+        background: #4daff1;
+        color: #fff;
+      }
+    }
+  }
+
+  div.inner {
+    padding: 20px;
+
+    div.leftTop {
+      width: 40%;
+      float: left;
+      margin-bottom: 20px;
+    }
+
+    div.rightTop {
+      width: 60%;
+      float: left;
+      margin-bottom: 20px;
+
+      div.group {
+        width: 50%;
+        float: left;
+      }
+
+      h4.wealth {
+        font-size: 18px;
+        color: #525252;
+        text-transform: uppercase;
+        font-weight: 400;
+
+        span.inner {
+          color: #4caf50;
+          font-weight: 700;
+        }
+      }
+
+      h1 {
+        font-size: 18px;
+        color: $darkblue;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0;
+        padding-top: 10px;
+      }
+
+      p {
+        font-size: 15px;
+      }
+
+      button {
+        margin: 0 5px 0 0;
+        font-size: 12px;
+        text-transform: capitalize;
+        font-weight: 700;
+      }
+    }
+
+    hr {
+      clear: both;
+      padding: 20px 0 0;
+      margin: 0;
+    }
+
+    div.jobsList, div.schoolList, div.newsList, div.salaryList {
+      width: 50%;
+      padding: 0 5% 5%;
+      float: left;
+
+      h3 {
+        font-size: 20px;
+        color: $darkblue;
+        font-weight: 400;
+        padding: 0;
+        margin: 0 0 10px;
+      }
+
+      h4 {
+        font-size: 19px;
+        color: #525252;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      h5 {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
 div#uploading {
   width: 600px;
   text-align: center;
