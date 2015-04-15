@@ -380,7 +380,7 @@ def filter_dates(prospects, job_start, job_end, school_end):
         prospects = prospects.filter(Job.end_date<=job_end)
     if job_start != datetime.date(1900, 01, 01):
         prospects = prospects.filter(Job.start_date>=job_start)
-    if school_end != "1900":
+    if school_end != "1900" and school_end != "":
         prospects = prospects.filter(extract('year', \
             Education.end_date) == school_end)
     return prospects
