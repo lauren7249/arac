@@ -28,7 +28,7 @@ except:
     pass
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy import select, cast
+from sqlalchemy import select, cast, extract
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import aliased
 
@@ -380,8 +380,9 @@ def filter_dates(prospects, job_start, job_end, school_end):
         prospects = prospects.filter(Job.end_date<=job_end)
     if job_start != datetime.date(1900, 01, 01):
         prospects = prospects.filter(Job.start_date>=job_start)
-    if school_end != datetime.date(2016, 01, 01):
-        prospects = prospects.filter(Education.end_date<=school_end)
+    if school_end != "1900":
+        prospects = prospects.filter(extract('year', \
+            Education.end_date) == school_end)
     return prospects
 
 def filter_locations(prospects, location_ids):
@@ -416,8 +417,7 @@ def api():
 
     school_ids = blank_string_to_none(request.args.get("school_ids", None))
     degree = blank_string_to_none(request.args.get("degree", None))
-    school_end = datetime.datetime.strptime(request.args.get("school_end", \
-        "2016-01-01"), "%Y-%m-%d").date()
+    school_end = request.args.get("school_end", "1900"
 
     location_ids = blank_string_to_none(request.args.get("location_ids", None))
     gender = int(request.args.get("gender", 0))
