@@ -94,13 +94,14 @@ var Results = React.createClass({displayName: "Results",
             $(".loading").hide();
             return false;
         }
-        debugger;
+        var job_start = ($("#job_start").val() == "") ? null : $("#job_start").val();
+        var job_end = ($("#job_end").val() == "") ? null : $("#job_end").val();
         var params={
             company_ids: companyIDs,
             school_ids: schoolIDs,
             school_end: $("#school_end").val(),
-            job_start: $("#job_start").val(),
-            job_end: $("#job_end").val(),
+            job_start: job_start,
+            job_end: job_end,
             title: $("#title").val(),
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
