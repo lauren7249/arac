@@ -36,7 +36,7 @@ var Prospect = React.createClass({
                 </div>
                 <div className='image'>
                     <p>Wealth Score</p>
-                    <h4 className='alert'>{prospect.wealthscore}</h4>
+                    <h4 className='money'>{prospect.wealthscore}</h4>
                 </div>
                 <div className='buttons'>
                     <a className='add-prospect' data-id={prospect.id} href='javascript:;'><button className='btn btn-warning prospect-add'><i className='fa fa-plus'></i> Change Status</button></a>
