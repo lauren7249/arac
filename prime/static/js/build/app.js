@@ -62,7 +62,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {href: prospect.data.id, "data-url": prospect.url}, prospect.data.name)), 
+                    React.createElement("h3", null, React.createElement("a", {href: URL, "data-url": prospect.url}, prospect.data.name)), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.data.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.data.location), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.data.industry)
