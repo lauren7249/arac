@@ -417,7 +417,7 @@ def api():
 
     school_ids = blank_string_to_none(request.args.get("school_ids", None))
     degree = blank_string_to_none(request.args.get("degree", None))
-    school_end = request.args.get("school_end", "1900"
+    school_end = request.args.get("school_end", "1900")
 
     location_ids = blank_string_to_none(request.args.get("location_ids", None))
     gender = int(request.args.get("gender", 0))
