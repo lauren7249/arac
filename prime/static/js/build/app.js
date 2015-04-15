@@ -23,12 +23,13 @@ var UserProspect = React.createClass({displayName: "UserProspect",
     render: function() {
         var prospect = this.props.data;
         var relationship = React.createElement(Relationship, {name: prospect.relationship})
+        var URL = "/prospect/" + prospect.id
         return (
             React.createElement("div", {className: "result", "data-result": prospect.id}, 
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.prospect_name)), 
+                    React.createElement("h3", null, React.createElement("a", {href: URL, "data-url": prospect.url}, prospect.prospect_name)), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.company_name), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.current_location), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
@@ -55,12 +56,13 @@ var Prospect = React.createClass({displayName: "Prospect",
     render: function() {
         var prospect = this.props.data;
         var relationship = React.createElement(Relationship, {name: prospect.relevancy})
+        var URL = "/prospect/" + prospect.data.id
         return (
             React.createElement("div", {className: "result", "data-result": prospect.data.id}, 
                 React.createElement("div", {className: "first"}
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.data.id, "data-url": prospect.url}, prospect.data.name)), 
+                    React.createElement("h3", null, React.createElement("a", {href: prospect.data.id, "data-url": prospect.url}, prospect.data.name)), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.data.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.data.location), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.data.industry)
@@ -371,18 +373,9 @@ $(function() {
     buildResults();
     buildGraphs();
     bindButtons();
-    bindProfiles();
     bindSearch();
     bindDates();
 });
-
-function bindProfiles() {
-    $("[data-prospect]").click(function() {
-        var url = $(this).data('url');
-        var id = $(this).data("prospect");
-        loadProfile(id, url);
-    });
-}
 
 function buildGraphs() {
 

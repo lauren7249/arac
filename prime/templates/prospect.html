@@ -1,29 +1,105 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='row'>
-  {% if prospect.image_url %}
-  <div class='image'>
-    <img src='{{ prospect.image_url }}' />
+<div class='items'>
+  <div class='welcome' data-step="3" data-intro="View prospects that have something in common with you in Your Network.  This is great for making a warm introduction!">
+    <div class='wrapper'>
+      <ul class='tabs'>
+        <li class='active'><a id='show-analytics' href='/dashboard'><< Back To Your Dashboard</a><li>
+      </ul>
+    </div>
   </div>
-  {% endif %}
-  <h1>{{ prospect.name }} <span class='pull-right'><a href='/search?url={{ prospect.url }}'><button class='btn btn-warning'>View Prospect List</button></a></span></h1>
-  <h3>Work History</h3>
-  {% for job in prospect.jobs %}
-  <div class='item'>
-    <h4><a href='{{ job.get_url }}'>{{ job.company.name }}</a></h4>
-    <p>{{ job.title }} | {{ job.location_raw }}</p>
-    <p>{{ job.start_date }} - {% if job.end_date %}{{ job.end_date }}{% else %}Present{% endif %}</p>
+  <div id='person'>
+    <div class="profileBox">
+      <div class="top">
+        <div class="wrapper">
+          <p>Investor Profile</p>
+        </div>
+      </div>
+      <div class='inner'>
+        <div class="wrapper">
+          <div class='leftTop'>
+            <script type="IN/MemberProfile" data-id="{{ prospect.url }}" data-related="false" data-format="inline"></script>
+          </div>
+          <div class='rightTop'>
+            <div class='group'>
+              <h1>{{ prospect.name }}</h1>
+              <p>{{ prospect.raw_location }} | {{ prospect.raw_industry }}</p>
+            </div>
+            <div class='group'>
+              <h4 class="wealth">Wealthscore: <span class='inner'>{{ prospect.wealthscore }}</span></h4>
+            </div>
+            <div class='clear'></div>
+            <button data-id="{{ prospect.id }}" class='btn btn-success add-user-prospect'><i class='fa fa-plus'></i> Add To Prospect List</button>
+            <button data-id="{{ prospect.id }}" class='btn btn-danger remove-user-prospect'><i class='fa fa-chevron-circle-right'></i> Skip Prospect</button>
+            <div class='clear'></div>
+            <div class='clear'></div>
+          </div>
+          <hr />
+          <ul class='tabs user-profile-tabs'>
+            <li class='active'><a href='javascript:;' id='show-user-profile' >Profile</a></li>
+            <li><a href='javascript:;' id='show-user-prospects'>Relevant Prospects</a></li>
+          </ul>
+          <div class='profile-content'>
+            <div class="jobsList">
+              <h4>Work History</h4>
+              {% for job in prospect.jobs %}
+              <div class="job">
+                <h3>{{ job.company.name }}</h3>
+                <p>{{ job.title }} - {{ job.raw_location }} - {{ job.start_date}} - {{ job.end_date }}</p>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="schoolList">
+              <h4>Education History</h4>
+              {% for school in prospect.schools %}
+              <div class="education">
+                <h3>{{ school.school.name }}</h3>
+                <p>{{ school.degree }} - {{ school.end_date }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <hr />
+          <div class='clear'></div>
+        </div>
+      </div>
+    </div>
+    <div class='prospect-profile-results'>
+      <div class='stats'>
+        <div class='wrapper'>
+          <h4>{{ prospect.name }} Profile and Network Analysis</h4>
+          <p>Based on your profile, we have identified prospects that are members of your professional network. These are people who went tot he same schools and worked at the same companies as you during the same time period.</p>
+          <div class='stat' id='g-one'>
+            <h5>Work Connections</h5>
+            <canvas id='one'></canvas>
+          </div>
+          <div class='stat' id='g-two'>
+            <h5>School Connections</h5>
+            <canvas id='two'></canvas>
+          </div>
+          <div class='stat' id='g-three'>
+            <h5>Industry Analysis</h5>
+            <canvas id='three'></canvas>
+          </div>
+          <div class='stat' id='g-four'>
+            <h5>Location Analysis</h5>
+            <canvas id='four'></canvas>
+          </div>
+        </div>
+      </div>
+      <div id='user-prospects'></div>
+      <div style='display:none;' id='prospects'></div>
+    </div>
   </div>
-  {% endfor %}
-  <h3>Schools</h3>
-  {% for education in prospect.schools %}
-  <div class='item'>
-    <h4><a href='{{ education.get_url }}'>{{ education.school.name }}</a></h4>
-    <p>{{ education.degree }}</p>
-    <p>{{ education.end_date }}</p>
-  </div>
-  {% endfor %}
-<br/>
 </div>
-<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
+<script type='text/javascript'>
+var userData = {{ json_results|safe }};
+window._userData = {results:userData}
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+<script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
+<script src="/static/js/chart.js" type="text/javascript"></script>
+<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
+<script src="/static/js/build/app.js" type="text/javascript"></script>
+<script src="/static/js/build/profile.js" type="text/javascript"></script>
 {% endblock %}

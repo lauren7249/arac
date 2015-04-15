@@ -191,6 +191,26 @@ def dashboard():
             first_time=first_time, prospect_count=len(results),
             prospects_remaining_today=prospects_remaining_today)
 
+@prospects.route("/prospect/<int:prospect_id>")
+def prospect(prospect_id):
+    prospect = Prospect.query.get(prospect_id)
+    user = current_user
+    prospects_remaining_today = user.prospects_remaining_today
+    skipped_profiles = []
+    processed_profiles = []
+    prospect_list = ProspectList(prospect)
+    results = prospect_list.get_results()
+    if prospect.json:
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
+    results = [result for result in results if result.get("id") not in
+            processed_profiles]
+    return render_template('prospect.html',prospect=prospect, \
+            json_results=json.dumps(results),
+            prospect_count=len(results),
+            prospects_remaining_today=prospects_remaining_today)
+
 @prospects.route("/company/<int:company_id>")
 def company(company_id):
     page = int(request.args.get("p", 1))
@@ -206,14 +226,6 @@ def school(school_id):
     educations = Education.query.filter_by(school_id=school.id).paginate(page,
             50, False)
     return render_template('school.html', school=school, educations=educations)
-
-@prospects.route("/prospect/<int:prospect_id>")
-def prospect(prospect_id):
-    prospect = session.query(Prospect).get(prospect_id)
-    jobs = prospect.jobs
-    schools = prospect.schools
-    return render_template('prospect.html', prospect=prospect, jobs=jobs,
-            schools=schools)
 
 @prospects.route("/ajax/prospect/<int:prospect_id>")
 def ajax_prospect(prospect_id):

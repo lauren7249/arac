@@ -846,27 +846,25 @@ div.loading {
   }
 }
 
-
 div.person {
   width: 80%;
 }
 
 div#person {
-  display: none;
   width: 100%;
   margin: 0px auto;
   background: #fff;
   min-height: 150px;
 
   div.top {
-    background: #525252;
+    background: #eee;
     padding: 15px 20px;
     width: auto;
 
     p {
       text-transform: uppercase;
       font-weight: 700;
-      color: #fff;
+      color: #252525;
       font-size: 18px;
       margin: 0;
       padding: 0;
@@ -1345,7 +1343,8 @@ div.empty {
   display: none;
 }
 
-#user-prospects {
+#user-profile-data {
+  display: none;
 }
 
 div.days {

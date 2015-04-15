@@ -847,21 +847,20 @@ div.person {
 }
 
 div#person {
-  display: none;
   width: 100%;
   margin: 0px auto;
   background: #fff;
   min-height: 150px;
 }
 div#person div.top {
-  background: #525252;
+  background: #eee;
   padding: 15px 20px;
   width: auto;
 }
 div#person div.top p {
   text-transform: uppercase;
   font-weight: 700;
-  color: #fff;
+  color: #252525;
   font-size: 18px;
   margin: 0;
   padding: 0;
@@ -1292,6 +1291,10 @@ div.empty ul, div.empty li {
 
 #next, #prev {
   margin-bottom: 50px;
+  display: none;
+}
+
+#user-profile-data {
   display: none;
 }
 
