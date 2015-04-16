@@ -81,8 +81,23 @@ class Prospect(db.Model):
         if self.json:
             vibe = self.json.get("vibe")
             if vibe:
-                return vibe.get("social_profiles")
+                return vibe.get("social_profiles", [])
         return []
+
+    def find_pipl(self):
+        try:
+            base_url ="http://api.pipl.com/search/v3/json/?username="
+            linkedin_id = str(self.linkedin_id)
+            end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
+            url = "".join([base_url, linkedin_id, end_query])
+            response = requests.get(url)
+            content = json.loads(response.content)
+            emails = content.get('person').get("emails")
+            images = content.get('person').get("images")
+            if len(emails) > 0:
+                return emails[0].get("address")
+        except:
+            return None
 
     @property
     def email(self):
