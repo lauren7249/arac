@@ -67,6 +67,11 @@ def export_file(prospects, email):
     exporter.export()
     return True
 
+def get_email_and_vibe(prospect, email):
+    import pdb
+    pdb.set_trace()
+    pass
+
 
 ################
 ###   VIEWS   ##
