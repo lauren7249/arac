@@ -205,7 +205,7 @@ class Prospect(db.Model):
             "image_url": self.image_url,
             "wealthscore": self.wealthscore,
             "email": self.email,
-            "social_accounts" self.social_accounts}
+            "social_accounts": self.social_accounts}
         if not no_fk:
             data['jobs'] = [job.to_json for job in self.jobs]
             data['current_job'] = "{}, {}".format(uu(self.current_job.title),\
