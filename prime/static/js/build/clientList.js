@@ -23,7 +23,7 @@ var SocialAccounts = React.createClass({displayName: "SocialAccounts",
         });
         return (
             React.createElement("div", {className: "social"}, 
-                React.createElement("p", null, React.createElement("b", null, "Social Accounts"), ":", React.createElement("a", {href: ""}, React.createElement("i", {className: "fa fa-linkedin"}), " LinkedIn"), " ", socialaccounts)
+                React.createElement("p", null, React.createElement("b", null, "Social Accounts"), ":", React.createElement("a", {href: this.props.linkedin_url}, React.createElement("i", {className: "fa fa-linkedin"}), " LinkedIn"), " ", socialaccounts)
             )
             )
     }
@@ -55,7 +55,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry), 
-                    React.createElement(SocialAccounts, {data: prospect.social_accounts})
+                    React.createElement(SocialAccounts, {data: prospect.social_accounts, linkedin_url: prospect.url})
                 ), 
                 React.createElement("div", {className: "image"}, 
                     React.createElement("p", null, "Wealth Score"), 
