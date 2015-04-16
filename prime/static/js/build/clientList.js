@@ -18,9 +18,7 @@ var SocialAccounts = React.createClass({displayName: "SocialAccounts",
             var name = "fa fa-" + account.type
 
             return (
-                React.createElement("div", {className: "social"}, 
                     React.createElement("a", {href: account.url}, React.createElement("i", {className: name}), " ", account.typeName)
-                )
                 );
         });
         return (
