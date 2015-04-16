@@ -4,7 +4,7 @@
 <div style='display: block;' class='overlay'>
   <div id='modal'>
     <h2>Congrats!</h2>
-    <p>We found <span>{{ prospect_count }}</span> prospects in your extended network.  You can view them in "Your Network Analytics" or search our database of 100m+ prospects.  
+    <p>We found <span>{{ prospect_count }}</span> prospects in your extended market.  You can view them in "Your Market" or search our database of 100m+ prospects.  
     <p>Save the prospects you’d like to contact and remove prospects that are a bad match for you.  We’ll use this information to find you better prospects over time.</p>
     <button onclick='javascript:hideOverlay();' class='btn btn-success'>Get Started!</button>
   </div>
@@ -26,8 +26,10 @@ introJs().start();
   </div>
   <div class='stats'>
     <div class='wrapper'>
-      <h4>Network Analysis</h4>
-      <p>Based on your profile, we have identified prospects that are members of your professional network. These are people who went tot he same schools and worked at the same companies as you during the same time period.</p>
+      <h4>Extended Market Analysis</h4>
+      <p>Search through co-workers and classmates to identify new prospects.</p>
+      <p>Save the prospects you want to approach and we'll find out the best way to contact them.</p>
+      <p>Remove prospects that are a bad match for you.  We’ll use this information to find you better prospects over time.</p>
       <div class='stat' id='g-one'>
         <h5>Work Connections</h5>
         <canvas id='one'></canvas>
