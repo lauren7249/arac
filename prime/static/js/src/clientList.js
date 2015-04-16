@@ -43,13 +43,14 @@ var Prospect = React.createClass({
     render: function() {
         var prospect = this.props.data;
         var relationship = <Relationship name={prospect.relevancy} />
+        var URL = "/prospect/" + prospect.id
         return (
             <div className='result checked' data-result={prospect.id}>
                 <div className='first'>
                     <input type='checkbox' value={prospect.id} defaultChecked={true} onChange={this.handleChange} />
                 </div>
                 <div className='second'>
-                    <h3><a data-prospect={prospect.id} data-url={prospect.url}>{prospect.name}</a></h3>
+                    <h3><a href={URL} data-url={prospect.url}>{prospect.name}</a></h3>
                     <h4><i className='fa fa-envelope-o'></i> Email: {prospect.email}</h4>
                     <h4><span className='grey'>Current Job:</span> {prospect.current_job}</h4>
                     <h4><span className='grey'>Current Location:</span> {prospect.location}</h4>

@@ -43,13 +43,14 @@ var Prospect = React.createClass({displayName: "Prospect",
     render: function() {
         var prospect = this.props.data;
         var relationship = React.createElement(Relationship, {name: prospect.relevancy})
+        var URL = "/prospect/" + prospect.id
         return (
             React.createElement("div", {className: "result checked", "data-result": prospect.id}, 
                 React.createElement("div", {className: "first"}, 
                     React.createElement("input", {type: "checkbox", value: prospect.id, defaultChecked: true, onChange: this.handleChange})
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.name)), 
+                    React.createElement("h3", null, React.createElement("a", {href: URL, "data-url": prospect.url}, prospect.name)), 
                     React.createElement("h4", null, React.createElement("i", {className: "fa fa-envelope-o"}), " Email: ", prospect.email), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
