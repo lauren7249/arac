@@ -10,6 +10,9 @@ var Relationship = React.createClass({
 });
 
 var SocialAccounts = React.createClass({
+    getInitialState: function() {
+        return {data:[]};
+    },
     render: function() {
         var socialaccounts = this.props.data.map(function(account) {
             var name = "fa fa-" + account.type
