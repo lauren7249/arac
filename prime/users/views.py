@@ -34,8 +34,6 @@ session = db.session
 #############
 
 def get_email_and_vibe(prospect):
-    import pdb
-    pdb.set_trace()
     data = prospect.json
     if not data:
         data = {}
