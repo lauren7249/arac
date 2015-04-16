@@ -145,7 +145,7 @@ introJs().start();
       <div class='alert alert-success'>You have <b>{{ prospects_remaining_today }}</b> leads remaining today.</div>
       <h4>Your Prospects</h4>
       <div class='clear'></div>
-      {% if prospects_remaining_today == 0%}
+      {% if prospects_remaining_today < 1%}
       <div class='hide-results'>
         <h2>You have reached your limit for today</h2>
         <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
@@ -167,6 +167,12 @@ introJs().start();
     </div>
   </div>
   <div id='user-prospects'></div>
+  {% if prospects_remaining_today < 1%}
+  <div class='hide-results'>
+    <h2>You have reached your limit for today</h2>
+    <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
+  </div>
+  {% endif %}
 </div>
 <script type='text/javascript'>
 var userData = {{ json_results|safe }};
