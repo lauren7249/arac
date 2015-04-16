@@ -9,6 +9,25 @@ var Relationship = React.createClass({
     }
 });
 
+var SocialAccounts = React.createClass({
+    render: function() {
+        var socialaccounts = this.props.data.map(function(account) {
+            var name = "fa fa-" + account.type
+
+            return (
+                <div className='social'>
+                    <a href={account.url}><i className={name}></i> {account.name}</a>
+                </div>
+                );
+        });
+        return (
+            <div className='social'>
+                {socialaccounts}
+            </div>
+            )
+    }
+});
+
 
 var Prospect = React.createClass({
     handleChange: function() {
@@ -42,6 +61,7 @@ var Prospect = React.createClass({
                     <a className='add-prospect' data-id={prospect.id} href='javascript:;'><button className='btn btn-warning prospect-add'><i className='fa fa-plus'></i> Change Status</button></a>
                 </div>
                 <div className='clear'></div>
+                <SocialAccounts data={data.social_accounts} />
             </div>
             )
     }

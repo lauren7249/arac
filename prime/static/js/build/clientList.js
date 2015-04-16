@@ -9,6 +9,25 @@ var Relationship = React.createClass({displayName: "Relationship",
     }
 });
 
+var SocialAccounts = React.createClass({displayName: "SocialAccounts",
+    render: function() {
+        var socialaccounts = this.props.data.map(function(account) {
+            var name = "fa fa-" + account.type
+
+            return (
+                React.createElement("div", {className: "social"}, 
+                    React.createElement("a", {href: account.url}, React.createElement("i", {className: name}), " ", account.name)
+                )
+                );
+        });
+        return (
+            React.createElement("div", {className: "social"}, 
+                socialaccounts
+            )
+            )
+    }
+});
+
 
 var Prospect = React.createClass({displayName: "Prospect",
     handleChange: function() {
@@ -41,7 +60,8 @@ var Prospect = React.createClass({displayName: "Prospect",
                 React.createElement("div", {className: "buttons"}, 
                     React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-warning prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Change Status"))
                 ), 
-                React.createElement("div", {className: "clear"})
+                React.createElement("div", {className: "clear"}), 
+                React.createElement(SocialAccounts, {data: data.social_accounts})
             )
             )
     }
