@@ -13,7 +13,7 @@ function randColor(colors) {
 var Relationship = React.createClass({
     render: function() {
         return (
-            <p>Connected via <a href={this.props.url}>{this.props.name}</a>.</p>
+            <p>Connected: <a href={this.props.url}>{this.props.name}</a>.</p>
             )
     }
 });

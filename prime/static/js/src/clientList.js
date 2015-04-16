@@ -4,7 +4,7 @@ var page = 1;
 var Relationship = React.createClass({
     render: function() {
         return (
-            <p>You are connected via <a href={this.props.url}>{this.props.name}</a>.</p>
+            <p>Connected: <a href={this.props.url}>{this.props.name}</a>.</p>
             )
     }
 });
