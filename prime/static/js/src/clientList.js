@@ -23,7 +23,7 @@ var SocialAccounts = React.createClass({
         });
         return (
             <div className='social'>
-                <p><b>Social Account</b>:{socialaccounts}</p>
+                <p><b>Social Accounts</b>:{socialaccounts}</p>
             </div>
             )
     }
@@ -54,6 +54,7 @@ var Prospect = React.createClass({
                     <h4><span className='grey'>Current Job:</span> {prospect.current_job}</h4>
                     <h4><span className='grey'>Current Location:</span> {prospect.location}</h4>
                     <h4><span className='grey'>Current Industry:</span> {prospect.industry}</h4>
+                    <SocialAccounts data={prospect.social_accounts} />
                 </div>
                 <div className='image'>
                     <p>Wealth Score</p>
@@ -63,7 +64,6 @@ var Prospect = React.createClass({
                     <a className='add-prospect' data-id={prospect.id} href='javascript:;'><button className='btn btn-warning prospect-add'><i className='fa fa-plus'></i> Change Status</button></a>
                 </div>
                 <div className='clear'></div>
-                <SocialAccounts data={prospect.social_accounts} />
             </div>
             )
     }

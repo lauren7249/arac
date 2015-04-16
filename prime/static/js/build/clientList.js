@@ -23,7 +23,7 @@ var SocialAccounts = React.createClass({displayName: "SocialAccounts",
         });
         return (
             React.createElement("div", {className: "social"}, 
-                React.createElement("p", null, React.createElement("b", null, "Social Account"), ":", socialaccounts)
+                React.createElement("p", null, React.createElement("b", null, "Social Accounts"), ":", socialaccounts)
             )
             )
     }
@@ -53,7 +53,8 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", null, React.createElement("i", {className: "fa fa-envelope-o"}), "Email: ", prospect.email), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
-                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry)
+                    React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry), 
+                    React.createElement(SocialAccounts, {data: prospect.social_accounts})
                 ), 
                 React.createElement("div", {className: "image"}, 
                     React.createElement("p", null, "Wealth Score"), 
@@ -62,8 +63,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                 React.createElement("div", {className: "buttons"}, 
                     React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-warning prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Change Status"))
                 ), 
-                React.createElement("div", {className: "clear"}), 
-                React.createElement(SocialAccounts, {data: prospect.social_accounts})
+                React.createElement("div", {className: "clear"})
             )
             )
     }
