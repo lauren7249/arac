@@ -383,6 +383,7 @@ div.wrapper {
 }
 
 div.items {
+  position: relative;
   float: left;
   width: 100%;
   background: #fafafa;
