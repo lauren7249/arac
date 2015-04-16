@@ -1,5 +1,6 @@
 from flask import Flask
 import datetime
+import requests
 import json
 import urllib
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
@@ -24,8 +25,43 @@ from sqlalchemy import select, cast
 from prime.prospects.helper import LinkedinResults
 from prime.prospects.arequest import aRequest
 from prime.search.search import SearchRequest
+from services.email_finder import EmailFinder
 
 session = db.session
+
+##############
+##  TASKS   ##
+#############
+
+def get_email_and_vibe(prospect):
+    data = prospect.json
+    if not data:
+        data = {}
+    if 'pipl_and_vibe' in data: 
+        return True
+    data['pipl_and_vibe'] = True
+    try:
+        email_finder = EmailFinder(prospect.name, prospect.current_job.company.name, prospect.linkedin_id)
+        email = email_finder.find_contact_information()
+    except:
+        email = None
+    data['email'] = email
+    if email:
+        url = "https://vibeapp.co/api/v1/initial_data/?"
+        key = "api_key=e0978324d7ac8b759084aeb96c5d7fde&"
+        email="email={}&force=1".format(email)
+        result = requests.get("".join([url, key, email]))
+        vibe_json = json.loads(result.content)
+        data['vibe'] = vibe_json
+    session.query(Prospect).filter_by(id=prospect.id).update({"json":
+        data})
+    session.commit()
+    return True
+
+##############
+##  VIEWS  ##
+#############
+
 
 @csrf.exempt
 @users.route("/user/skills/add", methods=["GET", "POST"])
@@ -79,6 +115,7 @@ def add_prospect_client_list(prospect_id):
             session.add(client_list)
             session.commit()
         prospect = Prospect.query.get(prospect_id)
+        result = get_email_and_vibe(prospect)
         today = datetime.date.today()
         client_prospect = ClientProspect(client_list=client_list,
                 prospect=prospect, created=today)

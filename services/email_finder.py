@@ -96,11 +96,11 @@ class EmailFinder(object):
         pass
 
     def find_contact_information(self):
-        url = self.find_url()
-        if url:
-            email = self.find_smtp_information()
-            if email:
-                return email
+        #url = self.find_url()
+        #if url:
+        #    email = self.find_smtp_information()
+        #    if email:
+        #        return email
         email = self.find_pipl()
         return email
 

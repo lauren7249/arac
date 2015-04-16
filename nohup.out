@@ -6540,3 +6540,7 @@ brower.rd@coattaili01:24:26 Starting new HTTP connection (1): api.pipl.com
 20:46:22 RQ worker started, version 0.4.6
 20:46:22 
 20:46:22 *** Listening on high, default, low...
+20:50:02 Warm shut down requested.
+20:50:38 RQ worker started, version 0.4.6
+20:50:38 
+20:50:38 *** Listening on high, default, low...
