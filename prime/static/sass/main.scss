@@ -800,26 +800,27 @@ div.results {
     }
   }
 
-  div.hide-results {
-    width: 100%;
-    position: absolute;
-    background: rgba(255, 255, 255, 0.95);
-    left: 0;
-    top: 0;
-    z-index: 100;
-    height: 100%;
+}
 
-    h2 {
-      padding: 80px 30px 20px;
-      color: #4caf50;
-      font-size: 20px;
-      text-align: center;
-    }
+div.hide-results {
+  width: 100%;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  left: 0;
+  top: 0;
+  z-index: 100;
+  height: 100%;
 
-    p {
-      color: #444;
-      text-align: center;
-    }
+  h2 {
+    padding: 80px 30px 20px;
+    color: #4caf50;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  p {
+    color: #444;
+    text-align: center;
   }
 }
 
