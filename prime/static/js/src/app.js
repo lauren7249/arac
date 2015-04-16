@@ -29,7 +29,7 @@ var UserProspect = React.createClass({
                 <div className='first'>
                 </div>
                 <div className='second'>
-                    <h3><a href={URL} data-url={prospect.url}>{prospect.prospect_name}</a></h3>
+                    <h3><a target='_blank' href={URL} data-url={prospect.url}>{prospect.prospect_name}</a></h3>
                     <h4><span className='grey'>Current Job:</span> {prospect.company_name}</h4>
                     <h4><span className='grey'>Current Location:</span> {prospect.current_location}</h4>
                     <h4><span className='grey'>Current Industry:</span> {prospect.current_industry}</h4>
@@ -62,7 +62,7 @@ var Prospect = React.createClass({
                 <div className='first'>
                 </div>
                 <div className='second'>
-                    <h3><a href={URL} data-url={prospect.url}>{prospect.data.name}</a></h3>
+                    <h3><a target='_blank' href={URL} data-url={prospect.url}>{prospect.data.name}</a></h3>
                     <h4><span className='grey'>Current Job:</span> {prospect.data.current_job}</h4>
                     <h4><span className='grey'>Current Location:</span> {prospect.data.location}</h4>
                     <h4><span className='grey'>Current Industry:</span> {prospect.data.industry}</h4>

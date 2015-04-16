@@ -18,12 +18,12 @@ var SocialAccounts = React.createClass({displayName: "SocialAccounts",
             var name = "fa fa-" + account.type
 
             return (
-                    React.createElement("a", {href: account.url}, React.createElement("i", {className: name}), " ", account.typeName)
+                    React.createElement("a", {target: "_blank", href: account.url}, React.createElement("i", {className: name}), " ", account.typeName)
                 );
         });
         return (
             React.createElement("div", {className: "social"}, 
-                React.createElement("p", null, React.createElement("b", null, "Social Accounts"), ":", socialaccounts)
+                React.createElement("p", null, React.createElement("b", null, "Social Accounts"), ":", React.createElement("a", {href: ""}, React.createElement("i", {className: "fa fa-linkedin"}), " LinkedIn"), " ", socialaccounts)
             )
             )
     }
@@ -50,7 +50,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("input", {type: "checkbox", value: prospect.id, defaultChecked: true, onChange: this.handleChange})
                 ), 
                 React.createElement("div", {className: "second"}, 
-                    React.createElement("h3", null, React.createElement("a", {href: URL, "data-url": prospect.url}, prospect.name)), 
+                    React.createElement("h3", null, React.createElement("a", {target: "_blank", href: URL, "data-url": prospect.url}, prospect.name)), 
                     React.createElement("h4", null, React.createElement("i", {className: "fa fa-envelope-o"}), " Email: ", prospect.email), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
