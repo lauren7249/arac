@@ -61,7 +61,7 @@ var Prospect = React.createClass({
                     <a className='add-prospect' data-id={prospect.id} href='javascript:;'><button className='btn btn-warning prospect-add'><i className='fa fa-plus'></i> Change Status</button></a>
                 </div>
                 <div className='clear'></div>
-                <SocialAccounts data={data.social_accounts} />
+                <SocialAccounts data={prospect.social_accounts} />
             </div>
             )
     }

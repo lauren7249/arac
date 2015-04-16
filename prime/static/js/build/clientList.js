@@ -61,7 +61,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("a", {className: "add-prospect", "data-id": prospect.id, href: "javascript:;"}, React.createElement("button", {className: "btn btn-warning prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Change Status"))
                 ), 
                 React.createElement("div", {className: "clear"}), 
-                React.createElement(SocialAccounts, {data: data.social_accounts})
+                React.createElement(SocialAccounts, {data: prospect.social_accounts})
             )
             )
     }
