@@ -19,7 +19,7 @@ var SocialAccounts = React.createClass({displayName: "SocialAccounts",
 
             return (
                 React.createElement("div", {className: "social"}, 
-                    React.createElement("a", {href: account.url}, React.createElement("i", {className: name}), " ", account.name)
+                    React.createElement("a", {href: account.url}, React.createElement("i", {className: name}), " ", account.typeName)
                 )
                 );
         });
@@ -52,6 +52,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                 ), 
                 React.createElement("div", {className: "second"}, 
                     React.createElement("h3", null, React.createElement("a", {"data-prospect": prospect.id, "data-url": prospect.url}, prospect.name)), 
+                    React.createElement("h4", null, React.createElement("i", {className: "fa fa-envelope-o"}), "Email: ", prospect.email), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Job:"), " ", prospect.current_job), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Location:"), " ", prospect.location), 
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.industry)
