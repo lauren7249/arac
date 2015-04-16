@@ -23,7 +23,7 @@ var SocialAccounts = React.createClass({
         });
         return (
             <div className='social'>
-                {socialaccounts}
+                <p><b>Social Account</b>:{socialaccounts}</p>
             </div>
             )
     }

@@ -23,7 +23,7 @@ var SocialAccounts = React.createClass({displayName: "SocialAccounts",
         });
         return (
             React.createElement("div", {className: "social"}, 
-                socialaccounts
+                React.createElement("p", null, React.createElement("b", null, "Social Account"), ":", socialaccounts)
             )
             )
     }
