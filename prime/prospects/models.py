@@ -77,6 +77,20 @@ class Prospect(db.Model):
         return None
 
     @property
+    def social_accounts(self):
+        if self.json:
+            vibe = self.json.get("vibe")
+            if vibe:
+                return vibe.get("social_profiles")
+        return []
+
+    @property
+    def email(self):
+        if self.json:
+            return self.json.get("email")
+        return None
+
+    @property
     def pipl_info(self):
         info = {}
         try:

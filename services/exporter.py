@@ -39,7 +39,7 @@ class Exporter(object):
             if prospect.current_job:
                 try:
                     email_finder = EmailFinder(prospect.name,
-                            prospect.current_job.company, prospect.linkedin_id)
+                            prospect.current_job.company.name, prospect.linkedin_id)
                     email = email_finder.find_contact_information()
                 except:
                     email = None
@@ -69,7 +69,7 @@ class Exporter(object):
          'to': [{'email': self.to_email,
                  'type': 'to'}]}
         result = self.mandrill_client.messages.send(message=message)
-        """ 
+        """
         sg = sendgrid.SendGridClient("advisorconnect", "500advisordevshop")
         message = sendgrid.Mail()
 
