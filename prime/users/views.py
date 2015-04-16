@@ -37,12 +37,11 @@ def get_email_and_vibe(prospect):
     data = prospect.json
     if not data:
         data = {}
-    if 'pipl_and_vibe' in data: 
+    if 'pipl_and_vibe' in data:
         return True
     data['pipl_and_vibe'] = True
     try:
-        email_finder = EmailFinder(prospect.name, prospect.current_job.company.name, prospect.linkedin_id)
-        email = email_finder.find_contact_information()
+        email = prospect.find_pipl()
     except:
         email = None
     data['email'] = email
