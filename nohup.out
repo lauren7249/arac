@@ -6602,3 +6602,11 @@ brower.rd@coattaili01:24:26 Starting new HTTP connection (1): api.pipl.com
 17:29:13 Result is kept for 500 seconds.
 17:29:13 
 17:29:13 *** Listening on high, default, low...
+20:06:17 Warm shut down requested.
+Traceback (most recent call last):
+  File "worker.py", line 3, in <module>
+    from redis import Redis
+ImportError: No module named redis
+20:07:19 RQ worker started, version 0.4.6
+20:07:19 
+20:07:19 *** Listening on high, default, low...
