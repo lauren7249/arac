@@ -451,7 +451,7 @@ def api():
             .filter(Prospect.id == ProspectGender.prospect_id)\
             .filter(Prospect.id == ProspectWealthscore.prospect_id)\
             .filter(Education.school_id.in_(school_ids))
-    else:
+    elif company_ids:
         prospects=session.query(Prospect, Job.title, Company.name)\
             .filter(Job.prospect_id == Prospect.id)\
             .filter(Company.id == Job.company_id)\
@@ -459,6 +459,13 @@ def api():
             .filter(Prospect.id == ProspectGender.prospect_id)\
             .filter(Prospect.id == ProspectWealthscore.prospect_id)\
             .filter(Job.company_id.in_(company_ids))
+    else:
+        prospects=session.query(Prospect, Job.title, Company.name)\
+            .filter(Job.prospect_id == Prospect.id)\
+            .filter(Company.id == Job.company_id)\
+            .filter(Prospect.id == ProspectLocation.prospect_id)\
+            .filter(Prospect.id == ProspectGender.prospect_id)\
+            .filter(Prospect.id == ProspectWealthscore.prospect_id)
 
     prospects = filter_locations(prospects, location_ids)
     prospects = filter_title(prospects, job_title)

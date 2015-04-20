@@ -89,8 +89,9 @@ var Results = React.createClass({
     loadProfileFromServer: function() {
         var companyIDs = $("#company_ids").val()
         var schoolIDs = $("#school_ids").val()
-        if (companyIDs == "" && schoolIDs == "") {
-            bootbox.alert("You must enter either one school or one company.");
+        var title = $("#title").val()
+        if (companyIDs == "" && schoolIDs == "" && title == "") {
+            bootbox.alert("You must enter either one school, a job title or one company.");
             $(".loading").hide();
             return false;
         }
@@ -100,7 +101,7 @@ var Results = React.createClass({
             company_ids: companyIDs,
             school_ids: schoolIDs,
             school_end: $("#school_end").val(),
-            title: $("#title").val(),
+            title: title,
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
             industry_ids: $("#industry_ids").val(),
