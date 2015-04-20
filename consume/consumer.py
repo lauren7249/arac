@@ -33,6 +33,7 @@ logger.setLevel(logging.DEBUG)
 def bootstrap_s3():
     s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
     bucket = s3conn.get_bucket('arachid-results')
+    return bucket 
 
 try:
     app = create_app(os.getenv('AC_CONFIG', 'beta'))
@@ -48,7 +49,7 @@ def prospect_exists(session, s3_key):
         return True
     return False
 
-def create_prospect(info, url):
+def create_prospect(info, url, _session=None):
     cleaned_id = info['linkedin_id'].strip()
     s3_key = url_to_key(url)
     new_prospect = models.Prospect(
@@ -60,11 +61,13 @@ def create_prospect(info, url):
         s3_key       = s3_key
     )
 
+    if _session: session = _session
     session.add(new_prospect)
     session.flush()
     return new_prospect
 
-def create_schools(info, new_prospect):
+def create_schools(info, new_prospect, _session=None):
+    if _session: session=_session
     if type(info) == list:
         info_schools = info
         new_prospect = session.query(models.Prospect).get(new_prospect.id)
@@ -104,7 +107,8 @@ def create_schools(info, new_prospect):
     session.commit()
     return True
 
-def create_jobs(info, new_prospect):
+def create_jobs(info, new_prospect, _session=None):
+    if _session: session = _session
     if type(info) == list:
         info_jobs = info
         new_prospect = session.query(models.Prospect).get(new_prospect.id)
@@ -141,10 +145,11 @@ def create_jobs(info, new_prospect):
     session.commit()
     return True
 
-def create_prospect_from_info(info, url):
-    new_prospect = create_prospect(info, url)
-    schools = create_schools(info, new_prospect)
-    jobs = create_jobs(info, new_prospect)
+def create_prospect_from_info(info, url, _session=None):
+    new_prospect = create_prospect(info, url, _session=_session)
+    schools = create_schools(info, new_prospect, _session=_session)
+    jobs = create_jobs(info, new_prospect, _session=_session)
+    if _session is not None: session= _session
     session.commit()
     return new_prospect
 
@@ -261,13 +266,16 @@ def get_info_for_url_live(url):
     response = requests.get(url, headers=headers)
     response_text = response.content
     info = parse_html(response_text)
+    print info
     return info
 
 
 def get_info_for_url(url):
+    bucket = bootstrap_s3()
     key = Key(bucket)
     key.key = url_to_key(url)
     data = json.loads(key.get_contents_as_string())
+    print data
     info = parse_html(data['content'])
     return info
 
@@ -439,7 +447,8 @@ def generate_prospect_from_url(url):
         info = get_info_for_url(url)
         if info_is_valid(info):
             if models.Prospect.s3_exists(session, s3_key):
-                return session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+                prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+                if prospect and prospect.jobs: return prospect
             new_prospect = create_prospect_from_info(info, url)
             session.commit()
             return new_prospect
