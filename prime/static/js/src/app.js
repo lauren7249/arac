@@ -315,9 +315,9 @@ var UserResults = React.createClass({
 
 function buildResults() {
     var data = window._userData.results;
-    //for (var a in data) {
-    //    calculateResults(data[a])
-    //}
+    for (var a in data) {
+        calculateResults(data[a])
+    }
 
     React.render(
         <UserResults data={data}  />,
