@@ -242,7 +242,7 @@ var UserResults = React.createClass({displayName: "UserResults",
     componentDidMount: function() {
         var data = window.userData.splice(0, 50);
         this.setProps({data:data});
-        setTimeout(this.loadInLinkedinScript, 1000);
+        //setTimeout(this.loadInLinkedinScript, 1000);
         this.bindButtons();
     },
     loadInLinkedinScript: function() {
