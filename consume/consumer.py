@@ -30,6 +30,8 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
+requests.packages.urllib3.disable_warnings()
+
 def bootstrap_s3():
     s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
     bucket = s3conn.get_bucket('arachid-results')
@@ -49,7 +51,21 @@ def prospect_exists(session, s3_key):
         return True
     return False
 
-def create_prospect(info, url, _session=None):
+def update_prospect(info, prospect):
+    data = prospect.json if prospect.json else {}
+    data["skills"] = info.get("skills")
+    data["groups"] = info.get("groups")
+    data["projects"] = info.get("projects")
+    data["people"] = info.get("people")
+    session.query(models.Prospect).filter_by(id=prospect.id).update({
+        "location_raw": info.get("location"),
+        "industry_raw": info.get("industry"),
+        "json": data
+        })
+    session.commit()
+    return prospect
+
+def create_prospect(info, url):
     cleaned_id = info['linkedin_id'].strip()
     s3_key = url_to_key(url)
     new_prospect = models.Prospect(
@@ -61,95 +77,145 @@ def create_prospect(info, url, _session=None):
         s3_key       = s3_key
     )
 
-    if _session: session = _session
     session.add(new_prospect)
     session.flush()
     return new_prospect
 
-def create_schools(info, new_prospect, _session=None):
-    if _session: session=_session
+def create_schools(info, new_prospect):
+    #if _session: session=_session
     if type(info) == list:
         info_schools = info
         new_prospect = session.query(models.Prospect).get(new_prospect.id)
     else:
         info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
     for college in info_schools:
-        extra = {}
-        try:
-            extra['start_date'] = parser.parse(college.get('start_date')).replace(tzinfo=None)
-        except:
-            pass
-
-        try:
-            extra['end_date'] = parser.parse(college.get('end_date')).replace(tzinfo=None)
-        except:
-            try:
-                extra['end_date'] = parser.parse(college.get('graduation_date')).replace(tzinfo=None)
-            except:
-                pass
-
-        school = session.query(models.School).filter_by(name=college['college']).first()
-        if not school:
-            school = models.School(
-                    name=college['college']
-                    )
-            session.add(school)
-            session.flush()
-
-        new_education = models.Education(
-            prospect = new_prospect,
-            school = school,
-            degree = college.get("degree"),
-            **extra
-        )
-        session.add(new_education)
-        session.flush()
+        insert_school(college, new_prospect)
     session.commit()
     return True
 
-def create_jobs(info, new_prospect, _session=None):
-    if _session: session = _session
+def create_jobs(info, new_prospect):
+    #if _session: session = _session
     if type(info) == list:
         info_jobs = info
         new_prospect = session.query(models.Prospect).get(new_prospect.id)
     else:
         info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
     for e in info_jobs:
-        extra = {}
-        try:
-            extra['start_date'] = parser.parse(e.get('start_date')).replace(tzinfo=None)
-        except:
-            pass
-
-        try:
-            extra['end_date']   = parser.parse(e.get('end_date')).replace(tzinfo=None)
-        except:
-            pass
-
-        company = session.query(models.Company).filter_by(name=e['company']).first()
-        if not company:
-            company = models.Company(
-                    name=e['company']
-                    )
-            session.add(company)
-            session.flush()
-
-        new_job = models.Job(
-            prospect = new_prospect,
-            title = e['title'],
-            company=company,
-            **extra
-        )
-        session.add(new_job)
-        session.flush()
+        insert_job(e, new_prospect)
     session.commit()
     return True
 
-def create_prospect_from_info(info, url, _session=None):
-    new_prospect = create_prospect(info, url, _session=_session)
-    schools = create_schools(info, new_prospect, _session=_session)
-    jobs = create_jobs(info, new_prospect, _session=_session)
-    if _session is not None: session= _session
+def update_jobs(info, new_prospect):
+    jobs = info.get("experiences")
+    new_jobs = []
+    for info_job in jobs:
+        new = True
+        for job in new_prospect.jobs:
+            
+            if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
+                if convert_date(info_job.get("start_date")) != job.start_date or convert_date(info_job.get("end_date")) != job.end_date or info_job.get("location") != job.location:
+                    session.query(models.Job).filter_by(id=job.id).update({
+                        "location": info_job.get("location"),
+                        "start_date": convert_date(info_job.get("start_date")),
+                        "end_date": convert_date(info_job.get("end_date"))
+                        })
+                    print "job updated for " + new_prospect.url 
+                new = False
+                break
+        if new: new_jobs.append(info_job)
+                
+    for e in new_jobs:
+        insert_job(e, new_prospect)
+        print "job added for " + new_prospect.url 
+    session.commit()
+    return True
+
+def update_schools(info, new_prospect):
+    schools = info.get("schools")
+    new_schools = []
+    for info_school in schools:
+        new = True
+        for school in new_prospect.schools:
+            if info_school.get("degree") == school.degree and info_school.get("college") == school.school.name:
+                if convert_date(info_school.get("start_date")) != school.start_date or convert_date(info_school.get("end_date")) != school.end_date:
+                    session.query(models.Education).filter_by(id=school.id).update({
+                        "start_date": convert_date(info_school.get("start_date")),
+                        "end_date": convert_date(info_school.get("end_date")) 
+                        })
+                    print "education updated for " + new_prospect.url 
+                new = False
+                break
+        if new: new_schools.append(info_school)
+                
+    for e in new_schools:
+        insert_school(e, new_prospect)
+        print "education added for " + new_prospect.url 
+    session.commit()
+    return True
+
+
+def convert_date(date):
+    try:
+        return parser.parse(date).replace(tzinfo=None).date()
+    except:
+        return None
+
+def insert_school(college, new_prospect):
+    extra = {}
+    extra['start_date'] = convert_date(college.get('start_date'))
+    extra['end_date'] = convert_date(college.get('end_date'))
+    if extra['end_date'] is None: extra['end_date'] = convert_date(college.get('graduation_date'))
+
+    school = session.query(models.School).filter_by(name=college['college']).first()
+    if not school:
+        school = models.School(
+                name=college['college']
+                )
+        session.add(school)
+        session.flush()
+
+    new_education = models.Education(
+        prospect = new_prospect,
+        school = school,
+        degree = college.get("degree"),
+        **extra
+    )
+    session.add(new_education)
+    session.flush()
+
+def insert_job(e, new_prospect):
+    extra = {}
+    extra['start_date'] = convert_date(e.get('start_date'))
+    extra['end_date'] = convert_date(e.get('end_date'))
+
+    company = session.query(models.Company).filter_by(name=e['company']).first()
+    if not company:
+        company = models.Company(
+                name=e['company']
+                )
+        session.add(company)
+        session.flush()
+
+    new_job = models.Job(
+        prospect = new_prospect,
+        title = e['title'],
+        company=company,
+        **extra
+    )
+    session.add(new_job)
+    session.flush()   
+
+def update_prospect_from_info(info, url, prospect):
+    new_prospect = update_prospect(info, prospect)
+    schools = update_schools(info, new_prospect)
+    jobs = update_jobs(info, new_prospect)
+    session.commit()
+    return new_prospect
+
+def create_prospect_from_info(info, url):
+    new_prospect = create_prospect(info, url)
+    schools = create_schools(info, new_prospect)
+    jobs = create_jobs(info, new_prospect)
     session.commit()
     return new_prospect
 
@@ -263,10 +329,9 @@ def url_to_key(url):
 
 def get_info_for_url_live(url):
     headers ={'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}   
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, verify=False)
     response_text = response.content
     info = parse_html(response_text)
-    print info
     return info
 
 
@@ -275,7 +340,6 @@ def get_info_for_url(url):
     key = Key(bucket)
     key.key = url_to_key(url)
     data = json.loads(key.get_contents_as_string())
-    print data
     info = parse_html(data['content'])
     return info
 
@@ -456,6 +520,20 @@ def generate_prospect_from_url(url):
     except S3ResponseError:
         return None
 
+def update_prospect_from_url(url):
+    new_info = get_info_for_url_live(url)
+    url = url.strip()
+    try:
+        s3_key = url_to_key(url)
+        info = get_info_for_url_live(url)
+        if info_is_valid(info):
+            prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+            new_prospect = update_prospect_from_info(info, url, prospect)
+            session.commit()
+            return new_prospect
+
+    except S3ResponseError:
+        return None
 
 def main():
     parser = argparse.ArgumentParser()
