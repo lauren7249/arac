@@ -16,8 +16,8 @@ from pyvirtualdisplay import Display
 class LinkedinFriend(object):
 
     def __init__(self, *args, **kwargs):
-        #self.display = Display(visible=0, size=(1024, 768))
-        #self.display.start()
+        self.display = Display(visible=0, size=(1024, 768))
+        self.display.start()
         time.sleep(2)
         self.driver = webdriver.Firefox()
         self.is_logged_in = False
@@ -29,12 +29,10 @@ class LinkedinFriend(object):
         self.start_time = None
         self.successful_prospects = []
         self.linkedin_id = None
-        self.wait = WebDriverWait(self.driver, 10)
+        self.wait = WebDriverWait(self.driver, 5)
 
     def login(self):
         self.driver.get("http://linkedin.com")
-        #WebDriverWait(self.driver, 10).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, "div.liSpinnerLayer")))
-        #username = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "input[name='username']")))
         username = self.driver.find_element_by_name("session_key")
         password = self.driver.find_element_by_name("session_password")
         username.send_keys(self.username)
@@ -99,88 +97,48 @@ class LinkedinFriend(object):
         print first_degree_connections
         return first_degree_connections
 
-    def _print_time(self):
-        current_time = datetime.timedelta(seconds=time.time() - \
-                self.start_time)
-        print "Time Elapsed: {0} {1}: liked {2}: failed\n".format(\
-                    current_time,
-                    self.completed,\
-                    self.failed)
+    def get_second_degree_connections(self, linkedin_id):
+        self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
+        try:
+            element = self.wait.until(lambda driver: driver.find_element_by_class_name('connections-link'))
+            element.click  
+        except:
+            return
 
-    def _get_media_id(self):
-        user_media = self.driver.execute_script("return window._sharedData")
-        return user_media.get('entry_data').get('UserProfile')[0]\
-                .get('userMedia')[0].get('id')
+        all_friend_ids = []
+        while True:  
+            import pdb 
+            pdb.set_trace()
+            self.wait.until(lambda driver: driver.find_element_by_class_name('connections-photo'))    
 
-    def get_first_d(self):
-        liked_media = {}
-        self.start_time = time.time()
-        if not self.is_logged_in:
-            self._login()
-            time.sleep(10)
-        for prospect in self.prospects:
+            all_friend_ids = findConnections(all_friend_ids)
+            self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
+            
+            connections_view = self.driver.find_element_by_class_name('connections-paginate')
+            buttons = connections_view.find_elements_by_tag_name('button')
             try:
-                links = self._find_links(prospect)
-                if len(links) > 1:
-                    link = links[0]
-                    link.click()
-                    time.sleep(5)
-                    element_to_like = self.driver.find_element_by_xpath("//a[contains(@class, 'LikeButton')]")
-                    element_to_like.click()
-                    time.sleep(2)
-                    if "ButtonActive" in element_to_like.get_attribute("class"):
-                        self.driver.find_element_by_xpath("//i[@class='igDialogClose']").click()
-                        self.completed += 1
-                        try:
-                            media_id =self._get_media_id()
-                        except:
-                            media_id = None
-                        print media_id
-                        liked_media[prospect] = media_id
-                        time.sleep(22)
-                    else:
-                        self.failed += 1
-                        print "like failed"
-                        time.sleep(60)
-                    self._print_time()
-            except Exception, e:
-                self.failed += 1
-                client.captureException()
-                print e, prospect, prospect_id
-        self.driver.quit()
-        self.display.popen.kill()
-        return liked_media
+                next_button = buttons[1]
+                next_button.click       
+            except:
+                break
+        return all_friend_ids
 
-    def comment(self, text):
-        self.start_time = time.time()
-        if not self.is_logged_in:
-            self._login()
-            time.sleep(10)
-        for prospect_id in self.prospects:
-            prospect = session.query(ProspectProfile).get(prospect_id)
-            prospect.done = True
-            session.commit()
-            links = self._find_links(prospect.prospect.username)
-            if len(links) > 1:
+    def findConnections(all_friend_ids):
+        all_views = self.driver.find_elements_by_class_name("connections-photo")
+        for view in all_views:
+            try:
+                link = view.get_attribute("href")
+                linkedin_id =get_linkedin_id(link)
+            except:
                 try:
-                    link = links[0]
-                    link.click()
-                    time.sleep(5)
-                    element_to_comment = self.driver.find_element_by_xpath("//input[@class='fbInput']")
-                    element_to_comment.send_keys(text)
-                    element_to_comment.send_keys(Keys.RETURN)
-                    self._print_time()
-                    self.completed += 1
-                    self.successful_prospects.append(prospect)
-                    time.sleep(15)
-                except Exception, e:
-                    self.failed += 1
-                    client.captureException()
-                    print e
-        self.driver.quit()
-        self.display.popen.kill()
-        print self.successful_prospects, "old_insta 142"
-        return self.successful_prospects
+                    oops_link = self.driver.find_element_by_class_name("error-search-retry")
+                    oops_link.click
+                    self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))
+                    all_friend_ids = findConnections(all_friend_ids)                
+                except:
+                    all_friend_ids = findConnections(all_friend_ids)
+            all_friend_ids.append(linkedin_id)
+        return all_friend_ids
 
 def run(username, password):
     ig = LinkedinFriend(
@@ -191,8 +149,8 @@ def run(username, password):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("username")
+    parser.add_argument("password")
     args = parser.parse_args()
-    password = getpass.getpass()
-    run(args.username, password)
+    run(args.username, args.password)
 
 

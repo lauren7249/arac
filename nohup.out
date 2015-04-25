@@ -6611,3 +6611,54 @@ ImportError: No module named redis
 20:07:19 
 20:07:19 *** Listening on high, default, low...
 14:10:31 Warm shut down requested.
+13:26:53 RQ worker started, version 0.4.6
+13:26:53 
+13:26:53 *** Listening on high, default, low...
+16:28:31 default: prime.prospects.views.export_file([<Prospect id=228087 url=http://www.linkedin.com/pub/charles-grimm/5/47/9b6>, <Prospect id=238282 url=http://www.linkedin.com/pub/richard-c-fielder/13/ba6/5b8>, <Prospect id=537853 url=http://www.linkedin.com/pub/jose-yanez/52/b0/ab4>, <Prospect id=746079 url=http://www.linkedin.com/pub/carlisle-mott/3/6a4/812>, <Prospect id=11324064 url=http://www.linkedin.com/pub/jenny-hartz/44/504/188>, <Prospect id=15025403 url=http://www.linkedin.com/pub/alex-gavin/17/722/748>, <Prospect id=15492453 url=http://www.linkedin.com/pub/grant-dvorak/96/322/388>, <Prospect id=38633613 url=http://www.linkedin.com/pub/ally-robinson/9/9b9/89a>], u'jlyons1004+11@gmail.com') (84acd6cb-e74e-4e2b-b83b-4ed57757cc89)
+16:28:31 Using config: production
+16:28:31 Job OK, result = True
+16:28:31 Result is kept for 500 seconds.
+16:28:31 
+16:28:31 *** Listening on high, default, low...
+16:28:36 default: prime.prospects.views.export_file([<Prospect id=94134 url=http://www.linkedin.com/pub/mark-reeves/16/591/1a1>, <Prospect id=479594 url=http://www.linkedin.com/pub/robert-kort/54/166/338>, <Prospect id=15025403 url=http://www.linkedin.com/pub/alex-gavin/17/722/748>, <Prospect id=27361711 url=http://www.linkedin.com/pub/stephanie-doolin/26/607/111>, <Prospect id=38633613 url=http://www.linkedin.com/pub/ally-robinson/9/9b9/89a>, <Prospect id=39280504 url=http://www.linkedin.com/pub/caitlin-thornbrugh/39/929/579>, <Prospect id=40190738 url=http://www.linkedin.com/pub/caitlin-workman/28/26b/7a2>], u'cdibben@legacybrokerage.com') (d5923306-68e7-4b03-bc72-0e147e73bf0a)
+16:28:36 Using config: production
+16:28:36 Job OK, result = True
+16:28:36 Result is kept for 500 seconds.
+16:28:36 
+16:28:36 *** Listening on high, default, low...
+16:30:22 default: prime.prospects.views.export_file([<Prospect id=418927 url=http://www.linkedin.com/pub/joyce-caine/5/66a/477>, <Prospect id=959683 url=http://www.linkedin.com/pub/noelle-beale-phd/40/7a0/943>, <Prospect id=2794427 url=http://www.linkedin.com/pub/karen-watts/15/972/ba6>, <Prospect id=2996098 url=http://www.linkedin.com/pub/walter-johnson/12/890/751>, <Prospect id=3050079 url=http://www.linkedin.com/pub/rodney-logan/59/a50/290>, <Prospect id=3466599 url=http://www.linkedin.com/pub/anthony-miserandino/32/277/353>, <Prospect id=5067921 url=http://www.linkedin.com/pub/joel-uecker-ed-d/4b/150/267>, <Prospect id=5674059 url=http://www.linkedin.com/pub/anna-mahon/39/16/b26>, <Prospect id=8098460 url=http://www.linkedin.com/pub/diana-martelly/22/b5b/b02>, <Prospect id=10527208 url=http://www.linkedin.com/pub/kate-smith-polumbo/18/b51/a90>, <Prospect id=10966663 url=http://www.linkedin.com/pub/barbara-kirkweg/34/319/395>, <Prospect id=13796791 url=http://www.linkedin.com/pub/matt-certo/7a/ba9/421>, <Prospect id=14547994 url=http://www.linkedin.com/pub/frank-ragazzo/13/9a2/585>, <Prospect id=16065460 url=http://www.linkedin.com/pub/roy-paisley/3a/7bb/b62>, <Prospect id=16919736 url=http://www.linkedin.com/pub/neil-lederer/2a/324/4aa>, <Prospect id=17153736 url=http://www.linkedin.com/pub/elford-rawls-dill-ph-d/2b/52/930>, <Prospect id=17767741 url=http://www.linkedin.com/pub/robert-visbal/27/47a/333>], u'jefftompkins+zz@gmail.com') (4c0114c7-a250-4dab-8970-9c805ab630b1)
+16:30:23 Using config: production
+16:30:23 Job OK, result = True
+16:30:23 Result is kept for 500 seconds.
+16:30:23 
+16:30:23 *** Listening on high, default, low...
+16:36:23 default: prime.prospects.views.export_file([<Prospect id=67006 url=http://www.linkedin.com/pub/david-marlin-levi/13/503/897>, <Prospect id=138964 url=http://www.linkedin.com/pub/kathy-mcdermott/12/745/b76>, <Prospect id=151153 url=http://www.linkedin.com/pub/linda-ermann/35/41b/611>, <Prospect id=239848 url=http://www.linkedin.com/pub/emmett-slovis/12/501/91>, <Prospect id=392291 url=http://www.linkedin.com/pub/thomas-nettis/13/20a/a33>, <Prospect id=408380 url=http://www.linkedin.com/pub/joseph-muscolino/12/621/475>, <Prospect id=806702 url=http://www.linkedin.com/pub/paul-sheng/74/61b/255>, <Prospect id=871879 url=http://www.linkedin.com/pub/dr-arkady-lipnitsky/17/40b/576>, <Prospect id=1093466 url=http://www.linkedin.com/pub/anthony-addesso/11/569/862>, <Prospect id=1107202 url=http://www.linkedin.com/pub/keren-day/3/863/736>, <Prospect id=1337033 url=http://www.linkedin.com/pub/dr-holly-garone/26/8b2/974>, <Prospect id=1369989 url=http://www.linkedin.com/pub/maria-kennedy/26/5a3/a44>, <Prospect id=1502589 url=http://www.linkedin.com/pub/eric-loewrigkeit/24/837/a0>, <Prospect id=1625801 url=http://www.linkedin.com/pub/amy-brownie/47/35b/796>, <Prospect id=1628691 url=http://www.linkedin.com/pub/paul-bambara/2b/b65/678>, <Prospect id=1710362 url=http://www.linkedin.com/pub/emily-bobson/8a/774/294>, <Prospect id=1860654 url=http://www.linkedin.com/pub/andrew-zomick/19/30a/b2a>, <Prospect id=1924851 url=http://www.linkedin.com/pub/jeff-tuzzo/36/44a/40>, <Prospect id=6777598 url=http://www.linkedin.com/pub/dr-robert-wood/18/370/280>, <Prospect id=6850652 url=http://www.linkedin.com/pub/michael-landolfi/24/73/512>], u'jefftompkins+zz2@gmail.com') (d76f4617-6799-4067-a392-45749fe64ce8)
+16:36:23 Using config: production
+16:36:23 Job OK, result = True
+16:36:23 Result is kept for 500 seconds.
+16:36:23 
+16:36:23 *** Listening on high, default, low...
+16:40:17 default: prime.prospects.views.export_file([<Prospect id=314383 url=http://www.linkedin.com/pub/mary-ann-willoughby/41/150/b90>, <Prospect id=1801798 url=http://www.linkedin.com/pub/suzanne-clegg/2/240/713>, <Prospect id=3519895 url=http://www.linkedin.com/pub/maren-cornish/9/677/446>, <Prospect id=4760507 url=http://www.linkedin.com/pub/daniel-fielder/58/803/16>, <Prospect id=5484169 url=http://www.linkedin.com/pub/dorothy-chae/30/2a/279>, <Prospect id=6794868 url=http://www.linkedin.com/pub/alexandra-norindr/1b/4a9/793>, <Prospect id=7225780 url=http://www.linkedin.com/pub/pierre-aurelien/8/7b9/614>, <Prospect id=8313183 url=http://www.linkedin.com/pub/joe-rockman/15/716/777>, <Prospect id=9322462 url=http://www.linkedin.com/pub/mariusz-mikulec/43/b16/aa3>, <Prospect id=9734893 url=http://www.linkedin.com/pub/randi-hoffmann/5/850/206>, <Prospect id=12527909 url=http://www.linkedin.com/pub/hannah-gale/31/612/877>, <Prospect id=13019995 url=http://www.linkedin.com/pub/graciela-alimanestianu/1a/9a1/b90>, <Prospect id=16356250 url=http://www.linkedin.com/pub/dennis-grech-md-ache/6/1ab/569>, <Prospect id=16984794 url=http://www.linkedin.com/pub/karen-vaughan/13/709/426>, <Prospect id=17937588 url=http://www.linkedin.com/pub/jonathan-holasek/19/49/452>, <Prospect id=22943653 url=http://www.linkedin.com/pub/ken-billups/5/7a8/13a>, <Prospect id=29156945 url=http://www.linkedin.com/pub/catherine-parker-ms-l-ac/35/189/520>, <Prospect id=31694386 url=http://www.linkedin.com/pub/eric-adler/9/a79/710>, <Prospect id=36163555 url=http://www.linkedin.com/pub/amy-yip/65/1b/ab6>], u'jefftompkins+zz3@gmail.com') (2c8ad3d8-1ae5-47d1-a506-16696417062e)
+16:40:17 Using config: production
+16:40:18 Job OK, result = True
+16:40:18 Result is kept for 500 seconds.
+16:40:18 
+16:40:18 *** Listening on high, default, low...
+18:24:13 default: prime.prospects.views.export_file([<Prospect id=6025996 url=http://www.linkedin.com/pub/john-niski/17/2a0/697>, <Prospect id=6042713 url=http://www.linkedin.com/pub/josh-shoafstall/1/663/2b0>, <Prospect id=11636766 url=http://www.linkedin.com/pub/nathalie-out/29/b42/778>, <Prospect id=14497852 url=http://www.linkedin.com/pub/tim-hill/1/596/808>, <Prospect id=15509956 url=http://www.linkedin.com/pub/andrew-nuttall/91/aa7/807>, <Prospect id=26218290 url=http://www.linkedin.com/pub/helen-glen/3b/776/92>], u'mgasiorowski@advantusglobal.com') (a084d996-4409-4979-851b-64e7316af27a)
+18:24:14 Using config: production
+18:24:14 Job OK, result = True
+18:24:14 Result is kept for 500 seconds.
+18:24:14 
+18:24:14 *** Listening on high, default, low...
+22:37:32 default: prime.prospects.views.export_file([<Prospect id=14497852 url=http://www.linkedin.com/pub/tim-hill/1/596/808>, <Prospect id=15098731 url=http://www.linkedin.com/pub/nathan-schmeichel/20/a29/ab8>], u'zwallace@advantusglobal.com') (e691376d-29a0-4551-9ac6-6df5dd28efdc)
+22:37:32 Using config: production
+22:37:32 Job OK, result = True
+22:37:32 Result is kept for 500 seconds.
+22:37:32 
+22:37:32 *** Listening on high, default, low...
+16:11:47 default: prime.prospects.views.export_file([<Prospect id=94134 url=http://www.linkedin.com/pub/mark-reeves/16/591/1a1>, <Prospect id=479594 url=http://www.linkedin.com/pub/robert-kort/54/166/338>, <Prospect id=15025403 url=http://www.linkedin.com/pub/alex-gavin/17/722/748>, <Prospect id=27361711 url=http://www.linkedin.com/pub/stephanie-doolin/26/607/111>, <Prospect id=38633613 url=http://www.linkedin.com/pub/ally-robinson/9/9b9/89a>, <Prospect id=39280504 url=http://www.linkedin.com/pub/caitlin-thornbrugh/39/929/579>, <Prospect id=40190738 url=http://www.linkedin.com/pub/caitlin-workman/28/26b/7a2>], u'cdibben@legacybrokerage.com') (cfc8cc8e-2c73-4e19-8c26-c23dc46a581b)
+16:11:48 Using config: production
+16:11:48 Job OK, result = True
+16:11:48 Result is kept for 500 seconds.
+16:11:48 
+16:11:48 *** Listening on high, default, low...
