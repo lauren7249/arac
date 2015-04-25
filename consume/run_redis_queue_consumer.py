@@ -15,10 +15,10 @@ logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-instance_id = boto.utils.get_instance_metadata()['local-hostname']
 
 def get_q():
     redis_url = os.getenv('CONSUMER_REDIS_URL')
+    instance_id = boto.utils.get_instance_metadata()['local-hostname']
     return RedisQueue('consumer', instance_id, redis=get_redis(redis_url))
 
 def consume_q(q, args):

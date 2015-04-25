@@ -35,7 +35,7 @@ requests.packages.urllib3.disable_warnings()
 def bootstrap_s3():
     s3conn = boto.connect_s3(os.environ["AWS_ACCESS_KEY_ID"], os.environ["AWS_SECRET_ACCESS_KEY"])
     bucket = s3conn.get_bucket('arachid-results')
-    return bucket 
+    return bucket
 
 try:
     app = create_app(os.getenv('AC_CONFIG', 'beta'))
@@ -52,6 +52,7 @@ def prospect_exists(session, s3_key):
     return False
 
 def update_prospect(info, prospect):
+    today = datetime.date.today()
     data = prospect.json if prospect.json else {}
     data["skills"] = info.get("skills")
     data["groups"] = info.get("groups")
@@ -60,6 +61,7 @@ def update_prospect(info, prospect):
     session.query(models.Prospect).filter_by(id=prospect.id).update({
         "location_raw": info.get("location"),
         "industry_raw": info.get("industry"),
+        "updated": today,
         "json": data
         })
     session.commit()
@@ -111,7 +113,7 @@ def update_jobs(info, new_prospect):
     for info_job in jobs:
         new = True
         for job in new_prospect.jobs:
-            
+
             if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
                 if convert_date(info_job.get("start_date")) != job.start_date or convert_date(info_job.get("end_date")) != job.end_date or info_job.get("location") != job.location:
                     session.query(models.Job).filter_by(id=job.id).update({
@@ -119,14 +121,14 @@ def update_jobs(info, new_prospect):
                         "start_date": convert_date(info_job.get("start_date")),
                         "end_date": convert_date(info_job.get("end_date"))
                         })
-                    print "job updated for " + new_prospect.url 
+                    print "job updated for " + new_prospect.url
                 new = False
                 break
         if new: new_jobs.append(info_job)
-                
+
     for e in new_jobs:
         insert_job(e, new_prospect)
-        print "job added for " + new_prospect.url 
+        print "job added for " + new_prospect.url
     session.commit()
     return True
 
@@ -140,16 +142,16 @@ def update_schools(info, new_prospect):
                 if convert_date(info_school.get("start_date")) != school.start_date or convert_date(info_school.get("end_date")) != school.end_date:
                     session.query(models.Education).filter_by(id=school.id).update({
                         "start_date": convert_date(info_school.get("start_date")),
-                        "end_date": convert_date(info_school.get("end_date")) 
+                        "end_date": convert_date(info_school.get("end_date"))
                         })
-                    print "education updated for " + new_prospect.url 
+                    print "education updated for " + new_prospect.url
                 new = False
                 break
         if new: new_schools.append(info_school)
-                
+
     for e in new_schools:
         insert_school(e, new_prospect)
-        print "education added for " + new_prospect.url 
+        print "education added for " + new_prospect.url
     session.commit()
     return True
 
@@ -203,7 +205,7 @@ def insert_job(e, new_prospect):
         **extra
     )
     session.add(new_job)
-    session.flush()   
+    session.flush()
 
 def update_prospect_from_info(info, url, prospect):
     new_prospect = update_prospect(info, prospect)
@@ -328,15 +330,14 @@ def url_to_key(url):
     return url.replace('/', '')
 
 def get_info_for_url_live(url):
-    headers ={'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}   
+    headers ={'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
     response = requests.get(url, headers=headers, verify=False)
     response_text = response.content
     info = parse_html(response_text)
     return info
 
 
-def get_info_for_url(url):
-    bucket = bootstrap_s3()
+def get_info_for_url(url, bucket):
     key = Key(bucket)
     key.key = url_to_key(url)
     data = json.loads(key.get_contents_as_string())
@@ -484,23 +485,18 @@ class ConsumerMultiProcessing(object):
 
 def upgrade_from_file(url_file=None, start=0, end=-1):
     count = 0
+    bucket = bootstrap_s3()
     with open(url_file, 'r') as f:
         for url in islice(f, start, end):
-            url = url.strip()
             try:
                 count += 1
-                s3_key = url_to_key(url)
-                info = get_info_for_url(url)
-                if info_is_valid(info):
-                    info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
-                    logger.debug('successfully consumed {}th {}'.format(count, url))
-                else:
-                    logger.error('could not get valid info for {}'.format(url))
-
+                update_prospect_from_url(url, bucket)
+                logger.debug('successfully consumed {}th {}'.format(count, url))
             except Exception, e:
                 session.rollback()
                 logger.error('couldn\'t get url {} from s3, error: {}'.format(url, e))
                 pass
+            url = url.strip()
 
 #This is so hacky its embarassing,but don't want to risk breaking the importer
 #TODO Fix
@@ -520,12 +516,11 @@ def generate_prospect_from_url(url):
     except S3ResponseError:
         return None
 
-def update_prospect_from_url(url):
-    new_info = get_info_for_url_live(url)
+def update_prospect_from_url(url, bucket):
     url = url.strip()
     try:
         s3_key = url_to_key(url)
-        info = get_info_for_url_live(url)
+        info = get_info_for_url(url, bucket)
         if info_is_valid(info):
             prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
             new_prospect = update_prospect_from_info(info, url, prospect)
@@ -534,6 +529,7 @@ def update_prospect_from_url(url):
 
     except S3ResponseError:
         return None
+
 
 def main():
     parser = argparse.ArgumentParser()
