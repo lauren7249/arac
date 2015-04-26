@@ -45,8 +45,8 @@ class Prospect(db.Model):
     json = db.Column(JSON)
 
 
-    jobs = relationship('Job', foreign_keys='Job.prospect_id')
-    schools = relationship('Education', foreign_keys='Education.prospect_id')
+    jobs = relationship('Job', foreign_keys='Job.prospect_id', lazy='joined')
+    schools = relationship('Education', foreign_keys='Education.prospect_id', lazy='joined')
 
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
@@ -300,7 +300,7 @@ class Job(db.Model):
 
     id = db.Column(Integer, primary_key=True)
     company_id = db.Column(Integer, ForeignKey("company.id"), index=True)
-    company = relationship('Company', foreign_keys='Job.company_id')
+    company = relationship('Company', foreign_keys='Job.company_id', lazy='joined')
     location = db.Column(String(1024))
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
@@ -357,7 +357,7 @@ class Education(db.Model):
 
     id = db.Column(Integer, primary_key=True)
     school_id = db.Column(Integer, ForeignKey("school.id"), index=True)
-    school = relationship('School', foreign_keys='Education.school_id')
+    school = relationship('School', foreign_keys='Education.school_id', lazy='joined')
     degree = db.Column(String(200))
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
