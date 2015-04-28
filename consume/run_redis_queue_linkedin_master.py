@@ -43,10 +43,10 @@ def consume_q(q, args):
     connects = pal.get_first_degree_connections()
     pal.shutdown()
     user_id = real_args.get("user_id")
-    user = session.query(User).filter(User.id == int(user_id)).first()
+    user = session.query(User).filter(User.user_id == int(user_id)).first()
     user_json = user.json
     user_json['boosted_ids'] = connects
-    session.query(User).filter(User.id == int(user_id)).update({
+    session.query(User).filter(User.user_id == int(user_id)).update({
         "json":user_json
         })
     print connects
