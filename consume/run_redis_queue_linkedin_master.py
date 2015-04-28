@@ -9,6 +9,7 @@ from datetime import datetime
 from time import sleep
 
 from prime.prospects import models
+from prime.users.models import User
 from prime import create_app
 
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -47,8 +48,6 @@ def consume_q(q, args):
         password
     '''
     real_args = json.loads(args)
-    import pdb
-    pdb.set_trace()
 
     print args
     print real_args
@@ -59,12 +58,13 @@ def consume_q(q, args):
     connects = pal.get_first_degree_connections()
     pal.shutdown()
     user_id = real_args.get("user_id")
-    user = session.query(User).filter(User.id == int(user_id)).first()
-    user_json = user.json
+    user = session.query(User).filter(User.user_id == int(user_id)).first()
+    user_json = user.json if user.json else {}
     user_json['boosted_ids'] = connects
-    session.query(User).filter(User.id == int(user_id)).update({
+    session.query(User).filter(User.user_id == int(user_id)).update({
         "json":user_json
         })
+    session.commit()
     print connects
 
 def run_q():
