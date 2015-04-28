@@ -22,6 +22,7 @@ from boto.s3.key import Key
 from boto.exception import S3ResponseError
 from parser import lxml_parse_html
 from convert import parse_html
+from sqlalchemy.orm import joinedload
 from linkedin.scraper import process_request
 
 from multiprocessing import Process, Queue
@@ -522,7 +523,7 @@ def update_prospect_from_url(url, bucket):
         s3_key = url_to_key(url)
         info = get_info_for_url(url, bucket)
         if info_is_valid(info):
-            prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
+            prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).options(joinedload(models.Prospect.schools).joinedload(models.Education.school), joinedload(models.Prospect.jobs).joinedload(models.Job.company)).first()
             new_prospect = update_prospect_from_info(info, url, prospect)
             session.commit()
             return new_prospect
