@@ -6662,3 +6662,15 @@ ImportError: No module named redis
 16:11:48 Result is kept for 500 seconds.
 16:11:48 
 16:11:48 *** Listening on high, default, low...
+20:22:43 default: prime.prospects.views.export_file([<Prospect id=3276893 url=http://www.linkedin.com/pub/michael-helmuth/17/b5b/627>, <Prospect id=26051004 url=http://www.linkedin.com/pub/justin-lisota/a/45/819>, <Prospect id=26997678 url=http://www.linkedin.com/pub/terence-ploszaj/5/430/262>, <Prospect id=28121185 url=http://www.linkedin.com/pub/bret-barczak/9/998/75>], u'brandonmeves@northwesternmutual.com') (181d1f5a-cdb3-4735-b364-99027349cf4f)
+20:22:43 Using config: production
+20:22:44 Job OK, result = True
+20:22:44 Result is kept for 500 seconds.
+20:22:44 
+20:22:44 *** Listening on high, default, low...
+13:16:11 default: prime.prospects.views.export_file([<Prospect id=533797 url=http://www.linkedin.com/pub/ashok-rai/10/332/53>, <Prospect id=14758275 url=http://www.linkedin.com/pub/teri-kranz/10/b37/54>], u'brandonmeves@northwesternmutual.com') (092649da-f264-4e64-aeea-5c24334b15ab)
+13:16:11 Using config: production
+13:16:11 Job OK, result = True
+13:16:11 Result is kept for 500 seconds.
+13:16:11 
+13:16:11 *** Listening on high, default, low...
