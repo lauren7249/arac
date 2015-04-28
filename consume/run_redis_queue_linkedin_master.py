@@ -8,6 +8,12 @@ import argparse
 from datetime import datetime
 from time import sleep
 
+from prime.prospects import models
+from prime import create_app
+
+from flask.ext.sqlalchemy import SQLAlchemy
+from config import config
+
 from redis_queue import RedisQueue, get_redis
 
 from linkedin_friend import *
@@ -18,6 +24,14 @@ logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
 instance_id = boto.utils.get_instance_metadata()['local-hostname']
+
+try:
+    app = create_app(os.getenv('AC_CONFIG', 'beta'))
+    db = SQLAlchemy(app)
+    session = db.session
+except:
+    from prime import db
+    session = db.session
 
 def push_to_rq(q, data):
     q.push(json.dumps(data))
@@ -33,6 +47,8 @@ def consume_q(q, args):
         password
     '''
     real_args = json.loads(args)
+    import pdb
+    pdb.set_trace()
 
     print args
     print real_args
