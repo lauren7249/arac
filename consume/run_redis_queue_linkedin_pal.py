@@ -2,7 +2,7 @@ import logging
 import os
 import json
 import time
-import boto.utils
+import boto
 import argparse
 from datetime import datetime
 from time import sleep
@@ -10,7 +10,6 @@ from time import sleep
 from redis_queue import RedisQueue, get_redis
 
 from linkedin_friend import *
-import sys
 
 logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
@@ -58,9 +57,7 @@ def run_q():
         else:
             logger.debug('Successfully processed {}'.format(args))
             q.succeed(args)
-        break
 
 if __name__ == '__main__':
     run_q()
-
 
