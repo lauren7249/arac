@@ -67,7 +67,15 @@ def export_file(prospects, email):
     exporter.export()
     return True
 
-def linkedin_friends(username, password, prospect_id):
+def linkedin_friends(username, password, user_id):
+
+    data = {"username": username,
+            "password": password,
+            "user_id": user_id}
+    instance_id = boto.utils.get_instance_metadata()['local-hostname']
+    q = RedisQueue('linkedin-assistant', instance_id, redis=get_redis(redis_url))
+    q.push(json.dumps(data), filter_seen=False, filter_failed=False, filter_working=False)
+
     pass
 
 ################

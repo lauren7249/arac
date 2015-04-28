@@ -42,6 +42,13 @@ def consume_q(q, args):
     linkedin_id = pal.linkedin_id
     connects = pal.get_first_degree_connections()
     pal.shutdown()
+    user_id = real_args.get("user_id")
+    user = session.query(User).filter(User.id == int(user_id)).first()
+    user_json = user.json
+    user_json['boosted_ids'] = connects
+    session.query(User).filter(User.id == int(user_id)).update({
+        "json":user_json
+        })
     print connects
 
 def run_q():
@@ -51,7 +58,7 @@ def run_q():
     while True:
         logger.debug('Dequeueing data from Redis')
         args = q.pop_block(tries=3)
-        
+
         if args is None:
             logger.debug('Nothing on RedisQueue')
             continue
@@ -83,10 +90,10 @@ def doAwesomeStuff(q, args):
 def worker(irish):
 
     q = get_q()
-   
+
     # Constantly get jobs from RedisQueue
     # If there is a job, then do awesome stuff.
-    # Otherwise, shutdown (unless 'IRISH_CAB' is True) 
+    # Otherwise, shutdown (unless 'IRISH_CAB' is True)
     while True:
         # Step 1: Get data from Q
         logger.debug('Dequeueing data from Redis')
@@ -166,6 +173,6 @@ if __name__ == '__main__':
         print "Use a valid purpose: master|worker"
         print "Exiting"
         sys.exit(1)
-        
+
 
 
