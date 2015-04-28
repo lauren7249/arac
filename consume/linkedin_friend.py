@@ -29,7 +29,7 @@ class LinkedinFriend(object):
         self.start_time = None
         self.successful_prospects = []
         self.linkedin_id = None
-        self.wait = WebDriverWait(self.driver, 5)
+        self.wait = WebDriverWait(self.driver, 15)
 
     def login(self):
         self.driver.get("http://linkedin.com")
@@ -139,6 +139,11 @@ class LinkedinFriend(object):
                     all_friend_ids = findConnections(all_friend_ids)
             all_friend_ids.append(linkedin_id)
         return all_friend_ids
+    
+    def shutdown(self):
+        self.display.popen.terminate()
+        self.driver.quit()
+        return True
 
 def run(username, password):
     ig = LinkedinFriend(

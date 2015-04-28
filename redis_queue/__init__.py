@@ -113,7 +113,7 @@ class RedisQueue(object):
     def unwork_all(self):
         working = self.redis.smembers(self.working_set)
         for w in working:
-            self.push(w, filter_woring=False)
+            self.push(w, filter_working=False)
 
     def get_stats(self):
         # get all workers
