@@ -67,6 +67,9 @@ def export_file(prospects, email):
     exporter.export()
     return True
 
+def linkedin_friends(username, password, prospect_id):
+    pass
+
 ################
 ###   VIEWS   ##
 ################
