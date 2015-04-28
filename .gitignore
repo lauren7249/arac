@@ -1,4 +1,5 @@
 /migrations/
+consume/nohup.out
 migrations/versions/
 training_data/
 migrations/

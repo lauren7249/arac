@@ -8,6 +8,13 @@ import argparse
 from datetime import datetime
 from time import sleep
 
+from prime.prospects import models
+from prime.users.models import User
+from prime import create_app
+
+from flask.ext.sqlalchemy import SQLAlchemy
+from config import config
+
 from redis_queue import RedisQueue, get_redis
 
 from linkedin_friend import *
@@ -18,6 +25,14 @@ logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
 instance_id = boto.utils.get_instance_metadata()['local-hostname']
+
+try:
+    app = create_app(os.getenv('AC_CONFIG', 'beta'))
+    db = SQLAlchemy(app)
+    session = db.session
+except:
+    from prime import db
+    session = db.session
 
 def push_to_rq(q, data):
     q.push(json.dumps(data))
@@ -42,6 +57,14 @@ def consume_q(q, args):
     linkedin_id = pal.linkedin_id
     connects = pal.get_first_degree_connections()
     pal.shutdown()
+    user_id = real_args.get("user_id")
+    user = session.query(User).filter(User.user_id == int(user_id)).first()
+    user_json = user.json if user.json else {}
+    user_json['boosted_ids'] = connects
+    session.query(User).filter(User.user_id == int(user_id)).update({
+        "json":user_json
+        })
+    session.commit()
     print connects
 
 def run_q():
@@ -51,7 +74,7 @@ def run_q():
     while True:
         logger.debug('Dequeueing data from Redis')
         args = q.pop_block(tries=3)
-        
+
         if args is None:
             logger.debug('Nothing on RedisQueue')
             continue
@@ -83,10 +106,10 @@ def doAwesomeStuff(q, args):
 def worker(irish):
 
     q = get_q()
-   
+
     # Constantly get jobs from RedisQueue
     # If there is a job, then do awesome stuff.
-    # Otherwise, shutdown (unless 'IRISH_CAB' is True) 
+    # Otherwise, shutdown (unless 'IRISH_CAB' is True)
     while True:
         # Step 1: Get data from Q
         logger.debug('Dequeueing data from Redis')
@@ -166,6 +189,6 @@ if __name__ == '__main__':
         print "Use a valid purpose: master|worker"
         print "Exiting"
         sys.exit(1)
-        
+
 
 
