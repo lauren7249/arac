@@ -16,10 +16,6 @@ from pyvirtualdisplay import Display
 class LinkedinFriend(object):
 
     def __init__(self, *args, **kwargs):
-        self.display = Display(visible=0, size=(1024, 768))
-        self.display.start()
-        time.sleep(2)
-        self.driver = webdriver.Firefox()
         self.is_logged_in = False
         self.username = kwargs.get("username")
         self.password = kwargs.get("password")
@@ -29,9 +25,13 @@ class LinkedinFriend(object):
         self.start_time = None
         self.successful_prospects = []
         self.linkedin_id = None
-        self.wait = WebDriverWait(self.driver, 15)
 
     def login(self):
+        self.display = Display(visible=0, size=(1024, 768))
+        self.display.start()
+        time.sleep(2)
+        self.driver = webdriver.Firefox()
+        self.wait = WebDriverWait(self.driver, 15)
         self.driver.get("http://linkedin.com")
         username = self.driver.find_element_by_name("session_key")
         password = self.driver.find_element_by_name("session_password")

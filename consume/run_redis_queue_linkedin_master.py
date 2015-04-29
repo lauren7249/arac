@@ -1,5 +1,7 @@
 import logging
 import os
+import subprocess
+import signal
 import json
 import time
 import boto.utils
@@ -41,30 +43,50 @@ def get_q():
     redis_url = os.getenv('LINKED_FRIEND_REDIS_URL')
     return RedisQueue('linkedin-assistant', instance_id, redis=get_redis(redis_url))
 
+def kill_firefox_and_xvfb():
+    p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    for i, line in enumerate(out.splitlines()):
+        if i > 0:
+            if 'firefox' in line or 'xvfb' in line.lower():
+                print line
+                pid = int(line.split(None, 1)[0])
+                os.kill(pid, signal.SIGKILL)
+                print "killed"
+
+
 def consume_q(q, args):
+    print "started q"
     '''
     expected args:
         username
         password
     '''
     real_args = json.loads(args)
-
     print args
     print real_args
 
+    print "init firefox"
     pal = LinkedinFriend(**real_args)
+    print "login started"
     pal.login()
+    print "login done"
     linkedin_id = pal.linkedin_id
+    print "connects started"
     connects = pal.get_first_degree_connections()
+    print "connects done"
     pal.shutdown()
+    print "firefox shutdown"
     user_id = real_args.get("user_id")
     user = session.query(User).filter(User.user_id == int(user_id)).first()
     user_json = user.json if user.json else {}
     user_json['boosted_ids'] = connects
     session.query(User).filter(User.user_id == int(user_id)).update({
-        "json":user_json
+        "json":user_json,
+        "linkedin_id": linkedin_id
         })
     session.commit()
+    connects = None
     print connects
 
 def run_q():
@@ -98,6 +120,7 @@ def doAwesomeStuff(q, args):
         consume_q(q, args)
     except Exception:
         logger.exception('Exception while processing {}'.format(args))
+        kill_firefox_and_xvfb()
         q.fail(args)
     else:
         logger.debug('Successfully processed {}'.format(args))
@@ -121,6 +144,7 @@ def worker(irish):
             else:
                 shutdown()
         else:
+            print args, "args found"
             doAwesomeStuff(q, args)
 
 def master():
