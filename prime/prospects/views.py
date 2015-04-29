@@ -13,6 +13,8 @@ from flask import render_template, request, redirect, url_for, flash, \
 session as flask_session, jsonify
 from flask.ext.login import current_user
 
+from redis_queue import get_redis
+
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry, ProspectLocation, Location, ProspectGender, ProspectWealthscore
@@ -66,17 +68,6 @@ def export_file(prospects, email):
     exporter = Exporter(prospects, email)
     exporter.export()
     return True
-
-def linkedin_friends(username, password, user_id):
-
-    data = {"username": username,
-            "password": password,
-            "user_id": user_id}
-    instance_id = boto.utils.get_instance_metadata()['local-hostname']
-    q = RedisQueue('linkedin-assistant', instance_id, redis=get_redis(redis_url))
-    q.push(json.dumps(data), filter_seen=False, filter_failed=False, filter_working=False)
-
-    pass
 
 ################
 ###   VIEWS   ##
