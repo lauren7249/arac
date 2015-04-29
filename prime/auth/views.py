@@ -2,10 +2,14 @@ import logging
 import boto
 import json
 import os
+import urlparse
+from redis import Redis
 
 from flask import redirect, request, url_for, flash, render_template, session \
 as flask_session
 from flask.ext.login import login_user, logout_user, current_user, fresh_login_required
+
+from redis_queue import RedisQueue
 
 from . import auth
 from prime import db, csrf
@@ -16,14 +20,29 @@ from prime.users.models import User
 
 logger = logging.getLogger(__name__)
 
+def get_view_redis(redis_url):
+    urlparse.uses_netloc.append('redis')
+    redis_url_parsed = urlparse.urlparse(redis_url)
+    redis = Redis(
+        host=redis_url_parsed.hostname,
+        port=redis_url_parsed.port,
+        db=0,
+        password=redis_url_parsed.password
+    )
+
+    return redis
+
+
 def linkedin_friends(username, password, user_id):
 
     data = {"username": username,
             "password": password,
             "user_id": user_id}
-    redis_url = os.getenv('LINKED_FRIEND_REDIS_URL')
+    redis_url = 'redis://linkedin-assistant.btwauj.0001.use1.cache.amazonaws.com:6379'
+    print redis_url, "redis url"
     instance_id = boto.utils.get_instance_metadata()['local-hostname']
-    q = RedisQueue('linkedin-assistant', instance_id, redis=get_redis(redis_url))
+    print instance_id, "instance id"
+    q = RedisQueue('linkedin-assistant', instance_id, redis=get_view_redis(redis_url))
     q.push(json.dumps(data), filter_seen=False, filter_failed=False, filter_working=False)
     return True
 

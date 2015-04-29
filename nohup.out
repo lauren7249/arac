@@ -6674,3 +6674,7 @@ ImportError: No module named redis
 13:16:11 Result is kept for 500 seconds.
 13:16:11 
 13:16:11 *** Listening on high, default, low...
+15:18:32 Warm shut down requested.
+15:18:46 RQ worker started, version 0.4.6
+15:18:46 
+15:18:46 *** Listening on high, default, low...

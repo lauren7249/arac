@@ -6,9 +6,7 @@ import argparse
 
 from redis import Redis
 
-redis_url = os.getenv('REDIS_URL')
-if not redis_url:
-    raise RuntimeError('REDIS_URL must be defined to run the redis scraper')
+redis_url =  None
 
 def get_redis(url=redis_url):
     urlparse.uses_netloc.append('redis')
@@ -132,7 +130,10 @@ class RedisQueue(object):
         }
 
 def main():
-    parser = argparse.ArgumentParser()
+    redis_url = os.getenv('REDIS_URL')
+    if not redis_url:
+        raise RuntimeError('REDIS_URL must be defined to run the redis scraper')
+        parser = argparse.ArgumentParser()
 
     parser.add_argument('key')
     parser.add_argument('--stats', action='store_true')

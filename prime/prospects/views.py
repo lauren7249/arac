@@ -13,8 +13,6 @@ from flask import render_template, request, redirect, url_for, flash, \
 session as flask_session, jsonify
 from flask.ext.login import current_user
 
-from redis_queue import get_redis
-
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry, ProspectLocation, Location, ProspectGender, ProspectWealthscore
