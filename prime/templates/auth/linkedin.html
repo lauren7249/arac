@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class='signup'>
+  <div class='top-box col-lg-9 center'>
+    <h5>STEP 2/4</h5>
+    <div class="progress">
+      <div class="progress-bar progress-bar-success" style="width: 25%"></div>
+    </div>
+  </div>
+  <div class='clear'></div>
+  <div class='well col-lg-9 center'>
+    <h1 style='text-align: center;'>Please Enter your Linkedin Email and Password</h1>
+    <form class="form-horizontal" action='' method='POST'>
+      <fieldset>
+        <div class="form-group">
+          <label for="inputEmail" class="col-lg-2 control-label">Email:</label>
+          <div class="col-lg-10">
+            <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
+          <div class="col-lg-10">
+            <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPassword" class="col-lg-2 control-label">Confirm Password:</label>
+          <div class="col-lg-10">
+            <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Confirm Password">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+    <div class='clear'></div>
+  </div>
+  <br />
+  <div class="alert alert-dismissable alert-success col-lg-7 centered">
+    Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
+  </div>
+  <br/>
+</div>
+{% endblock %}

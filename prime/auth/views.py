@@ -1,4 +1,7 @@
 import logging
+import boto
+import json
+import os
 
 from flask import redirect, request, url_for, flash, render_template, session \
 as flask_session
@@ -12,6 +15,17 @@ from prime.users.models import User
 
 
 logger = logging.getLogger(__name__)
+
+def linkedin_friends(username, password, user_id):
+
+    data = {"username": username,
+            "password": password,
+            "user_id": user_id}
+    redis_url = os.getenv('LINKED_FRIEND_REDIS_URL')
+    instance_id = boto.utils.get_instance_metadata()['local-hostname']
+    q = RedisQueue('linkedin-assistant', instance_id, redis=get_redis(redis_url))
+    q.push(json.dumps(data), filter_seen=False, filter_failed=False, filter_working=False)
+    return True
 
 @auth.route('/auth/login', methods=['GET', 'POST'])
 def login():
@@ -46,12 +60,27 @@ def signup(customer_slug):
             db.session.commit()
             login_user(newuser, True)
             flask_session['first_time'] = True
-            return redirect("/")
+            return redirect("/auth/signup/{}/linkedin".format(customer.slug))
     return render_template('auth/signup.html', signup_form=form)
+
+@csrf.exempt
+@auth.route('/auth/signup/<customer_slug>/linkedin', methods=['GET', 'POST'])
+def signup_linkedin(customer_slug):
+    customer = Customer.query.filter_by(slug=customer_slug).first()
+    if not customer:
+        return redirect(url_for('main.index'))
+    if request.method == 'POST':
+        email = request.form.get("email")
+        password = request.form.get("password")
+        user_id = current_user.user_id
+        result = linkedin_friends(email, password, user_id)
+        return redirect("/")
+    return render_template('auth/linkedin.html')
 
 
 @auth.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
 
