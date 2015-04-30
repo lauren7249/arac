@@ -79,7 +79,8 @@ def signup(customer_slug):
             db.session.commit()
             login_user(newuser, True)
             flask_session['first_time'] = True
-            return redirect("/auth/signup/{}/linkedin".format(customer.slug))
+            return redirect("/")
+            #return redirect("/auth/signup/{}/linkedin".format(customer.slug))
     return render_template('auth/signup.html', signup_form=form)
 
 @csrf.exempt

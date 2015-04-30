@@ -119,7 +119,7 @@ def upload():
         query = request.form.get("query")
         results = LinkedinResults(query).process()
     else:
-        if current_user.linkedin_url:
+        if current_user.linkedin_url or current_user.linkedin_id:
             return redirect("dashboard")
     return render_template('upload.html', results=results)
 
@@ -156,6 +156,7 @@ def confirm_profile():
 @prospects.route("/dashboard")
 def dashboard():
     user = current_user
+    prospect = None
     prospects_remaining_today = user.prospects_remaining_today
     if user.json:
         skipped_profiles = [int(prospect_id) for prospect_id in
@@ -170,21 +171,22 @@ def dashboard():
         first_time = True
         del flask_session['first_time']
     results = []
-    linkedin_url = current_user.linkedin_url
-    raw_url = urllib.unquote(linkedin_url).decode('utf8')
-    url = clean_url(raw_url)
-    prospect = session.query(Prospect).filter_by(s3_key=url.replace("/",
-        "")).first()
-    if not prospect:
-        prospect = generate_prospect_from_url(url)
-    prospect_list = ProspectList(prospect)
-    results = prospect_list.get_results()
-    if prospect.json:
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    results = [result for result in results if result.get("id") not in
-            processed_profiles]
+    try:
+        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+        prospect_list = ProspectList(prospect)
+        results = prospect_list.get_results()
+        if prospect.json:
+            boosted_profiles = prospect.boosted_profiles
+            if len(boosted_profiles) > 0:
+                results = boosted_profiles + results
+        results = [result for result in results if result.get("id") not in
+                processed_profiles]
+    except:
+        if user.linkedin_id and user.json:
+            boosted_profiles = user.json.get("boosted_ids")
+            if len(boosted_profiles) > 0:
+                prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
+                results = [prospect.to_json() for prospect in prospects]
     return render_template('dashboard.html',prospect=prospect, \
             json_results=json.dumps(results),
             first_time=first_time, prospect_count=len(results),
