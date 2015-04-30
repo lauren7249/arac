@@ -256,7 +256,7 @@ var Profile = React.createClass({displayName: "Profile",
                         React.createElement("p", null, this.state.data.location, " | ", this.state.data.industry)
                     ), 
                     React.createElement("div", {className: "group"}, 
-                        React.createElement("h4", {className: "wealth"}, "Wealthscore: ", React.createElement("span", {className: "inner"}, this.state.data.wealthscore))
+                        React.createElement("h4", {className: "wealth"}, "Lead Score: ", React.createElement("span", {className: "inner"}, this.state.data.wealthscore))
                     ), 
                     React.createElement("div", {className: "clear"}), 
                     React.createElement("a", {href: "javascript:;"}, React.createElement("button", {className: "btn btn-success prospect-add"}, React.createElement("i", {className: "fa fa-plus"}), " Add To Prospect List")), 

@@ -13,7 +13,7 @@ function randColor(colors) {
 var Relationship = React.createClass({displayName: "Relationship",
     render: function() {
         return (
-            React.createElement("p", null, "Connected: ", React.createElement("a", {href: this.props.url}, this.props.name), ".")
+            React.createElement("p", null, React.createElement("a", {href: this.props.url}, this.props.name), ".")
             )
     }
 });
@@ -35,7 +35,7 @@ var UserProspect = React.createClass({displayName: "UserProspect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.current_industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("p", null, "Wealth Score"), 
+                    React.createElement("p", null, "Lead Score"), 
                     React.createElement("h4", {className: "money"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 
@@ -68,7 +68,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement("h4", null, React.createElement("span", {className: "grey"}, "Current Industry:"), " ", prospect.data.industry)
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("p", null, "Wealth Score"), 
+                    React.createElement("p", null, "Lead Score"), 
                     React.createElement("h4", {className: "money"}, prospect.data.wealthscore)
                 ), 
                 React.createElement("div", {className: "connections"}, 

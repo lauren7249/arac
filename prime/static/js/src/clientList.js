@@ -58,7 +58,7 @@ var Prospect = React.createClass({
                     <SocialAccounts data={prospect.social_accounts} linkedin_url={prospect.url} />
                 </div>
                 <div className='image'>
-                    <p>Wealth Score</p>
+                    <p>Lead Score</p>
                     <h4 className='money'>{prospect.wealthscore}</h4>
                 </div>
                 <div className='buttons'>

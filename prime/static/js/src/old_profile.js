@@ -256,7 +256,7 @@ var Profile = React.createClass({
                         <p>{this.state.data.location} | {this.state.data.industry}</p>
                     </div>
                     <div className='group'>
-                        <h4 className="wealth">Wealthscore: <span className='inner'>{this.state.data.wealthscore}</span></h4>
+                        <h4 className="wealth">Lead Score: <span className='inner'>{this.state.data.wealthscore}</span></h4>
                     </div>
                     <div className='clear'></div>
                     <a href='javascript:;'><button className='btn btn-success prospect-add'><i className='fa fa-plus'></i> Add To Prospect List</button></a>

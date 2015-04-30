@@ -13,7 +13,7 @@ function randColor(colors) {
 var Relationship = React.createClass({
     render: function() {
         return (
-            <p>Connected: <a href={this.props.url}>{this.props.name}</a>.</p>
+            <p><a href={this.props.url}>{this.props.name}</a>.</p>
             )
     }
 });
@@ -35,7 +35,7 @@ var UserProspect = React.createClass({
                     <h4><span className='grey'>Current Industry:</span> {prospect.current_industry}</h4>
                 </div>
                 <div className='image'>
-                    <p>Wealth Score</p>
+                    <p>Lead Score</p>
                     <h4 className='money'>{prospect.wealthscore}</h4>
                 </div>
                 <div className='connections'>
@@ -68,7 +68,7 @@ var Prospect = React.createClass({
                     <h4><span className='grey'>Current Industry:</span> {prospect.data.industry}</h4>
                 </div>
                 <div className='image'>
-                    <p>Wealth Score</p>
+                    <p>Lead Score</p>
                     <h4 className='money'>{prospect.data.wealthscore}</h4>
                 </div>
                 <div className='connections'>

@@ -777,7 +777,8 @@ div.results div.result div.image {
 }
 div.results div.result div.image h4.money {
   background: #4caf50;
-  display: inline;
+  display: inline-block;
+  width: 72px;
   color: #fff;
   font-size: 20px;
   padding: 20px;

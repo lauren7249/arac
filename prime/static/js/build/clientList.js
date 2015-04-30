@@ -58,7 +58,7 @@ var Prospect = React.createClass({displayName: "Prospect",
                     React.createElement(SocialAccounts, {data: prospect.social_accounts, linkedin_url: prospect.url})
                 ), 
                 React.createElement("div", {className: "image"}, 
-                    React.createElement("p", null, "Wealth Score"), 
+                    React.createElement("p", null, "Lead Score"), 
                     React.createElement("h4", {className: "money"}, prospect.wealthscore)
                 ), 
                 React.createElement("div", {className: "buttons"}, 
