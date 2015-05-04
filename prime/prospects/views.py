@@ -150,7 +150,7 @@ def confirm_profile():
         if not current_user.linkedin_url:
             current_user.linkedin_url = url
             session.commit()
-        return redirect("dashboard")
+        return redirect("auth.signup_linkedin")
     return render_template('confirm.html', prospect=prospect)
 
 @prospects.route("/dashboard")

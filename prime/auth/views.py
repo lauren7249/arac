@@ -84,11 +84,8 @@ def signup(customer_slug):
     return render_template('auth/signup.html', signup_form=form)
 
 @csrf.exempt
-@auth.route('/auth/signup/<customer_slug>/linkedin', methods=['GET', 'POST'])
+@auth.route('/auth/signup/linkedin', methods=['GET', 'POST'])
 def signup_linkedin(customer_slug):
-    customer = Customer.query.filter_by(slug=customer_slug).first()
-    if not customer:
-        return redirect(url_for('main.index'))
     if request.method == 'POST':
         email = request.form.get("email")
         password = request.form.get("password")
