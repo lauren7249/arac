@@ -177,10 +177,10 @@ def dashboard():
         if len(boosted_profiles) > 0:
             prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
             results = [{'data':prospect.to_json(),
-                        'company_name': prospect.current_job.company.name,
-                        'school_name': prospect.schools[0].school.name,
-                        'industry': prospect.industry_raw,
-                        'location': prospect.location_raw
+                        'company_name': prospect.current_job.company.name if prospect.current_job else "None",
+                        'school_name': prospect.schools[0].school.name if len(prospect.schools) > 0 else "None",
+                        'current_industry': prospect.industry_raw,
+                        'current_location': prospect.location_raw
                 } for prospect in prospects]
     else:
         prospect_list = ProspectList(prospect)
