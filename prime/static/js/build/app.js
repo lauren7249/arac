@@ -22,6 +22,7 @@ var Relationship = React.createClass({displayName: "Relationship",
 var UserProspect = React.createClass({displayName: "UserProspect",
     render: function() {
         var prospect = this.props.data;
+        debugger;
         var relationship = React.createElement(Relationship, {name: prospect.relationship})
         var URL = "/prospect/" + prospect.id
         return (
@@ -282,9 +283,6 @@ var UserResults = React.createClass({displayName: "UserResults",
     },
     render: function() {
     var prospects = this.props.data.map(function(prospect) {
-        if (prospect.data != undefined) {
-            prospect = prospect.data
-        }
 
         return (
                 React.createElement(UserProspect, {data: prospect})
