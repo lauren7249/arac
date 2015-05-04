@@ -46,12 +46,24 @@ def clean_url(s):
 def clean_str(s):
     return s.decode('utf-8', 'ignore')
 
-def process_request(url):
-    ua = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)"
-    response = requests.get(url, headers={'User-agent': ua}, timeout=10)
+def make_request(url):
+    new_url = "http://api.phantomjscloud.com/single/browser/v1/48ac5de24ddc92bd0c900ba0d45cc397dd6002f9/?requestType=raw&targetUrl={}&loadImages=false&abortOnJavascriptErrors=false&isDebg=false&postDomLoadedTimeout=10000&userAgent=Mozilla/5.0+(Windows+NT+6.1)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/28.0.1468.0+Safari/537.36+PhantomJsCloud/1.1&geolocation=us"
+    response = requests.get(new_url.format(url), verify=False)
     content = response.content
-    print content
+    return content
 
+def process_request(url):
+    content = make_request(url)
+    max_retries = 10
+    retries = 0
+
+    while retries < 10:
+        if len(content) < MINIMUM_CONTENT_SIZE:
+            retries += 1
+            content = make_request(url)
+        else:
+            break
+            
     if len(content) < MINIMUM_CONTENT_SIZE:
         raise ScraperLimitedException(
             'Server response is less than {} in size'.format(
@@ -59,15 +71,11 @@ def process_request(url):
             )
         )
 
-    if response.status_code == 999:
-        raise ScraperLimitedException('Server responded with 999')
-
     linked_profiles = get_linked_profiles(content)
 
     result = {
         'url': url,
         'links': linked_profiles,
-        'status': response.status_code,
         'content': content
     }
 

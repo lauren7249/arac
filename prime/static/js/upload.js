@@ -5,7 +5,7 @@ function selectProfile(url) {
 
     try {
         $.ajax({
-            url: item + "/proxy?url=" + url,
+            url: "/proxy?url=" + url,
             dataType: 'json',
             success: function(data) {
                 var url = data.prospect_url;

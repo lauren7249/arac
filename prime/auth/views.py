@@ -85,7 +85,7 @@ def signup(customer_slug):
 
 @csrf.exempt
 @auth.route('/auth/signup/linkedin', methods=['GET', 'POST'])
-def signup_linkedin(customer_slug):
+def signup_linkedin():
     if request.method == 'POST':
         email = request.form.get("email")
         password = request.form.get("password")

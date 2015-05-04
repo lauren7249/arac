@@ -171,8 +171,13 @@ def dashboard():
         first_time = True
         del flask_session['first_time']
     results = []
-    try:
-        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    if user.json and 'boosted_ids' in user.json:
+        boosted_profiles = user.json.get("boosted_ids")
+        if len(boosted_profiles) > 0:
+            prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
+            results = [prospect.to_json() for prospect in prospects]
+    else:
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
         if prospect.json:
@@ -181,12 +186,6 @@ def dashboard():
                 results = boosted_profiles + results
         results = [result for result in results if result.get("id") not in
                 processed_profiles]
-    except:
-        if user.linkedin_id and user.json:
-            boosted_profiles = user.json.get("boosted_ids")
-            if len(boosted_profiles) > 0:
-                prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
-                results = [prospect.to_json() for prospect in prospects]
     return render_template('dashboard.html',prospect=prospect, \
             json_results=json.dumps(results),
             first_time=first_time, prospect_count=len(results),
