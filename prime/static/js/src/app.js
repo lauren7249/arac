@@ -282,6 +282,9 @@ var UserResults = React.createClass({
     },
     render: function() {
     var prospects = this.props.data.map(function(prospect) {
+        if (prospect.data != undefined) {
+            prospect = prospect.data
+        }
 
         return (
                 <UserProspect data={prospect} />
