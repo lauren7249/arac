@@ -176,7 +176,12 @@ def dashboard():
         boosted_profiles = user.json.get("boosted_ids")
         if len(boosted_profiles) > 0:
             prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
-            results = [{'data':prospect.to_json()} for prospect in prospects]
+            results = [{'data':prospect.to_json(),
+                        'company_name': prospect.current_job.company.name,
+                        'school_name': prospect.schools[0].school.name,
+                        'industry': prospect.industry_raw,
+                        'location': prospect.location_raw
+                } for prospect in prospects]
     else:
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
