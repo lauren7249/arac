@@ -1,9 +1,12 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask import Flask
 import re, os, sys
-from prime.prospects.models import Prospect, Job, Education
-from prime.prospects.prospect_list import *
-from consume.consumer import *
+try:
+	
+	from prime.prospects.prospect_list import *
+	from consume.consumer import *
+except:
+	pass
 from prime import create_app, db
 
 def get_session():
@@ -16,18 +19,18 @@ def get_session():
 session = get_session()
 
 def from_linkedin_id(linkedin_id):
-	#session = get_session()
+	from prime.prospects.models import Prospect, Job, Education
 	prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
 	return prospect
 
 def from_url(url):
-	#session = get_session()
+	from prime.prospects.models import Prospect, Job, Education
 	url = re.sub("https:","http:",url)
 	prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
 	return prospect
 
 def from_prospect_id(id):
-	#session = get_session()
+	from prime.prospects.models import Prospect, Job, Education
 	prospect = session.query(Prospect).get(id)
 	return prospect
 

@@ -13,7 +13,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
-
+from prime.prospects.get_prospect import get_session
 from prime import db
 from prime.prospects.helper import BingSearch
 
@@ -187,8 +187,12 @@ class Prospect(db.Model):
 
     @property
     def wealthscore(self):
-        session = db.session
-        score = session.query(ProspectWealthscore).filter(ProspectWealthscore.prospect_id == self.id).first()
+        try:
+            session = db.session
+            score = session.query(ProspectWealthscore).filter(ProspectWealthscore.prospect_id == self.id).first()
+        except:
+            session = get_session()
+            score = session.query(ProspectWealthscore).filter(ProspectWealthscore.prospect_id == self.id).first()
         if score:
             return score.wealthscore
         return None

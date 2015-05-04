@@ -1,12 +1,12 @@
 import json, re, simplejson, os, sys
 from prime.prospects.models import db, Prospect
-from prime.prospects.prospect_list2 import ProspectList
 from prime.prospects.get_prospect import *
 import shutil
 from consume.consumer import *
+from prime.prospects.prospect_list2 import ProspectList
 
-MAX_CUTTOFF = 250
-MATCH_CUTTOFF = 0.00
+MAX_CUTTOFF = 100
+MATCH_CUTTOFF = 99.00
 
 server_folder = "/home/ubuntu/arachnid/prime/dataviz/interactive_network/"
 ids = []
@@ -23,9 +23,10 @@ def prospect_for(root):
   url = root["url"]
   prospect = from_url(search_term)
   if prospect is None:
+    prospect = from_linkedin_id(search_term)
+  if prospect is None:
     info = get_info_for_url_live(url)
     prospect = create_prospect_from_info(info, url)
-  print prospect.name
   return prospect
 
 def copy_dependencies(id):
@@ -47,26 +48,25 @@ def filename_for(id):
 
 def get_similar(prospect):
 
-  #actually get results
-  plist = ProspectList(prospect)
-  results = plist.get_results(restrict_to_knowns=True)
-  #print results
+  results = prospect.json['boosted_ids']
+
   Persons = []
   # puts results.inspect
   for r in results:
-    if r["score"] > MATCH_CUTTOFF:
+    g = from_linkedin_id(r)
+    if g is not None: 
       Person = {}
-      Person["match"] = r["score"]
-      Person["name"] = r["prospect_name"]
-      Person["entity"] = r["current_industry"]
-      Person["id"] = id_for(r["prospect_name"],r["id"])
-      Person["connections"] = r["connections"]
-      Person["image_url"] = r["image_url"]
-      Person["url"] = r["url"]
-      Person["s3_key"] = r["s3_key"]
-      Person["salary"] = numeric(r["salary"])
+      Person["match"] = g.connections
+      Person["name"] = g.name
+      print g.name
+      Person["entity"] = g.industry_raw
+      Person["id"] = id_for(Person["name"],g.id)
+      Person["connections"] = g.connections
+      Person["image_url"] = g.image_url
+      Person["url"] = g.url
+      Person["s3_key"] = g.s3_key
+      Person["salary"] = g.wealthscore
       Persons.append(Person)
-      print Person
   return Persons
 
 
@@ -92,7 +92,7 @@ def unseen_Persons(current_Persons, new_Persons):
 def expand(Persons, links, root):
   prospect = prospect_for(root)
   new_Persons = get_similar(prospect)
-  unseen = unseen_Persons(Persons, new_Persons)[0:MAX_CUTTOFF]
+  unseen = unseen_Persons(Persons, new_Persons)
   new_links = links_for(root, unseen)
   return unseen, new_links
 
@@ -108,12 +108,12 @@ def grab(root, output_filename):
 
   unlinked_Persons = []
 
-  for Person in first_iteration[1:]:
+  for Person in first_iteration:
     new_Persons, new_links = expand(all_Persons, links, Person)
     all_Persons = all_Persons + new_Persons
     unlinked_Persons = unlinked_Persons + new_Persons
     links = links + new_links
-    if len(ids)>200: break
+    if len(ids)>800: break
 
   data = {}
   data["nodes"] = all_Persons

@@ -20,6 +20,11 @@ JOB_SCORE = 0.7
 JOB_LOCATION_SCORE = 0.9
 JOB_GROUP_SCORE = 1.5
 
+def uu(str):
+    if str:
+        return str.encode("ascii", "ignore").decode("utf-8")
+    return None
+
 class ProspectList(object):
 
 
@@ -180,10 +185,10 @@ class ProspectList(object):
         title = jobs.get("title")
         if start_date:
             relationship = "Worked together at {} from {} to\
-            {}".format(company_name, start_date, end_date)
+            {}".format(uu(company_name), start_date, end_date)
         else:
             relationship = "Worked together at {}".format(\
-                    company_name, start_date, end_date)
+                    uu(company_name), start_date, end_date)
         user['start_date'] = start_date.strftime("%y") if start_date else None
         user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
@@ -210,7 +215,7 @@ class ProspectList(object):
         url = schools.get("url")
         image_url = schools.get("image_url", "/static/img/profile.png")
         relationship = "Went to school together at {} in {}"\
-                .format(unicode(school_name).encode("utf-8", "ignore"), end_date)
+                .format(uu(school_name), end_date)
         user['end_date'] = end_date.strftime("%y") if end_date else None
         user['prospect_name'] = prospect_name
         user['school_name'] = school_name
