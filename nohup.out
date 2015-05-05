@@ -6685,3 +6685,9 @@ ImportError: No module named redis
 16:18:00 
 16:18:00 *** Listening on high, default, low...
 python: can't open file 'run_redis_queue_linkedin_master.py': [Errno 2] No such file or directory
+15:16:00 default: prime.prospects.views.export_file([<Prospect id=125 url=http://www.linkedin.com/pub/marc-forest/22/255/575>], u'jlyons1004+242424@gmail.com') (7902c70b-1ef0-4d52-af4f-7b4c1684c743)
+15:16:01 Using config: production
+15:16:01 Job OK, result = True
+15:16:01 Result is kept for 500 seconds.
+15:16:01 
+15:16:01 *** Listening on high, default, low...
