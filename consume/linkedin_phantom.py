@@ -10,9 +10,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
-from pyvirtualdisplay import Display
-
-
 class LinkedinFriend(object):
 
     def __init__(self, *args, **kwargs):
@@ -25,14 +22,10 @@ class LinkedinFriend(object):
         self.start_time = None
         self.successful_prospects = []
         self.linkedin_id = None
-        self.test = kwargs.get("test")
 
     def login(self):
-        self.display = Display(visible=0, size=(1024, 768))
-        self.display.start()
-        time.sleep(2)
-        self.driver = webdriver.Firefox()
-        self.wait = WebDriverWait(self.driver, 15)
+        self.driver = webdriver.PhantomJS()
+        self.wait = WebDriverWait(self.driver, 5)
         self.driver.get("http://linkedin.com")
         username = self.driver.find_element_by_name("session_key")
         password = self.driver.find_element_by_name("session_password")
@@ -42,22 +35,18 @@ class LinkedinFriend(object):
         submit.click()
         self.wait.until(lambda driver: driver.find_elements_by_class_name("account-toggle"))
         link = self.driver.find_elements_by_class_name("account-toggle")[0].get_attribute("href")
-        self.linkedin_id = self.get_linkedin_id(link, mine=True)
+        self.linkedin_id = self.get_linkedin_id(link)
 
         self.is_logged_in = True
         print self.linkedin_id
         return True
 
-    def get_linkedin_id(self, link, mine=False):
+    def get_linkedin_id(self, link):
         clean_link  = link.split("&")[0].split("=")[1]
-        if mine: return clean_link
         if "li_" in clean_link:
             return clean_link.split("_")[1]
-        self.driver.get(link)
-        print self.driver.current_url
-        lid = self.driver.current_url[self.driver.current_url.index("&id=")+4:]
-        if "&" in lid: lid = lid.split("&")[0]
-        return lid
+        self.driver.get(link.split("&")[0])
+        return self.driver.current_url.split("=")[-1]
 
     def get_first_degree_connections(self):
         if not self.is_logged_in:
@@ -87,7 +76,6 @@ class LinkedinFriend(object):
                 break
             current_count = len(self.driver.find_elements_by_class_name("contact-item-view"))
             print current_count
-            if self.test and current_count>10: break
 
         people = self.driver.find_elements_by_class_name("contact-item-view")
         all_friend_links = []
@@ -96,11 +84,9 @@ class LinkedinFriend(object):
             element = person.find_element_by_class_name("image")
             link = element.get_attribute("href")
             all_friend_links.append(link)
-            if self.test and len(all_friend_links)>10: break
 
         for friend_link in all_friend_links:
             linkedin_id = self.get_linkedin_id(friend_link)
-            #print linkedin_id
             first_degree_connections.append(linkedin_id)
         print first_degree_connections
         return first_degree_connections
@@ -109,15 +95,15 @@ class LinkedinFriend(object):
         self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
         try:
             element = self.wait.until(lambda driver: driver.find_element_by_class_name('connections-link'))
-            element.click()
+            element.click  
         except:
             return
 
         all_friend_ids = []
         while True:  
-            # import pdb 
-            # pdb.set_trace()
-            # self.wait.until(lambda driver: driver.find_element_by_class_name('connections-photo'))    
+            import pdb 
+            pdb.set_trace()
+            self.wait.until(lambda driver: driver.find_element_by_class_name('connections-photo'))    
 
             all_friend_ids = findConnections(all_friend_ids)
             self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
@@ -126,18 +112,17 @@ class LinkedinFriend(object):
             buttons = connections_view.find_elements_by_tag_name('button')
             try:
                 next_button = buttons[1]
-                next_button.click()
+                next_button.click       
             except:
                 break
         return all_friend_ids
 
     def findConnections(all_friend_ids):
-        all_views = self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))    
-        #all_views = self.driver.find_elements_by_class_name("connections-photo")
+        all_views = self.driver.find_elements_by_class_name("connections-photo")
         for view in all_views:
             try:
                 link = view.get_attribute("href")
-                linkedin_id =self.get_linkedin_id(link)
+                linkedin_id =get_linkedin_id(link)
             except:
                 try:
                     oops_link = self.driver.find_element_by_class_name("error-search-retry")
@@ -164,8 +149,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("username")
     parser.add_argument("password")
-    parser.add_argument("test")
     args = parser.parse_args()
-    run(args.username, args.password, test=args.test)
+    run(args.username, args.password)
 
 

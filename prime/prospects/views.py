@@ -395,6 +395,11 @@ def filter_locations(prospects, location_ids):
         prospects = prospects.filter(ProspectLocation.location_id.in_(location_ids))
     return prospects
 
+def filter_name(prospects, name):
+    if name:
+        prospects = prospects.filter(Prospect.name == name)
+    return prospects
+
 def filter_gender(prospects, gender):
     if gender == 1:
         return prospects.filter(ProspectGender.gender == True)
@@ -414,6 +419,7 @@ def api():
     page = int(request.args.get("p", 1))
 
     company_ids = blank_string_to_none(request.args.get("company_ids", None))
+    name = blank_string_to_none(request.args.get("name", None))
     job_title = blank_string_to_none(request.args.get("title", None))
     job_start = datetime.datetime.strptime(request.args.get("job_start", \
         "01/01/1900"), "%m/%d/%Y").date()
@@ -476,6 +482,8 @@ def api():
     prospects = filter_locations(prospects, location_ids)
     prospects = filter_title(prospects, job_title)
     prospects = filter_dates(prospects, job_start, job_end, school_end)
+    prospects = filter_name(prospects, name)
+
     if gender > 0:
         prospects = filter_gender(prospects, gender)
     if wealthscore > 50:
