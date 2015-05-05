@@ -101,6 +101,7 @@ var Results = React.createClass({
             company_ids: companyIDs,
             school_ids: schoolIDs,
             school_end: $("#school_end").val(),
+            name: $("#name").val(),
             title: title,
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
