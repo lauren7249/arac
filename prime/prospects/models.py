@@ -159,9 +159,9 @@ class Prospect(db.Model):
             boosted_ids = self.json.get("boosted_ids")
             if boosted_ids:
                 profiles = []
+                boosted_ids = [int(id) for id in boosted_ids]
                 extra_prospects = session.query(Prospect).filter(\
-                        Prospect.linkedin_id.in_(\
-                        tuple(self.json.get("boosted_ids")))).all()
+                        Prospect.linkedin_id.in_(boosted_ids)).all()
                 for prospect in extra_prospects:
                     user = {}
                     user['prospect_name'] = prospect.name

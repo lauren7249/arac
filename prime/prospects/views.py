@@ -173,7 +173,7 @@ def dashboard():
     results = []
     prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
     if user.json and 'boosted_ids' in user.json:
-        boosted_profiles = user.json.get("boosted_ids")
+        boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
         if len(boosted_profiles) > 0:
             prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
             results = [{'data':prospect.to_json(),
