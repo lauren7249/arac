@@ -90,7 +90,8 @@ var Results = React.createClass({
         var companyIDs = $("#company_ids").val()
         var schoolIDs = $("#school_ids").val()
         var title = $("#title").val()
-        if (companyIDs == "" && schoolIDs == "" && title == "") {
+        var name = $("#name").val()
+        if (companyIDs == "" && schoolIDs == "" && title == "" && name == "") {
             bootbox.alert("You must enter either one school, a job title or one company.");
             $(".loading").hide();
             return false;
@@ -101,7 +102,7 @@ var Results = React.createClass({
             company_ids: companyIDs,
             school_ids: schoolIDs,
             school_end: $("#school_end").val(),
-            name: $("#name").val(),
+            name: name,
             title: title,
             gender: $("[name='gender']:checked").val(),
             location_ids: $("#location_ids").val(),
