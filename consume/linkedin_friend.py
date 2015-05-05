@@ -48,14 +48,15 @@ class LinkedinFriend(object):
         print self.linkedin_id
         return True
 
-    def get_linkedin_id(self, link, mine=False):
+    def get_linkedin_id(self, link, mine=False, second_degree=False):
         clean_link  = link.split("&")[0].split("=")[1]
         if mine: return clean_link
-        if "li_" in clean_link:
-            return clean_link.split("_")[1]
+        if "li_" in clean_link or second_degree:
+            if "li_" in clean_link: return clean_link.split("_")[1]
+            return clean_link
         self.driver.get(link)
         print self.driver.current_url
-        lid = self.driver.current_url[self.driver.current_url.index("&id=")+4:]
+        lid = self.driver.current_url[self.driver.current_url.index("id=")+3:]
         if "&" in lid: lid = lid.split("&")[0]
         return lid
 
@@ -113,41 +114,37 @@ class LinkedinFriend(object):
         except:
             return
 
-        all_friend_ids = []
+        self.all_friend_ids = []
         while True:  
-            # import pdb 
-            # pdb.set_trace()
-            # self.wait.until(lambda driver: driver.find_element_by_class_name('connections-photo'))    
-
-            all_friend_ids = findConnections(all_friend_ids)
-            self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
-            
-            connections_view = self.driver.find_element_by_class_name('connections-paginate')
-            buttons = connections_view.find_elements_by_tag_name('button')
             try:
+                self.findConnections()
+                self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
+                
+                connections_view = self.driver.find_element_by_class_name('connections-paginate')
+                buttons = connections_view.find_elements_by_tag_name('button')
+            
                 next_button = buttons[1]
                 next_button.click()
             except:
                 break
-        return all_friend_ids
+        return self.all_friend_ids
 
-    def findConnections(all_friend_ids):
+    def findConnections(self):
         all_views = self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))    
-        #all_views = self.driver.find_elements_by_class_name("connections-photo")
         for view in all_views:
             try:
                 link = view.get_attribute("href")
-                linkedin_id =self.get_linkedin_id(link)
+                linkedin_id =self.get_linkedin_id(link, second_degree=True)
+                print linkedin_id
             except:
                 try:
                     oops_link = self.driver.find_element_by_class_name("error-search-retry")
-                    oops_link.click
+                    oops_link.click()
                     self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))
-                    all_friend_ids = findConnections(all_friend_ids)                
+                    self.findConnections()             
                 except:
-                    all_friend_ids = findConnections(all_friend_ids)
-            all_friend_ids.append(linkedin_id)
-        return all_friend_ids
+                    self.findConnections()
+            self.all_friend_ids.append(linkedin_id)
     
     def shutdown(self):
         self.display.popen.terminate()
