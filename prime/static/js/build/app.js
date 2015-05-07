@@ -139,12 +139,16 @@ var UserResults = React.createClass({displayName: "UserResults",
                 $("[data-result='" + id + "']").fadeOut();
             });
         });
-        $("#more-prospects").click(function() {
-            userPage++;
-            $("html, body").animate({
-                scrollTop: $(".results").position().top
-            }, 100);
-            result.loadProfileFromServer();
+        $("#more-prospects").click(function(event) {
+            if (event.handled !== true) {
+                userPage++;
+                $("html, body").animate({
+                    scrollTop: $(".results").position().top
+                }, 100);
+                result.loadProfileFromServer();
+                event.handled = true;
+            }
+            return false
         });
 
         $("#extended").click(function(event) {
