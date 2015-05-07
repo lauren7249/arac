@@ -247,6 +247,7 @@ var UserResults = React.createClass({displayName: "UserResults",
           data:params,
           dataType: 'json',
           success: function(data) {
+              $(".loading").fadeOut();
             if (data.results.length < 1) {
                 bootbox.alert("There are no results for this query");
                 return false;
@@ -356,6 +357,10 @@ var UserResults = React.createClass({displayName: "UserResults",
         return (
           React.createElement("div", {className: "results"}, 
               React.createElement("div", {className: "wrapper"}, 
+                  React.createElement("div", {className: "loading", id: "show-always"}, 
+                      React.createElement("h2", null, "Loading ", React.createElement("img", {src: "/static/img/loader.gif"})), 
+                      React.createElement("p", null, "Finding the best prospects.")
+                  ), 
                   React.createElement("div", {className: "empty"}, 
                       React.createElement("h2", null, "There are no more prospects in your network")
                       )

@@ -1365,3 +1365,7 @@ div.days div.results div.checked {
   padding: 5px;
   background: green;
 }
+
+#show-always {
+  display: block;
+}

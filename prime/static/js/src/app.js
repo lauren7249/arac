@@ -247,6 +247,7 @@ var UserResults = React.createClass({
           data:params,
           dataType: 'json',
           success: function(data) {
+              $(".loading").fadeOut();
             if (data.results.length < 1) {
                 bootbox.alert("There are no results for this query");
                 return false;
@@ -356,6 +357,10 @@ var UserResults = React.createClass({
         return (
           <div className="results">
               <div className="wrapper">
+                  <div className='loading' id='show-always'>
+                      <h2>Loading <img src='/static/img/loader.gif' /></h2>
+                      <p>Finding the best prospects.</p>
+                  </div>
                   <div className='empty'>
                       <h2>There are no more prospects in your network</h2>
                       </div>
