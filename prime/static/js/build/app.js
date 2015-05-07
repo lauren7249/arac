@@ -359,7 +359,7 @@ var UserResults = React.createClass({displayName: "UserResults",
               React.createElement("div", {className: "wrapper"}, 
                   React.createElement("div", {className: "loading", id: "show-always"}, 
                       React.createElement("h2", null, "Loading ", React.createElement("img", {src: "/static/img/loader.gif"})), 
-                      React.createElement("p", null, "Finding the best prospects.")
+                      React.createElement("p", null, "Fetching Prospects")
                   ), 
                   React.createElement("div", {className: "empty"}, 
                       React.createElement("h2", null, "There are no more prospects in your network")

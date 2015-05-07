@@ -359,7 +359,7 @@ var UserResults = React.createClass({
               <div className="wrapper">
                   <div className='loading' id='show-always'>
                       <h2>Loading <img src='/static/img/loader.gif' /></h2>
-                      <p>Finding the best prospects.</p>
+                      <p>Fetching Prospects</p>
                   </div>
                   <div className='empty'>
                       <h2>There are no more prospects in your network</h2>
