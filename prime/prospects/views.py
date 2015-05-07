@@ -285,7 +285,7 @@ def network_analysis():
                 'industries': dict(extended_industry_dict.most_common(10)),
                 'locations': dict(extended_location_dict.most_common(10))}
 
-    return jsonify({"user_date": user_data,
+    return jsonify({"user_data": user_data,
                     "extended_user_data": extended_user_data})
 
 
