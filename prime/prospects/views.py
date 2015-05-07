@@ -171,7 +171,13 @@ def dashboard():
     if 'first_time' in flask_session:
         first_time = True
         del flask_session['first_time']
-    prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    try:
+        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    except:
+        try:
+            prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
+        except:
+            prospect = None
     return render_template('dashboard.html',
             prospect=prospect,
             prospects_remaining_today=prospects_remaining_today)
@@ -193,7 +199,13 @@ def dashboard_json():
         processed_profiles = []
     results = []
     if type == 'extended':
-        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+        try:
+            prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+        except:
+            try:
+                prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
+            except:
+                prospect = None
         prospect_list = ProspectList(prospect)
         results = prospect_list.get_results()
         if prospect.json:
