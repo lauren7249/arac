@@ -1,5 +1,6 @@
 $(function() {
     bindButtons();
+    buildGraphs();
 });
 
 function bindButtons() {
@@ -40,4 +41,5 @@ function bindButtons() {
             return false;
         }
     });
+
 }
