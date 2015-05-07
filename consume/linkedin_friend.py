@@ -33,9 +33,15 @@ class LinkedinFriend(object):
         time.sleep(2)
         if self.test:
             profile=webdriver.FirefoxProfile()
-            profile.set_preference('network.proxy.type', 1)
-            profile.set_preference('network.proxy.socks', '127.0.0.1')
-            profile.set_preference('network.proxy.socks_port',9050)
+            profile.set_preference('permissions.default.stylesheet', 2)
+            ## Disable images
+            profile.set_preference('permissions.default.image', 2)
+            ## Disable Flash
+            profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so','false')
+            #tor doesnt work
+            # profile.set_preference('network.proxy.type', 1)
+            # profile.set_preference('network.proxy.socks', '127.0.0.1')
+            # profile.set_preference('network.proxy.socks_port',9050)
             #profile.set_preference("javascript.enabled", False)        
             self.driver = webdriver.Firefox(profile)
         else:
