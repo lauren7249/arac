@@ -341,7 +341,10 @@ function buildGraph(name ,data, prefix) {
     }
 
     if (arr.length > 0) {
-        var chart = new Chart($canvas.get(0).getContext("2d")).Doughnut(arr, {});
+        try {
+            var chart = new Chart($canvas.get(0).getContext("2d")).Doughnut(arr, {});
+        } catch(err) {
+        }
     } else {
         try {
             $div.find("h5").html("No Data") 
@@ -350,59 +353,6 @@ function buildGraph(name ,data, prefix) {
         }
     }
 }
-
-function test() {
-    var sortableIndustry = []
-    var sortableLocation = []
-
-    var workData = [];
-    for (var wKey in company_connections) {
-        workData.push({
-            value: company_connections[wKey],
-            color: randColor(colors),
-            label: wKey});
-    }
-
-    var schoolData = [];
-    for (var sKey in school_connections) {
-        schoolData.push({
-            value: school_connections[sKey],
-            color: randColor(colors),
-            label: sKey});
-    }
-
-    var industryData = [];
-    for (var iKey in industries) {
-        industryData.push({
-            value: industries[iKey],
-            color: randColor(colors),
-            label: iKey});
-    }
-
-    var locationData = [];
-    for (var lKey in locations) {
-        locationData.push({
-            value: locations[lKey],
-            color: randColor(colors),
-            label: lKey});
-    }
-
-    if (workData.length > 0) {
-        var workChart = new Chart($('canvas#one').get(0).getContext("2d")).Doughnut(workData, {});
-    } else {
-        $("#g-one").append("<h5>No Data</h5>").find("canvas").hide();
-    }
-
-    if (schoolData.length > 0) {
-        var schoolChart = new Chart($('canvas#two').get(0).getContext("2d")).Doughnut(schoolData);
-    } else {
-        $("#g-two").append("<h5>No Data</h5>").find("canvas").hide();
-    }
-
-    var industryChart = new Chart($('canvas#three').get(0).getContext("2d")).Doughnut(industryData, {});
-    var locationChart = new Chart($('canvas#four').get(0).getContext("2d")).Doughnut(locationData, {});
-}
-
 
 function hideOverlay() {
     $(".overlay").hide();
