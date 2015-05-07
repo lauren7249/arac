@@ -178,7 +178,7 @@ def dashboard():
     location_dict = Counter()
     prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
     if user.json and 'boosted_ids' in user.json:
-        boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
+        boosted_profiles = [int(id) for id in user.json.get("boosted_ids")][0:700]
         if len(boosted_profiles) > 0:
             prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
             for prospect in prospects:

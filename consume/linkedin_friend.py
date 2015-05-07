@@ -31,7 +31,15 @@ class LinkedinFriend(object):
         self.display = Display(visible=0, size=(1024, 768))
         self.display.start()
         time.sleep(2)
-        self.driver = webdriver.Firefox()
+        if self.test:
+            profile=webdriver.FirefoxProfile()
+            profile.set_preference('network.proxy.type', 1)
+            profile.set_preference('network.proxy.socks', '127.0.0.1')
+            profile.set_preference('network.proxy.socks_port',9050)
+            #profile.set_preference("javascript.enabled", False)        
+            self.driver = webdriver.Firefox(profile)
+        else:
+            self.driver = webdriver.Firefox()
         self.wait = WebDriverWait(self.driver, 15)
         self.driver.get("http://linkedin.com")
         username = self.driver.find_element_by_name("session_key")
