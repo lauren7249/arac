@@ -492,8 +492,8 @@ function buildGraph(name ,data, prefix) {
         var chart = new Chart($canvas.get(0).getContext("2d")).Doughnut(arr, {});
     } else {
         try {
-            $div.find("h5").html("No Data") {
-        } catch {
+            $div.find("h5").html("No Data") 
+        } catch(err) {
             $div.append("<h5>No Data</h5>").find("canvas").hide();
         }
     }

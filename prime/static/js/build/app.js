@@ -449,7 +449,6 @@ function buildGraphs() {
     $.ajax({
         url: "/network",
         type: 'GET',
-        async: false,
         cache: false,
         timeout: 30000,
         error: function(){
@@ -492,7 +491,11 @@ function buildGraph(name ,data, prefix) {
     if (arr.length > 0) {
         var chart = new Chart($canvas.get(0).getContext("2d")).Doughnut(arr, {});
     } else {
-        $div.append("<h5>No Data</h5>").find("canvas").hide();
+        try {
+            $div.find("h5").html("No Data") 
+        } catch(err) {
+            $div.append("<h5>No Data</h5>").find("canvas").hide();
+        }
     }
 }
 
