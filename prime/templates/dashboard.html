@@ -42,20 +42,38 @@ introJs().start();
   </div>
   <div class='stats'>
     <div class='wrapper'>
-      <h4>Analyze Your Extended Network</h4>
-      <div class='stat' id='g-one'>
+      <h4>Your Extended Network</h4>
+      <div class='stat' id='user-jobs'>
         <h5>Work Connections</h5>
         <canvas id='one'></canvas>
       </div>
-      <div class='stat' id='g-two'>
+      <div class='stat' id='user-schools'>
         <h5>School Connections</h5>
         <canvas id='two'></canvas>
       </div>
-      <div class='stat' id='g-three'>
+      <div class='stat' id='user-industries'>
         <h5>Industry Analysis</h5>
         <canvas id='three'></canvas>
       </div>
-      <div class='stat' id='g-four'>
+      <div class='stat' id='user-locations'>
+        <h5>Location Analysis</h5>
+        <canvas id='four'></canvas>
+      </div>
+      <br/>
+      <h4>Analyze Your Extended Network</h4>
+      <div class='stat' id='extended-user-jobs'>
+        <h5>Work Connections</h5>
+        <canvas id='one'></canvas>
+      </div>
+      <div class='stat' id='extended-user-schools'>
+        <h5>School Connections</h5>
+        <canvas id='two'></canvas>
+      </div>
+      <div class='stat' id='extended-user-industries'>
+        <h5>Industry Analysis</h5>
+        <canvas id='three'></canvas>
+      </div>
+      <div class='stat' id='extended-user-locations'>
         <h5>Location Analysis</h5>
         <canvas id='four'></canvas>
       </div>
@@ -75,7 +93,7 @@ introJs().start();
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
 <script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
-<script src="/static/js/chart.js" type="text/javascript"></script>
+<script src="/static/js/chart.js"></script>
 <script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
 <script src="/static/js/build/app.js" type="text/javascript"></script>
 {% endblock %}

@@ -259,7 +259,6 @@ var UserResults = React.createClass({
             return false;
           }.bind(this),
           error: function(xhr, status, err) {
-              debugger;
             bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
             $(".loading").hide();
             return false;
@@ -441,70 +440,69 @@ function calculateResults(data) {
 
 $(function() {
     buildResults();
-    bindButtons();
     bindSearch();
     bindDates();
 });
 
-function bindButtons() {
-    $("#extended").click(function() {
-        $(".headers a").removeClass("active");
-        $(this).addClass("active")
-        $(".stats").hide();
-        $(".user-holder").fadeIn();
-        type = "extended"
-        buildResults();
-    });
-
-    $("#first").click(function() {
-        $(".headers a").removeClass("active");
-        $(this).addClass("active")
-        $(".stats").hide();
-        $(".user-holder").fadeIn();
-        type = "first"
-        buildResults();
-    });
-
-    $("#network").click(function() {
-        $(".headers a").removeClass("active");
-        $(this).addClass("active")
-        $(".user-holder").hide();
-        $(".stats").fadeIn();
-        buildGraphs();
-
-    });
-}
-
 function buildGraphs() {
 
+    $.ajax({
+        url: "/network",
+        type: 'GET',
+        async: false,
+        cache: false,
+        timeout: 30000,
+        error: function(){
+            return true;
+        },
+        success: function(data){ 
+            var user_industries = data.user_data.industries
+            var user_locations = data.user_data.locations
+            var user_schools = data.user_data.schools
+            var user_jobs = data.user_data.jobs
+
+            var extended_user_industries = data.extended_user_data.industries
+            var extended_user_locations = data.extended_user_data.locations
+            var extended_user_schools = data.extended_user_data.schools
+            var extended_user_jobs = data.extended_user_data.jobs
+
+            for (var key in data.user_data) {
+                buildGraph(key, data.user_data[key], 'user')
+            }
+
+            for (var key in data.extended_user_data) {
+                buildGraph(key, data.extended_user_data[key], 'extended-user')
+            }
+        }
+    });
+
+}
+
+function buildGraph(name ,data, prefix) {
+    var arr = []
+    var $div = $("#" + prefix + "-" + name)
+    var $canvas = $div.find("canvas")
+    for (var key in data) {
+        arr.push({
+            value: data[key],
+            color: randColor(colors),
+            label: key});
+    }
+
+    if (arr.length > 0) {
+        var chart = new Chart($canvas.get(0).getContext("2d")).Doughnut(arr, {});
+    } else {
+        try {
+            $div.find("h5").html("No Data") {
+        } catch {
+            $div.append("<h5>No Data</h5>").find("canvas").hide();
+        }
+    }
+}
+
+function test() {
     var sortableIndustry = []
     var sortableLocation = []
-
-    //lets sort dict so we only get 10 industries max
-    for (var industry in industries) {
-        sortableIndustry.push([industry, industries[industry]])
-    }
-    sortableIndustry.sort(function(a, b) {return b[1] - a[1]})
-    industries = {}
-
-    for (var location in locations) {
-        sortableLocation.push([location, locations[location]])
-    }
-
-    sortableLocation.sort(function(a, b) {return b[1] - a[1]})
-    locations = {}
-
-    //If less than 10, we need to do the length
-    var industryLimit = (sortableIndustry.length > 10) ? 10 : sortableIndustry.length;
-    var locationLimit = (sortableLocation.length > 10) ? 10 : sortableLocation.length;
-
-    for (var i=0;i<industryLimit;i++) {
-        industries[sortableIndustry[i][0]] = sortableIndustry[i][1]
-    }
-
-    for (var i=0;i<locationLimit;i++) {
-        locations[sortableLocation[i][0]] = sortableLocation[i][1]
-    }
 
     var workData = [];
     for (var wKey in company_connections) {

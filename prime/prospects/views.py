@@ -216,12 +216,6 @@ def dashboard_json():
                                 'current_industry': prospect.industry_raw,
                                 'current_location': prospect.location_raw
                                 })
-                    if len(prospect.schools) > 0:
-                        school_dict[prospect.schools[0].school.name] += 1
-                    if prospect.current_job:
-                        job_dict[prospect.current_job.company.name] += 1
-                    location_dict[prospect.location_raw] += 1
-                    industry_dict[prospect.industry_raw] += 1
     return jsonify({"results": results})
 
 @prospects.route("/network")
@@ -244,6 +238,9 @@ def network_analysis():
     prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
     prospect_list = ProspectList(prospect)
     results = prospect_list.get_results()
+    boosted_profiles = prospect.boosted_profiles
+    if len(boosted_profiles) > 0:
+        results = boosted_profiles + results
     for result in results:
         company_name = result.get("company_name")
         if company_name:
