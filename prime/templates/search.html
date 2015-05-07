@@ -1,184 +1,168 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='overlay'>
-  <div id='person'>
+{% if first_time %}
+<div style='display: block;' class='overlay'>
+  <div id='modal'>
+    <h2>Congrats!</h2>
+    <p>We found <span>{{ prospect_count }}</span> prospects in your extended market.  You can view them in "Your Market" or search our database of 100m+ prospects.  
+    <p>Save the prospects you’d like to contact and remove prospects that are a bad match for you.  We’ll use this information to find you better prospects over time.</p>
+    <button onclick='javascript:hideOverlay();' class='btn btn-success'>Get Started!</button>
   </div>
 </div>
-<div class='row'>
-  <div class='sidebar'>
-    <div class='inner'>
-      <ul>
-        <li><a href='/dashboard'><span></span>New Prospects</a></li>
-        <li><a class='active' href='/search'><span></span>Search</a></li>
-        <li><a href='/clients'><span></span>Your Clients</a></li>
-        <li><a href='/investor_profile'><span></span>Your Profile</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class='items'>
-    <div class='welcome'>
-      <h1>Search</h1>
-      <p>Search by, person, school, company, location and dates</p>
-      <hr />
-      <ul class='tabs'>
-        <li class='active'><a id='show-school-company' href='javascript:;'>School &amp; Company</a></li>
-        <li><a id='show-person' href='javascript:;'>Person</a><li>
-      </ul>
-    </div>
-    <div class='results school-company-search'>
-      <div class='search-box'>
-        <input type="hidden" name="company_id" value="">
-        <input type="hidden" name="school_id" value="">
-        <div class='fieldset'>
-          <label>Search Type:</label>
-          <select name='type' id='search-type' class='chosen-select' type='text'>
-            <option selected value='1'>School</option>
-            <option value='2'>Companies</option>
-          </select>
-        </div>
-        <div class='fieldset'>
-          <input type='text' class='form-group' placeholder='Enter In The Name' name='' id='term' />
-        </div>
-        <div class='fieldset date'>
-          <input type='text' class='datepicker form-group' placeholder='Start Date (optional)' name='start_date' id='term' />
-        </div>
-        <div class='fieldset date'>
-          <input type='text' class='datepicker form-group' placeholder='End Date (optional)' name='end_date' id='term' />
-        </div>
-        <div class='fieldset date'>
-          <button type='submit' id='search-submit' class='btn btn-success'>SEARCH</button>
-        </div>
-        <div class='clear'></div>
-        <h5 class='advanced'><a href='javascript:showFilters();'>Advanced Filters >></a></h5>
-        <br />
-        <div class='advanced-filters'>
-          <div class='fieldset' style='width: 420px;'>
-            <label>Filters:</label>
-            <input style='width: 350px;' type='text' class='form-group' placeholder='Location' name='' id='term' />
-          </div>
-          <div class='fieldset date'>
-            <input type='text' class='datepicker form-group' placeholder='Current Industry' name='' id='term' />
-          </div>
-          <div class='fieldset date'>
-            <input type='text' class='datepicker form-group' placeholder='Job Title' name='' id='term' />
-          </div>
-        </div>
-        <div class='search-page-results'></div>
-        <div class='clear'></div>
-      </div>
-      <div class='clear'></div>
-      <div class='padding'>
-        <table class="table table-striped table-hover ">
-          <thead>
-            {% if prospects %}
-            <tr>
-              <th>Prospect Name</th>
-              <th>Relevancy</th>
-              <th>Current Location</th>
-              <th>Current Industry</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for prospect in prospects %}
-          <tr>
-            <td><script type="IN/MemberProfile" data-id="{{ prospect.url }}" data-format="hover"></script><a href='javascript:loadProfile({{ prospect.id}});'>{{ prospect.name }}</a></td>
-            <td>{{ prospect.relevant_item.name }}</td>
-            <td>{{ prospect.location_raw }}</td>
-            <td>{{ prospect.industry_raw }}</td>
-            <td>{{ prospect.relevant_item.start_date }}</td>
-            <td>{{ prospect.relevant_item.end_date }}</td>
-          </tr>
-          {% endfor %}
-          {% else %}
-          <tr>
-            <td><h2 class='empty'>Search for any group of people based on their work or educational history, and then filter them by industry and location</h2></td>
-          </tr>
-          {% endif %}
-          </tbody>
-        </table>
-        <div class='pagination'>
-          {% if prospects %}
-          <p>{% if prospects.has_prev %}<a href="{{ company.get_url }}?p={{ prospects.prev_num }}"><< Previous Page</a>{% endif %}
-          {% if prospects.has_next %}<a href="{{ company.get_url }}?p={{ prospects.next_num }}">Next Page >></a>{% endif %}</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class='results person-search'>
-      <div class='search-box'>
-        <div class='fieldset' style='width: 500px;'>
-          <input type='text' class='form-group' placeholder="Enter in the person's name and school or company" name='' id='term' />
-        </div>
-        <div class='fieldset date'>
-          <button type='submit' id='search-submit' class='btn btn-success'>SEARCH</button>
-        </div>
-        <div class='clear'></div>
-        <div class='search-page-results'></div>
-        <div class='clear'></div>
-      </div>
-      <div class='clear'></div>
-    </div>
-  </div>
-</div>
-<link href="/static/css/datepicker.css" rel="stylesheet"></link>
-<script src="/static/js/chart.js" type="text/javascript"></script>
-<script src="/static/js/chart.js" type="text/javascript"></script>
-<script src="/static/js/bootstrap-datepicker.js" type="text/javascript"></script>
-<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
+<script src="/static/js/intro.min.js" type="text/javascript"></script>
 <script type='text/javascript'>
-var searchType;
-$(function() {
-    $("#search-submit").click(function() {
-      searchType = $('#search-type').val();
-      if (searchType == 1) {
-        searchType = "schools"
-      } else {
-        searchType = "companys"
-      }
-      var term = $("#term").val()
-      $(".search-page-results").show();
-      $(".search-page-results").load("/elastic_search?type=" + searchType +"&term=" + term, function() {
-        bindButtons();
-      })
-    });
-
-    $(".datepicker").datepicker();
-    bindButtons();
-});
-
-function bindButtons() {
-  $("[data-name]").click(function() {
-      var dataId = $(this).data("id");
-      var dataName = $(this).data("name")
-      if (searchType == "companys") {
-        window.location = "/search?company_id=" + dataId;
-      } else {
-        window.location = "/search?school_id=" + dataId;
-      }
-  });
-
-    $("#show-school-company").click(function() {
-        $(".person-search").hide();
-        $(".school-company-search").fadeIn();
-        $(".tabs li").removeClass("active");
-        $(this).parent().addClass("active");
-    });
-
-    $("#show-person").click(function() {
-        $(".school-company-search").hide();
-        $(".person-search").fadeIn();
-        $(".tabs li").removeClass("active");
-        $(this).parent().addClass("active");
-    });
-}
-
-function showFilters() {
-  $(".advanced-filters").slideDown();
-  $("h5").hide();
-}
-
-
+introJs().start();
 </script>
+{% endif %}
+<div class='welcome' data-step="3" data-intro="View prospects that have something in common with you in Your Network.  This is great for making a warm introduction!">
+  <div class='wrapper'>
+    <ul class='tabs'>
+      <li><a id='show-analytics' href='/dashboard'>Your Network</a><li>
+      <li class='active'><a id='show-leads' href='/search'>Search</a><li>
+      <li data-step="2" data-intro="Save good prospects and let us know when a propect is not a good fit for you.  This will help us to recommend better leads for you over time!"><a href='/clients'><span></span>Saved Prospects</a></li>
+    </ul>
+  </div>
+</div>
+<div class='items'>
+  <div class='dashboard-search' data-step="1" data-intro="Use our search tool to find new prospects.  You can search by company and/or school and you can narrow your search by job title, location and industry.">
+    <div class='wrapper'>
+      <input type='hidden' value='' name='company_ids' id='company_ids' />
+      <input type='hidden' value='' name='school_ids' id='school_ids' />
+      <input type='hidden' value='' name='location_ids' id='location_ids' />
+      <input type='hidden' value='' name='industries_ids' id='industries_ids' />
+      <fieldset>
+        <label>Lead Score</label>
+        <input type="text" id="amount" value="49" name='wealthscore' readonly style="border:0; color:#f6931f; font-weight:bold;">
+        <div id="slider-range"></div>
+      </fieldset>
+      <fieldset>
+        <label>Prospect Name</label>
+        <div class='input-holder'>
+          <ul class='search title-search'>
+            <li class='input'>
+            <input type='text' name='name' id='name' placeholder='eg. Bob Smith' />
+            </li>
+          </ul>
+        </div>
+      </fieldset>
+      <fieldset>
+        <label>Company Name</label>
+        <div class='input-holder'>
+          <ul class='search company-search'>
+            <li class='input'>
+            <input type='text' id='company-autocomplete' placeholder='Company Names: eg. Goldman Sachs' />
+            </li>
+          </ul>
+          <div id='company-results-autocomplete'></div>
+        </div>
+        <div class='date-holder'>
+          <input type='text' class='small datepicker' placeholder='State Date' autocomplete="off" id='job_start' name='job_start' />
+        </div>
+        <div class='date-holder'>
+          <input type='text' class='small datepicker' placeholder='End Date'autocomplete="off" id='job_end' name='job_end' />
+        </div>
+      </fieldset>
+      <fieldset>
+        <label>Job Titles</label>
+        <div class='input-holder'>
+          <ul class='search title-search'>
+            <li class='input'>
+            <input type='text' name='title' id='title' placeholder='eg. CEO - only one title at a time' />
+            </li>
+          </ul>
+        </div>
+      </fieldset>
+      <fieldset>
+        <label>Schools</label>
+        <div class='input-holder'>
+          <ul class='search school-search'>
+            <li class='input'>
+            <input type='text' id='school-autocomplete' placeholder='School Names: eg. Harvard' />
+            </li>
+          </ul>
+          <div id='school-results-autocomplete'></div>
+        </div>
+        <div class='date-holder'>
+          <input type='text' class='small' placeholder='Grad. Year' maxlength="4" id='school_end' autocomplete="off" name='school_end' />
+        </div>
+      </fieldset>
+      <fieldset>
+        <label>Locations</label>
+        <div class='input-holder'>
+          <ul class='search location-search'>
+            <li class='input'>
+            <input type='text' name='location' id='location-autocomplete' autocomplete="off" placeholder='eg. New York' />
+            </li>
+          </ul>
+          <div id='location-results-autocomplete'></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <label>Industries</label>
+        <div class='input-holder'>
+          <ul class='search industry-search'>
+            <li class='input'>
+            <input type='text' name='industry' id='industry' placeholder='Current Industry' />
+            </li>
+          </ul>
+          <div id='industry-results-autocomplete'></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <label>Gender</label>
+        <div class='gender-box'>
+          <label for="both">Both</label>
+          <input type='radio' id=both' name='gender' checked="checked" value='0' />
+          <label for="male">Male</label>
+          <input type='radio' id='male' name='gender' value='1' />
+          <label for="female">Female</label>
+          <input type='radio' id='female' name='gender' value='2' />
+        </div>
+      </fieldset>
+      <fieldset class='buttons'>
+        <button id='big-search' class='btn btn-success'>Search <i class='fa fa-search'></i></button>
+        <button class='btn btn-primary'>Save Search</button>
+      </fieldset>
+    </div>
+  </div>
+  <div id='more-padding' class='results results-dashboard'>
+    <div class='wrapper'>
+      <div class='alert alert-success'>You have <b>{{ prospects_remaining_today }}</b> leads remaining today.</div>
+      <h4>Your Prospects</h4>
+      <div class='clear'></div>
+      {% if prospects_remaining_today < 1%}
+      <div class='hide-results'>
+        <h2>You have reached your limit for today</h2>
+        <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
+      </div>
+      {% endif %}
+      <div class='new-search'>
+        <a href='javascript:newSearch()'>New Search >></a>
+      </div>
+      <div class='prospects-holder'>
+        <div class='loading'>
+          <h2>Loading <img src='/static/img/loader.gif' /></h2>
+          <p>Finding the best prospects.</p>
+        </div>
+        <div id='prospects'></div>
+      </div>
+      <div class'clear'></div>
+      <button class='btn btn-success' id='prev'><< Previous Page</button>
+      <button class='btn btn-success' id='next'>Next Page >></button>
+    </div>
+  </div>
+  <div class='clear'></div>
+  {% if prospects_remaining_today < 1%}
+  <div class='hide-results'>
+    <h2>You have reached your limit for today</h2>
+    <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
+  </div>
+  {% endif %}
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+<script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
+<script src="/static/js/chart.js" type="text/javascript"></script>
+<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
+<script src="/static/js/build/search.js" type="text/javascript"></script>
 {% endblock %}
+

@@ -1,6 +1,4 @@
 var industries = {}
-var globalData;
-var userData;
 var page = 1;
 var userPage = 1;
 var colors = ["#B7D085", "#F9EBB5", "#D3102E", "#DCD6D5", "#39272A", "#27ACBE", "#3D9275", "#C7E1B8", "#BEC25D"];
@@ -21,38 +19,6 @@ var Relationship = React.createClass({
 });
 
 
-var UserProspect = React.createClass({
-    render: function() {
-        var prospect = this.props.data;
-        var relationship = <Relationship name={prospect.relationship} />
-        var URL = "/prospect/" + prospect.id
-        return (
-            <div className='result' data-result={prospect.id}>
-                <div className='first'>
-                </div>
-                <div className='second'>
-                    <h3><a target='_blank' href={URL} data-url={prospect.url}>{prospect.prospect_name}</a></h3>
-                    <h4><span className='grey'>Current Job:</span> {prospect.company_name}</h4>
-                    <h4><span className='grey'>Current Location:</span> {prospect.current_location}</h4>
-                    <h4><span className='grey'>Current Industry:</span> {prospect.current_industry}</h4>
-                </div>
-                <div className='image'>
-                    <p>Lead Score</p>
-                    <h4 className='money'>{prospect.wealthscore}</h4>
-                </div>
-                <div className='connections'>
-                    <h5>Relevancy</h5>
-                    {relationship}
-                </div>
-                <div className='buttons'>
-                    <a className='add-prospect' data-id={prospect.id} href='javascript:;'><button className='btn btn-success prospect-add'><i className='fa fa-plus'></i> Add To Prospect List</button></a>
-                    <a  className='remove-prospect' data-id={prospect.id}  href='javascript:;'><button className='btn btn-danger'><i className='fa fa-chevron-circle-right'></i> Not A Good Fit</button></a>
-                </div>
-                <div className='clear'></div>
-            </div>
-            )
-    }
-});
 
 var Prospect = React.createClass({
     render: function() {
@@ -238,268 +204,23 @@ var Results = React.createClass({
   }
 });
 
-var UserResults = React.createClass({
-    getInitialState: function() {
-        data = [];
-        return {data: data};
-    },
-    componentDidMount: function() {
-        var data = window.userData.splice(0, 50);
-        this.setProps({data:data});
-        //setTimeout(this.loadInLinkedinScript, 1000);
-        this.bindButtons();
-    },
-    loadInLinkedinScript: function() {
-        IN.parse(document.body);
-    },
-    bindButtons: function() {
-        var result = this;
-        $(".add-prospect").click(function() {
-            var id = $(this).data("id");
-            $.post("/user/prospect/add/" + id, function(data) {
-                $("[data-result='" + id + "']").fadeOut();
-            });
-        });
-
-        $(".remove-prospect").click(function() {
-            var id = $(this).data("id");
-            $.post("/user/prospect/skip/" + id, function(data) {
-                $("[data-result='" + id + "']").fadeOut();
-            });
-        });
-        $("#more-prospects").click(function() {
-            userPage++;
-            var offset = 50 * (userPage - 1);
-            var limit = offset + 50;
-            var data = window.userData.splice(offset, limit);
-            if (data.length > 0) {
-                result.setProps({data:data});
-                result.bindButtons();
-                $("html, body").animate({
-                    scrollTop: $(".results").position().top
-                }, 100);
-            } else {
-                bootbox.alert("There are no more Prospects");
-                return false;
-            }
-        });
-    },
-    render: function() {
-    var prospects = this.props.data.map(function(prospect) {
-        if (prospect.data != undefined) {
-            return (
-                    <Prospect data={prospect} />
-                )
-        } else {
-            return (
-                    <UserProspect data={prospect} />
-                )
-        }
-    });
-    if (this.props.data.length < 1) {
-        return (
-          <div className="results">
-              <div className="wrapper">
-                  <div className='empty'>
-                      <h2>There are no more prospects in your network</h2>
-                      </div>
-                  </div>
-              <div className='clear'></div>
-          </div>
-        );
-    } else {
-        return (
-          <div className="results">
-            <div className="wrapper">
-                {prospects}
-                <div className='clear'></div>
-                <button className='btn btn-success' id='more-prospects'>More</button>
-              </div>
-          </div>
-        );
-    }
-  }
-});
 
 
 function buildResults() {
-    if (globalData) {
-        var data = globalData;
-    } else {
-        userData = window._userData.results;
-        var data = userData;
-    }
-    console.log(data, userData)
-
+    var searchData = []
     React.render(
-        <UserResults data={data}  />,
-        document.getElementById('user-prospects')
+        <Results data={searchData}  />,
+        document.getElementById('prospects')
     );
 }
 
-function calculateResults(data) {
-
-    //Calculate Industry
-    if (data.current_industry in industries) {
-        var iCount = industries[data.current_industry]
-        iCount++;
-        industries[data.current_industry] = iCount;
-    } else {
-        var iCount = 1;
-        industries[data.current_industry] = iCount;
-    }
-
-    //Calculate Location
-    if (data.current_location in locations) {
-        var iCount = locations[data.current_location]
-        iCount++;
-        locations[data.current_location] = iCount;
-    } else {
-        var iCount = 1;
-        locations[data.current_location] = iCount;
-    }
-
-    if (data.school_name) {
-        //Calculate School Connections
-        if (data.school_name in school_connections) {
-            var iCount = school_connections[data.school_name]
-            iCount++;
-            school_connections[data.school_name] = iCount;
-        } else {
-            var iCount = 1;
-            school_connections[data.school_name] = iCount;
-        }
-    }
-
-    if (data.company_name) {
-
-        if (data.company_name in company_connections) {
-            var iCount = company_connections[data.company_name]
-            iCount++;
-            company_connections[data.company_name] = iCount;
-        } else {
-            var iCount = 1;
-            company_connections[data.company_name] = iCount;
-        }
-    }
-}
 
 $(function() {
     buildResults();
-    bindButtons();
     bindSearch();
     bindDates();
 });
 
-function bindButtons() {
-    $("#extended").click(function() {
-        $(".headers a").removeClass("active");
-        $(this).addClass("active")
-        $(".stats").hide();
-        $(".user-holder").fadeIn();
-        globalData = null;
-        buildResults();
-    });
-
-    $("#first").click(function() {
-        $(".headers a").removeClass("active");
-        $(this).addClass("active")
-        $(".stats").hide();
-        $(".user-holder").fadeIn();
-        $.get("/first_degree", function(data) {
-            globalData = data.data
-            buildResults();
-        });
-    });
-
-    $("#network").click(function() {
-        $(".headers a").removeClass("active");
-        $(this).addClass("active")
-        $(".user-holder").hide();
-        $(".stats").fadeIn();
-        buildGraphs();
-
-    });
-}
-
-function buildGraphs() {
-
-    var sortableIndustry = []
-    var sortableLocation = []
-
-    //lets sort dict so we only get 10 industries max
-    for (var industry in industries) {
-        sortableIndustry.push([industry, industries[industry]])
-    }
-    sortableIndustry.sort(function(a, b) {return b[1] - a[1]})
-    industries = {}
-
-    for (var location in locations) {
-        sortableLocation.push([location, locations[location]])
-    }
-
-    sortableLocation.sort(function(a, b) {return b[1] - a[1]})
-    locations = {}
-
-    //If less than 10, we need to do the length
-    var industryLimit = (sortableIndustry.length > 10) ? 10 : sortableIndustry.length;
-    var locationLimit = (sortableLocation.length > 10) ? 10 : sortableLocation.length;
-
-    for (var i=0;i<industryLimit;i++) {
-        industries[sortableIndustry[i][0]] = sortableIndustry[i][1]
-    }
-
-    for (var i=0;i<locationLimit;i++) {
-        locations[sortableLocation[i][0]] = sortableLocation[i][1]
-    }
-
-    var workData = [];
-    for (var wKey in company_connections) {
-        workData.push({
-            value: company_connections[wKey],
-            color: randColor(colors),
-            label: wKey});
-    }
-
-    var schoolData = [];
-    for (var sKey in school_connections) {
-        schoolData.push({
-            value: school_connections[sKey],
-            color: randColor(colors),
-            label: sKey});
-    }
-
-    var industryData = [];
-    for (var iKey in industries) {
-        industryData.push({
-            value: industries[iKey],
-            color: randColor(colors),
-            label: iKey});
-    }
-
-    var locationData = [];
-    for (var lKey in locations) {
-        locationData.push({
-            value: locations[lKey],
-            color: randColor(colors),
-            label: lKey});
-    }
-
-    if (workData.length > 0) {
-        var workChart = new Chart($('canvas#one').get(0).getContext("2d")).Doughnut(workData, {});
-    } else {
-        $("#g-one").append("<h5>No Data</h5>").find("canvas").hide();
-    }
-
-    if (schoolData.length > 0) {
-        var schoolChart = new Chart($('canvas#two').get(0).getContext("2d")).Doughnut(schoolData);
-    } else {
-        $("#g-two").append("<h5>No Data</h5>").find("canvas").hide();
-    }
-
-    var industryChart = new Chart($('canvas#three').get(0).getContext("2d")).Doughnut(industryData, {});
-    var locationChart = new Chart($('canvas#four').get(0).getContext("2d")).Doughnut(locationData, {});
-}
 
 
 function hideOverlay() {

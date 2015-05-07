@@ -172,11 +172,28 @@ def dashboard():
         first_time = True
         del flask_session['first_time']
     results = []
+    prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    prospect_list = ProspectList(prospect)
+    results = prospect_list.get_results()
+    if prospect.json:
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
+    results = [result for result in results if result.get("id") not in
+            processed_profiles]
+    return render_template('dashboard.html',prospect=prospect, \
+            json_results=json.dumps(results),
+            first_time=first_time, prospect_count=len(results),
+            prospects_remaining_today=prospects_remaining_today)
+
+@prospects.route("/first_degree")
+def first_degree_connections():
+    user = current_user
     school_dict = Counter()
     job_dict = Counter()
     industry_dict = Counter()
     location_dict = Counter()
-    prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    results = []
     if user.json and 'boosted_ids' in user.json:
         boosted_profiles = [int(id) for id in user.json.get("boosted_ids")][0:700]
         if len(boosted_profiles) > 0:
@@ -194,24 +211,11 @@ def dashboard():
                     job_dict[prospect.current_job.company.name] += 1
                 location_dict[prospect.location_raw] += 1
                 industry_dict[prospect.industry_raw] += 1
-    else:
-        prospect_list = ProspectList(prospect)
-        results = prospect_list.get_results()
-        if prospect.json:
-            boosted_profiles = prospect.boosted_profiles
-            if len(boosted_profiles) > 0:
-                results = boosted_profiles + results
-        results = [result for result in results if result.get("id") not in
-                processed_profiles]
     user_data = {'jobs': dict(job_dict.most_common(10)),
                 'schools': dict(school_dict.most_common(10)),
                 'industries': dict(industry_dict.most_common(10)),
                 'locations': dict(location_dict.most_common(10))}
-    return render_template('dashboard.html',prospect=prospect, \
-            json_results=json.dumps(results),
-            user_data=user_data,
-            first_time=first_time, prospect_count=len(results),
-            prospects_remaining_today=prospects_remaining_today)
+    return jsonify({"data": results})
 
 @prospects.route("/prospect/<int:prospect_id>")
 def prospect(prospect_id):
@@ -356,35 +360,20 @@ def investor_profile():
 
 @prospects.route("/search", methods=['GET'])
 def search_view():
-    page = int(request.args.get("p", 1))
-    company_id = request.args.get("company_id", None)
-    school_id = request.args.get("school_id", None)
-    start_date = datetime.datetime.strptime(request.args.get("start_date", \
-        "1900-01-01"), "%Y-%m-%d").date()
-    end_date = datetime.datetime.strptime(request.args.get("end_date", \
-            "2016-01-01"), "%Y-%m-%d").date()
-    prospects = []
-    prospect_results = []
-    if company_id:
-        prospects = session.query(Prospect, Job).distinct(Prospect.name)\
-                .join(Job).filter_by(company_id=company_id)
-        if start_date:
-            prospects = prospects.join(Job).filter(Job.start_date>=start_date)
-        if end_date:
-            prospects = prospects.join(Job).filter(Job.end_date<=end_date)
-    if school_id:
-        prospects = session.query(Prospect, Education).distinct(Prospect.name).join(Education)\
-                .filter_by(school_id=school_id)
-        if start_date:
-            prospects = prospects.join(Education).filter(Education.start_date>=start_date)
-        if end_date:
-            prospects = prospects.join(Education).filter(Education.end_date<=end_date)
-    for prospect in prospects:
-        setattr(prospect[0], "relevant_item", prospect[1])
-        prospect_results.append(prospect[0])
-    number = 50 * (page - 1)
-    return render_template("search.html", \
-            prospects=prospect_results[number:number+50])
+    user = current_user
+    prospect = None
+    prospects_remaining_today = user.prospects_remaining_today
+    if user.json:
+        skipped_profiles = [int(prospect_id) for prospect_id in
+                user.json.get("skipped_profiles", [])]
+        processed_profiles = [int(prospect_id) for prospect_id in
+                user.json.get("good_profiles", [])] + skipped_profiles
+    else:
+        skipped_profiles = []
+        processed_profiles = []
+    return render_template("search.html", skipped_profiles=skipped_profiles,
+            processed_profiles=processed_profiles,
+            prospects_remaining_today=prospects_remaining_today)
 
 
 ############

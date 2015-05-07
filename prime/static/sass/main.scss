@@ -261,7 +261,7 @@ div.welcome {
   }
 
   ul {
-    padding: 0px 30px;
+    padding: 0px;
     height: 21px;
     margin: 0;
 
@@ -376,11 +376,35 @@ div.items {
   background: #fafafa;
   border-left: 1px solid #dedede;
   min-height: 600px;
+
+  div.headers {
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    a {
+      background: #333;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 5px 15px;
+      font-family: $quick;
+      margin-right: 15px;
+      text-decoration: none;
+      font-weight: bold;
+      @include border-radius(30px);
+    }
+
+    a.active {
+      background: #fff;
+      border: 1px solid #333;
+      color: #333;
+    }
+  }
 }
 
 div.stats {
   padding-bottom: 40px;
   padding: 50px;
+  display: none;
   
   h4 {
     font-size: 28px;
@@ -408,7 +432,6 @@ div.dashboard-search {
   background: #ecf0f1;
   z-index: 2;
   position: relative;
-  display: none;
 
 
   input[type='submit'] {
@@ -578,7 +601,6 @@ div.new-search {
 
 div.prospects-holder {
   position: relative;
-  display: none;
 }
 
 div.results {
