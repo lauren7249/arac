@@ -302,6 +302,7 @@ var UserResults = React.createClass({displayName: "UserResults",
 
         $("#extended").click(function(event) {
             if (event.handled !== true) {
+                $(".loading").show();
                 userPage = 1
                 $(".headers a").removeClass("active");
                 $(this).addClass("active")
