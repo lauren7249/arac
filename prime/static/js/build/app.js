@@ -1,6 +1,5 @@
 var industries = {}
-var globalData;
-var userData;
+var type = "extended"
 var page = 1;
 var userPage = 1;
 var colors = ["#B7D085", "#F9EBB5", "#D3102E", "#DCD6D5", "#39272A", "#27ACBE", "#3D9275", "#C7E1B8", "#BEC25D"];
@@ -172,6 +171,7 @@ var Results = React.createClass({displayName: "Results",
                 $(".new-search").show();
                 $("#next").show();
                 result.loadProfileFromServer()
+                event.handled = true;
             }
             return false;
         });
@@ -239,14 +239,38 @@ var Results = React.createClass({displayName: "Results",
 });
 
 var UserResults = React.createClass({displayName: "UserResults",
+    loadProfileFromServer: function() {
+        params = {p:userPage,
+                type:type}
+        $.ajax({
+          url: "/dashboard/json",
+          data:params,
+          dataType: 'json',
+          success: function(data) {
+            if (data.results.length < 1) {
+                bootbox.alert("There are no results for this query");
+                return false;
+            }
+            this.setProps({data: data.results});
+            this.bindButtons();
+            this.loadInLinkedinScript();
+            $(".loading").hide();
+            return false;
+          }.bind(this),
+          error: function(xhr, status, err) {
+              debugger;
+            bootbox.alert("Something went wrong! Make sure you enter in search paramaters")
+            $(".loading").hide();
+            return false;
+          }.bind(this)
+        });
+    },
     getInitialState: function() {
         data = [];
         return {data: data};
     },
     componentDidMount: function() {
-        var data = window.userData.splice(0, 50);
-        this.setProps({data:data});
-        //setTimeout(this.loadInLinkedinScript, 1000);
+        this.loadProfileFromServer()
         this.bindButtons();
     },
     loadInLinkedinScript: function() {
@@ -269,19 +293,51 @@ var UserResults = React.createClass({displayName: "UserResults",
         });
         $("#more-prospects").click(function() {
             userPage++;
-            var offset = 50 * (userPage - 1);
-            var limit = offset + 50;
-            var data = window.userData.splice(offset, limit);
-            if (data.length > 0) {
-                result.setProps({data:data});
-                result.bindButtons();
-                $("html, body").animate({
-                    scrollTop: $(".results").position().top
-                }, 100);
-            } else {
-                bootbox.alert("There are no more Prospects");
-                return false;
+            $("html, body").animate({
+                scrollTop: $(".results").position().top
+            }, 100);
+            result.loadProfileFromServer();
+        });
+
+        $("#extended").click(function(event) {
+            if (event.handled !== true) {
+                userPage = 1
+                $(".headers a").removeClass("active");
+                $(this).addClass("active")
+                $(".stats").hide();
+                $(".user-holder").fadeIn();
+                type = "extended"
+                result.loadProfileFromServer()
+                event.handled = true;
             }
+            return false
+        });
+
+        $("#first").click(function(event) {
+            console.log("happening");
+            if (event.handled !== true) {
+                userPage = 1
+                $(".headers a").removeClass("active");
+                $(this).addClass("active")
+                $(".stats").hide();
+                $(".user-holder").fadeIn();
+                type = "first"
+                result.loadProfileFromServer()
+                event.handled = true;
+            }
+            return false
+        });
+
+        $("#network").click(function() {
+            if (event.handled !== true) {
+                $(".headers a").removeClass("active");
+                $(this).addClass("active")
+                $(".user-holder").hide();
+                $(".stats").fadeIn();
+                buildGraphs();
+                event.handled = true;
+            }
+            return false
         });
     },
     render: function() {
@@ -323,14 +379,7 @@ var UserResults = React.createClass({displayName: "UserResults",
 
 
 function buildResults() {
-    if (globalData) {
-        var data = globalData;
-    } else {
-        userData = window._userData.results;
-        var data = userData;
-    }
-    console.log(data, userData)
-
+    var data = []
     React.render(
         React.createElement(UserResults, {data: data}),
         document.getElementById('user-prospects')
@@ -397,7 +446,7 @@ function bindButtons() {
         $(this).addClass("active")
         $(".stats").hide();
         $(".user-holder").fadeIn();
-        globalData = null;
+        type = "extended"
         buildResults();
     });
 
@@ -406,10 +455,8 @@ function bindButtons() {
         $(this).addClass("active")
         $(".stats").hide();
         $(".user-holder").fadeIn();
-        $.get("/first_degree", function(data) {
-            globalData = data.data
-            buildResults();
-        });
+        type = "first"
+        buildResults();
     });
 
     $("#network").click(function() {

@@ -55,7 +55,8 @@ class ProspectList(object):
         as schools where to_char(end_date, 'YYYY')='%s') \
         as educations \
         inner join prospect on educations.prospect_id=prospect.id \
-        join prospect_wealthscore on prospect.id=prospect_wealthscore.prospect_id;
+        join prospect_wealthscore on \
+        prospect.id=prospect_wealthscore.prospect_id LIMIT 2000;
         """
         prospect_degree = education.degree
         end_date = education.end_date.year if education.end_date else "2000"
@@ -113,7 +114,8 @@ class ProspectList(object):
         to_char(start_date, 'YYYY') between '%s' and '%s' or \
         to_char(end_date, 'YYYY') between '%s' and '%s') as jobs \
         inner join prospect on jobs.prospect_id=prospect.id \
-        join prospect_wealthscore on prospect.id=prospect_wealthscore.prospect_id;
+        join prospect_wealthscore on \
+        prospect.id=prospect_wealthscore.prospect_id LIMIT 2000;
         """
 
         prospect_location = job.location

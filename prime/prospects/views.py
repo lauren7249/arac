@@ -171,51 +171,66 @@ def dashboard():
     if 'first_time' in flask_session:
         first_time = True
         del flask_session['first_time']
-    results = []
     prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-    prospect_list = ProspectList(prospect)
-    results = prospect_list.get_results()
-    if prospect.json:
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    results = [result for result in results if result.get("id") not in
-            processed_profiles]
-    return render_template('dashboard.html',prospect=prospect, \
-            json_results=json.dumps(results),
-            first_time=first_time, prospect_count=len(results),
+    return render_template('dashboard.html',
+            prospect=prospect,
             prospects_remaining_today=prospects_remaining_today)
 
-@prospects.route("/first_degree")
-def first_degree_connections():
+@prospects.route("/dashboard/json")
+def dashboard_json():
+    page = int(request.args.get("p", 1))
+    offset = (page - 1) * 50
+    limit = offset + 50
+    type = request.args.get("type", "extended")
     user = current_user
+    if user.json:
+        skipped_profiles = [int(prospect_id) for prospect_id in
+                user.json.get("skipped_profiles", [])]
+        processed_profiles = [int(prospect_id) for prospect_id in
+                user.json.get("good_profiles", [])] + skipped_profiles
+    else:
+        skipped_profiles = []
+        processed_profiles = []
     school_dict = Counter()
     job_dict = Counter()
     industry_dict = Counter()
     location_dict = Counter()
     results = []
-    if user.json and 'boosted_ids' in user.json:
-        boosted_profiles = [int(id) for id in user.json.get("boosted_ids")][0:700]
-        if len(boosted_profiles) > 0:
-            prospects = session.query(Prospect).filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
-            for prospect in prospects:
-                results.append({'data':prospect.to_json(),
-                            'company_name': prospect.current_job.company.name if prospect.current_job else "None",
-                            'school_name': prospect.schools[0].school.name if len(prospect.schools) > 0 else "None",
-                            'current_industry': prospect.industry_raw,
-                            'current_location': prospect.location_raw
-                            })
-                if len(prospect.schools) > 0:
-                    school_dict[prospect.schools[0].school.name] += 1
-                if prospect.current_job:
-                    job_dict[prospect.current_job.company.name] += 1
-                location_dict[prospect.location_raw] += 1
-                industry_dict[prospect.industry_raw] += 1
+    if type == 'extended':
+        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+        prospect_list = ProspectList(prospect)
+        results = prospect_list.get_results()
+        if prospect.json:
+            boosted_profiles = prospect.boosted_profiles
+            if len(boosted_profiles) > 0:
+                results = boosted_profiles + results
+        results = [result for result in results if result.get("id") not in
+                processed_profiles][offset:limit]
+    else:
+        if user.json and 'boosted_ids' in user.json:
+            boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
+            if len(boosted_profiles) > 0:
+                print offset, limit
+                prospects = session.query(Prospect)\
+                        .filter(Prospect.linkedin_id.in_(boosted_profiles)).offset(offset).limit(limit)
+                for prospect in prospects:
+                    results.append({'data':prospect.to_json(),
+                                'company_name': prospect.current_job.company.name if prospect.current_job else "None",
+                                'school_name': prospect.schools[0].school.name if len(prospect.schools) > 0 else "None",
+                                'current_industry': prospect.industry_raw,
+                                'current_location': prospect.location_raw
+                                })
+                    if len(prospect.schools) > 0:
+                        school_dict[prospect.schools[0].school.name] += 1
+                    if prospect.current_job:
+                        job_dict[prospect.current_job.company.name] += 1
+                    location_dict[prospect.location_raw] += 1
+                    industry_dict[prospect.industry_raw] += 1
     user_data = {'jobs': dict(job_dict.most_common(10)),
                 'schools': dict(school_dict.most_common(10)),
                 'industries': dict(industry_dict.most_common(10)),
                 'locations': dict(location_dict.most_common(10))}
-    return jsonify({"data": results})
+    return jsonify({"results": results})
 
 @prospects.route("/prospect/<int:prospect_id>")
 def prospect(prospect_id):

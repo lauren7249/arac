@@ -203,7 +203,7 @@ class Prospect(db.Model):
             "connections": self.connections,
             "url": self.url,
             "image_url": self.image_url,
-            "wealthscore": self.wealthscore,
+            "wealthscore": self.wealthscore if self.wealthscore else 56,
             "email": self.email,
             "social_accounts": self.social_accounts}
         if not no_fk:
