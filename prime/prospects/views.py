@@ -227,14 +227,36 @@ def dashboard_json():
 @prospects.route("/network")
 def network_analysis():
     user = current_user
+
     school_dict = Counter()
     job_dict = Counter()
     industry_dict = Counter()
     location_dict = Counter()
-    results = []
-    #prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-    #prospect_list = ProspectList(prospect)
-    #results = prospect_list.get_results()
+
+    extended_school_dict = Counter()
+    extended_job_dict = Counter()
+    extended_industry_dict = Counter()
+    extended_location_dict = Counter()
+
+    first_degree_results = []
+    extened_results = []
+
+    prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    prospect_list = ProspectList(prospect)
+    results = prospect_list.get_results()
+    for result in results:
+        company_name = result.get("company_name")
+        if company_name:
+            extended_job_dict[company_name] += 1
+        school_name = result.get("school_name")
+        if school_name:
+            extended_school_dict[school_name] += 1
+        current_industry = result.get("current_industry")
+        extended_industry_dict[current_industry] += 1
+        current_location = result.get("current_location")
+        extended_location_dict[current_location] += 1
+
+
     if user.json and 'boosted_ids' in user.json:
         boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
         if len(boosted_profiles) > 0:
@@ -257,7 +279,14 @@ def network_analysis():
                 'schools': dict(school_dict.most_common(10)),
                 'industries': dict(industry_dict.most_common(10)),
                 'locations': dict(location_dict.most_common(10))}
-    return jsonify({"results": user_data})
+
+    extended_user_data = {'jobs': dict(extended_job_dict.most_common(10)),
+                'schools': dict(extended_school_dict.most_common(10)),
+                'industries': dict(extended_industry_dict.most_common(10)),
+                'locations': dict(extended_location_dict.most_common(10))}
+
+    return jsonify({"user_date": user_data,
+                    "extended_user_data": extended_user_data})
 
 
 @prospects.route("/prospect/<int:prospect_id>")
