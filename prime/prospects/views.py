@@ -247,7 +247,13 @@ def network_analysis():
     first_degree_results = []
     extened_results = []
 
-    prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    try:
+        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    except:
+        try:
+            prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
+        except:
+            prospect = None
     prospect_list = ProspectList(prospect)
     results = prospect_list.get_results()
     boosted_profiles = prospect.boosted_profiles
