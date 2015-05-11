@@ -230,9 +230,27 @@ def dashboard_json():
                                 })
     return jsonify({"results": results})
 
+@prospects.route("/prospect/json/<int:id>")
+def prospect_json(id):
+    page = int(request.args.get("p", 1))
+    offset = (page - 1) * 50
+    limit = offset + 50
+    results = []
+    prospect = session.query(Prospect).filter(Prospect.id == id).first()
+    prospect_list = ProspectList(prospect)
+    results = prospect_list.get_results()
+    if prospect.json:
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
+    results = [result for result in results if result.get("id") not in
+            processed_profiles][offset:limit]
+    return jsonify({"results": results})
+
 @prospects.route("/network")
 def network_analysis():
     user = current_user
+    prospect_id = request.args.get("prospect_id")
 
     school_dict = Counter()
     job_dict = Counter()
@@ -247,18 +265,20 @@ def network_analysis():
     first_degree_results = []
     extened_results = []
 
-    try:
+    if prospect_id:
+        prospect = session.query(Prospect).filter(Prospect.id == int(prospect_id)).first()
+        prospect_list = ProspectList(prospect)
+        results = prospect_list.get_results()
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
+    else:
         prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-    except:
-        try:
-            prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
-        except:
-            prospect = None
-    prospect_list = ProspectList(prospect)
-    results = prospect_list.get_results()
-    boosted_profiles = prospect.boosted_profiles
-    if len(boosted_profiles) > 0:
-        results = boosted_profiles + results
+        prospect_list = ProspectList(prospect)
+        results = prospect_list.get_results()
+        boosted_profiles = prospect.boosted_profiles
+        if len(boosted_profiles) > 0:
+            results = boosted_profiles + results
     for result in results:
         company_name = result.get("company_name")
         if company_name:
@@ -272,7 +292,7 @@ def network_analysis():
         extended_location_dict[current_location] += 1
 
 
-    if user.json and 'boosted_ids' in user.json:
+    if user.json and 'boosted_ids' in user.json and not prospect_id:
         boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
         if len(boosted_profiles) > 0:
             prospects = session.query(Prospect)\
