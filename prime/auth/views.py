@@ -88,6 +88,8 @@ def signup(customer_slug):
 def signup_linkedin():
     if current_user.is_anonymous():
         return redirect(url_for('auth.login'))
+    else:
+        return redirect('/')
     if request.method == 'POST':
         email = request.form.get("email")
         password = request.form.get("password")

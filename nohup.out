@@ -6691,3 +6691,9 @@ python: can't open file 'run_redis_queue_linkedin_master.py': [Errno 2] No such 
 15:16:01 Result is kept for 500 seconds.
 15:16:01 
 15:16:01 *** Listening on high, default, low...
+14:44:49 default: prime.prospects.views.export_file([<Prospect id=1373252 url=http://www.linkedin.com/pub/david-landwehr-d-d-s-m-s/66/766/327>, <Prospect id=6341351 url=http://www.linkedin.com/pub/john-fritsche/8/15b/946>, <Prospect id=13817869 url=http://www.linkedin.com/pub/krista-hanson/6/a11/69>, <Prospect id=15839531 url=http://www.linkedin.com/pub/arash-safaverdi/66/b68/8a9>, <Prospect id=25800984 url=http://www.linkedin.com/pub/allison-malecek/54/382/ba3>, <Prospect id=32641223 url=http://www.linkedin.com/pub/wendy-weber-brunson/26/672/99>, <Prospect id=36612460 url=http://www.linkedin.com/pub/william-patterson/52/926/735>], u'rfedenia@rwbaird.com') (88561f1b-6b77-438c-b08a-d2e833785c7e)
+14:44:50 Using config: production
+14:44:50 Job OK, result = True
+14:44:50 Result is kept for 500 seconds.
+14:44:50 
+14:44:50 *** Listening on high, default, low...
