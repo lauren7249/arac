@@ -54,10 +54,12 @@ class LinkedinFriend(object):
         password.send_keys(self.password)
         submit = self.driver.find_element_by_name("signin")
         submit.click()
-        self.wait.until(lambda driver: driver.find_elements_by_class_name("account-toggle"))
-        link = self.driver.find_elements_by_class_name("account-toggle")[0].get_attribute("href")
-        self.linkedin_id = self.get_linkedin_id(link, mine=True)
-
+        try:
+            self.wait.until(lambda driver: driver.find_elements_by_class_name("account-toggle"))
+            link = self.driver.find_elements_by_class_name("account-toggle")[0].get_attribute("href")
+            self.linkedin_id = self.get_linkedin_id(link, mine=True)
+        except:
+            return False
         self.is_logged_in = True
         print self.linkedin_id
         return True
@@ -108,15 +110,23 @@ class LinkedinFriend(object):
         all_friend_links = []
 
         for person in people:
-            element = person.find_element_by_class_name("image")
-            link = element.get_attribute("href")
-            all_friend_links.append(link)
-            if self.test and len(all_friend_links)>10: break
+            try:
+                element = person.find_element_by_class_name("image")
+                link = element.get_attribute("href")
+                print link
+                all_friend_links.append(link)
+                if self.test and len(all_friend_links)>10: break
+            except:
+                continue
 
         for friend_link in all_friend_links:
-            linkedin_id = self.get_linkedin_id(friend_link)
-            #print linkedin_id
-            first_degree_connections.append(linkedin_id)
+            try:
+                linkedin_id = self.get_linkedin_id(friend_link)
+                #print linkedin_id
+                first_degree_connections.append(linkedin_id)
+            except:
+                continue
+
         print first_degree_connections
         return first_degree_connections
 

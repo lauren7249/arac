@@ -212,7 +212,6 @@ class Prospect(db.Model):
                                         uu(self.current_job.company.name)) if self.current_job \
                                         else "N/A"
             data['schools'] = [school.to_json for school in self.schools]
-            data['wealthscore'] = self.wealthscore
             #data["news"] =  self.relevant_content
         return data
 
