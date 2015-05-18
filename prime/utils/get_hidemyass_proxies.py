@@ -5,7 +5,7 @@ from pyvirtualdisplay import Display
 from headless_browsing import * 
 
 #return a dict of fresh hidemyass proxies
-def get_proxies(limit=None, redis=None):
+def get_proxies(limit=None, redis=None, overwrite=False):
 	ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 	proxies = []
 	display, driver = launch_browser()
@@ -36,7 +36,7 @@ def get_proxies(limit=None, redis=None):
 				proxies.append(d)
 				if redis is not None:
 					proxy = protocol.lower() + "://" + ip + ":" + port
-					if not redis.hexists("checked_proxies",proxy): 
+					if not redis.hexists("checked_proxies",proxy) or overwrite: 
 						redis.lpush("proxies",proxy)
 						print redis.llen("proxies")
 					else:
