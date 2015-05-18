@@ -3,6 +3,7 @@ from selenium import webdriver
 import re
 from pyvirtualdisplay import Display
 from headless_browsing import * 
+import lxml.html
 
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 
@@ -53,3 +54,11 @@ def get_hidemyass_proxies(limit=None, redis=None, overwrite=False):
 	driver.quit()
 	return proxies
 
+def get_proxylistorg_proxies(redis=None):
+	proxies = []
+	display, driver = launch_browser()
+	driver.implicitly_wait(2)
+
+	page = 0
+	while True:	
+		response = requests.get('http://proxy-list.org/english/index.php?p=' + str(page))

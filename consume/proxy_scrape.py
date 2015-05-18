@@ -84,7 +84,7 @@ def process_next_url(url):
 		return False
 	response = get(url, proxy)	
 
-	if response.status_code == 999:
+	if response is not None and response.status_code == 999:
 		r.sadd("blacklist_proxies",proxy)
 	if response is None or response.status_code == 999:
 		r.sadd("urls",url)
