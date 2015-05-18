@@ -345,7 +345,9 @@ def parse_html(html):
     people = get_linked_profiles(raw_html)
     groups = get_groups(raw_html)
     projects = get_projects(raw_html)
-
+    
+    if full_name is None or len(full_name)==0: success = False
+    else: success = True
     return {
         'image': image,
         'linkedin_id': linkedin_id,
@@ -358,7 +360,9 @@ def parse_html(html):
         'location': location,
         'industry': industry,
         "groups": groups,
-        "projects": projects
+        "projects": projects,
+        "success": success,
+        "urls":people
     }
 
 
