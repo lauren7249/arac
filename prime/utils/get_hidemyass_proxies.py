@@ -36,9 +36,9 @@ def get_proxies(limit=None, redis=None, overwrite=False):
 				proxies.append(d)
 				if redis is not None:
 					proxy = protocol.lower() + "://" + ip + ":" + port
-					if not redis.hexists("checked_proxies",proxy) or overwrite: 
-						redis.lpush("proxies",proxy)
-						print redis.llen("proxies")
+					if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
+						redis.sadd("proxies",proxy)
+						print redis.scard("proxies")
 					else:
 						print "proxy exists"
 				if limit is not None and len(proxies) == limit: 
