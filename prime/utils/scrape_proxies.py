@@ -4,9 +4,10 @@ import re
 from pyvirtualdisplay import Display
 from headless_browsing import * 
 
+ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
+
 #return a dict of fresh hidemyass proxies
-def get_proxies(limit=None, redis=None, overwrite=False):
-	ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
+def get_hidemyass_proxies(limit=None, redis=None, overwrite=False):
 	proxies = []
 	display, driver = launch_browser()
 	driver.implicitly_wait(2)
