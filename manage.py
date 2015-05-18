@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/env python
 import os
 
 from flask.ext.migrate import MigrateCommand, Migrate
@@ -8,7 +8,6 @@ from prime import create_app, db
 
 
 app = create_app(os.getenv('AC_CONFIG', 'beta'))
-print app.config.get("SQLALCHEMY_DATABASE_URI")
 app.debug=True
 
 migrate = Migrate(app, db)
