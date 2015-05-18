@@ -4,7 +4,7 @@ import multiprocessing
 import redis
 import requests
 import re
-import get_hidemyass_proxies 
+from scrape_proxies import *
 from datetime import date
 from convert import parse_html
 import json
@@ -78,7 +78,7 @@ def get(url, proxy):
 	return response	
 
 def process_next_url(url):
-	proxy = r.spop("proxies")
+	proxy = r.srandmember("proxies")
 	if proxy is None: 
 		r.sadd("urls",url)
 		return False
@@ -88,6 +88,7 @@ def process_next_url(url):
 		r.sadd("blacklist_proxies",proxy)
 	if response is None or response.status_code == 999:
 		r.sadd("urls",url)
+		r.srem("proxies",proxy)
 		return True	
 	try:		
 		parsed = parse_html(response.content)
@@ -95,6 +96,7 @@ def process_next_url(url):
 	except:
 		r.sadd("blacklist_proxies",proxy)
 		r.sadd("urls",url)		
+		r.srem("proxies",proxy)
 		return True				
 
 	#put the url on the q for processing
@@ -105,9 +107,6 @@ def process_next_url(url):
 	for new_url in parsed.get("urls"):
 		queue_url(new_url)
 
-	#push proxy to the end of the list so we dont ruin it!!
-	r.sadd("proxies", proxy)
-	#print r.scard("downloaded_urls")
 	return True
 
 
@@ -129,7 +128,7 @@ def work():
 				#mark how many urls are still on the queue 
 				r.set("previous_downloaded_urls",r.hlen("downloaded_urls_hash"))
 				print "getting more proxies"
-				get_hidemyass_proxies.get_proxies(redis=r)
+				get_hidemyass_proxies(redis=r)
 				#keep track of how many times we hit up this website
 				r.incr("hidemyass_proxies_jobs")
 				#release status for other workers
