@@ -128,6 +128,7 @@ def work():
 				#mark how many urls are still on the queue 
 				r.set("previous_downloaded_urls",r.hlen("downloaded_urls_hash"))
 				print "getting more proxies"
+				get_proxylistorg_proxies(redis=r)
 				get_hidemyass_proxies(redis=r)
 				#keep track of how many times we hit up this website
 				r.incr("hidemyass_proxies_jobs")

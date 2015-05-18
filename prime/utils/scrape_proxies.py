@@ -4,6 +4,7 @@ import re
 from pyvirtualdisplay import Display
 from headless_browsing import * 
 import lxml.html
+import requests
 
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 
@@ -34,10 +35,9 @@ def get_hidemyass_proxies(limit=None, redis=None, overwrite=False):
 				port = tds[2].text.strip()
 				protocol =  tds[6].text.strip()
 				if protocol.find("HTTP") == -1: continue
-				d = {"ip": ip, "port": port, "protocol": protocol}
-				proxies.append(d)
+				proxy = protocol.lower() + "://" + ip + ":" + port
+				proxies.append(proxy)
 				if redis is not None:
-					proxy = protocol.lower() + "://" + ip + ":" + port
 					if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
 						redis.sadd("proxies",proxy)
 						print redis.scard("proxies")
@@ -54,11 +54,30 @@ def get_hidemyass_proxies(limit=None, redis=None, overwrite=False):
 	driver.quit()
 	return proxies
 
-def get_proxylistorg_proxies(redis=None):
+def get_proxylistorg_proxies(redis=None, overwrite=False):
 	proxies = []
-	display, driver = launch_browser()
-	driver.implicitly_wait(2)
-
 	page = 0
 	while True:	
 		response = requests.get('http://proxy-list.org/english/index.php?p=' + str(page))
+		raw_html = lxml.html.fromstring(response.content)
+		table = raw_html.xpath("//div[@class='table']")[0]
+		proxies_d = table.xpath("//ul/li[@class='proxy']")
+		protocols_d = table.xpath("//ul/li[@class='https']")
+		if len(proxies_d) < 2: break
+		for i in xrange(1,len(proxies_d)):
+			proxy = proxies_d[i].text_content()
+			protocol = protocols_d[i].text_content()
+			if protocol in ["HTTP","HTTPS"]:
+				proxies.append(protocol.lower() + "://" + proxy)
+			else:
+				proxies.append("http://"+proxy)
+				proxies.append("https://"+proxy)		
+		page += 1
+	if redis is not None:
+		for proxy in proxies:
+			if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
+				redis.sadd("proxies",proxy)
+				print redis.scard("proxies")
+			else:
+				print "proxy exists"		
+	return proxies
