@@ -34,8 +34,8 @@ def get_proxies(limit=None, redis=None):
 				if protocol.find("HTTP") == -1: continue
 				d = {"ip": ip, "port": port, "protocol": protocol}
 				proxies.append(d)
-				if redis is not None: 
-					proxy = protocol.lower() + "://" + ip
+				if redis is not None:
+					proxy = protocol.lower() + "://" + ip + ":" + port
 					if not redis.hexists("checked_proxies",proxy): 
 						redis.lpush("proxies",proxy)
 						print redis.llen("proxies")
@@ -51,3 +51,4 @@ def get_proxies(limit=None, redis=None):
 
 	driver.quit()
 	return proxies
+
