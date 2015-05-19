@@ -81,3 +81,35 @@ def get_proxylistorg_proxies(redis=None, overwrite=False):
 			else:
 				print "proxy exists"		
 	return proxies
+
+def get_xroxy_proxies(redis=None, overwrite=False):
+	proxies = []
+	page = 0
+	while True:	
+		response = requests.get('http://www.xroxy.com/proxylist.php?port=&type=&ssl=&country=&latency=&reliability=&sort=reliability&desc=true&pnum=' + str(page))
+		raw_html = lxml.html.fromstring(response.content)
+		table = raw_html.xpath("//table")[0]
+		proxies_d = table.xpath("//tr/td/a[@title='View this Proxy details']")
+		ports_d = table.xpath("//tr/td/a[contains(@title,'Select proxies with port number')]")  
+		protocols_d = table.xpath("//tr/td/a[@title='Select proxies with/without SSL support']")
+		if len(proxies_d) < 1: break
+		for i in xrange(0,len(proxies_d)):
+			proxy = proxies_d[i].text_content().strip()
+			port = ports_d[i].text_content().strip()
+			protocol = protocols_d[i].text_content().strip()
+			if protocol == 'true':
+				proxies.append("https://"+proxy+":"+port)
+			elif protocol == 'false':
+				proxies.append("http://"+proxy+":"+port)
+			else:
+				proxies.append("http://"+proxy+":"+port)
+				proxies.append("https://"+proxy+":"+port)		
+		page += 1
+	if redis is not None:
+		for proxy in proxies:
+			if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
+				redis.sadd("proxies",proxy)
+				print redis.scard("proxies")
+			else:
+				print "proxy exists"		
+	return proxies	

@@ -130,6 +130,7 @@ def work():
 				print "getting more proxies"
 				get_proxylistorg_proxies(redis=r)
 				get_hidemyass_proxies(redis=r)
+				get_xroxy_proxies(redis=r)
 				#keep track of how many times we hit up this website
 				r.incr("hidemyass_proxies_jobs")
 				#release status for other workers
