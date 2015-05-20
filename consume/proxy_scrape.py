@@ -4,14 +4,12 @@ import multiprocessing
 import redis
 import requests
 import re
-from scrape_proxies import *
+from prime.utils.scrape_proxies import *
 from datetime import date
 from convert import parse_html
 import json
 import time 
 
-ua='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-headers ={'User-Agent':ua}
 n_processes = 1000
 
 def ping(proxy):
@@ -21,12 +19,6 @@ def ping(proxy):
 	try: socket.socket().connect((ip,port))
 	except: return False
 	return True
-
-def get_redis(flush=False):
-	pool = redis.ConnectionPool(host='processing-001.h1wlwz.0001.use1.cache.amazonaws.com', port=6379, db=0)
-	r = redis.Redis(connection_pool=pool)
-	if flush: r.flushall()
-	return r
 
 def add_google_search_proxies(filename="~/clean_proxies.txt"):
 	df = pandas.read_csv(filename,sep=" ", header=None, names=["proxy","country","continent"])
@@ -118,35 +110,29 @@ def work():
 		if r.hexists("downloaded_urls_hash",http_link): continue
 		rc = process_next_url(url)
 		if not rc:
-			#fuck. last time we already tried getting more proxies and still no progress!
-			if int(r.get("previous_downloaded_urls")) == r.hlen("downloaded_urls_hash") and r.get("hidemyass_proxies_jobs") is not None:
-				return False
-			#i am the chosen worker to find more proxies!!!!
-			if r.get("hidemyass_proxies_rescrape") == 'False' or r.get("hidemyass_proxies_rescrape") is None:
-				#tells other workers not to do the proxy rescrape
-				r.set("hidemyass_proxies_rescrape", 'True')
-				#mark how many urls are still on the queue 
-				r.set("previous_downloaded_urls",r.hlen("downloaded_urls_hash"))
-				print "getting more proxies"
-				get_proxylistorg_proxies(redis=r)
-				get_hidemyass_proxies(redis=r)
-				get_xroxy_proxies(redis=r)
-				#keep track of how many times we hit up this website
-				r.incr("hidemyass_proxies_jobs")
-				#release status for other workers
-				r.set("hidemyass_proxies_rescrape", 'False')
-			else: 
-				#i am waiting for there to be more proxies.
-				while r.scard("proxies") == 0 and r.get("hidemyass_proxies_rescrape") == 'True':
-					time.sleep(1)
+			for site in sites:
+				#fuck. last time we already tried getting more proxies and still no progress!
+				if int(r.get("previous_downloaded_urls")) == r.hlen("downloaded_urls_hash") and r.get(site + "_proxies_jobs") is not None:
+					return False
+				#i am the chosen worker to find more proxies!!!!
+				if r.get(site + "_proxies_rescrape") == 'False' or r.get(site + "_proxies_rescrape") is None:
+					#tells other workers not to do the proxy rescrape
+					r.set(site + "_proxies_rescrape", 'True')
+					#mark how many urls are still on the queue 
+					r.set("previous_downloaded_urls",r.hlen("downloaded_urls_hash"))
+					print "getting more " + site + " proxies"
+					get_proxies(redis=r, site=site)
+					#keep track of how many times we hit up this website
+					r.incr(site + "_proxies_jobs")
+					#release status for other workers
+					r.set(site + "_proxies_rescrape", 'False')
 		url = r.spop("urls")
 	return True
 
-r = get_redis() 
-
 if __name__=="__main__":
-	r.set("hidemyass_proxies_rescrape", 'False')
-	r.set("previous_downloaded_urls",'0')
+	for site in sites:
+		r.set(site + "_proxies_rescrape", 'False')
+		r.set("previous_downloaded_urls",'0')
 	pool = multiprocessing.Pool(n_processes)
 	for i in xrange(0, n_processes):
 		pool.apply_async(work, ())

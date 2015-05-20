@@ -1,15 +1,81 @@
 
 from selenium import webdriver
-import re
 from pyvirtualdisplay import Display
 from headless_browsing import * 
 import lxml.html
 import requests
+import os, re
+from geoip import geolite2
+import redis
 
+ua='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+headers ={'User-Agent':ua}
+timeout=3
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
+port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")
+secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
+host='proxies.h1wlwz.0001.use1.cache.amazonaws.com'
+host='localhost'
+
+def get_redis(flush=False):
+	pool = redis.ConnectionPool(host=host, port=6379, db=0)
+	r = redis.Redis(connection_pool=pool)
+	if flush: r.flushall()
+	return r
+
+r = get_redis() 
+
+def get_proxies(site='xroxy', redis=r, overwrite=False):
+	if site == "hidemyass":
+		get_hidemyass_proxies(redis=redis, overwrite=overwrite)
+	elif site == "proxylistorg":
+		get_proxylistorg_proxies(redis=redis, overwrite=overwrite)
+	elif site == "xroxy":
+		get_xroxy_proxies(redis=redis, overwrite=overwrite)
+
+def parse_line(line):
+	match = re.search(ip_regex,line)
+	if match is None: return None
+	#something looks like an ip, lets clean it
+	ip = re.sub(r"[^0-9\.]","",match.group(0))
+	ip_nums = [int(piece) for piece in ip.split(".")]
+	if max(ip_nums)>255: return None
+	ip=".".join([str(piece) for piece in ip_nums])
+	#the ip is in valid format
+	match = re.search(port_regex,line[match.end():])
+	if match is None: return None
+	port = int(re.sub(r"[^0-9]","",match.group(0)))
+	if port>65535: return None
+	port = str(port)
+	return ip + ":" + port
+
+def queue_proxy(redis=r, source=, proxy):
+	
+def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%2B%22:3128%22+%2B%22:80%22+filetype:txt", results_per_page=100, start_num=0):
+	urls = []
+	while True:
+		search_query ="http://www.google.com/search?q=" + proxies_query + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
+		start_num+=results_per_page
+		response = requests.get(search_query, headers=headers, verify=False)
+		raw_html = lxml.html.fromstring(response.content)
+		results_area = raw_html.xpath("//*[contains(@class,'srg')]")
+		if len(results_area) == 0: break
+		links = results_area[0].xpath("//h3[@class='r']/a")
+		for link in links:
+			urls.append(link.values()[0])
+
+	for url in urls:
+		try: response = requests.get(url, headers=headers, verify=False, timeout=timeout)
+		except: continue
+		for line in response.content.splitlines():
+			proxy = parse_line
+			if proxy is None: continue
+			ip = get_ip(proxy)
+			match = geolite2.lookup(ip)
+			if match is None or match.country is None or match.continent is None: continue
 
 #return a dict of fresh hidemyass proxies
-def get_hidemyass_proxies(limit=None, redis=None, overwrite=False):
+def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 	proxies = []
 	display, driver = launch_browser()
 	driver.implicitly_wait(2)
@@ -58,7 +124,7 @@ def get_proxylistorg_proxies(redis=None, overwrite=False):
 	proxies = []
 	page = 0
 	while True:	
-		response = requests.get('http://proxy-list.org/english/index.php?p=' + str(page))
+		response = requests.get('http://proxy-list.org/english/index.php?p=' + str(page), timeout=timeout, headers=headers)
 		raw_html = lxml.html.fromstring(response.content)
 		table = raw_html.xpath("//div[@class='table']")[0]
 		proxies_d = table.xpath("//ul/li[@class='proxy']")
@@ -82,17 +148,22 @@ def get_proxylistorg_proxies(redis=None, overwrite=False):
 				print "proxy exists"		
 	return proxies
 
-def get_xroxy_proxies(redis=None, overwrite=False):
+def get_xroxy_proxies(redis=r, overwrite=False):
 	proxies = []
 	page = 0
 	while True:	
-		response = requests.get('http://www.xroxy.com/proxylist.php?port=&type=&ssl=&country=&latency=&reliability=&sort=reliability&desc=true&pnum=' + str(page))
+		try:
+			response = requests.get('http://www.xroxy.com/proxylist.php?port=&type=&ssl=&country=&latency=&reliability=&sort=reliability&desc=true&pnum=' + str(page), verify=False, timeout=timeout, headers=headers)
+		except:
+			return None
+		#print response.status_code
 		raw_html = lxml.html.fromstring(response.content)
 		table = raw_html.xpath("//table")[0]
 		proxies_d = table.xpath("//tr/td/a[@title='View this Proxy details']")
 		ports_d = table.xpath("//tr/td/a[contains(@title,'Select proxies with port number')]")  
 		protocols_d = table.xpath("//tr/td/a[@title='Select proxies with/without SSL support']")
-		if len(proxies_d) < 1: break
+		#print len(proxies_d)
+		if len(proxies_d) < 2: break
 		for i in xrange(0,len(proxies_d)):
 			proxy = proxies_d[i].text_content().strip()
 			port = ports_d[i].text_content().strip()
@@ -104,6 +175,7 @@ def get_xroxy_proxies(redis=None, overwrite=False):
 			else:
 				proxies.append("http://"+proxy+":"+port)
 				proxies.append("https://"+proxy+":"+port)		
+		#print len(proxies)
 		page += 1
 	if redis is not None:
 		for proxy in proxies:

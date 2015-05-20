@@ -346,8 +346,12 @@ def parse_html(html):
     groups = get_groups(raw_html)
     projects = get_projects(raw_html)
     
-    if full_name is None or len(full_name)==0: success = False
-    else: success = True
+    if full_name is None or len(full_name)==0: 
+        success = False
+        complete = False
+    else: 
+        success = True
+        complete = len(raw_html.xpath("//div[@id='background']"))>0
     return {
         'image': image,
         'linkedin_id': linkedin_id,
@@ -362,6 +366,7 @@ def parse_html(html):
         "groups": groups,
         "projects": projects,
         "success": success,
+        "complete": complete,
         "urls":people
     }
 
