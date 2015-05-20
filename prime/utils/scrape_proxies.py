@@ -10,7 +10,7 @@ import redis
 
 ua='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 headers ={'User-Agent':ua}
-timeout=3
+timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
@@ -32,6 +32,8 @@ def get_proxies(site='xroxy', redis=r, overwrite=False):
 		get_proxylistorg_proxies(redis=redis, overwrite=overwrite)
 	elif site == "xroxy":
 		get_xroxy_proxies(redis=redis, overwrite=overwrite)
+	elif site == "google":
+		get_google_proxies(redis=redis, overwrite=overwrite)
 
 def parse_line(line):
 	match = re.search(ip_regex,line)
@@ -49,8 +51,15 @@ def parse_line(line):
 	port = str(port)
 	return ip + ":" + port
 
-def queue_proxy(redis=r, source=, proxy):
-	
+def queue_proxy(redis=r, source=None, proxy=None):
+	if proxy is not None and redis is not None: 
+		r.lpush("untested_proxies", {"source":source,"proxy":proxy})
+
+def get_ip(raw):
+	chunks = raw.split(":")
+	if len(chunks) == 2: return chunks[0]
+	return chunks[1]
+
 def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%2B%22:3128%22+%2B%22:80%22+filetype:txt", results_per_page=100, start_num=0):
 	urls = []
 	while True:
@@ -68,22 +77,23 @@ def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%
 		try: response = requests.get(url, headers=headers, verify=False, timeout=timeout)
 		except: continue
 		for line in response.content.splitlines():
-			proxy = parse_line
+			proxy = parse_line(line)
 			if proxy is None: continue
 			ip = get_ip(proxy)
 			match = geolite2.lookup(ip)
 			if match is None or match.country is None or match.continent is None: continue
+			queue_proxy(redis=r,source=url,proxy=proxy)
 
 #return a dict of fresh hidemyass proxies
 def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 	proxies = []
 	display, driver = launch_browser()
 	driver.implicitly_wait(2)
-
+	source = "http://proxylist.hidemyass.com/"
 	page = 1
 	while True:
 		try:
-			driver.get("http://proxylist.hidemyass.com/" + str(page))
+			driver.get(source + str(page))
 			body = driver.find_element_by_tag_name("tbody")
 			trs = body.find_elements_by_tag_name("tr")
 			if len(trs) == 0: break
@@ -103,12 +113,7 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 				if protocol.find("HTTP") == -1: continue
 				proxy = protocol.lower() + "://" + ip + ":" + port
 				proxies.append(proxy)
-				if redis is not None:
-					if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
-						redis.sadd("proxies",proxy)
-						print redis.scard("proxies")
-					else:
-						print "proxy exists"
+				queue_proxy(redis=r,proxy=proxy,source=source)
 				if limit is not None and len(proxies) == limit: 
 					driver.quit()
 					return proxies
@@ -120,11 +125,12 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 	driver.quit()
 	return proxies
 
-def get_proxylistorg_proxies(redis=None, overwrite=False):
+def get_proxylistorg_proxies(redis=r, overwrite=False):
 	proxies = []
 	page = 0
+	source = 'http://proxy-list.org/english/index.php'
 	while True:	
-		response = requests.get('http://proxy-list.org/english/index.php?p=' + str(page), timeout=timeout, headers=headers)
+		response = requests.get(source + '?p=' + str(page), timeout=timeout, headers=headers)
 		raw_html = lxml.html.fromstring(response.content)
 		table = raw_html.xpath("//div[@class='table']")[0]
 		proxies_d = table.xpath("//ul/li[@class='proxy']")
@@ -134,26 +140,23 @@ def get_proxylistorg_proxies(redis=None, overwrite=False):
 			proxy = proxies_d[i].text_content()
 			protocol = protocols_d[i].text_content()
 			if protocol in ["HTTP","HTTPS"]:
-				proxies.append(protocol.lower() + "://" + proxy)
-			else:
-				proxies.append("http://"+proxy)
-				proxies.append("https://"+proxy)		
+				proxy = protocol.lower() + "://" + proxy
+				proxies.append(proxy)
+				queue_proxy(redis=r,proxy=proxy,source=source)
+			# else:
+			# 	proxies.append("http://"+proxy)
+			# 	proxies.append("https://"+proxy)		
 		page += 1
-	if redis is not None:
-		for proxy in proxies:
-			if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
-				redis.sadd("proxies",proxy)
-				print redis.scard("proxies")
-			else:
-				print "proxy exists"		
+				
 	return proxies
 
 def get_xroxy_proxies(redis=r, overwrite=False):
 	proxies = []
 	page = 0
+	source = 'http://www.xroxy.com/proxylist.php'
 	while True:	
 		try:
-			response = requests.get('http://www.xroxy.com/proxylist.php?port=&type=&ssl=&country=&latency=&reliability=&sort=reliability&desc=true&pnum=' + str(page), verify=False, timeout=timeout, headers=headers)
+			response = requests.get(source + '?&pnum=' + str(page), verify=False, timeout=timeout, headers=headers)
 		except:
 			return None
 		#print response.status_code
@@ -169,19 +172,15 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 			port = ports_d[i].text_content().strip()
 			protocol = protocols_d[i].text_content().strip()
 			if protocol == 'true':
-				proxies.append("https://"+proxy+":"+port)
+				proxy = "https://"+proxy+":"+port
 			elif protocol == 'false':
-				proxies.append("http://"+proxy+":"+port)
-			else:
-				proxies.append("http://"+proxy+":"+port)
-				proxies.append("https://"+proxy+":"+port)		
+				proxy = "http://"+proxy+":"+port
+			else: continue
+			proxies.append(proxy)
+			queue_proxy(redis=r,proxy=proxy,source=source)
+			# else:
+			# 	proxies.append("http://"+proxy+":"+port)
+			# 	proxies.append("https://"+proxy+":"+port)		
 		#print len(proxies)
-		page += 1
-	if redis is not None:
-		for proxy in proxies:
-			if not redis.sismember("blacklist_proxies",proxy) or overwrite: 
-				redis.sadd("proxies",proxy)
-				print redis.scard("proxies")
-			else:
-				print "proxy exists"		
+		page += 1	
 	return proxies	
