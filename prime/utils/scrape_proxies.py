@@ -49,9 +49,9 @@ def parse_line(line):
 def queue_proxy(redis=r, source=None, proxy=None):
 	if proxy is not None and redis is not None: 
 		if source.find(".txt") > -1: 
-			r.lpush("untested_proxies", {"source":source,"proxy":proxy})
+			r.lpush("untested_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
 		else:
-			r.rpush("untested_promising_proxies", {"source":source,"proxy":proxy})
+			r.rpush("untested_promising_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
 
 def get_ip(raw):
 	chunks = raw.split(":")
