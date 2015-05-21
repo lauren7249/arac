@@ -10,7 +10,7 @@ timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
-host='proxies.sqq1to.0001.euc1.cache.amazonaws.com'
+host='proxiess.sqq1to.0001.euc1.cache.amazonaws.com'
 
 def get_redis(flush=False):
 	pool = redis.ConnectionPool(host=host, port=6379, db=0)

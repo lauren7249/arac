@@ -4,10 +4,10 @@ import datetime
 from consume.convert import parse_html
 import multiprocessing
 
-if r.llen("untested_proxies")>r.scard("urls"):
+if r.llen("untested_proxies")>r.scard("urls") and False:
 	add_urls(filename="/Users/lauren/test_urls.txt", limit=r.llen("untested_proxies"))
-timeout = 8
-n_processes = 1000
+timeout = 5
+n_processes = 2000
 
 def work():
 	while True:
