@@ -7,7 +7,7 @@ import multiprocessing
 if r.llen("untested_proxies")>r.scard("urls") and False:
 	add_urls(filename="/Users/lauren/test_urls.txt", limit=r.llen("untested_proxies"))
 timeout = 5
-n_processes = 2000
+n_processes = 1000
 
 def work():
 	while True:
