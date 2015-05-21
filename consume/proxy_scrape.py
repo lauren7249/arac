@@ -1,4 +1,3 @@
-import pandas
 import socket 
 import multiprocessing
 import redis
@@ -21,6 +20,7 @@ def ping(proxy):
 	return True
 
 def add_google_search_proxies(filename="~/clean_proxies.txt"):
+	import pandas
 	df = pandas.read_csv(filename,sep=" ", header=None, names=["proxy","country","continent"])
 	df.drop_duplicates(inplace=True)
 	df.fillna("NA", inplace=True)
@@ -30,6 +30,7 @@ def add_google_search_proxies(filename="~/clean_proxies.txt"):
 	    r.sadd("proxies","https://" + proxy)
 
 def add_structured_proxies(filename="~/hidemyass_proxies.txt"):
+	import pandas
 	df = pandas.read_csv(filename,sep=" ", header=None, names=["proxy","protocol"])
 	df.drop_duplicates(inplace=True)
 	df.fillna("NA", inplace=True)
@@ -50,21 +51,19 @@ def queue_url(url):
 
 def add_urls(filename="/dev/finished_oct30.txt", limit=None):	
 	urls = open(filename,"rb")
-	count=0
 	for url in urls:
+		if r.scard("urls")==limit: break
 		url = url.strip()
 		queue_url(url)
-		count+=1
-		if count==limit: break
 	urls.close()
 	return r.scard("urls")
 
-def get(url, proxy):
+def get(url, proxy, timeout=8):
 	protocol = proxy.split(":")[0]
 	proxies = {protocol : proxy}
 	link = protocol + url	
 	try:
-		response = requests.get(link, headers=headers, verify=False, proxies=proxies, timeout=5)
+		response = requests.get(link, headers=headers, verify=False, proxies=proxies, timeout=timeout)
 	except:
 		return None
 	return response	

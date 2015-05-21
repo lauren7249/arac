@@ -1,7 +1,3 @@
-
-from selenium import webdriver
-from pyvirtualdisplay import Display
-from headless_browsing import * 
 import lxml.html
 import requests
 import os, re
@@ -14,8 +10,7 @@ timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
-host='proxies.h1wlwz.0001.use1.cache.amazonaws.com'
-host='localhost'
+host='proxies.sqq1to.0001.euc1.cache.amazonaws.com'
 
 def get_redis(flush=False):
 	pool = redis.ConnectionPool(host=host, port=6379, db=0)
@@ -58,7 +53,7 @@ def queue_proxy(redis=r, source=None, proxy=None):
 def get_ip(raw):
 	chunks = raw.split(":")
 	if len(chunks) == 2: return chunks[0]
-	return chunks[1]
+	return chunks[1][2:]
 
 def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%2B%22:3128%22+%2B%22:80%22+filetype:txt", results_per_page=100, start_num=0):
 	urls = []
@@ -86,6 +81,7 @@ def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%
 
 #return a dict of fresh hidemyass proxies
 def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
+	from headless_browsing import launch_browser
 	proxies = []
 	display, driver = launch_browser()
 	driver.implicitly_wait(2)
