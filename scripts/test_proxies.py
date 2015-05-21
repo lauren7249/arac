@@ -2,10 +2,13 @@ from prime.utils.scrape_proxies import r
 from consume.proxy_scrape import get, ping, get_ip, add_urls
 import datetime
 from consume.convert import parse_html
+import multiprocessing
 
-add_urls(filename="/Users/lauren/test_urls.txt", limit=r.llen("untested_proxies"))
+if r.llen("untested_proxies")>r.scard("urls"):
+	add_urls(filename="/Users/lauren/test_urls.txt", limit=r.llen("untested_proxies"))
 timeout = 8
 n_processes = 1000
+
 def work():
 	while True:
 		raw=r.rpop("untested_proxies")
