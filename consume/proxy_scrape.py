@@ -58,10 +58,14 @@ def add_urls(filename="/dev/finished_oct30.txt", limit=None):
 	urls.close()
 	return r.scard("urls")
 
-def get(url, proxy, timeout=8):
-	protocol = proxy.split(":")[0]
-	proxies = {protocol : proxy}
-	link = protocol + url	
+def get(url, proxy=None, timeout=8):
+	if proxy is not None:
+		protocol = proxy.split(":")[0]
+		proxies = {protocol : proxy}
+		link = protocol + url	
+	else:
+		proxies = None
+		link = "http" + url
 	try:
 		response = requests.get(link, headers=headers, verify=False, proxies=proxies, timeout=timeout)
 	except:
@@ -102,6 +106,7 @@ def process_next_url(url):
 
 
 def work():
+	sites = ["hidemyass"]
 	url = r.spop("urls")
 	while url is not None:
 		http_link = "http" + url
