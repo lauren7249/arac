@@ -10,8 +10,9 @@ repeat = 1000
 total_requests = 0
 start_time = time.time()
 current_sleep = 0
+denied = False
 
-while True:
+while not denied:
 	for iteration in xrange(0, repeat):
 		url = r.spop("urls")
 		info, content = try_url(test_url=url)
@@ -19,6 +20,7 @@ while True:
 			minutes = (time.time() - start_time)/60
 			info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})
 			r.rpush("denial", info)
+			denied = True
 			break
 		upload(content)
 		r.sadd("completed_urls", url)
