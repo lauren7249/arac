@@ -5,7 +5,7 @@ import pickle
 import os
 
 host='proxiess.sqq1to.0001.euc1.cache.amazonaws.com'
-pickle_output='results.pkl'
+pickle_output='promising_results.pkl'
 
 def get_redis():
 	pool = redis.ConnectionPool(host=host, port=6379, db=0)
@@ -22,11 +22,11 @@ except:
 	df = pandas.DataFrame()
 
 while True:
-	record = r.lpop("tested_proxies")
+	record = r.lpop("tested_promising_proxies")
 	if record is None:
 		time.sleep(3)
-		if r.llen("tested_proxies") == 0: break
-		record = r.lpop("tested_proxies")
+		if r.llen("tested_promising_proxies") == 0: break
+		record = r.lpop("tested_promising_proxies")
 	d = eval(record)
 	row = pandas.DataFrame.from_dict([d])
 	df = pandas.concat([df,row])

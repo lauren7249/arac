@@ -346,6 +346,13 @@ def parse_html(html):
     groups = get_groups(raw_html)
     projects = get_projects(raw_html)
     
+    source_url_regex = re.compile(r'(?<="X-FS-Origin-Request":").+(?=",)')
+    source_url_match = re.search(source_url_regex,html) 
+    if source_url_match is not None:
+        source_url = "http://www.linkedin.com" + source_url_match.group(0)
+    else:
+        source_url = None
+
     if full_name is None or len(full_name)==0: 
         success = False
         complete = False
@@ -367,7 +374,8 @@ def parse_html(html):
         "projects": projects,
         "success": success,
         "complete": complete,
-        "urls":people
+        "urls":people,
+        "source_url": source_url
     }
 
 
