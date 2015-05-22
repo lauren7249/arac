@@ -358,7 +358,7 @@ def parse_html(html):
         complete = False
     else: 
         success = True
-        complete = len(raw_html.xpath("//div[@id='background']"))>0
+        complete = html.find("background_view") > -1
     return {
         'image': image,
         'linkedin_id': linkedin_id,
