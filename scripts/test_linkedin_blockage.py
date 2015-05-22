@@ -4,8 +4,8 @@ from random import randint
 from scripts.test_proxies import try_url
 from prime.utils.s3_upload_parsed_html import upload
 
-maxsleep = 10
-minsleep = 2
+maxsleep = 30
+minsleep = 10
 repeat = 1000
 total_requests = 0
 start_time = time.time()
@@ -20,6 +20,7 @@ while not denied:
 			minutes = (time.time() - start_time)/60
 			info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})
 			r.rpush("denial", info)
+			r.sadd("urls",url)
 			denied = True
 			break
 		upload(content)
