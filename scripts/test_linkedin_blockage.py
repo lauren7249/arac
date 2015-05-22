@@ -5,7 +5,7 @@ from scripts.test_proxies import try_url
 from prime.utils.s3_upload_parsed_html import upload
 
 maxsleep = 10
-minsleep = 0
+minsleep = 2
 repeat = 1000
 total_requests = 0
 start_time = time.time()
