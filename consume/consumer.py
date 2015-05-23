@@ -52,7 +52,7 @@ def prospect_exists(session, s3_key):
         return True
     return False
 
-def update_prospect(info, prospect):
+def update_prospect(info, prospect, session=session):
     if prospect is None: return None
     today = datetime.date.today()
     data = prospect.json if prospect.json else {}
@@ -69,7 +69,7 @@ def update_prospect(info, prospect):
     session.commit()
     return prospect
 
-def create_prospect(info, url):
+def create_prospect(info, url, session=session):
     cleaned_id = info['linkedin_id'].strip()
     s3_key = url_to_key(url)
     new_prospect = models.Prospect(
@@ -85,7 +85,7 @@ def create_prospect(info, url):
     session.flush()
     return new_prospect
 
-def create_schools(info, new_prospect):
+def create_schools(info, new_prospect, session=session):
     #if _session: session=_session
     if type(info) == list:
         info_schools = info
@@ -93,11 +93,11 @@ def create_schools(info, new_prospect):
     else:
         info_schools = filter(college_is_valid, dedupe_dict(info.get("schools", [])))
     for college in info_schools:
-        insert_school(college, new_prospect)
+        insert_school(college, new_prospect, session=session)
     session.commit()
     return True
 
-def create_jobs(info, new_prospect):
+def create_jobs(info, new_prospect, session=session):
     #if _session: session = _session
     if type(info) == list:
         info_jobs = info
@@ -105,11 +105,11 @@ def create_jobs(info, new_prospect):
     else:
         info_jobs = filter(experience_is_valid, dedupe_dict(info.get('experiences', [])))
     for e in info_jobs:
-        insert_job(e, new_prospect)
+        insert_job(e, new_prospect, session=session)
     session.commit()
     return True
 
-def update_jobs(info, new_prospect):
+def update_jobs(info, new_prospect, session=session):
     jobs = info.get("experiences")
     new_jobs = []
     for info_job in jobs:
@@ -129,12 +129,12 @@ def update_jobs(info, new_prospect):
         if new: new_jobs.append(info_job)
 
     for e in new_jobs:
-        insert_job(e, new_prospect)
+        insert_job(e, new_prospect, session=session)
         print "job added for " + new_prospect.url
     session.commit()
     return True
 
-def update_schools(info, new_prospect):
+def update_schools(info, new_prospect, session=session):
     schools = info.get("schools")
     new_schools = []
     for info_school in schools:
@@ -152,7 +152,7 @@ def update_schools(info, new_prospect):
         if new: new_schools.append(info_school)
 
     for e in new_schools:
-        insert_school(e, new_prospect)
+        insert_school(e, new_prospect, session=session)
         print "education added for " + new_prospect.url
     session.commit()
     return True
@@ -164,7 +164,7 @@ def convert_date(date):
     except:
         return None
 
-def insert_school(college, new_prospect):
+def insert_school(college, new_prospect, session=session):
     extra = {}
     extra['start_date'] = convert_date(college.get('start_date'))
     extra['end_date'] = convert_date(college.get('end_date'))
@@ -187,7 +187,7 @@ def insert_school(college, new_prospect):
     session.add(new_education)
     session.flush()
 
-def insert_job(e, new_prospect):
+def insert_job(e, new_prospect, session=session):
     extra = {}
     extra['start_date'] = convert_date(e.get('start_date'))
     extra['end_date'] = convert_date(e.get('end_date'))
@@ -209,17 +209,17 @@ def insert_job(e, new_prospect):
     session.add(new_job)
     session.flush()
 
-def update_prospect_from_info(info, prospect):
-    new_prospect = update_prospect(info, prospect)
-    schools = update_schools(info, new_prospect)
-    jobs = update_jobs(info, new_prospect)
+def update_prospect_from_info(info, prospect, session=session):
+    new_prospect = update_prospect(info, prospect, session=session)
+    schools = update_schools(info, new_prospect, session=session)
+    jobs = update_jobs(info, new_prospect, session=session)
     session.commit()
     return new_prospect
 
-def create_prospect_from_info(info, url):
-    new_prospect = create_prospect(info, url)
-    schools = create_schools(info, new_prospect)
-    jobs = create_jobs(info, new_prospect)
+def create_prospect_from_info(info, url, session=session):
+    new_prospect = create_prospect(info, url, session=session)
+    schools = create_schools(info, new_prospect, session=session)
+    jobs = create_jobs(info, new_prospect, session=session)
     session.commit()
     return new_prospect
 
@@ -235,7 +235,7 @@ def process_from_file(url_file=None, start=0, end=-1):
                     continue
                 info = get_info_for_url(url)
                 if info_is_valid(info):
-                    create_prospect_from_info(info, url)
+                    create_prospect_from_info(info, url, session=session)
                     logger.debug('successfully consumed {}th {}'.format(count, url))
                 else:
                     logger.error('could not get valid info for {}'.format(url))
@@ -492,7 +492,7 @@ def upgrade_from_file(url_file=None, start=0, end=-1):
         for url in islice(f, start, end):
             try:
                 count += 1
-                update_prospect_from_url(url, bucket)
+                update_prospect_from_url(url, bucket, session=session)
                 logger.debug('successfully consumed {}th {}'.format(count, url))
             except Exception, e:
                 session.rollback()
@@ -511,21 +511,21 @@ def generate_prospect_from_url(url):
             if models.Prospect.s3_exists(session, s3_key):
                 prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).first()
                 if prospect and prospect.jobs: return prospect
-            new_prospect = create_prospect_from_info(info, url)
+            new_prospect = create_prospect_from_info(info, url, session=session)
             session.commit()
             return new_prospect
 
     except S3ResponseError:
         return None
 
-def update_prospect_from_url(url, bucket):
+def update_prospect_from_url(url, bucket, session=session):
     url = url.strip()
     try:
         s3_key = url_to_key(url)
         info = get_info_for_url(url, bucket)
         if info_is_valid(info):
             prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).options(joinedload(models.Prospect.schools).joinedload(models.Education.school), joinedload(models.Prospect.jobs).joinedload(models.Job.company)).first()
-            new_prospect = update_prospect_from_info(info, prospect)
+            new_prospect = update_prospect_from_info(info, prospect, session=session)
             session.commit()
             return new_prospect
 
