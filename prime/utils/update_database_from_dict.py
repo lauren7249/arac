@@ -1,7 +1,10 @@
-from consume.consumer import session
+
 from prime.prospects import models
 from sqlalchemy.orm import joinedload
 from consume.consumer import update_prospect_from_info, create_prospect_from_info
+from prime.prospects.get_prospect import get_session
+
+session = get_session()
 
 def insert_linkedin_profile(info):
 	linkedin_id = info.get("linkedin_id")

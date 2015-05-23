@@ -31,6 +31,7 @@ while not denied:
 				r.rpush("denial", info)				
 				break
 			continue
+
 		upload(content)
 		r.sadd("completed_urls", url)
 		failed_in_a_row = 0
