@@ -53,20 +53,19 @@ def prospect_exists(session, s3_key):
     return False
 
 def update_prospect(info, prospect):
+    if prospect is None: return None
     today = datetime.date.today()
-    data = prospect.json if prospect and prospect.json else {}
+    data = prospect.json if prospect.json else {}
     data["skills"] = info.get("skills")
     data["groups"] = info.get("groups")
     data["projects"] = info.get("projects")
     data["people"] = info.get("people")
-    if prospect:
-        session.query(models.Prospect).filter_by(id=prospect.id).update({
-            "location_raw": info.get("location"),
-            "industry_raw": info.get("industry"),
-            "updated": today,
-            "json": data
-            })
-    else:
+    session.query(models.Prospect).filter_by(id=prospect.id).update({
+        "location_raw": info.get("location"),
+        "industry_raw": info.get("industry"),
+        "updated": today,
+        "json": data
+        })
     session.commit()
     return prospect
 
