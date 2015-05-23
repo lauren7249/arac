@@ -4,10 +4,8 @@ import os, re
 from geoip import geolite2
 import redis
 import datetime
-from . import r
+from . import *
 
-ua='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-headers ={'User-Agent':ua, 'Accept-Language': 'en-US,en;q=0.8', "Content-Language":"en","Referer":"https://www.google.com/"}
 timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")

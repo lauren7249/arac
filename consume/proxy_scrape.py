@@ -43,11 +43,12 @@ def add_all_proxies():
 	n_proxies = r.scard("proxies")
 	return n_proxies
 
-def queue_url(url):
-	if r.hexists("downloaded_urls_hash",url): return 
+def queue_url(url, queue_name="urls"):
+	#if r.hexists("downloaded_urls_hash",url): return 
+	url = re.sub("https","", url)
 	url = re.sub("http","", url)
-	if r.sismember("urls",url): return
-	r.sadd("urls",url)	
+	#if r.sismember("urls",url): return
+	r.sadd(queue_name,url)	
 
 def add_urls(filename="/dev/finished_oct30.txt", limit=None):	
 	urls = open(filename,"rb")
