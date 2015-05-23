@@ -208,7 +208,7 @@ def insert_job(e, new_prospect):
     session.add(new_job)
     session.flush()
 
-def update_prospect_from_info(info, url, prospect):
+def update_prospect_from_info(info, prospect):
     new_prospect = update_prospect(info, prospect)
     schools = update_schools(info, new_prospect)
     jobs = update_jobs(info, new_prospect)
@@ -524,7 +524,7 @@ def update_prospect_from_url(url, bucket):
         info = get_info_for_url(url, bucket)
         if info_is_valid(info):
             prospect = session.query(models.Prospect).filter_by(s3_key=s3_key).options(joinedload(models.Prospect.schools).joinedload(models.Education.school), joinedload(models.Prospect.jobs).joinedload(models.Job.company)).first()
-            new_prospect = update_prospect_from_info(info, url, prospect)
+            new_prospect = update_prospect_from_info(info, prospect)
             session.commit()
             return new_prospect
 
