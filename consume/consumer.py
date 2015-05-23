@@ -54,7 +54,7 @@ def prospect_exists(session, s3_key):
 
 def update_prospect(info, prospect):
     today = datetime.date.today()
-    data = prospect.json if prospect.json else {}
+    data = prospect.json if prospect and prospect.json else {}
     data["skills"] = info.get("skills")
     data["groups"] = info.get("groups")
     data["projects"] = info.get("projects")
