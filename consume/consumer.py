@@ -122,11 +122,12 @@ def update_jobs(info, new_prospect):
                     print job.start_date
                     print convert_date(info_job.get("end_date")) 
                     print job.end_date
-                    session.query(models.Job).filter_by(id=job.id).update({
+                    n = session.query(models.Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
                         "start_date": convert_date(info_job.get("start_date")),
                         "end_date": convert_date(info_job.get("end_date"))
                         })
+                    print n
                     print "job updated for " + new_prospect.url
                 new = False
                 break
