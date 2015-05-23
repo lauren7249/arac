@@ -12,10 +12,12 @@ start_time = time.time()
 current_sleep = 0
 denied = False
 
+s = requests.Session()
+
 while not denied:
 	for iteration in xrange(0, repeat):
 		url = r.spop("malformed_urls")
-		info, content = try_url(test_url=url)
+		info, content = try_url(test_url=url, session=s)
 		if content is None:
 			minutes = (time.time() - start_time)/60
 			info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})

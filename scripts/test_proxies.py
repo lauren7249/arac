@@ -27,18 +27,18 @@ def work():
 			for new_url in info.get("urls"):
 				if not r.sismember("completed_urls"): r.sadd("urls")			
 
-def try_url(test_url="://www.linkedin.com/pub/annemarie-kunkel/9b/3a/39b", proxy=None, source=None, d={}):
+def try_url(test_url="://www.linkedin.com/pub/annemarie-kunkel/9b/3a/39b", proxy=None, source=None, d={}, session=None):
 	if proxy is not None:
 		d.update({"source":source,"proxy":proxy})
 		time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		complete_proxy = len(proxy.split(":")) == 3
 		if not complete_proxy:
-			http_response = get(test_url, "http://" + proxy, timeout=timeout)
-			https_response = get(test_url, "https://" + proxy, timeout=timeout)
+			http_response = get(test_url, "http://" + proxy, timeout=timeout, session=session)
+			https_response = get(test_url, "https://" + proxy, timeout=timeout, session=session)
 			response = https_response
 			if response is None: response = http_response
 		else:
-			response = get(test_url, proxy=proxy, timeout=timeout)
+			response = get(test_url, proxy=proxy, timeout=timeout, session=session)
 		defunct = response is None
 		d.update({"timeout":timeout,"defunct":defunct, "time_checked":time})
 		if defunct: 

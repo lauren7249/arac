@@ -59,7 +59,9 @@ def add_urls(filename="/dev/finished_oct30.txt", limit=None):
 	urls.close()
 	return r.scard("urls")
 
-def get(url, proxy=None, timeout=8):
+def get(url, proxy=None, timeout=8, session=None):
+	if session is None:
+		session = requests.Session()
 	if proxy is not None:
 		protocol = proxy.split(":")[0]
 		proxies = {protocol : proxy}
@@ -68,7 +70,7 @@ def get(url, proxy=None, timeout=8):
 		proxies = None
 		link = "http" + url
 	try:
-		response = requests.get(link, headers=headers, verify=False, proxies=proxies, timeout=timeout)
+		response = session.get(link, headers=headers, verify=False, proxies=proxies, timeout=timeout)
 	except:
 		return None
 	return response	
