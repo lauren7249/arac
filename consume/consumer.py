@@ -118,6 +118,10 @@ def update_jobs(info, new_prospect):
 
             if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
                 if convert_date(info_job.get("start_date")) != job.start_date or convert_date(info_job.get("end_date")) != job.end_date:
+                    print convert_date(info_job.get("start_date"))
+                    print job.start_date
+                    print convert_date(info_job.get("end_date")) 
+                    print job.end_date
                     session.query(models.Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
                         "start_date": convert_date(info_job.get("start_date")),
