@@ -12,24 +12,28 @@ total_requests = 0
 start_time = time.time()
 current_sleep = 0
 denied = False
-
+failed_in_a_row = 0
 s = requests.Session()
+queue_name = "malformed_urls"
 
 while not denied:
 	for iteration in xrange(0, repeat):
-		url = r.spop("malformed_urls")
+		url = r.spop(queue_name)
 		info, content = try_url(test_url=url, session=s)
 		if content is None:
-			minutes = (time.time() - start_time)/60
-			info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})
-			r.rpush("denial", info)
-			r.sadd("malformed_urls",url)
-			#denied = True
-			if denied: break
+			print "failure!"
+			r.sadd(queue_name,url)
+			failed_in_a_row +=1
+			if failed_in_a_row >5: denied = True
+			if denied: 
+				minutes = (time.time() - start_time)/60
+				info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})
+				r.rpush("denial", info)				
+				break
 			continue
-			print "denied!"
 		upload(content)
 		r.sadd("completed_urls", url)
+		failed_in_a_row = 0
 		for new_url in content.get("urls"):
 			if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)					
 		if maxsleep> minsleep:
