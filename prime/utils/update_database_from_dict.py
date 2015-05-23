@@ -11,3 +11,4 @@ def insert_linkedin_profile(info, session):
 	else:
 		new_prospect = create_prospect_from_info(info, info.get("source_url"), session=session)
 	session.commit()
+	return new_prospect

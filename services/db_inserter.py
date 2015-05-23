@@ -11,7 +11,9 @@ urls = (
 class insert:
     def POST(self):
     	data = web.data()
-    	return data
+    	info = eval(data)
+    	new_prospect = insert_linkedin_profile(info, session)
+    	return new_prospect.id
 
 if __name__ == "__main__":
     app = web.application(urls, globals())
