@@ -31,10 +31,12 @@ while not denied:
 				r.rpush("denial", info)				
 				break
 			continue
-
-		upload(content)
-		r.sadd("completed_urls", url)
 		failed_in_a_row = 0
+		upload(content)
+		prospect_id = requests.post("http://54.164.119.139:8080/insert", data=str(content)).content
+		if prospect_id: 
+			print prospect_id
+			r.sadd("completed_urls", url)
 		for new_url in content.get("urls"):
 			if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)					
 		if maxsleep> minsleep:
