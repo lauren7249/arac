@@ -59,12 +59,14 @@ def update_prospect(info, prospect):
     data["groups"] = info.get("groups")
     data["projects"] = info.get("projects")
     data["people"] = info.get("people")
-    session.query(models.Prospect).filter_by(id=prospect.id).update({
-        "location_raw": info.get("location"),
-        "industry_raw": info.get("industry"),
-        "updated": today,
-        "json": data
-        })
+    if prospect:
+        session.query(models.Prospect).filter_by(id=prospect.id).update({
+            "location_raw": info.get("location"),
+            "industry_raw": info.get("industry"),
+            "updated": today,
+            "json": data
+            })
+    else:
     session.commit()
     return prospect
 
@@ -116,7 +118,7 @@ def update_jobs(info, new_prospect):
         for job in new_prospect.jobs:
 
             if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
-                if convert_date(info_job.get("start_date")) != job.start_date or convert_date(info_job.get("end_date")) != job.end_date or info_job.get("location") != job.location:
+                if convert_date(info_job.get("start_date")) != job.start_date or convert_date(info_job.get("end_date")) != job.end_date:
                     session.query(models.Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
                         "start_date": convert_date(info_job.get("start_date")),
