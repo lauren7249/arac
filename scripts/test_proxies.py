@@ -47,8 +47,12 @@ def try_url(test_url="://www.linkedin.com/pub/annemarie-kunkel/9b/3a/39b", proxy
 		match = geolite2.lookup(ip)
 		d.update({"country":match.country,"continent":match.continent, "response_code":response.status_code, "response_headers": response.headers})
 	else:
-		response = get(test_url, timeout=timeout)
+		response = get(test_url, timeout=timeout, session=session)
 		d.update(eval(requests.get("http://www.realip.info/api/p/realip.php").content))
+		if response is None:
+			d.update({"timeout":timeout,"timed_out":True})
+			return d, None
+	d.update({"status_code":response.status_code})
 	if response.status_code != 200:
 		return d, None
 	info = parse_html(response.content)

@@ -1,4 +1,4 @@
-sudo apt-get install -y python-setuptools ipython git python-lxml 
+sudo apt-get install -y python-setuptools ipython git python-lxml vim
 
 sudo easy_install pip
 
