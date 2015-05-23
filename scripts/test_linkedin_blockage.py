@@ -3,6 +3,7 @@ import sys, time
 from random import randint
 from scripts.test_proxies import try_url
 from prime.utils.s3_upload_parsed_html import upload
+import requests
 
 maxsleep = 10
 minsleep = 2
