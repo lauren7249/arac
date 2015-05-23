@@ -116,18 +116,13 @@ def update_jobs(info, new_prospect):
         new = True
         for job in new_prospect.jobs:
 
-            if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
-                if convert_date(info_job.get("start_date")) != job.start_date or convert_date(info_job.get("end_date")) != job.end_date:
-                    print convert_date(info_job.get("start_date"))
-                    print job.start_date
-                    print convert_date(info_job.get("end_date")) 
-                    print job.end_date
-                    n = session.query(models.Job).filter_by(id=job.id).update({
+            if info_job.get("title") == job.title and info_job.get("company") == job.company.name and convert_date(info_job.get("start_date")) == job.start_date :
+                if convert_date(info_job.get("end_date")) != job.end_date:
+                    session.query(models.Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
                         "start_date": convert_date(info_job.get("start_date")),
                         "end_date": convert_date(info_job.get("end_date"))
                         })
-                    print n
                     print "job updated for " + new_prospect.url
                 new = False
                 break
