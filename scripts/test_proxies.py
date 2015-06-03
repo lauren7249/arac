@@ -25,7 +25,7 @@ def work():
 		if info is not None:
 			upload(info)
 			for new_url in info.get("urls"):
-				if not r.sismember("completed_urls"): r.sadd("urls")			
+				if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)			
 
 def try_url(test_url="://www.linkedin.com/pub/annemarie-kunkel/9b/3a/39b", proxy=None, source=None, d={}, session=None):
 	if proxy is not None:
