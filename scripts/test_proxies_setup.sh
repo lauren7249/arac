@@ -2,7 +2,7 @@ sudo apt-get install -y python-setuptools ipython git python-lxml vim
 
 sudo easy_install pip
 
-sudo pip install flask flask-wtf flask-admin flask-sqlalchemy flask-mail flask-login flask-assets lxml redis boto python-geoip python-geoip-geolite2 tinys3
+sudo pip install flask flask-wtf flask-admin flask-sqlalchemy flask-mail flask-login flask-assets lxml redis boto python-geoip python-geoip-geolite2 tinys3 eventlet
 
 ssh-keygen -t rsa -b 4096 -C "laurentracytalbot@gmail.com"
 

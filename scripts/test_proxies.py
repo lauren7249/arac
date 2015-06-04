@@ -7,7 +7,6 @@ from geoip import geolite2
 from prime.utils.s3_upload_parsed_html import upload
 import lxml.html 
 import requests
-from eventlet.timeout import Timeout
 
 timeout = 5
 n_processes = 500
@@ -15,15 +14,15 @@ n_processes = 500
 def work():
 	test_results = "tested_promising_proxies"
 	while True:
-		raw=r.rpop("untested_promising_proxies")
+		raw=r.spop("untested_promising_proxies")
 		if raw is None: break
 		d = eval(raw)
 		source = d.get("source")
 		proxy = d.get("proxy")
-		print proxy
-
 		test_url = r.spop("urls")
+
 		d, info = try_url(proxy=proxy, test_url=test_url, source=source, d=d)
+
 		r.rpush(test_results,d)
 		if info is not None:
 			print "got info"
