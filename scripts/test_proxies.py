@@ -7,6 +7,7 @@ from geoip import geolite2
 from prime.utils.s3_upload_parsed_html import upload
 import lxml.html 
 import requests
+from eventlet.timeout import Timeout
 
 timeout = 5
 n_processes = 500
@@ -19,13 +20,19 @@ def work():
 		d = eval(raw)
 		source = d.get("source")
 		proxy = d.get("proxy")
+		print proxy
+
 		test_url = r.spop("urls")
 		d, info = try_url(proxy=proxy, test_url=test_url, source=source, d=d)
 		r.rpush(test_results,d)
 		if info is not None:
+			print "got info"
 			upload(info)
 			for new_url in info.get("urls"):
-				if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)			
+				if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)		
+		else:
+			print "bad proxy"
+			r.sadd("urls", test_url)	
 
 def try_url(test_url="://www.linkedin.com/pub/annemarie-kunkel/9b/3a/39b", proxy=None, source=None, d={}, session=None):
 	if proxy is not None:

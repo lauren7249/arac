@@ -8,6 +8,7 @@ from datetime import date
 from convert import parse_html
 import json
 import time 
+from eventlet.timeout import Timeout
 
 n_processes = 1000
 
@@ -69,6 +70,7 @@ def get(url, proxy=None, timeout=8, session=None):
 	else:
 		proxies = None
 		link = "http" + url
+	timeout = Timeout(timeout*2)
 	try:
 		response = session.get(link, headers=headers, verify=False, proxies=proxies, timeout=timeout)
 	except:

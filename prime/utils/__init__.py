@@ -1,6 +1,6 @@
 import redis
 
-host='52.28.83.139'
+host='169.55.28.212'
 ua='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 headers ={'User-Agent':ua, 'Accept-Language': 'en-US,en;q=0.8', "Content-Language":"en","Referer":"https://www.google.com/"}
 
