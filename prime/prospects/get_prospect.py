@@ -18,18 +18,18 @@ def get_session():
 
 session = get_session()
 
-def from_linkedin_id(linkedin_id):
+def from_linkedin_id(linkedin_id, session=session):
 	from prime.prospects.models import Prospect, Job, Education
 	prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
 	return prospect
 
-def from_url(url):
+def from_url(url, session=session):
 	from prime.prospects.models import Prospect, Job, Education
 	url = re.sub("https:","http:",url)
 	prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
 	return prospect
 
-def from_prospect_id(id):
+def from_prospect_id(id, session=session):
 	from prime.prospects.models import Prospect, Job, Education
 	prospect = session.query(Prospect).get(id)
 	return prospect

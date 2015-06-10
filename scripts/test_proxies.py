@@ -9,7 +9,7 @@ import lxml.html
 import requests
 
 timeout = 5
-n_processes = 500
+n_processes = 15
 
 def work():
 	test_results = "tested_promising_proxies"
@@ -75,8 +75,8 @@ def try_url(test_url="://www.linkedin.com/pub/annemarie-kunkel/9b/3a/39b", proxy
 	return d, info
 
 if __name__=="__main__":
-	if r.llen("untested_promising_proxies")>r.scard("urls") and False:
-		add_urls(filename="/Users/lauren/test_urls.txt", limit=r.llen("untested_promising_proxies"))	
+	if r.scard("untested_promising_proxies")>r.scard("urls") and False:
+		add_urls(filename="/Users/lauren/test_urls.txt", limit=r.scard("untested_promising_proxies"))	
 	pool = multiprocessing.Pool(n_processes)
 	for i in xrange(0, n_processes):
 		pool.apply_async(work, ())
