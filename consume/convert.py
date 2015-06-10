@@ -257,7 +257,7 @@ def find_background_schools(raw_html):
             dict_item["degree"] = safe_clean_str(degrees[1].text_content())
         if len(degrees) == 1:
             dict_item["degree"] = safe_clean_str(degrees[0].text_content())
-        dates = item.findall("time")
+        dates = item.findall(".//time")
         if len(dates) > 1:
             dict_item["start_date"] = safe_clean_str(dates[0].text_content())
             dict_item["end_date"] = safe_clean_str(dates[1].text_content().encode('ascii', 'ignore'))
