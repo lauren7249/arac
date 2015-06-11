@@ -5,17 +5,17 @@ from scripts.test_proxies import try_url
 from prime.utils.s3_upload_parsed_html import upload
 import requests
 
-maxsleep = 3
-minsleep = 0
-repeat = 1000
-total_requests = 0
-start_time = time.time()
-current_sleep = 0
-denied = False
-failed_in_a_row = 0
-s = requests.Session()
-
 def work(queue_name = "insight_urls"):
+
+	maxsleep = 3
+	minsleep = 0
+	repeat = 1000
+	total_requests = 0
+	start_time = time.time()
+	current_sleep = 0
+	denied = False
+	failed_in_a_row = 0
+	s = requests.Session()	
 	while not denied:
 		for iteration in xrange(0, repeat):
 			url = r.spop(queue_name)
@@ -46,4 +46,5 @@ def work(queue_name = "insight_urls"):
 		if maxsleep>minsleep: maxsleep-=1
 
 if __name__=="__main__":
+	print sys.argv[1]
 	work(queue_name=sys.argv[1])
