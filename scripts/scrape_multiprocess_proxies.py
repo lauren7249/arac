@@ -63,3 +63,8 @@ if __name__=="__main__":
 
 	pool.close()
 	pool.join()
+
+	inuse = r.smembers("in_use_proxies")
+	for p in inuse:
+	    r.sadd(proxies_queue_name,p)	
+	    r.srem("in_use_proxies",p)
