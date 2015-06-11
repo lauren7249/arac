@@ -14,9 +14,8 @@ current_sleep = 0
 denied = False
 failed_in_a_row = 0
 s = requests.Session()
-queue_name = "malformed_urls"
 
-def work():
+def work(queue_name = "insight_urls"):
 	while not denied:
 		for iteration in xrange(0, repeat):
 			url = r.spop(queue_name)
@@ -47,4 +46,4 @@ def work():
 		if maxsleep>minsleep: maxsleep-=1
 
 if __name__=="__main__":
-	work()
+	work(queue_name=sys.argv[1])
