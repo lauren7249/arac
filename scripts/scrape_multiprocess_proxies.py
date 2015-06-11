@@ -18,7 +18,7 @@ def work(queue_name = "insight_urls", proxy=None):
 	if proxy is not None: r.sadd("in_use_proxies", proxy)
 	while not denied:
 		for iteration in xrange(0, repeat):
-			url = r.spop(queue_name)
+			url = r.srandmember(queue_name)
 			if url is None: return
 			info, content = try_url(test_url=url, session=s, proxy=proxy)
 			if content is None:
@@ -41,6 +41,7 @@ def work(queue_name = "insight_urls", proxy=None):
 			if prospect_id: 
 				print prospect_id
 				r.sadd("completed_urls", url)
+				r.srem(queue_name,url)
 			for new_url in content.get("urls"):
 				if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)					
 			if maxsleep> minsleep:
