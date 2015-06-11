@@ -60,3 +60,6 @@ if __name__=="__main__":
 	while r.scard(proxies_queue_name)>0:
 		proxy = r.spop(proxies_queue_name)
 		pool.apply_async(work, (), dict(queue_name=urls_queue_name, proxy=proxy))
+
+	pool.close()
+	pool.join()
