@@ -4,6 +4,7 @@ from random import randint
 from scripts.test_proxies import try_url
 from prime.utils.s3_upload_parsed_html import upload
 import requests
+import multiprocessing
 
 def work(queue_name = "insight_urls", proxy=None):
 	maxsleep = 4
