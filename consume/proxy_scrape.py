@@ -73,8 +73,10 @@ def get(url, proxy=None, timeout=8, session=None):
 	t = Timeout(timeout*2)
 	try:
 		response = session.get(link, headers=headers, verify=False, proxies=proxies, timeout=timeout)
-	except:
+	except: 
 		return None
+	finally:
+		t.cancel()
 	return response	
 
 def process_next_url(url):
