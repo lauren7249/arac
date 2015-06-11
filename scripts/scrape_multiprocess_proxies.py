@@ -6,7 +6,7 @@ from prime.utils.s3_upload_parsed_html import upload
 import requests
 
 def work(queue_name = "insight_urls", proxy=None):
-	maxsleep = 5
+	maxsleep = 4
 	minsleep = 2
 	repeat = 1000
 	total_requests = 0
@@ -15,9 +15,11 @@ def work(queue_name = "insight_urls", proxy=None):
 	denied = False
 	failed_in_a_row = 0
 	s = requests.Session()	
+	if proxy is not None: r.sadd("in_use_proxies", proxy)
 	while not denied:
 		for iteration in xrange(0, repeat):
 			url = r.spop(queue_name)
+			if url is None: return
 			info, content = try_url(test_url=url, session=s, proxy=proxy)
 			if content is None:
 				print "failure!"
@@ -27,7 +29,10 @@ def work(queue_name = "insight_urls", proxy=None):
 				if denied: 
 					minutes = (time.time() - start_time)/60
 					info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})
-					r.rpush("denial", info)				
+					r.rpush("denial", info)		
+					if proxy is not None: 
+						r.srem("in_use_proxies", proxy)		
+						r.sadd("bad_proxies",proxy)
 					break
 				continue
 			failed_in_a_row = 0
@@ -45,5 +50,11 @@ def work(queue_name = "insight_urls", proxy=None):
 		if maxsleep>minsleep: maxsleep-=1
 
 if __name__=="__main__":
-	print sys.argv[1]
-	work(queue_name=sys.argv[1], proxy=sys.argv[2])
+	n_processes = 999
+	urls_queue_name = sys.argv[1]
+	proxies_queue_name = sys.argv[2]
+	
+	pool = multiprocessing.Pool(n_processes)
+	while r.scard(proxies_queue_name)>0:
+		proxy = r.spop(proxies_queue_name)
+		pool.apply_async(work, (), dict(queue_name=urls_queue_name, proxy=proxy))
