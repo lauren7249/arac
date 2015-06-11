@@ -46,4 +46,4 @@ def work(queue_name = "insight_urls", proxy=None):
 
 if __name__=="__main__":
 	print sys.argv[1]
-	work(queue_name=sys.argv[1])
+	work(queue_name=sys.argv[1], proxy=sys.argv[2])
