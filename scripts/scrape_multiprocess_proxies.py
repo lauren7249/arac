@@ -38,7 +38,10 @@ def work(queue_name = "insight_urls", proxy=None):
 				continue
 			failed_in_a_row = 0
 			upload(content)
-			prospect_id = requests.post("http://54.164.119.139:8080/insert", data=str(content)).content
+			try:
+				prospect_id = int(requests.post("http://54.164.119.139:8080/insert", data=str(content)).content)
+			except:
+				return
 			if prospect_id: 
 				print prospect_id
 				r.sadd("completed_urls", url)

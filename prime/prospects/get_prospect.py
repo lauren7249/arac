@@ -2,11 +2,11 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask import Flask
 import re, os, sys
 try:
-	
 	from prime.prospects.prospect_list import *
 	from consume.consumer import *
 except:
 	pass
+
 from prime import create_app, db
 
 def get_session():
