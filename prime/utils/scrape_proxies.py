@@ -97,7 +97,7 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 					driver.quit()
 					return proxies
 		except:
-			driver.save_screenshot('screenshot.png')
+			#driver.save_screenshot('screenshot.png')
 			break
 		page += 1
 
