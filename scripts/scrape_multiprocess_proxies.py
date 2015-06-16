@@ -6,7 +6,7 @@ from prime.utils.s3_upload_parsed_html import upload
 import requests
 import multiprocessing
 
-def work(queue_name = "insight_urls", proxy=None):
+def work(queue_name = "insight_urls", proxy=None, insert_db=False):
 	maxsleep = 4
 	minsleep = 2
 	repeat = 1000
@@ -38,14 +38,18 @@ def work(queue_name = "insight_urls", proxy=None):
 				continue
 			failed_in_a_row = 0
 			upload(content)
-			try:
-				prospect_id = int(requests.post("http://54.164.119.139:8080/insert", data=str(content)).content)
-			except:
-				return
-			if prospect_id: 
-				print prospect_id
+			if insert_db:
+				try:
+					prospect_id = int(requests.post("http://54.164.119.139:8080/insert", data=str(content)).content)
+				except:
+					return
+				if prospect_id: 
+					success = True
+			else:
+				success=True
+			if success:
 				r.sadd("completed_urls", url)
-				r.srem(queue_name,url)
+				r.srem(queue_name,url)				
 			for new_url in content.get("urls"):
 				if not r.sismember("completed_urls",new_url): r.sadd("urls", new_url)					
 			if maxsleep> minsleep:
@@ -55,7 +59,7 @@ def work(queue_name = "insight_urls", proxy=None):
 		if maxsleep>minsleep: maxsleep-=1
 
 if __name__=="__main__":
-	n_processes = 999
+	n_processes = 100
 	urls_queue_name = sys.argv[1]
 	proxies_queue_name = sys.argv[2]
 	
