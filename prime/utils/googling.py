@@ -1,15 +1,27 @@
 import requests
 import lxml.html
-from . import *
+#from . import *
 import re
+from prime.utils import *
+try:
+	from consume.proxy_scrape import get
+except:
+	pass
 
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
 def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex="."):
 	urls = set()
 	while True:
-		search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
+		search_query ="://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
 		start_num+=results_per_page
-		response = requests.get(search_query, headers=headers, verify=False)
+
+		#response = requests.get(search_query, headers=headers, verify=False)
+		status = 0
+		while status != 200:
+			proxy = r.srandmember("good_proxies")
+			response = get(search_query, proxy=proxy)
+			if response: status = response.status_code
+
 		raw_html = lxml.html.fromstring(response.content)
 		results_area = raw_html.xpath("//*[contains(@class,'srg')]")
 		if len(results_area) == 0: break

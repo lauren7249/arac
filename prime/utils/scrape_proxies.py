@@ -4,7 +4,7 @@ import os, re
 from geoip import geolite2
 import redis
 import datetime
-from . import *
+from prime.utils import *
 import googling
 
 timeout=8
@@ -41,7 +41,7 @@ def queue_proxy(redis=r, source=None, proxy=None):
 	if proxy is not None and redis is not None: 
 		if source.find(".txt") > -1: 
 			r.sadd("untested_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-		else:
+		elif not r.sismember("in_use_proxies",proxy) and not r.sismember("bad_proxies",proxy) and not r.sismember("good_proxies",proxy):
 			r.sadd("untested_promising_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
 
 def get_ip(raw):
@@ -163,3 +163,9 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 		#print len(proxies)
 		page += 1	
 	return proxies	
+
+if __name__=="__main__":
+	while True:
+		get_hidemyass_proxies()
+		get_xroxy_proxies()
+		get_proxylistorg_proxies()
