@@ -41,8 +41,9 @@ def queue_proxy(redis=r, source=None, proxy=None):
 	if proxy is not None and redis is not None: 
 		if source.find(".txt") > -1: 
 			r.sadd("untested_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-		elif not r.sismember("in_use_proxies",proxy) and not r.sismember("bad_proxies",proxy) and not r.sismember("good_proxies",proxy):
-			r.sadd("untested_promising_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+		elif not r.sismember(in_use_proxies,proxy) and not r.sismember(bad_proxies,proxy) and not r.sismember(good_proxies,proxy):
+			#r.sadd("untested_promising_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+			r.sadd(good_proxies,proxy)
 
 def get_ip(raw):
 	chunks = raw.split(":")
@@ -166,6 +167,7 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 
 if __name__=="__main__":
 	while True:
+		get_proxylistorg_proxies()
 		get_hidemyass_proxies()
 		get_xroxy_proxies()
-		get_proxylistorg_proxies()
+		

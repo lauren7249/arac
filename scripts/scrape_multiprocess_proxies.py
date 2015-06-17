@@ -1,4 +1,4 @@
-from prime.utils import r
+from prime.utils import *
 import sys, time
 from random import randint
 from scripts.test_proxies import try_url
@@ -16,7 +16,7 @@ def work(queue_name = "insight_urls", proxy=None, insert_db=False):
 	denied = False
 	failed_in_a_row = 0
 	s = requests.Session()	
-	if proxy is not None: r.sadd("in_use_proxies", proxy)
+	if proxy is not None: r.sadd(in_use_proxies, proxy)
 	while not denied:
 		for iteration in xrange(0, repeat):
 			url = r.srandmember(queue_name)
@@ -32,8 +32,8 @@ def work(queue_name = "insight_urls", proxy=None, insert_db=False):
 					info.update({"minutes_running":minutes, "total_requests": total_requests,"iteration":iteration, "maxsleep":maxsleep, "minsleep":minsleep,"current_sleep":current_sleep, "repeat":repeat})
 					r.rpush("denial", info)		
 					if proxy is not None: 
-						r.srem("in_use_proxies", proxy)		
-						r.sadd("bad_proxies",proxy)
+						r.srem(in_use_proxies, proxy)		
+						r.sadd(bad_proxies,proxy)
 					break
 				continue
 			failed_in_a_row = 0
@@ -61,17 +61,16 @@ def work(queue_name = "insight_urls", proxy=None, insert_db=False):
 if __name__=="__main__":
 	n_processes = 100
 	urls_queue_name = sys.argv[1]
-	proxies_queue_name = sys.argv[2]
 	
 	pool = multiprocessing.Pool(n_processes)
-	while r.scard(proxies_queue_name)>0:
-		proxy = r.spop(proxies_queue_name)
+	while r.scard(good_proxies)>0:
+		proxy = r.spop(good_proxies)
 		pool.apply_async(work, (), dict(queue_name=urls_queue_name, proxy=proxy))
 
 	pool.close()
 	pool.join()
 
-	inuse = r.smembers("in_use_proxies")
+	inuse = r.smembers(in_use_proxies)
 	for p in inuse:
-	    r.sadd(proxies_queue_name,p)	
-	    r.srem("in_use_proxies",p)
+	    r.sadd(good_proxies,p)	
+	    r.srem(in_use_proxies,p)
