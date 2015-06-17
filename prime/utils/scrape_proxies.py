@@ -103,6 +103,7 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 		page += 1
 
 	driver.quit()
+	display.stop()
 	return proxies
 
 def get_proxylistorg_proxies(redis=r, overwrite=False):
