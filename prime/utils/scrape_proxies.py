@@ -4,12 +4,12 @@ import os, re
 from geoip import geolite2
 import redis
 import datetime
-from . import *
+from prime.utils import *
+import googling
 
 timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")
-secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
 
 def get_proxies(site='xroxy', redis=r, overwrite=False):
 	if site == "hidemyass":
@@ -41,27 +41,17 @@ def queue_proxy(redis=r, source=None, proxy=None):
 	if proxy is not None and redis is not None: 
 		if source.find(".txt") > -1: 
 			r.sadd("untested_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-		else:
-			r.sadd("untested_promising_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+		elif not r.sismember(in_use_proxies,proxy) and not r.sismember(bad_proxies,proxy) and not r.sismember(good_proxies,proxy):
+			#r.sadd("untested_promising_proxies", {"source":source,"proxy":proxy, "time_found":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+			r.sadd(good_proxies,proxy)
 
 def get_ip(raw):
 	chunks = raw.split(":")
 	if len(chunks) == 2: return chunks[0]
 	return chunks[1][2:]
 
-def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%2B%22:3128%22+%2B%22:80%22+filetype:txt", results_per_page=100, start_num=0):
-	urls = []
-	while True:
-		search_query ="http://www.google.com/search?q=" + proxies_query + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
-		start_num+=results_per_page
-		response = requests.get(search_query, headers=headers, verify=False)
-		raw_html = lxml.html.fromstring(response.content)
-		results_area = raw_html.xpath("//*[contains(@class,'srg')]")
-		if len(results_area) == 0: break
-		links = results_area[0].xpath("//h3[@class='r']/a")
-		for link in links:
-			urls.append(link.values()[0])
-
+def get_google_proxies(redis=r, overwrite=False, proxies_query="%2B%22:8080%22+%2B%22:3128%22+%2B%22:80%22+filetype:txt"):
+	urls = googling.search(proxies_query)
 	for url in urls:
 		try: response = requests.get(url, headers=headers, verify=False, timeout=timeout)
 		except: continue
@@ -108,7 +98,7 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 					driver.quit()
 					return proxies
 		except:
-			driver.save_screenshot('screenshot.png')
+			#driver.save_screenshot('screenshot.png')
 			break
 		page += 1
 
@@ -174,3 +164,10 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 		#print len(proxies)
 		page += 1	
 	return proxies	
+
+if __name__=="__main__":
+	while True:
+		get_proxylistorg_proxies()
+		get_hidemyass_proxies()
+		get_xroxy_proxies()
+		
