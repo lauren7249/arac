@@ -60,6 +60,7 @@ def add_urls(filename="/dev/finished_oct30.txt", limit=None):
 	urls.close()
 	return r.scard("urls")
 
+
 def get(url, proxy=None, timeout=8, session=None):
 	if session is None:
 		session = requests.Session()

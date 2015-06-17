@@ -46,5 +46,13 @@ donors.apply(get_jobs, axis=1)
 
 jobs = pandas.read_csv("for_insight_jobs.csv", error_bad_lines=False)
 jobs.drop_duplicates(subset=["prospect_id","company_id","title","job_location"], inplace=True)
+#364060
+job_counts = pandas.read_csv("companies_with_count.txt", sep="\t")
+job_counts = job_counts[["id","count"]]
+job_counts.columns = ["company_id","company_size"]
+jobs = jobs.merge(job_counts, on=["company_id"], how="inner")
+#358734
+
 jobs.to_csv("for_insight_jobs.csv", index=None)
+
 
