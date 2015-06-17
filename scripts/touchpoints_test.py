@@ -22,12 +22,12 @@ def process(row):
     u = googling.search_linkedin_profile(terms)
     if len(u)==0 or u is None: 
     	print terms
-    	continue
+    	return
     id = row["ID Number"]
     if r.hexists("touchpoints",id): u.update(eval(r.hget("touchpoints",id)))
     r.hset("touchpoints",id,u)
 
-pool = multiprocessing.Pool(n_processes)
+pool = multiprocessing.Pool(100)
 for index, row in tp.iterrows():
 	pool.apply_async(process, (row,))
 
