@@ -365,7 +365,7 @@ class Proxy(db.Model):
 
     def __repr__(self):
         return '<Proxy ={0} domain={1} last_rejected={2} last_accepted={3}>'.format(
-                self.proxy,
+                self.url,
                 self.domain,
                 self.last_rejected,
                 self.last_accepted
