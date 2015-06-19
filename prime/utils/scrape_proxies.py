@@ -95,10 +95,14 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 				protocol =  tds[6].text.strip()
 				if protocol.find("HTTP") == -1: continue
 				proxy = protocol.lower() + "://" + ip + ":" + port
-				proxies.append(proxy)
-				queue_proxy(redis=r,proxy=proxy,source=source)
+				if session.query(Proxy).get(proxy) is None:
+					proxies.append(proxy)
+					session.add(Proxy(url=proxy, consecutive_timeouts=0))
+					session.flush()
+					session.commit()	
 				if limit is not None and len(proxies) == limit: 
 					driver.quit()
+					display.stop()
 					return proxies
 		except:
 			#driver.save_screenshot('screenshot.png')
