@@ -160,12 +160,11 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 			elif protocol == 'false':
 				proxy = "http://"+proxy+":"+port
 			else: continue
-			proxies.append(proxy)
-			queue_proxy(redis=r,proxy=proxy,source=source)
-			# else:
-			# 	proxies.append("http://"+proxy+":"+port)
-			# 	proxies.append("https://"+proxy+":"+port)		
-		#print len(proxies)
+			if session.query(Proxy).get(proxy) is None:
+				proxies.append(proxy)
+				session.add(Proxy(url=proxy, consecutive_timeouts=0))
+				session.flush()
+				session.commit()	
 		page += 1	
 	return proxies	
 
