@@ -364,11 +364,11 @@ class Proxy(db.Model):
     consecutive_timeouts = db.Column(Integer)
 
     def __repr__(self):
-        return '<Proxy ={0} domain={1} last_rejected={2} last_accepted={3}>'.format(
+        return '<Proxy ={0} last_timeout={1} last_success={2} consecutive_timeouts={3}>'.format(
                 self.url,
-                self.domain,
-                self.last_rejected,
-                self.last_accepted
+                self.last_timeout,
+                self.last_success,
+                self.consecutive_timeouts
                 )
 
 class School(db.Model):
