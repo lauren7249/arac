@@ -341,10 +341,27 @@ class Job(db.Model):
 class ProxyDomainStatus(db.Model):
     __tablename__ = "proxy_domain_status"
 
-    proxy = db.Column(String(30), primary_key=True)
+    proxy_url = db.Column(String(30), ForeignKey("proxy.url"), primary_key=True, index=True)
+    proxy = relationship('Proxy', foreign_keys='Proxy.url')
     domain = db.Column(String(100), primary_key=True)
     last_rejected = db.Column(TIMESTAMP)
     last_accepted = db.Column(TIMESTAMP)
+
+    def __repr__(self):
+        return '<Proxy={0} domain={1} last_rejected={2} last_accepted={3}>'.format(
+                self.proxy_url,
+                self.domain,
+                self.last_rejected,
+                self.last_accepted
+                )
+
+class Proxy(db.Model):
+    __tablename__ = "proxy"
+
+    url = db.Column(String(30), primary_key=True)
+    last_timeout = db.Column(TIMESTAMP)
+    last_success = db.Column(TIMESTAMP)
+    consecutive_timeouts = db.Column(Integer)
 
     def __repr__(self):
         return '<Proxy ={0} domain={1} last_rejected={2} last_accepted={3}>'.format(
