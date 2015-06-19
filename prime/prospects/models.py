@@ -342,7 +342,7 @@ class ProxyDomainStatus(db.Model):
     __tablename__ = "proxy_domain_status"
 
     proxy_url = db.Column(String(30), ForeignKey("proxy.url"), primary_key=True, index=True)
-    proxy = relationship('Proxy', foreign_keys='Proxy.url')
+    proxy = relationship('Proxy', foreign_keys='ProxyDomainStatus.proxy_url')
     domain = db.Column(String(100), primary_key=True)
     last_rejected = db.Column(TIMESTAMP)
     last_accepted = db.Column(TIMESTAMP)
