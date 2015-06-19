@@ -5,7 +5,7 @@ import requests
 import lxml.html
 import os
 
-from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float
+from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
@@ -336,6 +336,25 @@ class Job(db.Model):
                 self.id,
                 self.company.name,
                 self.prospect.name
+                )
+
+class ProxyDomainStatus(db.Model):
+    __tablename__ = "proxy_domain_status"
+
+    id = db.Column(Integer, primary_key=True)
+    proxy = db.Column(String(30))
+    domain = db.Column(String(100))
+    last_rejected = db.Column(TIMESTAMP)
+    last_used = db.Column(TIMESTAMP)
+    last_timeout = db.Column(TIMESTAMP)
+
+    def __repr__(self):
+        return '<Proxy ={0} domain={1} last_rejected={2} last_used={3} last_timeout={4}>'.format(
+                self.proxy,
+                self.domain,
+                self.last_rejected,
+                self.last_used,
+                self.last_timeout
                 )
 
 class School(db.Model):

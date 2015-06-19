@@ -10,7 +10,7 @@ import googling
 timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
 port_regex = re.compile(r"(^|[^0-9\.])\d{1,5}(?=$|[^0-9\.])")
-
+wait_seconds = 60
 def get_proxies(site='xroxy', redis=r, overwrite=False):
 	if site == "hidemyass":
 		get_hidemyass_proxies(redis=redis, overwrite=overwrite)
@@ -138,11 +138,11 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 	while True:	
 		try:
 			response = requests.get(source + '?&pnum=' + str(page), verify=False, timeout=timeout, headers=headers)
+			raw_html = lxml.html.fromstring(response.content)
+			table = raw_html.xpath("//table")[0]			
 		except:
-			return None
+			break
 		#print response.status_code
-		raw_html = lxml.html.fromstring(response.content)
-		table = raw_html.xpath("//table")[0]
 		proxies_d = table.xpath("//tr/td/a[@title='View this Proxy details']")
 		ports_d = table.xpath("//tr/td/a[contains(@title,'Select proxies with port number')]")  
 		protocols_d = table.xpath("//tr/td/a[@title='Select proxies with/without SSL support']")
@@ -168,7 +168,8 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 
 if __name__=="__main__":
 	while True:
+		get_xroxy_proxies()
 		get_proxylistorg_proxies()
 		get_hidemyass_proxies()
-		get_xroxy_proxies()
+		
 		
