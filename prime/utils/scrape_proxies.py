@@ -6,6 +6,8 @@ import redis
 import datetime
 from prime.utils import *
 import googling
+from prime.prospects.get_prospect import session
+from prime.prospects.models import Proxy
 
 timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
@@ -36,6 +38,7 @@ def parse_line(line):
 	if port>65535: return None
 	port = str(port)
 	return ip + ":" + port
+
 
 def queue_proxy(redis=r, source=None, proxy=None):
 	if proxy is not None and redis is not None: 
@@ -122,11 +125,11 @@ def get_proxylistorg_proxies(redis=r, overwrite=False):
 			protocol = protocols_d[i].text_content()
 			if protocol in ["HTTP","HTTPS"]:
 				proxy = protocol.lower() + "://" + proxy
-				proxies.append(proxy)
-				queue_proxy(redis=r,proxy=proxy,source=source)
-			# else:
-			# 	proxies.append("http://"+proxy)
-			# 	proxies.append("https://"+proxy)		
+				if session.query(Proxy).get(proxy) is None:
+					proxies.append(proxy)
+					session.add(Proxy(url=proxy, consecutive_timeouts=0))
+					session.flush()
+					session.commit()	
 		page += 1
 				
 	return proxies

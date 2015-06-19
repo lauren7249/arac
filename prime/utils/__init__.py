@@ -7,7 +7,7 @@ headers ={'User-Agent':user_agent, 'Accept-Language': 'en-US,en;q=0.8', "Content
 good_proxies ="good_proxies"
 bad_proxies="bad_proxies"
 in_use_proxies="in_use_proxies"
-session = requests.Session()
+requests_session = requests.Session()
 
 def get_redis():
 	pool = redis.ConnectionPool(host=redis_host, port=6379, db=0)

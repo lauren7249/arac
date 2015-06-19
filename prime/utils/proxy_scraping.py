@@ -6,7 +6,7 @@ import lxml.html
 requests.packages.urllib3.disable_warnings()
 
 timeout = 5
-wait_seconds = 60
+
 
 def try_request(url, expected_xpath, proxy=None):
 	#print url
@@ -19,7 +19,7 @@ def try_request(url, expected_xpath, proxy=None):
 
 	t = Timeout(timeout*2)
 	try:
-		response = session.get(url, headers=headers, verify=False, timeout=timeout, proxies=proxies)
+		response = requests_session.get(url, headers=headers, verify=False, timeout=timeout, proxies=proxies)
 	except: 
 		#print "timeout exception"
 		return False, None
@@ -36,7 +36,8 @@ def try_request(url, expected_xpath, proxy=None):
 def robust_get_url(url, expected_xpath):
 	successful, response = try_request(url, expected_xpath)
 	if successful: return lxml.html.fromstring(response.content)
-	r.zrangebyscore(good_proxies,0,int(time.time())-wait_seconds)
+	potential_proxies = []
+	potential_proxies = r.zrangebyscore(good_proxies,0,int(time.time())-wait_seconds)
 	while r.scard(good_proxies)>0:
 		proxy = r.spop(good_proxies)
 		#proxy="https://199.48.185.9:80"
