@@ -29,7 +29,7 @@ def try_request(url, expected_xpath, proxy=None):
 
 	t = Timeout(timeout*2)
 	try:
-		response = requests_session.get(url, headers=headers, verify=False, timeout=timeout, proxies=proxies)
+		response = requests.get(url, headers=headers, verify=False, timeout=timeout, proxies=proxies)
 	except: 
 		#print "timeout exception"
 		return False, None
@@ -102,7 +102,7 @@ def robust_get_url(url, expected_xpath, require_proxy=True):
 		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
 		if successful: 
 			record_success(proxy, domain)
-			print proxy
+			#print proxy
 			return lxml.html.fromstring(response.content)
 		record_failure(proxy, domain, response)
 		proxy = pick_proxy(domain)

@@ -27,9 +27,10 @@ def process(row):
     if r.hexists("touchpoints",id): u.update(eval(r.hget("touchpoints",id)))
     r.hset("touchpoints",id,u)
 
-pool = multiprocessing.Pool(100)
+#pool = multiprocessing.Pool(10)
 for index, row in tp.iterrows():
-	pool.apply_async(process, (row,))
+	process(row)
+	#pool.apply_async(process, (row,))
 
 pool.close()
 pool.join()
