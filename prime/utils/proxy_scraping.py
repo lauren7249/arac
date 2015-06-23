@@ -39,6 +39,8 @@ def try_request(url, expected_xpath, proxy=None):
 		return False, response
 	raw_html = lxml.html.fromstring(response.content)
 	#print response.content
+
+	#"//script[contains(.,'background_view')]" for linkedin profile
 	if len(raw_html.xpath(expected_xpath))==0: return False, response
 	return True, response
 
@@ -76,7 +78,7 @@ def record_success(proxy, domain):
 
 #return Proxy object
 def pick_proxy(domain):
-	return session.query(Proxy).filter(and_(or_(Proxy.last_timeout < (datetime.utcnow() - timedelta(days=try_again_after_timeout_days)), Proxy.last_timeout ==None, Proxy.last_success > Proxy.last_timeout), Proxy.consecutive_timeouts < max_consecutive_timeouts)).first()
+	return session.query(Proxy).order_by(desc(Proxy.last_success)).filter(and_(or_(Proxy.last_timeout < (datetime.utcnow() - timedelta(days=try_again_after_timeout_days)), Proxy.last_timeout ==None, Proxy.last_success > Proxy.last_timeout), Proxy.consecutive_timeouts < max_consecutive_timeouts)).first()
 
 def robust_get_url(url, expected_xpath):
 	successful, response = try_request(url, expected_xpath)

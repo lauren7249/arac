@@ -8,6 +8,7 @@ from prime.utils import *
 import googling
 from prime.prospects.get_prospect import session
 from prime.prospects.models import Proxy
+from datetime import datetime
 
 timeout=8
 ip_regex = re.compile(r"(^|[^0-9\.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?=$|[^0-9\.])")
@@ -97,7 +98,7 @@ def get_hidemyass_proxies(limit=None, redis=r, overwrite=False):
 				proxy = protocol.lower() + "://" + ip + ":" + port
 				if session.query(Proxy).get(proxy) is None:
 					proxies.append(proxy)
-					session.add(Proxy(url=proxy, consecutive_timeouts=0))
+					session.add(Proxy(url=proxy, consecutive_timeouts=0, last_success=datetime.fromtimestamp(0), last_timeout=datetime.fromtimestamp(0)))
 					session.flush()
 					session.commit()	
 				if limit is not None and len(proxies) == limit: 
@@ -131,7 +132,7 @@ def get_proxylistorg_proxies(redis=r, overwrite=False):
 				proxy = protocol.lower() + "://" + proxy
 				if session.query(Proxy).get(proxy) is None:
 					proxies.append(proxy)
-					session.add(Proxy(url=proxy, consecutive_timeouts=0))
+					session.add(Proxy(url=proxy, consecutive_timeouts=0, last_success=datetime.fromtimestamp(0), last_timeout=datetime.fromtimestamp(0)))
 					session.flush()
 					session.commit()	
 		page += 1
@@ -166,7 +167,7 @@ def get_xroxy_proxies(redis=r, overwrite=False):
 			else: continue
 			if session.query(Proxy).get(proxy) is None:
 				proxies.append(proxy)
-				session.add(Proxy(url=proxy, consecutive_timeouts=0))
+				session.add(Proxy(url=proxy, consecutive_timeouts=0, last_success=datetime.fromtimestamp(0), last_timeout=datetime.fromtimestamp(0)))
 				session.flush()
 				session.commit()	
 		page += 1	
