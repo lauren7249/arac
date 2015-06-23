@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AdvisorConnect Prospect Email</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="title" content="Stock-up on new polo shirts designed by Michael Bastian. " />
+<meta property="og:site_name" content="UNIQLO" />
+<meta name="description" content="Check out newly-arrived polo shirts by top-notch men's fashion designer Michael Bastian! Available in new colors, styles and prints that are perfect for spring and summer! "/>
+<link rel="image_src" href="http://www.uniqlo.com/global_images/us/mail/nav/uniqlo_logo.png" />
+</head>
+<body>
+<table width="749" cellspacing="0" cellpadding="0" border="0" align="center">
+  
+  <tr>
+    <td> </td>
+  </tr>
+  
+ <tr>
+    <td>
+      <table width="749" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="590">
+          <p style="font-size:0.69em; color:#adadad; font-family:Arial, Helvetica, sans-serif; line-height:14px;">Get your AdvisorConnect Prospects! <br />Having trouble viewing this message? <a href="http://prime.advisorconnect.co/" style="text-decoration:none; color:#ff0000;">click here</a></p>
+          </td>
+          <td width="159" align="right">
+        </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  
+  <tr>
+    <td style="padding-top:10px;">
+      <a href="http://advisorconnect.co" style="text-decoration:none; text-align: center;display:block; outline:0;" target="_blank"><img src="http://advisorconnect.co/img/AC_logo.png" style='width: 350px;' alt="uniqlo-logo" border="0"/></a>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:40px 0 0 0;text-align: center;" align="center" >
+      <table id='main' align="center" width="640px" height="609px">
+        <tr>
+          <td align="left" style='font-family: arial;' valign='top' background="http://sheltered-stream-1292.herokuapp.com/static/img/{{ city }}/email_{{ bucket }}.png" height="609px">
+            <p>Dear {{ user.name }}</p>
+            <p>Here are your prospects for {{ today }}:</p>
+            <div style='padding: 20px; background: #CED7E0; border: 1px solid #bbb;'>
+              <table style='font-size: 12px;text-align: left;'>
+                <tr>
+                  <th style='padding: 10px;color: #2A356F;'>Name</th>
+                  <th style='padding: 10px;color: #2A356F;'>Company</th>
+                  <th style='padding: 10px;color: #2A356F;'>Job</th>
+                  <th style='padding: 10px;color: #2A356F;'>Contact</th>
+                  <th style='padding: 10px;color: #2A356F;'>Learn More</th>
+                </tr>
+                {% for prospect in prospects %}
+                <tr>
+                  <td style='padding: 10px;color: #555;'>{{ prospect.name }}</td>
+                  <td style='padding: 10px;color: #555;'>{% if prospect.current_job %}{{ prospect.current_job.company.name }}{% else %}N/A{% endif %}</td>
+                  <td style='padding: 10px;color: #555;'>{% if prospect.current_job %}{{ prospect.current_job.title }}{% else %}N/A{% endif %}</td>
+                  <td style='padding: 10px;color: #555;'>{{ prospect.email }}<br/>{{ prospect.phone }}</td>
+                  <td style='padding: 10px;color: #555;'><a style='text-decoration: none;text-align: center;background: #2AC36C;text-transform: uppercase; display: block;font-weight: bold; color: #fff; padding: 8px 12px;' href='http://prime.advisorconnect.co/prospect/{{ prospect.id }}'>Learn More</a></td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            <p>Thank you and let us know if you have any questions about these leads by emailing jeff@advisorconnect.co</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 20px 0;"><img src="http://www.uniqlo.com/global_images/us/mail/nav/line_lg.gif" width="749" height="1" alt="Uniqlo" border="0" style="display:block;"/></td>
+  </tr>
+  <tr>
+    <td>
+      <table width="755" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="565">
+          <p style="font-size:0.69em; font-family:Arial, Helvetica, sans-serif; color:#666666; margin:0;">
+          <a href="mailto:jeff@advisorconnect.co" style="text-decoration:none;color:#666666;" target="_blank">UNSUBSCRIBE</a>
+          <p style="font-size:0.69em; color:#666666; font-family:Arial, Helvetica, sans-serif; line-height:15px;  margin:0;">
+          Advisorconnect Inc. 79 Madison Avenue 7th Floor New York NY 10016  |  ADIVSORCONNECT.CO</p>
+          </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  
+  <tr>
+    <td> </td>
+  </tr>
+</table>
+</body>
+</html>
