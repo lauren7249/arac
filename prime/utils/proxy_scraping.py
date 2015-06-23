@@ -52,7 +52,14 @@ def record_failure(proxy, domain, response):
 	if response is None:
 		proxy.last_timeout = datetime.utcnow()
 		proxy.consecutive_timeouts+=1
-		session.add(proxy)
+	else:
+		proxy.last_success = datetime.utcnow()
+		proxy.consecutive_timeouts=0
+		status = session.query(ProxyDomainStatus).get((proxy.url,domain))
+		if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain)
+		status.last_rejected = datetime.utcnow()
+		session.add(status)	
+	session.add(proxy)	
 	session.flush()
 	session.commit()
 
@@ -60,9 +67,13 @@ def record_success(proxy, domain):
 	proxy.last_success = datetime.utcnow()
 	proxy.consecutive_timeouts=0
 	session.add(proxy)
+	status = session.query(ProxyDomainStatus).get((proxy.url,domain))
+	if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain)
+	status.last_accepted = datetime.utcnow()
+	session.add(status)	
 	session.flush()
 	session.commit()
-		
+
 #return Proxy object
 def pick_proxy(domain):
 	return session.query(Proxy).filter(and_(or_(Proxy.last_timeout < (datetime.utcnow() - timedelta(days=try_again_after_timeout_days)), Proxy.last_timeout ==None, Proxy.last_success > Proxy.last_timeout), Proxy.consecutive_timeouts < max_consecutive_timeouts)).first()
