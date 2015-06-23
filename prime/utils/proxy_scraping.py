@@ -3,10 +3,19 @@ import requests
 from eventlet.timeout import Timeout
 import re
 import lxml.html
+from prime.prospects.get_prospect import session
+from prime.prospects.models import Proxy, ProxyDomainStatus
+from datetime import datetime, timedelta
+from sqlalchemy import *
+
 requests.packages.urllib3.disable_warnings()
 
 timeout = 5
-
+try_again_after_timeout_days = 2
+max_consecutive_timeouts = 3
+try_again_after_reject_days = 1
+min_wait_btwn_requests_seconds = 15
+max_wait_btwn_requests_seconds = 45
 
 def try_request(url, expected_xpath, proxy=None):
 	#print url
@@ -33,18 +42,41 @@ def try_request(url, expected_xpath, proxy=None):
 	if len(raw_html.xpath(expected_xpath))==0: return False, response
 	return True, response
 
+def get_domain(url):
+	url = re.sub(r"^https://","", url)
+	url = re.sub(r"^http://","", url)	
+	url = re.sub(r"^www.","", url)	
+	return url.split("/")[0]
+
+def record_failure(proxy, domain, response):
+	if response is None:
+		proxy.last_timeout = datetime.utcnow()
+		proxy.consecutive_timeouts+=1
+		session.add(proxy)
+	session.flush()
+	session.commit()
+
+def record_success(proxy, domain):
+	proxy.last_success = datetime.utcnow()
+	proxy.consecutive_timeouts=0
+	session.add(proxy)
+	session.flush()
+	session.commit()
+		
+#return Proxy object
+def pick_proxy(domain):
+	return session.query(Proxy).filter(and_(or_(Proxy.last_timeout < (datetime.utcnow() - timedelta(days=try_again_after_timeout_days)), Proxy.last_timeout ==None, Proxy.last_success > Proxy.last_timeout), Proxy.consecutive_timeouts < max_consecutive_timeouts)).first()
+
 def robust_get_url(url, expected_xpath):
 	successful, response = try_request(url, expected_xpath)
 	if successful: return lxml.html.fromstring(response.content)
-	potential_proxies = []
-	potential_proxies = r.zrangebyscore(good_proxies,0,int(time.time())-wait_seconds)
-	while r.scard(good_proxies)>0:
-		proxy = r.spop(good_proxies)
-		#proxy="https://199.48.185.9:80"
-		successful, response = try_request(url, expected_xpath, proxy=proxy)
+	domain = get_domain(url)
+	proxy = pick_proxy(domain)
+	while proxy:
+		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
 		if successful: 
-			r.sadd(good_proxies,proxy)
+			record_success(proxy, domain)
 			return lxml.html.fromstring(response.content)
-		r.sadd(bad_proxies, proxy)
-		#break
+		record_failure(proxy, domain, response)
+		proxy = pick_proxy(domain)
 	return None
