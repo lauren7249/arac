@@ -1,5 +1,5 @@
 import re
-from .proxy_scraping import robust_get_url
+from prime.utils.proxy_scraping import robust_get_url
 
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
 def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex="."):
