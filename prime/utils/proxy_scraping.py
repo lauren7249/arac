@@ -102,6 +102,7 @@ def robust_get_url(url, expected_xpath, require_proxy=True):
 		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
 		if successful: 
 			record_success(proxy, domain)
+			print proxy
 			return lxml.html.fromstring(response.content)
 		record_failure(proxy, domain, response)
 		proxy = pick_proxy(domain)
