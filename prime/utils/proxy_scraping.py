@@ -92,9 +92,10 @@ def pick_proxy(domain):
 		Proxy.consecutive_timeouts < max_consecutive_timeouts, #but we aren't going to keep trying if it keeps timing out over and over
 		~Proxy.url.in_(rejects))).first() #not on the rejects list
 
-def robust_get_url(url, expected_xpath):
-	successful, response = try_request(url, expected_xpath)
-	if successful: return lxml.html.fromstring(response.content)
+def robust_get_url(url, expected_xpath, require_proxy=True):
+	if not require_proxy:
+		successful, response = try_request(url, expected_xpath)
+		if successful: return lxml.html.fromstring(response.content)
 	domain = get_domain(url)
 	proxy = pick_proxy(domain)
 	while proxy:
