@@ -5,7 +5,7 @@ import requests
 import lxml.html
 import os
 
-from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP
+from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
@@ -338,6 +338,7 @@ class Job(db.Model):
                 self.prospect.name
                 )
 
+
 class ProxyDomainStatus(db.Model):
     __tablename__ = "proxy_domain_status"
 
@@ -355,6 +356,26 @@ class ProxyDomainStatus(db.Model):
                 self.last_accepted
                 )
 
+class ProxyDomainEvent(db.Model):
+    __tablename__ = "proxy_domain_event"
+    id = db.Column(Integer, primary_key=True)
+    proxy_url = db.Column(String(30), ForeignKey("proxy.url"), index=True)
+    proxy = relationship('Proxy', foreign_keys='ProxyDomainStatus.proxy_url')
+    domain = db.Column(String(100))
+    event_time = db.Column(TIMESTAMP)
+    event_code = db.Column(String(3))
+    __table_args__ = (ForeignKeyConstraint([proxy_url, domain],
+                                           [ProxyDomainStatus.proxy_url, ProxyDomainStatus.domain]),
+                      {})
+
+    def __repr__(self):
+        return '<Proxy={0} domain={1} event_time={2} event_code={3}>'.format(
+                self.proxy_url,
+                self.domain,
+                self.event_time,
+                self.event_code
+                )
+        
 class Proxy(db.Model):
     __tablename__ = "proxy"
 
