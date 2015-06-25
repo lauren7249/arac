@@ -359,8 +359,7 @@ class ProxyDomainStatus(db.Model):
 class ProxyDomainEvent(db.Model):
     __tablename__ = "proxy_domain_event"
     id = db.Column(Integer, primary_key=True)
-    proxy_url = db.Column(String(30), ForeignKey("proxy.url"), index=True)
-    proxy = relationship('Proxy', foreign_keys='ProxyDomainStatus.proxy_url')
+    proxy_url = db.Column(String(30))
     domain = db.Column(String(100))
     event_time = db.Column(TIMESTAMP)
     event_code = db.Column(String(3))
@@ -375,7 +374,7 @@ class ProxyDomainEvent(db.Model):
                 self.event_time,
                 self.event_code
                 )
-        
+
 class Proxy(db.Model):
     __tablename__ = "proxy"
 
