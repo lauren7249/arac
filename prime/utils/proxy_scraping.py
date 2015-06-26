@@ -4,7 +4,7 @@ from eventlet.timeout import Timeout
 import re
 import lxml.html
 from prime.prospects.get_prospect import session
-from prime.prospects.models import Proxy, ProxyDomainStatus
+from prime.prospects.models import Proxy, ProxyDomainStatus, ProxyDomainEvent
 from datetime import datetime, timedelta
 from sqlalchemy import *
 from random import randint
