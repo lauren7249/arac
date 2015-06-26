@@ -363,9 +363,6 @@ class ProxyDomainEvent(db.Model):
     domain = db.Column(String(100))
     event_time = db.Column(TIMESTAMP)
     event_code = db.Column(String(3))
-    __table_args__ = (ForeignKeyConstraint([proxy_url, domain],
-                                           [ProxyDomainStatus.proxy_url, ProxyDomainStatus.domain]),
-                      {})
 
     def __repr__(self):
         return '<Proxy={0} domain={1} event_time={2} event_code={3}>'.format(
