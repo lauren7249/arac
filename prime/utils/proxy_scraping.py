@@ -63,7 +63,7 @@ def record_failure(proxy, domain, response):
 		status = session.query(ProxyDomainStatus).get((proxy.url,domain))
 		if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain, last_rejected=datetime.fromtimestamp(0), last_accepted=datetime.fromtimestamp(0))
 		status.last_rejected = now
-		event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, event_code=response.status_code, success=False)
+		event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, status_code=response.status_code, success=False)
 		session.add(status)	
 	session.add(proxy)	
 	session.add(event)
