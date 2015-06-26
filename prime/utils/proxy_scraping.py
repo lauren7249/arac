@@ -52,28 +52,33 @@ def get_domain(url):
 	return url.split("/")[0]
 
 def record_failure(proxy, domain, response):
+	now = datetime.utcnow()
 	if response is None:
-		proxy.last_timeout = datetime.utcnow()
+		proxy.last_timeout = now
 		proxy.consecutive_timeouts+=1
+		event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, success=False)
 	else:
-		proxy.last_success = datetime.utcnow()
+		proxy.last_success = now
 		proxy.consecutive_timeouts=0
 		status = session.query(ProxyDomainStatus).get((proxy.url,domain))
 		if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain, last_rejected=datetime.fromtimestamp(0), last_accepted=datetime.fromtimestamp(0))
-		status.last_rejected = datetime.utcnow()
+		status.last_rejected = now
+		event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, event_code=response.status_code, success=False)
 		session.add(status)	
 	session.add(proxy)	
+	session.add(event)
 	session.flush()
 	session.commit()
 
 def record_success(proxy, domain):
-	proxy.last_success = datetime.utcnow()
+	now = datetime.utcnow()
+	proxy.last_success = now
 	proxy.consecutive_timeouts=0
 	session.add(proxy)
 	status = session.query(ProxyDomainStatus).get((proxy.url,domain))
 	if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain, last_rejected=datetime.fromtimestamp(0), last_accepted=datetime.fromtimestamp(0))
-	status.last_accepted = datetime.utcnow()
-	event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=datetime.utcnow(), event_code="200")
+	status.last_accepted = now
+	event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, event_code="200", success=True)
 	session.add(status)	
 	session.add(event)
 	session.flush()
