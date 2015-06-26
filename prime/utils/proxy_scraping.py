@@ -78,7 +78,7 @@ def record_success(proxy, domain):
 	status = session.query(ProxyDomainStatus).get((proxy.url,domain))
 	if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain, last_rejected=datetime.fromtimestamp(0), last_accepted=datetime.fromtimestamp(0))
 	status.last_accepted = now
-	event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, event_code="200", success=True)
+	event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, status_code="200", success=True)
 	session.add(status)	
 	session.add(event)
 	session.flush()
