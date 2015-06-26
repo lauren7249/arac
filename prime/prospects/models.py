@@ -362,14 +362,16 @@ class ProxyDomainEvent(db.Model):
     proxy_url = db.Column(String(30))
     domain = db.Column(String(100))
     event_time = db.Column(TIMESTAMP)
-    event_code = db.Column(String(3))
+    status_code = db.Column(String(3))
+    success = db.Column(Boolean)
 
     def __repr__(self):
-        return '<Proxy={0} domain={1} event_time={2} event_code={3}>'.format(
+        return '<Proxy={0} domain={1} event_time={2} status_code={3}> success={4}'.format(
                 self.proxy_url,
                 self.domain,
                 self.event_time,
-                self.event_code
+                self.status_code,
+                self.success
                 )
 
 class Proxy(db.Model):
