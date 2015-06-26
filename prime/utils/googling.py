@@ -20,5 +20,5 @@ def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_re
 def search_linkedin_profile(terms):
 	profile_re = re.compile('(^https?://www.linkedin.com/pub/((?!dir).)*/.*/.*)|(^https?://www.linkedin.com/in/.*)')
 	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
-	urls = search(querystring, url_regex=profile_re, limit=50)
+	urls = search(querystring, url_regex=profile_re, limit=10)
 	return urls
