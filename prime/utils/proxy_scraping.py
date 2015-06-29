@@ -101,7 +101,7 @@ def pick_proxy(domain):
 		~Proxy.url.in_(rejects), ~Proxy.url.in_(r.hvals(domain)))).first().url) #not on the rejects list
 	proxy = r.hget(domain, proxy_lock_id)
 	r.hset(domain, proxy, proxy_lock_id)
-	return proxy
+	return session.query(Proxy).get(proxy)
 
 def release_proxy(domain, proxy):
 	proxy_lock_id = r.hget(domain, proxy)
@@ -116,7 +116,7 @@ def robust_get_url(url, expected_xpath, require_proxy=True):
 	proxy = pick_proxy(domain)
 	while proxy:
 		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
-		release_proxy(proxy, domain)
+		release_proxy(proxy.url, domain)
 		if successful: 
 			record_success(proxy, domain)
 			#print proxy
