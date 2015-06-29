@@ -93,11 +93,20 @@ def pick_proxy(domain):
 		ProxyDomainStatus.last_rejected >= (datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)), #tried very recently
 		ProxyDomainStatus.last_accepted >= (datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds))
 	)))
-	return session.query(Proxy).order_by(desc(Proxy.last_success)).filter(and_(or_( #pick the most recently non-defunct proxy
+	proxy_lock_id = r.incr("proxy_lock_id")
+	r.hset(domain, proxy_lock_id, session.query(Proxy).order_by(desc(Proxy.last_success)).filter(and_(or_( #pick the most recently non-defunct proxy
 		Proxy.last_timeout < (datetime.utcnow() - timedelta(days=try_again_after_timeout_days)),  #hasn't timed out in the last 2 days
 			Proxy.last_success > Proxy.last_timeout), #or we had a success more recently than the timeout
 		Proxy.consecutive_timeouts < max_consecutive_timeouts, #but we aren't going to keep trying if it keeps timing out over and over
-		~Proxy.url.in_(rejects))).first() #not on the rejects list
+		~Proxy.url.in_(rejects), ~Proxy.url.in_(r.hvals(domain)))).first().url) #not on the rejects list
+	proxy = r.hget(domain, proxy_lock_id)
+	r.hset(domain, proxy, proxy_lock_id)
+	return proxy
+
+def release_proxy(domain, proxy):
+	proxy_lock_id = r.hget(domain, proxy)
+	r.hdel(domain, proxy)
+	r.hdel(domain, proxy_lock_id)
 
 def robust_get_url(url, expected_xpath, require_proxy=True):
 	if not require_proxy:
@@ -107,6 +116,7 @@ def robust_get_url(url, expected_xpath, require_proxy=True):
 	proxy = pick_proxy(domain)
 	while proxy:
 		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
+		release_proxy(proxy, domain)
 		if successful: 
 			record_success(proxy, domain)
 			#print proxy
