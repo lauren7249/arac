@@ -107,6 +107,7 @@ def release_proxy(domain, proxy):
 	proxy_lock_id = r.hget(domain, proxy)
 	r.hdel(domain, proxy)
 	r.hdel(domain, proxy_lock_id)
+	return proxy_lock_id
 
 def robust_get_url(url, expected_xpath, require_proxy=True):
 	if not require_proxy:
@@ -116,7 +117,7 @@ def robust_get_url(url, expected_xpath, require_proxy=True):
 	proxy = pick_proxy(domain)
 	while proxy:
 		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
-		release_proxy(proxy.url, domain)
+		release_proxy(domain, proxy.url)
 		if successful: 
 			record_success(proxy, domain)
 			#print proxy
