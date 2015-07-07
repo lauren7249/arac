@@ -17,20 +17,22 @@ tp =tp.merge(zips, how="inner", on=["zip"])
 #2161
 
 def process(row):
+    id = row["ID Number"]
+    if r.hexists("touchpoints",id): return
     if str(row["Middle Name"]) == "nan": terms = row["First Name"] + " " + row["Last Name"] + " " + us.states.lookup(row["State"]).name
-    else: terms = row["First Name"] + " " + row["Middle Name"] + " " + row["Last Name"] + " " + us.states.lookup(row["State"]).name
+    else: terms = row["First Name"] + " " + row["Middle Name"] + " " + row["Last Name"] + " " + us.states.lookup(row["State"]).name    
+    print terms
     u = googling.search_linkedin_profile(terms)
     if len(u)==0 or u is None: 
-    	print terms
+    	print "Nothing!"
     	return
-    id = row["ID Number"]
-    if r.hexists("touchpoints",id): u.update(eval(r.hget("touchpoints",id)))
+    #if r.hexists("touchpoints",id): u.update(eval(r.hget("touchpoints",id)))
     r.hset("touchpoints",id,u)
 
-#pool = multiprocessing.Pool(10)
+pool = multiprocessing.Pool(100)
 for index, row in tp.iterrows():
-	process(row)
-	#pool.apply_async(process, (row,))
+	#process(row)
+	pool.apply_async(process, (row,))
 
 pool.close()
 pool.join()

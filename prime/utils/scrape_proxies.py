@@ -119,7 +119,10 @@ def get_proxylistorg_proxies(redis=r, overwrite=False):
 	page = 0
 	source = 'http://proxy-list.org/english/index.php'
 	while True:	
-		response = requests.get(source + '?p=' + str(page), timeout=timeout, headers=headers)
+		try:
+			response = requests.get(source + '?p=' + str(page), timeout=timeout, headers=headers)
+		except:
+			return proxies
 		raw_html = lxml.html.fromstring(response.content)
 		table = raw_html.xpath("//div[@class='table']")[0]
 		proxies_d = table.xpath("//ul/li[@class='proxy']")
