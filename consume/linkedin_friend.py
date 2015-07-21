@@ -52,7 +52,10 @@ class LinkedinFriend(object):
         password = self.driver.find_element_by_name("session_password")
         username.send_keys(self.username)
         password.send_keys(self.password)
-        submit = self.driver.find_element_by_name("signin")
+        try:
+            submit = self.driver.find_element_by_name("signin")
+        except:
+            submit = self.driver.find_element_by_name("submit")
         submit.click()
         try:
             self.wait.until(lambda driver: driver.find_elements_by_class_name("account-toggle"))
@@ -131,6 +134,8 @@ class LinkedinFriend(object):
         return first_degree_connections
 
     def get_second_degree_connections(self, linkedin_id):
+        if not self.is_logged_in:
+            self.login()        
         self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
         try:
             element = self.wait.until(lambda driver: driver.find_element_by_class_name('connections-link'))
@@ -149,7 +154,8 @@ class LinkedinFriend(object):
             
                 next_button = buttons[1]
                 next_button.click()
-            except:
+            except Exception, e:
+                print e
                 break
         return self.all_friend_ids
 
@@ -159,6 +165,7 @@ class LinkedinFriend(object):
             try:
                 link = view.get_attribute("href")
                 linkedin_id =self.get_linkedin_id(link, second_degree=True)
+                self.all_friend_ids.append(linkedin_id)
                 print linkedin_id
             except:
                 try:
@@ -168,7 +175,7 @@ class LinkedinFriend(object):
                     self.findConnections()             
                 except:
                     self.findConnections()
-            self.all_friend_ids.append(linkedin_id)
+            
     
     def shutdown(self):
         self.display.popen.terminate()

@@ -8,6 +8,7 @@ from prime.prospects.models import Proxy, ProxyDomainStatus, ProxyDomainEvent
 from datetime import datetime, timedelta
 from sqlalchemy import *
 from random import randint
+from sqlalchemy.orm import joinedload
 
 requests.packages.urllib3.disable_warnings()
 
@@ -84,18 +85,28 @@ def record_success(proxy, domain):
 	session.flush()
 	session.commit()
 
+
+def pick_proxy2(domain):
+	#keep wait time random
+	wait_btwn_requests_seconds = randint(min_wait_btwn_requests_seconds, max_wait_btwn_requests_seconds)
+	session.query(Proxy).options(joinedload('ProxyDomainStatus')).order_by(desc(Proxy.last_success)).
+
 #return Proxy object
 def pick_proxy(domain):
 	#keep wait time random
 	wait_btwn_requests_seconds = randint(min_wait_btwn_requests_seconds, max_wait_btwn_requests_seconds)
+	last_rejected_threshold1 = datetime.utcnow() - timedelta(days=try_again_after_reject_days)
+	last_rejected_threshold2 = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
+	last_rejected_threshold = max(last_rejected_threshold1, last_rejected_threshold2)
+	last_accepted_threshold = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
+	timeout_threshold = datetime.utcnow() - timedelta(days=try_again_after_timeout_days)
 	rejects = session.query(ProxyDomainStatus.proxy_url).filter(and_(domain==ProxyDomainStatus.domain, 
-	or_(ProxyDomainStatus.last_rejected >= (datetime.utcnow() - timedelta(days=try_again_after_reject_days)),  #rejected by the domain recently
-		ProxyDomainStatus.last_rejected >= (datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)), #tried very recently
-		ProxyDomainStatus.last_accepted >= (datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds))
+	or_(ProxyDomainStatus.last_rejected >= last_rejected_threshold,  #rejected by the domain recently
+		ProxyDomainStatus.last_accepted >= last_accepted_threshold
 	)))
 	proxy_lock_id = r.incr("proxy_lock_id")
 	r.hset(domain, proxy_lock_id, session.query(Proxy).order_by(desc(Proxy.last_success)).filter(and_(or_( #pick the most recently non-defunct proxy
-		Proxy.last_timeout < (datetime.utcnow() - timedelta(days=try_again_after_timeout_days)),  #hasn't timed out in the last 2 days
+		Proxy.last_timeout < timeout_threshold,  #hasn't timed out in the last 2 days
 			Proxy.last_success > Proxy.last_timeout), #or we had a success more recently than the timeout
 		Proxy.consecutive_timeouts < max_consecutive_timeouts, #but we aren't going to keep trying if it keeps timing out over and over
 		~Proxy.url.in_(rejects), ~Proxy.url.in_(r.hvals(domain)))).first().url) #not on the rejects list
