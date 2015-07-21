@@ -85,12 +85,6 @@ def record_success(proxy, domain):
 	session.flush()
 	session.commit()
 
-
-def pick_proxy2(domain):
-	#keep wait time random
-	wait_btwn_requests_seconds = randint(min_wait_btwn_requests_seconds, max_wait_btwn_requests_seconds)
-	session.query(Proxy).options(joinedload('ProxyDomainStatus')).order_by(desc(Proxy.last_success)).
-
 #return Proxy object
 def pick_proxy(domain):
 	#keep wait time random
