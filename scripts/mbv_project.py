@@ -32,6 +32,16 @@ mvb = mvb[['school_id', 'prospect_id', 'degree', 'start_date',
 
 #clean degree
 mvb.degree = mvb.degree.replace(to_replace="\n", value=" | ", regex=True)
+mvb.dropna(subset=["degree"], inplace=True)
+
+#calculate years in school
+mvb.end_date = pandas.to_datetime(mvb.end_date)
+mvb.start_date = pandas.to_datetime(mvb.start_date)
+mvb["duration_in_school"] = mvb.end_date - mvb.start_date
+mvb.duration_in_school= mvb.duration_in_school/numpy.timedelta64(1, 'Y')
+
+#filter to 4-year degrees
+mvb[3.5 < mvb.duration_in_school][mvb.duration_in_school < 4.5]
 
 #export
 mvb.to_csv("/Users/lauren/documents/mvb_clean.csv")
