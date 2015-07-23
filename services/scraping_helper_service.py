@@ -33,16 +33,16 @@ def get_bucket():
     return s3conn.get_bucket(bucket_name)
 
 def process_content(content):
-    info = parse_html(content)	
+	info = parse_html(content)	
 	new_prospect = insert_linkedin_profile(info, session)
 	return new_prospect.id
 
 def process_url(url):
     bucket = get_bucket()
-  	key = Key(bucket)
-  	key.key = url
-  	content = key.get_contents_as_string()	
-  	return content
+    key = Key(bucket)
+    key.key = url
+    content = key.get_contents_as_string()	
+    return content
 
 class log_uploaded:
     def GET(self, url):
@@ -55,12 +55,12 @@ class select:
 class process_chrome_ext_content:
     def POST(self):
 		content = web.data()
-	  	return process_content(content)       
+		return process_content(content)       
 
 class process_chrome_ext_url:
     def GET(self, url):
     	content = process_url(url)
-	  	return process_content(content)
+    	return process_content(content)
 
 if __name__ == "__main__":
     app.run()
