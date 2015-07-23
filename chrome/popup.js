@@ -1,0 +1,41 @@
+
+function get_url(url) {
+	url = url.replace("http://","").replace("https://","");
+	console.log(url);
+	var fn = url.replace(/\//g, "-") + ".html";
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.open( "GET", "https://" + url, false );
+	xmlHttp.send( null );
+	var page = xmlHttp.responseText;
+	//console.log(page);
+	var params = {Key: fn, ContentType:'text/html', Body: page};
+	bucket.upload(params, function (err, data) {
+	}); 	
+}
+// Initialize the Amazon Cognito credentials provider
+AWS.config.region = 'us-east-1'; // Region
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: 'us-east-1:d963e11a-7c9b-4b98-8dfc-8b2a9d275574',
+});
+var bucket = new AWS.S3({params: {Bucket: 'chrome-ext-uploads'}});
+
+document.addEventListener('DOMContentLoaded', function() {
+  var checkPageButton = document.getElementById('checkPage');
+  checkPageButton.addEventListener('click', function() {
+ 	var url_field = document.getElementById('query').value;
+	if (url_field.length == 0) {
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.open( "GET", "http://169.55.28.212:8080/select", false );
+		xmlHttp.send( null );
+		url = xmlHttp.responseText;
+		get_url(url);
+	} 
+	else {
+		arr = url_field.match(/[^\r\n]+/g);
+		console.log(arr.length);
+		for (var i in arr) {
+			get_url(arr[i]);
+		}	
+	}
+  }, false);
+}, false);

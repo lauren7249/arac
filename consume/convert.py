@@ -185,7 +185,7 @@ def find_background_jobs(raw_html):
         if len(company) == 2:
             dict_item["company"] = safe_clean_str(company[1].text_content())
             dict_item["company_id"] = item.xpath(".//h5/a/@href")[0].split("?")[0].split("company/")[1]
-            dict_item["company_image_url"] = item.xpath(".//h5/a/img/@src")[0]
+            if len(item.xpath(".//h5/a/img/@src")): dict_item["company_image_url"] = item.xpath(".//h5/a/img/@src")[0]
         else:
             dict_item["company"] = safe_clean_str(company[0].text_content())
         location = item.xpath(".//span[@class='locality']")
@@ -248,7 +248,7 @@ def find_background_schools(raw_html):
             dict_item["college"] = safe_clean_str(college.text_content())
             links = item.xpath(".//a/@href")
             if len(links) > 0:
-                dict_item["college_id"] = links[0].split("id=")[1].split("&")[0]
+                if len(links[0].split("id=")) >1: dict_item["college_id"] = links[0].split("id=")[1].split("&")[0]
             college_image = item.xpath(".//img/@src")
             if len(college_image) > 0:
                 dict_item["college_image_url"] = college_image[0]
@@ -285,12 +285,10 @@ def parse_html(html):
     except:
         pass
 
-    try:
-        linkedin_index = html.find("newTrkInfo='") + 12
-        end_index = html[linkedin_index:].find("'")
-        linkedin_id = html[linkedin_index:linkedin_index+end_index].replace(",", "")
-    except:
-        linkedin_id = None
+    linkedin_id = None
+    linkedin_index = html.find("newTrkInfo=") + 10
+    if linkedin_index == 9: linkedin_index = html.find(",memberId:") + 10
+    linkedin_id = html[linkedin_index:].replace("'",'"').split('"')[1].split(",")[0]
 
     location = None
     industry = None
@@ -315,6 +313,7 @@ def parse_html(html):
     industry = safe_clean_str(industry)
 
     connections = None
+    #raw_html.xpath("//div[@class='insights-browse-map']/ul/li/")
     try:
         connections = raw_html.xpath("//div[@class='member-connections']").text_content()
         connections = "".join(re.findall("\d+", connections))

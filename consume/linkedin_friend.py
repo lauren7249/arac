@@ -159,6 +159,14 @@ class LinkedinFriend(object):
                 break
         return self.all_friend_ids
 
+    def get_public_link(self, linkedin_id):
+        self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
+        try:
+            profile_link = self.driver.find_element_by_class_name('view-public-profile')
+            return profile_link.text
+        except:
+            return None
+            
     def findConnections(self):
         all_views = self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))    
         for view in all_views:

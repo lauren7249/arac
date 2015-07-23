@@ -216,6 +216,10 @@ def update_prospect_from_info(info, prospect, session=session):
     session.commit()
     return new_prospect
 
+def get_friends_urls(prospect, session=session):
+    lids = prospect.json.get("first_degree_linkedin_ids")
+    urls = []
+    
 def create_prospect_from_info(info, url, session=session):
     new_prospect = create_prospect(info, url, session=session)
     schools = create_schools(info, new_prospect, session=session)
