@@ -1,3 +1,4 @@
+var total = 0;
 
 function get_url(url) {
 	url = url.replace("http://","").replace("https://","");
@@ -10,6 +11,16 @@ function get_url(url) {
 	//console.log(page);
 	var params = {Key: fn, ContentType:'text/html', Body: page};
 	bucket.upload(params, function (err, data) {
+		if (err) {
+
+		}
+		else {
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + url, false );
+			xmlHttp.send( null );	
+			total += 1;
+			countArea.value = total;
+		}
 	}); 	
 }
 // Initialize the Amazon Cognito credentials provider
@@ -21,6 +32,7 @@ var bucket = new AWS.S3({params: {Bucket: 'chrome-ext-uploads'}});
 
 document.addEventListener('DOMContentLoaded', function() {
   var checkPageButton = document.getElementById('checkPage');
+  countArea = document.getElementById('count');
   checkPageButton.addEventListener('click', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {

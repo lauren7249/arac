@@ -34,9 +34,12 @@ def get_bucket():
 
 def process_content(content):
 	info = parse_html(content)	
-	new_prospect = insert_linkedin_profile(info, session)
-	return new_prospect.id
-
+	if info.get("complete") and info.get("success"):
+		new_prospect = insert_linkedin_profile(info, session)
+		return new_prospect.id
+	else:
+		return None
+		
 def process_url(url):
     bucket = get_bucket()
     key = Key(bucket)

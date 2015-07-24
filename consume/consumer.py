@@ -116,8 +116,8 @@ def update_jobs(info, new_prospect, session=session):
         new = True
         for job in new_prospect.jobs:
 
-            if info_job.get("title") == job.title and info_job.get("company") == job.company.name and convert_date(info_job.get("start_date")) == job.start_date :
-                if convert_date(info_job.get("end_date")) != job.end_date:
+            if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
+                if convert_date(info_job.get("end_date")) != job.end_date  or convert_date(info_job.get("start_date")) != job.start_date :
                     session.query(models.Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
                         "start_date": convert_date(info_job.get("start_date")),
@@ -219,7 +219,7 @@ def update_prospect_from_info(info, prospect, session=session):
 def get_friends_urls(prospect, session=session):
     lids = prospect.json.get("first_degree_linkedin_ids")
     urls = []
-    
+
 def create_prospect_from_info(info, url, session=session):
     new_prospect = create_prospect(info, url, session=session)
     schools = create_schools(info, new_prospect, session=session)

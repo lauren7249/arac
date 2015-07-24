@@ -1,12 +1,20 @@
 <!doctype html>
 <html>
+	<style>
+	  #count {
+	    margin: 10px;
+	    padding: 3px;
+	    width: 200px;
+	  }
+	</style>
   <head>
     <title>AC</title>
     <script src="aws-sdk.js"></script>
     <script src="popup.js"></script>
   </head>
   <body>
-  	<textarea name='query' id='query' cols="150" rows="15"></textarea>
+  	<progress name='count' id='count' value="0" max="10" height="100"></progress>
+  	<textarea name='query' id='query' cols="40" rows="10"></textarea>
   	<button id="checkPage">Run</button>
   </body>
 </html>
