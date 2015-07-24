@@ -1,7 +1,7 @@
 var total = 0;
 
 function get_url(orig_url) {
-	url = orig_url.replace("http://","").replace("https://","");
+	url = orig_url.replace("https://","").replace("http://","");
 	console.log(url);
 	var fn = url.replace(/\//g, "-") + ".html";
 	var xmlHttp = new XMLHttpRequest();

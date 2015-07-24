@@ -20,7 +20,7 @@ urls = (
     '/select', 'select',
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
-    '/log_uploaded', 'log_uploaded'
+    '/log_uploaded/url=(.+)', 'log_uploaded'
 )
 
 app = web.application(urls, globals())
@@ -39,7 +39,7 @@ def process_content(content):
 		return new_prospect.id
 	else:
 		return None
-
+		
 def process_url(url):
     bucket = get_bucket()
     key = Key(bucket)
@@ -48,8 +48,7 @@ def process_url(url):
     return content
 
 class log_uploaded:
-    def POST(self):
-    	url = web.data()
+    def GET(self, url):
         return r.rpush("chrome_uploads",url)
 
 class select:
