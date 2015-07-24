@@ -33,6 +33,7 @@ def get_bucket():
     return s3conn.get_bucket(bucket_name)
 
 def process_content(content):
+	if content is None: return None
 	info = parse_html(content)	
 	if info.get("complete") and info.get("success"):
 		new_prospect = insert_linkedin_profile(info, session)
@@ -42,10 +43,13 @@ def process_content(content):
 
 def process_url(url):
     bucket = get_bucket()
-    key = Key(bucket)
-    key.key = url
-    content = key.get_contents_as_string()	
-    return content
+    try:
+    	key = Key(bucket)
+    	key.key = url
+    	content = key.get_contents_as_string()	
+    	return content
+    except:
+		return None
 
 class log_uploaded:
     def GET(self, url):

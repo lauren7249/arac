@@ -5,6 +5,7 @@ import time, re
 while True:
 	url = r.lpop("chrome_uploads")
 	if url: 
+		print url
 		fn = re.sub("https://","",url)
 		fn = re.sub("http://", "", fn)
 		fn = re.sub("\/","-",fn) + ".html"
