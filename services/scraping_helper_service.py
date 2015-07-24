@@ -20,7 +20,7 @@ urls = (
     '/select', 'select',
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
-    '/log_uploaded/url=(.+)', 'log_uploaded'
+    '/log_uploaded', 'log_uploaded'
 )
 
 app = web.application(urls, globals())
