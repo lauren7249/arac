@@ -8,7 +8,7 @@ import time
 import tinys3, os, boto
 from boto.s3.key import Key
 from prime.utils import *
-import web
+import web, re
 from prime.utils.update_database_from_dict import *
 from prime.prospects.get_prospect import get_session
 from consume.consumer import *
@@ -39,7 +39,7 @@ def process_content(content):
 		return new_prospect.id
 	else:
 		return None
-		
+
 def process_url(url):
     bucket = get_bucket()
     key = Key(bucket)
@@ -49,7 +49,7 @@ def process_url(url):
 
 class log_uploaded:
     def GET(self, url):
-        return r.rpush("chrome_uploads",url)
+        return r.rpush("chrome_uploads",re.sub(";","/",url))
 
 class select:
     def GET(self):
