@@ -1,7 +1,7 @@
 var total = 0;
 
-function get_url(url) {
-	url = url.replace("http://","").replace("https://","");
+function get_url(orig_url) {
+	url = orig_url.replace("http://","").replace("https://","");
 	console.log(url);
 	var fn = url.replace(/\//g, "-") + ".html";
 	var xmlHttp = new XMLHttpRequest();
@@ -11,16 +11,11 @@ function get_url(url) {
 	//console.log(page);
 	var params = {Key: fn, ContentType:'text/html', Body: page};
 	bucket.upload(params, function (err, data) {
-		if (err) {
-
-		}
-		else {
-			var xmlHttp = new XMLHttpRequest();
-			xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + url, false );
-			xmlHttp.send( null );	
-			total += 1;
-			countArea.value = total;
-		}
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url, false );
+		xmlHttp.send( null );	
+		total += 1;
+		countArea.value = total;
 	}); 	
 }
 // Initialize the Amazon Cognito credentials provider

@@ -39,7 +39,7 @@ def process_content(content):
 		return new_prospect.id
 	else:
 		return None
-		
+
 def process_url(url):
     bucket = get_bucket()
     key = Key(bucket)
@@ -48,7 +48,8 @@ def process_url(url):
     return content
 
 class log_uploaded:
-    def GET(self, url):
+    def POST(self):
+    	url = web.data()
         return r.rpush("chrome_uploads",url)
 
 class select:
