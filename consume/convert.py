@@ -305,7 +305,7 @@ def parse_html(html):
             pass
 
     try:
-        image = parse_images(raw_html)
+        image = raw_html.xpath(".//div[@class='profile-picture']/a/img/@src")[0]
     except:
         image = None
 
