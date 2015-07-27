@@ -18,7 +18,7 @@ session = get_session()
 
 web.config.debug = False
 urls = (
-    '/select?n=(.+)', 'select',
+    '/select', 'select',
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
     '/log_uploaded/url=(.+)', 'log_uploaded'
