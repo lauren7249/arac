@@ -106,6 +106,12 @@ class Prospect(db.Model):
         return None
 
     @property
+    def email_contacts(self):
+        if self.json:
+            return self.json.get("email_contacts")
+        return None  
+
+    @property
     def pipl_info(self):
         info = {}
         try:
@@ -416,6 +422,19 @@ class ProspectUrl(db.Model):
         return '<url ={0} linkedin_id={1}>'.format(
                 self.url,
                 self.linkedin_id
+                )
+
+class PiplEmail(db.Model):
+    __tablename__ = "pipl_from_email"
+
+    email = db.Column(String(200), primary_key=True)
+    linkedin_url = db.Column(String(150))
+    pipl_response = db.Column(JSON)
+
+    def __repr__(self):
+        return '<email ={0} linkedin_url={1}>'.format(
+                self.email,
+                self.linkedin_url
                 )
 
 class Proxy(db.Model):

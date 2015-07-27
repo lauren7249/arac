@@ -25,19 +25,19 @@ def has_common_institutions(p1,p2):
 def common_school_ids(p1, p2):
 	p1_school_ids = set()
 	for school in p1.schools:
-		p1_school_ids.add(school.school.id)
+		if school.school_linkedin_id: p1_school_ids.add(school.school_linkedin_id)
 	p2_school_ids = set()
 	for school in p2.schools:
-		p2_school_ids.add(school.school.id)
+		if school.school_linkedin_id: p2_school_ids.add(school.school_linkedin_id)
 	return p2_school_ids & p1_school_ids
 
 def common_company_ids(p1, p2):
 	p1_company_ids = set()
 	for job in p1.jobs:
-		p1_company_ids.add(job.company.id)
+		if job.company_linkedin_id:  p1_company_ids.add(job.company_linkedin_id)
 	p2_company_ids = set()
 	for job in p2.jobs:
-		p2_company_ids.add(job.company.id)
+		if job.company_linkedin_id:   p2_company_ids.add(job.company_linkedin_id)
 	return p2_company_ids & p1_company_ids
 
 def from_linkedin_id(linkedin_id, session=session):

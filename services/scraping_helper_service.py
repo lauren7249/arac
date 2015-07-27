@@ -4,6 +4,7 @@ import getpass
 import argparse
 import datetime
 import time
+from random import shuffle
 
 import tinys3, os, boto
 from boto.s3.key import Key
@@ -17,7 +18,7 @@ session = get_session()
 
 web.config.debug = False
 urls = (
-    '/select', 'select',
+    '/select?n=(.+)', 'select',
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
     '/log_uploaded/url=(.+)', 'log_uploaded'
@@ -62,8 +63,10 @@ class log_uploaded:
         return r.rpush("chrome_uploads",re.sub(";","/",url))
 
 class select:
-    def GET(self):
-        return r.srandmember("urls")
+    def GET(self, n=10):
+        all = list(r.smembers("urls"))
+        shuffle(all)
+        return "\n".join(all[0:n])
 
 class process_chrome_ext_content:
     def POST(self):

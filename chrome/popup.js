@@ -12,7 +12,8 @@ function get_url(orig_url) {
 		xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url.replace(/\//g, ";"), false );
 		xmlHttp.send( null );	
 		total += 1;
-		countArea.value = total;
+		//countArea.value = total;
+		return err
 	}); 	
 }
 
@@ -40,17 +41,37 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 });
 var bucket = new AWS.S3({params: {Bucket: 'chrome-ext-uploads'}});
 
+function infinite() {
+	var k = 0
+	while(true) {
+		url = get_url_response("http://169.55.28.212:8080/select")
+		if  (url.match(/www./g, url) != null) {
+			get_url(url);
+		} 
+		else {
+			break;
+		}
+		k += 1;
+		if (k > 100){
+			break;
+		} 
+	}
+	k = 0;
+
+	alert("done!")	
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   var checkPageButton = document.getElementById('checkPage');
   countArea = document.getElementById('count');
   checkPageButton.addEventListener('click', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {
-		var xmlHttp = new XMLHttpRequest();
-		xmlHttp.open( "GET", "http://169.55.28.212:8080/select", false );
-		xmlHttp.send( null );
-		url = xmlHttp.responseText;
-		get_url(url);
+		url = get_url_response("http://169.55.28.212:8080/select")
+		if  (url.match(/www./g, url) != null) {
+			get_url(url);
+		}
+		console.log("complete");
 	} 
 	else {
 		arr = url_field.match(/[^\r\n]+/g);
@@ -68,3 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
   }, false);
 }, false);
+
+
+

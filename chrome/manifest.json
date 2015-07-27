@@ -7,9 +7,10 @@
     "128": "icon.png"
   },  
     "background": {
-      "page": "popup.html",
-      "persistent": true,
-      "icon":"icon.png"
+      // "page": "popup.html",
+      // "persistent": true,
+      "icon":"icon.png",
+      "scripts": ["background.js"]
       
     },
   "browser_action": {
