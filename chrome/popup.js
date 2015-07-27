@@ -4,7 +4,13 @@ function get_url(orig_url) {
 	url = orig_url.replace("https://","").replace("http://","");
 	console.log(url);
 	var fn = url.replace(/\//g, "-") + ".html";
-	var page = get_url_response("https://" + url);
+	try {
+		var page = get_url_response("https://" + url);
+	}
+	catch(err) {
+		console.log("not loaded")
+		return null
+	}
 	//console.log(page);
 	var params = {Key: fn, ContentType:'text/html', Body: page};
 	bucket.upload(params, function (err, data) {
@@ -12,7 +18,7 @@ function get_url(orig_url) {
 		xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url.replace(/\//g, ";"), false );
 		xmlHttp.send( null );	
 		total += 1;
-		//countArea.value = total;
+		countArea.value = total;
 		return err
 	}); 	
 }
@@ -67,26 +73,21 @@ document.addEventListener('DOMContentLoaded', function() {
   checkPageButton.addEventListener('click', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {
-		url = get_url_response("http://169.55.28.212:8080/select")
-		if  (url.match(/www./g, url) != null) {
+		url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
+	} 
+
+	arr = url_field.match(/[^\r\n]+/g);
+	console.log(arr.length);
+	countArea.max = arr.length;
+	for (var i in arr) {
+		url = arr[i]
+		if (is_google(url)) {
+			google(url);
+		}
+		else {
 			get_url(url);
 		}
-		console.log("complete");
-	} 
-	else {
-		arr = url_field.match(/[^\r\n]+/g);
-		console.log(arr.length);
-		countArea.max = arr.length;
-		for (var i in arr) {
-			url = arr[i]
-			if (is_google(url)) {
-				google(url);
-			}
-			else {
-				get_url(url);
-			}
-		}	
-	}
+	}	
   }, false);
 }, false);
 

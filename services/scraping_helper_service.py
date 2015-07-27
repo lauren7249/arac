@@ -39,14 +39,14 @@ def url_to_s3_key(url):
 	fn = re.sub("\/","-",fn) + ".html"	
 	return fn
 	
-def process_content(content):
-	if content is None: return None
-	info = parse_html(content)	
-	if info.get("complete") and info.get("success"):
-		new_prospect = insert_linkedin_profile(info, session)
-		return new_prospect.id
-	else:
-		return None
+def process_content(content, source_url=None):
+    if content is None: return None
+    info = parse_html(content)	
+    if info.get("complete") and info.get("success"):
+        if source_url is not None: info["source_url"] = source_url
+        new_prospect = insert_linkedin_profile(info, session)
+        return new_prospect.id
+    else: return None
 
 def process_url(url):
     bucket = get_bucket()
