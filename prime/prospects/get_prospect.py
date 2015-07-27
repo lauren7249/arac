@@ -48,7 +48,7 @@ def from_linkedin_id(linkedin_id, session=session):
 def from_url(url, session=session):
 	from prime.prospects.models import Prospect, ProspectUrl
 	url = re.sub("https:","http:",url)
-	prospectUrl = session.query(models.ProspectUrl).get(url)
+	prospectUrl = session.query(ProspectUrl).get(url)
 	if prospectUrl:
 		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
 	else:
