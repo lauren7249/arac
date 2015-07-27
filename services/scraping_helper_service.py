@@ -32,6 +32,12 @@ def get_bucket():
     s3conn = boto.connect_s3(os.getenv("AWS_ACCESS_KEY_ID_PVLL"), os.getenv("AWS_SECRET_ACCESS_KEY_PVLL"))
     return s3conn.get_bucket(bucket_name)
 
+def url_to_s3_key(url):
+	fn = re.sub("https://","",url)
+	fn = re.sub("http://", "", fn)
+	fn = re.sub("\/","-",fn) + ".html"	
+	return fn
+	
 def process_content(content):
 	if content is None: return None
 	info = parse_html(content)	

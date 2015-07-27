@@ -117,11 +117,12 @@ def update_jobs(info, new_prospect, session=session):
         for job in new_prospect.jobs:
 
             if info_job.get("title") == job.title and info_job.get("company") == job.company.name:
-                if convert_date(info_job.get("end_date")) != job.end_date  or convert_date(info_job.get("start_date")) != job.start_date :
+                if convert_date(info_job.get("end_date")) != job.end_date  or convert_date(info_job.get("start_date")) != job.start_date or info_job.get("company_id") != job.company_linkedin_id or info_job.get("location") != job.location:
                     session.query(models.Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
                         "start_date": convert_date(info_job.get("start_date")),
-                        "end_date": convert_date(info_job.get("end_date"))
+                        "end_date": convert_date(info_job.get("end_date")),
+                        "company_linkedin_id": info_job.get("company_id")
                         })
                     print "job updated for " + new_prospect.url
                 new = False
@@ -141,10 +142,11 @@ def update_schools(info, new_prospect, session=session):
         new = True
         for school in new_prospect.schools:
             if info_school.get("degree") == school.degree and info_school.get("college") == school.school.name:
-                if convert_date(info_school.get("start_date")) != school.start_date or convert_date(info_school.get("end_date")) != school.end_date:
+                if convert_date(info_school.get("start_date")) != school.start_date or convert_date(info_school.get("end_date")) != school.end_date or info_school.get("college_id") != school.school_linkedin_id:
                     session.query(models.Education).filter_by(id=school.id).update({
                         "start_date": convert_date(info_school.get("start_date")),
-                        "end_date": convert_date(info_school.get("end_date"))
+                        "end_date": convert_date(info_school.get("end_date")),
+                        "school_linkedin_id": info_school.get("college_id")
                         })
                     print "education updated for " + new_prospect.url
                 new = False
@@ -160,7 +162,7 @@ def update_schools(info, new_prospect, session=session):
 
 def convert_date(date):
     try:
-        return parser.parse(date).replace(tzinfo=None).date()
+        return parser.parse(date, default=datetime.date(1979,1,1))
     except:
         return None
 
@@ -182,6 +184,7 @@ def insert_school(college, new_prospect, session=session):
         prospect = new_prospect,
         school = school,
         degree = college.get("degree"),
+        school_linkedin_id = college.get("college_id"),
         **extra
     )
     session.add(new_education)
@@ -204,6 +207,7 @@ def insert_job(e, new_prospect, session=session):
         prospect = new_prospect,
         title = e['title'],
         company=company,
+        company_linkedin_id=e.get("company_id"),
         **extra
     )
     session.add(new_job)

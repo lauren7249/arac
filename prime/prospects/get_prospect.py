@@ -1,4 +1,5 @@
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 from flask import Flask
 import re, os, sys
 try:
@@ -18,18 +19,40 @@ def get_session():
 
 session = get_session()
 
+def has_common_institutions(p1,p2):
+	return len(common_school_ids(p1,p2))>0 or len(common_company_ids(p1,p2))>0
+
+def common_school_ids(p1, p2):
+	p1_school_ids = set()
+	for school in p1.schools:
+		p1_school_ids.add(school.school.id)
+	p2_school_ids = set()
+	for school in p2.schools:
+		p2_school_ids.add(school.school.id)
+	return p2_school_ids & p1_school_ids
+
+def common_company_ids(p1, p2):
+	p1_company_ids = set()
+	for job in p1.jobs:
+		p1_company_ids.add(job.company.id)
+	p2_company_ids = set()
+	for job in p2.jobs:
+		p2_company_ids.add(job.company.id)
+	return p2_company_ids & p1_company_ids
+
 def from_linkedin_id(linkedin_id, session=session):
 	from prime.prospects.models import Prospect, Job, Education
 	prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
 	return prospect
 
 def from_url(url, session=session):
-	from prime.prospects.models import Prospect
-	url = re.sub("https://","",url)
-	url = re.sub("http://","",url)
-	print url.replace("/", "")
-	prospect = session.query(Prospect).filter_by(s3_key="http:" + url.replace("/", "")).first()
-	if prospect is None: prospect = session.query(Prospect).filter_by(s3_key="https:" + url.replace("/", "")).first()
+	from prime.prospects.models import Prospect, ProspectUrl
+	url = re.sub("https:","http:",url)
+	prospectUrl = session.query(models.ProspectUrl).get(url)
+	if prospectUrl:
+		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
+	else:
+		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("/", "")).first()
 	return prospect
 
 def from_prospect_id(id, session=session):

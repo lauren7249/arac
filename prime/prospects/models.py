@@ -294,6 +294,34 @@ class Company(db.Model):
                 self.name
                 )
 
+class LinkedinSchool(db.Model):
+    __tablename__ = "linkedin_schools"
+
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String(100))
+    pretty_url = db.Column(String(150))
+    image_url = db.Column(String(300))
+
+    def __repr__(self):
+        return '<School id={0} name={1}>'.format(
+                self.id,
+                self.name
+                )
+
+class LinkedinCompany(db.Model):
+    __tablename__ = "linkedin_companies"
+
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String(100))
+    pretty_url = db.Column(String(150))
+    image_url = db.Column(String(300))
+
+    def __repr__(self):
+        return '<Company id={0} name={1}>'.format(
+                self.id,
+                self.name
+                )
+
 class Job(db.Model):
     __tablename__ = "job"
 
@@ -308,6 +336,8 @@ class Job(db.Model):
     fts_title = db.Column(TSVECTOR)
     start_date = db.Column(Date)
     end_date = db.Column(Date)
+    company_linkedin_id = db.Column(Integer, ForeignKey("linkedin_companies.id"), index=True)
+    linkedin_company = relationship('LinkedinCompany', foreign_keys='Job.company_linkedin_id')
 
     @property
     def name(self):
@@ -428,6 +458,8 @@ class Education(db.Model):
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
     start_date = db.Column(Date)
     end_date = db.Column(Date)
+    school_linkedin_id = db.Column(Integer, ForeignKey("linkedin_schools.id"), index=True)
+    linkedin_school = relationship('LinkedinSchool', foreign_keys='Education.school_linkedin_id')
 
     @property
     def name(self):

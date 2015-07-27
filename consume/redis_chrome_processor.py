@@ -1,15 +1,11 @@
 from prime.utils import r
-from services.scraping_helper_service import process_url, process_content
+from services.scraping_helper_service import process_url, process_content, url_to_s3_key
 import time, re
 
 while True:
 	url = r.lpop("chrome_uploads")
 	if url: 
-		print url
-		fn = re.sub("https://","",url)
-		fn = re.sub("http://", "", fn)
-		fn = re.sub("\/","-",fn) + ".html"
-		print fn
+		fn = url_to_s3_key(url)
 		content = process_url(fn)
 		id = process_content(content)
 		if id: r.srem("urls", url)
