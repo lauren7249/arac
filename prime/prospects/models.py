@@ -376,6 +376,18 @@ class ProxyDomainEvent(db.Model):
                 self.success
                 )
 
+class ProspectUrl(db.Model):
+    __tablename__ = "prospect_urls"
+
+    url = db.Column(String(200), primary_key=True)
+    linkedin_id = db.Column(BigInteger)
+
+    def __repr__(self):
+        return '<url ={0} linkedin_id={1}>'.format(
+                self.url,
+                self.linkedin_id
+                )
+
 class Proxy(db.Model):
     __tablename__ = "proxy"
 

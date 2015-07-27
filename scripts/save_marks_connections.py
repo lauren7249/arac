@@ -4,6 +4,7 @@ from prime.prospects.get_prospect import *
 from prime.prospects.models import *
 from prime.utils import r
 ig = LinkedinFriend(username="jeff@advisorconnect.co", password="1250downllc")
+ig.login()
 friends = set(ig.get_second_degree_connections(linkedin_id))
 friend_urls = []
 for friend in friends:

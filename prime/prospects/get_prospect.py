@@ -24,9 +24,12 @@ def from_linkedin_id(linkedin_id, session=session):
 	return prospect
 
 def from_url(url, session=session):
-	from prime.prospects.models import Prospect, Job, Education
-	url = re.sub("https:","http:",url)
-	prospect = session.query(Prospect).filter_by(s3_key=url.replace("/", "")).first()
+	from prime.prospects.models import Prospect
+	url = re.sub("https://","",url)
+	url = re.sub("http://","",url)
+	print url.replace("/", "")
+	prospect = session.query(Prospect).filter_by(s3_key="http:" + url.replace("/", "")).first()
+	if prospect is None: prospect = session.query(Prospect).filter_by(s3_key="https:" + url.replace("/", "")).first()
 	return prospect
 
 def from_prospect_id(id, session=session):
