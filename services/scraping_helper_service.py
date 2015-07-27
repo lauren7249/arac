@@ -63,10 +63,10 @@ class log_uploaded:
         return r.rpush("chrome_uploads",re.sub(";","/",url))
 
 class select:
-    def GET(self, n=10):
+    def GET(self):
         all = list(r.smembers("urls"))
         shuffle(all)
-        return "\n".join(all[0:n])
+        return "\n".join(all[0:10])
 
 class process_chrome_ext_content:
     def POST(self):
