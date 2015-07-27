@@ -18,7 +18,7 @@ session = get_session()
 
 web.config.debug = False
 urls = (
-    '/select', 'select',
+    '/select/n=(.+)', 'select',
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
     '/log_uploaded/url=(.+)', 'log_uploaded'
@@ -63,10 +63,10 @@ class log_uploaded:
         return r.rpush("chrome_uploads",re.sub(";","/",url))
 
 class select:
-    def GET(self):
+    def GET(self, n):
         all = list(r.smembers("urls"))
         shuffle(all)
-        return "\n".join(all[0:10])
+        return "\n".join(all[0:int(n)])
 
 class process_chrome_ext_content:
     def POST(self):
