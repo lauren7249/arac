@@ -63,6 +63,7 @@ def update_prospect(info, prospect, session=session):
     session.query(models.Prospect).filter_by(id=prospect.id).update({
         "location_raw": info.get("location"),
         "industry_raw": info.get("industry"),
+        "image_url": info.get("image"),
         "updated": today,
         "json": data
         })
