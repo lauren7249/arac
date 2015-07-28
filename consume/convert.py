@@ -185,8 +185,11 @@ def find_background_jobs(raw_html):
         company = item.findall(".//h5")
         if len(company) == 2:
             dict_item["company"] = safe_clean_str(company[1].text_content())
-            dict_item["company_id"] = item.xpath(".//h5/a/@href")[0].split("?")[0].split("company/")[1]
-            if len(item.xpath(".//h5/a/img/@data-li-src")): dict_item["company_image_url"] = item.xpath(".//h5/a/img/@data-li-src")[0]
+            try:
+                dict_item["company_id"] = item.xpath(".//h5/a/@href")[0].split("?")[0].split("company/")[1]
+                if len(item.xpath(".//h5/a/img/@data-li-src")): dict_item["company_image_url"] = item.xpath(".//h5/a/img/@data-li-src")[0]
+            except:
+                pass
         else:
             dict_item["company"] = safe_clean_str(company[0].text_content())
         location = item.xpath(".//span[@class='locality']")
