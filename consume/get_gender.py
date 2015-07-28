@@ -48,31 +48,31 @@ def get_gender_from_bing(str):
 
 def get_gender(str):
     gender = get_gender_from_free_apis(str)
-    #if gender is None: gender = get_gender_from_bing(str)
+    if gender is None: gender = get_gender_from_bing(str)
     return gender
 
+if __name__=="__main__":
+    # genders = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/prospects.txt', usecols=["id","name"], sep="\t")
+    # genders = genders[genders.name.notnull()]
+    # genders["firstname"] = genders.name.apply(get_firstname)
+    # unique_names = genders.drop_duplicates(subset="firstname")
+    # unique_names.to_csv("unique_names.csv", columns=["firstname"])
+    # genders.to_csv("prospect_firstnames.csv", columns=["id","firstname"])
 
-# genders = pandas.read_csv('https://s3.amazonaws.com/advisorconnect-bigfiles/raw/prospects.txt', usecols=["id","name"], sep="\t")
-# genders = genders[genders.name.notnull()]
-# genders["firstname"] = genders.name.apply(get_firstname)
-# unique_names = genders.drop_duplicates(subset="firstname")
-# unique_names.to_csv("unique_names.csv", columns=["firstname"])
-# genders.to_csv("prospect_firstnames.csv", columns=["id","firstname"])
+    unique_names = pandas.read_csv("unique_names.csv")
+    names = list(unique_names.firstname.values)
+    unique_names = None
 
-unique_names = pandas.read_csv("unique_names.csv")
-names = list(unique_names.firstname.values)
-unique_names = None
+    pool = multiprocessing.Pool(150)
+    genders = pool.map(get_gender, names)
+    genders_dict = dict(zip(names,genders))
 
-pool = multiprocessing.Pool(150)
-genders = pool.map(get_gender, names)
-genders_dict = dict(zip(names,genders))
+    prospect_firstnames = pandas.read_csv("prospect_firstnames.csv")
+    prospect_firstnames["isMale"] = prospect_firstnames.firstname.apply(lambda x: genders_dict.get(x))
+    prospect_firstnames[prospect_firstnames.isMale.notnull()].to_csv("prospect_gender.csv", index=False, columns=["id","isMale"])
 
-prospect_firstnames = pandas.read_csv("prospect_firstnames.csv")
-prospect_firstnames["isMale"] = prospect_firstnames.firstname.apply(lambda x: genders_dict.get(x))
-prospect_firstnames[prospect_firstnames.isMale.notnull()].to_csv("prospect_gender.csv", index=False, columns=["id","isMale"])
-
-ambiguous_names = prospect_firstnames[prospect_firstnames.isMale.isnull()].drop_duplicates(subset="firstname")
-ambiguous_names.to_csv("ambiguous_gender.csv", index=False, columns=["firstname"])
+    ambiguous_names = prospect_firstnames[prospect_firstnames.isMale.isnull()].drop_duplicates(subset="firstname")
+    ambiguous_names.to_csv("ambiguous_gender.csv", index=False, columns=["firstname"])
 
 
 

@@ -71,8 +71,9 @@ def get_projects(raw_html):
         projects.append(dict_item)
     return projects
 
+#TODO: parse languages
 
-
+#TODO: fix image parsing
 def get_groups(raw_html):
     try:
         return [{"image_url": p.xpath("./a/img")[0].attrib.get("src"), "group_id": p.xpath("./a")[1].attrib.get("href").split("gid=")[1].split("&")[0], "name":p.xpath("./a")[1].text_content()} for p in raw_html.xpath("//p[@class='groups-name']")]
@@ -316,7 +317,7 @@ def parse_html(html):
     connections = None
     #raw_html.xpath("//div[@class='insights-browse-map']/ul/li/")
     try:
-        connections = raw_html.xpath("//div[@class='member-connections']").text_content()
+        connections = raw_html.xpath("//div[@class='member-connections']")[0].text_content()
         connections = "".join(re.findall("\d+", connections))
     except:
         try:

@@ -3,8 +3,8 @@ import random
 import json
 import requests
 import lxml.html
-import os
-
+import os, re
+from prime.utils import headers
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -190,6 +190,14 @@ class Prospect(db.Model):
                 return profiles
         return []
 
+    def wealth_percentile(self):
+        if self.calculate_salary is None: return None
+        salary = re.sub("[^0-9]","",self.calculate_salary)
+        response = requests.get("http://www.whatsmypercent.com/incomeRank.php?income=" + salary + "&status=all%20filers", headers=headers)
+        html = lxml.html.fromstring(response.content)
+        percentile = html.xpath(".//td")[1].text_content()
+        return int(re.sub("[^0-9]","",percentile))
+
     @property
     def wealthscore(self):
         session = db.session
@@ -200,7 +208,6 @@ class Prospect(db.Model):
 
 
     def to_json(self, no_fk=False):
-
         data = {
             "name": self.name,
             "id": self.id,

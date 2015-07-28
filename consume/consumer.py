@@ -65,7 +65,8 @@ def update_prospect(info, prospect, session=session):
         "industry_raw": info.get("industry"),
         "image_url": info.get("image"),
         "updated": today,
-        "json": data
+        "json": data,
+        "connections": info.get("connections")
         })
     session.commit()
     return prospect
@@ -227,6 +228,7 @@ def get_friends_urls(prospect, session=session):
 
 def create_prospect_from_info(info, url, session=session):
     new_prospect = create_prospect(info, url, session=session)
+    new_prospect = update_prospect(info, new_prospect, session=session)
     schools = create_schools(info, new_prospect, session=session)
     jobs = create_jobs(info, new_prospect, session=session)
     session.commit()

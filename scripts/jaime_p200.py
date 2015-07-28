@@ -2,8 +2,9 @@ import requests
 from prime.utils import headers
 import json
 from prime.prospects.models import PiplEmail, Prospect
-from prime.prospects.get_prospect import session, from_linkedin_id, from_url
+from prime.prospects.get_prospect import session, from_linkedin_id, from_url, average_wealth_score
 from prime.utils import r
+from consume.get_gender import get_firstname, get_gender
 
 pipl = "http://api.pipl.com/search/v3/json/?key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true&email="
 
@@ -35,8 +36,6 @@ for email in jaime.email_contacts:
 			session.add(piplrecord)
 			session.commit()
 
-#259 could be scraped (59 were invalid links)
-
 jaime_friends = set()
 pipl_recs =0
 friend_recs=0
@@ -48,8 +47,100 @@ for email in jaime.email_contacts:
 		linkedin_url = pipl_rec.linkedin_url
 		friend = from_url(linkedin_url)
 		if friend: 
-			#jaime_friends.add(friend.linkedin_id)
+			jaime_friends.add(friend.linkedin_id)
 			friend_recs+=1
 		else:
 			rescrape.add(linkedin_url)
-#259 valid links
+
+boosted_ids = []
+for friend in jaime_friends:
+    if friend>1: boosted_ids.append(str(friend))
+
+jaime_json["boosted_ids"] = boosted_ids
+session.query(Prospect).filter_by(id=jaime.id).update({"json": jaime_json})
+session.commit()
+
+#263 scraped and id'd. average wealth score: 64
+prospects = []
+for friend in jaime.json.get("boosted_ids"):
+	prospect = from_linkedin_id(friend)
+	prospects.append(prospect)
+
+
+#195 NY friends
+#161 employed 
+#152 not in financial services
+#average wealth score 63
+new_york_employed = []
+states = {}
+for prospect in prospects:
+	if prospect.current_job is None: continue
+    key = prospect.location_raw.split(",")[-1].strip()
+    if key in ['New York','Greater New York City Area'] and prospect.industry_raw not in ['Insurance','Financial Services']: new_york_employed.append(prospect)
+	count = states.get(key) 
+	if count is None: count = 0
+	count += 1
+	states[key] = count    
+
+#nothing really stands out here
+industries = {}
+for prospect in new_york_employed:
+    industry = prospect.industry_raw
+    count = industries.get(industry) 
+    if count is None: count = 0
+    count += 1
+    industries[industry] = count
+print sorted(industries, key=industries.get, reverse=True)
+
+
+industries = {}
+for prospect in new_york_employed:
+    industry = prospect.industry_raw
+    count = industries.get(industry) 
+    if count is None: count = 0
+    count += 1
+    industries[industry] = count
+
+#{None: 14, 'Female': 87, 'Male': 51}
+genders = {}
+for prospect in new_york_employed:
+    gender = get_gender(get_firstname(prospect.name))
+    if gender==True: gender = 'Male'
+	if gender==False: gender = 'Female' 
+    count = genders.get(gender) 
+    if count is None: count = 0
+    count += 1
+    genders[gender] = count
+
+skills = {}
+for prospect in new_york_employed:
+	if not prospect.json: continue
+	pskills = prospect.json.get("skills")
+	for skill in pskills:
+		count = skills.get(skill) 
+		if count is None: count = 0
+		count += 1
+		skills[skill] = count
+for skill in skills.keys():
+    if skills[skill]>15: print skill + ": " + str(skills[skill])
+
+#6 people -- all financial services and not local
+#u = search_extended_network(jaime, limit=300)
+
+#extended_network = {}
+for prospect in new_york_employed:
+	if extended_network.get(prospect.url) is None:
+		u = search_extended_network(prospect, limit=300)
+		extended_network.update({prospect.url: u})
+
+#94 with college. wealth 62
+
+noschool = 0
+for prospect in new_york_employed:
+	valid_school = False
+    for education in prospect.schools:
+    	if education.school_linkedin_id: valid_school = True
+    if not valid_school: print prospect.url
+
+    d = {"id":prospect.id, "name":prospect.name, "job":prospect.current_job.title, "company":prospect.current_job.company.name, "score":1}
+

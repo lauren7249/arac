@@ -22,6 +22,17 @@ session = get_session()
 def has_common_institutions(p1,p2):
 	return len(common_school_ids(p1,p2))>0 or len(common_company_ids(p1,p2))>0
 
+def average_wealth_score(prospects):
+	perc = [prospect.wealth_percentile() for prospect in prospects]
+	tot = 0
+	count = 0
+	for p in perc:
+		if p is None or p==0: continue
+		tot += p
+		count += 1
+	average = tot/count
+	return average
+
 def common_school_ids(p1, p2):
 	p1_school_ids = set()
 	for school in p1.schools:
