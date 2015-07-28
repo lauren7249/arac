@@ -10,7 +10,7 @@
       // "page": "popup.html",
       // "persistent": true,
       "icon":"icon.png",
-      "scripts": ["background.js"]
+      "scripts": ["scrape.js"]
       
     },
   "browser_action": {

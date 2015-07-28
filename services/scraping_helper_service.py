@@ -34,9 +34,7 @@ def get_bucket():
     return s3conn.get_bucket(bucket_name)
 
 def url_to_s3_key(url):
-	fn = re.sub("https://","",url)
-	fn = re.sub("http://", "", fn)
-	fn = re.sub("\/","-",fn) + ".html"	
+	fn = url.replace("https://","").replace("http://", "").replace("/","-").replace(":","%3A") + ".html"
 	return fn
 	
 def process_content(content, source_url=None):
@@ -64,7 +62,7 @@ class log_uploaded:
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
         return ""
-        
+
 class select:
     def GET(self, n):
         all = list(r.smembers("urls"))

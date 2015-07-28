@@ -15,7 +15,7 @@ function get_url(orig_url) {
 	var params = {Key: fn, ContentType:'text/html', Body: page};
 	bucket.upload(params, function (err, data) {
 		var xmlHttp = new XMLHttpRequest();
-		xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url.replace(/\//g, ";").replace(/\?//g, "`"), false );
+		xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url.replace(/\//g, ";").replace(/\?/g, "`"), false );
 		xmlHttp.send( null );	
 		total += 1;
 		countArea.value = total;
@@ -30,8 +30,7 @@ function get_url_response(url) {
 	var page = xmlHttp.responseText;	
 	return page;
 }
-//var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-//var page = get_url_response("http://www.google.com/search?q=site%3Awww.linkedin.com+Lauren+Talbot+advisorCONNECT&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0");
+
 function is_google(url) {
 	return url.match(/www.google.com/g, url) != null;
 }
@@ -73,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
   checkPageButton.addEventListener('click', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {
-		url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
+		url_field = get_url_response("http://169.55.28.212:8080/select/n=10")
 	} 
 
 	arr = url_field.match(/[^\r\n]+/g);

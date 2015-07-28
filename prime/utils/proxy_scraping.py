@@ -42,7 +42,10 @@ def try_request(url, expected_xpaths, proxy=None):
 	return False, response
 	
 def page_is_good(content, expected_xpaths):
-	raw_html = lxml.html.fromstring(content)
+	try:
+		raw_html = lxml.html.fromstring(content)
+	except:
+		return False
 	for expected_xpath in expected_xpaths:
 		if len(raw_html.xpath(expected_xpath)) > 0: return True
 	return False

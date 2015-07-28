@@ -13,6 +13,7 @@ while True:
 			id = process_content(content, source_url=url)
 			if not id: r.sadd("urls",url)
 		elif url.find("google.com"):
-			if not page_is_good(content, google_xpaths): r.sadd("urls",url)
+			if not page_is_good(content, google_xpaths): 
+				r.sadd("urls",url)
 	else: time.sleep(2)
 
