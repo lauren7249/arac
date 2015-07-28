@@ -60,7 +60,7 @@ def process_url(url):
 
 class log_uploaded:
     def GET(self, url):
-        return r.rpush("chrome_uploads",re.sub(";","/",url))
+        return r.sadd("chrome_uploads",re.sub(";","/",url))
 
 class select:
     def GET(self, n):

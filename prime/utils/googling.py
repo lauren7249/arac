@@ -1,9 +1,10 @@
 import re
 from prime.utils.proxy_scraping import robust_get_url
+from prime.prospects.models import GoogleProfileSearches
+from prime.prospects.get_prospect import session
+from prime.utils import profile_re, school_re
 
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
-profile_re = re.compile('(^https?://www.linkedin.com/pub/((?!dir).)*/.*/.*)|(^https?://www.linkedin.com/in/.*)')
-school_re = re.compile('^https://www.linkedin.com/edu/*')
 
 def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex=".", require_proxy=False):
 	urls = set()
@@ -20,7 +21,7 @@ def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_re
 		start_num+=results_per_page
 	return urls
 
-def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex=".", require_proxy=False, exclude_terms_from_title=None):
+def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex=".", require_proxy=False, exclude_terms_from_title=None, include_terms_in_title=None):
 	results = {}
 	while True:
 		search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
@@ -40,6 +41,10 @@ def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000
 					intersect = set(exclude_terms_from_title.split(" ")) & set(title_meat.split(" "))
 					if len(intersect) >= 2: 
 						continue 
+				if include_terms_in_title:
+					intersect = set(include_terms_in_title.split(" ")) & set(title_meat.split(" "))
+					if len(intersect) < 2: 
+						continue 					
 				results.update({link: title})
 				print title 
 			if limit == len(results): return results
@@ -53,10 +58,17 @@ def search_extended_network(prospect, limit=30, require_proxy=False):
 	result = search_with_title(querystring, url_regex=profile_re, limit=limit, require_proxy=require_proxy, exclude_terms_from_title=terms)	
 	return result
 
-def search_linkedin_profile(terms, limit=1, require_proxy=False):
+def search_linkedin_profile(terms, name, require_proxy=False):
+	record = session.query(GoogleProfileSearches).get((terms,name))
+	if record: return record.url
 	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
-	result = search_with_title(querystring, url_regex=profile_re, limit=limit, require_proxy=require_proxy)
-	return result
+	result = search_with_title(querystring, url_regex=profile_re, limit=1, require_proxy=require_proxy, include_terms_in_title=name).keys()
+	if len(result) >0 : url = result[0]
+	else: url = None
+	record = GoogleProfileSearches(terms=terms, name=name, url=url)
+	session.add(record)
+	session.commit()
+	return url
 
 def search_linkedin_school(terms, limit=1, require_proxy=False):
 	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)

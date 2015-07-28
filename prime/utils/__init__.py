@@ -1,4 +1,5 @@
 import redis
+import re
 import requests
 
 redis_host='169.55.28.212'
@@ -8,6 +9,8 @@ good_proxies ="good_proxies"
 bad_proxies="bad_proxies"
 in_use_proxies="in_use_proxies"
 requests_session = requests.Session()
+profile_re = re.compile('(^https?://www.linkedin.com/pub/((?!dir).)*/.*/.*)|(^https?://www.linkedin.com/in/.*)')
+school_re = re.compile('^https://www.linkedin.com/edu/*')
 
 def get_redis():
 	pool = redis.ConnectionPool(host=redis_host, port=6379, db=0)

@@ -381,6 +381,19 @@ class Job(db.Model):
                 self.prospect.name
                 )
 
+class GoogleProfileSearches(db.Model):
+    __tablename__ = "google_profile_searches"
+
+    terms = db.Column(String(300), primary_key=True)
+    name = db.Column(String(200), primary_key=True)
+    url = db.Column(String(200))
+
+    def __repr__(self):
+        return '<Terms={0} Name={1} url={2}>'.format(
+                self.terms,
+                self.name,
+                self.url
+                )
 
 class ProxyDomainStatus(db.Model):
     __tablename__ = "proxy_domain_status"
