@@ -60,6 +60,7 @@ friend_recs=0
 rescrape = set()
 jaime_friends = set()
 #176 search urls
+#173 friends
 for url in search_urls:
 	friend = from_url(url)
 	if friend: 
@@ -81,28 +82,28 @@ for email in jaime.email_contacts:
 		else:
 			rescrape.add(linkedin_url)
 
-boosted_ids = []
+boosted_ids = set(jaime_json.get("boosted_ids"))
 for friend in jaime_friends:
-    if friend>1: boosted_ids.append(str(friend))
+    if friend>1: boosted_ids.add(str(friend))
 
-jaime_json["boosted_ids"] = boosted_ids
+jaime_json["boosted_ids"] = list(boosted_ids)
 session.query(Prospect).filter_by(id=jaime.id).update({"json": jaime_json})
 session.commit()
 
-#363 scraped and id'd. average wealth score: 64
+#433 scraped and id'd. average wealth score: 64
 prospects = []
 for friend in jaime.json.get("boosted_ids"):
 	prospect = from_linkedin_id(friend)
 	prospects.append(prospect)
 
 
-#191 employed, in ny, not in financial services
+#224 employed, in ny, not in financial services
 new_york_employed = []
 states = {}
 for prospect in prospects:
 	if prospect.current_job is None: continue
-    key = prospect.location_raw.split(",")[-1].strip()
-    if key in ['New York','Greater New York City Area'] and prospect.industry_raw not in ['Insurance','Financial Services']: new_york_employed.append(prospect)
+	key = prospect.location_raw.split(",")[-1].strip()
+	if key in ['New York','Greater New York City Area'] and prospect.industry_raw not in ['Insurance','Financial Services']: new_york_employed.append(prospect)
 	count = states.get(key) 
 	if count is None: count = 0
 	count += 1
@@ -136,10 +137,10 @@ for prospect in new_york_employed:
 	if not prospect.json: continue
 	pgroups = prospect.json.get("groups")
 	for group in pgroups:
-		count = groups.get(group) 
+		count = groups.get(group.get("name")) 
 		if count is None: count = 0
 		count += 1
-		groups[group] = count
+		groups[group.get("name")] = count
 
 skills = {}
 for prospect in new_york_employed:
@@ -151,7 +152,7 @@ for prospect in new_york_employed:
 		count += 1
 		skills[skill] = count
 for skill in skills.keys():
-    if skills[skill]>40: print skill + ": " + str(skills[skill])
+    if skills[skill]>45: print skill + ": " + str(skills[skill])
 
 
 companies = {}
@@ -161,7 +162,8 @@ for prospect in new_york_employed:
 	if count is None: count = 0
 	count += 1
 	companies[company] = count
-
+for company in companies.keys():
+    if companies[company]>10: print company + ": " + str(companies[company])
 
 #6 people -- all financial services and not local
 #u = search_extended_network(jaime, limit=300)
@@ -176,21 +178,32 @@ for prospect in new_york_employed:
 from dateutil.relativedelta import relativedelta
 has_college = 0
 total_age = 0
+count_for_age = 0
+schools = {}
 for prospect in new_york_employed:
-	grad = collegeGradYear(prospect)
-	if grad: 
-		has_college+=1
-		difference_in_years = relativedelta(datetime.date.today(), grad).years
-		#print str(difference_in_years) + " " + prospect.url
-		age = difference_in_years + 24
-		total_age += age
-
-#130
-def collegeGradYear(prospect):
-	college = False
+	grad, school = collegeGrad(prospect)
+	if school:
+		has_college += 1
+		count = schools.get(school)
+		if count is None: count = 0
+		count += 1
+		schools[school] = count		
+		if grad: 
+			difference_in_years = relativedelta(datetime.date.today(), grad).years
+			#print str(difference_in_years) + " " + prospect.url
+			age = difference_in_years + 24
+			total_age += age
+			count_for_age += 1
+#130	
+def collegeGrad(prospect):
+	vals = None, None
 	for education in prospect.schools: 
-		if education.school_linkedin_id and education.degree and education.end_date: return education.end_date
-	return None 
+		if education.school_linkedin_id and education.end_date: 
+			return education.end_date, education.linkedin_school.name
+	for education in prospect.schools: 
+		if education.school_linkedin_id: 
+			return None, education.linkedin_school.name			
+	return vals
 
 def leadScore(prospect):
 	valid_school = False

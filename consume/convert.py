@@ -346,6 +346,7 @@ def parse_html(html):
 
 
     skills = [e.text_content() for e in raw_html.xpath("//ul[@class='skills-section compact-view']/li") if "jsControl" not in e.text_content()]
+    interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li") if "jsControl" not in e.text_content()]
     people = get_linked_profiles(raw_html)
     groups = get_groups(raw_html)
     projects = get_projects(raw_html)
@@ -379,6 +380,7 @@ def parse_html(html):
         "success": success,
         "complete": complete,
         "urls":people,
+        "interests": interests,
         "source_url": source_url
     }
 

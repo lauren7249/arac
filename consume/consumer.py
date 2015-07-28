@@ -60,6 +60,7 @@ def update_prospect(info, prospect, session=session):
     data["groups"] = info.get("groups")
     data["projects"] = info.get("projects")
     data["people"] = info.get("people")
+    data["interests"] = info.get("interests")
     session.query(models.Prospect).filter_by(id=prospect.id).update({
         "location_raw": info.get("location"),
         "industry_raw": info.get("industry"),
