@@ -58,13 +58,14 @@ def from_linkedin_id(linkedin_id, session=session):
 
 def from_url(url, session=session):
 	from prime.prospects.models import Prospect, ProspectUrl
+	prospectUrl = session.query(ProspectUrl).get(url)
+	if prospectUrl: return session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
 	url = re.sub("https:","http:",url)
 	prospectUrl = session.query(ProspectUrl).get(url)
-	if prospectUrl:
-		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
-	else:
-		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("/", "")).first()
-	return prospect
+	if prospectUrl: return session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
+	prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("/", "")).first()
+	if prospect: return prospect
+	return session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("http:","https:").replace("/", "")).first()
 
 def from_prospect_id(id, session=session):
 	from prime.prospects.models import Prospect, Job, Education

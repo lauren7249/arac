@@ -1,3 +1,4 @@
+import datetime
 import requests
 from prime.utils import headers
 import json, pandas
@@ -39,6 +40,7 @@ for email in jaime.email_contacts:
 			session.add(piplrecord)
 			session.commit()
 
+#176
 search_urls = set()
 for index, row in df.iterrows():
 	terms = row.FirstName + " " + row.LastName + " " + row.Company + " " + row.JobTitle
@@ -47,13 +49,26 @@ for index, row in df.iterrows():
 	pipl_rec = session.query(PiplEmail).get(email)
 	if not pipl_rec or not pipl_rec.linkedin_url:
 		url = search_linkedin_profile(terms,name)
-		r.sadd("urls",url)
-		search_urls.add(url)
-		
-jaime_friends = set()
-pipl_recs =0
+		if url:
+			prospect = from_url(url)
+			if prospect and prospect.updated != datetime.date.today(): 
+				r.sadd("urls",url)
+				print url
+			search_urls.add(url)
+
 friend_recs=0
 rescrape = set()
+jaime_friends = set()
+#176 search urls
+for url in search_urls:
+	friend = from_url(url)
+	if friend: 
+		jaime_friends.add(friend.linkedin_id)
+		friend_recs+=1
+	else:
+		rescrape.add(url)
+
+pipl_recs =0
 for email in jaime.email_contacts:
 	pipl_rec = session.query(PiplEmail).get(email)
 	if pipl_rec: 
@@ -74,17 +89,14 @@ jaime_json["boosted_ids"] = boosted_ids
 session.query(Prospect).filter_by(id=jaime.id).update({"json": jaime_json})
 session.commit()
 
-#263 scraped and id'd. average wealth score: 64
+#363 scraped and id'd. average wealth score: 64
 prospects = []
 for friend in jaime.json.get("boosted_ids"):
 	prospect = from_linkedin_id(friend)
 	prospects.append(prospect)
 
 
-#195 NY friends
-#161 employed 
-#152 not in financial services
-#average wealth score 63
+#191 employed, in ny, not in financial services
 new_york_employed = []
 states = {}
 for prospect in prospects:
@@ -107,16 +119,8 @@ for prospect in new_york_employed:
 print sorted(industries, key=industries.get, reverse=True)
 
 
-industries = {}
-for prospect in new_york_employed:
-    industry = prospect.industry_raw
-    count = industries.get(industry) 
-    if count is None: count = 0
-    count += 1
-    industries[industry] = count
-
 from consume.get_gender import get_firstname, get_gender
-#{None: 14, 'Female': 87, 'Male': 51}
+#{None: 25, 'Female': 105, 'Male': 65}
 genders = {}
 for prospect in new_york_employed:
     gender = get_gender(get_firstname(prospect.name))
@@ -126,6 +130,16 @@ for prospect in new_york_employed:
     if count is None: count = 0
     count += 1
     genders[gender] = count
+
+groups = {}
+for prospect in new_york_employed:
+	if not prospect.json: continue
+	pgroups = prospect.json.get("groups")
+	for group in pgroups:
+		count = groups.get(group) 
+		if count is None: count = 0
+		count += 1
+		groups[group] = count
 
 skills = {}
 for prospect in new_york_employed:
@@ -137,7 +151,17 @@ for prospect in new_york_employed:
 		count += 1
 		skills[skill] = count
 for skill in skills.keys():
-    if skills[skill]>15: print skill + ": " + str(skills[skill])
+    if skills[skill]>40: print skill + ": " + str(skills[skill])
+
+
+companies = {}
+for prospect in new_york_employed:
+	company = prospect.current_job.company.name
+	count = companies.get(company) 
+	if count is None: count = 0
+	count += 1
+	companies[company] = count
+
 
 #6 people -- all financial services and not local
 #u = search_extended_network(jaime, limit=300)
@@ -147,6 +171,26 @@ for prospect in new_york_employed:
 	if extended_network.get(prospect.url) is None:
 		u = search_extended_network(prospect, limit=300)
 		extended_network.update({prospect.url: u})
+
+#average age is 38
+from dateutil.relativedelta import relativedelta
+has_college = 0
+total_age = 0
+for prospect in new_york_employed:
+	grad = collegeGradYear(prospect)
+	if grad: 
+		has_college+=1
+		difference_in_years = relativedelta(datetime.date.today(), grad).years
+		#print str(difference_in_years) + " " + prospect.url
+		age = difference_in_years + 24
+		total_age += age
+
+#130
+def collegeGradYear(prospect):
+	college = False
+	for education in prospect.schools: 
+		if education.school_linkedin_id and education.degree and education.end_date: return education.end_date
+	return None 
 
 def leadScore(prospect):
 	valid_school = False
@@ -159,5 +203,9 @@ def leadScore(prospect):
 demo = []
 for prospect in new_york_employed:
 	score = leadScore(prospect)
-	d = {"id":prospect.id, "name":prospect.name, "job":prospect.current_job.title, "company":prospect.current_job.company.name, "score":score}
+	if prospect.image_url: secret_score = score + 1 
+	else: secret_score = score
+	d = {"id":prospect.id, "name":prospect.name, "job":prospect.current_job.title, "company":prospect.current_job.company.name, "score":score, "image_url": prospect.image_url if prospect.image_url else "", "url":prospect.url, "secret_score" : secret_score}
 	demo.append(d)
+demo = sorted(demo, key=lambda k: k['secret_score'], reverse=True)
+print json.dumps(demo)	

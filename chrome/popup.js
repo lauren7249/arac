@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	countArea.max = arr.length;
 	for (var i in arr) {
 		url = arr[i]
-		if (is_google(url)) {
+		if (false) {
 			google(url);
 		}
 		else {

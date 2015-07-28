@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import *
 from random import randint
 from sqlalchemy.orm import joinedload
+from services.scraping_helper_service import process_url, process_content, url_to_s3_key
 
 requests.packages.urllib3.disable_warnings()
 
@@ -19,7 +20,7 @@ try_again_after_reject_days = 1
 min_wait_btwn_requests_seconds = 15
 max_wait_btwn_requests_seconds = 45
 
-def try_request(url, expected_xpath, proxy=None):
+def try_request(url, expected_xpaths, proxy=None):
 	#print url
 	if proxy is not None:
 		protocol = proxy.split(":")[0]
@@ -40,11 +41,10 @@ def try_request(url, expected_xpath, proxy=None):
 		#print response.status_code 
 		return False, response
 	raw_html = lxml.html.fromstring(response.content)
-	#print response.content
-
-	#"//script[contains(.,'background_view')]" for linkedin profile
-	if len(raw_html.xpath(expected_xpath))==0: return False, response
-	return True, response
+	for expected_xpath in expected_xpaths:
+		if len(raw_html.xpath(expected_xpath)) > 0: return True, response
+	return False, response
+	
 
 def get_domain(url):
 	url = re.sub(r"^https://","", url)
@@ -114,19 +114,27 @@ def release_proxy(domain, proxy):
 	r.hdel(domain, proxy_lock_id)
 	return proxy_lock_id
 
-def robust_get_url(url, expected_xpath, require_proxy=True):
+def robust_get_url(url, expected_xpaths, require_proxy=False, try_proxy=False):
 	if not require_proxy:
-		successful, response = try_request(url, expected_xpath)
+		successful, response = try_request(url, expected_xpaths)
 		if successful: return lxml.html.fromstring(response.content)
-	domain = get_domain(url)
-	proxy = pick_proxy(domain)
-	while proxy:
-		successful, response = try_request(url, expected_xpath, proxy=proxy.url)
-		release_proxy(domain, proxy.url)
-		if successful: 
-			record_success(proxy, domain)
-			#print proxy
-			return lxml.html.fromstring(response.content)
-		record_failure(proxy, domain, response)
+	if try_proxy:
+		domain = get_domain(url)
 		proxy = pick_proxy(domain)
+		while proxy:
+			successful, response = try_request(url, expected_xpaths, proxy=proxy.url)
+			release_proxy(domain, proxy.url)
+			if successful: 
+				record_success(proxy, domain)
+				#print proxy
+				return lxml.html.fromstring(response.content)
+			record_failure(proxy, domain, response)
+			proxy = pick_proxy(domain)
+	else:
+		r.sadd("urls",url)
+		fn = url_to_s3_key(url)
+		content = process_url(fn)
+		while content is None and r.scard("urls")>0:
+			content = process_url(fn)
+		return lxml.html.fromstring(content)
 	return None
