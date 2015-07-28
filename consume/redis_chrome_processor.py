@@ -8,5 +8,6 @@ while True:
 		fn = url_to_s3_key(url)
 		content = process_url(fn)
 		id = process_content(content, source_url=url)
-		if id: r.srem("urls", url)
+		if not id: r.sadd("urls",url)
 	else: time.sleep(2)
+

@@ -60,6 +60,7 @@ def process_url(url):
 
 class log_uploaded:
     def GET(self, url):
+        r.srem("urls", url)
         return r.sadd("chrome_uploads",re.sub(";","/",url))
 
 class select:

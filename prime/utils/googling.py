@@ -1,4 +1,4 @@
-import re
+import re, datetime
 from prime.utils.proxy_scraping import robust_get_url
 from prime.prospects.models import GoogleProfileSearches
 from prime.prospects.get_prospect import session
@@ -35,7 +35,7 @@ def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000
 		search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
 		print search_query
 		raw_html = robust_get_url(search_query, expected_xpaths, require_proxy=require_proxy)
-		links = get_links(raw_html)
+		links = get_links(raw_html)	
 		if len(links) == 0: break
 		if start_num !=0  and previous_first_link == links[0].values()[0]: return results
 		for linkel in links:
@@ -58,10 +58,14 @@ def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000
 		start_num+=results_per_page
 	return results
 
-def search_extended_network(prospect, limit=30, require_proxy=False):
+def search_extended_network(prospect, limit=30, require_proxy=False, refresh=False):
+	if prospect.google_network_search is not None and not refresh: return prospect.google_network_search
 	terms = prospect.name + " " + prospect.current_job.company.name
 	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
 	result = search_with_title(querystring, url_regex=profile_re, limit=limit, require_proxy=require_proxy, exclude_terms_from_title=terms)	
+	prospect.google_network_search = result
+	session.add(prospect)
+	session.commit()	
 	return result
 
 def search_linkedin_profile(terms, name, require_proxy=False):

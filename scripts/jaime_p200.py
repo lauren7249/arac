@@ -6,6 +6,7 @@ from prime.prospects.models import PiplEmail, Prospect
 from prime.prospects.get_prospect import session, from_linkedin_id, from_url, average_wealth_score
 from prime.utils import r
 from prime.utils.googling import *
+from prime.utils.networks import *
 
 pipl = "http://api.pipl.com/search/v3/json/?key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true&email="
 
@@ -90,24 +91,11 @@ jaime_json["boosted_ids"] = list(boosted_ids)
 session.query(Prospect).filter_by(id=jaime.id).update({"json": jaime_json})
 session.commit()
 
+friends = jaime.json.get("boosted_ids")
 #433 scraped and id'd. average wealth score: 64
-prospects = []
-for friend in jaime.json.get("boosted_ids"):
-	prospect = from_linkedin_id(friend)
-	prospects.append(prospect)
 
-
-#224 employed, in ny, not in financial services
-new_york_employed = []
-states = {}
-for prospect in prospects:
-	if prospect.current_job is None: continue
-	key = prospect.location_raw.split(",")[-1].strip()
-	if key in ['New York','Greater New York City Area'] and prospect.industry_raw not in ['Insurance','Financial Services']: new_york_employed.append(prospect)
-	count = states.get(key) 
-	if count is None: count = 0
-	count += 1
-	states[key] = count    
+#224
+new_york_employed = agent_network(friends)
 
 #nothing really stands out here
 industries = {}
@@ -154,6 +142,18 @@ for prospect in new_york_employed:
 for skill in skills.keys():
     if skills[skill]>45: print skill + ": " + str(skills[skill])
 
+interests = {}
+for prospect in new_york_employed:
+	if not prospect.json: continue
+	pinterests = prospect.json.get("interests")
+	if not pinterests: continue
+	for interest in pinterests:
+		count = interests.get(interest) 
+		if count is None: count = 0
+		count += 1
+		interests[interest] = count
+for interest in interests.keys():
+    if interests[interest]>10: print interest + ": " + str(interests[interest])
 
 companies = {}
 for prospect in new_york_employed:
@@ -194,7 +194,7 @@ for prospect in new_york_employed:
 			age = difference_in_years + 24
 			total_age += age
 			count_for_age += 1
-#130	
+	
 def collegeGrad(prospect):
 	vals = None, None
 	for education in prospect.schools: 

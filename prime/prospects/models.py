@@ -44,6 +44,7 @@ class Prospect(db.Model):
     connections = db.Column(Integer)
     json = db.Column(JSON)
 
+    google_network_search = db.Column(JSON)
 
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
