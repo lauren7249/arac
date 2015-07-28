@@ -6,7 +6,7 @@ from prime.utils import profile_re, school_re
 
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
 search_results_xpath = "//*[contains(@class,'srg')]"
-expected_xpaths = [search_results_xpath, ".//div/div/div/p/em/text()"]
+google_xpaths = [search_results_xpath, ".//div/div/div/p/em/text()"]
 
 def get_links(raw_html):
 	if raw_html is None: return []
@@ -19,7 +19,7 @@ def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_re
 	urls = set()
 	while True:
 		search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
-		raw_html = robust_get_url(search_query, expected_xpaths, require_proxy=require_proxy)
+		raw_html = robust_get_url(search_query, google_xpaths, require_proxy=require_proxy)
 		links = get_links(raw_html)
 		if len(links) ==0 : break
 		for linkel in links:
@@ -34,7 +34,7 @@ def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000
 	while True:
 		search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 
 		print search_query
-		raw_html = robust_get_url(search_query, expected_xpaths, require_proxy=require_proxy)
+		raw_html = robust_get_url(search_query, google_xpaths, require_proxy=require_proxy)
 		links = get_links(raw_html)	
 		if len(links) == 0: break
 		if start_num !=0  and previous_first_link == links[0].values()[0]: return results

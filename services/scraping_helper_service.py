@@ -60,9 +60,11 @@ def process_url(url):
 
 class log_uploaded:
     def GET(self, url):
-        r.srem("urls", url)
-        return r.sadd("chrome_uploads",re.sub(";","/",url))
-
+        real_url = url.replace(";","/").replace("`","?")
+        r.srem("urls", real_url)
+        r.sadd("chrome_uploads",real_url)
+        return ""
+        
 class select:
     def GET(self, n):
         all = list(r.smembers("urls"))

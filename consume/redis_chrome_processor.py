@@ -1,13 +1,18 @@
 from prime.utils import r, profile_re
 from services.scraping_helper_service import process_url, process_content, url_to_s3_key
 import time, re
+from prime.utils.googling import google_xpaths
+from prime.utils.proxy_scraping import page_is_good
 
 while True:
 	url = r.spop("chrome_uploads")
-	if url and re.search(profile_re,url): 
+	if url:
 		fn = url_to_s3_key(url)
 		content = process_url(fn)
-		id = process_content(content, source_url=url)
-		if not id: r.sadd("urls",url)
+		if re.search(profile_re,url): 
+			id = process_content(content, source_url=url)
+			if not id: r.sadd("urls",url)
+		elif url.find("google.com"):
+			if not page_is_good(content, google_xpaths): r.sadd("urls",url)
 	else: time.sleep(2)
 

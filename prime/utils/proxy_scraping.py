@@ -37,14 +37,15 @@ def try_request(url, expected_xpaths, proxy=None):
 		return False, None
 	finally:
 		t.cancel()	
-	if response.status_code != 200: 
-		#print response.status_code 
-		return False, response
-	raw_html = lxml.html.fromstring(response.content)
-	for expected_xpath in expected_xpaths:
-		if len(raw_html.xpath(expected_xpath)) > 0: return True, response
+	if response.status_code != 200: return False, response
+	if page_is_good(response.content, expected_xpaths): return True, response
 	return False, response
 	
+def page_is_good(content, expected_xpaths):
+	raw_html = lxml.html.fromstring(content)
+	for expected_xpath in expected_xpaths:
+		if len(raw_html.xpath(expected_xpath)) > 0: return True
+	return False
 
 def get_domain(url):
 	url = re.sub(r"^https://","", url)
