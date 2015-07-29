@@ -9,7 +9,7 @@ friends = set(ig.get_second_degree_connections(linkedin_id))
 friend_urls = []
 for friend in friends:
 	url = ig.get_public_link(friend)
-	if url: friend_urls.append(url)
+	if url and len(url): friend_urls.append(url)
 prospect = from_linkedin_id(linkedin_id)
 prospect_json = prospect.json
 prospect_json["first_degree_linkedin_ids"] = list(friends)

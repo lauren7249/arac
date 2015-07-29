@@ -94,8 +94,13 @@ session.commit()
 friends = jaime.json.get("boosted_ids")
 #433 scraped and id'd. average wealth score: 64
 
+prospects = []
+for friend in friends:
+	prospect = from_linkedin_id(friend)
+	if prospect: prospects.append(prospect)
+
 #224
-new_york_employed = agent_network(friends)
+new_york_employed = agent_network(prospects)
 
 #nothing really stands out here
 industries = {}
@@ -194,24 +199,6 @@ for prospect in new_york_employed:
 			age = difference_in_years + 24
 			total_age += age
 			count_for_age += 1
-	
-def collegeGrad(prospect):
-	vals = None, None
-	for education in prospect.schools: 
-		if education.school_linkedin_id and education.end_date: 
-			return education.end_date, education.linkedin_school.name
-	for education in prospect.schools: 
-		if education.school_linkedin_id: 
-			return None, education.linkedin_school.name			
-	return vals
-
-def leadScore(prospect):
-	valid_school = False
-	for education in prospect.schools: 
-		if education.school_linkedin_id: valid_school = True
-	if not valid_school and not prospect.image_url and prospect.connections < 500: return 1
-	if valid_school and prospect.image_url and prospect.connections==500: return 3
-	return 2
 
 demo = []
 for prospect in new_york_employed:
