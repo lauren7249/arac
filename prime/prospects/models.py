@@ -45,6 +45,7 @@ class Prospect(db.Model):
     json = db.Column(JSON)
 
     google_network_search = db.Column(JSON)
+    pipl_response = db.Column(JSON) 
 
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
@@ -85,20 +86,6 @@ class Prospect(db.Model):
                 return vibe.get("social_profiles", [])
         return []
 
-    def find_pipl(self):
-        try:
-            base_url ="http://api.pipl.com/search/v3/json/?username="
-            linkedin_id = str(self.linkedin_id)
-            end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
-            url = "".join([base_url, linkedin_id, end_query])
-            response = requests.get(url)
-            content = json.loads(response.content)
-            emails = content.get('person').get("emails")
-            images = content.get('person').get("images")
-            if len(emails) > 0:
-                return emails[0].get("address")
-        except:
-            return None
 
     @property
     def email(self):
@@ -115,19 +102,28 @@ class Prospect(db.Model):
     @property
     def pipl_info(self):
         info = {}
-        try:
-            base_url ="http://api.pipl.com/search/v3/json/?username="
-            linkedin_id = str(self.linkedin_id)
-            end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
-            url = "".join([base_url, linkedin_id, end_query])
-            response = requests.get(url)
-            content = json.loads(response.content)
+        if self.pipl_response: 
+            content = self.pipl_response      
+        else:
+            try:
+                base_url ="http://api.pipl.com/search/v3/json/?username="
+                linkedin_id = str(self.linkedin_id)
+                end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
+                url = "".join([base_url, linkedin_id, end_query])
+                response = requests.get(url)
+                content = json.loads(response.content)                         
+            except:
+                pass
+        if content:
             emails = content.get('person').get("emails")
             images = content.get('person').get("images")
             if len(emails) > 0:
                 info['email'] = emails[0].get("address")
-        except:
-            pass
+            if self.pipl_response is None:
+                from prime.prospects.get_prospect import session
+                self.pipl_response = content     
+                session.add(self)
+                session.commit()        
         return info
 
 
