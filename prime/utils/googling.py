@@ -27,6 +27,7 @@ def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_re
 			if re.search(url_regex,link): urls.add(link)
 			if limit == len(urls): return urls
 		start_num+=results_per_page
+		if len(links) < results_per_page: return results
 	return urls
 
 def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex=".", require_proxy=False, exclude_terms_from_title=None, include_terms_in_title=None):
@@ -42,18 +43,19 @@ def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000
 			link = linkel.values()[0]
 			if re.search(url_regex,link): 
 				title = linkel.text
-				title_meat = title.split("|")[0]
+				title_meat = title.split("|")[0].lower()
 				if exclude_terms_from_title:
-					intersect = set(exclude_terms_from_title.split(" ")) & set(title_meat.split(" "))
+					intersect = set(exclude_terms_from_title.lower().split(" ")) & set(title_meat.split(" "))
 					if len(intersect) >= 2: 
 						continue 
 				if include_terms_in_title:
-					intersect = set(include_terms_in_title.split(" ")) & set(title_meat.split(" "))
+					intersect = set(include_terms_in_title.lower().split(" ")) & set(title_meat.split(" "))
 					if len(intersect) < 2: 
 						continue 					
 				results.update({link: title})
 				print title 
 			if limit == len(results): return results
+		if len(links) < results_per_page: return results
 		previous_first_link = links[0].values()[0]
 		start_num+=results_per_page
 	return results
@@ -72,7 +74,7 @@ def search_linkedin_profile(terms, name, require_proxy=False):
 	record = session.query(GoogleProfileSearches).get((terms,name))
 	if record: return record.url
 	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
-	result = search_with_title(querystring, url_regex=profile_re, limit=1, require_proxy=require_proxy, include_terms_in_title=name).keys()
+	result = search_with_title(querystring, url_regex=profile_re, limit=1, require_proxy=require_proxy, include_terms_in_title=name.lower()).keys()
 	if len(result) >0 : url = result[0]
 	else: url = None
 	record = GoogleProfileSearches(terms=terms, name=name, url=url)

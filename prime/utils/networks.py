@@ -37,7 +37,7 @@ def valid_first_degree(prospect, contact_friend):
 	if not prospect or not contact_friend or not contact_friend.linkedin_id: return False
 	if prospect.json.get("first_degree_linkedin_ids") and str(contact_friend.linkedin_id) in prospect.json["first_degree_linkedin_ids"]: return True
 	if prospect.json.get("first_degree_urls") and contact_friend.url in prospect.json["first_degree_urls"]: return True
-	if prospect.json.get("boosted_ids") and str(contact_friend.linkedin_id)ß in prospect.json["boosted_ids"]: return True
+	if prospect.json.get("boosted_ids") and str(contact_friend.linkedin_id) in prospect.json["boosted_ids"]: return True
 	return False
 
 def valid_second_degree(prospect, contact, contact_friend):
