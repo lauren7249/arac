@@ -14,6 +14,7 @@ while True:
 			if not id: r.sadd("urls",url)
 		elif url.find("google.com"):
 			if not page_is_good(content, google_xpaths): 
+				print url
 				r.sadd("urls",url)
 	else: time.sleep(2)
 

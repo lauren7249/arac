@@ -145,7 +145,7 @@ for prospect in new_york_employed:
 		count += 1
 		skills[skill] = count
 for skill in skills.keys():
-    if skills[skill]>45: print skill + ": " + str(skills[skill])
+    if skills[skill]>5: print skill + ": " + str(skills[skill])
 
 interests = {}
 for prospect in new_york_employed:
@@ -158,7 +158,7 @@ for prospect in new_york_employed:
 		count += 1
 		interests[interest] = count
 for interest in interests.keys():
-    if interests[interest]>10: print interest + ": " + str(interests[interest])
+    if interests[interest]>3: print interest + ": " + str(interests[interest])
 
 companies = {}
 for prospect in new_york_employed:
