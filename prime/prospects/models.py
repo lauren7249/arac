@@ -126,6 +126,14 @@ class Prospect(db.Model):
                 session.commit()        
         return info
 
+    @property
+    def find_pipl(self):
+        try:
+            pipl_info = self.pipl_info
+            email = pipl_info.get("email")
+            return email
+        except:
+            return None
 
     @property
     def calculate_salary(self):
