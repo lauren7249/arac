@@ -61,7 +61,7 @@ class log_uploaded:
         real_url = url.replace(";","/").replace("`","?")
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
-        return real_url
+        return url
 
 class select:
     def GET(self, n):
