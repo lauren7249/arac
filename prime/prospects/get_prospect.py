@@ -1,6 +1,7 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from flask import Flask
+from prime.utils import r
 import re, os, sys
 try:
 	from prime.prospects.prospect_list import *
@@ -59,14 +60,29 @@ def from_linkedin_id(linkedin_id, session=session):
 def from_url(url, session=session):
 	from prime.prospects.models import Prospect, ProspectUrl
 	prospectUrl = session.query(ProspectUrl).get(url)
-	if prospectUrl: return session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
-	url = re.sub("https:","http:",url)
-	prospectUrl = session.query(ProspectUrl).get(url)
 	if prospectUrl: 
-		return session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
+		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
+		if prospect: return prospect 
+	if url.find("https:") > -1: url_new = url.replace("https:","http:")
+	elif url.find("http:") > -1: url_new = url.replace("http:","https:")
+	prospectUrl = session.query(ProspectUrl).get(url_new)
+	if prospectUrl: 
+		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
+		if prospect:
+			session.add(models.ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
+			session.commit()
+		return prospect
 	prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("/", "")).first()
-	if prospect: return prospect
-	session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("http:","https:").replace("/", "")).first()
+	if prospect: 
+		session.add(models.ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
+		session.commit()
+		return prospect
+	prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url_new.replace("/", "")).first()
+	if prospect: 
+		session.add(models.ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
+		session.commit()	
+	else: r.sadd("urls",url)
+	return prospect
 
 def from_prospect_id(id, session=session):
 	from prime.prospects.models import Prospect, Job, Education
