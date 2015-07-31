@@ -79,12 +79,44 @@ class Prospect(db.Model):
         return None
 
     @property
+    def get_pipl_response(self) :
+        content = {}
+        if self.pipl_response: 
+            content = self.pipl_response      
+        else:         
+            try:
+                base_url ="http://api.pipl.com/search/v3/json/?username="
+                linkedin_id = str(self.linkedin_id)
+                end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
+                url = "".join([base_url, linkedin_id, end_query])
+                response = requests.get(url)
+                content = json.loads(response.content)    
+                from prime.prospects.get_prospect import session
+                self.pipl_response = content     
+                session.add(self)
+                session.commit()                                        
+            except:
+                pass    
+        return content
+
+    @property
     def social_accounts(self):
+        s = []
+        pipl_response = self.get_pipl_response
+        if pipl_response and pipl_response.get("records"):
+            for record in pipl_response.get("records"):
+                if record.get('@query_params_match') and record.get("source") and record.get("source").get("domain") != "linkedin.com" and record.get("source").get("url") and not record.get("source").get("@is_sponsored"):
+                    domain = record.get("source").get("domain")
+                    link = record.get("source").get("url")
+                    if link not in s and type(link) is not dict: s.append(link)  
+                        # response = requests.get(link, headers=headers)
+                        # if response.status_code != 404: s.append(link)        
         if self.json:
             vibe = self.json.get("vibe")
-            if vibe:
-                return vibe.get("social_profiles", [])
-        return []
+            if vibe and vibe.get("social_profiles"):
+                for link in vibe.get("social_profiles"):
+                    if link not in s and type(link) is not dict: s.append(link)  
+        return s
 
 
     @property
@@ -102,28 +134,12 @@ class Prospect(db.Model):
     @property
     def pipl_info(self):
         info = {}
-        if self.pipl_response: 
-            content = self.pipl_response      
-        else:
-            try:
-                base_url ="http://api.pipl.com/search/v3/json/?username="
-                linkedin_id = str(self.linkedin_id)
-                end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
-                url = "".join([base_url, linkedin_id, end_query])
-                response = requests.get(url)
-                content = json.loads(response.content)                         
-            except:
-                pass
+        content = get_pipl_response(self)
         if content:
             emails = content.get('person').get("emails")
             images = content.get('person').get("images")
             if len(emails) > 0:
-                info['email'] = emails[0].get("address")
-            if self.pipl_response is None:
-                from prime.prospects.get_prospect import session
-                self.pipl_response = content     
-                session.add(self)
-                session.commit()        
+                info['email'] = emails[0].get("address")     
         return info
 
     @property
@@ -210,7 +226,6 @@ class Prospect(db.Model):
         if score:
             return score.wealthscore
         return None
-
 
     def to_json(self, no_fk=False):
         data = {
