@@ -16,6 +16,15 @@ zips = zips[["zip","tp_lat","tp_lng"]]
 tp =tp.merge(zips, how="inner", on=["zip"])
 #2161
 
+for index, row in tp.iterrows():
+    id = row["ID Number"]
+    if str(row["Middle Name"]) == "nan":
+        name = row["First Name"] + " " + row["Last Name"]
+    else:
+        name = row["First Name"] + " " + row["Middle Name"] + " " + row["Last Name"]
+    terms = name  + " " + us.states.lookup(row["State"]).name   
+    u = googling.search_linkedin_profile(terms, name)
+
 def process(row):
     id = row["ID Number"]
     if r.hexists("touchpoints",id): return

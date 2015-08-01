@@ -6,10 +6,13 @@ function get_url(orig_url) {
 	var fn = url.replace(/\//g, "-") + ".html";
 	try {
 		var page = get_url_response("https://" + url);
+		if (page.toLowerCase().indexOf("captcha") > -1) {
+			return false
+		}
 	}
 	catch(err) {
 		console.log("not loaded")
-		return null
+		return false
 	}
 	//console.log(page);
 	var params = {Key: fn, ContentType:'text/html', Body: page};
@@ -19,7 +22,7 @@ function get_url(orig_url) {
 		xmlHttp.send( null );	
 		total += 1;
 		countArea.value = total;
-		return err
+		return true
 	}); 	
 }
 
@@ -84,7 +87,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			google(url);
 		}
 		else {
-			get_url(url);
+			success = get_url(url);
+			if (!success) { break }
 		}
 	}	
   }, false);
