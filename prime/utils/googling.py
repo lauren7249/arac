@@ -65,7 +65,7 @@ def search_with_title(querystring, results_per_page=100, start_num=0, limit=1000
 def search_extended_network(prospect, limit=30, require_proxy=False, refresh=False):
 	if prospect.google_network_search is not None and not refresh: return prospect.google_network_search
 	terms = prospect.name + " " + prospect.current_job.company.name
-	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
+	querystring = "site:www.linkedin.com+" + re.sub(r" ", "+", terms)
 	result = search_with_title(querystring, url_regex=profile_re, limit=limit, require_proxy=require_proxy, exclude_terms_from_title=terms)	
 	prospect.google_network_search = result
 	session.add(prospect)
@@ -75,7 +75,7 @@ def search_extended_network(prospect, limit=30, require_proxy=False, refresh=Fal
 def search_linkedin_profile(terms, name, require_proxy=False):
 	record = session.query(GoogleProfileSearches).get((terms,name))
 	if record: return record.url
-	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
+	querystring = "site:www.linkedin.com+" + re.sub(r" ", "+", terms)
 	result = search_with_title(querystring, url_regex=profile_re, limit=1, require_proxy=require_proxy, include_terms_in_title=name.lower()).keys()
 	if len(result) >0 : url = result[0]
 	else: url = None
@@ -85,7 +85,7 @@ def search_linkedin_profile(terms, name, require_proxy=False):
 	return url
 
 def search_linkedin_school(terms, limit=1, require_proxy=False):
-	querystring = "site%3Awww.linkedin.com+" + re.sub(r" ", "+", terms)
+	querystring = "site:www.linkedin.com+" + re.sub(r" ", "+", terms)
 	results = search_with_title(querystring, url_regex=school_re, limit=limit, require_proxy=require_proxy)
 	return results
 

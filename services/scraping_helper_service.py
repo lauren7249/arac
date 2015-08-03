@@ -34,7 +34,7 @@ def get_bucket():
     return s3conn.get_bucket(bucket_name)
 
 def url_to_s3_key(url):
-	fn = url.replace("https://","").replace("http://", "").replace("/","-").replace(":","%3A") + ".html"
+	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
 	return fn
 	
 def process_content(content, source_url=None):
@@ -62,7 +62,8 @@ class log_uploaded:
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
         return url
-
+# http://www.google.com/search?q=site:www.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
+# http://www.google.com/search?q=site%3Awww.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
 class select:
     def GET(self, n):
         all = list(r.smembers("urls"))
