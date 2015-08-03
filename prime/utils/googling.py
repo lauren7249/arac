@@ -5,14 +5,16 @@ from prime.prospects.get_prospect import session
 from prime.utils import profile_re, school_re
 
 secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
-search_results_xpath = "//*[contains(@class,'srg')]"
+#search_results_xpath = "//*[contains(@class,'srg')]"
+search_results_xpath = "//h3[@class='r']/a"
 google_xpaths = [search_results_xpath, ".//div/div/div/p/em/text()"]
 
 def get_links(raw_html):
 	if raw_html is None: return []
-	results_area = raw_html.xpath(search_results_xpath)
-	if len(results_area) == 0: return []
-	links = results_area[0].xpath("//h3[@class='r']/a")	
+	# results_area = raw_html.xpath(search_results_xpath)
+	# if len(results_area) == 0: return []
+	# links = results_area[0].xpath("//h3[@class='r']/a")	
+	links = raw_html.xpath(search_results_xpath)	
 	return links
 
 def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex=".", require_proxy=False):
