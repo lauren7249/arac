@@ -1,4 +1,6 @@
 var total = 0;
+//TODO: stop if logged in
+//show captcha if it comes up
 
 function get_url(orig_url) {
 	url = orig_url.replace("https://","").replace("http://","");
@@ -24,6 +26,7 @@ function get_url(orig_url) {
 		countArea.value = total;
 		return true
 	}); 	
+	return true
 }
 
 function get_url_response(url) {
@@ -75,11 +78,10 @@ document.addEventListener('DOMContentLoaded', function() {
   checkPageButton.addEventListener('click', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {
-		url_field = get_url_response("http://169.55.28.212:8080/select/n=10")
-	} 
+		url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
+	}   	
 
 	arr = url_field.match(/[^\r\n]+/g);
-	console.log(arr.length);
 	countArea.max = arr.length;
 	for (var i in arr) {
 		url = arr[i]
@@ -88,9 +90,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		else {
 			success = get_url(url);
-			if (!success) { break }
+			//if (!success) { break }
 		}
-	}	
+	}
+
+	
   }, false);
 }, false);
 

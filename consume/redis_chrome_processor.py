@@ -3,6 +3,7 @@ from services.scraping_helper_service import process_url, process_content, url_t
 import time, re
 from prime.utils.googling import google_xpaths
 from prime.utils.proxy_scraping import page_is_good
+import lxml.html
 
 while True:
 	url = r.spop("chrome_uploads")

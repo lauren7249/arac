@@ -2,17 +2,17 @@
 from prime.prospects.get_prospect import *
 from prime.utils.networks import *
 
-def agent_network(prospects):
+def agent_network(prospects, locales=['New York','Greater New York City Area']):
 	#employed, in ny, not in financial services
 	new_york_employed = []
 	for prospect in prospects:
-		if valid_lead(prospect): new_york_employed.append(prospect)  
+		if valid_lead(prospect, locales=locales): new_york_employed.append(prospect)  
 	return new_york_employed
 
-def valid_lead(prospect):
+def valid_lead(prospect, locales=['New York','Greater New York City Area']):
 	if prospect.current_job is None: return False
 	key = prospect.location_raw.split(",")[-1].strip()
-	if key in ['New York','Greater New York City Area'] and prospect.industry_raw not in ['Insurance','Financial Services']: return True
+	if key in locales and prospect.industry_raw not in ['Insurance','Financial Services']: return True
 	return False
 
 def collegeGrad(prospect):
