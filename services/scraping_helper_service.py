@@ -37,15 +37,6 @@ def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
 	return fn
 	
-def process_content(content, source_url=None):
-    if content is None: return None
-    info = parse_html(content)	
-    if info.get("success"):
-        if source_url is not None: info["source_url"] = source_url
-        new_prospect = insert_linkedin_profile(info, session)
-        return new_prospect.id
-    else: return None
-
 def process_url(url):
     bucket = get_bucket()
     try:

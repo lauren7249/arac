@@ -464,6 +464,20 @@ class ProspectUrl(db.Model):
                 self.linkedin_id
                 )
 
+class Facebook(db.Model):
+    __tablename__ = "facebook"
+
+    facebook_id = db.Column(String(200), primary_key=True)
+    prospect_id = db.Column(Integer)
+    linkedin_id = db.Column(BigInteger)
+    info = db.Column(JSON)
+
+    def __repr__(self):
+        return '<facebook_id ={0} prospect_id={1}>'.format(
+                self.facebook_id,
+                self.prospect_id
+                )
+
 class PiplFacebook(db.Model):
     __tablename__ = "pipl_from_facebook"
 
