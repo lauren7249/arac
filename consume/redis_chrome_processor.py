@@ -23,7 +23,13 @@ while True:
 					new_prospect = insert_linkedin_profile(info, session)    			
 					if not new_prospect: r.sadd("urls",url)
 				else:
-					r.sadd("urls",url)
+					old_prospect = from_url(url)
+					if old_prospect and old_prospect.image_url is None and info.get("image"):
+						old_prospect.image_url = info.get("image")
+						session.add(old_prospect)
+						session.commit()
+					else:
+						r.sadd("urls",url)
 			else:
 				r.sadd("urls",url)
 		elif url.find("google.com"):
