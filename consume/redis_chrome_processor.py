@@ -17,10 +17,10 @@ while True:
 			continue
 		if re.search(profile_re,url): 
 			info = parse_html(content)
-    		if info.get("success") :
-    			if info.get("complete"):
-    				info["source_url"] = url
-    				new_prospect = insert_linkedin_profile(info, session)    			
+			if info.get("success") :
+				if info.get("complete"):
+					info["source_url"] = url
+					new_prospect = insert_linkedin_profile(info, session)    			
 					if not new_prospect: r.sadd("urls",url)
 				else:
 					r.sadd("urls",url)
