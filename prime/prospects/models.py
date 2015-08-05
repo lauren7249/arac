@@ -16,6 +16,14 @@ from sqlalchemy.engine.url import URL
 from prime import db
 from prime.prospects.helper import BingSearch
 from citext import CIText
+from prime.prospects.get_prospect import session
+
+pipl_api_key = "uegvyy86ycyvyxjhhbwsuhj9"
+vibe_api_key = "e0978324d7ac8b759084aeb96c5d7fde"
+fullcontact_api_key = "dda7318aacfcf5cd"
+pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key + "&pretty=true"
+vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="
+fullcontact_url = "http://api.fullcontact.com/v2/person.json?apiKey=" + fullcontact_api_key 
 
 def uu(str):
     if str:
@@ -86,13 +94,9 @@ class Prospect(db.Model):
             content = self.pipl_response      
         else:         
             try:
-                base_url ="http://api.pipl.com/search/v3/json/?username="
-                linkedin_id = str(self.linkedin_id)
-                end_query = "@linkedin&key=uegvyy86ycyvyxjhhbwsuhj9&pretty=true"
-                url = "".join([base_url, linkedin_id, end_query])
+                url = pipl_url + "&username=" + str(self.linkedin_id) + "@linkedin"
                 response = requests.get(url)
                 content = json.loads(response.content)    
-                from prime.prospects.get_prospect import session
                 self.pipl_response = content     
                 session.add(self)
                 session.commit()                                        
@@ -405,8 +409,8 @@ class Job(db.Model):
 class GoogleProfileSearches(db.Model):
     __tablename__ = "google_profile_searches"
 
-    terms = db.Column(String(300), primary_key=True)
-    name = db.Column(String(200), primary_key=True)
+    terms = db.Column(CIText(), primary_key=True)
+    name = db.Column(CIText(), primary_key=True)
     url = db.Column(String(200))
 
     def __repr__(self):
@@ -471,15 +475,50 @@ class FacebookContact(db.Model):
     facebook_id = db.Column(CIText(), primary_key=True)
     linkedin_url = db.Column(String(150))
     linkedin_id = db.Column(BigInteger)
-    pipl_response = db.Column(JSON)
     prospect_id = db.Column(Integer)
     profile_info = db.Column(JSON)
+
+    pipl_response = db.Column(JSON)
+    fullcontact_response = db.Column(JSON)
 
     def __repr__(self):
         return '<facebook_id ={0} linkedin_url={1}>'.format(
                 self.facebook_id,
                 self.linkedin_url
                 )
+    @property
+    def get_pipl_response(self) :
+        if self.pipl_response: 
+            return self.pipl_response 
+        content = {}
+        try:
+            url = pipl_url + "&username=" + self.facebook_id + "@facebook"
+            response = requests.get(url)
+            content = json.loads(response.content)    
+            self.pipl_response = content     
+            session.add(self)
+            session.commit()                                        
+        except:
+            pass    
+        return content 
+
+    @property
+    def get_fullcontact_response(self) :
+        content = {}
+        if self.fullcontact_response: 
+            content = self.fullcontact_response
+            return content      
+        try:
+            url = fullcontact_url + "&facebookUsername=" + self.facebook_id if not self.facebook_id.isdigit() else fullcontact_url + "&facebookId=" + self.facebook_id 
+            response = requests.get(url)
+            content = json.loads(response.content)
+            if content.get("status") == 200:
+                self.fullcontact_response = content     
+                session.add(self)
+                session.commit()                                        
+        except:
+            pass    
+        return content 
 
 class EmailContact(db.Model):
     __tablename__ = "email_contacts"
@@ -487,12 +526,66 @@ class EmailContact(db.Model):
     email = db.Column(CIText(), primary_key=True)
     linkedin_url = db.Column(String(150))
     pipl_response = db.Column(JSON)
+    vibe_response = db.Column(JSON)
+    fullcontact_response = db.Column(JSON)
 
     def __repr__(self):
         return '<email ={0} linkedin_url={1}>'.format(
                 self.email,
                 self.linkedin_url
                 )
+
+    @property
+    def get_pipl_response(self) :
+        content = {}
+        if self.pipl_response: 
+            content = self.pipl_response      
+        else:         
+            try:
+                url = pipl_url + "&email=" + self.email
+                response = requests.get(url)
+                content = json.loads(response.content)    
+                self.pipl_response = content     
+                session.add(self)
+                session.commit()                                        
+            except:
+                pass    
+        return content     
+
+    @property
+    def get_vibe_response(self) :
+        content = {}
+        if self.vibe_response: 
+            content = self.vibe_response      
+        else:         
+            try:
+                url = vibe_url + self.email
+                response = requests.get(url)
+                content = json.loads(response.content)    
+                self.vibe_response = content     
+                session.add(self)
+                session.commit()                                        
+            except:
+                pass    
+        return content  
+
+    @property
+    def get_fullcontact_response(self) :
+        content = {}
+        if self.fullcontact_response: 
+            content = self.fullcontact_response
+            return content      
+        try:
+            url = fullcontact_url + "&email=" + self.email
+            response = requests.get(url)
+            content = json.loads(response.content) 
+            if content.get("status") == 200:   
+                self.fullcontact_response = content     
+                session.add(self)
+                session.commit()                                        
+        except:
+            pass    
+        return content 
 
 class Proxy(db.Model):
     __tablename__ = "proxy"
