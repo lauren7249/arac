@@ -15,6 +15,7 @@ from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime import db
 from prime.prospects.helper import BingSearch
+from citext import CIText
 
 def uu(str):
     if str:
@@ -134,7 +135,7 @@ class Prospect(db.Model):
     @property
     def pipl_info(self):
         info = {}
-        content = get_pipl_response(self)
+        content = self.get_pipl_response
         if content:
             emails = content.get('person').get("emails")
             images = content.get('person').get("images")
@@ -464,26 +465,15 @@ class ProspectUrl(db.Model):
                 self.linkedin_id
                 )
 
-class Facebook(db.Model):
-    __tablename__ = "facebook"
+class FacebookContact(db.Model):
+    __tablename__ = "facebook_contacts"
 
-    facebook_id = db.Column(String(200), primary_key=True)
-    prospect_id = db.Column(Integer)
-    linkedin_id = db.Column(BigInteger)
-    info = db.Column(JSON)
-
-    def __repr__(self):
-        return '<facebook_id ={0} prospect_id={1}>'.format(
-                self.facebook_id,
-                self.prospect_id
-                )
-
-class PiplFacebook(db.Model):
-    __tablename__ = "pipl_from_facebook"
-
-    facebook_id = db.Column(String(200), primary_key=True)
+    facebook_id = db.Column(CIText(), primary_key=True)
     linkedin_url = db.Column(String(150))
+    linkedin_id = db.Column(BigInteger)
     pipl_response = db.Column(JSON)
+    prospect_id = db.Column(Integer)
+    profile_info = db.Column(JSON)
 
     def __repr__(self):
         return '<facebook_id ={0} linkedin_url={1}>'.format(
@@ -491,10 +481,10 @@ class PiplFacebook(db.Model):
                 self.linkedin_url
                 )
 
-class PiplEmail(db.Model):
-    __tablename__ = "pipl_from_email"
+class EmailContact(db.Model):
+    __tablename__ = "email_contacts"
 
-    email = db.Column(String(200), primary_key=True)
+    email = db.Column(CIText(), primary_key=True)
     linkedin_url = db.Column(String(150))
     pipl_response = db.Column(JSON)
 

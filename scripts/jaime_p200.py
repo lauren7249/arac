@@ -2,7 +2,7 @@ import datetime
 import requests
 from prime.utils import headers
 import json, pandas
-from prime.prospects.models import PiplEmail, Prospect
+from prime.prospects.models import EmailContact, Prospect
 from prime.prospects.get_prospect import session, from_linkedin_id, from_url, average_wealth_score
 from prime.utils import r
 from prime.utils.googling import *
@@ -25,7 +25,7 @@ session.commit()
 #343 profiles
 #318 unique pipl linkedin profiles
 for email in jaime.email_contacts:
-	if session.query(PiplEmail).get(email) is None:
+	if session.query(EmailContact).get(email) is None:
 		print email
 		req = pipl + email
 		response = requests.get(req, headers=headers, verify=False)
@@ -37,7 +37,7 @@ for email in jaime.email_contacts:
 					linkedin_url = record.get("source").get("url")
 					r.sadd("urls",linkedin_url) #for scraper
 					break
-			piplrecord = PiplEmail(email=email, linkedin_url=linkedin_url, pipl_response=pipl_json)
+			piplrecord = EmailContact(email=email, linkedin_url=linkedin_url, pipl_response=pipl_json)
 			session.add(piplrecord)
 			session.commit()
 
@@ -47,7 +47,7 @@ for index, row in df.iterrows():
 	terms = row.FirstName + " " + row.LastName + " " + row.Company + " " + row.JobTitle
 	name = row.FirstName + " " + row.LastName
 	email = row.EmailAddress
-	pipl_rec = session.query(PiplEmail).get(email)
+	pipl_rec = session.query(EmailContact).get(email)
 	if not pipl_rec or not pipl_rec.linkedin_url:
 		url = search_linkedin_profile(terms,name)
 		if url:
@@ -72,7 +72,7 @@ for url in search_urls:
 
 pipl_recs =0
 for email in jaime.email_contacts:
-	pipl_rec = session.query(PiplEmail).get(email)
+	pipl_rec = session.query(EmailContact).get(email)
 	if pipl_rec: 
 		pipl_recs+=1
 		linkedin_url = pipl_rec.linkedin_url
