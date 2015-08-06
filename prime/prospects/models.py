@@ -108,21 +108,15 @@ class Prospect(db.Model):
     def social_accounts(self):
         s = []
         pipl_response = self.get_pipl_response
-        if pipl_response and pipl_response.get("records"):
-            for record in pipl_response.get("records"):
-                if record.get('@query_params_match') and record.get("source") and record.get("source").get("domain") != "linkedin.com" and record.get("source").get("url") and not record.get("source").get("@is_sponsored"):
-                    domain = record.get("source").get("domain")
-                    link = record.get("source").get("url")
-                    if link not in s and type(link) is not dict: s.append(link)  
-                        # response = requests.get(link, headers=headers)
-                        # if response.status_code != 404: s.append(link)        
-        if self.json:
-            vibe = self.json.get("vibe")
-            if vibe and vibe.get("social_profiles"):
-                for link in vibe.get("social_profiles"):
-                    if link not in s and type(link) is not dict: s.append(link)  
-        return s
+        pipl_social_accounts = get_pipl_social_accounts(pipl_response)
 
+        vibe_json = self.json.get("vibe") if self.json else {}
+        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+
+        for link in pipl_social_accounts + vibe_social_accounts:
+            if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
+            s.append(link)  
+        return s
 
     @property
     def email(self):
@@ -253,7 +247,13 @@ class Prospect(db.Model):
             #data["news"] =  self.relevant_content
         return data
 
-
+    @property 
+    def build_profile(self):
+        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name, "image_url": self.image_url if self.image_url else None, "url":self.url}
+        for link in self.social_accounts: 
+            domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
+            if domain in ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin"]: profile.update({domain:link})
+        return profile
 
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, self.url)
@@ -520,6 +520,17 @@ class FacebookContact(db.Model):
             pass    
         return content 
 
+    @property
+    def social_accounts(self):
+        s = []
+        pipl_response = self.get_pipl_response
+        pipl_social_accounts = get_pipl_social_accounts(pipl_response)
+
+        for link in pipl_social_accounts:
+            if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
+            s.append(link)  
+        return s
+        
 class EmailContact(db.Model):
     __tablename__ = "email_contacts"
 
@@ -587,6 +598,20 @@ class EmailContact(db.Model):
             pass    
         return content 
 
+    @property
+    def social_accounts(self):
+        s = []
+        pipl_response = self.get_pipl_response
+        pipl_social_accounts = get_pipl_social_accounts(pipl_response)
+
+        vibe_json = self.get_vibe_response
+        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+
+        for link in pipl_social_accounts + vibe_social_accounts:
+            if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
+            s.append(link)  
+        return s
+
 class Proxy(db.Model):
     __tablename__ = "proxy"
 
@@ -651,6 +676,23 @@ class Education(db.Model):
                 self.school.name,
                 self.prospect.name
                 )
+
+def get_pipl_social_accounts(pipl_json):
+    social_profiles = []
+    if not pipl_json or not pipl_json.get("records"): return social_profiles
+    for record in pipl_json.get("records"):
+        if not record.get('@query_params_match') or not record.get("source") or not record.get("source").get("url") or record.get("source").get("@is_sponsored"): continue
+        link = record.get("source").get("url")
+        social_profiles.append(link)    
+    return social_profiles
+
+def get_vibe_social_accounts(vibe_json):
+    social_profiles = []
+    if not vibe_json or not vibe_json.get("social_profiles"): return social_profiles
+    for record in vibe_json.get("social_profiles"):
+        link = record.get("url")
+        social_profiles.append(link)    
+    return social_profiles
 
 """
 class ProspectList(db.Model):
