@@ -27,6 +27,7 @@ urls = (
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
+bucket = get_bucket(bucket_name='chrome-ext-uploads')
 
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
@@ -42,7 +43,6 @@ def process_content(content, source_url=None):
     else: return None
 
 def process_url(url):
-    bucket = get_bucket()
     try:
     	key = Key(bucket)
     	key.key = url

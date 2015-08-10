@@ -19,7 +19,7 @@ facebook_state = facebook_location.split(", ")[-1]
 
 for username in facebook_friends:
 	username = fbscraper.scrape_profile("https://www.facebook.com/" + username)
-	fbscraper.scrape_profile_friends(username)
+	#fbscraper.scrape_profile_friends(username)
 
 #agents linkedin info
 linkedin_id='103258031' 
@@ -125,15 +125,33 @@ for link in set(email_facebook_friend_links):
 	username = fbscraper.scrape_profile(link)
 	print username
 	email_facebook_friends.append(username)
-	fbscraper.scrape_profile_friends(username)	
-	
+	print len(email_facebook_friends)
+	#fbscraper.scrape_profile_friends(username)	
+email_facebook_friends = list(set(email_facebook_friends))	
+
+prospect_json["email_facebook_ids"] = email_facebook_friends
+prospect.json = prospect_json
+session.add(prospect)
+session.commit()
 
 for linkedin_url in set(email_linkedin_friend_links):
 	r.sadd("urls",linkedin_url)
 
 #after scraping
+#248
 email_linkedin_friends = []
 for linkedin_url in set(email_linkedin_friend_links):
 	contact_linkedin = from_url(linkedin_url)
 	if contact_linkedin: email_linkedin_friends.append(str(contact_linkedin.linkedin_id))
+
+prospect_json["email_linkedin_ids"] = email_linkedin_friends
+prospect.json = prospect_json
+session.add(prospect)
+session.commit()
 	#else: r.sadd("urls",linkedin_url)
+
+for linkedin_id in set(prospect_json["email_linkedin_ids"] + prospect_json["facebook_friend_linkedin_ids"] + prospect_json["first_degree_linkedin_ids"]):
+	contact = from_linkedin_id(linkedin_id)
+	search_query = extended_network_query_string(contact)
+	r.sadd("urls",search_query)	
+	#search_extended_network(contact)

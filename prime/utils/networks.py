@@ -37,6 +37,7 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		contact_salary = contact.get_indeed_salary if contact.get_indeed_salary else 0
 		salary = max(contact_salary, prospect_salary)
 		if salary < min_salary: return False
+		if prospect.location_raw.split(",")[-1].strip() and 
 	return False
 
 

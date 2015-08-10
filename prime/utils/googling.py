@@ -8,6 +8,8 @@ secret_sauce = "&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N"
 #search_results_xpath = "//*[contains(@class,'srg')]"
 search_results_xpath = "//h3[@class='r']/a"
 google_xpaths = [search_results_xpath, ".//div/div/div/p/em/text()"]
+results_per_page=100
+start_num=0
 
 def get_links(raw_html):
 	if raw_html is None: return []
@@ -17,7 +19,14 @@ def get_links(raw_html):
 	links = raw_html.xpath(search_results_xpath)	
 	return links
 
-def search(querystring, results_per_page=100, start_num=0, limit=1000000, url_regex=".", require_proxy=False):
+def extended_network_query_string(contact):
+	if not contact or not contact.current_job or not contact.current_job.company or not contact.current_job.company.name: return None
+	terms = contact.name + " " + contact.current_job.company.name
+	querystring = "site:www.linkedin.com+" + re.sub(r" ", "+", terms)
+	search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 	
+	return search_query
+
+def search(querystring, limit=1000000, url_regex=".", require_proxy=False):
 	urls = set()
 	while True:
 		search_query ="http://www.google.com/search?q=" + querystring + secret_sauce + "&num=" + str(results_per_page) + "&start=" + str(start_num) 

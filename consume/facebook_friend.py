@@ -31,8 +31,8 @@ class FacebookFriend(object):
         self.bucket = get_bucket('facebook-profiles')
 
     def login(self):
-        self.display = Display(visible=0, size=(1024, 768))
-        self.display.start()
+        # self.display = Display(visible=0, size=(1024, 768))
+        # self.display.start()
         profile=webdriver.FirefoxProfile('/Users/lauren/Library/Application Support/Firefox/Profiles/lh4ow5q9.default')
         self.driver = webdriver.Firefox(profile)
         self.driver.implicitly_wait(4) 
@@ -67,7 +67,9 @@ class FacebookFriend(object):
         self.driver.get(link)
         real_url = self.driver.current_url
         username = real_url.split("/")[-1] if real_url[-1] != '/' else real_url.split("/")[-2] 
-        if username.find("=") > -1: username = username.split("=")[-1]
+        if username.find("=") > -1: 
+            username = username.split("=")[-1] if username.split("=")[-1].find("profile.php") == -1 else username.split("=")[0]
+        if len(username) == 1: return None
         source = self.driver.page_source
         key.key = username
         key.content_type = 'text/html'
@@ -84,6 +86,7 @@ class FacebookFriend(object):
         return key.key
 
     def scrape_profile_friends(self, username):
+        if not username: return
         key = Key(self.bucket)
         key.key = username + "-friends"
         if key.exists(): return         
