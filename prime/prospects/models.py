@@ -3,11 +3,10 @@ import random
 import json
 import requests
 import lxml.html
-import os, re
-from prime.utils import headers
+import os, re, json
+from prime.utils import headers, get_bucket
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSON, TSVECTOR, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
@@ -17,6 +16,8 @@ from prime import db
 from prime.prospects.helper import BingSearch
 from citext import CIText
 from prime.prospects.get_prospect import session
+import dateutil.parser
+from boto.s3.key import Key
 
 pipl_api_key = "uegvyy86ycyvyxjhhbwsuhj9"
 vibe_api_key = "e0978324d7ac8b759084aeb96c5d7fde"
@@ -24,6 +25,8 @@ fullcontact_api_key = "dda7318aacfcf5cd"
 pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key + "&pretty=true"
 vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="
 fullcontact_url = "http://api.fullcontact.com/v2/person.json?apiKey=" + fullcontact_api_key 
+social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon"]  
+bucket = get_bucket('facebook-profiles')
 
 def uu(str):
     if str:
@@ -153,19 +156,7 @@ class Prospect(db.Model):
     @property
     def calculate_salary(self):
         if self.current_job:
-            position = self.current_job.title
-            headers = {
-                    'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'
-                    }
-            url =  "http://www.indeed.com/salary?q1=%s&l1=#%s" % (position,
-                    self.location_raw)
-            try:
-                response = requests.get(url, headers=headers)
-                clean = lxml.html.fromstring(response.content)
-                salary = clean.xpath("//span[@class='salary']")[0].text
-                return salary
-            except Exception, err:
-                pass
+            return get_indeed_salary(self.current_job.title, location=self.location_raw)
         return None
 
     @property
@@ -252,7 +243,7 @@ class Prospect(db.Model):
         profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name, "image_url": self.image_url if self.image_url else None, "url":self.url}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
-            if domain in ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin"]: profile.update({domain:link})
+            if domain in social_domains: profile.update({domain:link})
         return profile
 
     def __repr__(self):
@@ -376,6 +367,7 @@ class Job(db.Model):
     end_date = db.Column(Date)
     company_linkedin_id = db.Column(Integer, ForeignKey("linkedin_companies.id"), index=True)
     linkedin_company = relationship('LinkedinCompany', foreign_keys='Job.company_linkedin_id')
+    indeed_salary = db.Column(Integer)
 
     @property
     def name(self):
@@ -394,6 +386,15 @@ class Job(db.Model):
                 "title": self.title,
                 "location": self.location,
                 "dates": dates}
+
+    @property 
+    def get_indeed_salary(self):
+        if self.indeed_salary:
+            return self.indeed_salary
+        self.indeed_salary = get_indeed_salary(self.title, location=self.location)
+        session.add(self)
+        session.commit()
+        return self.indeed_salary
 
     @property
     def get_url(self):
@@ -457,10 +458,22 @@ class ProxyDomainEvent(db.Model):
                 self.success
                 )
 
+class FacebookUrl(db.Model):
+    __tablename__ = "facebook_urls"
+
+    url = db.Column(CIText(), primary_key=True)
+    username = db.Column(CIText, ForeignKey("facebook_contacts.facebook_id"), index=True)
+
+    def __repr__(self):
+        return '<url ={0} username={1}>'.format(
+                self.url,
+                self.username
+                )
+
 class ProspectUrl(db.Model):
     __tablename__ = "prospect_urls"
 
-    url = db.Column(String(200), primary_key=True)
+    url = db.Column(CIText(), primary_key=True)
     linkedin_id = db.Column(BigInteger)
 
     def __repr__(self):
@@ -477,15 +490,71 @@ class FacebookContact(db.Model):
     linkedin_id = db.Column(BigInteger)
     prospect_id = db.Column(Integer)
     profile_info = db.Column(JSON)
-
+    friends = db.Column(String(100))
     pipl_response = db.Column(JSON)
     fullcontact_response = db.Column(JSON)
+    indeed_salary = db.Column(Integer)
 
     def __repr__(self):
         return '<facebook_id ={0} linkedin_url={1}>'.format(
                 self.facebook_id,
                 self.linkedin_url
                 )
+
+    @property 
+    def get_indeed_salary(self):
+        salary = None
+        if self.indeed_salary:
+            return self.indeed_salary
+        if not self.get_profile_info(): return None
+        if not self.get_profile_info().get("job_company") and not self.get_profile_info().get("job_title"): return None
+        if self.get_profile_info().get("job_title") == "Worked": return None
+        if self.get_profile_info().get("job_title") == "Works": 
+            if not self.get_profile_info().get("job_company"): return None
+            title = self.get_profile_info().get("job_company")
+        elif not self.get_profile_info().get("job_company"): 
+            title = self.get_profile_info().get("job_title") 
+        else: 
+            title = self.get_profile_info().get("job_title") + " at " + self.get_profile_info().get("job_company")
+        salary = get_indeed_salary(title, location=self.get_profile_info().get("lives_in"))
+        if not salary and self.get_profile_info().get("job_title") != "Works": 
+            title = self.get_profile_info().get("job_title")
+            salary = get_indeed_salary(title, location=self.get_profile_info().get("lives_in"))
+        if not salary: salary = get_indeed_salary(title)
+        if salary:
+            self.indeed_salary = salary
+            session.add(self)
+            session.commit()
+        return self.indeed_salary
+
+    @property
+    def get_friends(self):
+        if self.friends: 
+            return self.friends 
+        key = Key(bucket)
+        key.key = self.facebook_id + "-friends"
+        if not key.exists(): return None
+        source = key.get_contents_as_string() 
+        raw_html = lxml.html.fromstring(source)
+        all_elements = raw_html.xpath("//div/div/div/div/div/div/ul/li/div")
+        friends = []
+        for person in all_elements:
+            try:
+                profile = person.xpath(".//*[@class='uiProfileBlockContent']")
+                if len(profile) ==0: continue
+                href = profile[0].find(".//a").get("href")
+                username = href.split("/")[-1].split("?")[0]
+                if username == "profile.php":
+                    username = href.split("/")[-1].split("?")[1].split("=")[1].split("&")[0]
+                friends.append(username)
+            except:
+                username = None
+                continue      
+        self.friends = friends
+        session.add(self)
+        session.commit()
+        return friends
+
     @property
     def get_pipl_response(self) :
         if self.pipl_response: 
@@ -526,11 +595,116 @@ class FacebookContact(db.Model):
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
 
-        for link in pipl_social_accounts:
-            if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
+        fullcontact_response = self.get_fullcontact_response
+        fullcontact_social_accounts = get_fullcontact_social_accounts(fullcontact_response)
+
+        for link in pipl_social_accounts + fullcontact_social_accounts:
+            if link.find('facebook.com') > -1 or type(link) is dict or link in s: continue
             s.append(link)  
         return s
-        
+
+    @property 
+    def get_profile_source(self):
+        key = Key(bucket)
+        key.key = self.facebook_id
+        if key.exists():
+            return key.get_contents_as_string()     
+        return None
+
+    @property 
+    def get_profile_info(self): 
+        if self.profile_info:
+            return self.profile_info
+        profile = self.profile_info if self.profile_info else {} 
+        source = self.get_profile_source
+        raw_html = lxml.html.fromstring(source)
+        try:
+            profile["image_url"] = raw_html.xpath(".//img[@class='profilePic img']")[0].get("src")
+        except: 
+            pass
+        try:
+            profile["name"] = raw_html.xpath(".//span[@id='fb-timeline-cover-name']")[0].text
+        except: 
+            pass       
+        try:     
+            article = raw_html.xpath(".//div[@role='article']")[0]
+        except:
+            pass
+        if not article: 
+            self.profile_info = profile     
+            session.add(self)
+            session.commit()                   
+            return profile
+        for element in article.xpath(".//li"):
+            text = element.text_content()
+            if not text: continue
+            if text.find("Lives in ") > -1:
+                profile["lives_in"] = text.split("Lives in ")[1]
+                continue
+            if text.find(" friends") > -1 and not profile.get("friend_count"):
+                profile["friend_count"] = int(text.split(" friends")[0].replace(',',''))
+                continue   
+            if text.find("Married") == 0:
+                profile["married"] = True    
+                if text.find("Married to ") > -1:
+                    profile["married_to"] = text.split("Married to ")[1].split("\n")[0]
+                    if text.find("\n") > -1 and text.find("Since "):
+                        profile["married_since"] = text.split("\n")[1].split("Since ")[1]
+                    continue 
+            if text.find(" at ") > -1:
+                school_info = None
+                if text.find("Studies ") == 0:
+                    school_info = text.split("Studies")[1]
+                elif text.find("Studied ") == 0:
+                    school_info = text.split("Studied")[1]
+                if school_info:
+                    profile["school_major"] = school_info.split(" at ")[0].strip()
+                    if school_info.find(" at ") > -1: 
+                        profile["school_name"] = school_info.split("\n")[0].split(" at ")[1].strip()
+                    if school_info.find("\n") > -1:
+                        dates = school_info.split("\n")[1]
+                        if dates: 
+                            years = re.findall("\d\d\d\d", dates)
+                            if len(years) == 1: 
+                                if re.search("^"+years[0],dates): profile["school_start_year"] = int(years[0])
+                                elif re.search(years[0]+"$",dates): profile["school_end_year"] = int(years[0])
+                            elif len(years) >1:
+                                profile["school_start_year"] = int(years[0])
+                                profile["school_end_year"] = int(years[1])
+                    continue
+                profile["job_title"] = text.split(" at ")[0]
+                profile["job_company"] = text.split("\n")[0].split(" at ")[1]
+                if text.find("\n") > -1:
+                    dates = text.split("\n")[1]
+                    if dates: 
+                        years = re.findall("\d\d\d\d", dates)
+                        if len(years) == 1: 
+                            if re.search("^"+years[0],dates): profile["job_start_year"] = int(years[0])
+                            elif re.search(years[0]+"$",dates): profile["job_end_year"] = int(years[0])
+                        elif len(years) >1:
+                            profile["job_start_year"] = int(years[0])
+                            profile["job_end_year"] = int(years[1])  
+                continue
+            if text.find("Born on ") > -1:
+                profile["dob"] = text.split("Born on ")[1]
+            if text.find("From ") > -1:
+                profile["from"] = text.split("From ")[1].split("\n")[0]
+                continue
+            print text
+        self.profile_info = profile     
+        session.add(self)
+        session.commit()                   
+        return profile   
+
+    @property 
+    def build_profile(self):
+        profile_info = self.get_profile_info()
+        profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job": profile_info.get("job_title"), "company":profile_info.get("job_company"), "image_url": profile_info.get("image_url"), "url":"https://www.facebook.com/" + self.facebook_id}
+        for link in self.social_accounts: 
+            domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
+            if domain in social_domains: profile.update({domain:link})
+        return profile
+
 class EmailContact(db.Model):
     __tablename__ = "email_contacts"
 
@@ -601,14 +775,19 @@ class EmailContact(db.Model):
     @property
     def social_accounts(self):
         s = []
+
+        vibe_json = self.get_vibe_response
+        if vibe_json.get("name") == 'Not a Person': return s
+        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
 
-        vibe_json = self.get_vibe_response
-        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+        fullcontact_response = self.get_fullcontact_response
+        fullcontact_social_accounts = get_fullcontact_social_accounts(fullcontact_response)
 
-        for link in pipl_social_accounts + vibe_social_accounts:
-            if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
+        for link in pipl_social_accounts + vibe_social_accounts + fullcontact_social_accounts:
+            if type(link) is dict or link in s: continue
             s.append(link)  
         return s
 
@@ -694,6 +873,31 @@ def get_vibe_social_accounts(vibe_json):
         social_profiles.append(link)    
     return social_profiles
 
+def get_fullcontact_social_accounts(fullcontact_json):
+    social_profiles = []
+    if not fullcontact_json or not fullcontact_json.get("socialProfiles") or fullcontact_json.get("likelihood") < 0.75: return social_profiles
+    for record in fullcontact_json.get("socialProfiles"):
+        link = record.get("url")
+        social_profiles.append(link)    
+    return social_profiles
+
+def get_specific_url(social_accounts, type="linkedin.com"):
+    for account in social_accounts:
+        if account.find(type) > -1: return account
+    return None
+
+
+def get_indeed_salary(title, location=None):
+    url =  "http://www.indeed.com/salary?q1=%s&l1=%s" % (title, location) if location else "http://www.indeed.com/salary?q1=%s" % (title) 
+    try:
+        response = requests.get(url, headers=headers)
+        clean = lxml.html.fromstring(response.content)
+        salary = clean.xpath("//span[@class='salary']")[0].text
+        return int(re.sub('\D','', salary))
+    except Exception, err:
+        pass
+    return None
+      
 """
 class ProspectList(db.Model):
     __tablename__ = "prospect_list"

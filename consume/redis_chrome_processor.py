@@ -6,6 +6,7 @@ from prime.utils.proxy_scraping import page_is_good
 import lxml.html
 from consume.consumer import parse_html
 from prime.prospects.get_prospect import from_url, session
+from prime.utils.update_database_from_dict import insert_linkedin_profile
 
 while True:
 	url = r.spop("chrome_uploads")

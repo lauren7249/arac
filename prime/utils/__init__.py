@@ -1,6 +1,8 @@
 import redis
 import re
 import requests
+import boto
+import os 
 
 redis_host='169.55.28.212'
 redis_port=6379
@@ -23,3 +25,6 @@ def get_redis():
 
 r = get_redis() 
 
+def get_bucket(bucket_name='chrome-ext-uploads'):
+    s3conn = boto.connect_s3(os.getenv("AWS_ACCESS_KEY_ID_PVLL"), os.getenv("AWS_SECRET_ACCESS_KEY_PVLL"))
+    return s3conn.get_bucket(bucket_name)

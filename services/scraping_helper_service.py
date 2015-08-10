@@ -10,7 +10,7 @@ import tinys3, os, boto
 from boto.s3.key import Key
 from prime.utils import *
 import web, re
-from prime.utils.update_database_from_dict import *
+from prime.utils.update_database_from_dict import insert_linkedin_profile
 from prime.prospects.get_prospect import get_session
 from consume.consumer import *
 
@@ -27,11 +27,6 @@ urls = (
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
-bucket_name='chrome-ext-uploads'
-
-def get_bucket():
-    s3conn = boto.connect_s3(os.getenv("AWS_ACCESS_KEY_ID_PVLL"), os.getenv("AWS_SECRET_ACCESS_KEY_PVLL"))
-    return s3conn.get_bucket(bucket_name)
 
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"

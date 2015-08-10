@@ -1,4 +1,4 @@
-
+from prime.prospects.models import *
 from prime.prospects.get_prospect import *
 from prime.utils.networks import *
 
@@ -9,11 +9,36 @@ def agent_network(prospects, locales=['New York','Greater New York City Area']):
 		if valid_lead(prospect, locales=locales): new_york_employed.append(prospect)  
 	return new_york_employed
 
-def valid_lead(prospect, locales=['New York','Greater New York City Area']):
-	if prospect.current_job is None: return False
-	key = prospect.location_raw.split(",")[-1].strip()
-	if key in locales and prospect.industry_raw not in ['Insurance','Financial Services']: return True
+def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=['Insurance','Financial Services'], min_salary=60000):
+	if not lead: return False
+	if isinstance(lead, Prospect):
+		prospect = lead
+		if prospect.current_job is None: return False
+		salary = prospect.current_job.get_indeed_salary
+		if salary < min_salary: return False
+		key = prospect.location_raw.split(",")[-1].strip()
+		if key in locales and prospect.industry_raw not in exclude: return True
+	elif isinstance(lead, FacebookContact):
+		contact = lead
+		profile_info = contact.get_profile_info()
+		salary = contact.get_indeed_salary
+		location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")
+		if not location: return False
+		if profile_info.get("job_company") and location.split(", ")[-1] in locales and profile_info.get("job_company").split(",")[0] not in exclude and salary >= min_salary:
+			return True
+	elif isinstance(lead, tuple):
+		if isinstance(lead[0], FacebookContact):
+			contact = lead[0]
+			prospect = lead[1]
+		else:
+			contact = lead[1]
+			prospect = lead[0]	
+		prospect_salary = 	prospect.current_job.get_indeed_salary if prospect.current_job and prospect.current_job.get_indeed_salary else 0
+		contact_salary = contact.get_indeed_salary if contact.get_indeed_salary else 0
+		salary = max(contact_salary, prospect_salary)
+		if salary < min_salary: return False
 	return False
+
 
 def collegeGrad(prospect):
 	vals = None, None

@@ -69,17 +69,17 @@ def from_url(url, session=session):
 	if prospectUrl: 
 		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
 		if prospect:
-			session.add(models.ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
+			session.add(ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
 			session.commit()
 		return prospect
 	prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("/", "")).first()
 	if prospect: 
-		session.add(models.ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
+		session.add(ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
 		session.commit()
 		return prospect
 	prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url_new.replace("/", "")).first()
 	if prospect: 
-		session.add(models.ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
+		session.add(ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
 		session.commit()	
 	else: r.sadd("urls",url)
 	return prospect
