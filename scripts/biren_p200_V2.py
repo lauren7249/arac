@@ -119,11 +119,14 @@ for email in emails:
 	if facebook_link: email_facebook_friend_links.append(facebook_link)
 	if linkedin_link: email_linkedin_friend_links.append(linkedin_link)
 
+email_facebook_friends = []
 for link in set(email_facebook_friend_links):
 	print link
 	username = fbscraper.scrape_profile(link)
 	print username
+	email_facebook_friends.append(username)
 	fbscraper.scrape_profile_friends(username)	
+	
 
 for linkedin_url in set(email_linkedin_friend_links):
 	r.sadd("urls",linkedin_url)
@@ -133,4 +136,4 @@ email_linkedin_friends = []
 for linkedin_url in set(email_linkedin_friend_links):
 	contact_linkedin = from_url(linkedin_url)
 	if contact_linkedin: email_linkedin_friends.append(str(contact_linkedin.linkedin_id))
-	else: r.sadd("urls",linkedin_url)
+	#else: r.sadd("urls",linkedin_url)
