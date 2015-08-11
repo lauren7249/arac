@@ -240,7 +240,7 @@ class Prospect(db.Model):
 
     @property 
     def build_profile(self):
-        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name, "image_url": self.image_url if self.image_url else None, "url":self.url}
+        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job else None, "company":self.current_job.company.name if self.current_job else None, "image_url": self.image_url if self.image_url else None, "url":self.url}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
@@ -506,20 +506,20 @@ class FacebookContact(db.Model):
         salary = None
         if self.indeed_salary:
             return self.indeed_salary
-        if not self.get_profile_info(): return None
-        if not self.get_profile_info().get("job_company") and not self.get_profile_info().get("job_title"): return None
-        if self.get_profile_info().get("job_title") == "Worked": return None
-        if self.get_profile_info().get("job_title") == "Works": 
-            if not self.get_profile_info().get("job_company"): return None
-            title = self.get_profile_info().get("job_company")
-        elif not self.get_profile_info().get("job_company"): 
-            title = self.get_profile_info().get("job_title") 
+        if not self.get_profile_info: return None
+        if not self.get_profile_info.get("job_company") and not self.get_profile_info.get("job_title"): return None
+        if self.get_profile_info.get("job_title") == "Worked": return None
+        if self.get_profile_info.get("job_title") == "Works": 
+            if not self.get_profile_info.get("job_company"): return None
+            title = self.get_profile_info.get("job_company")
+        elif not self.get_profile_info.get("job_company"): 
+            title = self.get_profile_info.get("job_title") 
         else: 
-            title = self.get_profile_info().get("job_title") + " at " + self.get_profile_info().get("job_company")
-        salary = get_indeed_salary(title, location=self.get_profile_info().get("lives_in"))
-        if not salary and self.get_profile_info().get("job_title") != "Works": 
-            title = self.get_profile_info().get("job_title")
-            salary = get_indeed_salary(title, location=self.get_profile_info().get("lives_in"))
+            title = self.get_profile_info.get("job_title") + " at " + self.get_profile_info.get("job_company")
+        salary = get_indeed_salary(title, location=self.get_profile_info.get("lives_in"))
+        if not salary and self.get_profile_info.get("job_title") != "Works": 
+            title = self.get_profile_info.get("job_title")
+            salary = get_indeed_salary(title, location=self.get_profile_info.get("lives_in"))
         if not salary: salary = get_indeed_salary(title)
         if salary:
             self.indeed_salary = salary
@@ -618,6 +618,7 @@ class FacebookContact(db.Model):
         profile = self.profile_info if self.profile_info else {} 
         source = self.get_profile_source
         raw_html = lxml.html.fromstring(source)
+        article = None
         try:
             profile["image_url"] = raw_html.xpath(".//img[@class='profilePic img']")[0].get("src")
         except: 
@@ -631,6 +632,7 @@ class FacebookContact(db.Model):
         except:
             pass
         if not article: 
+            print self.facebook_id + " has no profile section" 
             self.profile_info = profile     
             session.add(self)
             session.commit()                   
@@ -690,7 +692,7 @@ class FacebookContact(db.Model):
             if text.find("From ") > -1:
                 profile["from"] = text.split("From ")[1].split("\n")[0]
                 continue
-            print text
+            #print text
         self.profile_info = profile     
         session.add(self)
         session.commit()                   
@@ -698,7 +700,7 @@ class FacebookContact(db.Model):
 
     @property 
     def build_profile(self):
-        profile_info = self.get_profile_info()
+        profile_info = self.get_profile_info
         profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job": profile_info.get("job_title"), "company":profile_info.get("job_company"), "image_url": profile_info.get("image_url"), "url":"https://www.facebook.com/" + self.facebook_id}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
