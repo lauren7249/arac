@@ -54,26 +54,29 @@ class FacebookFriend(object):
         self.is_logged_in = True
         return True
 
-    def scrape_profile(self, link):
+    def get_facebook_contact(self, link):
+        real_url = link
         xwalk = session.query(FacebookUrl).get(link)
         key = Key(self.bucket)
         if xwalk: 
             key.key = xwalk.username
         else:
             key.key = link.split("/")[-1]
-        if key.exists(): return key.key
-        if not self.is_logged_in:
-            self.login()
-        self.driver.get(link)
-        real_url = self.driver.current_url
-        username = real_url.split("/")[-1] if real_url[-1] != '/' else real_url.split("/")[-2] 
-        if username.find("=") > -1: 
-            username = username.split("=")[-1] if username.split("=")[-1].find("profile.php") == -1 else username.split("=")[0]
-        if len(username) == 1: return None
-        source = self.driver.page_source
-        key.key = username
-        key.content_type = 'text/html'
-        key.set_contents_from_string(source)
+        if key.exists(): 
+            username = key.key
+        else : 
+            if not self.is_logged_in:
+                self.login()
+            self.driver.get(link)
+            real_url = self.driver.current_url
+            username = real_url.split("/")[-1] if real_url[-1] != '/' else real_url.split("/")[-2] 
+            if username.find("=") > -1: 
+                username = username.split("=")[-1] if username.split("=")[-1].find("profile.php") == -1 else username.split("=")[0]
+            if len(username) == 1: return None
+            source = self.driver.page_source
+            key.key = username
+            key.content_type = 'text/html'
+            key.set_contents_from_string(source)
         contact = session.query(FacebookContact).get(username)
         if not contact: 
             contact = FacebookContact(facebook_id=username)
@@ -83,7 +86,7 @@ class FacebookFriend(object):
             xwalk = FacebookUrl(url=link, username=username)
             session.add(xwalk)
             session.commit()
-        return key.key
+        return contact
 
     def scrape_profile_friends(self, username):
         if not username: return

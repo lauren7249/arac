@@ -34,7 +34,6 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		profile_info = contact.get_profile_info
 		if not profile_info:
 			print "no profile info for " + contact.facebook_id
-		salary = contact.get_indeed_salary
 		location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")
 		if not location: 
 			print "no location"
@@ -48,6 +47,7 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		# if profile_info.get("job_title") is None:
 		# 	print "no job title for " + contact.facebook_id
 		# 	return False
+		salary = contact.get_indeed_salary
 		if not salary and not profile_info.get("job_company") and not profile_info.get("job_title"):
 			print "no job"
 			return False

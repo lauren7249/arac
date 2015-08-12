@@ -18,6 +18,7 @@ from citext import CIText
 from prime.prospects.get_prospect import session
 import dateutil.parser
 from boto.s3.key import Key
+from consume.facebook_consumer import *
 
 pipl_api_key = "uegvyy86ycyvyxjhhbwsuhj9"
 vibe_api_key = "e0978324d7ac8b759084aeb96c5d7fde"
@@ -240,7 +241,7 @@ class Prospect(db.Model):
 
     @property 
     def build_profile(self):
-        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job else None, "company":self.current_job.company.name if self.current_job else None, "image_url": self.image_url if self.image_url else None, "url":self.url}
+        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name if self.current_job and self.current_job.company else None, "image_url": self.image_url if self.image_url else None, "url":self.url}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
@@ -494,6 +495,7 @@ class FacebookContact(db.Model):
     pipl_response = db.Column(JSON)
     fullcontact_response = db.Column(JSON)
     indeed_salary = db.Column(Integer)
+    recent_engagers = db.Column(JSON)
 
     def __repr__(self):
         return '<facebook_id ={0} linkedin_url={1}>'.format(
@@ -535,21 +537,7 @@ class FacebookContact(db.Model):
         key.key = self.facebook_id + "-friends"
         if not key.exists(): return None
         source = key.get_contents_as_string() 
-        raw_html = lxml.html.fromstring(source)
-        all_elements = raw_html.xpath("//div/div/div/div/div/div/ul/li/div")
-        friends = []
-        for person in all_elements:
-            try:
-                profile = person.xpath(".//*[@class='uiProfileBlockContent']")
-                if len(profile) ==0: continue
-                href = profile[0].find(".//a").get("href")
-                username = href.split("/")[-1].split("?")[0]
-                if username == "profile.php":
-                    username = href.split("/")[-1].split("?")[1].split("=")[1].split("&")[0]
-                friends.append(username)
-            except:
-                username = None
-                continue      
+        friends = parse_facebook_friends(source)  
         self.friends = friends
         session.add(self)
         session.commit()
@@ -612,91 +600,27 @@ class FacebookContact(db.Model):
         return None
 
     @property 
+    def get_recent_engagers(self):
+        if self.recent_engagers:
+            return self.recent_engagers
+        source = self.get_profile_source
+        engagers = parse_facebook_engagers(source)
+        if engagers:
+            self.recent_engagers = engagers
+            session.add(self)
+            session.commit()
+        return engagers
+
+    @property 
     def get_profile_info(self): 
         if self.profile_info:
             return self.profile_info
-        profile = self.profile_info if self.profile_info else {} 
         source = self.get_profile_source
-        raw_html = lxml.html.fromstring(source)
-        article = None
-        try:
-            profile["image_url"] = raw_html.xpath(".//img[@class='profilePic img']")[0].get("src")
-        except: 
-            pass
-        try:
-            profile["name"] = raw_html.xpath(".//span[@id='fb-timeline-cover-name']")[0].text
-        except: 
-            pass       
-        try:     
-            article = raw_html.xpath(".//div[@role='article']")[0]
-        except:
-            pass
-        if not article: 
-            print self.facebook_id + " has no profile section" 
-            self.profile_info = profile     
-            session.add(self)
-            session.commit()                   
-            return profile
-        for element in article.xpath(".//li"):
-            text = element.text_content()
-            if not text: continue
-            if text.find("Lives in ") > -1:
-                profile["lives_in"] = text.split("Lives in ")[1]
-                continue
-            if text.find(" friends") > -1 and not profile.get("friend_count"):
-                profile["friend_count"] = int(text.split(" friends")[0].replace(',',''))
-                continue   
-            if text.find("Married") == 0:
-                profile["married"] = True    
-                if text.find("Married to ") > -1:
-                    profile["married_to"] = text.split("Married to ")[1].split("\n")[0]
-                    if text.find("\n") > -1 and text.find("Since "):
-                        profile["married_since"] = text.split("\n")[1].split("Since ")[1]
-                    continue 
-            if text.find(" at ") > -1:
-                school_info = None
-                if text.find("Studies ") == 0:
-                    school_info = text.split("Studies")[1]
-                elif text.find("Studied ") == 0:
-                    school_info = text.split("Studied")[1]
-                if school_info:
-                    profile["school_major"] = school_info.split(" at ")[0].strip()
-                    if school_info.find(" at ") > -1: 
-                        profile["school_name"] = school_info.split("\n")[0].split(" at ")[1].strip()
-                    if school_info.find("\n") > -1:
-                        dates = school_info.split("\n")[1]
-                        if dates: 
-                            years = re.findall("\d\d\d\d", dates)
-                            if len(years) == 1: 
-                                if re.search("^"+years[0],dates): profile["school_start_year"] = int(years[0])
-                                elif re.search(years[0]+"$",dates): profile["school_end_year"] = int(years[0])
-                            elif len(years) >1:
-                                profile["school_start_year"] = int(years[0])
-                                profile["school_end_year"] = int(years[1])
-                    continue
-                profile["job_title"] = text.split(" at ")[0]
-                profile["job_company"] = text.split("\n")[0].split(" at ")[1]
-                if text.find("\n") > -1:
-                    dates = text.split("\n")[1]
-                    if dates: 
-                        years = re.findall("\d\d\d\d", dates)
-                        if len(years) == 1: 
-                            if re.search("^"+years[0],dates): profile["job_start_year"] = int(years[0])
-                            elif re.search(years[0]+"$",dates): profile["job_end_year"] = int(years[0])
-                        elif len(years) >1:
-                            profile["job_start_year"] = int(years[0])
-                            profile["job_end_year"] = int(years[1])  
-                continue
-            if text.find("Born on ") > -1:
-                profile["dob"] = text.split("Born on ")[1]
-            if text.find("From ") > -1:
-                profile["from"] = text.split("From ")[1].split("\n")[0]
-                continue
-            #print text
+        profile = parse_facebook_html(source)
         self.profile_info = profile     
         session.add(self)
-        session.commit()                   
-        return profile   
+        session.commit()          
+        return profile
 
     @property 
     def build_profile(self):
@@ -888,7 +812,6 @@ def get_specific_url(social_accounts, type="linkedin.com"):
         if account.find(type) > -1: return account
     return None
 
-
 def get_indeed_salary(title, location=None):
     url =  "http://www.indeed.com/salary?q1=%s&l1=%s" % (title, location) if location else "http://www.indeed.com/salary?q1=%s" % (title) 
     try:
@@ -899,16 +822,5 @@ def get_indeed_salary(title, location=None):
     except Exception, err:
         pass
     return None
-      
-"""
-class ProspectList(db.Model):
-    __tablename__ = "prospect_list"
 
-    id = db.Column(Integer, primary_key=True)
-    prospect_ids = db.Column(Text)
 
-    def __repr__(self):
-        return '<ProspectList id={0}>'.format(
-                self.id
-                )
-"""

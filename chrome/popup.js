@@ -9,6 +9,7 @@ function get_url(orig_url) {
 	try {
 		var page = get_url_response("https://" + url);
 		if (page.toLowerCase().indexOf("captcha") > -1) {
+			console.log ("captcha")
 			return false
 		}
 	}
@@ -90,7 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		else {
 			success = get_url(url);
-			//if (!success) { break }
+			if (!success) { 
+				break 
+			}
 		}
 	}
 

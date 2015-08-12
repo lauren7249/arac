@@ -9,8 +9,8 @@
     "background": {
       // "page": "popup.html",
       // "persistent": true,
-      "icon":"icon.png",
-      "scripts": ["scrape.js"]
+      "icon":"icon.png"
+      //,"scripts": ["scrape.js"]
       
     },
   "browser_action": {
