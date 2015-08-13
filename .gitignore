@@ -1,6 +1,5 @@
 /migrations/
 nohup.out
-consume/nohup.out
 migrations/versions/
 training_data/
 migrations/
@@ -21,3 +20,7 @@ bin/
 *.db
 include
 *.swp
+.idea
+*.iml
+.DS_Store
+
