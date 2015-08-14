@@ -20,6 +20,9 @@ function get_url(orig_url, countArea) {
     var url = orig_url.replace("https://", "").replace("http://", "");
     console.log(url);
     var fn = url.replace(/\//g, "-") + ".html";
+    get_url_response("https://" + url, function () {
+
+    })
     try {
         var page = get_url_response("https://" + url);
         if (page.toLowerCase().indexOf("captcha") > -1) {
@@ -70,13 +73,22 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 });
 var bucket = new AWS.S3({params: {Bucket: 'chrome-ext-uploads'}});
 
+function onHttpComplete(callback) {
+    if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+        callback();
+    } else if (xmlHttp.readyState = XMLHttpRequest.DONE && xmlHttp.status != 200) {
+        console.error(xmlHttp.statusText)
+        console.error(xmlHttp.responseText)
+    }
+}
+
 function infinite() {
 
     var k = 0, url = null;
 
     while (true) {
         get_url_response("http://169.55.28.212:8080/select", function () {
-            if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+            onHttpComplete(function () {
                 url = xmlHttp.responseText;
                 if (url.match(/www./g, url) != null) {
                     get_url(url);
@@ -84,10 +96,7 @@ function infinite() {
                 else {
                     break;
                 }
-            } else if (xmlHttp.readyState = XMLHttpRequest.DONE && xmlHttp.status != 200) {
-                console.error(xmlHttp.statusText)
-                console.error(xmlHttp.responseText)
-            }
+            });
         });
         //url = get_url_response("http://169.55.28.212:8080/select")
         k += 1;
@@ -107,8 +116,8 @@ document.addEventListener('DOMContentLoaded', function () {
     checkPageButton.addEventListener('click', function () {
         var url_field = document.getElementById('query').value;
         if (url_field.length == 0) {
-            get_url_response("http://169.55.28.212:8080/select/n=100", function(){
-                if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+            get_url_response("http://169.55.28.212:8080/select/n=100", function () {
+                onHttpComplete(function () {
                     var url, success;
 
                     url_field = xmlHttp.responseText;
@@ -122,10 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             break
                         }
                     }
-                } else if (xmlHttp.readyState = XMLHttpRequest.DONE && xmlHttp.status != 200) {
-                    console.error(xmlHttp.statusText)
-                    console.error(xmlHttp.responseText)
-                }
+                });
             });
         }
 
