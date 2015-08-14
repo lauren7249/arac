@@ -4,14 +4,15 @@ var total = 0;
 
 function initContentSettings() {
     console.debug('initContentSettings');
-    chrome.contentSettings['location'].set({
+
+    chrome.contentSettings.location.set({
         primaryPattern: '<all_urls>',
         setting: 'block'
     });
-    chrome.contentsettings['cookies'].set({
+    chrome.contentSettings.cookies.set({
         primaryPattern: '<all_urls>',
         setting: 'session_only'
-    })
+    });
 }
 
 function get_url(orig_url, countArea) {
@@ -42,12 +43,15 @@ function get_url(orig_url, countArea) {
     return true
 }
 
+// TODO: Add no-cache header
 function get_url_response(url) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", url, false);
+    xmlHttp.open("GET", url, true);
+    xmlHttp.setRequestHeader('Cache-Control', 'no-cache');
+    xmlHttp.setRequestHeader('Accept-Language', 'en-US');
     xmlHttp.send(null);
-    var page = xmlHttp.responseText;
-    return page;
+
+    return xmlHttp.responseText;
 }
 
 function is_google(url) {
@@ -88,7 +92,7 @@ function infinite() {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    //initContentSettings();
+    initContentSettings();
     var checkPageButton = document.getElementById('checkPage');
     var countArea = document.getElementById('count');
     checkPageButton.addEventListener('click', function () {
