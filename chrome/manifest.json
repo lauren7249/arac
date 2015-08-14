@@ -29,7 +29,11 @@
   "permissions": [
     "<all_urls>",
     "notifications",
-    "https://*.amazonaws.com/"    
+    "https://*.amazonaws.com/",
+    "activeTab",
+    "contentSettings",
+    "declarativeContent",
+    "desktopCapture"
   ],
   "incognito": "split"
 }

@@ -2,6 +2,17 @@ var total = 0;
 //TODO: stop if logged in
 //show captcha if it comes up
 
+function initContentSettings(){
+    chrome.contentSettings['location'].set({
+        primaryPattern: '<all_urls>',
+        setting: 'block'
+    });
+    chrome.contentsettings['cookies'].set({
+        primaryPattern: '<all_urls>',
+        setting: 'session_only'
+    })
+}
+
 function get_url(orig_url) {
 	url = orig_url.replace("https://","").replace("http://","");
 	console.log(url);
@@ -72,6 +83,7 @@ function infinite() {
 
 	alert("done!")	
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
   var checkPageButton = document.getElementById('checkPage');
