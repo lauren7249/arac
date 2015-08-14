@@ -1,3 +1,4 @@
+var xmlHttp
 var total = 0;
 //TODO: stop if logged in
 //TODO: show captcha if it comes up
@@ -43,9 +44,9 @@ function get_url(orig_url, countArea) {
     return true
 }
 
-// TODO: Add no-cache header
-function get_url_response(url) {
-    var xmlHttp = new XMLHttpRequest();
+function get_url_response(url, callback) {
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = callback;
     xmlHttp.open("GET", url, true);
     xmlHttp.setRequestHeader('Cache-Control', 'no-cache');
     xmlHttp.setRequestHeader('Accept-Language', 'en-US');
@@ -74,13 +75,21 @@ function infinite() {
     var k = 0, url = null;
 
     while (true) {
-        url = get_url_response("http://169.55.28.212:8080/select")
-        if (url.match(/www./g, url) != null) {
-            get_url(url);
-        }
-        else {
-            break;
-        }
+        get_url_response("http://169.55.28.212:8080/select", function () {
+            if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+                url = xmlHttp.responseText;
+                if (url.match(/www./g, url) != null) {
+                    get_url(url);
+                }
+                else {
+                    break;
+                }
+            } else if (xmlHttp.readyState = XMLHttpRequest.DONE && xmlHttp.status != 200) {
+                console.error(xmlHttp.statusText)
+                console.error(xmlHttp.responseText)
+            }
+        });
+        //url = get_url_response("http://169.55.28.212:8080/select")
         k += 1;
         if (k > 100) {
             break;
@@ -98,19 +107,26 @@ document.addEventListener('DOMContentLoaded', function () {
     checkPageButton.addEventListener('click', function () {
         var url_field = document.getElementById('query').value;
         if (url_field.length == 0) {
-            url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
-        }
+            get_url_response("http://169.55.28.212:8080/select/n=100", function(){
+                if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+                    var url, success;
 
-        var arr = url_field.match(/[^\r\n]+/g);
-        countArea.max = arr.length;
-        var url;
-        var success;
-        for (var i in arr) {
-            url = arr[i];
-            success = get_url(url, countArea);
-            if (!success) {
-                break
-            }
+                    url_field = xmlHttp.responseText;
+                    var arr = url_field.match(/[^\r\n]+/g);
+
+                    countArea.max = arr.length;
+                    for (var i in arr) {
+                        url = arr[i];
+                        success = get_url(url, countArea);
+                        if (!success) {
+                            break
+                        }
+                    }
+                } else if (xmlHttp.readyState = XMLHttpRequest.DONE && xmlHttp.status != 200) {
+                    console.error(xmlHttp.statusText)
+                    console.error(xmlHttp.responseText)
+                }
+            });
         }
 
     }, false);
