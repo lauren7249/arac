@@ -3,6 +3,7 @@ var total = 0;
 //TODO: show captcha if it comes up
 
 function initContentSettings() {
+    console.debug('initContentSettings');
     chrome.contentSettings['location'].set({
         primaryPattern: '<all_urls>',
         setting: 'block'
@@ -81,14 +82,13 @@ function infinite() {
             break;
         }
     }
-    k = 0;
 
     alert("done!")
 }
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    initContentSettings();
+    //initContentSettings();
     var checkPageButton = document.getElementById('checkPage');
     var countArea = document.getElementById('count');
     checkPageButton.addEventListener('click', function () {
@@ -102,18 +102,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var url;
         var success;
         for (var i in arr) {
-            url = arr[i]
-            if (false) {
-                google(url);
-            }
-            else {
-                success = get_url(url, countArea);
-                if (!success) {
-                    break
-                }
+            url = arr[i];
+            success = get_url(url, countArea);
+            if (!success) {
+                break
             }
         }
-
 
     }, false);
 }, false);
