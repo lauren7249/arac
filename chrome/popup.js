@@ -1,6 +1,6 @@
 var total = 0;
 //TODO: stop if logged in
-//show captcha if it comes up
+//TODO: show captcha if it comes up
 
 function initContentSettings() {
     chrome.contentSettings['location'].set({
@@ -13,8 +13,8 @@ function initContentSettings() {
     })
 }
 
-function get_url(orig_url) {
-    url = orig_url.replace("https://", "").replace("http://", "");
+function get_url(orig_url, countArea) {
+    var url = orig_url.replace("https://", "").replace("http://", "");
     console.log(url);
     var fn = url.replace(/\//g, "-") + ".html";
     try {
@@ -90,22 +90,24 @@ function infinite() {
 document.addEventListener('DOMContentLoaded', function () {
     initContentSettings();
     var checkPageButton = document.getElementById('checkPage');
-    countArea = document.getElementById('count');
+    var countArea = document.getElementById('count');
     checkPageButton.addEventListener('click', function () {
         var url_field = document.getElementById('query').value;
         if (url_field.length == 0) {
             url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
         }
 
-        arr = url_field.match(/[^\r\n]+/g);
+        var arr = url_field.match(/[^\r\n]+/g);
         countArea.max = arr.length;
+        var url;
+        var success;
         for (var i in arr) {
             url = arr[i]
             if (false) {
                 google(url);
             }
             else {
-                success = get_url(url);
+                success = get_url(url, countArea);
                 if (!success) {
                     break
                 }
