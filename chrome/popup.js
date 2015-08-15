@@ -5,17 +5,6 @@ var countArea;
 //TODO: stop if logged in
 //TODO: show captcha if it comes up
 
-function initContentSettings() {
-
-    chrome.contentSettings.location.set({
-        primaryPattern: '<all_urls>',
-        setting: 'block'
-    });
-    chrome.contentSettings.cookies.set({
-        primaryPattern: '<all_urls>',
-        setting: 'session_only'
-    });
-}
 
 /**
  * Retrieve the content of a url
@@ -145,7 +134,6 @@ function infinite() {
  * Initialization function executed after DOM is loaded
  */
 document.addEventListener('DOMContentLoaded', function () {
-    initContentSettings();
     initAWS();
     var checkPageButton = document.getElementById('checkPage');
     var countArea = document.getElementById('count');
