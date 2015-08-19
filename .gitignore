@@ -21,3 +21,6 @@ bin/
 *.db
 include
 *.swp
+.idea
+.DS_Store
+*.iml
