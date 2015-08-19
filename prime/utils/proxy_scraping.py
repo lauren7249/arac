@@ -58,6 +58,8 @@ def get_domain(url):
 
 def record_failure(proxy, domain, response):
 	now = datetime.utcnow()
+	status = session.query(ProxyDomainStatus).get((proxy.url,domain))
+	status.in_use=False
 	if response is None:
 		proxy.last_timeout = now
 		proxy.consecutive_timeouts+=1
@@ -65,14 +67,11 @@ def record_failure(proxy, domain, response):
 	else:
 		proxy.last_success = now
 		proxy.consecutive_timeouts=0
-		status = session.query(ProxyDomainStatus).get((proxy.url,domain))
-		if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain, last_rejected=datetime.fromtimestamp(0), last_accepted=datetime.fromtimestamp(0))
 		status.last_rejected = now
 		event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, status_code=response.status_code, success=False)
-		session.add(status)	
+	session.add(status)	
 	session.add(proxy)	
 	session.add(event)
-	session.flush()
 	session.commit()
 
 def record_success(proxy, domain):
@@ -81,13 +80,30 @@ def record_success(proxy, domain):
 	proxy.consecutive_timeouts=0
 	session.add(proxy)
 	status = session.query(ProxyDomainStatus).get((proxy.url,domain))
-	if status is None: status = ProxyDomainStatus(proxy_url=proxy.url, domain=domain, last_rejected=datetime.fromtimestamp(0), last_accepted=datetime.fromtimestamp(0))
 	status.last_accepted = now
+	status.in_use=False
 	event = ProxyDomainEvent(proxy_url=proxy.url, domain=domain, event_time=now, status_code="200", success=True)
 	session.add(status)	
 	session.add(event)
-	session.flush()
 	session.commit()
+
+#return Proxy object
+def proc_pick_proxy(domain):
+	#keep wait time random
+	wait_btwn_requests_seconds = randint(min_wait_btwn_requests_seconds, max_wait_btwn_requests_seconds)
+	last_rejected_threshold1 = datetime.utcnow() - timedelta(days=try_again_after_reject_days)
+	last_rejected_threshold2 = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
+	last_rejected_threshold = max(last_rejected_threshold1, last_rejected_threshold2)
+	last_accepted_threshold = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
+	timeout_threshold = datetime.utcnow() - timedelta(days=try_again_after_timeout_days)
+	t = text("select * from get_proxy('" + domain + "', '" +  last_rejected_threshold.strftime('%Y-%m-%d %H:%M:%S') + "', '" + last_accepted_threshold.strftime('%Y-%m-%d %H:%M:%S') + "', '" +  timeout_threshold.strftime('%Y-%m-%d %H:%M:%S') + "')")
+	result = session.execute(t)
+	for r in result:
+		proxy_url = r[0]
+		break
+	if not proxy_url: return None
+	proxy = session.query(Proxy).get(proxy_url)
+	return proxy
 
 #return Proxy object
 def pick_proxy(domain):
@@ -118,22 +134,21 @@ def release_proxy(domain, proxy):
 	r.hdel(domain, proxy_lock_id)
 	return proxy_lock_id
 
-def robust_get_url(url, expected_xpaths, require_proxy=False, try_proxy=False):
+def robust_get_url(url, expected_xpaths, require_proxy=False, try_proxy=True):
 	if not require_proxy:
 		successful, response = try_request(url, expected_xpaths)
 		if successful: return lxml.html.fromstring(response.content)
 	if try_proxy:
 		domain = get_domain(url)
-		proxy = pick_proxy(domain)
+		proxy = proc_pick_proxy(domain)
 		while proxy:
 			successful, response = try_request(url, expected_xpaths, proxy=proxy.url)
-			release_proxy(domain, proxy.url)
 			if successful: 
 				record_success(proxy, domain)
 				#print proxy
 				return lxml.html.fromstring(response.content)
 			record_failure(proxy, domain, response)
-			proxy = pick_proxy(domain)
+			proxy = proc_pick_proxy(domain)
 	else:
 		r.sadd("urls",url)
 		fn = url_to_s3_key(url)

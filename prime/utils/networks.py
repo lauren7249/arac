@@ -1,6 +1,8 @@
 from prime.prospects.models import *
 from prime.prospects.get_prospect import *
 from prime.utils.networks import *
+import scipy.stats as stats
+import datetime
 
 def agent_network(prospects, locales=['New York','Greater New York City Area']):
 	#employed, in ny, not in financial services
@@ -9,16 +11,20 @@ def agent_network(prospects, locales=['New York','Greater New York City Area']):
 		if valid_lead(prospect, locales=locales): new_york_employed.append(prospect)  
 	return new_york_employed
 
-def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=['Insurance','Financial Services'], min_salary=60000):
+def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=['Insurance','Financial Services'], schools=[],min_salary=60000):
+	prospect_schools = None
 	if not lead: return False
 	if isinstance(lead, Prospect):
 		prospect = lead
-		if prospect.current_job is None: 
+		if prospect.current_job is None or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today()): 
 			print "no job"
 			return False
-		key = prospect.location_raw.split(",")[-1].strip()
-		if key not in locales:
-			print key + " not local" 
+		location = prospect.get_location
+		if not location: 
+			print "no location"
+			return False		
+		if location.split(", ")[-1] not in locales:
+			print location + " not local" 
 			return False
 		if prospect.current_job.company.name in exclude: 
 			print prospect.current_job.company.name + " at the same company " 
@@ -27,14 +33,15 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		if salary>0 and salary < min_salary: 
 			print str(salary) + " too low for " + prospect.current_job.title 
 			return False	
-		profile = prospect.build_profile		
-		n_social_accounts = len(prospect.social_accounts)
+		profile = clean_profile(prospect.build_profile)	
+		prospect_schools = [school.name for school in prospect.schools]
+		social_accounts = prospect.social_accounts
 	elif isinstance(lead, FacebookContact):
 		contact = lead
 		profile_info = contact.get_profile_info
 		if not profile_info:
 			print "no profile info for " + contact.facebook_id
-		location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")
+		location = contact.get_location
 		if not location: 
 			print "no location"
 			return False
@@ -48,14 +55,14 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		# 	print "no job title for " + contact.facebook_id
 		# 	return False
 		salary = contact.get_indeed_salary
-		if not salary and not profile_info.get("job_company") and not profile_info.get("job_title"):
+		if not salary and (not profile_info.get("job_title") or profile_info.get("job_title") in ['Worked','Works']):
 			print "no job"
 			return False
 		if salary>0 and salary < min_salary:
 			print str(salary) + " too low for " + profile_info.get("job_title")
 			return False
-		profile = contact.build_profile
-		n_social_accounts = len(contact.social_accounts)
+		profile = clean_profile(contact.build_profile)
+		social_accounts = contact.social_accounts
 	elif isinstance(lead, tuple):
 		profile = {}
 		reason = ""
@@ -66,10 +73,13 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 			contact = lead[1]
 			prospect = lead[0]	
 		profile_info = contact.get_profile_info
-		key = prospect.location_raw.split(",")[-1].strip()
-		if key not in locales:
-			reason = key + " not local " 
-			location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")
+		location = prospect.get_location if prospect.get_location else contact.get_location
+		if not location:
+			print "no location"
+			return False
+		if location.split(", ")[-1] not in locales: 
+			reason = location + " not local " 
+			location = contact.get_location
 			if not location: 
 				print reason
 				return False
@@ -83,10 +93,10 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		if prospect.current_job and prospect.current_job.company and prospect.current_job.company.name in exclude: 
 			print prospect.current_job.company.name + " at the same company " 
 			return False
-		prospect_salary = prospect.current_job.get_indeed_salary if prospect.current_job and prospect.current_job.get_indeed_salary else 0
-		contact_salary = contact.get_indeed_salary if contact.get_indeed_salary else 0
+		prospect_salary = prospect.current_job.get_indeed_salary if prospect.current_job and prospect.current_job.get_indeed_salary and (prospect.current_job.end_date is None or prospect.current_job.end_date > datetime.date.today()) else None
+		contact_salary = contact.get_indeed_salary 
 		salary = max(contact_salary, prospect_salary)
-		if salary < min_salary and not prospect.current_job.title:
+		if salary < min_salary and (not prospect.current_job or not prospect.current_job.title or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today())):
 			if profile_info.get("job_title"): reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title")
 			else: reason = "no job"
 			print reason	
@@ -96,20 +106,27 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 			if profile_info.get("job_title"): reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title")
 			print reason
 			return False	
-		contact_profile = contact.build_profile
-		prospect_profile = prospect.build_profile
-		n_social_accounts = len(set(contact.social_accounts + prospect.social_accounts))
-		if not prospect_profile.get("company"): prospect_profile.pop("company",None)
-		if not prospect_profile.get("job"): prospect_profile.pop("job",None)
-		if not contact_profile.get("company"): contact_profile.pop("company",None)
-		if not contact_profile.get("job"): contact_profile.pop("job",None)		
+		contact_profile = clean_profile(contact.build_profile)
+		prospect_profile = clean_profile(prospect.build_profile)
+		social_accounts = list(set(contact.social_accounts + prospect.social_accounts))
 		profile.update(prospect_profile)
 		profile.update(contact_profile)
+		prospect_schools = [school.name for school in prospect.schools]
+
 	if salary is None: salary = 0
+	n_social_accounts = len(social_accounts)
 	score = n_social_accounts + salary/30000 
+	amazon = get_specific_url(social_accounts, type="amazon.com")
+	if amazon: score += 2	
 	if not profile.get("image_url"): 
 		profile["image_url"] = "https://myspace.com/common/images/user.png"
 		score-=1
+	if profile.get("school") not in schools: profile.pop("school", None)
+	if not profile.get("school") and prospect_schools: 
+		common_schools = set(prospect_schools) & set(schools)
+		if common_schools:
+			profile["school"] = common_schools.pop()
+			score+=1
 	if profile.get("job","").find("Financial") > -1: score-=4
 	profile.update({"leadscore":score})
 	return profile
@@ -125,6 +142,21 @@ def collegeGrad(prospect):
 			return None, education.linkedin_school.name			
 	return vals
 
+def clean_profile(profile):
+	for key in profile.keys():
+		value = profile[key]
+		if not value: 
+			profile.pop(key,None)
+			continue
+		if not isinstance(value, basestring): continue
+		if value.find("http") == 0 or key.find("url")>-1:
+			try:
+				response = requests.get(value,headers=headers)
+				if response.status_code != 200: profile.pop(key,None)	
+			except:
+				profile.pop(key,None)	
+	return profile
+
 def leadScore(prospect):
 	valid_school = False
 	for education in prospect.schools: 
@@ -139,6 +171,20 @@ def valid_first_degree(prospect, contact_friend):
 	if prospect.json.get("first_degree_urls") and contact_friend.url in prospect.json["first_degree_urls"]: return True
 	if prospect.json.get("boosted_ids") and str(contact_friend.linkedin_id) in prospect.json["boosted_ids"]: return True
 	return False
+
+
+def compute_stars(contact_profiles):
+	all_scores = [profile.get("leadscore") for profile in contact_profiles]
+	for i in range(len(contact_profiles)):
+		profile = contact_profiles[i]
+		percentile = stats.percentileofscore(all_scores, profile["leadscore"])
+		if percentile > 66: score = 3
+		elif percentile > 33: score = 2
+		else: score = 1
+		profile["score"] = score
+		contact_profiles[i] = profile
+	contact_profiles = sorted(contact_profiles, key=lambda k: k['leadscore'], reverse=True)	
+	return contact_profiles
 
 def valid_second_degree(prospect, contact, contact_friend):
 	return prospect and contact and contact_friend and contact_friend.connections>20 and contact.connections>20 and valid_lead(contact_friend) and has_common_institutions(contact_friend, contact) and not valid_first_degree(prospect, contact_friend)

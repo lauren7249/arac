@@ -15,6 +15,8 @@ from prime.prospects.models import session, FacebookUrl, FacebookContact
 from prime.utils import get_bucket
 from boto.s3.key import Key
 
+from consume.facebook_consumer import parse_likers
+
 class FacebookFriend(object):
 
     def __init__(self, *args, **kwargs):
@@ -29,15 +31,23 @@ class FacebookFriend(object):
         self.linkedin_id = None
         self.test = kwargs.get("test")
         self.bucket = get_bucket('facebook-profiles')
+        self.likes_bucket = get_bucket("facebook-likes")
 
     def login(self):
         # self.display = Display(visible=0, size=(1024, 768))
         # self.display.start()
         profile=webdriver.FirefoxProfile('/Users/lauren/Library/Application Support/Firefox/Profiles/lh4ow5q9.default')
+        profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so',
+                                      'false')
+        profile.set_preference('permissions.default.image', 2)
         self.driver = webdriver.Firefox(profile)
-        self.driver.implicitly_wait(4) 
+        self.driver.implicitly_wait(3) 
+        self.driver.set_page_load_timeout(5)
         self.wait = WebDriverWait(self.driver, 3)
-        self.driver.get("http://www.facebook.com")
+        try:
+            self.driver.get("http://www.facebook.com")
+        except:
+            self.driver.get("http://www.facebook.com")      
         try:
             self.wait.until(lambda driver: driver.find_elements_by_id("navPrivacy"))
         except:  
@@ -54,8 +64,47 @@ class FacebookFriend(object):
         self.is_logged_in = True
         return True
 
-    def get_facebook_contact(self, link):
+    def get_likers(self, contact):
+        if not contact: return {}
+        engagers = contact.get_recent_engagers
+        changes = False
+        like_links = engagers.get("like_links")
+        if not like_links: 
+            contact.recent_engagers = None
+            engagers = contact.get_recent_engagers
+            changes = True
+            like_links = engagers.get("like_links",{})   
+        for like_link in like_links:
+            if len(like_links[like_link]): continue
+            like_id = like_link.split("id=")[1].split("&")[0]
+            key = Key(self.likes_bucket)
+            key.key = like_id    
+            if key.exists():
+                like_source = key.get_contents_as_string()
+            else:        
+                if not self.is_logged_in: self.login()     
+                link = "https://www.facebook.com" + like_link
+                try:
+                    self.driver.get(link)
+                except:
+                    self.driver.get(link)                                       
+                like_source = self.driver.page_source
+                key.content_type = 'text/html'
+                key.set_contents_from_string(like_source)
+            likers = parse_likers(like_source)
+            if len(likers):
+                like_links[like_link] = likers
+                changes = True
+        if changes:
+            engagers["like_links"] = like_links
+            contact.recent_engagers = engagers
+            session.add(contact)
+            session.commit()
+        return like_links
+
+    def get_facebook_contact(self, link, scroll_to_bottom =False, refresh=False, years_ago=2):
         real_url = link
+        contact = None
         xwalk = session.query(FacebookUrl).get(link)
         key = Key(self.bucket)
         if xwalk: 
@@ -64,20 +113,32 @@ class FacebookFriend(object):
             key.key = link.split("/")[-1]
         if key.exists(): 
             username = key.key
-        else : 
+            contact = session.query(FacebookContact).get(username)
+            if not contact or contact.get_profile_source == '': refresh = True
+        else: refresh = True
+        if refresh : 
             if not self.is_logged_in:
                 self.login()
-            self.driver.get(link)
+            try:
+                self.driver.get(link)
+            except:
+                self.driver.get(link)          
             real_url = self.driver.current_url
             username = real_url.split("/")[-1] if real_url[-1] != '/' else real_url.split("/")[-2] 
             if username.find("=") > -1: 
                 username = username.split("=")[-1] if username.split("=")[-1].find("profile.php") == -1 else username.split("=")[0]
             if len(username) == 1: return None
+            contact = session.query(FacebookContact).get(username)
+            if scroll_to_bottom:
+                current_year = datetime.date.today().year
+                break_at_year = current_year -years_ago -1 
+                break_at_xpath = ".//abbr[contains(@title,'" + str(break_at_year)  + "')]"
+                self.robust_scroll_to_bottom(".//a", break_at_xpath=break_at_xpath)
+                #self.robust_scroll_to_bottom(".//div[contains(@class,'userContentWrapper')]")
             source = self.driver.page_source
             key.key = username
             key.content_type = 'text/html'
             key.set_contents_from_string(source)
-        contact = session.query(FacebookContact).get(username)
         if not contact: 
             contact = FacebookContact(facebook_id=username)
             session.add(contact)
@@ -88,32 +149,43 @@ class FacebookFriend(object):
             session.commit()
         return contact
 
-    def scrape_profile_friends(self, username):
-        if not username: return
-        key = Key(self.bucket)
-        key.key = username + "-friends"
-        if key.exists(): return         
+    def scrape_profile_friends(self, contact):
+        if not contact: return None
+        if contact.get_friends: return contact.get_friends
+        username = contact.facebook_id     
         if not self.is_logged_in:
-            self.login()        
-        self.driver.get("https://www.facebook.com/" + username + "/friends") 
-        
-        class_name="uiProfileBlockContent"
-        current_count = self.scroll_to_bottom(class_name)
-        while current_count != self.scroll_to_bottom(class_name):
-            current_count = self.scroll_to_bottom(class_name)
+            self.login()     
+        try:   
+            self.driver.get("https://www.facebook.com/" + username + "/friends") 
+        except:
+            self.driver.get("https://www.facebook.com/" + username + "/friends")    
+        xpath=".//*[@class='uiProfileBlockContent']"
+        current_count = self.robust_scroll_to_bottom(xpath)
         source = self.driver.page_source
+        key = Key(self.bucket)
+        key.key = username + "-friends"          
         key.content_type = 'text/html'
         key.set_contents_from_string(source)
+        return contact.get_friends
+
+    def robust_scroll_to_bottom(self, xpath, break_at_xpath=None):
+        current_count = self.scroll_to_bottom(xpath)
+        if break_at_xpath and len(self.driver.find_elements_by_xpath(break_at_xpath)): return current_count
+        while current_count != self.scroll_to_bottom(xpath):
+            if break_at_xpath and len(self.driver.find_elements_by_xpath(break_at_xpath)): return current_count
+            current_count = self.scroll_to_bottom(xpath)   
+            if break_at_xpath and len(self.driver.find_elements_by_xpath(break_at_xpath)): return current_count
+        return current_count
 
     def get_second_degree_connections(self, link):
         if not self.is_logged_in:
             self.login()        
-        self.driver.get("https://www.facebook.com/" + link)
-        
-        class_name="uiProfileBlockContent"
-        current_count = self.scroll_to_bottom(class_name)
-        while current_count != self.scroll_to_bottom(class_name):
-            current_count = self.scroll_to_bottom(class_name)
+        try:
+            self.driver.get("https://www.facebook.com/" + link)
+        except:
+            self.driver.get("https://www.facebook.com/" + link)
+        xpath=".//*[@class='uiProfileBlockContent']"
+        current_count = self.robust_scroll_to_bottom(xpath)
 
         self.all_friend_ids = []
         all_elements = self.driver.find_elements_by_xpath("//div/div/div/div/div/div/ul/li/div")
@@ -137,22 +209,22 @@ class FacebookFriend(object):
             people.update({username: d})
         return people
 
-    def scroll_to_bottom(self, class_name):
+    def scroll_to_bottom(self, xpath):
         more_results = True
         current_count = 0
         #keep scrolling until you have all the contacts
         while more_results:
             try:
                 self.wait.until(lambda driver:
-                        driver.find_elements_by_class_name(class_name))
-                current_count = len(self.driver.find_elements_by_class_name(class_name))    
+                        driver.find_elements_by_xpath(xpath))
+                current_count = len(self.driver.find_elements_by_xpath(xpath))    
                 self.wait.until(lambda driver:
-                        driver.find_elements_by_class_name(class_name)[-1]\
+                        driver.find_elements_by_xpath(xpath)[-1]\
                                 .location_once_scrolled_into_view)
-                self.driver.find_elements_by_class_name(class_name)[-1]\
+                self.driver.find_elements_by_xpath(xpath)[-1]\
                                 .location_once_scrolled_into_view
                 more_results = self.wait.until(lambda driver: current_count <
-                        len(driver.find_elements_by_class_name(class_name)))
+                        len(driver.find_elements_by_xpath(xpath)))
                 if current_count == previous_count:
                     more_results = False
                     break

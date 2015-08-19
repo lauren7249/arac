@@ -19,7 +19,7 @@ def parse_facebook_html(source):
     except:
         pass
     if not article: return profile
-    for element in article.xpath(".//li"):
+    for element in article.xpath(".//li/div/div/div/div"):
         text = element.text_content()
         if not text: continue
         if text.find("Lives in ") > -1:
@@ -76,34 +76,45 @@ def parse_facebook_html(source):
             continue              
     return profile   
 
+def parse_likers(source):
+    likers = []
+    try: raw_html = lxml.html.fromstring(source)
+    except: return likers
+    for element in raw_html.xpath(".//li[@class='fbProfileBrowserListItem']"):
+        href = element.find(".//a").get("href")
+        username = href_to_username(href)
+        likers.append(username)
+    return likers
+
 def parse_facebook_engagers(source):
-	engagers = {}
-	try:
-		raw_html = lxml.html.fromstring(source)
-	except:
-		return engagers
-	try:
-		newsfeed = raw_html.xpath(".//div[@class='fbTimelineCapsule clearfix']")[0]
-	except:
-	    return engagers
-	commenter_elements = newsfeed.xpath(".//a[@class=' UFICommentActorName']")
-	if len(commenter_elements):
-	    commenters = set()
-	    for element in commenter_elements:
+    engagers = {}
+    try: raw_html = lxml.html.fromstring(source)
+    except: return engagers
+    newsfeeds = raw_html.xpath(".//div[@class='fbTimelineCapsule clearfix']")
+    commenters = set()
+    posters = set()
+    like_links = {}
+    for newsfeed in newsfeeds:
+    	commenter_elements = newsfeed.xpath(".//a[@class=' UFICommentActorName']")
+        for element in commenter_elements:
 	        href = element.get("href")
 	        username = href_to_username(href)
 	        commenters.add(username)
-	    engagers["commenters"] = list(commenters)
-	poster_elements = newsfeed.xpath(".//div[contains(@class,'userContentWrapper')]")
-	if len(poster_elements):
-	    posters = set()
-	    for element in poster_elements:
+    	    
+    	poster_elements = newsfeed.xpath(".//div[contains(@class,'userContentWrapper')]")
+        for element in poster_elements:
 	        try:
 	            username = href_to_username(element.xpath(".//div/h5/div/span/a[contains(@href,'https://www.facebook.com')]")[0].get("href"))
 	        except: continue
 	        posters.add(username)
-	    engagers["posters"] = list(posters) 	
-	return engagers
+        likes_elements = newsfeed.xpath(".//a[contains(@href,'browse/likes')]")
+        for element in likes_elements:
+            href = element.get("href")
+            like_links.update({href: []})
+    if len(posters): engagers["posters"] = list(posters) 	
+    if len(commenters): engagers["commenters"] = list(commenters)
+    if len(like_links): engagers["like_links"] = like_links
+    return engagers
 
 def parse_facebook_friends(source):
     raw_html = lxml.html.fromstring(source)

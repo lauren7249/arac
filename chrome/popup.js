@@ -15,7 +15,7 @@ function get_url(orig_url) {
 	}
 	catch(err) {
 		console.log("not loaded")
-		return false
+		return true
 	}
 	//console.log(page);
 	var params = {Key: fn, ContentType:'text/html', Body: page};
