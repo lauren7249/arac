@@ -93,7 +93,7 @@ def proc_pick_proxy(domain):
 	wait_btwn_requests_seconds = randint(min_wait_btwn_requests_seconds, max_wait_btwn_requests_seconds)
 	last_rejected_threshold1 = datetime.utcnow() - timedelta(days=try_again_after_reject_days)
 	last_rejected_threshold2 = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
-	last_rejected_threshold = max(last_rejected_threshold1, last_rejected_threshold2)
+	last_rejected_threshold = min(last_rejected_threshold1, last_rejected_threshold2)
 	last_accepted_threshold = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
 	timeout_threshold = datetime.utcnow() - timedelta(days=try_again_after_timeout_days)
 	t = text("select * from get_proxy('" + domain + "', '" +  last_rejected_threshold.strftime('%Y-%m-%d %H:%M:%S') + "', '" + last_accepted_threshold.strftime('%Y-%m-%d %H:%M:%S') + "', '" +  timeout_threshold.strftime('%Y-%m-%d %H:%M:%S') + "')")

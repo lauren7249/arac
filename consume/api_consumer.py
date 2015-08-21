@@ -19,7 +19,7 @@ def get_pipl_emails(pipl_json):
     if not pipl_json: return emails
     for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
         if not record.get('@query_params_match',True) or not record.get("emails"): continue
-        for email in record.get("emails"):
+        for email in record.get("emails",[]):
             url = email.get("address") 
             if url and url not in emails: 
                 emails.append(url)
@@ -30,7 +30,7 @@ def get_pipl_images(pipl_json):
     if not pipl_json: return images
     for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
         if not record.get('@query_params_match',True) or not record.get("emails"): continue
-        for image in record.get("images"):
+        for image in record.get("images",[]):
             url = image.get("url") 
             if url and url not in images: 
                 try:
@@ -56,7 +56,7 @@ def get_pipl_addresses(pipl_json):
     if not pipl_json: return locations
     for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
         if not record.get('@query_params_match',True) or not record.get("addresses"): continue
-        for address in record.get("addresses"):
+        for address in record.get("addresses",[]):
             display =  address.get("display")
             if display and display not in locations: locations.append(display)
     return locations
@@ -68,7 +68,7 @@ def get_pipl_cities(pipl_json):
         #if record.get('@query_params_match'): pprint.pprint(record)
         if not record.get('@query_params_match',True) or not record.get("addresses"): continue
         # if record.get("source") and not record.get("source").get("@is_sponsored") and record.get("addresses"): print record.get("source").get("url")
-        for address in record.get("addresses"):
+        for address in record.get("addresses",[]):
             if not address.get("state"): continue
             display = address.get("state")
             if address.get("city"): display = address.get("city") + ", " + display 
@@ -87,7 +87,7 @@ def get_pipl_social_accounts(pipl_json):
 def get_vibe_social_accounts(vibe_json):
     social_profiles = []
     if not vibe_json or not vibe_json.get("social_profiles"): return social_profiles
-    for record in vibe_json.get("social_profiles"):
+    for record in vibe_json.get("social_profiles",[]):
         link = record.get("url")
         social_profiles.append(link)    
     return social_profiles
@@ -95,7 +95,7 @@ def get_vibe_social_accounts(vibe_json):
 def get_fullcontact_social_accounts(fullcontact_json):
     social_profiles = []
     if not fullcontact_json or not fullcontact_json.get("socialProfiles") or fullcontact_json.get("likelihood") < 0.75: return social_profiles
-    for record in fullcontact_json.get("socialProfiles"):
+    for record in fullcontact_json.get("socialProfiles",[]):
         link = record.get("url")
         social_profiles.append(link)    
     return social_profiles
