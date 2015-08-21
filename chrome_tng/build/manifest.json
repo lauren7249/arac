@@ -1,0 +1,28 @@
+{
+  "name": "AC Browser",
+  "version": "0.0.3",
+  "manifest_version": 2,
+  "description": "AC Browser",
+  "default_locale": "en",
+  "icons": {
+    "48": "assets/img/icon.png"
+  },
+  "browser_action": {
+    "default_icon": "assets/img/icon.png",
+    "default_title": "AC Browser"
+  },
+  "background": {
+    "page": "",
+    "persistent": false
+  },
+  "options_page": "",
+  "permissions": [
+    "<all_urls>",
+    "activeTab"
+  ],
+  "incognito": "split",
+  "web_accessible_resources": [
+  ],
+  "offline_enabled": false,
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com; object-src 'self'"
+}
