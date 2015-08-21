@@ -111,7 +111,7 @@ def pick_proxy(domain):
 	wait_btwn_requests_seconds = randint(min_wait_btwn_requests_seconds, max_wait_btwn_requests_seconds)
 	last_rejected_threshold1 = datetime.utcnow() - timedelta(days=try_again_after_reject_days)
 	last_rejected_threshold2 = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
-	last_rejected_threshold = max(last_rejected_threshold1, last_rejected_threshold2)
+	last_rejected_threshold = min(last_rejected_threshold1, last_rejected_threshold2)
 	last_accepted_threshold = datetime.utcnow() - timedelta(seconds=wait_btwn_requests_seconds)
 	timeout_threshold = datetime.utcnow() - timedelta(days=try_again_after_timeout_days)
 	rejects = session.query(ProxyDomainStatus.proxy_url).filter(and_(domain==ProxyDomainStatus.domain, 
