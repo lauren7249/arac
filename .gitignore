@@ -8,6 +8,7 @@ prime/static/.webassets-cache/
 prime/static/js/build/.module/
 prime/static/js/build/.module-cache/
 prime/static/css/gen/
+node_modules/
 data/
 *.pem
 list.txt
