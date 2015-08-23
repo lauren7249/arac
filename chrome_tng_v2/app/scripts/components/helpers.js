@@ -228,7 +228,7 @@ export default class AC_Helpers {
 
     /**
      * Uploads to S3
-     * @param {Object} params
+     * @param {Object} params - {Key: keyname, ContentType: 'text/html', Body:content}
      * @param {function} [cb] Callback to execute on completion
      *
      * @external AWS#upload
@@ -236,6 +236,8 @@ export default class AC_Helpers {
      */
     upload_to_s3(params, cb = emptyFunction) {
         'use strict';
+        assert(params.hasOwnProperty('Key') && params.hasOwnProperty('Body'));
+
         this.awsBucket().upload(params, function(err, data) {
             if (err) {
                 log(err.toString);
@@ -257,6 +259,8 @@ export default class AC_Helpers {
         'use strict';
 
         let orig_url = URI.parse(uri).toString();
+        assert(orig_url.error == undefined);
+
         orig_url = orig_url.replace('/\//g', ';').replace('/\?/g', '`');
         let notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
 
