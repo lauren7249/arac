@@ -1,0 +1,11 @@
+{
+    "name": "ac-browser",
+    "version": "0.0.3",
+    "dependencies": {
+        "jquery": ">=2.1.4",
+        "bootstrap-sass-official": ">=3.3.5",
+        "modernizr": ">=2.8.3",
+        "log": ">=0.3.0",
+        "aws-sdk-js": ">=2.1.46"
+    }
+}
