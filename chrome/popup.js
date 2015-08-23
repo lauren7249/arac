@@ -54,14 +54,14 @@ function get_url(orig_url) {
  *
  * TODO Error callback
  */
-function get_url_response(url, callback) {
-    xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = callback;
-    xmlHttp.open("GET", url, true);
-    xmlHttp.setRequestHeader('Cache-Control', 'no-cache');
-    xmlHttp.setRequestHeader('Accept-Language', 'en-US');
-    xmlHttp.send(null);
-}
+//function get_url_response(url, callback) {
+//    xmlHttp = new XMLHttpRequest();
+//    xmlHttp.onreadystatechange = callback;
+//    xmlHttp.open("GET", url, true);
+//    xmlHttp.setRequestHeader('Cache-Control', 'no-cache');
+//    xmlHttp.setRequestHeader('Accept-Language', 'en-US');
+//    xmlHttp.send(null);
+//}
 
 //function is_google(url) {
 //    return url.match(/www.google.com/g, url) != null;
