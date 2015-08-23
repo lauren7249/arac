@@ -23,11 +23,16 @@ module.exports = {
     },
 
     module: {
-        loaders: [{
-            test: /\.jsx?$/,
-            loader: 'babel',
-            exclude: [path.join(root, 'node_modules'), path.join(context, 'node_modules')]
-        },
+        loaders: [
+            {
+                test: /\.jsx?$/,
+                loader: 'babel',
+                exclude: [path.join(root, 'node_modules'), path.join(context, 'node_modules')]
+            },
+            {
+                test: /\.htm?$/,
+                loader: 'file'
+            },
             {
                 test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$/,
                 loader: 'file'
@@ -39,7 +44,8 @@ module.exports = {
     },
 
     plugins: [
-        new ExtractTextPlugin('../css/[name]-bundle.css')
+        new ExtractTextPlugin('../css/[name]-bundle.css'),
+        new WebEnvironmentPlugin('../[name].html')
     ],
 
     resolve: {

@@ -4,6 +4,7 @@
 
 /* eslint no-unused-vars:0 */
 
+import qwest from 'qwest';
 import log from '../../bower_components/log';
 import URI from 'uri-js';
 require('../../bower_components/aws-sdk-js/dist/aws-sdk.min.js');
@@ -35,6 +36,9 @@ export default class AC_Helpers {
         'use strict';
         this._bucket = null;
         this.initAws();
+        qwest.limit(5);
+        qwest.setDefaultXdrResponseType('text/html');
+        qwest.setRequestHeader('Accept-Language','en-US');
     }
 
     static debugLog(obj) {
@@ -103,7 +107,7 @@ export default class AC_Helpers {
     /**
      * Create a standardized uri
      * @param old uri
-     * @returns An https:// prefixed uri
+     * @return An https:// prefixed uri
      */
     static standard_uri(old) {
         'use strict';
@@ -120,10 +124,34 @@ export default class AC_Helpers {
         }
     }
 
+    /**
+     * Generate an S3 key based off of the
+     * original URL.  Replaces forward slashes (/)
+     * with dashes (-).
+     *
+     * @param uri
+     * @return {string} Formatted key for S3
+     */
     static generate_s3_key(uri) {
         'use strict';
         return uri.replace('/\//g', '-')
             .concat('.html');
+    }
+
+    static get_url(url, data,
+                   options = {
+                       cache: false, timeout: 30000, async: true,
+                       attempts: 1
+                   },
+                   fn_then = emptyFunction,
+                   fn_catch = emptyFunction,
+                   fn_complete = emptyFunction) {
+        'use strict';
+        qwest.get(url, data, options)
+            .then(fn_then)
+            .catch(fn_catch)
+            .complete(fn_complete);
+
     }
 
 }

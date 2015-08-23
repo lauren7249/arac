@@ -63,24 +63,24 @@ function get_url_response(url, callback) {
     xmlHttp.send(null);
 }
 
-function is_google(url) {
-    return url.match(/www.google.com/g, url) != null;
-}
-
-function google(url) {
-    console.log("is google");
-}
+//function is_google(url) {
+//    return url.match(/www.google.com/g, url) != null;
+//}
+//
+//function google(url) {
+//    console.log("is google");
+//}
 
 /**
  * Initialize the Amazon Cognito credentials provider
  */
-function initAWS() {
-    AWS.config.region = 'us-east-1'; // Region
-    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-        IdentityPoolId: 'us-east-1:d963e11a-7c9b-4b98-8dfc-8b2a9d275574',
-    });
-    var bucket = new AWS.S3({params: {Bucket: 'chrome-ext-uploads'}});
-}
+//function initAWS() {
+//    AWS.config.region = 'us-east-1'; // Region
+//    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+//        IdentityPoolId: 'us-east-1:d963e11a-7c9b-4b98-8dfc-8b2a9d275574',
+//    });
+//    var bucket = new AWS.S3({params: {Bucket: 'chrome-ext-uploads'}});
+//}
 
 /**
  * Callback function that checks that xmlHttpRequest has completed

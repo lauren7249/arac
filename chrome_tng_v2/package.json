@@ -30,6 +30,7 @@
         "gulp-util": "^3.0.3",
         "gulp-webserver": ">=0.9.0",
         "harmonize": "^1.4.0",
+        "qwest": ">=2.0.7",
         "vinyl-source-stream": "^1.0.0",
         "watchify": "^2.3.0"
     },
