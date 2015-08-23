@@ -2,6 +2,7 @@ import React from 'react';
 import './components/globals';
 import AC_Helper from './components/globals';
 import log from '../bower_components/log';
+import URI from 'uri-js';
 
 let Helper = AC_Helper();
 
@@ -12,7 +13,8 @@ let App = React.createClass({
     getInitialState(){
         'use strict';
         return {
-            queue: []
+            queue: [],
+            progress: 0
         };
 
     },

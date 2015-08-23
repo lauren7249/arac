@@ -5,7 +5,14 @@
 /* eslint no-unused-vars:0 */
 
 import log from '../../bower_components/log';
+import URI from 'uri-js';
 require('../../bower_components/aws-sdk-js/dist/aws-sdk.min.js');
+
+//############## CONSTANTS ###############
+// Constants are not available within a
+// class in ES6 at this time, so we're
+// dropping them outside of the class definition.
+const AC_DEBUG_MODE = true;
 
 const AC_AWS_REGION = 'us-east-1';
 const AC_AWS_CREDENTIALS = `${AC_AWS_REGION}:d963e11a-7c9b-4b98-8dfc-8b2a9d275574`;
@@ -17,9 +24,11 @@ const AC_QUEUE_URLS_AT_A_TIME = 100;
 const AC_QUEUE_URL = `${AC_QUEUE_BASE_URL}/select/n=${AC_QUEUE_URLS_AT_A_TIME}`;
 const AC_QUEUE_SUCCESS_URL_BASE = `${AC_QUEUE_BASE_URL}/log_uploaded/url=`;
 
+//########################################
+
 /**
  * Helper functions and non-ui
- * code
+ * code.
  */
 export default class AC_Helpers {
     constructor() {
@@ -28,16 +37,27 @@ export default class AC_Helpers {
         this.initAws();
     }
 
+    static debugLog(obj) {
+        if (AC_DEBUG_MODE == true) {
+            log('[c="color: blue"]DEBUG: `${obj}` [c]');
+        }
+    }
+
     /*global */
-    static is_google(url) {
+    static is_google(uri) {
         'use strict';
-        return url.match(/www.google.com/g, url) != null;
+        let components = URI.parse(uri);
+        debugLog(components);
+        return (components.error == undefined
+        && components.host
+            .toLowerCase()
+            .includes('google.com'));
     }
 
     /* eslint no-undef:0 */
     static google(url) {
         'use strict';
-        log('_is google_');
+        debugLog('_is google_');
     }
 
     /**
@@ -78,6 +98,32 @@ export default class AC_Helpers {
             this.initAws();
             return this.awsBucket();
         }
+    }
+
+    /**
+     * Create a standardized uri
+     * @param old uri
+     * @returns An https:// prefixed uri
+     */
+    static standard_uri(old) {
+        'use strict';
+        let components = URI.parse(old);
+        if (components.error == undefined) {
+
+            components.scheme = 'https';
+            return URI.serialize(components);
+
+        } else {
+
+            log('Unable to parse URI: [c="color: red"]_${old}_[c]');
+            throw 'Unable to parse URI: [${old}]';
+        }
+    }
+
+    static generate_s3_key(uri) {
+        'use strict';
+        return uri.replace('/\//g', '-')
+            .concat('.html');
     }
 
 }
