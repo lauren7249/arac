@@ -12,7 +12,7 @@ vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "
 fullcontact_url = "http://api.fullcontact.com/v2/person.json?apiKey=" + fullcontact_api_key 
 social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon"]  
 
-zillow = pandas.read_csv("/Users/lauren/Downloads/Zip_ZriPerSqft_AllHomes.csv")
+#zillow = pandas.read_csv("/Users/lauren/Downloads/Zip_ZriPerSqft_AllHomes.csv")
 
 def get_pipl_emails(pipl_json):
     emails = []
