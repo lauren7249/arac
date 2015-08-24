@@ -40,26 +40,19 @@ var App = React.createClass({
         }
     },
     getNextBatch: function(ctx) {
-        var that = ctx;
-        console || console.log('getNextBatch Called');
 
-        if (that !== undefined && that.isMounted()) {
-            console.log(that);
-            var _hp = that.props.hp || undefined;
-
-            console.error(`${AC_QUEUE_URL}`);
-
+        if (ctx !== undefined && ctx.isMounted()) {
+            var _hp = ctx.props.hp || undefined;
             if (_hp !== undefined) {
-                console.log('OK, here we go...');
                 AC_Helpers.get_data(AC_QUEUE_URL,
                     undefined,
-                    that.onNextBatchReceived,
-                    that.onNetworkError);
+                    ctx.onNextBatchReceived,
+                    ctx.onNetworkError);
             }
         } else {
-            console.warn(`this not defined. ${that || undefined}`);
+            console.warn(`ctx not defined. ${ctx || undefined}`);
         }
-    }.bind(this),
+    }.bind(),
     onNextBatchReceived: function(xhr, data) {
         var _hp = this.props.hp;
         _hp.debugLog(xhr);
