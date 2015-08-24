@@ -3,7 +3,7 @@
     "version": "0.0.3",
     "dependencies": {
         "uri-js": ">=2.1.1",
-        "react": ">=0.13.2"
+        "react": ">=0.13.3"
     },
     "devDependencies": {
         "babel-eslint": ">=4.0.10",
@@ -31,6 +31,7 @@
         "gulp-webserver": ">=0.9.0",
         "harmonize": "^1.4.0",
         "qwest": ">=2.0.7",
+        "react-hot-loader": ">=1.2.9",
         "vinyl-source-stream": "^1.0.0",
         "watchify": "^2.3.0"
     },
