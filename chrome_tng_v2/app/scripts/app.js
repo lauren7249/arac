@@ -8,19 +8,21 @@ import log from '../bower_components/log';
 
 var exports = Object.create(null);
 var hp = new AC_Helpers();
+
 /**
  * @module
  * App is the outer container for the extension
  */
-(function(exports) {
-
-    console.debug(exports || undefined);
+(function(exports, hp) {
 
     exports.App = React.createClass({
-        getDefaultProps: function() {
-            return {
-                hp: undefined
-            };
+        statics: {
+            hp: () => {
+                return hp || undefined;
+            },
+            con: () => {
+                return ACH || undefined;
+            }
         },
         getInitialState: function() {
             return {
@@ -29,15 +31,46 @@ var hp = new AC_Helpers();
             };
         },
         componentWillMount: function() {
-
+            let _hp = this.hp;
+            console || console.assert(_hp != undefined,
+                'Helper is not defined');
         },
         componentDidMount: function() {
-            this.getNextBatch();
+            console.debug(exports || undefined);
+            this.getNextBatch(exports.App);
         },
-        getNextBatch: function() {
-            let _hp = this.props.hp;
-            _hp.get_next_batch();
-        },
+        getNextBatch: function(ctx) {
+
+            console.log('getNextBatch Called');
+            if (ctx !== undefined) {
+                console.log(`Trying with ctx ${ctx}`);
+                console.debug(ctx);
+                let _props = ctx.props;
+                console.log(_props || undefined);
+                let _hp = ctx.hp || undefined;
+                let _c = ctx.con || undefined;
+
+                console.debug(`${_props} ${_hp} ${_c}`);
+
+                if (_c !== undefined && _hp !== undefined) {
+                    console.log('OK, here we go...');
+                    AC_Helpers.get_data(_c.AC_QUEUE_URL,
+                        undefined,
+                        ctx.onNextBatchReceived,
+                        ctx.onNetworkError);
+                }
+            } else {
+                console.warn(`this not defined. ${ctx || undefined}`);
+            }
+        }.bind(exports.App),
+        onNextBatchReceived: function(xhr, data) {
+            let _hp = this.hp;
+            _hp.debugLog(xhr);
+            _hp.debugLog(data);
+        }.bind(exports.App),
+        onNetworkError: function(xhr, data, err) {
+            console || console.error(`${xhr} ${data} ${err}`);
+        }.bind(exports.App),
         render: function() {
             return (
                 <div>
@@ -53,13 +86,14 @@ var hp = new AC_Helpers();
     var QueryArea = React.createClass({
         getInitialState: function() {
             return {
-                progress: 0
+                value: 0,
+                max: 100
             };
         },
         render: function() {
             return (
                 <div className='scraper'>
-                    <progress progress="0"/>
+                    <progress value="0" max="100" width="100%"/>
                     <StatusArea />
                 </div>
             );
@@ -77,12 +111,7 @@ var hp = new AC_Helpers();
         }
     });
 
-})(exports);
-
-console.debug(exports);
-console.debug(ACH);
-
+})(exports, hp);
 
 var App = exports.App;
-
 React.render(<App hp={hp}/>, document.body);

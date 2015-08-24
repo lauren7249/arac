@@ -110,7 +110,7 @@ export default class AC_Helpers extends Object {
     static is_google(uri) {
         'use strict';
         let components = URI.parse(uri);
-        debugLog(components);
+        AC_Helpers.debugLog(components);
         return (components.error == undefined
         && components.host
             .toLowerCase()
@@ -120,7 +120,7 @@ export default class AC_Helpers extends Object {
     /* eslint no-undef:0 */
     static google(url) {
         'use strict';
-        debugLog('_is google_');
+        AC_Helpers.debugLog('_is google_');
     }
 
     /**
@@ -233,7 +233,7 @@ export default class AC_Helpers extends Object {
                     fn_complete = undefined) {
         'use strict';
 
-        debugLog(`get_data called for ${url}`);
+        AC_Helpers.debugLog(`get_data called for ${url}`);
 
         let uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
@@ -303,7 +303,7 @@ export default class AC_Helpers extends Object {
 
         get_data(notification_url, undefined,
             (xhr, response) => {
-                debugLog(`SUCCESS: ${notification_url}`);
+                AC_Helpers.debugLog(`SUCCESS: ${notification_url}`);
             },
             (xhr, response, e) => {
                 log(`FAILURE: ${notification_url} [${e.toString}]`);
@@ -315,7 +315,7 @@ export default class AC_Helpers extends Object {
 
         AC_Helpers.get_data(AC_Helpers.C.AC_QUEUE_URL.toString(),
             undefined, (xhr, data) => {
-                debugLog(`${xhr} -- ${data}`);
+                AC_Helpers.debugLog(`${xhr} -- ${data}`);
             }, (xhr, data, err) => {
                 log(`${xhr}`, `${data}`, `${err}`);
             },
