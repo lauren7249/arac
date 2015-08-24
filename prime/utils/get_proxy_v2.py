@@ -85,7 +85,7 @@ def get_list_of_urls():
 # In[ ]:
 
 def get_proxy_via_proc(domain = "https://google.com", last_accepted_thresh = datetime.now(), 
-                  last_rejected_thresh = datetime.now(), retry_interval = RETRY_INTERVAL, 
+                  last_rejected_thresh = datetime.now(), last_timeout_thresh = datetime.now(), 
                   consequtive_fail_threshold = CONSECUTIVE_FAIL_THRESHOLD):
 
     """
@@ -107,13 +107,10 @@ def get_proxy_via_proc(domain = "https://google.com", last_accepted_thresh = dat
           
     """
     retry = datetime.now() - RETRY_INTERVAL
-    
     with db() as d:  # This syntax safely returns the connection to the pool upon completion or failure
-        
         cursor = d.raw_connection().cursor()  # Grab a psycopg2 cursor, sqlalchemy doesn't do stored procs
-        
         # Call the get_proxy() proc with a tuple of parameters passed in and then fetch the result
-        cursor.callproc('get_proxy',(domain,last_rejected_thresh,last_accepted_thresh))
+        cursor.callproc('get_proxy',(domain,last_rejected_thresh,last_accepted_thresh, last_timeout_thresh))
         proxy = cursor.fetchone()
         
         return proxy
@@ -215,52 +212,52 @@ def get_proxy_dispatch():
     while True:
         try:
             target = proxiesQueue.get()
-            proxy = get_proxy_via_reqular_queries(domain=target)
+            proxy = get_proxy_via_proc(domain=target)
             scrapersQueue.put((target, proxy))
         finally:
             proxiesQueue.task_done()
 
 
-# In[ ]:
+# # In[ ]:
 
-# Stand up the dispatch queues
-proxiesQueue = q.Queue()
-scrapersQueue = q.Queue()
+# # Stand up the dispatch queues
+# proxiesQueue = q.Queue()
+# scrapersQueue = q.Queue()
 
-"""
-The following sytax is the idiomatic,
-if odd, Pythonic way to dispatch threads
-n at a time.
+# """
+# The following sytax is the idiomatic,
+# if odd, Pythonic way to dispatch threads
+# n at a time.
 
-Left to the developer, signals are not 
-captured (like ctrl-c) as it will be
-caught on a random thread.
+# Left to the developer, signals are not 
+# captured (like ctrl-c) as it will be
+# caught on a random thread.
 
-The signal library provides a way to
-intercept this and pass up to the main
-thread for handlig appropriately.
+# The signal library provides a way to
+# intercept this and pass up to the main
+# thread for handlig appropriately.
 
-In lieu of, kill -9 will be required
-"""
-for i in range(MAX_DB_CONCURRENCY):
-    t = Thread(target=get_proxy_dispatch)
-    t.daemon = True
-    t.start()
+# In lieu of, kill -9 will be required
+# """
+# for i in range(MAX_DB_CONCURRENCY):
+#     t = Thread(target=get_proxy_dispatch)
+#     t.daemon = True
+#     t.start()
     
-for target in get_list_of_urls():
-    proxiesQueue.put(target)
+# for target in get_list_of_urls():
+#     proxiesQueue.put(target)
     
-for x in range(MAX_SCRAPER_CONCURRENCY):
-    t = Thread(target=scraper_dispatch)
-    t.daemon = True
-    t.start()
+# for x in range(MAX_SCRAPER_CONCURRENCY):
+#     t = Thread(target=scraper_dispatch)
+#     t.daemon = True
+#     t.start()
 
 
-# In[ ]:
+# # In[ ]:
 
-# Block until complete
-proxiesQueue.join() 
-scrapersQueue.join() 
+# # Block until complete
+# proxiesQueue.join() 
+# scrapersQueue.join() 
 
 
 

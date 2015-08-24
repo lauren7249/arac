@@ -21,7 +21,7 @@ from config import config
 from boto.s3.key import Key
 from boto.exception import S3ResponseError
 from parser import lxml_parse_html
-from convert import parse_html
+from convert import parse_html, uu
 from sqlalchemy.orm import joinedload
 from linkedin.scraper import process_request
 
@@ -127,14 +127,14 @@ def update_jobs(info, new_prospect, session=session):
                         "end_date": convert_date(info_job.get("end_date")),
                         "company_linkedin_id": info_job.get("company_id")
                         })
-                    print "job updated for " + new_prospect.url
+                    print "job updated for " + uu(new_prospect.url)
                 new = False
                 break
         if new: new_jobs.append(info_job)
 
     for e in new_jobs:
         insert_job(e, new_prospect, session=session)
-        print "job added for " + new_prospect.url
+        print "job added for " + uu(new_prospect.url)
     session.commit()
     return True
 
@@ -151,14 +151,14 @@ def update_schools(info, new_prospect, session=session):
                         "end_date": convert_date(info_school.get("end_date")),
                         "school_linkedin_id": info_school.get("college_id")
                         })
-                    print "education updated for " + new_prospect.url
+                    print "education updated for " + uu(new_prospect.url)
                 new = False
                 break
         if new: new_schools.append(info_school)
 
     for e in new_schools:
         insert_school(e, new_prospect, session=session)
-        print "education added for " + new_prospect.url
+        print "education added for " + uu(new_prospect.url)
     session.commit()
     return True
 

@@ -19,6 +19,10 @@ max_consecutive_timeouts = 3
 try_again_after_reject_days = 1
 min_wait_btwn_requests_seconds = 15
 max_wait_btwn_requests_seconds = 45
+# CONSTANTS
+############
+DB_USER = 'arachnid'
+DB_PASS = 'devious8ob8'
 
 def try_request(url, expected_xpaths, proxy=None):
 	#print url
@@ -98,11 +102,20 @@ def proc_pick_proxy(domain):
 	timeout_threshold = datetime.utcnow() - timedelta(days=try_again_after_timeout_days)
 	t = text("select * from get_proxy('" + domain + "', '" +  last_rejected_threshold.strftime('%Y-%m-%d %H:%M:%S') + "', '" + last_accepted_threshold.strftime('%Y-%m-%d %H:%M:%S') + "', '" +  timeout_threshold.strftime('%Y-%m-%d %H:%M:%S') + "')")
 	result = session.execute(t)
+	
 	for r in result:
 		proxy_url = r[0]
 		break
 	if not proxy_url: return None
+	# with db() as d:  # This syntax safely returns the connection to the pool upon completion or failure
+	# 	cursor = db.raw_connection().cursor()  # Grab a psycopg2 cursor, sqlalchemy doesn't do stored procs
+        
+ #        # Call the get_proxy() proc with a tuple of parameters passed in and then fetch the result
+	# 	cursor.callproc('get_proxy',(domain,last_rejected_threshold,last_accepted_threshold, timeout_threshold))
+	# 	proxy_url = cursor.fetchone()	
 	proxy = session.query(Proxy).get(proxy_url)
+	session.commit()
+	#session.close()
 	return proxy
 
 #return Proxy object
@@ -134,6 +147,34 @@ def release_proxy(domain, proxy):
 	r.hdel(domain, proxy_lock_id)
 	return proxy_lock_id
 
+
+def db(schema='arachnid', host='babel.priv.advisorconnect.co', user=DB_USER, pwd=DB_PASS):
+    
+    """
+     Connect to the database
+     
+     :param schema: Schema name (defaults to arachnid)
+     :param host:   Databse server name (defaults to babel)
+     :param user:   Username (defaults to DB_USER constant)
+     :param pwd:    Database password (defaults to DB_PASS constant)
+     
+     :returns :Engine A SQLAlchemy DB Engine instance
+
+    """
+    engine = None
+    
+    try:
+        connection_url = "postgresql+psycopg2://{user}:{pwd}@{host}/{schema}".format(user=user, pwd=pwd, 
+                                                                                         host=host, schema=schema)
+    
+        engine = sq.create_engine(connection_url, pool_size=1, isolation_level="READ_COMMITTED",
+                                 strategy='threadlocal', echo=True, echo_pool=False)
+    except Exception as e:
+        print "Unable to connect to database, error: {}", str(e)
+        raise
+    finally:
+        return engine
+
 def robust_get_url(url, expected_xpaths, require_proxy=False, try_proxy=True):
 	if not require_proxy:
 		successful, response = try_request(url, expected_xpaths)
@@ -157,3 +198,12 @@ def robust_get_url(url, expected_xpaths, require_proxy=False, try_proxy=True):
 			content = process_url(fn)
 		return lxml.html.fromstring(content)
 	return None
+
+#test
+if __name__=="__main__":
+	from prime.utils.googling import *
+	from prime.prospects.get_prospect import *
+	lauren = from_url("http://www.linkedin.com/in/laurentalbotnyc")
+	search_query = extended_network_query_string(lauren)
+	search_query = "http://www.google.com/search?q=site:www.linkedin.com+Daniel+Y.+Ng+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0"
+	raw_html = robust_get_url(search_query, google_xpaths, require_proxy=True)

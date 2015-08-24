@@ -1,5 +1,6 @@
 import string
 import random
+import datetime
 import json
 import requests
 import lxml.html
@@ -101,6 +102,39 @@ class Prospect(db.Model):
             except:
                 pass    
         return content
+
+    @property 
+    def age(self):
+        first_school_year = None
+        first_grad_year = None
+        first_weird_school_year = None
+        first_weird_grad_year = None
+        age = None
+        if self.schools:
+            for school in self.schools:
+                if school.school_linkedin_id:
+                    if school.start_date and (not first_school_year or school.start_date.year<first_school_year): first_school_year = school.start_date.year
+                    if school.end_date and (not first_grad_year or school.end_date.year<first_grad_year): first_grad_year = school.end_date.year   
+                else:
+                    if school.start_date and (not first_weird_school_year or school.start_date.year<first_weird_school_year): first_weird_school_year = school.start_date.year
+                    if school.end_date and (not first_weird_grad_year or school.end_date.year<first_weird_grad_year): first_weird_grad_year = school.end_date.year   
+
+        if first_school_year: age = datetime.datetime.today().year - first_school_year + 18
+        elif first_grad_year: age = datetime.datetime.today().year - first_grad_year + 22
+        if age: return age
+
+        first_year_experience = None
+        first_quitting_year = None
+        if self.jobs:
+            for job in self.jobs:
+                if job.start_date and (not first_year_experience or job.start_date.year<first_year_experience): first_year_experience 
+                if job.end_date and (not first_quitting_year or job.end_date.year<first_quitting_year): first_quitting_year = job.end_date.year  
+
+        if first_year_experience: age = datetime.datetime.today().year - first_year_experience + 20
+        elif first_quitting_year: age = datetime.datetime.today().year - first_quitting_year + 22
+        elif first_weird_school_year: age = datetime.datetime.today().year - first_weird_school_year + 14
+        elif first_weird_grad_year: age = datetime.datetime.today().year - first_weird_grad_year + 18
+        return age
 
     @property 
     def get_location(self):
@@ -418,6 +452,25 @@ class Job(db.Model):
                 self.company.name,
                 self.prospect.name
                 )
+
+class BingSearches(db.Model):
+    __tablename__ = "bing_searches"
+
+    terms = db.Column(CIText(), primary_key=True)
+    site = db.Column(CIText(), primary_key=True)
+    intitle = db.Column(String(100), primary_key=True)
+    results = db.Column(JSON)
+    pages = db.Column(Integer)
+    next_querystring =db.Column(String(300))
+
+    def __repr__(self):
+        return '<Terms={0}, site={1}, intitle={2}, pages={3}>'.format(
+                self.terms,
+                self.site,
+                self.intitle,
+                self.pages
+                )
+
 
 class GoogleProfileSearches(db.Model):
     __tablename__ = "google_profile_searches"
