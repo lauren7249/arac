@@ -22,6 +22,7 @@ bin/
 include
 *.swp
 .idea
-*.iml
 .DS_Store
+*.iml
+
 

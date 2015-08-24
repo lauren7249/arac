@@ -19,14 +19,8 @@ from prime.prospects.get_prospect import session
 import dateutil.parser
 from boto.s3.key import Key
 from consume.facebook_consumer import *
+from consume.api_consumer import *
 
-pipl_api_key = "uegvyy86ycyvyxjhhbwsuhj9"
-vibe_api_key = "e0978324d7ac8b759084aeb96c5d7fde"
-fullcontact_api_key = "dda7318aacfcf5cd"
-pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key + "&pretty=true"
-vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="
-fullcontact_url = "http://api.fullcontact.com/v2/person.json?apiKey=" + fullcontact_api_key 
-social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon"]  
 bucket = get_bucket('facebook-profiles')
 
 def uu(str):
@@ -108,6 +102,14 @@ class Prospect(db.Model):
                 pass    
         return content
 
+    @property 
+    def get_location(self):
+        location = self.location_raw   
+        if location: return location
+        locations = get_pipl_locations(self.get_pipl_response)
+        if len(locations): location = locations[0]
+        return location
+
     @property
     def social_accounts(self):
         s = []
@@ -127,6 +129,11 @@ class Prospect(db.Model):
         if self.json:
             return self.json.get("email")
         return None
+
+    @property
+    def email_accounts(self):
+        pipl_response = self.get_pipl_response
+        return get_pipl_emails(pipl_response)
 
     @property
     def email_contacts(self):
@@ -241,7 +248,11 @@ class Prospect(db.Model):
 
     @property 
     def build_profile(self):
-        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name if self.current_job and self.current_job.company else None, "image_url": self.image_url if self.image_url else None, "url":self.url}
+        image_url = self.image_url
+        if not image_url:
+            other_images = get_pipl_images(self.get_pipl_response)
+            if len(other_images): image_url = other_images[0]
+        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name if self.current_job and self.current_job.company else None, "image_url":  image_url, "url":self.url, "linkedin": self.url}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
@@ -392,7 +403,7 @@ class Job(db.Model):
     def get_indeed_salary(self):
         if self.indeed_salary:
             return self.indeed_salary
-        self.indeed_salary = get_indeed_salary(self.title, location=self.location)
+        self.indeed_salary = get_indeed_salary(self.title, location=self.location if self.location else self.prospect.location_raw)
         session.add(self)
         session.commit()
         return self.indeed_salary
@@ -487,20 +498,17 @@ class FacebookContact(db.Model):
     __tablename__ = "facebook_contacts"
 
     facebook_id = db.Column(CIText(), primary_key=True)
-    linkedin_url = db.Column(String(150))
-    linkedin_id = db.Column(BigInteger)
-    prospect_id = db.Column(Integer)
     profile_info = db.Column(JSON)
     friends = db.Column(String(100))
     pipl_response = db.Column(JSON)
     fullcontact_response = db.Column(JSON)
     indeed_salary = db.Column(Integer)
     recent_engagers = db.Column(JSON)
+    refresh = False
 
     def __repr__(self):
-        return '<facebook_id ={0} linkedin_url={1}>'.format(
-                self.facebook_id,
-                self.linkedin_url
+        return '<facebook_id ={0}>'.format(
+                self.facebook_id
                 )
 
     @property 
@@ -599,6 +607,18 @@ class FacebookContact(db.Model):
             return key.get_contents_as_string()     
         return None
 
+    @property
+    def top_engagers(self):
+        top_engagers = set()
+        engagers = self.get_recent_engagers
+        if not engagers: return top_engagers
+        for commenter in engagers.get("commenters",[]) + engagers.get("posters",[]):
+            if commenter != self.facebook_id: top_engagers.add(commenter)
+        for sublist in engagers.get("like_links",{}).values():
+            for liker in sublist:
+                if liker != self.facebook_id: top_engagers.add(liker) 
+        return top_engagers
+
     @property 
     def get_recent_engagers(self):
         if self.recent_engagers:
@@ -613,8 +633,7 @@ class FacebookContact(db.Model):
 
     @property 
     def get_profile_info(self): 
-        if self.profile_info:
-            return self.profile_info
+        if self.profile_info and not self.refresh: return self.profile_info
         source = self.get_profile_source
         profile = parse_facebook_html(source)
         self.profile_info = profile     
@@ -623,9 +642,25 @@ class FacebookContact(db.Model):
         return profile
 
     @property 
+    def get_location(self):
+        profile_info = self.get_profile_info
+        if not profile_info: return None
+        location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")     
+        if location: return location
+        locations = get_pipl_cities(self.get_pipl_response)
+        if len(locations): location = locations[0]
+        return location
+
+    @property 
     def build_profile(self):
         profile_info = self.get_profile_info
-        profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job": profile_info.get("job_title"), "company":profile_info.get("job_company"), "image_url": profile_info.get("image_url"), "url":"https://www.facebook.com/" + self.facebook_id}
+        image_url = profile_info.get("image_url")
+        if not image_url:
+            other_images = get_pipl_images(self.get_pipl_response)
+            if len(other_images): image_url = other_images[0]        
+        company = profile_info.get("job_company","").split("Past:")[0]
+        facebook_url = "https://www.facebook.com/" + self.facebook_id
+        profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job": profile_info.get("job_title"), "company":company, "image_url": image_url, "url":facebook_url, "facebook":facebook_url, "school": profile_info.get("school_name"), "degree": profile_info.get("school_major")}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
@@ -782,45 +817,5 @@ class Education(db.Model):
                 self.prospect.name
                 )
 
-def get_pipl_social_accounts(pipl_json):
-    social_profiles = []
-    if not pipl_json or not pipl_json.get("records"): return social_profiles
-    for record in pipl_json.get("records"):
-        if not record.get('@query_params_match') or not record.get("source") or not record.get("source").get("url") or record.get("source").get("@is_sponsored"): continue
-        link = record.get("source").get("url")
-        social_profiles.append(link)    
-    return social_profiles
-
-def get_vibe_social_accounts(vibe_json):
-    social_profiles = []
-    if not vibe_json or not vibe_json.get("social_profiles"): return social_profiles
-    for record in vibe_json.get("social_profiles"):
-        link = record.get("url")
-        social_profiles.append(link)    
-    return social_profiles
-
-def get_fullcontact_social_accounts(fullcontact_json):
-    social_profiles = []
-    if not fullcontact_json or not fullcontact_json.get("socialProfiles") or fullcontact_json.get("likelihood") < 0.75: return social_profiles
-    for record in fullcontact_json.get("socialProfiles"):
-        link = record.get("url")
-        social_profiles.append(link)    
-    return social_profiles
-
-def get_specific_url(social_accounts, type="linkedin.com"):
-    for account in social_accounts:
-        if account.find(type) > -1: return account
-    return None
-
-def get_indeed_salary(title, location=None):
-    url =  "http://www.indeed.com/salary?q1=%s&l1=%s" % (title, location) if location else "http://www.indeed.com/salary?q1=%s" % (title) 
-    try:
-        response = requests.get(url, headers=headers)
-        clean = lxml.html.fromstring(response.content)
-        salary = clean.xpath("//span[@class='salary']")[0].text
-        return int(re.sub('\D','', salary))
-    except Exception, err:
-        pass
-    return None
 
 

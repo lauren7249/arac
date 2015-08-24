@@ -28,41 +28,35 @@ class LinkedinFriend(object):
         self.test = kwargs.get("test")
 
     def login(self):
-        self.display = Display(visible=0, size=(1024, 768))
-        self.display.start()
-        time.sleep(2)
-        if self.test:
-            profile=webdriver.FirefoxProfile()
-            profile.set_preference('permissions.default.stylesheet', 2)
-            ## Disable images
-            profile.set_preference('permissions.default.image', 2)
-            ## Disable Flash
-            profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so','false')
-            #tor doesnt work
-            # profile.set_preference('network.proxy.type', 1)
-            # profile.set_preference('network.proxy.socks', '127.0.0.1')
-            # profile.set_preference('network.proxy.socks_port',9050)
-            #profile.set_preference("javascript.enabled", False)        
-            self.driver = webdriver.Firefox(profile)
-        else:
-            self.driver = webdriver.Firefox()
-        self.wait = WebDriverWait(self.driver, 15)
-        self.driver.get("http://linkedin.com")
-        username = self.driver.find_element_by_name("session_key")
-        password = self.driver.find_element_by_name("session_password")
-        username.send_keys(self.username)
-        password.send_keys(self.password)
+        profile=webdriver.FirefoxProfile('/Users/lauren/Library/Application Support/Firefox/Profiles/lh4ow5q9.default')
+        profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so',
+                                      'false')
+        profile.set_preference('permissions.default.image', 2)
+        self.driver = webdriver.Firefox(profile)
+        self.driver.implicitly_wait(3) 
+        self.driver.set_page_load_timeout(5)
+        self.wait = WebDriverWait(self.driver, 3)
         try:
-            submit = self.driver.find_element_by_name("signin")
+            self.driver.get("http://linkedin.com")
         except:
-            submit = self.driver.find_element_by_name("submit")
-        submit.click()
+            self.driver.get("http://linkedin.com")
         try:
             self.wait.until(lambda driver: driver.find_elements_by_class_name("account-toggle"))
             link = self.driver.find_elements_by_class_name("account-toggle")[0].get_attribute("href")
             self.linkedin_id = self.get_linkedin_id(link, mine=True)
-        except:
-            return False
+        except:     
+            username = self.driver.find_element_by_name("session_key")
+            password = self.driver.find_element_by_name("session_password")
+            username.send_keys(self.username)
+            password.send_keys(self.password)
+            try:
+                submit = self.driver.find_element_by_name("signin")
+            except:
+                submit = self.driver.find_element_by_name("submit")
+            submit.click()
+            self.wait.until(lambda driver: driver.find_elements_by_class_name("account-toggle"))
+            link = self.driver.find_elements_by_class_name("account-toggle")[0].get_attribute("href")
+            self.linkedin_id = self.get_linkedin_id(link, mine=True)
         self.is_logged_in = True
         print self.linkedin_id
         return True
@@ -133,7 +127,7 @@ class LinkedinFriend(object):
         print first_degree_connections
         return first_degree_connections
 
-    def get_second_degree_connections(self, linkedin_id):
+    def goto_second_degree_connections(self, linkedin_id):
         if not self.is_logged_in:
             self.login()        
         self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
@@ -143,10 +137,46 @@ class LinkedinFriend(object):
         except:
             return
 
-        self.all_friend_ids = []
+    def count_second_degree_connections(self, linkedin_id):
+        self.goto_second_degree_connections(linkedin_id)
+        friend_count = 0
+        while True:  
+            try:
+                all_views = self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))  
+                friend_count += len(all_views)
+                self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
+                
+                connections_view = self.driver.find_element_by_class_name('connections-paginate')
+                buttons = connections_view.find_elements_by_tag_name('button')
+            
+                next_button = buttons[1]
+                next_button.click()
+            except Exception, e:
+                print e
+                break        
+        return friend_count
+        
+    def get_second_degree_connections(self, linkedin_id):
+        self.goto_second_degree_connections(linkedin_id)
+        self.all_friend_ids = set()
         while True:  
             try:
                 self.findConnections()
+                # views = self.wait.until(lambda driver: driver.find_elements_by_xpath(".//ul/li/span[contains(@data-li-miniprofile-id,'LI-')]"))
+                # if len(views):
+                #     source = self.driver.page_source
+                #     raw_html = lxml.html.fromstring(source)
+                #     all_views = raw_html.xpath(".//ul/li[contains(@id,'connection')]")
+                #     for view in all_views:
+                #         try:
+                #             element = view.xpath(".//span[contains(@data-li-miniprofile-id,'LI-')]")[0]
+                #             linkedin_id = element.get('data-li-miniprofile-id').split("-")[-1]
+                #             self.all_friend_ids.add(linkedin_id)
+                #         except:
+                #             break
+                #             # link = view.xpath(".//*[@class='connections-photo']").get("href")
+                #             # linkedin_id =self.get_linkedin_id(link, second_degree=True)
+                #             # print e
                 self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
                 
                 connections_view = self.driver.find_element_by_class_name('connections-paginate')
@@ -157,7 +187,9 @@ class LinkedinFriend(object):
             except Exception, e:
                 print e
                 break
-        return self.all_friend_ids
+        if len(self.all_friend_ids): return list(self.all_friend_ids)
+        
+
 
     def get_public_link(self, linkedin_id):
         self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
@@ -168,13 +200,23 @@ class LinkedinFriend(object):
             return None
             
     def findConnections(self):
-        all_views = self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))    
+        all_views = self.wait.until(lambda driver: driver.find_elements_by_class_name('connections-photo'))  
+        #all_views = self.wait.until(lambda driver: driver.find_elements_by_xpath(".//ul/li[contains(@id,'connection')]")) 
         for view in all_views:
             try:
-                link = view.get_attribute("href")
+                link = view.find_element_by_xpath(".//*[@class='connections-photo']").get_attribute("href")
+                #link = view.get_attribute("href")
                 linkedin_id =self.get_linkedin_id(link, second_degree=True)
-                self.all_friend_ids.append(linkedin_id)
-                print linkedin_id
+                if linkedin_id.isdigit() or True:
+                    self.all_friend_ids.add(linkedin_id)
+                    print linkedin_id
+                else:
+                    try:
+                        linkedin_id = view.find_element_by_xpath(".//strong/span").get_attribute("data-li-miniprofile-id").split("-")[-1]
+                        self.all_friend_ids.add(linkedin_id)
+                        print linkedin_id
+                    except:
+                        pass
             except:
                 try:
                     oops_link = self.driver.find_element_by_class_name("error-search-retry")

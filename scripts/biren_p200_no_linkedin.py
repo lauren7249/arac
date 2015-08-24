@@ -5,14 +5,13 @@ from prime.utils.networks import *
 from prime.utils.googling import *
 
 refresh = False
-min_salary = 30000
+min_salary = 40000
 fbscraper = FacebookFriend()
 
 client_linkedin_id='103258031' 
 client_linkedin_contact = from_linkedin_id(client_linkedin_id)
 client_json = client_linkedin_contact.json
 
-facebook_linkedin_friends = []
 
 #agents facebook info
 client_facebook_id='chris.biren'
@@ -24,6 +23,7 @@ client_engagers = client_facebook_contact.get_recent_engagers
 client_engagers = fbscraper.get_likers(client_facebook_contact)
 client_engagers = client_facebook_contact.top_engagers #75
 
+client_schools = list(set([school.name for school in client_linkedin_contact.schools] + [client_facebook_profile.get("school_name")]))
 
 if refresh:
 	#999
@@ -104,34 +104,17 @@ if refresh:
 	session.add(client_linkedin_contact)
 	session.commit()
 
+#248
+linkedin_friends = set(client_json["email_linkedin_ids"])
+#529
+facebook_friends = set(client_json["email_facebook_ids"] + client_facebook_contact.get_friends)
 client_engagers = facebook_friends & client_engagers #65
 
-valid_locations = ['Colorado','Colorado Area','Greater Denver Area', client_facebook_state]
+valid_locations = ['CO', 'Colorado','Colorado Area','Greater Denver Area', client_facebook_state]
 exclusions = [client_facebook_profile.get("job_company"), client_linkedin_contact.current_job.company.name, 'New York Life']
 
 
-extended_facebook_network = {}
-for username in client_facebook_contact.get_friends:
-	scroll_to_bottom = username in client_engagers
-	contact = fbscraper.get_facebook_contact("https://www.facebook.com/" + username, scroll_to_bottom=scroll_to_bottom)
-	fbscraper.get_likers(contact)
-	contact_linkedin_url = get_specific_url(contact.social_accounts, type="linkedin.com")
-	if contact_linkedin_url: 
-		contact_linkedin = from_url(contact_linkedin_url)
-		if contact_linkedin: facebook_linkedin_friends.append(str(contact_linkedin.linkedin_id))
-#agents linkedin info
-linkedin_friends = client_json["first_degree_linkedin_ids"]
-
-
-client_json["facebook_friend_linkedin_ids"] = facebook_linkedin_friends
-client_linkedin_contact.json = client_json
-session.add(client_linkedin_contact)
-session.commit()
-
-linkedin_friends = client_linkedin_contact.json["first_degree_linkedin_ids"]
-
-#565
-linkedin_friends = set(client_json["email_linkedin_ids"] + client_json["facebook_friend_linkedin_ids"] + client_json["first_degree_linkedin_ids"])
+#248
 linkedin_contacts = []
 for friend in linkedin_friends:
 	contact = from_linkedin_id(friend)
@@ -142,9 +125,9 @@ for friend in linkedin_friends:
 
 #529
 facebook_contacts = []
-facebook_friends = set(client_json["email_facebook_ids"] + client_facebook_contact.get_friends)
-for friend in facebook_friends:
-	contact = session.query(FacebookContact).get(friend)
+for username in facebook_friends:
+	contact = fbscraper.get_facebook_contact("https://www.facebook.com/" + username)
+	#contact = session.query(FacebookContact).get(username)
 	if not contact: continue
 	facebook_contacts.append(contact)
 
@@ -156,13 +139,24 @@ for linkedin_contact in linkedin_contacts:
 		cts = names.get(word, [])
 		cts.append(linkedin_contact)
 		names[word] = cts
+
 all_contacts = []
 matching_linkedin_ids = []
 for facebook_contact in facebook_contacts:
-	if not facebook_contact.get_profile_info: continue
-	facebook_name = facebook_contact.get_profile_info.get("name").lower()
-	facebook_words = set(facebook_name.split(" "))
 	linkedin_match = False
+	profile_info = facebook_contact.get_profile_info
+	facebook_name = profile_info.get("name").lower() if profile_info and profile_info.get("name") else ""
+	contact_linkedin_url = get_specific_url(facebook_contact.social_accounts, type="linkedin.com")
+	if contact_linkedin_url:  
+		linkedin_contact = from_url(contact_linkedin_url)	
+		if linkedin_contact:
+			print facebook_name + " == " + linkedin_contact.name	
+			all_contacts.append((facebook_contact,linkedin_contact))
+			matching_linkedin_ids.append(linkedin_contact.linkedin_id)
+			linkedin_match = True
+			continue
+	# if not profile_info: continue
+	facebook_words = set(facebook_name.split(" "))
 	matching_linkedin_contacts = []
 	for word in facebook_words:	
 		for linkedin_contact in names.get(word, []):
@@ -171,83 +165,90 @@ for facebook_contact in facebook_contacts:
 		linkedin_name = linkedin_contact.name.lower()
 		intersect = facebook_words & set(linkedin_name.split(" "))
 		if len(intersect)>=2: 
-			print facebook_name + " == " + linkedin_name
-			facebook_contact.prospect_id = linkedin_contact.id
-			facebook_contact.linkedin_id = linkedin_contact.linkedin_id
-			session.add(facebook_contact)
-			session.commit()			
+			print facebook_name + " == " + linkedin_name		
 			all_contacts.append((facebook_contact,linkedin_contact))
 			matching_linkedin_ids.append(linkedin_contact.linkedin_id)
 			linkedin_match = True
 			break
 	if not linkedin_match: 
 		all_contacts.append(facebook_contact)
-
-#all_contacts = 510
-#matching_linkedin_contacts = 177
-
+#all_contacts = 529
+#matching_linkedin_ids = 160
 for linkedin_contact in linkedin_contacts:
 	if linkedin_contact.linkedin_id not in matching_linkedin_ids: all_contacts.append(linkedin_contact)
+#all_contacts = 646
 
-#all_contacts = 899
 
+#46
+data_folder = '/Users/lauren/Documents/javascript/' + client_facebook_id + '/js/'
 contact_profiles = []
 n_valid=0
 for contact in all_contacts:
-	valid_profile = valid_lead(contact, locales=valid_locations, exclude=exclusions, min_salary=min_salary)
+	valid_profile = valid_lead(contact, locales=valid_locations, exclude=exclusions, min_salary=min_salary, schools=client_schools)
 	if valid_profile:
 		n_valid+=1
 		contact_profiles.append(valid_profile)
-
-
 contact_profiles = compute_stars(contact_profiles)
+json.dump(contact_profiles, open(data_folder + 'contact_profiles.json','w'))
+
+p200_schools = {}
+for profile in contact_profiles:
+	linkedin_url = profile.get("linkedin")
+	if not linkedin_url: continue
+	p200_prospect = from_url(linkedin_url)
+	if not p200_prospect: continue
+	for school in p200_prospect.schools:
+		if not school.linkedin_school: continue
+		name = school.linkedin_school.name
+		recs = p200_schools.get(name,[])
+		recs.append(profile)
+		p200_schools[name] = recs
+json.dump(p200_schools,open( data_folder + 'p200_schools.json','w'))
 
 extended_facebook_network = {}
-for facebook_contact in facebook_contacts:
-	try:
-		if not facebook_contact.get_recent_engagers: continue
-	except:
-		continue
-	engagers = set([item for sublist in facebook_contact.get_recent_engagers.values() for item in sublist])
+potential_nominators = 0
+for username in client_engagers:
+	contact = fbscraper.get_facebook_contact("https://www.facebook.com/" + username, scroll_to_bottom=True)
+	#if contact.get_profile_info.get("lives_in") and contact.get_profile_info.get("lives_in").split(", ")[-1] not in valid_locations: continue
+	if not valid_lead(contact, locales=valid_locations, exclude=exclusions, min_salary=min_salary, schools=client_schools): continue
+	potential_nominators +=1
+	fbscraper.get_likers(contact)
+	engagers = contact.top_engagers
 	for engager in engagers:
 		if engager in facebook_friends or engager == client_facebook_id or engager == '': continue
 		recs = extended_facebook_network.get(engager, [])
-		recs.append(facebook_contact.facebook_id)
-		extended_facebook_network.update({engager: recs})
+		recs.append(contact.facebook_id)
+		extended_facebook_network.update({engager: recs})	
 	print len(extended_facebook_network)
 
 import joblib
 extended_facebook_network = joblib.load('extended_facebook_network')
 extended_profiles = []
-api_hits = 0
 for username in extended_facebook_network:
 	contact = fbscraper.get_facebook_contact("https://www.facebook.com/" + username)
 	if not contact: continue
-	valid_profile = valid_lead(contact, locales=valid_locations, exclude=exclusions, min_salary=min_salary)
-	if valid_profile:
-		introducer_username = extended_facebook_network[valid_profile.get("id")]
-		introducer_contact = session.query(FacebookContact).get(introducer_username)
-		image_url = introducer_contact.get_profile_info.get("image_url")
-		name = introducer_contact.get_profile_info.get("name")
-		valid_profile["introducer_url"] = image_url
-		valid_profile["introducer_name"] = name		
-		extended_profiles.append(valid_profile)
-		continue
-	if contact.get_profile_info.get("lives_in") and contact.get_profile_info.get("lives_in").split(", ")[-1] not in valid_locations: continue
-	api_hits+=1
+	lead = contact
 	contact_linkedin_url = get_specific_url(contact.social_accounts, type="linkedin.com")
-	if not contact_linkedin_url: continue
-	contact_linkedin = from_url(contact_linkedin_url)
-	if not contact_linkedin: continue
-	valid_profile = valid_lead((contact,contact_linkedin), locales=valid_locations, exclude=exclusions, min_salary=min_salary)
+	if contact_linkedin_url:  
+		contact_linkedin = from_url(contact_linkedin_url)
+		if contact_linkedin: lead = (contact,contact_linkedin)
+	valid_profile = valid_lead(lead, locales=valid_locations, exclude=exclusions, min_salary=min_salary)
 	if valid_profile:
 		introducer_username = extended_facebook_network[valid_profile.get("id")]
 		introducer_contact = session.query(FacebookContact).get(introducer_username)
-		image_url = introducer_contact.get_profile_info.get("image_url")
 		name = introducer_contact.get_profile_info.get("name")
-		valid_profile["introducer_url"] = image_url
+		valid_profile["introducer_url"] = introducer_contact.build_profile.get("url")
 		valid_profile["introducer_name"] = name			
 		extended_profiles.append(valid_profile)	
 
 extended_profiles = compute_stars(extended_profiles)
-print json.dumps(extended_profiles)
+json.dump(extended_profiles, open(data_folder + 'extended_profiles.json','w'))
+
+top_nominators = {}
+for p in extended_profiles:
+	 name = p.get("introducer_name")
+	 count = top_nominators.get(name,0) + 1
+	 top_nominators[name] = count
+
+import operator
+top_nominators = sorted(top_nominators.items(), key=operator.itemgetter(1), reverse=True)
