@@ -79,8 +79,6 @@ export default class AC_Helpers extends Object {
         this.AWS = AWS;
         this._bucket = undefined;
         this.initAws();
-        qwest.limit(5);
-        qwest.setDefaultXdrResponseType('text/html');
     }
 
     /**
@@ -221,6 +219,8 @@ export default class AC_Helpers extends Object {
 
         let uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
+            qwest.limit(5);
+            qwest.setDefaultXdrResponseType('text/html');
             qwest.get(uri, null, options)
                 .then(fn_then)
                 .catch(fn_catch)
