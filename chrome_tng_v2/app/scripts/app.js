@@ -50,7 +50,7 @@ var hp = new AC_Helpers();
                 let _hp = ctx.hp || undefined;
                 let _c = ctx.con || undefined;
 
-                console.debug(`${_props} ${_hp} ${_c}`);
+                console.debug(`${_props} ${_hp} ${_c.AC_QUEUE_URL}`);
 
                 if (_c !== undefined && _hp !== undefined) {
                     console.log('OK, here we go...');
@@ -62,15 +62,15 @@ var hp = new AC_Helpers();
             } else {
                 console.warn(`this not defined. ${ctx || undefined}`);
             }
-        }.bind(exports.App),
+        }.bind(),
         onNextBatchReceived: function(xhr, data) {
             let _hp = this.hp;
             _hp.debugLog(xhr);
             _hp.debugLog(data);
-        }.bind(exports.App),
+        }.bind(),
         onNetworkError: function(xhr, data, err) {
             console || console.error(`${xhr} ${data} ${err}`);
-        }.bind(exports.App),
+        }.bind(),
         render: function() {
             return (
                 <div>
