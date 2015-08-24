@@ -8,6 +8,7 @@ var browserify = require('browserify');
 var watchify = require('watchify');
 var source = require('vinyl-source-stream');
 var path = require('path');
+var babelify = require('babelify');
 
 require('harmonize')();
 
@@ -19,6 +20,7 @@ var bundler = {
             insertGlobals: true,
             cache: {},
             packageCache: {},
+            transform:[babelify],
             debug: true
         }));
     },

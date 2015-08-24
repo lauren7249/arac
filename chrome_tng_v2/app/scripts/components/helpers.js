@@ -7,7 +7,6 @@
 import qwest from 'qwest';
 import log from '../../bower_components/log';
 import URI from 'uri-js';
-require('../../bower_components/aws-sdk-js/dist/aws-sdk.min.js');
 
 //############## CONSTANTS ###############
 // Constants are not available within a
@@ -73,14 +72,15 @@ const AC_QUEUE_SUCCESS_URL_BASE = `${AC_QUEUE_BASE_URL}/log_uploaded/url=`;
  *
  * @class
  */
-export default class AC_Helpers {
+export default class AC_Helpers extends Object {
     constructor() {
         'use strict';
-        this._bucket = null;
+        super();
+        this.AWS = AWS;
+        this._bucket = undefined;
         this.initAws();
         qwest.limit(5);
         qwest.setDefaultXdrResponseType('text/html');
-        qwest.setRequestHeader('Accept-Language', 'en-US');
     }
 
     /**
@@ -209,21 +209,38 @@ export default class AC_Helpers {
      *
      * @see {@link https://www.npmjs.com/package/qwest#basics}
      */
-    static get_url(url,
-                   options = {
-                       cache: false, timeout: 30000, async: true,
-                       attempts: 1
-                   },
-                   fn_then = emptyFunction,
-                   fn_catch = emptyFunction,
-                   fn_complete = emptyFunction) {
+    static get_data(url,
+                    options = {
+                        cache: false, timeout: 30000, async: true,
+                        attempts: 1, headers: {'Accept-Language': 'en-US'}
+                    },
+                    fn_then = undefined,
+                    fn_catch = undefined,
+                    fn_complete = undefined) {
         'use strict';
-        let uri = URI.parse(url).toString();
-        qwest.get(uri, null, options)
-            .then(fn_then)
-            .catch(fn_catch)
-            .complete(fn_complete);
 
+        let uri = AC_Helpers.get_valid_uri(url);
+        if (uri != undefined) {
+            qwest.get(uri, null, options)
+                .then(fn_then)
+                .catch(fn_catch)
+                .complete(fn_complete);
+        } else {
+            throw `Invalid url passed ${url} to get_data`;
+        }
+    }
+
+    /**
+     * Returns a correctly formatted URI
+     * or undefined if unable to parse
+     *
+     * @param {string} uri to validate
+     * @return {string|undefined}
+     */
+    static get_valid_uri(uri) {
+        'use strict';
+        let _uri = URI.parse(uri);
+        return URI.serialize(_uri) || undefined;
     }
 
     /**
@@ -264,13 +281,27 @@ export default class AC_Helpers {
         orig_url = orig_url.replace('/\//g', ';').replace('/\?/g', '`');
         let notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
 
-        get_url(notification_url, undefined,
+        get_data(notification_url, undefined,
             (xhr, response) => {
                 debugLog(`SUCCESS: ${notification_url}`);
             },
             (xhr, response, e) => {
                 log(`FAILURE: ${notification_url} [${e.toString}]`);
             });
+    }
+
+    get_next_batch() {
+        'use strict';
+
+        console.debug(AC_QUEUE_URL);
+
+        AC_Helpers.get_data(AC_QUEUE_URL.toString(),
+            undefined, (xhr, data) => {
+                debugLog(`${xhr} -- ${data}`);
+            }, (xhr, data, err) => {
+                log(`${xhr}`, `${data}`, `${err}`);
+            },
+            undefined);
     }
 
 }

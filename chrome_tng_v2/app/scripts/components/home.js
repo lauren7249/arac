@@ -19,8 +19,5 @@ export default class extends React.Component {
         );
     }
 
-    static renderItem(item, index) {
-        return <li key={index}>{item}</li>;
-    }
 }
 
