@@ -7,68 +7,7 @@
 import qwest from 'qwest';
 import log from '../../bower_components/log';
 import URI from 'uri-js';
-
-var AC_CONST = Object.create(null);
-
-(function(e) {
-//############## CONSTANTS ###############
-// Constants are not available within a
-// class in ES6 at this time, so we're
-// dropping them outside of the class definition.
-
-    /**
-     * @constant Print extra debug to the browser console
-     * @type {boolean}
-     */
-    e.AC_DEBUG_MODE = true;
-
-    /**
-     * @constant Amazon region
-     * @type {string}
-     */
-    e.AC_AWS_REGION = 'us-east-1';
-
-    /**
-     * @constant AWS Bucket credentials
-     * @type {string}
-     */
-    e.AC_AWS_CREDENTIALS = `${e.AC_AWS_REGION}:d963e11a-7c9b-4b98-8dfc-8b2a9d275574`;
-
-    /**
-     * @constant S3 bucket name
-     * @type {string}
-     * @default chrome-ext-uploads
-     */
-    e.AC_AWS_BUCKET_NAME = 'chrome-ext-uploads';
-
-// FIXME SHOULD BE HTTPS!
-    /**
-     * @constant Base url for redis queue
-     * @type {string}
-     */
-    e.AC_QUEUE_BASE_URL = 'http://169.55.28.212:8080';
-
-    /**
-     * @constant Number of URLS retrieved at a time
-     * @type {number}
-     */
-    e.AC_QUEUE_URLS_AT_A_TIME = 100;
-
-    /**
-     * @constant Queue url, including query parameters
-     * @type {string}
-     */
-    e.AC_QUEUE_URL = `${e.AC_QUEUE_BASE_URL}/select/n=${e.AC_QUEUE_URLS_AT_A_TIME}`;
-
-    /**
-     * @constant Url to notify of successful scrape
-     * @type {string}
-     */
-    e.AC_QUEUE_SUCCESS_URL_BASE = `${e.AC_QUEUE_BASE_URL}/log_uploaded/url=`;
-
-//########################################
-})(AC_CONST);
-
+import AC_CONST from 'constants';
 
 /**
  * Helper functions and non-ui code.
@@ -109,7 +48,7 @@ export default class AC_Helpers extends Object {
     /*global */
     static is_google(uri) {
         'use strict';
-        let components = URI.parse(uri);
+        var components = URI.parse(uri);
         AC_Helpers.debugLog(components);
         return (components.error == undefined
         && components.host
@@ -173,7 +112,7 @@ export default class AC_Helpers extends Object {
      */
     static standard_uri(old) {
         'use strict';
-        let components = URI.parse(old);
+        var components = URI.parse(old);
         if (components.error == undefined) {
 
             components.scheme('https');
@@ -235,7 +174,7 @@ export default class AC_Helpers extends Object {
 
         AC_Helpers.debugLog(`get_data called for ${url}`);
 
-        let uri = AC_Helpers.get_valid_uri(url);
+        var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
 
             qwest.limit(5);
@@ -259,7 +198,7 @@ export default class AC_Helpers extends Object {
      */
     static get_valid_uri(uri) {
         'use strict';
-        let _uri = URI.parse(uri);
+        var _uri = URI.parse(uri);
         return URI.serialize(_uri) || undefined;
     }
 
@@ -295,11 +234,11 @@ export default class AC_Helpers extends Object {
     static notify_s3_success(uri) {
         'use strict';
 
-        let orig_url = URI.parse(uri).toString();
+        var orig_url = URI.parse(uri).toString();
         assert(orig_url.error == undefined);
 
         orig_url = orig_url.replace('/\//g', ';').replace('/\?/g', '`');
-        let notification_url = AC_Helpers.C.AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
+        var notification_url = AC_Helpers.C.AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
 
         get_data(notification_url, undefined,
             (xhr, response) => {
