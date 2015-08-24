@@ -20,7 +20,7 @@ var bundler = {
             insertGlobals: true,
             cache: {},
             packageCache: {},
-            transform:[babelify],
+            transform: [babelify],
             debug: true
         }));
     },
@@ -83,7 +83,7 @@ gulp.task('fonts', function() {
 });
 
 gulp.task('extras', function() {
-    return gulp.src(['app/*.txt', 'app/*.ico'])
+    return gulp.src(['app/*.txt', 'app/*.ico', 'app/manifest.json'])
         .pipe(gulp.dest('dist/'))
         .pipe($.size());
 });

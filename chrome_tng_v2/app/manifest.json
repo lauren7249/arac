@@ -1,0 +1,30 @@
+{
+    "name": "AC Browser",
+    "description": "Earn money while this app browses in the background.",
+    "version": "0.0.0.3",
+    "manifest_version": 2,
+    "icons": {
+        "128": "images/icon.png"
+    },
+    "background": {
+        // "page": "popup.html",
+        // "persistent": true,
+        "icon":"images/icon.png"
+        //,"scripts": ["scrape.js"]
+
+    },
+    "browser_action": {
+        "default_icon": "images/icon.png",
+        "default_popup": "index.html"
+    },
+    "content_security_policy": "script-src 'self' https://cdnjs.cloudflare.com; object-src 'self';",
+    "permissions": [
+        "<all_urls>",
+        "notifications",
+        "activeTab",
+        "contentSettings",
+        "declarativeContent",
+        "desktopCapture"
+    ],
+    "incognito": "split"
+}
