@@ -21,7 +21,10 @@ import Immutable from 'immutable';
  */
 var captcha = /captcha/i;
 
+var TimerMixin = require('react-timer-mixin');
+
 var App = React.createClass({
+    mixins: [TimerMixin],
     getInitialState: function() {
         return {
             queue: Immutable.Map({}),
@@ -42,7 +45,8 @@ var App = React.createClass({
     },
     componentDidMount: function() {
         if (this && this.isMounted()) {
-            this.getNextBatchOfTestURLS(this);
+            //this.getNextBatchOfTestURLS(this);
+            this.getNextBatch(this);
         } else {
             this.componentDidMount();
         }
@@ -67,7 +71,9 @@ var App = React.createClass({
             undefined,
             ctx.onNextBatchReceived,
             ctx.onNetworkError);
-
+    },
+    getRandomInt(min, max){
+        return Math.floor(Math.random() * (max - min)) + min;
     },
     /**
      * Chunks arrive as newline delimited url
@@ -77,6 +83,7 @@ var App = React.createClass({
     onNextBatchReceived: function(xhr, data) {
         data = AC_Helpers.delimited_to_list(data, '\n');
         data.forEach((item) => {
+
             // Check if the component has been mounted onto
             // the DOM before mutating state.
             if (this.isMounted()) {
@@ -87,7 +94,7 @@ var App = React.createClass({
                      * @type {Immutable.Map}
                      * @private
                      */
-                    let _queue = this.state.queue;
+                    let _queue = state.queue;
                     if (!_queue.get(_item)) {
                         var _newQ = _queue.set(_item, false);
                     }
@@ -97,14 +104,34 @@ var App = React.createClass({
                 });
             }
         });
-        //this.onCheckForWork();
+        this.onCheckForWork();
+    },
+    /**
+     * @private
+     * @param {string} url
+     * @param {boolean} in_use
+     */
+    setUrlInUse(url, in_use){
+        this.setState((state, props) => {
+            let _queue = state.queue;
+            if (_queue[url] === true) {
+                return _queue = _queue.delete(url);
+            } else {
+                return _queue.set(url, in_use);
+            }
+        }, (in_use) => {
+            if (in_use === false) {
+                this.onCheckForWork();
+            }
+        });
     },
     onWorkTaken(url){
         console.debug(url);
-        // TODO Set in_use state = true
+        this.setUrlInUse(url, true);
         AC_Helpers.get_data(url, undefined,
             this.onScrapeSucceeded,
-            this.onScrapeFailed);
+            this.onScrapeFailed,
+            this.onScrapeDoneChecker);
     },
     /**
      * Called after scrape task has completed.
@@ -120,6 +147,7 @@ var App = React.createClass({
                 progress_val: state.progress_val + 1
             });
         });
+        this.setUrlInUse(url, false);
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
@@ -145,10 +173,14 @@ var App = React.createClass({
          */
         let _available_work = _queue
             .filter(inuse => inuse === false)
-            .take(5);
+            .take(2);
         _available_work.forEach((in_use, url) => {
-
-            this.onWorkTaken(url);
+            this.setTimeout(
+                () => {
+                    this.onWorkTaken(url);
+                },
+                this.getRandomInt(1, 5)
+            );
         }, this);
     },
     onScrapeSucceeded: function(xhr, data) {
@@ -165,9 +197,7 @@ var App = React.createClass({
      * @param err
      */
     onScrapeFailed: function(xhr, data, err) {
-        console.error(err);
         console.error(xhr);
-        console.error(xhr.responseText);
         window.open(xhr.responseURL, 'AC_F');
         this.onWorkFinished(xhr.responseURL, false);
     },
@@ -185,20 +215,25 @@ var App = React.createClass({
             console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
             window.open(xhr.responseURL, 'AC_C');
         }
+        this.setTimeout(
+            () => {
+                this.setUrlInUse(xhr.responseURL, false);
+            }, this.getRandomInt(1, 5)
+        );
     },
     render: function() {
-        //let _rows = this.state.queue.map((row, idx)=> {
-        //    if (idx > 10) {
-        //        return undefined;
-        //    }
-        //    return (
-        //        <tr key={'tr-'+ idx}>
-        //            <td key={'td-' + idx}>
-        //                {idx}
-        //            </td>
-        //        </tr>
-        //    );
-        //}, this);
+        /*        let _rows = this.state.queue.map((row, idx)=> {
+         if (idx > 10) {
+         return undefined;
+         }
+         return (
+         <tr key={'tr-'+ idx}>
+         <td key={'td-' + idx}>
+         {idx}
+         </td>
+         </tr>
+         );
+         }, this);*/
         return (
             <div>
                 <div className='hero-unit'>

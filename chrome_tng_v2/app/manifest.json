@@ -21,7 +21,7 @@
         "<all_urls>",
         "activeTab",
         "pageCapture",
-        "debugger" // TODO Remove before production
+        "background"
     ],
     "optional_permissions": [
         "idle",

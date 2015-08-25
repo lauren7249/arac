@@ -180,7 +180,7 @@ export default class AC_Helpers extends Object {
 
         var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
-            qwest.limit(5);
+            qwest.limit(2);
             qwest.setDefaultXdrResponseType('text');
 
             qwest.get(uri, null, options)
