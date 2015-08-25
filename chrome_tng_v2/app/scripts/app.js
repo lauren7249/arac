@@ -97,7 +97,7 @@ var App = React.createClass({
                 });
             }
         });
-        this.onCheckForWork();
+        //this.onCheckForWork();
     },
     onWorkTaken(url){
         console.debug(url);
@@ -124,7 +124,14 @@ var App = React.createClass({
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
     },
+    /**
+     *
+     * @param {SyntheticEvent} e
+     */
     onCheckForWork: function(e) {
+        if (e.currentTarget.name === 'scrape_it') {
+
+        }
         /**
          * @type {Immutable.Map}
          * @private
@@ -138,7 +145,7 @@ var App = React.createClass({
          */
         let _available_work = _queue
             .filter(inuse => inuse === false)
-            .take(150);
+            .take(5);
         _available_work.forEach((in_use, url) => {
 
             this.onWorkTaken(url);
@@ -147,6 +154,9 @@ var App = React.createClass({
     onScrapeSucceeded: function(xhr, data) {
         console.debug(`[${xhr.status}] [${xhr.statusText}] [${xhr.responseURL}]`);
         this.onWorkFinished(xhr.responseURL, true);
+    },
+    onScrapePageNotFound: function(xhr, data) {
+        window.alert('Page not found.');
     },
     /**
      *
@@ -201,7 +211,8 @@ var App = React.createClass({
                     <br />
                     <dialog>TEST</dialog>
                     <br />
-                    <button type='button' name='scrape_it'
+                    <button type='button' name='scrape_it' key='work'
+                            enabled={this.state.click_enabled}
                             width='100%' onClick={this.onCheckForWork}>
                         Get New Work
                     </button>
