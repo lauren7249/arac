@@ -10,7 +10,7 @@ import URI from 'uri-js';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
-    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from 'constants';
+    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './constants';
 
 /**
  * Helper functions and non-ui code.
@@ -24,8 +24,13 @@ export default class AC_Helpers extends Object {
         'use strict';
         super();
         this.AWS = AWS;
+        console.warn('In Constructor');
+        console.warn(AC_AWS_BUCKET_NAME);
         this._bucket = undefined;
         this.initAws();
+        this._qwest = qwest;
+        this._qwest.limit = 1;
+        this._qwest.setDefaultXdrResponseType('text');
     }
 
     /**
@@ -74,8 +79,8 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         try {
-            AWS.config.region = AC_AWS_REGION;
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            this.AWS.config.region = AC_AWS_REGION;
+            this.AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                 IdentityPoolId: AC_AWS_CREDENTIALS
             });
             this._bucket = new AWS.S3({
@@ -83,6 +88,7 @@ export default class AC_Helpers extends Object {
                     Bucket: AC_AWS_BUCKET_NAME
                 }
             });
+            console.debug(this.AWS);
         } catch (e) {
             log(`Unable to conect to AWS: [c="color: red"]${e}[c]`);
             this._bucket = undefined;
@@ -99,7 +105,7 @@ export default class AC_Helpers extends Object {
      */
     awsBucket() {
         'use strict';
-        if (this._bucket != undefined) {
+        if (this._bucket !== undefined) {
             return this._bucket;
         } else {
             this.initAws();
@@ -155,7 +161,6 @@ export default class AC_Helpers extends Object {
      * additional  logic would be required to handle
      * this case beyond changing the option.
      *
-     * @static
      * @external "qwest.get"
      * @see {@link https://www.npmjs.com/package/qwest#quick-examples}
      * @param {string} url - Url to call
@@ -166,27 +171,26 @@ export default class AC_Helpers extends Object {
      *
      * @see {@link https://www.npmjs.com/package/qwest#basics}
      */
-    static get_data(url,
-                    options = {
-                        cache: false, timeout: 30000, async: true,
-                        attempts: 1, headers: {
-                            'Accept-Language': 'en-US'
-                        }
-                    },
-                    fn_success = undefined,
-                    fn_failed = undefined,
-                    fn_always = undefined) {
+    get_data(url,
+             options = {
+                 cache: false, timeout: 30000, async: true,
+                 attempts: 1, headers: {
+                     'Accept-Language': 'en-US'
+                 }
+             },
+             fn_success = undefined,
+             fn_failed = undefined,
+             fn_always = undefined) {
         'use strict';
 
         var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
-            qwest.limit(2);
-            qwest.setDefaultXdrResponseType('text');
-
-            qwest.get(uri, null, options)
+            return(
+            this._qwest.get(uri, null, options)
                 .then(fn_success)
                 .catch(fn_failed)
-                .complete(fn_always);
+        );
+
         } else {
             console.error(`Invalid url passed [${url}] to get_data`);
         }
@@ -216,11 +220,10 @@ export default class AC_Helpers extends Object {
      */
     upload_to_s3(params, cb = emptyFunction) {
         'use strict';
-        assert(params.hasOwnProperty('Key') && params.hasOwnProperty('Body'));
 
         this.awsBucket().upload(params, function(err, data) {
             if (err) {
-                log(err.toString);
+                console.error(err.toString);
             }
             cb(err, data);
         });
@@ -272,7 +275,7 @@ export default class AC_Helpers extends Object {
      * @param obj
      * @return {boolean}
      */
-    static is_empty_list(obj) {
+    static is_empty(obj) {
         'use strict';
         if (obj === undefined || obj === null ||
             obj.length === 0) {
@@ -312,7 +315,7 @@ export default class AC_Helpers extends Object {
      */
     static delimited_to_list(text, delimiter = '\n') {
         'use strict';
-        if (AC_Helpers.is_empty_list(text)) {
+        if (AC_Helpers.is_empty(text)) {
             console.warn(`Empty value ${text}: returning []`);
             return [];
         } else if (AC_Helpers.is_iterable(text)) {
