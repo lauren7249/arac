@@ -6,6 +6,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './components/constants';
+import {urls as test_urls} from './components/regular_urls';
 
 'use strict';
 
@@ -34,29 +35,45 @@ var App = React.createClass({
     },
     componentDidMount: function() {
         if (this && this.isMounted()) {
-            this.getNextBatch(this);
+            this.getNextBatchOfTestURLS(this);
         } else {
             this.componentDidMount();
         }
     },
-    getNextBatch: function(ctx) {
-
-        if (ctx !== undefined && ctx.isMounted()) {
-            var _hp = ctx.props.hp || undefined;
-            if (_hp !== undefined) {
-                AC_Helpers.get_data(AC_QUEUE_URL,
-                    undefined,
-                    ctx.onNextBatchReceived,
-                    ctx.onNetworkError);
-            }
-        } else {
-            console.warn(`ctx not defined. ${ctx || undefined}`);
-        }
+    getNextBatchOfTestURLS: function(ctx) {
+        // Only used in TEST
+        var promise = new Promise(function(resolve, reject) {
+            let urls = test_urls.split('\n');
+            resolve(urls);
+        });
+        promise.then(function(urls) {
+            ctx.onNextBatchReceived(undefined, urls);
+        });
     }.bind(),
+    /**
+     * Retrieve a new batch of URLS from Redis.
+     * Data arrives a single data chunk of newline
+     * delimited url strings.
+     */
+    getNextBatch: function(ctx) {
+        AC_Helpers.get_data(
+            AC_QUEUE_URL,
+            undefined,
+            ctx.onNextBatchReceived,
+            ctx.onNetworkError);
+
+    }.bind(),
+    /**
+     * Chunks arrive as newline delimited url
+     * strings and should be transformed into
+     * a list before processing further.
+     */
     onNextBatchReceived: function(xhr, data) {
-        var _hp = this.props.hp;
-        _hp.debugLog(xhr);
-        _hp.debugLog(data);
+        data = AC_Helpers.delimited_to_list(data);
+        for (let idx in data) {
+            //noinspection JSUnfilteredForInLoop
+            console.log(`Rec'd ${data[idx]}`);
+        }
     }.bind(),
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);

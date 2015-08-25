@@ -2,8 +2,7 @@
     "name": "ac-browser",
     "version": "0.0.3",
     "dependencies": {
-        "uri-js": ">=2.1.1",
-        "react": ">=0.13.3"
+
     },
     "devDependencies": {
         "babel-eslint": ">=4.0.10",
@@ -33,7 +32,9 @@
         "qwest": ">=2.0.7",
         "react-hot-loader": ">=1.2.9",
         "vinyl-source-stream": "^1.0.0",
-        "watchify": "^2.3.0"
+        "watchify": "^2.3.0",
+        "uri-js": ">=2.1.1",
+        "react": ">=0.13.3"
     },
     "engines": {
         "node": ">=0.12.7"

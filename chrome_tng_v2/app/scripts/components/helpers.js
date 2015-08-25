@@ -7,7 +7,10 @@
 import qwest from 'qwest';
 import log from '../../bower_components/log';
 import URI from 'uri-js';
-import AC_CONST from 'constants';
+import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
+    AC_AWS_REGION,
+    AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
+    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from 'constants';
 
 /**
  * Helper functions and non-ui code.
@@ -25,14 +28,6 @@ export default class AC_Helpers extends Object {
         this.initAws();
     }
 
-    static get C() {
-        'use strict';
-        if (this._C === undefined) {
-            this._C = AC_CONST;
-        }
-        return this._C;
-    }
-
     /**
      * @function Log message to browser console when
      * {AC_DEBUG_MODE} is true.
@@ -40,12 +35,17 @@ export default class AC_Helpers extends Object {
      * @param {Object} obj
      */
     static debugLog(obj) {
-        if (AC_Helpers.C.AC_DEBUG_MODE == true) {
+        if (AC_DEBUG_MODE == true) {
             log('[c="color: blue"]DEBUG: `${obj}` [c]');
         }
     }
 
     /*global */
+    /**
+     * @static
+     * @param uri
+     * @return {boolean}
+     */
     static is_google(uri) {
         'use strict';
         var components = URI.parse(uri);
@@ -57,6 +57,10 @@ export default class AC_Helpers extends Object {
     }
 
     /* eslint no-undef:0 */
+    /**
+     * @static
+     * @param url
+     */
     static google(url) {
         'use strict';
         AC_Helpers.debugLog('_is google_');
@@ -70,13 +74,13 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         try {
-            AWS.config.region = AC_Helpers.C.AC_AWS_REGION;
+            AWS.config.region = AC_AWS_REGION;
             AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: AC_Helpers.C.AC_AWS_CREDENTIALS
+                IdentityPoolId: AC_AWS_CREDENTIALS
             });
             this._bucket = new AWS.S3({
                 params: {
-                    Bucket: AC_Helpers.C.AC_AWS_BUCKET_NAME
+                    Bucket: AC_AWS_BUCKET_NAME
                 }
             });
         } catch (e) {
@@ -105,6 +109,8 @@ export default class AC_Helpers extends Object {
 
     /**
      * Create a standardized uri
+     *
+     * @static
      * @param {string} old - uri to convert
      * @return {string} An https:// prefixed uri
      *
@@ -193,6 +199,7 @@ export default class AC_Helpers extends Object {
      * Returns a correctly formatted URI
      * or undefined if unable to parse
      *
+     * @static
      * @param {string} uri to validate
      * @return {string|undefined}
      */
@@ -225,7 +232,7 @@ export default class AC_Helpers extends Object {
     /**
      * Notify AC that a successful scrape has completed
      * and the result is loaded into S3.
-     *
+     * @static
      * @param {string} uri - URI scraped
      *
      * TODO Review the regex replacement to see if we can accomplish the same in a less brittle way
@@ -238,7 +245,7 @@ export default class AC_Helpers extends Object {
         assert(orig_url.error == undefined);
 
         orig_url = orig_url.replace('/\//g', ';').replace('/\?/g', '`');
-        var notification_url = AC_Helpers.C.AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
+        var notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
 
         get_data(notification_url, undefined,
             (xhr, response) => {
@@ -249,16 +256,55 @@ export default class AC_Helpers extends Object {
             });
     }
 
-    get_next_batch() {
+    /**
+     * @static
+     * @param obj
+     * @return {boolean}
+     */
+    static is_iterable(obj) {
         'use strict';
+        if (obj === undefined || obj === null) {
+            return false;
+        } else {
+            return obj.iterator !== undefined;
+        }
+    }
 
-        AC_Helpers.get_data(AC_Helpers.C.AC_QUEUE_URL.toString(),
-            undefined, (xhr, data) => {
-                AC_Helpers.debugLog(`${xhr} -- ${data}`);
-            }, (xhr, data, err) => {
-                log(`${xhr}`, `${data}`, `${err}`);
-            },
-            undefined);
+    /**
+     * @static
+     * @param obj
+     * @return {boolean}
+     */
+    static is_empty_list(obj) {
+        'use strict';
+        if (obj === undefined || obj === null ||
+            obj.length === 0) {
+            return true;
+        }
+    }
+
+    /**
+     * Takes in a delimited blob of test and returns
+     * a list. This is intended only to be used on single
+     * column text objects.
+     *
+     * Passing in an iterable object will result in
+     * the same object being returned.
+     *
+     * TODO Make this more robust to formats beyond \n delimited
+     *
+     * @param {string} text blob to convert
+     * @param {string} delimiter to demarcate the end of line
+     */
+    static delimited_to_list(text, delimiter = '\n') {
+        'use strict';
+        if (AC_Helpers.is_empty_list(text)) {
+            console.warn(`Empty value ${text}: returning []`);
+            return [];
+        } else if (AC_Helpers.is_iterable(text)) {
+            return text;
+        }
+        return [text.join(delimiter)];
     }
 
 }
