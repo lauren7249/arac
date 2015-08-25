@@ -74,6 +74,8 @@ var App = React.createClass({
     onNextBatchReceived: function(xhr, data) {
         data = AC_Helpers.delimited_to_list(data, '\n');
         data.forEach((item) => {
+            // Check if the component has been mounted onto
+            // the DOM before mutating state.
             if (this.isMounted()) {
                 this.setState((state, props) => {
                     var _item = AC_Helpers.normalize_string(item);
@@ -92,24 +94,61 @@ var App = React.createClass({
                 });
             }
         });
+        this.onCheckForWork();
+    },
+    onWorkTaken(url){
+        console.debug(url);
+        // TODO Set in_use state = true
+        AC_Helpers.get_data(url, undefined,
+            this.onScrapeSucceeded,
+            this.onScrapeFailed);
+    },
+    /**
+     * Called after scrape task has completed.
+     *
+     * @param {string} url - URL that had been scraped
+     * @param {boolean} success - Success/Failure of scrape
+     * @param {XMLHttpRequest} ctx - Context object
+     */
+    onWorkFinished(url, success, ctx){
+
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
     },
     onCheckForWork: function(e) {
         /**
-         * @type {Map}
+         * @type {Immutable.Map}
          * @private
          */
         let _queue = this.state.queue;
-
-
+        /**
+         * Return the first 5 work items
+         * not currently being scraped.
+         *
+         * @type {Iterable}
+         */
+        let _available_work = _queue
+            .filter(inuse => inuse === false)
+            .take(5);
+        _available_work.forEach((in_use, url) => {
+            this.onWorkTaken(url);
+        }, this);
     },
     onScrapeSucceeded: function(xhr, data) {
-
+        console.debug(xhr);
+        this.onWorkFinished(xhr.responseURL, true);
     },
+    /**
+     *
+     * @param  {XMLHttpRequest} xhr
+     * @param data
+     * @param err
+     */
     onScrapeFailed: function(xhr, data, err) {
-
+        console.error(err);
+        console.error(xhr);
+        this.onWorkFinished(xhr.responseURL, false);
     },
     render: function() {
         //let _rows = this.state.queue.map((row, idx)=> {

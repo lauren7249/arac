@@ -158,11 +158,11 @@ export default class AC_Helpers extends Object {
      * @static
      * @external "qwest.get"
      * @see {@link https://www.npmjs.com/package/qwest#quick-examples}
-     * @param  {string} url - Url to call
+     * @param {string} url - Url to call
      * @param {Object} [options] - A map of options to pass to qwest.get
-     * @param {function} [fn_then] - Optional handler for success case. Expects a callback that accepts <strong>(xhr, response)</strong>.
-     * @param {function} [fn_catch] - Optional handler for error case. Expects a callback that accepts <strong>(xhr, response, e)</strong>
-     * @param {function} [fn_complete] - Optional handler that will always be called regardless of success or failure. Callback signature is <strong>(xhr, response)</strong>
+     * @param {function} [fn_success] - Optional handler for success case. Expects a callback that accepts <strong>(xhr, response)</strong>.
+     * @param {function} [fn_failed] - Optional handler for error case. Expects a callback that accepts <strong>(xhr, response, e)</strong>
+     * @param {function} [fn_always] - Optional handler that will always be called regardless of success or failure. Callback signature is <strong>(xhr, response)</strong>
      *
      * @see {@link https://www.npmjs.com/package/qwest#basics}
      */
@@ -173,9 +173,9 @@ export default class AC_Helpers extends Object {
                             'Accept-Language': 'en-US'
                         }
                     },
-                    fn_then = undefined,
-                    fn_catch = undefined,
-                    fn_complete = undefined) {
+                    fn_success = undefined,
+                    fn_failed = undefined,
+                    fn_always = undefined) {
         'use strict';
 
         AC_Helpers.debugLog(`get_data called for ${url}`);
@@ -187,11 +187,11 @@ export default class AC_Helpers extends Object {
             qwest.setDefaultXdrResponseType('text');
 
             qwest.get(uri, null, options)
-                .then(fn_then)
-                .catch(fn_catch)
-                .complete(fn_complete);
+                .then(fn_success)
+                .catch(fn_failed)
+                .complete(fn_always);
         } else {
-            throw `Invalid url passed ${url} to get_data`;
+            console.error(`Invalid url passed ${url} to get_data`);
         }
     }
 
