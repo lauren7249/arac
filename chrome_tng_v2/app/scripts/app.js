@@ -15,12 +15,14 @@ import {urls as test_urls} from './components/regular_urls';
  * App is the outer container for the extension
  */
 'use strict';
+var update = require('react/addons').addons.update;
 
 var App = React.createClass({
     getInitialState: function() {
         return {
             queue: [],
-            progress: 0
+            progress: 0,
+            progress_val: 0
         };
     },
     getDefaultProps: function() {
@@ -29,7 +31,7 @@ var App = React.createClass({
         };
     },
     componentWillMount: function() {
-        var _hp = this.props.hp;
+        let _hp = this.props.hp;
         console || console.assert(_hp != undefined,
             'Helper is not defined');
     },
@@ -43,13 +45,12 @@ var App = React.createClass({
     getNextBatchOfTestURLS: function(ctx) {
         // Only used in TEST
         var promise = new Promise(function(resolve, reject) {
-            let urls = test_urls.split('\n');
-            resolve(urls);
+            resolve(test_urls);
         });
         promise.then(function(urls) {
             ctx.onNextBatchReceived(undefined, urls);
         });
-    }.bind(),
+    },
     /**
      * Retrieve a new batch of URLS from Redis.
      * Data arrives a single data chunk of newline
@@ -62,45 +63,42 @@ var App = React.createClass({
             ctx.onNextBatchReceived,
             ctx.onNetworkError);
 
-    }.bind(),
+    },
     /**
      * Chunks arrive as newline delimited url
      * strings and should be transformed into
      * a list before processing further.
      */
     onNextBatchReceived: function(xhr, data) {
-        console || console.assert(AC_Helpers.is_iterable(data));
+        data = AC_Helpers.delimited_to_list(data, '\n');
         data.forEach((item) => {
-            console.log(`Rec'd: ${item}`);
+            //console.log(`Rec'd: ${item}`);
+            if (this.isMounted()) {
+                this.setState((state, props) => {
+                    let _queue = this.state.queue;
+                    let _newQ = update(_queue,
+                        {$push: [item]});
+                    return {
+                        queue: _newQ
+                    };
+                });
+            }
         });
-    }.bind(),
+    },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
-    }.bind(),
+    },
     render: function() {
         return (
             <div>
                 <div className='hero-unit'>
                     <p>AC Browser</p>
-                    <QueryArea />
-                </div>
-            </div>
-        );
-    }
-});
 
-var QueryArea = React.createClass({
-    getInitialState: function() {
-        return {
-            value: 0,
-            max: 100
-        };
-    },
-    render: function() {
-        return (
-            <div className='scraper'>
-                <progress value="0" max="100" width="100%"/>
-                <StatusArea />
+                    <div className='scrape_list'/>
+                    <progress value={this.state.progress_val}
+                              max={this.state.queue.length}/>
+                    <StatusArea />
+                </div>
             </div>
         );
     }
