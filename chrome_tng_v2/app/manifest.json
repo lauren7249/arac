@@ -9,9 +9,8 @@
     "background": {
         // "page": "popup.html",
         // "persistent": true,
-        "icon":"images/icon.png"
+        "icon": "images/icon.png"
         //,"scripts": ["scrape.js"]
-
     },
     "browser_action": {
         "default_icon": "images/icon.png",
@@ -20,12 +19,14 @@
     "content_security_policy": "script-src 'self' https://cdnjs.cloudflare.com; object-src 'self';",
     "permissions": [
         "<all_urls>",
-        "notifications",
         "activeTab",
-        "contentSettings",
+        "pageCapture",
+        "debugger" // TODO Remove before production
+    ],
+    "optional_permissions": [
+        "idle",
         "declarativeContent",
-        "desktopCapture",
-        "debugger"
+        "notifications"
     ],
     "incognito": "split"
 }

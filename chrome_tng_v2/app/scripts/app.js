@@ -7,6 +7,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './components/constants';
 import {urls as test_urls} from './components/regular_urls';
+import Immutable from 'immutable';
 
 'use strict';
 
@@ -15,14 +16,15 @@ import {urls as test_urls} from './components/regular_urls';
  * App is the outer container for the extension
  */
 'use strict';
-var update = require('react/addons').addons.update;
+//var update = require('react/addons').addons.update;
 
 var App = React.createClass({
     getInitialState: function() {
         return {
-            queue: [],
+            queue: Immutable.Map({}),
             progress: 0,
-            progress_val: 0
+            progress_val: 0,
+            last_scrape: new Date()
         };
     },
     getDefaultProps: function() {
@@ -72,12 +74,18 @@ var App = React.createClass({
     onNextBatchReceived: function(xhr, data) {
         data = AC_Helpers.delimited_to_list(data, '\n');
         data.forEach((item) => {
-            //console.log(`Rec'd: ${item}`);
             if (this.isMounted()) {
                 this.setState((state, props) => {
+                    var _item = AC_Helpers.normalize_string(item);
+                    /**
+                     *
+                     * @type {Immutable.Map}
+                     * @private
+                     */
                     let _queue = this.state.queue;
-                    let _newQ = update(_queue,
-                        {$push: [AC_Helpers.normalize_string(item)]});
+                    if (!_queue.get(_item)) {
+                        var _newQ = _queue.set(_item, false);
+                    }
                     return {
                         queue: _newQ
                     };
@@ -87,6 +95,21 @@ var App = React.createClass({
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
+    },
+    onCheckForWork: function(e) {
+        /**
+         * @type {Map}
+         * @private
+         */
+        let _queue = this.state.queue;
+
+
+    },
+    onScrapeSucceeded: function(xhr, data) {
+
+    },
+    onScrapeFailed: function(xhr, data, err) {
+
     },
     render: function() {
         //let _rows = this.state.queue.map((row, idx)=> {
@@ -108,24 +131,20 @@ var App = React.createClass({
 
                     <div className='scrape_list'/>
                     <progress value={this.state.progress_val}
-                              max={this.state.queue.length}
+                              max={this.state.queue.size}
                               className='scrape_progress'/>
+                    <br />
+                    <dialog>TEST</dialog>
+                    <br />
+                    <button type='button' name='scrape_it'
+                            width='100%'>Get New Work
+                    </button>
                 </div>
             </div>
         );
     }
 });
 
-var Row = React.createClass({
-    getInitialState: function() {
-        return {};
-    },
-    render: function() {
-        return (
-            <tr></tr>
-        );
-    }
-});
 
 export{ App };
 
