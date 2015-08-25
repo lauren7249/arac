@@ -1,4 +1,5 @@
 import React from 'react';
+import qwest from 'qwest';
 import './components/helpers';
 import AC_Helpers from './components/helpers';
 import log from '../bower_components/log';
@@ -24,6 +25,17 @@ var captcha = /captcha/i;
 var html_mime = 'text/html';
 
 var TimerMixin = require('react-timer-mixin');
+
+var http_options = {
+    cache: false, timeout: 30000, async: true,
+    attempts: 1, headers: {
+        'Accept-Language': 'en-US'
+    }
+};
+
+var promises = new Set([]);
+
+var Q = qwest;
 
 var App = React.createClass({
     mixins: [TimerMixin],
@@ -68,11 +80,16 @@ var App = React.createClass({
      * delimited url strings.
      */
     getNextBatch: function(ctx) {
-        this.props.hp.get_data(
-            AC_QUEUE_URL,
-            undefined,
-            ctx.onNextBatchReceived,
-            ctx.onNetworkError);
+
+       promises.add([Q.get(AC_QUEUE_URL, null, http_options,
+            this.onNextBatchReceived,
+            this.onNetworkError)]);
+
+        //this.props.hp.get_data(
+        //    AC_QUEUE_URL,
+        //    undefined,
+        //    this.onNextBatchReceived,
+        //    this.onNetworkError);
     },
     getRandomInt(min, max){
         return Math.floor(Math.random() * (max - min)) + min;
@@ -131,12 +148,16 @@ var App = React.createClass({
         }
     },
     onWorkTaken(url){
-        console.debug(url);
         this.setUrlInUse(url, true);
-        this.props.hp.get_data(url, undefined,
+        let _uri = AC_Helpers.get_valid_uri(url);
+        promises.add([Q.get(_uri, null, http_options,
             this.onScrapeSucceeded,
             this.onScrapeFailed,
-            this.onScrapeDoneAlwaysDo);
+            this.onScrapeDoneAlwaysDo)]);
+        //this.props.hp.get_data(url, undefined,
+        //    this.onScrapeSucceeded,
+        //    this.onScrapeFailed,
+        //    this.onScrapeDoneAlwaysDo);
     },
     /**
      * Called after scrape task has completed.
@@ -145,7 +166,7 @@ var App = React.createClass({
      * @param {boolean} success - Success/Failure of scrape
      * @param {XMLHttpRequest} ctx - Context object
      */
-        onWorkFinished(url, success, ctx){
+    onWorkFinished(url, success, ctx){
         this.setState((state, props)=> {
             return ({
                 progress_val: state.progress_val + 1
@@ -153,7 +174,7 @@ var App = React.createClass({
         });
     },
     onNetworkError: function(xhr, data, err) {
-        console || console.error(`${xhr} ${data} ${err}`);
+        console || console.warn(`${xhr} ${data} ${err}`);
     },
     /**
      *
@@ -162,7 +183,7 @@ var App = React.createClass({
     onCheckForWork: function(e) {
         if (e !== undefined) {
             if (e.currentTarget.name === 'scrape_it') {
-
+                this.getNextBatch();
             }
         }
         /**
@@ -180,13 +201,7 @@ var App = React.createClass({
             .filter(inuse => inuse === false)
             .take(2);
         _available_work.forEach(function(in_use, url) {
-            //this.setTimeout(
-            //    function() {
-            console.debug(new Date().getTime().toString());
             this.onWorkTaken(url);
-            //},
-            //this.getRandomInt(1, 5)
-            //);
         }, this);
     },
     onScrapeSucceeded: function(xhr, data) {
@@ -231,6 +246,7 @@ var App = React.createClass({
      * @param response
      */
     onScrapeDoneAlwaysDo: function(xhr, response) {
+        var that = this;
         if (AC_Helpers.is_empty(xhr)) {
             console.log(`xhr is [${xhr}] response is [${response}]`);
             return;
@@ -245,16 +261,11 @@ var App = React.createClass({
         var _strong = this.props.hp.upload_to_s3(s3_parms, function(err, data) {
             console.debug(data);
             if (captcha.test(response) === true) {
-                console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
+                console.warn(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
                 window.open(xhr.responseURL, 'AC_C');
             }
-            //this.setTimeout(
-            //    function() {
-            console.debug(new Date().getTime().toString());
-            this.onWorkFinished(xhr.responseURL, true);
-            this.setUrlInUse(xhr.responseURL, false);
-            //}, this.getRandomInt(1, 5)
-            //);
+            that.onWorkFinished(xhr.responseURL, true);
+            that.setUrlInUse(xhr.responseURL, false);
         }, this);
     },
     render: function() {

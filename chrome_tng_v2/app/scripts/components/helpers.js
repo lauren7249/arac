@@ -24,8 +24,6 @@ export default class AC_Helpers extends Object {
         'use strict';
         super();
         this.AWS = AWS;
-        console.warn('In Constructor');
-        console.warn(AC_AWS_BUCKET_NAME);
         this._bucket = undefined;
         this.initAws();
         this._qwest = qwest;
@@ -88,7 +86,6 @@ export default class AC_Helpers extends Object {
                     Bucket: AC_AWS_BUCKET_NAME
                 }
             });
-            console.debug(this.AWS);
         } catch (e) {
             log(`Unable to conect to AWS: [c="color: red"]${e}[c]`);
             this._bucket = undefined;
@@ -185,14 +182,11 @@ export default class AC_Helpers extends Object {
 
         var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
-            return(
             this._qwest.get(uri, null, options)
                 .then(fn_success)
-                .catch(fn_failed)
-        );
-
+                .catch(fn_failed);
         } else {
-            console.error(`Invalid url passed [${url}] to get_data`);
+            console.warn(`Invalid url passed [${url}] to get_data`);
         }
     }
 
@@ -222,9 +216,11 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         this.awsBucket().upload(params, function(err, data) {
+            let p = params;
             if (err) {
-                console.error(err.toString);
+                console.warn(err.toString);
             }
+            this.notify_s3_success(p.Key);
             cb(err, data);
         });
     }
@@ -238,7 +234,7 @@ export default class AC_Helpers extends Object {
      * TODO Review the regex replacement to see if we can accomplish the same in a less brittle way
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
      */
-    static notify_s3_success(uri) {
+    notify_s3_success(uri) {
         'use strict';
 
         var orig_url = URI.parse(uri).toString();
