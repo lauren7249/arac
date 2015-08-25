@@ -21,6 +21,8 @@ import Immutable from 'immutable';
  */
 var captcha = /captcha/i;
 
+var html_mime = 'text/html';
+
 var TimerMixin = require('react-timer-mixin');
 
 var App = React.createClass({
@@ -66,7 +68,7 @@ var App = React.createClass({
      * delimited url strings.
      */
     getNextBatch: function(ctx) {
-        AC_Helpers.get_data(
+        this.props.hp.get_data(
             AC_QUEUE_URL,
             undefined,
             ctx.onNextBatchReceived,
@@ -82,7 +84,7 @@ var App = React.createClass({
      */
     onNextBatchReceived: function(xhr, data) {
         data = AC_Helpers.delimited_to_list(data, '\n');
-        data.forEach((item) => {
+        data.forEach(function(item) {
 
             // Check if the component has been mounted onto
             // the DOM before mutating state.
@@ -103,7 +105,7 @@ var App = React.createClass({
                     };
                 });
             }
-        });
+        }, this);
         this.onCheckForWork();
     },
     /**
@@ -111,27 +113,30 @@ var App = React.createClass({
      * @param {string} url
      * @param {boolean} in_use
      */
-    setUrlInUse(url, in_use){
-        this.setState((state, props) => {
+        setUrlInUse(url, in_use){
+        var _in_use = in_use;
+        this.setState(function(state, props) {
             let _queue = state.queue;
             if (_queue[url] === true) {
                 return _queue = _queue.delete(url);
             } else {
-                return _queue.set(url, in_use);
-            }
-        }, (in_use) => {
-            if (in_use === false) {
-                this.onCheckForWork();
+                return _queue.set(url, _in_use);
             }
         });
+        if (_in_use === false) {
+            console.debug('Calling onCheckForWork');
+            this.onCheckForWork();
+        } else {
+            console.log(`IN_USE [${_in_use}]`);
+        }
     },
     onWorkTaken(url){
         console.debug(url);
         this.setUrlInUse(url, true);
-        AC_Helpers.get_data(url, undefined,
+        this.props.hp.get_data(url, undefined,
             this.onScrapeSucceeded,
             this.onScrapeFailed,
-            this.onScrapeDoneChecker);
+            this.onScrapeDoneAlwaysDo);
     },
     /**
      * Called after scrape task has completed.
@@ -141,13 +146,11 @@ var App = React.createClass({
      * @param {XMLHttpRequest} ctx - Context object
      */
         onWorkFinished(url, success, ctx){
-
         this.setState((state, props)=> {
             return ({
                 progress_val: state.progress_val + 1
             });
         });
-        this.setUrlInUse(url, false);
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
@@ -157,8 +160,10 @@ var App = React.createClass({
      * @param {SyntheticEvent} e
      */
     onCheckForWork: function(e) {
-        if (e.currentTarget.name === 'scrape_it') {
+        if (e !== undefined) {
+            if (e.currentTarget.name === 'scrape_it') {
 
+            }
         }
         /**
          * @type {Immutable.Map}
@@ -174,18 +179,26 @@ var App = React.createClass({
         let _available_work = _queue
             .filter(inuse => inuse === false)
             .take(2);
-        _available_work.forEach((in_use, url) => {
-            this.setTimeout(
-                () => {
-                    this.onWorkTaken(url);
-                },
-                this.getRandomInt(1, 5)
-            );
+        _available_work.forEach(function(in_use, url) {
+            //this.setTimeout(
+            //    function() {
+            console.debug(new Date().getTime().toString());
+            this.onWorkTaken(url);
+            //},
+            //this.getRandomInt(1, 5)
+            //);
         }, this);
     },
     onScrapeSucceeded: function(xhr, data) {
+        console.log('Success');
         console.debug(`[${xhr.status}] [${xhr.statusText}] [${xhr.responseURL}]`);
-        this.onWorkFinished(xhr.responseURL, true);
+        /**
+         * This callback is not being triggered
+         * by qwest, it looks like the object is being
+         * garbage collected before it can hit the method
+         * so just going to call it imperatively.
+         */
+        this.onScrapeDoneAlwaysDo(xhr, data);
     },
     onScrapePageNotFound: function(xhr, data) {
         window.alert('Page not found.');
@@ -197,9 +210,16 @@ var App = React.createClass({
      * @param err
      */
     onScrapeFailed: function(xhr, data, err) {
-        console.error(xhr);
-        window.open(xhr.responseURL, 'AC_F');
-        this.onWorkFinished(xhr.responseURL, false);
+        xhr || console.warn(`Failed: ${xhr}}`);
+        err || console.warn(`Err: [${err}}]`);
+        xhr || window.open(xhr.responseURL, 'AC_F');
+        /**
+         * This callback is not being triggered
+         * by qwest, it looks like the object is being
+         * garbage collected before it can hit the method
+         * so just going to call it imperatively.
+         */
+        xhr || this.onScrapeDoneAlwaysDo(xhr, data);
     },
     /**
      * Callback that can inspect responses that
@@ -210,16 +230,32 @@ var App = React.createClass({
      * @param {XMLHttpRequest} xhr
      * @param response
      */
-    onScrapeDoneChecker: function(xhr, response) {
-        if (captcha.test(response) === true) {
-            console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
-            window.open(xhr.responseURL, 'AC_C');
+    onScrapeDoneAlwaysDo: function(xhr, response) {
+        if (AC_Helpers.is_empty(xhr)) {
+            console.log(`xhr is [${xhr}] response is [${response}]`);
+            return;
         }
-        this.setTimeout(
-            () => {
-                this.setUrlInUse(xhr.responseURL, false);
-            }, this.getRandomInt(1, 5)
-        );
+        var _url = xhr.responseURL;
+        var s3_parms = {
+            Key: AC_Helpers.generate_s3_key(_url),
+            Body: response, ContentType: html_mime
+        };
+
+        console.log(`Upload requested: [${s3_parms}]`);
+        var _strong = this.props.hp.upload_to_s3(s3_parms, function(err, data) {
+            console.debug(data);
+            if (captcha.test(response) === true) {
+                console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
+                window.open(xhr.responseURL, 'AC_C');
+            }
+            //this.setTimeout(
+            //    function() {
+            console.debug(new Date().getTime().toString());
+            this.onWorkFinished(xhr.responseURL, true);
+            this.setUrlInUse(xhr.responseURL, false);
+            //}, this.getRandomInt(1, 5)
+            //);
+        }, this);
     },
     render: function() {
         /*        let _rows = this.state.queue.map((row, idx)=> {
