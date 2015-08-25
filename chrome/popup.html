@@ -1,22 +1,22 @@
 <!doctype html>
 <html>
-<head>
-    <title>AC Browser</title>
-</head>
-<body>
-<style scoped>
-    #count {
-        margin: 10px;
-        padding: 3px;
-        width: 200px;
-    }
-</style>
-<div>
-    <progress name='count' id='count' value="0"></progress>
-    <label for="query"></label><textarea name='query' id='query' cols="40" rows="10"></textarea>
-    <button id="checkPage">Run</button>
-</div>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1.45/aws-sdk.min.js"></script>
-<script src="popup.js"></script>
-</body>
+	<style>
+	  #count {
+	    margin: 10px;
+	    padding: 3px;
+	    width: 200px;
+	  }
+	</style>
+  <head>
+    <title>AC</title>
+
+
+  </head>
+  <body>
+  	<progress name='count' id='count' value="0" height="100"></progress>
+  	<textarea name='query' id='query' cols="40" rows="10"></textarea>
+  	<button id="checkPage">Run</button>
+    <script src="aws-sdk.js"></script>
+    <script src="popup.js"></script>
+  </body>
 </html>
