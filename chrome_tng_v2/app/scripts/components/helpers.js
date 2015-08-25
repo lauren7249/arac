@@ -178,11 +178,8 @@ export default class AC_Helpers extends Object {
                     fn_always = undefined) {
         'use strict';
 
-        AC_Helpers.debugLog(`get_data called for ${url}`);
-
         var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
-
             qwest.limit(5);
             qwest.setDefaultXdrResponseType('text');
 
@@ -191,7 +188,7 @@ export default class AC_Helpers extends Object {
                 .catch(fn_failed)
                 .complete(fn_always);
         } else {
-            console.error(`Invalid url passed ${url} to get_data`);
+            console.error(`Invalid url passed [${url}] to get_data`);
         }
     }
 

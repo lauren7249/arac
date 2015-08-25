@@ -9,14 +9,17 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 import {urls as test_urls} from './components/regular_urls';
 import Immutable from 'immutable';
 
-'use strict';
-
 /**
  * @module
  * App is the outer container for the extension
  */
 'use strict';
-//var update = require('react/addons').addons.update;
+
+/**
+ * Pre-compile Regex for performance
+ * @type {RegExp}
+ */
+var captcha = /captcha/i;
 
 var App = React.createClass({
     getInitialState: function() {
@@ -110,8 +113,13 @@ var App = React.createClass({
      * @param {boolean} success - Success/Failure of scrape
      * @param {XMLHttpRequest} ctx - Context object
      */
-    onWorkFinished(url, success, ctx){
+        onWorkFinished(url, success, ctx){
 
+        this.setState((state, props)=> {
+            return ({
+                progress_val: state.progress_val + 1
+            });
+        });
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
@@ -130,13 +138,14 @@ var App = React.createClass({
          */
         let _available_work = _queue
             .filter(inuse => inuse === false)
-            .take(5);
+            .take(150);
         _available_work.forEach((in_use, url) => {
+
             this.onWorkTaken(url);
         }, this);
     },
     onScrapeSucceeded: function(xhr, data) {
-        console.debug(xhr);
+        console.debug(`[${xhr.status}] [${xhr.statusText}] [${xhr.responseURL}]`);
         this.onWorkFinished(xhr.responseURL, true);
     },
     /**
@@ -148,7 +157,24 @@ var App = React.createClass({
     onScrapeFailed: function(xhr, data, err) {
         console.error(err);
         console.error(xhr);
+        console.error(xhr.responseText);
+        window.open(xhr.responseURL, 'AC_F');
         this.onWorkFinished(xhr.responseURL, false);
+    },
+    /**
+     * Callback that can inspect responses that
+     * have been marked as either success or failed.
+     *
+     * New detection testing code can go here.
+     *
+     * @param {XMLHttpRequest} xhr
+     * @param response
+     */
+    onScrapeDoneChecker: function(xhr, response) {
+        if (captcha.test(response) === true) {
+            console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
+            window.open(xhr.responseURL, 'AC_C');
+        }
     },
     render: function() {
         //let _rows = this.state.queue.map((row, idx)=> {
@@ -176,7 +202,8 @@ var App = React.createClass({
                     <dialog>TEST</dialog>
                     <br />
                     <button type='button' name='scrape_it'
-                            width='100%'>Get New Work
+                            width='100%' onClick={this.onCheckForWork}>
+                        Get New Work
                     </button>
                 </div>
             </div>
