@@ -77,7 +77,7 @@ var App = React.createClass({
                 this.setState((state, props) => {
                     let _queue = this.state.queue;
                     let _newQ = update(_queue,
-                        {$push: [item]});
+                        {$push: [AC_Helpers.normalize_string(item)]});
                     return {
                         queue: _newQ
                     };
@@ -89,6 +89,18 @@ var App = React.createClass({
         console || console.error(`${xhr} ${data} ${err}`);
     },
     render: function() {
+        //let _rows = this.state.queue.map((row, idx)=> {
+        //    if (idx > 10) {
+        //        return undefined;
+        //    }
+        //    return (
+        //        <tr key={'tr-'+ idx}>
+        //            <td key={'td-' + idx}>
+        //                {idx}
+        //            </td>
+        //        </tr>
+        //    );
+        //}, this);
         return (
             <div>
                 <div className='hero-unit'>
@@ -96,25 +108,24 @@ var App = React.createClass({
 
                     <div className='scrape_list'/>
                     <progress value={this.state.progress_val}
-                              max={this.state.queue.length}/>
-                    <StatusArea />
+                              max={this.state.queue.length}
+                              className='scrape_progress'/>
                 </div>
             </div>
         );
     }
 });
 
-
-var StatusArea = React.createClass({
+var Row = React.createClass({
+    getInitialState: function() {
+        return {};
+    },
     render: function() {
         return (
-            <table width="80%">
-
-            </table>
+            <tr></tr>
         );
     }
 });
-
 
 export{ App };
 

@@ -284,6 +284,23 @@ export default class AC_Helpers extends Object {
     }
 
     /**
+     * Normalize strings (urls) to remove any
+     * surrounding quotation marks, if any.
+     *
+     * Any other normalizing operations should
+     * live here.
+     *
+     * @param {string} obj
+     * @return {string} Normalized string
+     */
+    static normalize_string(obj) {
+        'use strict';
+        let _obj = obj.replace(/^"(.*)"$/, '$1');
+        _obj = _obj.trim();
+        return _obj;
+    }
+
+    /**
      * Takes in a delimited blob of test and returns
      * a list. This is intended only to be used on single
      * column text objects.
