@@ -15,18 +15,18 @@ function get_url(orig_url) {
 	}
 	catch(err) {
 		console.log("not loaded")
-		return true
+		return false
 	}
 	//console.log(page);
 	var params = {Key: fn, ContentType:'text/html', Body: page};
 	bucket.upload(params, function (err, data) {
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url.replace(/\//g, ";").replace(/\?/g, "`"), false );
-		xmlHttp.send( null );	
+		xmlHttp.send( null );
 		total += 1;
 		countArea.value = total;
 		return true
-	}); 	
+	});
 	return true
 }
 
@@ -34,7 +34,7 @@ function get_url_response(url) {
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.open( "GET", url, false );
 	xmlHttp.send( null );
-	var page = xmlHttp.responseText;	
+	var page = xmlHttp.responseText;
 	return page;
 }
 
@@ -59,18 +59,18 @@ function infinite() {
 		url = get_url_response("http://169.55.28.212:8080/select")
 		if  (url.match(/www./g, url) != null) {
 			get_url(url);
-		} 
+		}
 		else {
 			break;
 		}
 		k += 1;
 		if (k > 100){
 			break;
-		} 
+		}
 	}
 	k = 0;
 
-	alert("done!")	
+	alert("done!")
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {
 		url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
-	}   	
+	}
 
 	arr = url_field.match(/[^\r\n]+/g);
 	countArea.max = arr.length;
@@ -91,13 +91,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		else {
 			success = get_url(url);
-			if (!success) { 
-				break 
+			if (!success) {
+				break
 			}
 		}
 	}
 
-	
+
   }, false);
 }, false);
 
