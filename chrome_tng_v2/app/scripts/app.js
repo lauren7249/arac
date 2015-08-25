@@ -69,11 +69,10 @@ var App = React.createClass({
      * a list before processing further.
      */
     onNextBatchReceived: function(xhr, data) {
-        data = AC_Helpers.delimited_to_list(data);
-        for (let idx in data) {
-            //noinspection JSUnfilteredForInLoop
-            console.log(`Rec'd ${data[idx]}`);
-        }
+        console || console.assert(AC_Helpers.is_iterable(data));
+        data.forEach((item) => {
+            console.log(`Rec'd: ${item}`);
+        });
     }.bind(),
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);

@@ -303,8 +303,9 @@ export default class AC_Helpers extends Object {
             return [];
         } else if (AC_Helpers.is_iterable(text)) {
             return text;
+        } else {
+            return text.split(delimiter);
         }
-        return [text.join(delimiter)];
     }
 
 }
