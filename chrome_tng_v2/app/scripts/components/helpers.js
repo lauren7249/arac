@@ -26,9 +26,6 @@ export default class AC_Helpers extends Object {
         this.AWS = AWS;
         this._bucket = undefined;
         this.initAws();
-        this._qwest = qwest;
-        this._qwest.limit = 1;
-        this._qwest.setDefaultXdrResponseType('text');
     }
 
     /**
@@ -77,8 +74,8 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         try {
-            this.AWS.config.region = AC_AWS_REGION;
-            this.AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            AWS.config.region = AC_AWS_REGION;
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                 IdentityPoolId: AC_AWS_CREDENTIALS
             });
             this._bucket = new AWS.S3({
@@ -182,11 +179,16 @@ export default class AC_Helpers extends Object {
 
         var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
-            this._qwest.get(uri, null, options)
+            qwest.limit(2);
+            qwest.setDefaultXdrResponseType('text');
+
+            qwest.get(uri, options)
                 .then(fn_success)
+                .complete(fn_always)
                 .catch(fn_failed);
+
         } else {
-            console.warn(`Invalid url passed [${url}] to get_data`);
+            console.error(`Invalid url passed [${url}] to get_data`);
         }
     }
 
@@ -216,12 +218,11 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         this.awsBucket().upload(params, function(err, data) {
-            let p = params;
             if (err) {
-                console.warn(err.toString);
+                console.error(err.toString);
             }
-            this.notify_s3_success(p.Key);
             cb(err, data);
+
         });
     }
 
@@ -234,7 +235,7 @@ export default class AC_Helpers extends Object {
      * TODO Review the regex replacement to see if we can accomplish the same in a less brittle way
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
      */
-    notify_s3_success(uri) {
+    static notify_s3_success(uri) {
         'use strict';
 
         var orig_url = URI.parse(uri).toString();

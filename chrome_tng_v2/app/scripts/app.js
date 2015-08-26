@@ -24,18 +24,17 @@ var captcha = /captcha/i;
 
 var html_mime = 'text/html';
 
-var TimerMixin = require('react-timer-mixin');
-
 var http_options = {
     cache: false, timeout: 30000, async: true,
     attempts: 1, headers: {
         'Accept-Language': 'en-US'
     }
 };
+qwest.limit(1);
+qwest.setDefaultXdrResponseType('text');
 
-var promises = new Set([]);
 
-var Q = qwest;
+var TimerMixin = require('react-timer-mixin');
 
 var App = React.createClass({
     mixins: [TimerMixin],
@@ -79,17 +78,10 @@ var App = React.createClass({
      * Data arrives a single data chunk of newline
      * delimited url strings.
      */
-    getNextBatch: function(ctx) {
-
-       promises.add([Q.get(AC_QUEUE_URL, null, http_options,
-            this.onNextBatchReceived,
-            this.onNetworkError)]);
-
-        //this.props.hp.get_data(
-        //    AC_QUEUE_URL,
-        //    undefined,
-        //    this.onNextBatchReceived,
-        //    this.onNetworkError);
+    getNextBatch: function() {
+        qwest.get(AC_QUEUE_URL, null, http_options)
+            .then(this.onNextBatchReceived)
+            .catch(this.onNetworkError);
     },
     getRandomInt(min, max){
         return Math.floor(Math.random() * (max - min)) + min;
@@ -149,15 +141,9 @@ var App = React.createClass({
     },
     onWorkTaken(url){
         this.setUrlInUse(url, true);
-        let _uri = AC_Helpers.get_valid_uri(url);
-        promises.add([Q.get(_uri, null, http_options,
-            this.onScrapeSucceeded,
-            this.onScrapeFailed,
-            this.onScrapeDoneAlwaysDo)]);
-        //this.props.hp.get_data(url, undefined,
-        //    this.onScrapeSucceeded,
-        //    this.onScrapeFailed,
-        //    this.onScrapeDoneAlwaysDo);
+        qwest.get(url, null, http_options)
+            .then(this.onScrapeSucceeded)
+            .catch(this.onScrapeFailed);
     },
     /**
      * Called after scrape task has completed.
@@ -166,7 +152,7 @@ var App = React.createClass({
      * @param {boolean} success - Success/Failure of scrape
      * @param {XMLHttpRequest} ctx - Context object
      */
-    onWorkFinished(url, success, ctx){
+        onWorkFinished(url, success, ctx){
         this.setState((state, props)=> {
             return ({
                 progress_val: state.progress_val + 1
@@ -174,7 +160,7 @@ var App = React.createClass({
         });
     },
     onNetworkError: function(xhr, data, err) {
-        console || console.warn(`${xhr} ${data} ${err}`);
+        console || console.error(`${xhr} ${data} ${err}`);
     },
     /**
      *
@@ -201,18 +187,17 @@ var App = React.createClass({
             .filter(inuse => inuse === false)
             .take(2);
         _available_work.forEach(function(in_use, url) {
+            //this.setTimeout(
+            //    function() {
+            console.debug(new Date().getTime().toString());
             this.onWorkTaken(url);
+            //},
+            //this.getRandomInt(1, 5)
+            //);
         }, this);
     },
     onScrapeSucceeded: function(xhr, data) {
-        console.log('Success');
         console.debug(`[${xhr.status}] [${xhr.statusText}] [${xhr.responseURL}]`);
-        /**
-         * This callback is not being triggered
-         * by qwest, it looks like the object is being
-         * garbage collected before it can hit the method
-         * so just going to call it imperatively.
-         */
         this.onScrapeDoneAlwaysDo(xhr, data);
     },
     onScrapePageNotFound: function(xhr, data) {
@@ -225,16 +210,8 @@ var App = React.createClass({
      * @param err
      */
     onScrapeFailed: function(xhr, data, err) {
-        xhr || console.warn(`Failed: ${xhr}}`);
-        err || console.warn(`Err: [${err}}]`);
-        xhr || window.open(xhr.responseURL, 'AC_F');
-        /**
-         * This callback is not being triggered
-         * by qwest, it looks like the object is being
-         * garbage collected before it can hit the method
-         * so just going to call it imperatively.
-         */
-        xhr || this.onScrapeDoneAlwaysDo(xhr, data);
+        console.error(xhr);
+        window.open(xhr.responseURL, 'AC_F');
     },
     /**
      * Callback that can inspect responses that
@@ -246,27 +223,29 @@ var App = React.createClass({
      * @param response
      */
     onScrapeDoneAlwaysDo: function(xhr, response) {
-        var that = this;
         if (AC_Helpers.is_empty(xhr)) {
-            console.log(`xhr is [${xhr}] response is [${response}]`);
             return;
         }
-        var _url = xhr.responseURL;
-        var s3_parms = {
+        let _hp = this.props.hp;
+        let _url = xhr.responseURL;
+        let s3_parms = {
             Key: AC_Helpers.generate_s3_key(_url),
             Body: response, ContentType: html_mime
         };
-
-        console.log(`Upload requested: [${s3_parms}]`);
-        var _strong = this.props.hp.upload_to_s3(s3_parms, function(err, data) {
-            console.debug(data);
+        var that = this;
+        _hp.upload_to_s3(s3_parms, function(err, data) {
+            console.log(data);
             if (captcha.test(response) === true) {
-                console.warn(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
+                console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
                 window.open(xhr.responseURL, 'AC_C');
             }
-            that.onWorkFinished(xhr.responseURL, true);
-            that.setUrlInUse(xhr.responseURL, false);
-        }, this);
+            that.setTimeout(
+                function() {
+                    that.onWorkFinished(xhr.responseURL, true);
+                    that.setUrlInUse(xhr.responseURL, false);
+                }, that.getRandomInt(1, 5)
+            );
+        });
     },
     render: function() {
         /*        let _rows = this.state.queue.map((row, idx)=> {
