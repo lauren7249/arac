@@ -26,7 +26,6 @@ export default class AC_Helpers extends Object {
         this.AWS = AWS;
         this._bucket = undefined;
         this.initAws();
-        this.S3_REGEX = /\//g;
     }
 
     /**
@@ -143,7 +142,7 @@ export default class AC_Helpers extends Object {
     static generate_s3_key(uri) {
         'use strict';
         let _url = uri.replace('https://', '').replace('http://', '');
-        return _url.replace(this.S3_REGEX, '-')
+        return _url.replace(/\//g, '-')
             .concat('.html');
     }
 
