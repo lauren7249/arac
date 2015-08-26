@@ -36,14 +36,26 @@ qwest.setDefaultXdrResponseType('text');
 
 var TimerMixin = require('react-timer-mixin');
 
+var SetIntervalMixin = {
+    componentWillMount: function() {
+        this.intervals = [];
+    },
+    setInterval: function() {
+        this.intervals.push(setInterval.apply(null, arguments));
+    },
+    componentWillUnmount: function() {
+        this.intervals.map(clearInterval);
+    }
+};
+
 var App = React.createClass({
-    mixins: [TimerMixin],
+    mixins: [TimerMixin, SetIntervalMixin],
     getInitialState: function() {
         return {
-            queue: Immutable.Map({}),
+            queue: Immutable.Stack(),
             progress: 0,
             progress_val: 0,
-            last_scrape: new Date()
+            last_scrape: Date.now()
         };
     },
     getDefaultProps: function() {
@@ -57,9 +69,11 @@ var App = React.createClass({
             'Helper is not defined');
     },
     componentDidMount: function() {
+        var that = this;
         if (this && this.isMounted()) {
             //this.getNextBatchOfTestURLS(this);
-            this.getNextBatch(this);
+            that.getNextBatch();
+            that.setInterval(that.onCheckForWork, 30000);
         } else {
             this.componentDidMount();
         }
@@ -93,54 +107,31 @@ var App = React.createClass({
      */
     onNextBatchReceived: function(xhr, data) {
         data = AC_Helpers.delimited_to_list(data, '\n');
+        var that = this;
         data.forEach(function(item) {
 
             // Check if the component has been mounted onto
             // the DOM before mutating state.
-            if (this.isMounted()) {
-                this.setState((state, props) => {
+            if (that.isMounted()) {
+                that.setState((state, props) => {
                     var _item = AC_Helpers.normalize_string(item);
-                    /**
-                     *
-                     * @type {Immutable.Map}
-                     * @private
-                     */
-                    let _queue = state.queue;
-                    if (!_queue.get(_item)) {
-                        var _newQ = _queue.set(_item, false);
-                    }
                     return {
-                        queue: _newQ
+                        queue: that.state.queue.unshift(item)
                     };
                 });
             }
-        }, this);
-        this.onCheckForWork();
+        });
+        that.onCheckForWork();
     },
     /**
      * @private
      * @param {string} url
      * @param {boolean} in_use
      */
-        setUrlInUse(url, in_use){
-        var _in_use = in_use;
-        this.setState(function(state, props) {
-            let _queue = state.queue;
-            if (_queue[url] === true) {
-                return _queue = _queue.delete(url);
-            } else {
-                return _queue.set(url, _in_use);
-            }
-        });
-        if (_in_use === false) {
-            console.debug('Calling onCheckForWork');
-            this.onCheckForWork();
-        } else {
-            console.log(`IN_USE [${_in_use}]`);
-        }
+    setUrlInUse(url, in_use){
+        return undefined;
     },
     onWorkTaken(url){
-        this.setUrlInUse(url, true);
         qwest.get(url, null, http_options)
             .then(this.onScrapeSucceeded)
             .catch(this.onScrapeFailed);
@@ -152,12 +143,13 @@ var App = React.createClass({
      * @param {boolean} success - Success/Failure of scrape
      * @param {XMLHttpRequest} ctx - Context object
      */
-        onWorkFinished(url, success, ctx){
+    onWorkFinished(url, success, ctx){
         this.setState((state, props)=> {
             return ({
                 progress_val: state.progress_val + 1
             });
         });
+        this.onCheckForWork();
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
@@ -167,34 +159,36 @@ var App = React.createClass({
      * @param {SyntheticEvent} e
      */
     onCheckForWork: function(e) {
+        var that = this;
+
         if (e !== undefined) {
             if (e.currentTarget.name === 'scrape_it') {
-                this.getNextBatch();
+                that.getNextBatch();
             }
         }
         /**
-         * @type {Immutable.Map}
+         * @type {Immutable.Stack}
          * @private
          */
-        let _queue = this.state.queue;
-        /**
-         * Return the first 5 work items
-         * not currently being scraped.
-         *
-         * @type {Iterable}
-         */
-        let _available_work = _queue
-            .filter(inuse => inuse === false)
-            .take(2);
-        _available_work.forEach(function(in_use, url) {
-            //this.setTimeout(
-            //    function() {
-            console.debug(new Date().getTime().toString());
-            this.onWorkTaken(url);
-            //},
-            //this.getRandomInt(1, 5)
-            //);
-        }, this);
+        let _queue = that.state.queue;
+        var _item = undefined;
+        if (_queue.peek() !== undefined) {
+            that.setState(function(state, props) {
+                _item = state.queue.first();
+                return {
+                    queue: state.queue.shift()
+                };
+            }, function() {
+                that.setTimeout(
+                    function() {
+                        that.onWorkTaken(_item);
+                    },
+                    that.getRandomInt(1, 5)
+                );
+            });
+        } else {
+            that.getNextBatch();
+        }
     },
     onScrapeSucceeded: function(xhr, data) {
         console.debug(`[${xhr.status}] [${xhr.statusText}] [${xhr.responseURL}]`);
@@ -210,8 +204,9 @@ var App = React.createClass({
      * @param err
      */
     onScrapeFailed: function(xhr, data, err) {
-        console.error(xhr);
-        window.open(xhr.responseURL, 'AC_F');
+        console.error(err);
+        this.onScrapeDoneAlwaysDo(xhr, data);
+        //window.open(xhr.responseURL, 'AC_F');
     },
     /**
      * Callback that can inspect responses that
@@ -239,12 +234,7 @@ var App = React.createClass({
                 console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
                 window.open(xhr.responseURL, 'AC_C');
             }
-            that.setTimeout(
-                function() {
-                    that.onWorkFinished(xhr.responseURL, true);
-                    that.setUrlInUse(xhr.responseURL, false);
-                }, that.getRandomInt(1, 5)
-            );
+            that.onWorkFinished(xhr.responseURL, true);
         });
     },
     render: function() {
