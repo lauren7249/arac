@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
   checkPageButton.addEventListener('click', function() {
  	var url_field = document.getElementById('query').value;
 	if (url_field.length == 0) {
-		url_field = get_url_response("http://169.55.28.212:8080/select/n=100")
+		url_field = get_url_response("http://169.55.28.212:8080/select/n=50")
 	}   	
 
 	arr = url_field.match(/[^\r\n]+/g);

@@ -127,7 +127,7 @@ class Prospect(db.Model):
         first_quitting_year = None
         if self.jobs:
             for job in self.jobs:
-                if job.start_date and (not first_year_experience or job.start_date.year<first_year_experience): first_year_experience 
+                if job.start_date and (not first_year_experience or job.start_date.year<first_year_experience): first_year_experience = job.start_date.year
                 if job.end_date and (not first_quitting_year or job.end_date.year<first_quitting_year): first_quitting_year = job.end_date.year  
 
         if first_year_experience: age = datetime.datetime.today().year - first_year_experience + 20
@@ -296,11 +296,23 @@ class Prospect(db.Model):
         return '<Prospect id={0} url={1}>'.format(self.id, self.url)
 
 
+class RawLocation(db.Model):
+    __tablename__ = "raw_locations"
+
+    location = db.Column(CIText(), primary_key=True)
+    lat = db.Column(Float)
+    lng = db.Column(Float)
+
+    def __repr__(self):
+        return '<Location={0} lat={1}, lng={2}>'.format(
+                self.location, self.lat, self.lng
+                )
+
 class Location(db.Model):
     __tablename__ = "location"
 
     id = db.Column(BigInteger, primary_key=True)
-    name = db.Column(String(1024))
+    name = db.Column(CIText())
     lat = db.Column(Float)
     lng = db.Column(Float)
 
@@ -458,7 +470,7 @@ class BingSearches(db.Model):
 
     terms = db.Column(CIText(), primary_key=True)
     site = db.Column(CIText(), primary_key=True)
-    intitle = db.Column(String(100), primary_key=True)
+    intitle = db.Column(CIText(), primary_key=True)
     results = db.Column(JSON)
     pages = db.Column(Integer)
     next_querystring =db.Column(String(300))

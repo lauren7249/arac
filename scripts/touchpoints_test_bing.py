@@ -41,7 +41,7 @@ for index, row in tp.iterrows():
     age_matches = []
     for url in urls:
         p = from_url(url)
-        if not p or p.updated != datetime.datetime.now().date():
+        if p and (datetime.datetime.now().date() - p.updated).days > 120:
             r.sadd("urls",url)
         else:
             if p.age and row.Age and abs(p.age - row.Age) <=5: 
