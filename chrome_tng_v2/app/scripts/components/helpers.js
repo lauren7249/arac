@@ -26,6 +26,7 @@ export default class AC_Helpers extends Object {
         this.AWS = AWS;
         this._bucket = undefined;
         this.initAws();
+        this.S3_REGEX = /\//g;
     }
 
     /**
@@ -141,7 +142,8 @@ export default class AC_Helpers extends Object {
      */
     static generate_s3_key(uri) {
         'use strict';
-        return uri.replace('/\//g', '-')
+        let _url = uri.replace('https://', '').replace('http://', '');
+        return _url.replace(this.S3_REGEX, '-')
             .concat('.html');
     }
 
@@ -219,10 +221,9 @@ export default class AC_Helpers extends Object {
 
         this.awsBucket().upload(params, function(err, data) {
             if (err) {
-                console.error(err.toString);
+                console.error(`AWS Error: ${e}`);
             }
             cb(err, data);
-
         });
     }
 
@@ -232,25 +233,36 @@ export default class AC_Helpers extends Object {
      * @static
      * @param {string} uri - URI scraped
      *
+     * FIXME This is a messy hack!
      * TODO Review the regex replacement to see if we can accomplish the same in a less brittle way
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
      */
-    static notify_s3_success(uri) {
+    notify_s3_success(uri) {
         'use strict';
 
-        var orig_url = URI.parse(uri).toString();
-        assert(orig_url.error == undefined);
+        var _url = AC_QUEUE_SUCCESS_URL_BASE + uri.replace(/\//g, ";").replace(/\?/g, "`");
+        /**
+         * @type {Window.XMLHttpRequest|XMLHttpRequest}
+         */
+        let xhr = new XMLHttpRequest();
+        xhr.addEventListener('loadend', (e) => {
+            console.debug(`Off to Lauren: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
+        }, false);
+        xhr.open('get', _url, true);
+        xhr.send();
 
-        orig_url = orig_url.replace('/\//g', ';').replace('/\?/g', '`');
-        var notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
-
-        get_data(notification_url, undefined,
-            (xhr, response) => {
-                AC_Helpers.debugLog(`SUCCESS: ${notification_url}`);
-            },
-            (xhr, response, e) => {
-                log(`FAILURE: ${notification_url} [${e.toString}]`);
-            });
+        //if (uri !== undefined) {
+        //    uri = uri.replace('/\//g', ';').replace('/\?/g', '`');
+        //    var notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(uri);
+        //
+        //    this.get_data(notification_url, {},
+        //        (xhr, response) => {
+        //            AC_Helpers.debugLog(`SUCCESS: ${notification_url}`);
+        //        },
+        //        (xhr, response, e) => {
+        //            log(`FAILURE: ${notification_url} [${e.toString}]`);
+        //        });
+        //}
     }
 
     /**

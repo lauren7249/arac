@@ -30,26 +30,27 @@ var http_options = {
         'Accept-Language': 'en-US'
     }
 };
+Object.seal(http_options);
 qwest.limit(1);
 qwest.setDefaultXdrResponseType('text');
 
 
 var TimerMixin = require('react-timer-mixin');
 
-var SetIntervalMixin = {
-    componentWillMount: function() {
-        this.intervals = [];
-    },
-    setInterval: function() {
-        this.intervals.push(setInterval.apply(null, arguments));
-    },
-    componentWillUnmount: function() {
-        this.intervals.map(clearInterval);
-    }
-};
+//var SetIntervalMixin = {
+//    componentWillMount: function() {
+//        this.intervals = [];
+//    },
+//    setInterval: function() {
+//        this.intervals.push(setInterval.apply(null, arguments));
+//    },
+//    componentWillUnmount: function() {
+//        this.intervals.map(clearInterval);
+//    }
+//};
 
 var App = React.createClass({
-    mixins: [TimerMixin, SetIntervalMixin],
+    mixins: [TimerMixin],
     getInitialState: function() {
         return {
             queue: Immutable.Stack(),
@@ -73,7 +74,7 @@ var App = React.createClass({
         if (this && this.isMounted()) {
             //this.getNextBatchOfTestURLS(this);
             that.getNextBatch();
-            that.setInterval(that.onCheckForWork, 30000);
+            that.setInterval(that.onCheckForWork, 300000);
         } else {
             this.componentDidMount();
         }
@@ -128,13 +129,25 @@ var App = React.createClass({
      * @param {string} url
      * @param {boolean} in_use
      */
-    setUrlInUse(url, in_use){
+        setUrlInUse(url, in_use){
         return undefined;
     },
     onWorkTaken(url){
+        var that = this;
+        //let newOptions = {
+        //    cache: false, timeout: 30000, async: true,
+        //    attempts: 1,
+        //    'Accept-Language': 'en-US',
+        //    'X-ATT-DeviceId': btoa(url)
+        //};
+        //console.log(newOptions);
         qwest.get(url, null, http_options)
-            .then(this.onScrapeSucceeded)
-            .catch(this.onScrapeFailed);
+            .then(function(xhr, data) {
+                that.onScrapeSucceeded(xhr, data, url);
+            })
+            .catch(function(xhr, data, error) {
+                that.onScrapeFailed(xhr, data, error, url);
+            });
     },
     /**
      * Called after scrape task has completed.
@@ -143,7 +156,7 @@ var App = React.createClass({
      * @param {boolean} success - Success/Failure of scrape
      * @param {XMLHttpRequest} ctx - Context object
      */
-    onWorkFinished(url, success, ctx){
+        onWorkFinished(url, success, ctx){
         this.setState((state, props)=> {
             return ({
                 progress_val: state.progress_val + 1
@@ -183,18 +196,18 @@ var App = React.createClass({
                     function() {
                         that.onWorkTaken(_item);
                     },
-                    that.getRandomInt(1, 5)
+                    that.getRandomInt(5, 30)
                 );
             });
         } else {
             that.getNextBatch();
         }
     },
-    onScrapeSucceeded: function(xhr, data) {
-        console.debug(`[${xhr.status}] [${xhr.statusText}] [${xhr.responseURL}]`);
-        this.onScrapeDoneAlwaysDo(xhr, data);
+    onScrapeSucceeded: function(xhr, data, original_url) {
+        console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
+        this.onScrapeDoneAlwaysDo(xhr, data, original_url);
     },
-    onScrapePageNotFound: function(xhr, data) {
+    onScrapePageNotFound: function(xhr, data, original_url) {
         window.alert('Page not found.');
     },
     /**
@@ -202,10 +215,11 @@ var App = React.createClass({
      * @param  {XMLHttpRequest} xhr
      * @param data
      * @param err
+     * @param {string} original_url
      */
-    onScrapeFailed: function(xhr, data, err) {
-        console.error(err);
-        this.onScrapeDoneAlwaysDo(xhr, data);
+    onScrapeFailed: function(xhr, data, err, original_url) {
+        console.warn(err);
+        this.onScrapeDoneAlwaysDo(xhr, data, original_url);
         //window.open(xhr.responseURL, 'AC_F');
     },
     /**
@@ -216,25 +230,27 @@ var App = React.createClass({
      *
      * @param {XMLHttpRequest} xhr
      * @param response
+     * @param {string} original_url
      */
-    onScrapeDoneAlwaysDo: function(xhr, response) {
-        if (AC_Helpers.is_empty(xhr)) {
-            return;
-        }
-        let _hp = this.props.hp;
-        let _url = xhr.responseURL;
+    onScrapeDoneAlwaysDo: function(xhr, response, original_url) {
+        xhr || xhr.isPrototypeOf(XMLHttpRequest);
+        var _hp = this.props.hp;
+
         let s3_parms = {
-            Key: AC_Helpers.generate_s3_key(_url),
+            Key: AC_Helpers.generate_s3_key(original_url),
             Body: response, ContentType: html_mime
         };
+
         var that = this;
         _hp.upload_to_s3(s3_parms, function(err, data) {
-            console.log(data);
-            if (captcha.test(response) === true) {
-                console.error(`CAPTCHA DETECTED! [${xhr.responseURL}]`);
-                window.open(xhr.responseURL, 'AC_C');
+            if (data !== undefined) {
+                _hp.notify_s3_success(original_url);
             }
-            that.onWorkFinished(xhr.responseURL, true);
+            if (captcha.test(response) === true) {
+                console.warn(`CAPTCHA DETECTED! [${original_url}]`);
+                //window.open(xhr.responseURL, 'AC_C');
+            }
+            that.onWorkFinished(original_url, true);
         });
     },
     render: function() {
