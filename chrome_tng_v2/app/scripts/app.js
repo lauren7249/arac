@@ -37,25 +37,14 @@ qwest.setDefaultXdrResponseType('text');
 
 var TimerMixin = require('react-timer-mixin');
 
-//var SetIntervalMixin = {
-//    componentWillMount: function() {
-//        this.intervals = [];
-//    },
-//    setInterval: function() {
-//        this.intervals.push(setInterval.apply(null, arguments));
-//    },
-//    componentWillUnmount: function() {
-//        this.intervals.map(clearInterval);
-//    }
-//};
-
 var App = React.createClass({
     mixins: [TimerMixin],
     getInitialState: function() {
         return {
             queue: Immutable.Stack(),
-            progress: 0,
-            progress_val: 0,
+            click_enabled: true,
+            meter_now: 0,
+            meter_max: 0,
             last_scrape: Date.now()
         };
     },
@@ -110,7 +99,6 @@ var App = React.createClass({
         data = AC_Helpers.delimited_to_list(data, '\n');
         var that = this;
         data.forEach(function(item) {
-
             // Check if the component has been mounted onto
             // the DOM before mutating state.
             if (that.isMounted()) {
@@ -125,22 +113,19 @@ var App = React.createClass({
         that.onCheckForWork();
     },
     /**
-     * @private
-     * @param {string} url
-     * @param {boolean} in_use
+     * @deprecated
      */
         setUrlInUse(url, in_use){
         return undefined;
     },
-    onWorkTaken(url){
+    /**
+     * Called when a Scrape job has been assigned
+     * This kicks off the worker.
+     *
+     * @param {strong} url - The url to scrape
+     */
+        onWorkTaken(url){
         var that = this;
-        //let newOptions = {
-        //    cache: false, timeout: 30000, async: true,
-        //    attempts: 1,
-        //    'Accept-Language': 'en-US',
-        //    'X-ATT-DeviceId': btoa(url)
-        //};
-        //console.log(newOptions);
         qwest.get(url, null, http_options)
             .then(function(xhr, data) {
                 that.onScrapeSucceeded(xhr, data, url);
@@ -157,17 +142,19 @@ var App = React.createClass({
      * @param {XMLHttpRequest} ctx - Context object
      */
         onWorkFinished(url, success, ctx){
-        this.setState((state, props)=> {
-            return ({
-                progress_val: state.progress_val + 1
-            });
-        });
+        //this.setState((state, props)=> {
+        //    return ({
+        //    });
+        //});
         this.onCheckForWork();
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
     },
     /**
+     * Called when button is clicked, when the queue
+     * is drained and from a slow timer to attempt
+     * to keep the queue full in all cases.
      *
      * @param {SyntheticEvent} e
      */
@@ -176,6 +163,11 @@ var App = React.createClass({
 
         if (e !== undefined) {
             if (e.currentTarget.name === 'scrape_it') {
+                that.setState(
+                    {
+                        click_enabled: false
+                    }
+                );
                 that.getNextBatch();
             }
         }
@@ -272,11 +264,13 @@ var App = React.createClass({
                     <p>AC Browser</p>
 
                     <div className='scrape_list'/>
-                    <progress value={this.state.progress_val}
-                              max={this.state.queue.size}
-                              className='scrape_progress'/>
-                    <br />
-                    <dialog>TEST</dialog>
+                    <div className='queue_size_container'>
+                        <p >
+                            <computercode className='queue_size'>
+                                {this.state.queue.count()}
+                            </computercode>
+                        </p>
+                    </div>
                     <br />
                     <button type='button' name='scrape_it' key='work'
                             enabled={this.state.click_enabled}
