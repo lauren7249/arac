@@ -7,6 +7,7 @@
     "devDependencies": {
         "babel-eslint": ">=4.0.10",
         "babel-jest": "^5.0.1",
+        "babel-plugin-object-assign":">=1.2.1",
         "babelify": "^6.0.2",
         "browserify": ">=11.0.0",
         "del": "^1.1.1",
@@ -32,6 +33,8 @@
         "immutable": ">=3.7.4",
         "qwest": ">=2.0.7",
         "react-hot-loader": ">=1.2.9",
+        "react-timer-mixin":"",
+        "react-timers":"",
         "typescript": ">=1.5.3",
         "vinyl-source-stream": "^1.0.0",
         "watchify": "^2.3.0",

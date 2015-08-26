@@ -39,7 +39,7 @@ var AC_QUEUE_BASE_URL = 'http://169.55.28.212:8080';
  * @constant Number of URLS retrieved at a time
  * @type {number}
  */
-var AC_QUEUE_URLS_AT_A_TIME = 100;
+var AC_QUEUE_URLS_AT_A_TIME = 3;
 
 /**
  * @constant Queue url, including query parameters

@@ -10,7 +10,7 @@ import URI from 'uri-js';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
-    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from 'constants';
+    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './constants';
 
 /**
  * Helper functions and non-ui code.
@@ -99,7 +99,7 @@ export default class AC_Helpers extends Object {
      */
     awsBucket() {
         'use strict';
-        if (this._bucket != undefined) {
+        if (this._bucket !== undefined) {
             return this._bucket;
         } else {
             this.initAws();
@@ -141,7 +141,8 @@ export default class AC_Helpers extends Object {
      */
     static generate_s3_key(uri) {
         'use strict';
-        return uri.replace('/\//g', '-')
+        let _url = uri.replace('https://', '').replace('http://', '');
+        return _url.replace(/\//g, '-')
             .concat('.html');
     }
 
@@ -155,7 +156,6 @@ export default class AC_Helpers extends Object {
      * additional  logic would be required to handle
      * this case beyond changing the option.
      *
-     * @static
      * @external "qwest.get"
      * @see {@link https://www.npmjs.com/package/qwest#quick-examples}
      * @param {string} url - Url to call
@@ -166,27 +166,28 @@ export default class AC_Helpers extends Object {
      *
      * @see {@link https://www.npmjs.com/package/qwest#basics}
      */
-    static get_data(url,
-                    options = {
-                        cache: false, timeout: 30000, async: true,
-                        attempts: 1, headers: {
-                            'Accept-Language': 'en-US'
-                        }
-                    },
-                    fn_success = undefined,
-                    fn_failed = undefined,
-                    fn_always = undefined) {
+    get_data(url,
+             options = {
+                 cache: false, timeout: 30000, async: true,
+                 attempts: 1, headers: {
+                     'Accept-Language': 'en-US'
+                 }
+             },
+             fn_success = undefined,
+             fn_failed = undefined,
+             fn_always = undefined) {
         'use strict';
 
         var uri = AC_Helpers.get_valid_uri(url);
         if (uri != undefined) {
-            qwest.limit(5);
+            qwest.limit(2);
             qwest.setDefaultXdrResponseType('text');
 
-            qwest.get(uri, null, options)
+            qwest.get(uri, options)
                 .then(fn_success)
-                .catch(fn_failed)
-                .complete(fn_always);
+                .complete(fn_always)
+                .catch(fn_failed);
+
         } else {
             console.error(`Invalid url passed [${url}] to get_data`);
         }
@@ -216,11 +217,10 @@ export default class AC_Helpers extends Object {
      */
     upload_to_s3(params, cb = emptyFunction) {
         'use strict';
-        assert(params.hasOwnProperty('Key') && params.hasOwnProperty('Body'));
 
         this.awsBucket().upload(params, function(err, data) {
             if (err) {
-                log(err.toString);
+                console.error(`AWS Error: ${e}`);
             }
             cb(err, data);
         });
@@ -232,25 +232,36 @@ export default class AC_Helpers extends Object {
      * @static
      * @param {string} uri - URI scraped
      *
+     * FIXME This is a messy hack!
      * TODO Review the regex replacement to see if we can accomplish the same in a less brittle way
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
      */
-    static notify_s3_success(uri) {
+    notify_s3_success(uri) {
         'use strict';
 
-        var orig_url = URI.parse(uri).toString();
-        assert(orig_url.error == undefined);
+        var _url = AC_QUEUE_SUCCESS_URL_BASE + uri.replace(/\//g, ";").replace(/\?/g, "`");
+        /**
+         * @type {Window.XMLHttpRequest|XMLHttpRequest}
+         */
+        let xhr = new XMLHttpRequest();
+        xhr.addEventListener('loadend', (e) => {
+            console.debug(`Off to Lauren: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
+        }, false);
+        xhr.open('get', _url, true);
+        xhr.send();
 
-        orig_url = orig_url.replace('/\//g', ';').replace('/\?/g', '`');
-        var notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(orig_url);
-
-        get_data(notification_url, undefined,
-            (xhr, response) => {
-                AC_Helpers.debugLog(`SUCCESS: ${notification_url}`);
-            },
-            (xhr, response, e) => {
-                log(`FAILURE: ${notification_url} [${e.toString}]`);
-            });
+        //if (uri !== undefined) {
+        //    uri = uri.replace('/\//g', ';').replace('/\?/g', '`');
+        //    var notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(uri);
+        //
+        //    this.get_data(notification_url, {},
+        //        (xhr, response) => {
+        //            AC_Helpers.debugLog(`SUCCESS: ${notification_url}`);
+        //        },
+        //        (xhr, response, e) => {
+        //            log(`FAILURE: ${notification_url} [${e.toString}]`);
+        //        });
+        //}
     }
 
     /**
@@ -272,7 +283,7 @@ export default class AC_Helpers extends Object {
      * @param obj
      * @return {boolean}
      */
-    static is_empty_list(obj) {
+    static is_empty(obj) {
         'use strict';
         if (obj === undefined || obj === null ||
             obj.length === 0) {
@@ -312,7 +323,7 @@ export default class AC_Helpers extends Object {
      */
     static delimited_to_list(text, delimiter = '\n') {
         'use strict';
-        if (AC_Helpers.is_empty_list(text)) {
+        if (AC_Helpers.is_empty(text)) {
             console.warn(`Empty value ${text}: returning []`);
             return [];
         } else if (AC_Helpers.is_iterable(text)) {
