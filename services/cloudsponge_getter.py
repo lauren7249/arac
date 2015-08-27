@@ -1,18 +1,30 @@
 
-import web
-from cloudsponge import CloudSponge
+import web, json
+from web.wsgiserver import CherryPyWSGIServer
+from prime.prospects.get_prospect import session
+from prime.prospects.models import CloudspongeRecord
+# CherryPyWSGIServer.ssl_certificate = "server.crt"
+# CherryPyWSGIServer.ssl_private_key = "server.key"
 web.config.debug = False
 urls = (
-    '/get_url/service=(.+)', 'get_url',
+    '/add', 'add',
 )
 
 app = web.application(urls, globals())
 
-client = CloudSponge('VB652MMUEG24H4JF3SGL','GSrAxStb9Zk5EOmD')
-class get_url:
-    def GET(self, service):
-        resp = client.begin_import(service)
-        return { "url": resp['url'], "import_id":resp['import_id']}
+class add:
+    def POST(self):
+		web.header('Access-Control-Allow-Origin', '*')
+		web.header('Access-Control-Allow-Credentials', 'true')    	
+		web.header('Access-Control-Allow-Headers', '*')
+		web.header('Access-Control-Allow-Methods','*')
+		i = web.data()
+		for record in json.loads(i):
+			owner = record.get("contacts_owner",{})
+			contact = record.get("contact",{})
+			r = CloudspongeRecord(owner=owner, contact=contact)
+			session.add(r)
+		session.commit()
 
 if __name__ == "__main__":
     app.run()

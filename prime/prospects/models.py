@@ -817,6 +817,13 @@ class EmailContact(db.Model):
             s.append(link)  
         return s
 
+class CloudspongeRecord(db.Model):
+    __tablename__ = "cloudsponge_raw"
+    id = db.Column(Integer, primary_key=True)
+    owner = db.Column(JSON)
+    contact = db.Column(JSON)
+
+
 class Proxy(db.Model):
     __tablename__ = "proxy"
 

@@ -77,11 +77,12 @@
     function get_contacts(import_id) {
       $.getJSON(cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function(data){
         contacts = data.contacts;
-        //alert(contacts.length);
-        console.log(contacts.length);
+        contacts_owner = data.contacts_owner;
+        //contacts_owner = JSON.parse(JSON.stringify(data.contacts_owner));
+        //console.log(JSON.parse());
         for (i = 0; i < contacts.length; i++) { 
             var contact = contacts[i];
-            contacts_array.push(contact);
+            contacts_array.push({contact:contact, contacts_owner:contacts_owner});
             // var emails = contact.email;
             // for (k = 0; k < emails.length; k++) { 
             //     var email = emails[k];
@@ -160,7 +161,21 @@
         $("#csv").hide();
       })
       $("#next").click(function() {
-        $.post('http://0.0.0.0:8080/add&callback=?',contacts_array,null);
+        console.log(contacts_array.length);
+       // $.post('http://0.0.0.0:8080/add&callback=?',contacts_array,null);
+       //console.log(JSON.stringify(contacts_owner));
+        $.ajax({
+            type: 'POST',
+            url: 'http://0.0.0.0:8080/add',
+            crossDomain: true,
+            data: JSON.stringify(contacts_array),
+            success: function(responseData, textStatus, jqXHR) {
+                var value = responseData.someKey;
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                alert('upload failed.');
+            }
+        });        
         //$("#csv").hide();
       })      
       
