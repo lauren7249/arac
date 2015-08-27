@@ -1,0 +1,178 @@
+<!doctype html>
+<html xmlns:fb="http://ogp.me/ns/fb#">
+  <head>
+    <title>AdvisorConnect</title>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="./css/gh-buttons.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+
+    <link rel='apple-touch-icon' href="">
+
+    <meta name='title' content='' />
+    <meta name='description' content='' />
+    <meta name='keywords' content='' />
+
+    <!-- Google Site Verification -->
+    <meta name='google-site-verification' content="" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!-- Facebook Open Graph -->
+    <meta property="fb:admins" content="" />
+    <meta property="og:site_name" content="" />
+    <meta property="og:title" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="fb:page_id" content="" />
+
+  </head>
+  <body>
+  <div class='overlay'>
+<!--     <div class='linkedin modal'>
+      <a href='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook' target='_blank'>
+        <img src='./img/linkedin.png' />
+      </a>
+    </div> -->
+    <div class='email modal'>
+      <h3>Select Email Provider</h3>
+      <ol>
+<!--       <i id='gmail' class='fa fa-google' type="Submit"></i>
+      <i id='yahoo' class='fa fa-yahoo' type="Submit"></i>
+      <i id='windowslive' class='fa fa-windows' type="Submit"></i>     -->    
+        <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
+        <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
+        <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
+        <!-- <li><a><i type="Submit" class='fa fa-envelope-o'></i> AOL</a></li> -->
+      </div>
+    </div>
+  <div class='signup'>
+    <div class='logo'>
+      <img src='./img/NewYorkLife.png' />
+    </div>
+    <h2>Add Contacts To Your P200</h2>
+    <p>The more accounts you connect, the better the results.</p>
+    <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
+    <button class='button' id='em' type="Submit">Add Email Contacts <i class='fa fa-envelope-o'></i></button>
+   <!--  <button class='button'>Add Email Contacts<ol>  -->
+
+      <!-- <i id='apple' class='fa fa-apple' type="Submit"></i> -->
+    <!-- </button> -->
+    <button class='button' type="Submit" id='csv'>Manually Add Contacts <i class='fa fa-cog'></i></button>
+    <br/>
+    <br/>
+    <a ><button id="next" type="Submit" class='button'>Next &raquo;</button></a>
+  </div>
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+  <script type='text/javascript' >
+    function sleep(milliSeconds){
+      var startTime = new Date().getTime(); // get the current time
+      while (new Date().getTime() < startTime + milliSeconds); // hog cpu
+    }
+    cloudsponge_params = 'domain_key=VB652MMUEG24H4JF3SGL&domain_password=GSrAxStb9Zk5EOmD';
+    cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
+    contacts_array = [];
+    function get_contacts(import_id) {
+      $.getJSON(cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function(data){
+        contacts = data.contacts;
+        //alert(contacts.length);
+        console.log(contacts.length);
+        for (i = 0; i < contacts.length; i++) { 
+            var contact = contacts[i];
+            contacts_array.push(contact);
+            // var emails = contact.email;
+            // for (k = 0; k < emails.length; k++) { 
+            //     var email = emails[k];
+            //     emails_array.push(email.address);
+            //     //console.log(emails_array.length);
+            //     //console.log(email.address);
+            // }                             
+        } 
+      });     
+      console.log(contacts_array.length);  
+    }
+    function do_import(service) {
+      $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
+        function(data) {
+          var cloudsponge_url = data.url;
+          var import_id = data.import_id;
+          var win = window.open(cloudsponge_url);
+          var timer = setInterval(function() {   
+              if(win.closed) {  
+                  clearInterval(timer); 
+                  $.getJSON(cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function(data){
+                    events = data.events;
+                    for (i = 0; i < events.length; i++) { 
+                        cloudsponge_status = events[i].status;
+                        if (cloudsponge_status == 'COMPLETED') {break;}
+                    }  
+                    console.log(cloudsponge_status);
+                    sleep(1000);
+                    get_contacts(import_id);         
+                  }); 
+              }  
+          }, 1000);             
+        });      
+    }
+    $(function() {
+      $("#em").click(function() {
+        $(".overlay").fadeIn();
+        $(".email").slideDown();
+      })
+      $("#gmail").click(function() {
+        cloudsponge_status = 'NONE';   
+        do_import('gmail');
+        $(".email").hide();
+        $("#gmail").hide();
+        $(".overlay").fadeOut();
+      })
+      $("#yahoo").click(function() {
+        cloudsponge_status = 'NONE';   
+        do_import('yahoo');
+        $(".email").hide();
+        $("#yahoo").hide();
+        $(".overlay").fadeOut();
+      })
+      $("#windowslive").click(function() {
+        cloudsponge_status = 'NONE';   
+        do_import('windowslive');
+        $(".email").hide();
+        $("#windowslive").hide();
+        $(".overlay").fadeOut();
+      })    
+      $("#apple").click(function() {
+        cloudsponge_status = 'NONE';   
+        do_import('addressbook');
+        $(".email").hide();
+        $("#apple").hide();
+        $(".overlay").fadeOut();
+      })           
+      $("#ln").click(function() {
+        // $(".overlay").fadeIn();
+        do_import('linkedin');
+        $("#ln").hide();
+      })
+      $("#csv").click(function() {
+        // $(".overlay").fadeIn();
+        do_import('csv');
+        $("#csv").hide();
+      })
+      $("#next").click(function() {
+        $.post('http://0.0.0.0:8080/add&callback=?',contacts_array,null);
+        //$("#csv").hide();
+      })      
+      
+      $(".overlay").click(function(e) {
+        if (e.target.className == "overlay") {
+            $(".linkedin").hide();
+            $(".email").hide();
+            $(this).hide();
+          }
+      });
+    });
+  </script>
+  
+</html>
+
