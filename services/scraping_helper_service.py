@@ -13,7 +13,7 @@ import web, re
 from prime.utils.update_database_from_dict import insert_linkedin_profile
 from prime.prospects.get_prospect import get_session
 from consume.consumer import *
-
+from prime.prospects.models import CloudspongeRecord
 session = get_session()
 
 web.config.debug = False
@@ -21,7 +21,8 @@ urls = (
     '/select/n=(.+)', 'select',
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
-    '/log_uploaded/url=(.+)', 'log_uploaded'
+    '/log_uploaded/url=(.+)', 'log_uploaded',
+    '/add', 'add'
 )
 
 app = web.application(urls, globals())
@@ -75,6 +76,20 @@ class process_chrome_ext_url:
     	content = process_url(url)
     	return process_content(content)
 
+class add:
+    def POST(self):
+        web.header('Access-Control-Allow-Origin', '*')
+        web.header('Access-Control-Allow-Credentials', 'true')      
+        web.header('Access-Control-Allow-Headers', '*')
+        web.header('Access-Control-Allow-Methods','*')
+        i = web.data()
+        for record in json.loads(i):
+            owner = record.get("contacts_owner",{})
+            contact = record.get("contact",{})
+            r = CloudspongeRecord(owner=owner, contact=contact)
+            session.add(r)
+        session.commit()
+        return "good"
 if __name__ == "__main__":
     app.run()
 
