@@ -25,6 +25,7 @@ class add:
 			r = CloudspongeRecord(owner=owner, contact=contact)
 			session.add(r)
 		session.commit()
+		return "good"
 
 if __name__ == "__main__":
     app.run()
