@@ -7,7 +7,6 @@ urls = (
 )
 
 app = web.application(urls, globals())
-web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
 client = CloudSponge('VB652MMUEG24H4JF3SGL','GSrAxStb9Zk5EOmD')
 class get_url:
