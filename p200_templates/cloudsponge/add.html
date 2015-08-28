@@ -15,7 +15,7 @@
 
     <!-- Google Site Verification -->
     <meta name='google-site-verification' content="" />
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+
     <!-- Facebook Open Graph -->
     <meta property="fb:admins" content="" />
     <meta property="og:site_name" content="" />
@@ -25,9 +25,11 @@
     <meta property="og:description" content="" />
     <meta property="og:image" content="" />
     <meta property="fb:page_id" content="" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
   </head>
   <body>
+
   <div class='overlay'>
 <!--     <div class='linkedin modal'>
       <a href='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook' target='_blank'>
@@ -64,13 +66,15 @@
     <a ><button id="next" type="Submit" class='button'>Next &raquo;</button></a>
   </div>
   </body>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="../cloudpsponge_credentials.js"></script>
+  
+  
   <script type='text/javascript' >
     function sleep(milliSeconds){
       var startTime = new Date().getTime(); // get the current time
       while (new Date().getTime() < startTime + milliSeconds); // hog cpu
     }
+    domain_key='VB652MMUEG24H4JF3SGL';
+    domain_password='GSrAxStb9Zk5EOmD';    
     cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     contacts_array = [];
