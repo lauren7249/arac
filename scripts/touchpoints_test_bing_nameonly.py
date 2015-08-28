@@ -1,11 +1,16 @@
 import pandas
 import us
 import datetime
-from prime.utils import bing, r, geocode
+from prime.utils import bing, r, geocode, get_bucket
 from prime.prospects.get_prospect import *
 from geoindex.geo_point import GeoPoint
+from boto.s3.key import Key
+from consume.consumer import parse_html
+
+bucket = get_bucket(bucket_name='chrome-ext-uploads')
 
 tp = pandas.read_csv("~/advisorCONNECT 6-10-15 Test Input.csv")
+tp_columns = list(tp.columns.values)
 tp["zip"] = tp["Zip Code"].apply(lambda z: int(z.split("-")[0]))
 #3500
 tp.drop_duplicates(subset=["First Name","Last Name", "Age", "zip"], inplace=True)
@@ -86,10 +91,11 @@ for index, row in tp.iterrows():
         else:
             df = df.append(row, ignore_index=True)
 
-df.to_csv('/Users/lauren/Documents/data/touchpoints.output.csv', encoding='utf-8')
+df.to_csv('/Users/lauren/Documents/data/touchpoints.output.csv', encoding='utf-8', index=None)
 df.fillna(False, inplace=True)
 matched_df = df[df.matches_fully==1.0]
-matched_df.to_csv('/Users/lauren/Documents/data/matched.touchpoints.output.csv', encoding='utf-8')
+
+matched_df.to_csv('/Users/lauren/Documents/data/matched.touchpoints.output.csv', encoding='utf-8', index=None)
 #214
 print len(set(matched_df["ID Number"].values))
 #233
@@ -106,3 +112,25 @@ print len(set(tp["ID Number"].values))
 print len(set(tp[tp.Age < 40]["ID Number"].values))
 #74
 print len(set(matched_df[matched_df.Age < 40]["ID Number"].values))
+
+output_df = pandas.DataFrame()
+for index, row in matched_df.iterrows():
+    url = row.li_url
+    fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
+    key = Key(bucket)
+    key.key = fn
+    content = key.get_contents_as_string()  
+    info = parse_html(content)
+    newrow = row[tp_columns].to_dict()
+    newrow.update(info)
+    newrow.pop("success",None)
+    newrow.pop("complete",None)
+    newrow.update({"estimated_age":row.li_age})
+    output_df = output_df.append(newrow, ignore_index=True)
+
+output_df.drop(["urls"], axis=1, inplace=True)
+output_df.drop(["source_url"], axis=1, inplace=True)
+output_df.drop(["projects"], axis=1, inplace=True)
+output_df.drop(["people"], axis=1, inplace=True)
+output_df.drop(["linkedin_id"], axis=1, inplace=True)
+output_df.to_csv('/Users/lauren/Documents/data/27Aug2015.touchpoints.matches.csv', encoding='utf-8', index=None)
