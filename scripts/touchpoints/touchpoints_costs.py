@@ -2,7 +2,6 @@ import pandas
 matched_df = pandas.read_csv('scripts/touchpoints/matched.touchpoints.output.csv')
 tp = pandas.read_csv("scripts/touchpoints/advisorCONNECT 6-10-15 Test Input.csv")
 
-skilled_hours_in_test = 0.5 #guesstimate
 scraping_hours_in_test = 8.0 #guesstimate
 #hopefully these numbers are right. we could always do another test
 unique_names_in_test = 1996.0
@@ -55,10 +54,12 @@ def analyze(max_age = 50,
 			working_hours_per_day = 8.0, #how many hours per day we think we can run this thing
 			computers_running = 10.0, #how many machines we have to run this thing on for all the working hours
 			working_days_per_month = 20.0, #how many days our workers are working per month
-			revenue_per_hit = 0.1):
+			revenue_per_hit = 0.1, #how much we charge per hit
+			skilled_hours_per_machine_per_scraping_hour = 0.1 #for every hour a machine is scraping, how many hours do we have to spend monitoring it?
+			):
 	linkedin_scrapes_per_month = scrapes_per_hour*working_hours_per_day*working_days_per_month*computers_running
 	names_per_month = linkedin_scrapes_per_month/average_linkedin_results_per_name
-	skilled_hours_per_machine_per_day = skilled_hours_in_test * (working_hours_per_day/scraping_hours_in_test)
+	skilled_hours_per_machine_per_day = skilled_hours_per_machine_per_scraping_hour * working_hours_per_day
 	bing_pages_per_month = names_per_month*average_bing_pages_per_name
 
 	skilled_hours_per_day = skilled_hours_per_machine_per_day*computers_running
