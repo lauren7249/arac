@@ -146,7 +146,7 @@
         $("table#main").html('<tr><th colspan="2" align="center"></th></tr>');
         $.ajax({
             type: 'POST',
-            url: 'http://localhost:8080/calculate_costs',
+            url: 'http://169.55.28.212:8080/calculate_costs',
             crossDomain: true,
             data: JSON.stringify(data),
             success: function(responseData, textStatus, jqXHR) {
