@@ -100,7 +100,8 @@ class calculate_costs:
         web.header('Access-Control-Allow-Credentials', 'true')      
         web.header('Access-Control-Allow-Headers', '*')
         web.header('Access-Control-Allow-Methods','*')
-        results = analyze(**json.loads(web.data()))
+        d = json.loads(web.data())
+        results = analyze(d)
         return json.dumps(results)
 
 if __name__ == "__main__":

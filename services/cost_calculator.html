@@ -133,17 +133,19 @@
       return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
     });
   }
-    var form = document.getElementById("form");
-    data = {};
-    for (var i = 0, ii = form.length; i < ii; ++i) {
-      var input = form[i];
-      if (input.id) {
-        data[input.id] = parseFloat(input.value);
-      }
-    }
-    $(function() {
       $("#calculate").click(function() {
+
         $("table#main").html('<tr><th colspan="2" align="center"></th></tr>');
+          $(function() {
+            var form = document.getElementById("form");
+            data = {};
+            for (var i = 0, ii = form.length; i < ii; ++i) {
+              var input = form[i];
+              if (input.id) {
+                data[input.id] = parseFloat(input.value);
+              }
+            }      
+            console.log(data);        
         $.ajax({
             type: 'POST',
             url: 'http://169.55.28.212:8080/calculate_costs',

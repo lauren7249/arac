@@ -48,15 +48,18 @@ def bing_pages(name):
 records_per_name = records_in_test/unique_names_in_test
 scrapes_per_hour = unique_urls_returned_in_test/scraping_hours_in_test
 
-def analyze(max_age = 50, 
-			#how much we pay people per hour to monitor the scraping
-			skilled_wage = 20.0, 
-			working_hours_per_day = 8.0, #how many hours per day we can be available to monitor scraping
-			computers_running = 10.0, #how many machines we have to run this thing on for all the working hours
-			working_days_per_month = 20.0, #how many days our workers are working per month
-			revenue_per_hit = 0.1, #how much we charge per hit
-			skilled_hours_per_machine_per_scraping_hour = 0.1 #for every hour a machine is scraping, how many hours do we have to spend monitoring it?
-			):
+def analyze(kwargs):
+
+	max_age = float(kwargs.get("max_age",40.0))
+	#how much we pay people per hour to monitor the scraping
+	skilled_wage = float(kwargs.get("skilled_wage",20.0))
+	working_hours_per_day=float(kwargs.get("working_hours_per_day", 8.0)) #how many hours per day we can be available to monitor scraping
+	computers_running = float(kwargs.get("computers_running",10.0)) #how many machines we have to run this thing on for all the working hours
+	working_days_per_month = float(kwargs.get("working_days_per_month",20.0)) #how many days our workers are working per month
+	revenue_per_hit = float(kwargs.get("revenue_per_hit", 0.1))  #how much we charge per hit
+	skilled_hours_per_machine_per_scraping_hour = float(kwargs.get("skilled_hours_per_machine_per_scraping_hour", 0.1)) #for every hour a machine is scraping, how many hours do we have to spend monitoring it?
+
+	print max_age
 	linkedin_scrapes_per_month = scrapes_per_hour*working_hours_per_day*working_days_per_month*computers_running
 	names_per_month = linkedin_scrapes_per_month/average_linkedin_results_per_name
 	skilled_hours_per_machine_per_day = skilled_hours_per_machine_per_scraping_hour * working_hours_per_day
@@ -77,6 +80,7 @@ def analyze(max_age = 50,
 	cost_per_month = hits_per_month*cost_per_hit
 	profit_per_month = revenue_per_month - cost_per_month
 	vars = locals()
+	vars.pop("kwargs",None)
 	return vars
 
 
