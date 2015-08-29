@@ -51,7 +51,7 @@ scrapes_per_hour = unique_urls_returned_in_test/scraping_hours_in_test
 def analyze(max_age = 50, 
 			#how much we pay people per hour to monitor the scraping
 			skilled_wage = 20.0, 
-			working_hours_per_day = 8.0, #how many hours per day we think we can run this thing
+			working_hours_per_day = 8.0, #how many hours per day we can be available to monitor scraping
 			computers_running = 10.0, #how many machines we have to run this thing on for all the working hours
 			working_days_per_month = 20.0, #how many days our workers are working per month
 			revenue_per_hit = 0.1, #how much we charge per hit
