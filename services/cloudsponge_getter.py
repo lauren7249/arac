@@ -12,20 +12,7 @@ urls = (
 
 app = web.application(urls, globals())
 
-class add:
-    def POST(self):
-		web.header('Access-Control-Allow-Origin', '*')
-		web.header('Access-Control-Allow-Credentials', 'true')    	
-		web.header('Access-Control-Allow-Headers', '*')
-		web.header('Access-Control-Allow-Methods','*')
-		i = web.data()
-		for record in json.loads(i):
-			owner = record.get("contacts_owner",{})
-			contact = record.get("contact",{})
-			r = CloudspongeRecord(owner=owner, contact=contact)
-			session.add(r)
-		session.commit()
-		return "good"
+
 
 if __name__ == "__main__":
     app.run()

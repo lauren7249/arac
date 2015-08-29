@@ -98,6 +98,10 @@ matched_df = df[df.matches_fully==1.0]
 matched_df.to_csv('/Users/lauren/Documents/data/matched.touchpoints.output.csv', encoding='utf-8', index=None)
 #214
 print len(set(matched_df["ID Number"].values))
+
+#219
+print len(set(matched_df["First Name"].str.lower() + matched_df["Last Name"].str.lower()))
+
 #233
 print len(set(matched_df["li_url"].values))
 matched_df_partial = df[df.matches_partially==1.0]
@@ -134,3 +138,11 @@ output_df.drop(["projects"], axis=1, inplace=True)
 output_df.drop(["people"], axis=1, inplace=True)
 output_df.drop(["linkedin_id"], axis=1, inplace=True)
 output_df.to_csv('/Users/lauren/Documents/data/27Aug2015.touchpoints.matches.csv', encoding='utf-8', index=None)
+
+unique_urls = set()
+unique_names = set()
+for index, row in tp.iterrows():
+    #name = get_name(row)
+    name = row["First Name"] + " " + row["Last Name"]
+    urls = bing.search_linkedin_by_name(name, page_limit=0, limit=300)
+    unique_urls.update(urls)
