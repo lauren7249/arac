@@ -3,6 +3,7 @@ from prime.prospects.get_prospect import session
 import re
 
 def parse_facebook_html(source):
+    if source is None: return None
     raw_html = lxml.html.fromstring(source)
     article = None
     profile = {} 

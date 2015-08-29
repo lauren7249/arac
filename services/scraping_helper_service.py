@@ -14,6 +14,8 @@ from prime.utils.update_database_from_dict import insert_linkedin_profile
 from prime.prospects.get_prospect import get_session
 from consume.consumer import *
 from prime.prospects.models import CloudspongeRecord
+from services.touchpoints_costs import *
+
 session = get_session()
 
 web.config.debug = False
@@ -22,7 +24,8 @@ urls = (
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
     '/log_uploaded/url=(.+)', 'log_uploaded',
-    '/add', 'add'
+    '/add', 'add',
+    '/calculate_costs', 'calculate_costs'
 )
 
 app = web.application(urls, globals())
@@ -90,6 +93,16 @@ class add:
             session.add(r)
         session.commit()
         return "good"
+
+class calculate_costs:
+    def POST(self):
+        web.header('Access-Control-Allow-Origin', '*')
+        web.header('Access-Control-Allow-Credentials', 'true')      
+        web.header('Access-Control-Allow-Headers', '*')
+        web.header('Access-Control-Allow-Methods','*')
+        results = analyze(**json.loads(web.data()))
+        return json.dumps(results)
+
 if __name__ == "__main__":
     app.run()
 
