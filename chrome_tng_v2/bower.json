@@ -3,7 +3,6 @@
     "version": "0.0.3",
     "dependencies": {
         "bootstrap-sass-official": ">=3.3.5",
-        "log": ">=0.3.0",
-        "immutable-js": ">=0.3.1-6"
+        "log": ">=0.3.0"
     }
 }

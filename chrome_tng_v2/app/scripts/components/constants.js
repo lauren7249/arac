@@ -7,7 +7,7 @@
  * @constant Print extra debug to the browser console
  * @type {boolean}
  */
-var AC_DEBUG_MODE = true;
+var AC_DEBUG_MODE = false;
 
 /**
  * @constant Amazon region
