@@ -84,7 +84,7 @@ export default class AC_Helpers extends Object {
                 }
             });
         } catch (e) {
-            log(`Unable to conect to AWS: [c="color: red"]${e}[c]`);
+            AC_Helpers.debugLog(`Unable to connect to AWS: [c="color: red"]${e}[c]`);
             this._bucket = undefined;
             throw e;
         }
@@ -126,7 +126,7 @@ export default class AC_Helpers extends Object {
 
         } else {
 
-            log('Unable to parse URI: [c="color: red"]_${old}_[c]');
+            AC_Helpers.debugLog(`Unable to parse URI: [c="color: red"]_${old}_[c]`);
             throw 'Unable to parse URI: [${old}]';
         }
     }
@@ -214,6 +214,8 @@ export default class AC_Helpers extends Object {
      *
      * @external AWS#upload
      * @see {@link http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#upload-property}
+     *
+     * TODO Retry logic, error handling in general
      */
     upload_to_s3(params, cb = emptyFunction) {
         'use strict';
@@ -232,36 +234,23 @@ export default class AC_Helpers extends Object {
      * @static
      * @param {string} uri - URI scraped
      *
-     * FIXME This is a messy hack!
-     * TODO Review the regex replacement to see if we can accomplish the same in a less brittle way
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
+     * FIXME This is truly fire and forget -- no concept of error handling, retry etc.
      */
     notify_s3_success(uri) {
         'use strict';
 
-        var _url = AC_QUEUE_SUCCESS_URL_BASE + uri.replace(/\//g, ";").replace(/\?/g, "`");
+        var _url = AC_QUEUE_SUCCESS_URL_BASE + uri.replace(/\//g, ';').replace(/\?/g, '`');
         /**
          * @type {Window.XMLHttpRequest|XMLHttpRequest}
          */
         let xhr = new XMLHttpRequest();
         xhr.addEventListener('loadend', (e) => {
-            console.debug(`Off to Lauren: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
+            AC_Helpers.debugLog(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
         }, false);
         xhr.open('get', _url, true);
         xhr.send();
 
-        //if (uri !== undefined) {
-        //    uri = uri.replace('/\//g', ';').replace('/\?/g', '`');
-        //    var notification_url = AC_QUEUE_SUCCESS_URL_BASE.concat(uri);
-        //
-        //    this.get_data(notification_url, {},
-        //        (xhr, response) => {
-        //            AC_Helpers.debugLog(`SUCCESS: ${notification_url}`);
-        //        },
-        //        (xhr, response, e) => {
-        //            log(`FAILURE: ${notification_url} [${e.toString}]`);
-        //        });
-        //}
     }
 
     /**
