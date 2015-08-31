@@ -24,38 +24,40 @@ var captcha = /captcha/i;
 
 var html_mime = 'text/html';
 
+/**
+ * Default HTTP Options passed
+ */
 var http_options = {
     cache: false, timeout: 30000, async: true,
     attempts: 1, headers: {
         'Accept-Language': 'en-US'
     }
 };
+// Seal the options_object
 Object.seal(http_options);
+/**
+ * Set a limit of 1 HTTP request at a time.  Note
+ * this is less than a web browser which can normally
+ * make 5 simultaneous requests per domain name
+ */
 qwest.limit(1);
 qwest.setDefaultXdrResponseType('text');
 
 
 var TimerMixin = require('react-timer-mixin');
 
-//var SetIntervalMixin = {
-//    componentWillMount: function() {
-//        this.intervals = [];
-//    },
-//    setInterval: function() {
-//        this.intervals.push(setInterval.apply(null, arguments));
-//    },
-//    componentWillUnmount: function() {
-//        this.intervals.map(clearInterval);
-//    }
-//};
-
+/**
+ * App is the main component and new
+ * HTML element <App />
+ */
 var App = React.createClass({
     mixins: [TimerMixin],
     getInitialState: function() {
         return {
             queue: Immutable.Stack(),
-            progress: 0,
-            progress_val: 0,
+            click_enabled: true,
+            meter_now: 0,
+            meter_max: 0,
             last_scrape: Date.now()
         };
     },
@@ -98,7 +100,11 @@ var App = React.createClass({
             .then(this.onNextBatchReceived)
             .catch(this.onNetworkError);
     },
-    getRandomInt(min, max){
+    /**
+     * Return a random integer between min and max,
+     * inclusive
+     */
+        getRandomInt(min, max){
         return Math.floor(Math.random() * (max - min)) + min;
     },
     /**
@@ -110,14 +116,13 @@ var App = React.createClass({
         data = AC_Helpers.delimited_to_list(data, '\n');
         var that = this;
         data.forEach(function(item) {
-
             // Check if the component has been mounted onto
             // the DOM before mutating state.
             if (that.isMounted()) {
                 that.setState((state, props) => {
                     var _item = AC_Helpers.normalize_string(item);
                     return {
-                        queue: that.state.queue.unshift(item)
+                        queue: that.state.queue.unshift(_item)
                     };
                 });
             }
@@ -125,22 +130,13 @@ var App = React.createClass({
         that.onCheckForWork();
     },
     /**
-     * @private
-     * @param {string} url
-     * @param {boolean} in_use
+     * Called when a Scrape job has been assigned
+     * This kicks off the worker.
+     *
+     * @param {strong} url - The url to scrape
      */
-        setUrlInUse(url, in_use){
-        return undefined;
-    },
     onWorkTaken(url){
         var that = this;
-        //let newOptions = {
-        //    cache: false, timeout: 30000, async: true,
-        //    attempts: 1,
-        //    'Accept-Language': 'en-US',
-        //    'X-ATT-DeviceId': btoa(url)
-        //};
-        //console.log(newOptions);
         qwest.get(url, null, http_options)
             .then(function(xhr, data) {
                 that.onScrapeSucceeded(xhr, data, url);
@@ -154,20 +150,24 @@ var App = React.createClass({
      *
      * @param {string} url - URL that had been scraped
      * @param {boolean} success - Success/Failure of scrape
-     * @param {XMLHttpRequest} ctx - Context object
      */
-        onWorkFinished(url, success, ctx){
-        this.setState((state, props)=> {
-            return ({
-                progress_val: state.progress_val + 1
-            });
-        });
+    onWorkFinished(url, success){
+        /**
+         * The boundary of work was changed during development
+         *  and the bulk of the code initially envisioned is now
+         *  in onScrapeSucceeded.  This fragment is left in place
+         *  as a logical extension point for retry logic.
+         */
+
         this.onCheckForWork();
     },
     onNetworkError: function(xhr, data, err) {
         console || console.error(`${xhr} ${data} ${err}`);
     },
     /**
+     * Called when button is clicked, when the queue
+     * is drained and from a slow timer to attempt
+     * to keep the queue full in all cases.
      *
      * @param {SyntheticEvent} e
      */
@@ -175,11 +175,18 @@ var App = React.createClass({
         var that = this;
 
         if (e !== undefined) {
+            // The eventSource was the Get More Work Button
             if (e.currentTarget.name === 'scrape_it') {
+                that.setState(
+                    {
+                        click_enabled: false // TODO Re-enable button when queue is empty
+                    }
+                );
                 that.getNextBatch();
             }
         }
         /**
+         * Type information to help IDE do code completion
          * @type {Immutable.Stack}
          * @private
          */
@@ -204,11 +211,11 @@ var App = React.createClass({
         }
     },
     onScrapeSucceeded: function(xhr, data, original_url) {
-        console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
+        //console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
         this.onScrapeDoneAlwaysDo(xhr, data, original_url);
     },
     onScrapePageNotFound: function(xhr, data, original_url) {
-        window.alert('Page not found.');
+        console || console.error(`Page not found. [${original_url}]`);
     },
     /**
      *
@@ -218,7 +225,7 @@ var App = React.createClass({
      * @param {string} original_url
      */
     onScrapeFailed: function(xhr, data, err, original_url) {
-        console.warn(err);
+        console || console.warn(err);
         this.onScrapeDoneAlwaysDo(xhr, data, original_url);
         //window.open(xhr.responseURL, 'AC_F');
     },
@@ -254,29 +261,19 @@ var App = React.createClass({
         });
     },
     render: function() {
-        /*        let _rows = this.state.queue.map((row, idx)=> {
-         if (idx > 10) {
-         return undefined;
-         }
-         return (
-         <tr key={'tr-'+ idx}>
-         <td key={'td-' + idx}>
-         {idx}
-         </td>
-         </tr>
-         );
-         }, this);*/
         return (
             <div>
                 <div className='hero-unit'>
                     <p>AC Browser</p>
 
                     <div className='scrape_list'/>
-                    <progress value={this.state.progress_val}
-                              max={this.state.queue.size}
-                              className='scrape_progress'/>
-                    <br />
-                    <dialog>TEST</dialog>
+                    <div className='queue_size_container'>
+                        <p >
+                            <computercode className='queue_size'>
+                                {this.state.queue.count()}
+                            </computercode>
+                        </p>
+                    </div>
                     <br />
                     <button type='button' name='scrape_it' key='work'
                             enabled={this.state.click_enabled}
