@@ -104,7 +104,7 @@ var App = React.createClass({
      * Return a random integer between min and max,
      * inclusive
      */
-    getRandomInt(min, max){
+        getRandomInt(min, max){
         return Math.floor(Math.random() * (max - min)) + min;
     },
     /**
@@ -130,18 +130,12 @@ var App = React.createClass({
         that.onCheckForWork();
     },
     /**
-     * @deprecated
-     */
-        setUrlInUse(url, in_use){
-        return undefined;
-    },
-    /**
      * Called when a Scrape job has been assigned
      * This kicks off the worker.
      *
      * @param {strong} url - The url to scrape
      */
-        onWorkTaken(url){
+    onWorkTaken(url){
         var that = this;
         qwest.get(url, null, http_options)
             .then(function(xhr, data) {
@@ -156,13 +150,15 @@ var App = React.createClass({
      *
      * @param {string} url - URL that had been scraped
      * @param {boolean} success - Success/Failure of scrape
-     * @param {XMLHttpRequest} ctx - Context object
      */
-        onWorkFinished(url, success, ctx){
-        //this.setState((state, props)=> {
-        //    return ({
-        //    });
-        //});
+    onWorkFinished(url, success){
+        /**
+         * The boundary of work was changed during development
+         *  and the bulk of the code initially envisioned is now
+         *  in onScrapeSucceeded.  This fragment is left in place
+         *  as a logical extension point for retry logic.
+         */
+
         this.onCheckForWork();
     },
     onNetworkError: function(xhr, data, err) {
@@ -179,16 +175,18 @@ var App = React.createClass({
         var that = this;
 
         if (e !== undefined) {
+            // The eventSource was the Get More Work Button
             if (e.currentTarget.name === 'scrape_it') {
                 that.setState(
                     {
-                        click_enabled: false
+                        click_enabled: false // TODO Re-enable button when queue is empty
                     }
                 );
                 that.getNextBatch();
             }
         }
         /**
+         * Type information to help IDE do code completion
          * @type {Immutable.Stack}
          * @private
          */
@@ -213,11 +211,11 @@ var App = React.createClass({
         }
     },
     onScrapeSucceeded: function(xhr, data, original_url) {
-        console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
+        //console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
         this.onScrapeDoneAlwaysDo(xhr, data, original_url);
     },
     onScrapePageNotFound: function(xhr, data, original_url) {
-        window.alert('Page not found.');
+        console || console.error(`Page not found. [${original_url}]`);
     },
     /**
      *
@@ -227,7 +225,7 @@ var App = React.createClass({
      * @param {string} original_url
      */
     onScrapeFailed: function(xhr, data, err, original_url) {
-        console.warn(err);
+        console || console.warn(err);
         this.onScrapeDoneAlwaysDo(xhr, data, original_url);
         //window.open(xhr.responseURL, 'AC_F');
     },
@@ -263,18 +261,6 @@ var App = React.createClass({
         });
     },
     render: function() {
-        /*        let _rows = this.state.queue.map((row, idx)=> {
-         if (idx > 10) {
-         return undefined;
-         }
-         return (
-         <tr key={'tr-'+ idx}>
-         <td key={'td-' + idx}>
-         {idx}
-         </td>
-         </tr>
-         );
-         }, this);*/
         return (
             <div>
                 <div className='hero-unit'>
