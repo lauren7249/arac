@@ -4,6 +4,7 @@
     "dependencies": {
     },
     "devDependencies": {
+        "babel-core":"",
         "babel-eslint": ">=4.0.10",
         "babel-jest": "^5.0.1",
         "babel-plugin-object-assign":">=1.2.1",
