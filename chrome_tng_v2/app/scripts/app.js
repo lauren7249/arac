@@ -24,19 +24,32 @@ var captcha = /captcha/i;
 
 var html_mime = 'text/html';
 
+/**
+ * Default HTTP Options passed
+ */
 var http_options = {
     cache: false, timeout: 30000, async: true,
     attempts: 1, headers: {
         'Accept-Language': 'en-US'
     }
 };
+// Seal the options_object
 Object.seal(http_options);
+/**
+ * Set a limit of 1 HTTP request at a time.  Note
+ * this is less than a web browser which can normally
+ * make 5 simultaneous requests per domain name
+ */
 qwest.limit(1);
 qwest.setDefaultXdrResponseType('text');
 
 
 var TimerMixin = require('react-timer-mixin');
 
+/**
+ * App is the main component and new
+ * HTML element <App />
+ */
 var App = React.createClass({
     mixins: [TimerMixin],
     getInitialState: function() {
@@ -87,6 +100,10 @@ var App = React.createClass({
             .then(this.onNextBatchReceived)
             .catch(this.onNetworkError);
     },
+    /**
+     * Return a random integer between min and max,
+     * inclusive
+     */
     getRandomInt(min, max){
         return Math.floor(Math.random() * (max - min)) + min;
     },
@@ -105,7 +122,7 @@ var App = React.createClass({
                 that.setState((state, props) => {
                     var _item = AC_Helpers.normalize_string(item);
                     return {
-                        queue: that.state.queue.unshift(item)
+                        queue: that.state.queue.unshift(_item)
                     };
                 });
             }
