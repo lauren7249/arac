@@ -90,7 +90,7 @@ class add:
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
             user_email = record.get("user_email")
-            r = CloudspongeRecord(user_email=user_email, owner=owner, contact=contact)
+            r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact)
             session.add(r)
         session.commit()
         return "good"
