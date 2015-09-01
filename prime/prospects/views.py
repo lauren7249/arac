@@ -154,6 +154,24 @@ def confirm_profile():
         return redirect("auth.signup_linkedin")
     return render_template('confirm.html', prospect=prospect)
 
+@prospects.route("/contacts_upload")
+def contacts_upload():
+    user = current_user
+    prospect = None
+    first_time = False
+    if 'first_time' in flask_session:
+        first_time = True
+        del flask_session['first_time']
+    try:
+        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
+    except:
+        try:
+            prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
+        except:
+            prospect = None
+    return render_template('cloudsponge/add.html',
+            prospect=prospect)
+
 @prospects.route("/dashboard")
 def dashboard():
     user = current_user
