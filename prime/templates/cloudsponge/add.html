@@ -126,12 +126,11 @@
                     events = data.events;
                     for (i = 0; i < events.length; i++) { 
                         cloudsponge_status = events[i].status;
-                        if (cloudsponge_status == 'COMPLETED') {break;}
-                    }  
-                    console.log(cloudsponge_status);
-                    sleep(1000);
-                    var len = get_contacts(import_id, divid, service); 
-                    return len ;     
+                        if (cloudsponge_status == 'COMPLETED') {
+                          get_contacts(import_id, divid, service); 
+                          break;
+                        }
+                    }     
                   }); 
               }  
           }, 1000);             
