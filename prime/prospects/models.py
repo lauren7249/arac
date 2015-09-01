@@ -820,7 +820,8 @@ class EmailContact(db.Model):
 class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"
     id = db.Column(Integer, primary_key=True)
-    owner = db.Column(JSON)
+    user_email = db.Column(CIText())
+    contacts_owner = db.Column(JSON)
     contact = db.Column(JSON)
 
 

@@ -89,7 +89,8 @@ class add:
         for record in json.loads(i):
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
-            r = CloudspongeRecord(owner=owner, contact=contact)
+            user_email = record.get("user_email")
+            r = CloudspongeRecord(user_email=user_email, owner=owner, contact=contact)
             session.add(r)
         session.commit()
         return "good"
