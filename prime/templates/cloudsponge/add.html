@@ -31,20 +31,19 @@
   <body>
 
   <div class='overlay'>
-<!--     <div class='linkedin modal'>
-      <a href='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook' target='_blank'>
-        <img src='./img/linkedin.png' />
-      </a>
-    </div> -->
     <div class='email modal'>
       <h3>Select Email Provider</h3>
       <ol>
-
         <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
         <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
         <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
-      </div>
     </div>
+    <div class='waiting modal'>
+      <div class='logo'>
+        <img src='./img/spinner_192.gif' />
+      </div>
+    </div>    
+  </div>
 
   <div class='signup' id="signup">
     <div class='logo'>
@@ -87,32 +86,6 @@
     cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     contacts_array = [];
-    function get_contacts(import_id, divid, service) {
-      $.getJSON(cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function(data){
-        contacts = data.contacts;
-        contacts_owner = data.contacts_owner;
-        for (i = 0; i < contacts.length; i++) { 
-            var contact = contacts[i];
-            contacts_array.push({contact:contact, contacts_owner:contacts_owner, user_email:email_address});
-           // console.log(contact);
-            // var emails = contact.email;
-            // for (k = 0; k < emails.length; k++) { 
-            //     var email = emails[k];
-            //     emails_array.push(email.address);
-            //     //console.log(emails_array.length);
-            //     //console.log(email.address);
-            // }                             
-        }
-        var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
-        if (contacts_owner) {
-
-          response_string = response_string + "from " + contacts_owner.email[0].address;
-        }
-        if (contacts.length) { $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); }
-        return contacts.length;
-
-      });     
-    }
     function do_import(service, divid) {
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
         function(data) {
@@ -120,20 +93,46 @@
           var import_id = data.import_id;
           var win = window.open(cloudsponge_url);
           var timer = setInterval(function() {   
-              if(win.closed) {  
+              if(win.closed) {
+                  $(".overlay").fadeIn();
+                  $(".waiting").show();                
                   clearInterval(timer); 
                   $.getJSON(cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function(data){
                     events = data.events;
                     for (i = 0; i < events.length; i++) { 
                         cloudsponge_status = events[i].status;
                         if (cloudsponge_status == 'COMPLETED') {
-                          get_contacts(import_id, divid, service); 
+                          var timer2 = setInterval(function() {  
+                            $.getJSON(cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function() {
+                            })
+                            .success(function(data) {
+                              clearInterval(timer2); 
+                              contacts = data.contacts;
+                              contacts_owner = data.contacts_owner;
+                              for (i = 0; i < contacts.length; i++) { 
+                                  var contact = contacts[i];
+                                  contacts_array.push({contact:contact, contacts_owner:contacts_owner, user_email:email_address});
+                           
+                              }
+                              var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
+                              if (contacts_owner) {
+
+                                response_string = response_string + "from " + contacts_owner.email[0].address;
+                              }
+                              if (contacts.length) { 
+                                $(".waiting").hide();   
+                                $(".overlay").fadeOut();
+                                $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); 
+                                contacts = [];
+                              }                              
+                            });                          
+                          }, 1000); 
                           break;
                         }
                     }     
                   }); 
               }  
-          }, 1000);             
+          }, 500);             
         });      
     }
     $(function() {
@@ -187,23 +186,25 @@
         // if (len>0) {$("#csv").hide();}
       })
       $("#next").click(function() {
-        console.log(contacts_array.length);
-        //alert(email_address);
         if (contacts_array.length > 0) {
-         // $.post('http://0.0.0.0:8080/add&callback=?',contacts_array,null);
-         //console.log(JSON.stringify(contacts_owner));
+          $(".overlay").fadeIn();
+          $(".waiting").show();             
           $.ajax({
               type: 'POST',
               url: 'http://169.55.28.212:8080/add',
               crossDomain: true,
               data: JSON.stringify(contacts_array),
               success: function(responseData, textStatus, jqXHR) {
+                  $(".waiting").hide();   
+                  $(".overlay").fadeOut();                
                   var value = responseData.someKey;
                   $("div#upload_area").hide();
                   $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total contacts uploaded " + "</i>"); 
                   //alert('uploaded ' + contacts_array.length + ' contacts!')
               },
               error: function (responseData, textStatus, errorThrown) {
+                  $(".waiting").hide();   
+                  $(".overlay").fadeOut();                
                   alert('upload failed.');
               }
           });   
