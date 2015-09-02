@@ -112,23 +112,30 @@
                             .success(function(data) {
                               clearInterval(timer2); 
                               contacts = data.contacts;
-                              contacts_owner = data.contacts_owner;
-                              for (i = 0; i < contacts.length; i++) { 
-                                  var contact = contacts[i];
-                                  contacts_array.push({contact:contact, contacts_owner:contacts_owner, user_email:email_address});
-                           
-                              }
-                              var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
-                              if (contacts_owner) {
+                              if (contacts !=undefined && contacts.length) { 
+                                contacts_owner = data.contacts_owner;
 
-                                response_string = response_string + "from " + contacts_owner.email[0].address;
-                              }
-                              if (contacts && contacts.length) { 
+                                for (i = 0; i < contacts.length; i++) { 
+                                    var contact = contacts[i];
+                                    contacts_array.push({contact:contact, contacts_owner:contacts_owner, user_email:email_address});
+                             
+                                }
+                                var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
+                                if (contacts_owner) {
+
+                                  response_string = response_string + "from " + contacts_owner.email[0].address;
+                                }
+                              
                                 $(".waiting").hide();   
                                 $(".overlay").fadeOut();
                                 $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); 
                                 contacts = [];
-                              }                              
+                              } 
+                              else {
+                                $(".waiting").hide();   
+                                $(".overlay").fadeOut();                                
+                                alert('Invalid input');
+                              }                             
                             });                          
                           }, 1000); 
                           break;
