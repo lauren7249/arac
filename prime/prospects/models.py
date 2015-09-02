@@ -755,7 +755,7 @@ class EmailContact(db.Model):
         session.add(self)
         session.commit()
         return self.clearbit_response
-        
+
     @property
     def get_pipl_response(self) :
         content = {}
@@ -833,7 +833,7 @@ class CloudspongeRecord(db.Model):
     user_email = db.Column(CIText())
     contacts_owner = db.Column(JSON)
     contact = db.Column(JSON)
-
+    service = db.Column(CIText())
 
 class Proxy(db.Model):
     __tablename__ = "proxy"
