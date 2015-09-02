@@ -119,7 +119,7 @@
 
                                 response_string = response_string + "from " + contacts_owner.email[0].address;
                               }
-                              if (contacts.length) { 
+                              if (contacts and contacts.length) { 
                                 $(".waiting").hide();   
                                 $(".overlay").fadeOut();
                                 $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); 

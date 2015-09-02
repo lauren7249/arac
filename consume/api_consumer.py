@@ -3,14 +3,16 @@ import lxml.html
 from prime.utils import headers
 import pandas
 import re
+import clearbit
 
+clearbit.key='6c8b167976876dd33f8000269768e925'
 pipl_api_key = "uegvyy86ycyvyxjhhbwsuhj9"
 vibe_api_key = "e0978324d7ac8b759084aeb96c5d7fde"
 fullcontact_api_key = "dda7318aacfcf5cd"
 pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key + "&pretty=true"
 vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="
 fullcontact_url = "http://api.fullcontact.com/v2/person.json?apiKey=" + fullcontact_api_key 
-social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon"]  
+social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel"]  
 
 #zillow = pandas.read_csv("/Users/lauren/Downloads/Zip_ZriPerSqft_AllHomes.csv")
 

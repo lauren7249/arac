@@ -739,6 +739,7 @@ class EmailContact(db.Model):
     pipl_response = db.Column(JSON)
     vibe_response = db.Column(JSON)
     fullcontact_response = db.Column(JSON)
+    clearbit_response = db.Column(JSON)
 
     def __repr__(self):
         return '<email ={0} linkedin_url={1}>'.format(
@@ -746,6 +747,15 @@ class EmailContact(db.Model):
                 self.linkedin_url
                 )
 
+    @property 
+    def get_clearbit_response(self):
+        if self.clearbit_response: return self.clearbit_response
+        person = clearbit.Person.find(email=email, stream=True)
+        self.clearbit_response = person
+        session.add(self)
+        session.commit()
+        return self.clearbit_response
+        
     @property
     def get_pipl_response(self) :
         content = {}
