@@ -24,6 +24,16 @@ from consume.api_consumer import *
 
 bucket = get_bucket('facebook-profiles')
 
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        session.add(instance)
+        session.commit()
+        return instance
+
 def uu(str):
     if str:
         return str.encode("ascii", "ignore").decode("utf-8")
@@ -750,7 +760,7 @@ class EmailContact(db.Model):
     @property 
     def get_clearbit_response(self):
         if self.clearbit_response: return self.clearbit_response
-        person = clearbit.Person.find(email=email, stream=True)
+        person = clearbit.Person.find(email=self.email, stream=True)
         self.clearbit_response = person
         session.add(self)
         session.commit()

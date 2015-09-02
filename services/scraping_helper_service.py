@@ -24,6 +24,7 @@ urls = (
     '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
     '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
     '/log_uploaded/url=(.+)', 'log_uploaded',
+    '/post_uploaded', 'post_uploaded',
     '/add', 'add',
     '/calculate_costs', 'calculate_costs'
 )
@@ -95,6 +96,15 @@ class add:
             session.add(r)
         session.commit()
         return "good"
+
+class post_uploaded:
+    def POST(self):
+        d = json.loads(web.data())
+        real_url = d.get("url")
+        user_id = d.get("user_id")
+        r.srem("urls", real_url)
+        r.sadd("chrome_uploads",real_url)
+        return real_url
 
 class calculate_costs:
     def POST(self):
