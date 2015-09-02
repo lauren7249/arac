@@ -91,19 +91,23 @@
         function(data) {
           var cloudsponge_url = data.url;
           var import_id = data.import_id;
+          var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+          var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+          console.log(tempcontactsurl);
           var win = window.open(cloudsponge_url);
           var timer = setInterval(function() {   
               if(win.closed) {
                   $(".overlay").fadeIn();
                   $(".waiting").show();                
                   clearInterval(timer); 
-                  $.getJSON(cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function(data){
+                  $.getJSON(tempeventsurl, function(data){
                     events = data.events;
+
                     for (i = 0; i < events.length; i++) { 
                         cloudsponge_status = events[i].status;
                         if (cloudsponge_status == 'COMPLETED') {
                           var timer2 = setInterval(function() {  
-                            $.getJSON(cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?', function() {
+                            $.getJSON(tempcontactsurl, function() {
                             })
                             .success(function(data) {
                               clearInterval(timer2); 
