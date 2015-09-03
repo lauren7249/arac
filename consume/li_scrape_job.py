@@ -36,7 +36,7 @@ def scrape_job(job_urls):
 	    r.sadd("urls",url)
 
 	left_to_scrape = len(r.smembers("urls") & new_urls)
-	while(left_to_scrape<5):
+	while(left_to_scrape>5):
 		print str(left_to_scrape) + " left to scrape"
 		time.sleep(2)
 		left_to_scrape = len(r.smembers("urls") & new_urls)
