@@ -5,7 +5,8 @@ from prime.utils import profile_re
 from difflib import SequenceMatcher
 
 #api_key = "xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg" #jimmy@advisorconnect.co
-api_key = "VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s" #lauren@advisorconnect.co
+#api_key = "VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s" #lauren@advisorconnect.co
+api_key = "ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU" #laurentracytalbot@gmail.com
 
 def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=None, include_terms_in_title=None):
 	filtered = []
@@ -49,12 +50,12 @@ def query(terms, domain="", intitle="", page_limit=1):
 		record.pages+=1
 		session.add(record)
 		session.commit()
-	return record.results
+	return record
 
 # %27site%3Alinkedin.com%20intitle%3AYesenia%2BMiranda%2Blinkedin%27&Adult=%27Strict%27
 def search_linkedin_by_name(name, page_limit=1, limit=10):
-	results = query("", domain="linkedin.com", intitle=re.sub(r" ","%2B",name), page_limit=page_limit)
-	profiles = filter_results(results, url_regex=profile_re, include_terms_in_title=name)
+	record = query("", domain="linkedin.com", intitle=re.sub(r" ","%2B",name), page_limit=page_limit)
+	profiles = filter_results(record.results, url_regex=profile_re, include_terms_in_title=name)
 	return profiles[:limit]
 
 
