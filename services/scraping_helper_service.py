@@ -26,7 +26,8 @@ urls = (
     '/log_uploaded/url=(.+)', 'log_uploaded',
     '/post_uploaded', 'post_uploaded',
     '/add', 'add',
-    '/calculate_costs', 'calculate_costs'
+    '/calculate_costs', 'calculate_costs',
+    '/get_my_total/user_id=(.+)', 'get_my_total'
 )
 
 app = web.application(urls, globals())
@@ -64,6 +65,10 @@ class log_uploaded:
         return url
 # http://www.google.com/search?q=site:www.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
 # http://www.google.com/search?q=site%3Awww.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
+class get_my_total:
+    def GET(self, user_id):
+        return r.hget("chrome_uploads_successes",user_id)
+
 class select:
     def GET(self, n):
         all = list(r.smembers("urls"))
@@ -104,6 +109,7 @@ class post_uploaded:
         user_id = d.get("user_id")
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
+        r.hset("chrome_uploads_users",real_url, user_id)
         return real_url
 
 class calculate_costs:

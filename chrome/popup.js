@@ -21,9 +21,6 @@ function get_url(orig_url) {
 	var params = {Key: fn, ContentType:'text/html', Body: page};
 	bucket.upload(params, function (err, data) {
 		uploaded = {url:orig_url, user_id:"lauren"};
-		// var xmlHttp = new XMLHttpRequest();
-		// xmlHttp.open( "GET", "http://169.55.28.212:8080/log_uploaded/url=" + orig_url.replace(/\//g, ";").replace(/\?/g, "`"), false );
-		// xmlHttp.send( null );
           $.ajax({
               type: 'POST',
               url: 'http://169.55.28.212:8080/post_uploaded',
