@@ -3,7 +3,7 @@
  * Advisor Connect
  */
 import './components/helpers.js';
-import {AC} from './components/helpers.js';
+import {AC as AC} from './components/helpers.js';
 var uuid = require('uuid');
 
 /**
@@ -34,11 +34,16 @@ let http_options = {
     }
 };
 
-
+let isRuning = false;
+var ac_uid = undefined;
+/**
+ * Initilization routines
+ * @param that Context object
+ */
 var init = function(that) {
     runtime.onInstalled.addListener(function(deets) {
 
-        console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID(chrome));
+        console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID(that));
 
     });
 
@@ -61,44 +66,64 @@ var init = function(that) {
     });
 };
 
-var getUserID = function() {
 
-    if (AC.userId === undefined) {
+/**
+ * UserID getter
+ * @param that Context Object
+ */
+function getUserID(that) {
+
+    if (that.ac_uid === undefined) {
         // Look for userid in local storage
-        storage.local.get('ac_userid', function(obj) {
+        getFromStorage(that, 'ac_uid', function(obj) {
 
-            if (obj.ac_userid === undefined) {
-                // No saved id, create a uuid
+            if (obj.ac_uid === undefined) {
+                // No saved id, create a UUID
                 var _uuid = uuid.v4();
                 if (_uuid === undefined) {
-                    throw 'UUID was not created, cannot proceed without a userid : ' + _uuid;
+                    throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
                 } else {
-                    setUserID(_uuid);
-                    return AC.userId;
+                    // UUID generated, save to storage, set local variable and return value
+                    saveToStorage(that, 'ac_uid', _uuid);
+                    that.ac_uid = obj.ac_uid;
+                    return obj.ac_uid;
                 }
-                // Id was found in local storage.  Set to local variable and return
             } else {
-                console.log('Got ' + obj.ac_userid);
-                console.log('Returning ' + AC.userId);
-
-                AC.userId = obj.ac_userid;
-                return obj.ac_userid;
+                // Found.  Set local variable and return value
+                that.ac_uid = obj.ac_uid;
+                return obj.ac_uid;
             }
         });
     }
-};
+}
 
-var setUserID = function(id) {
-    console.log('SetUserID ' + id);
-    AC.userId = id;
-    storage.local.set({ac_userid: id}, function() {
+
+/**
+ * Get a value from local storage
+ * @param that Context
+ * @param obj Query object or string key
+ * @param callback of the type function(obj)
+ */
+function getFromStorage(that = this, obj = {}, callback = undefined) {
+    storage.local.get(obj, callback);
+}
+
+/**
+ * Save a key/value to local storage
+ * @param that Context object
+ * @param key String key value
+ * @param value Object value to save
+ */
+function saveToStorage(that = this, key = undefined, value = undefined) {
+    console.debug('saveToStorage ' + key + '/' + value);
+    storage.local.set({key: value}, function() {
         if (runtime.lastError !== undefined) {
-            console.error('Unable to save ' + id + 'error: ' + runtime.lastError.message);
+            console.error('Unable to save value: ' + value + ' for key: ' + key + ' error: ' + runtime.lastError.message);
         } else {
-            console.debug('New userid saved: ' + id);
+            console.debug('Saved key: ' + key + ' for value: ' + value);
         }
     });
-};
+}
 
 init(this);
 
