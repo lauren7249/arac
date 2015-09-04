@@ -282,8 +282,13 @@ def find_background_schools(raw_html):
 
 
 def parse_html(html):
-    raw_html = lxml.html.fromstring(html)
+    try:
+        raw_html = lxml.html.fromstring(html)
+    except:
+        return None
 
+    if raw_html is None: return None
+    
     full_name = None
     try:
         full_name = raw_html.xpath("//span[@class='full-name']")[0].text_content()

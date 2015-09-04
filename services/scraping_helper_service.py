@@ -21,8 +21,6 @@ session = get_session()
 web.config.debug = False
 urls = (
     '/select/n=(.+)', 'select',
-    '/process_chrome_ext_url/url=(.+)', 'process_chrome_ext_url',
-    '/process_chrome_ext_content/url=(.+)', 'process_chrome_ext_content',
     '/log_uploaded/url=(.+)', 'log_uploaded',
     '/post_uploaded', 'post_uploaded',
     '/add', 'add',
@@ -73,17 +71,7 @@ class select:
     def GET(self, n):
         all = list(r.smembers("urls"))
         shuffle(all)
-        return "\n".join(all[0:int(n)])
-
-class process_chrome_ext_content:
-    def POST(self):
-		content = web.data()
-		return process_content(content)       
-
-class process_chrome_ext_url:
-    def GET(self, url):
-    	content = process_url(url)
-    	return process_content(content)
+        return "\n".join(all[0:int(n)]) 
 
 class add:
     def POST(self):
@@ -93,6 +81,9 @@ class add:
         web.header('Access-Control-Allow-Methods','*')
         i = web.data()
         for record in json.loads(i):
+            if len(str(record)) > 10000: 
+                print "CloudspongeRecord is too big"
+                continue
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
             user_email = record.get("user_email")
@@ -119,6 +110,8 @@ class calculate_costs:
         web.header('Access-Control-Allow-Headers', '*')
         web.header('Access-Control-Allow-Methods','*')
         d = json.loads(web.data())
+        if d.get("pw") != "9282930283029238402": 
+            return None
         results = analyze(d)
         return json.dumps(results)
 
