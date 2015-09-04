@@ -4,13 +4,19 @@
 
 /* eslint no-unused-vars:0 */
 
-import qwest from 'qwest';
+
 import log from '../../bower_components/log';
-import URI from 'uri-js';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './constants';
+
+var console = require('console-browserify');
+var URI = require('uri-js');
+var qwest = require('qwest');
+var AWS = require('aws-sdk');
+
+var AC = AC || {};
 
 /**
  * Helper functions and non-ui code.
@@ -321,5 +327,6 @@ export default class AC_Helpers extends Object {
             return text.split(delimiter);
         }
     }
-
 }
+
+export {AC, console, URI, log, AC_Helpers};

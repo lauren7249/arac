@@ -1,15 +1,13 @@
-import React from 'react';
-import qwest from 'qwest';
-import './components/helpers';
-import AC_Helpers from './components/helpers';
-import log from '../bower_components/log';
+//import AC_Helpers from './components/helpers';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './components/constants';
 import {urls as test_urls} from './components/regular_urls';
-import Immutable from 'immutable';
+import {console, AC_Helpers} from './components/helpers';
 
+var React = require('react');
+var Immutable = require('immutable');
 /**
  * @module
  * App is the outer container for the extension
@@ -40,6 +38,7 @@ Object.seal(http_options);
  * this is less than a web browser which can normally
  * make 5 simultaneous requests per domain name
  */
+var qwest = require('qwest');
 qwest.limit(1);
 qwest.setDefaultXdrResponseType('text');
 
@@ -68,7 +67,7 @@ var App = React.createClass({
     },
     componentWillMount: function() {
         let _hp = this.props.hp;
-        console || console.assert(_hp != undefined,
+        console && console.assert(_hp != undefined,
             'Helper is not defined');
     },
     componentDidMount: function() {
@@ -104,7 +103,7 @@ var App = React.createClass({
      * Return a random integer between min and max,
      * inclusive
      */
-        getRandomInt(min, max){
+    getRandomInt(min, max){
         return Math.floor(Math.random() * (max - min)) + min;
     },
     /**
@@ -162,7 +161,7 @@ var App = React.createClass({
         this.onCheckForWork();
     },
     onNetworkError: function(xhr, data, err) {
-        console || console.error(`${xhr} ${data} ${err}`);
+        console && console.error(`${xhr} ${data} ${err}`);
     },
     /**
      * Called when button is clicked, when the queue
@@ -215,7 +214,7 @@ var App = React.createClass({
         this.onScrapeDoneAlwaysDo(xhr, data, original_url);
     },
     onScrapePageNotFound: function(xhr, data, original_url) {
-        console || console.error(`Page not found. [${original_url}]`);
+        console && console.error(`Page not found. [${original_url}]`);
     },
     /**
      *
@@ -225,7 +224,7 @@ var App = React.createClass({
      * @param {string} original_url
      */
     onScrapeFailed: function(xhr, data, err, original_url) {
-        console || console.warn(err);
+        console && console.warn(err);
         this.onScrapeDoneAlwaysDo(xhr, data, original_url);
         //window.open(xhr.responseURL, 'AC_F');
     },
@@ -240,7 +239,7 @@ var App = React.createClass({
      * @param {string} original_url
      */
     onScrapeDoneAlwaysDo: function(xhr, response, original_url) {
-        xhr || xhr.isPrototypeOf(XMLHttpRequest);
+        xhr && xhr.isPrototypeOf(XMLHttpRequest);
         var _hp = this.props.hp;
 
         let s3_parms = {
@@ -289,5 +288,7 @@ var App = React.createClass({
 
 export{ App };
 
-React.render(<App />, document.getElementById('App'));
+
+//React.render(<App />, document.getElementById('App'));
+
 
