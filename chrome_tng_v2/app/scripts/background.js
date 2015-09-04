@@ -12,34 +12,45 @@ var uuid = require('uuid');
  */
 'use strict';
 
-console.log('Loaded.');
-
 var runtime = chrome.runtime;
 var storage = chrome.storage;
+var qwest = require('qwest');
 
-var init = (that)=> {
-    runtime.onInstalled.addListener((deets)=> {
+/**
+ * Set a limit of 1 HTTP request at a time.  Note
+ * this is less than a web browser which can normally
+ * make 5 simultaneous requests per domain name
+ */
+qwest.limit(1);
+qwest.setDefaultXdrResponseType('text');
 
-        console.debug('On installed reason: ' + deets.reason);
+/**
+ * Default HTTP Options passed
+ */
+let http_options = {
+    cache: false, timeout: 30000, async: true,
+    attempts: 1, headers: {
+        'Accept-Language': 'en-US'
+    }
+};
+
+
+var init = function(that) {
+    runtime.onInstalled.addListener(function(deets) {
+
+        console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID(chrome));
 
     });
 
     runtime.onStartup.addListener(function() {
-        console.log('Installed.');
-        if (AC.userId === undefined) {
-            chrome.storage.local.get({'ac_userid': uuid.v4()}, function(obj) {
-                AC.userId = obj;
-                console.log('local storage returned:');
-                console.log(AC.userId);
-            });
-        }
+        console.log('Startup.');
     });
 
-    runtime.onConnect.addListener((port)=> {
+    runtime.onConnect.addListener(function(port) {
         console.debug(port);
     });
 
-    runtime.onMessage.addListener((msg, sender)=> {
+    runtime.onMessage.addListener(function(msg, sender) {
         console.debug(msg);
         console.debug(sender);
     });
@@ -50,55 +61,45 @@ var init = (that)=> {
     });
 };
 
-var getUserID = (chrome)=> {
+var getUserID = function() {
 
     if (AC.userId === undefined) {
         // Look for userid in local storage
-        chrome.storage.local.get('ac_userid', (obj)=> {
+        storage.local.get('ac_userid', function(obj) {
 
-            if (obj === undefined) {
+            if (obj.ac_userid === undefined) {
                 // No saved id, create a uuid
-                let uuid = uuid.v4();
-                if (uuid === undefined) {
-                    throw 'UUID was not created, cannot proceed without a userid : ' + uuid;
+                var _uuid = uuid.v4();
+                if (_uuid === undefined) {
+                    throw 'UUID was not created, cannot proceed without a userid : ' + _uuid;
                 } else {
-                    setUserID(chrome, uuid);
-                    return uuid;
+                    setUserID(_uuid);
+                    return AC.userId;
                 }
-
+                // Id was found in local storage.  Set to local variable and return
             } else {
+                console.log('Got ' + obj.ac_userid);
+                console.log('Returning ' + AC.userId);
+
+                AC.userId = obj.ac_userid;
                 return obj.ac_userid;
             }
         });
     }
 };
 
-var setUserID = (chrome, id) => {
+var setUserID = function(id) {
+    console.log('SetUserID ' + id);
     AC.userId = id;
-    chrome.storage.local.set({ac_userid: id}, ()=> {
+    storage.local.set({ac_userid: id}, function() {
         if (runtime.lastError !== undefined) {
             console.error('Unable to save ' + id + 'error: ' + runtime.lastError.message);
+        } else {
+            console.debug('New userid saved: ' + id);
         }
     });
 };
 
 init(this);
 
-/**
- * Default HTTP Options passed
- */
-var http_options = {
-    cache: false, timeout: 30000, async: true,
-    attempts: 1, headers: {
-        'Accept-Language': 'en-US'
-    }
-};
 
-/**
- * Set a limit of 1 HTTP request at a time.  Note
- * this is less than a web browser which can normally
- * make 5 simultaneous requests per domain name
- */
-var qwest = require('qwest');
-qwest.limit(1);
-qwest.setDefaultXdrResponseType('text');
