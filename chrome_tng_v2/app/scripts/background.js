@@ -2,6 +2,8 @@
  * Created by Michael Bishop on 8/31/15.
  * Advisor Connect
  */
+import {urls as test_urls} from './components/regular_urls';
+
 import './components/helpers.js';
 import {AC_Helpers as AC} from './components/helpers.js';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
@@ -24,6 +26,7 @@ var browserAction = chrome.browserAction;
 var qwest = require('qwest');
 var ac_uid = undefined;
 var ac_is_running = false;
+var test_urls_retrieved = false;
 
 /**
  * Initilization routines
@@ -84,7 +87,8 @@ var init = function(that) {
 
         storage.local.set(_toSet, function() {
             if (runtime.lastError !== undefined) {
-                console && console.error('Unable to save value: ' + value + ' for key: ' + key + ' error: ' + runtime.lastError.message);
+                console && console.error('Unable to save value: ' + value +
+                    ' for key: ' + key + ' error: ' + runtime.lastError.message);
             } else {
                 console && console.debug('Saved key: ' + key + ' with value: ' + value);
             }
@@ -97,13 +101,17 @@ var init = function(that) {
      */
     function getUserID() {
 
-        if (that && ac_uid === undefined) {
+        if (ac_uid === undefined) {
+            console.info('ac_uid is undefined, checking in storage');
+
             // Look for userid in local storage
             getFromStorage(kUid_key, function(obj) {
 
                 if (obj && obj[kUid_key] === undefined) {
                     // No saved id, create a UUID
                     var _uuid = uuid.v4();
+                    console && console.info('ID not stored, creating new one: ' + _uuid);
+
                     if (_uuid === undefined) {
                         throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
 
@@ -115,7 +123,7 @@ var init = function(that) {
                             ac_uid = obj.ac_uid;
                         });
 
-                        return getFromStorage(kUid_key);
+                        return getUserID();
                     }
                 } else {
                     // Found.  Set local variable and return value
@@ -127,6 +135,21 @@ var init = function(that) {
         }
     }
 
+    function getNextBatchOfTestURLS() {
+        // Only used in TEST
+        if (ac_is_running) {
+            if (test_urls_retrieved === false) {
+                var promise = new Promise(function(resolve, reject) {
+                    resolve(test_urls);
+                });
+                promise.then(function(urls) {
+                    test_urls_retrieved = true;
+                    onNextBatchReceived(undefined, urls);
+                });
+            }
+        }
+    }
+
     /**
      * Retrieve a new batch of URLS from Redis.
      * Data arrives a single data chunk of newline
@@ -134,6 +157,7 @@ var init = function(that) {
      */
     function getNextBatch() {
         if (ac_is_running) {
+            return getNextBatchOfTestURLS();
             console.debug(AC_QUEUE_URL);
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived())
@@ -279,13 +303,15 @@ var init = function(that) {
         };
 
         // Upload to S3
-        AC.upload_to_s3(s3_parms, function(err, data) {
+        Helpers.upload_to_s3(s3_parms, function(err, data) {
             if (err) {
                 console && console.error('Upload to S3 of ' + original_url + ' failed. Error: ' + err.toString());
                 return onWorkFinished(original_url, false);
 
             } else if (data !== undefined) {
-                AC.notify_s3_success(original_url);
+                let uid = getUserID() ? getUserID() : 'UNKNOWN';
+
+                Helpers.notify_s3_success(original_url, uid);
 
                 if (captcha.test(response) === true) {
                     console && console.warn(`CAPTCHA DETECTED! [${original_url}]`);

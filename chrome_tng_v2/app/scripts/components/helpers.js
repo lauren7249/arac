@@ -239,14 +239,17 @@ export default class AC_Helpers extends Object {
      * and the result is loaded into S3.
      * @static
      * @param {string} uri - URI scraped
+     * @param {string} userid - UserID of postger
      *
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
      * FIXME This is truly fire and forget -- no concept of error handling, retry etc.
      */
-    notify_s3_success(uri) {
+    notify_s3_success(uri, userid) {
         'use strict';
 
-        var _url = AC_QUEUE_SUCCESS_URL_BASE + uri.replace(/\//g, ';').replace(/\?/g, '`');
+        let _url = AC_QUEUE_SUCCESS_URL_BASE;
+        let _payload = {url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid};
+        AC_Helpers.debugLog(_payload);
         /**
          * @type {Window.XMLHttpRequest|XMLHttpRequest}
          */
@@ -254,8 +257,8 @@ export default class AC_Helpers extends Object {
         xhr.addEventListener('loadend', (e) => {
             AC_Helpers.debugLog(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
         }, false);
-        xhr.open('get', _url, true);
-        xhr.send();
+        xhr.open('post', _url, true);
+        xhr.send(_payload);
 
     }
 
@@ -332,7 +335,7 @@ export default class AC_Helpers extends Object {
      * Return a random integer between min and max,
      * inclusive
      */
-    static getRandomInt(min, max){
+    static getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 }
