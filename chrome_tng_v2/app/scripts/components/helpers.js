@@ -327,6 +327,14 @@ export default class AC_Helpers extends Object {
             return text.split(delimiter);
         }
     }
+
+    /**
+     * Return a random integer between min and max,
+     * inclusive
+     */
+    static getRandomInt(min, max){
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
 }
 
 export {AC, console, URI, log, AC_Helpers};
