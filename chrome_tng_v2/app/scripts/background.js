@@ -11,28 +11,31 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './components/constants';
 
-var uuid = require('uuid');
-var Immutable = require('immutable');
-
 /**
  * @module
  * Background
  */
 'use strict';
 
-var runtime = chrome.runtime;
-var storage = chrome.storage;
-var browserAction = chrome.browserAction;
-var qwest = require('qwest');
-var ac_uid = undefined;
-var ac_is_running = false;
-var test_urls_retrieved = false;
-
 /**
  * Initilization routines
  * @param that Context object
  */
-var init = function(that) {
+(function(that) {
+    'use strict';
+
+    var uuid = require('uuid');
+    var Immutable = require('immutable');
+    let chrome = that.chrome;
+    var runtime = chrome.runtime;
+    var storage = chrome.storage;
+    var browserAction = chrome.browserAction;
+    var qwest = require('qwest');
+
+    var lastTabId = -1;
+    var ac_uid = undefined;
+    var ac_is_running = false;
+    var test_urls_retrieved = false;
 
     /**
      * Pre-compile Regex for performance
@@ -63,12 +66,23 @@ var init = function(that) {
     };
     var queue = Immutable.Stack();
 
+    function sendMessage() {
+        'use strict';
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            lastTabId = tabs[0].id;
+            chrome.tabs.sendMessage(lastTabId, "Background page started.");
+        });
+    }
+
+    sendMessage();
+
     /**
      * Get a value from local storage
      * @param obj Query object or string key
      * @param callback of the type function(obj)
      */
     function getFromStorage(obj = undefined, callback = undefined) {
+        'use strict';
         console && console.debug('Getting: ' + obj);
         storage.local.get(obj, callback);
     }
@@ -80,6 +94,7 @@ var init = function(that) {
      * @param cb {function} callback function after save is complete
      */
     function saveToStorage(key = undefined, value = undefined, cb = undefined) {
+        'use strict';
         var _toSet = {};
         _toSet[key] = value;
 
@@ -100,42 +115,41 @@ var init = function(that) {
      * UserID getter
      */
     function getUserID() {
+        'use strict';
 
-        if (ac_uid === undefined) {
+        if (ac_uid === undefined || ac_uid === null) {
             console.info('ac_uid is undefined, checking in storage');
 
-            // Look for userid in local storage
-            getFromStorage(kUid_key, function(obj) {
+            ac_uid = localStorage.getItem(kUid_key);
 
-                if (obj && obj[kUid_key] === undefined) {
-                    // No saved id, create a UUID
-                    var _uuid = uuid.v4();
-                    console && console.info('ID not stored, creating new one: ' + _uuid);
+            if (ac_uid === undefined || ac_uid === null) {
 
-                    if (_uuid === undefined) {
-                        throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
+                // No saved id, create a UUID
+                var _uuid = uuid.v4();
+                console && console.info('ID not stored, creating new one: ' + _uuid);
 
-                    } else {
-                        // UUID generated, save to storage, set local variable and return value
-                        console && console.debug('New UID: ' + _uuid.toString());
+                if (_uuid === undefined || _uuid === null) {
+                    throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
 
-                        saveToStorage(kUid_key, _uuid, function() {
-                            ac_uid = obj.ac_uid;
-                        });
-
-                        return getUserID();
-                    }
                 } else {
-                    // Found.  Set local variable and return value
-                    console && console.debug('UID found in storage: ' + obj.ac_uid);
-                    ac_uid = obj.ac_uid;
-                    return obj.ac_uid;
+                    // UUID generated, save to storage, set local variable and return value
+                    console && console.debug('New UID: ' + _uuid.toString());
+                    localStorage.setItem(kUid_key, _uuid);
+
+                    ac_uid = _uuid;
+
+                    return getUserID();
                 }
-            });
+            } else {
+                // Found.  Set local variable and return value
+                console && console.debug('UID found in storage: ' + ac_uid);
+                return ac_uid;
+            }
         }
     }
 
     function getNextBatchOfTestURLS() {
+        'use strict';
         // Only used in TEST
         if (ac_is_running) {
             if (test_urls_retrieved === false) {
@@ -156,12 +170,12 @@ var init = function(that) {
      * delimited url strings.
      */
     function getNextBatch() {
+        'use strict';
         if (ac_is_running) {
-            return getNextBatchOfTestURLS();
-            console.debug(AC_QUEUE_URL);
+            console.debug('getNextBatch From: ' + AC_QUEUE_URL);
             qwest.get(AC_QUEUE_URL, null, http_options)
-                .then(onNextBatchReceived())
-                .catch(onNetworkError());
+                .then(onNextBatchReceived)
+                .catch(onNetworkError);
         }
     }
 
@@ -171,6 +185,7 @@ var init = function(that) {
      * a list before processing further.
      */
     function onNextBatchReceived(xhr, data) {
+        'use strict';
         console && console.debug('onNextBatchReceived ' + xhr + data);
         if (ac_is_running) {
 
@@ -189,6 +204,7 @@ var init = function(that) {
      * work in progress and clear the queue.
      */
     function onQuiesceWork() {
+        'use strict';
         console && console.info('Quiesce requestsed.');
 
         queue = queue.clear();
@@ -200,7 +216,7 @@ var init = function(that) {
      *
      */
     function onCheckForWork() {
-
+        'use strict';
         if (ac_is_running) {
 
             /**
@@ -215,14 +231,15 @@ var init = function(that) {
                 _item = _queue.first();
                 queue = _queue.shift();
 
-                setTimeout(
+                that.setTimeout(
                     function() {
                         onWorkTaken(_item);
                     },
                     AC.getRandomInt(5, 30)
                 );
             } else {
-                getNextBatch();
+                getNextBatchOfTestURLS();
+                //getNextBatch();
             }
         }
     }
@@ -234,6 +251,7 @@ var init = function(that) {
      * @param {strong} url - The url to scrape
      */
     function onWorkTaken(url) {
+        'use strict';
         qwest.get(url, null, http_options)
 
             .then(function(xhr, data) {
@@ -252,23 +270,26 @@ var init = function(that) {
      * @param {boolean} success - Success/Failure of scrape
      */
     function onWorkFinished(url, success) {
+        'use strict';
         /**
          * The boundary of work was changed during development
          *  and the bulk of the code initially envisioned is now
          *  in onScrapeSucceeded.  This fragment is left in place
          *  as a logical extension point for retry logic.
          */
-        let _count = queue.size;
+        let _count = queue.size.toString();
         browserAction.setBadgeText({text: _count});
         onCheckForWork();
     }
 
     function onScrapeSucceeded(xhr, data, original_url) {
+        'use strict';
         console && console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
         onScrapeDoneAlwaysDo(xhr, data, original_url);
     }
 
     function onScrapePageNotFound(xhr, data, original_url) {
+        'use strict';
         console && console.error(`Page not found. [${original_url}]`);
     }
 
@@ -280,6 +301,7 @@ var init = function(that) {
      * @param {string} original_url
      */
     function onScrapeFailed(xhr, data, err, original_url) {
+        'use strict';
         console && console.warn(err);
 
         onScrapeDoneAlwaysDo(xhr, data, original_url);
@@ -296,6 +318,7 @@ var init = function(that) {
      * @param {string} original_url
      */
     function onScrapeDoneAlwaysDo(xhr, response, original_url) {
+        'use strict';
         xhr && xhr.isPrototypeOf(XMLHttpRequest);
 
         let s3_parms = {
@@ -325,34 +348,43 @@ var init = function(that) {
     }
 
     function onNetworkError(xhr, data, err) {
+        'use strict';
         console && console.error(`${xhr} ${data} ${err}`);
     }
 
     runtime.onInstalled.addListener(function(deets) {
+        'use strict';
         console && console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID());
     });
 
     runtime.onStartup.addListener(function() {
+        'use strict';
+        ac_uid = localStorage.getItem(kUid_key);
         console && console.log('Startup.');
     });
 
     runtime.onConnect.addListener(function(port) {
+        'use strict';
         console && console.debug(port);
     });
 
     runtime.onMessage.addListener(function(msg, sender) {
-        console.debug(msg);
-        console.debug(sender);
+        'use strict';
+        console && console.debug(msg);
+        console && console.debug(sender);
     });
 
     runtime.onSuspend.addListener(function() {
+        'use strict';
         onQuiesceWork();
         buttonOff();
+        localStorage.setItem(kInuse_key, false);
         browserAction.setBadgeText({text: ''});
     });
 
     //noinspection Eslint
     browserAction.onClicked.addListener(function(tab) {
+        'use strict';
         //chrome.browserAction.setPopup({popup:'index.html'});
         /**
          * @type obj {Object}
@@ -362,31 +394,33 @@ var init = function(that) {
             obj && console && console.debug(obj.valueOf());
 
             if (obj && obj[kInuse_key] === 0 || obj[kInuse_key] === undefined) {
-
-                saveToStorage(kInuse_key, 1);
+                localStorage.setItem(kInuse_key, 1);
+                //saveToStorage(kInuse_key, 1);
                 buttonOn();
                 onCheckForWork();
 
             } else {
                 onQuiesceWork();
                 buttonOff();
-                saveToStorage(kInuse_key, 0);
+                localStorage.setItem(kInuse_key, 0);
+                //saveToStorage(kInuse_key, 0);
             }
         });
     });
 
     function buttonOn():void {
+        'use strict';
         browserAction.setIcon({path: 'images/icon_active.png'});
         ac_is_running = true;
     }
 
     function buttonOff():void {
+        'use strict';
         browserAction.setIcon({path: 'images/icon.png'});
         ac_is_running = false;
     }
 
-};
+}(typeof window !== 'undefined' ? window : global));
 
-init(this);
 
 
