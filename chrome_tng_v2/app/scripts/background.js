@@ -2,7 +2,7 @@
  * Created by Michael Bishop on 8/31/15.
  * Advisor Connect
  */
-import {urls as test_urls} from './components/regular_urls';
+import {urls as test_urls} from './components/edge';
 
 import './components/helpers.js';
 import {AC_Helpers as AC} from './components/helpers.js';
@@ -258,7 +258,8 @@ var init = function(that) {
          *  in onScrapeSucceeded.  This fragment is left in place
          *  as a logical extension point for retry logic.
          */
-
+        let _count = queue.size;
+        browserAction.setBadgeText({text: _count});
         onCheckForWork();
     }
 
@@ -367,9 +368,9 @@ var init = function(that) {
                 onCheckForWork();
 
             } else {
-                saveToStorage(kInuse_key, 0);
-                buttonOff();
                 onQuiesceWork();
+                buttonOff();
+                saveToStorage(kInuse_key, 0);
             }
         });
     });
