@@ -106,19 +106,18 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
                     return getUserID();
                 }
-            } else {
-                // Found.  Set local variable and return value
-                console && console.debug('UID found in storage: ' + ac_uid);
-                return ac_uid;
             }
+        } else {
+            return ac_uid;
         }
+
     }
 
     function getNextBatchOfTestURLS() {
         'use strict';
         // Only used in TEST
-        if (ac_is_running === 1) {
-            if (test_urls_retrieved === 0) {
+        if (ac_is_running == 1) {
+            if (test_urls_retrieved == 0) {
                 var promise = new Promise(function(resolve, reject) {
                     resolve(test_urls);
                 });
@@ -137,7 +136,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function getNextBatch() {
         'use strict';
-        if (ac_is_running === 1) {
+        if (ac_is_running == 1) {
             console.debug('getNextBatch From: ' + AC_QUEUE_URL);
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived)
@@ -153,7 +152,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function onNextBatchReceived(xhr, data) {
         'use strict';
         console && console.debug('onNextBatchReceived ' + xhr + data);
-        if (ac_is_running === 1) {
+        if (ac_is_running == 1) {
 
             data = AC.delimited_to_list(data, '\n');
             data.forEach(function(item) {
@@ -182,7 +181,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function onCheckForWork() {
         'use strict';
 
-        if (ac_is_running === 1) {
+        if (ac_is_running == 1) {
 
             /**
              * Type information to help IDE do code completion
@@ -298,7 +297,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
                 return onWorkFinished(original_url, false);
 
             } else if (data !== undefined) {
-                let uid = getUserID();
+                var uid = getUserID();
                 if (uid === undefined || uid === null) {
                     throw 'UID missing.  Aborting';
                 }
@@ -358,7 +357,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         ac_is_running = localStorage.getItem(kInuse_key);
         console && console.debug(`button clicked.  current running state: ${ac_is_running}`);
 
-        if (ac_is_running === 0 || ac_is_running === undefined) {
+        if (ac_is_running == 0 || ac_is_running === undefined) {
 
             buttonOn();
             onCheckForWork();
