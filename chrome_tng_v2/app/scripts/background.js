@@ -24,6 +24,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 (function(that) {
     'use strict';
 
+    var Observable = require('observe-js');
     var uuid = require('uuid');
     var Immutable = require('immutable');
     let chrome = that.chrome;
@@ -66,7 +67,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     };
     var queue = Immutable.Stack();
 
-    function sendMessage() {
+    function sendMessage():void {
         'use strict';
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             lastTabId = tabs[0].id;
@@ -76,11 +77,23 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     sendMessage();
 
+    function onQueueModified():Promise {
+
+        return new Promise(function(resolve, reject) {
+            if (ac_is_running) {
+                let _count = queue.size.toString();
+                browserAction.setBadgeText({text: _count});
+                resolve();
+            } else {
+                reject();
+            }
+        });
+    }
 
     /**
      * UserID getter
      */
-    function getUserID() {
+    function getUserID():String {
         'use strict';
 
         if (ac_uid === undefined || ac_uid === null) {
@@ -241,8 +254,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
          *  in onScrapeSucceeded.  This fragment is left in place
          *  as a logical extension point for retry logic.
          */
-        let _count = queue.size.toString();
-        browserAction.setBadgeText({text: _count});
         onCheckForWork();
     }
 
@@ -320,6 +331,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         console && console.error(`${xhr} ${data} ${err}`);
     }
 
+    //region chrome platform listeners
     runtime.onInstalled.addListener(function(deets) {
         'use strict';
         console && console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID());
@@ -333,21 +345,40 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     runtime.onConnect.addListener(function(port) {
         'use strict';
-        console && console.debug(port);
+        console && console.debug(`Connect received on port [${port}]`);
     });
 
     runtime.onMessage.addListener(function(msg, sender) {
         'use strict';
-        console && console.debug(msg);
-        console && console.debug(sender);
+        console && console.debug(`Message received: [${msg}] from [${sender}]`);
     });
 
     runtime.onSuspend.addListener(function() {
         'use strict';
-
+        console && console.warn('onSuspend received');
         onQuiesceWork();
         buttonOff();
         browserAction.setBadgeText({text: ''});
+    });
+
+    runtime.onUpdateAvailable.addListener(function(details) {
+        console && console.info(`onUpdateAvailable called.  Reloading. Details [${details}]`);
+        onQuiesceWork();
+        buttonOff();
+        runtime.reload();
+    });
+
+    runtime.onRestartRequired.addListener(function(reason) {
+        'use strict';
+        console && console.warn(`onRestartRequired received [${reason}]. Quiescing.`);
+        onQuiesceWork();
+        buttonOff();
+        browserAction.setBadgeText({text: ''});
+    });
+
+    runtime.onSuspendCanceled.addListener(function() {
+        'use strict';
+        console && console.warn('onSuspendCanceled received');
     });
 
     browserAction.onClicked.addListener(function(tab) {
@@ -367,6 +398,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             onQuiesceWork();
         }
     });
+    //endregion
 
     function buttonOn():void {
         'use strict';
