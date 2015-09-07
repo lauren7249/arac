@@ -207,13 +207,23 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             if (_queue.peek() !== undefined) {
                 _item = _queue.first();
                 queue = _queue.shift();
+                // Create a promise that will wait for 5-30 seconds
+                // between scrape requests
+                var p = new Promise(function(resolve, reject) {
+                    var _delay = AC.getRandomInt(5, 30);
+                    window.setTimeout(
+                        function() {
+                            console.log(_delay);
+                            resolve();
+                        },
+                        _delay);
+                });
+                p.then(function() {
+                    console && console.debug('calling onWorkTaken');
+                    onWorkTaken(_item);
+                });
 
-                that.setTimeout(
-                    function() {
-                        onWorkTaken(_item);
-                    },
-                    AC.getRandomInt(5, 30)
-                );
+
             } else {
                 getNextBatchOfTestURLS();
                 //getNextBatch();
@@ -334,12 +344,15 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     //region chrome platform listeners
     runtime.onInstalled.addListener(function(deets) {
         'use strict';
-        console && console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID());
+        getUserID();
+        console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
+        buttonOff();
+        onQuiesceWork();
     });
 
     runtime.onStartup.addListener(function() {
         'use strict';
-        ac_uid = localStorage.getItem(kUid_key);
+        getUserID();
         console && console.log('Startup.');
     });
 
@@ -358,7 +371,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         console && console.warn('onSuspend received');
         onQuiesceWork();
         buttonOff();
-        browserAction.setBadgeText({text: ''});
+        browserAction.setBadgeText({text: 'Q'});
     });
 
     runtime.onUpdateAvailable.addListener(function(details) {

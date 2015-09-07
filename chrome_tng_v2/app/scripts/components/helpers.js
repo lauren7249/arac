@@ -248,18 +248,17 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         let _url = AC_QUEUE_SUCCESS_URL_BASE;
-        let _payload = {url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid};
+        let _payload = JSON.stringify({url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid});
         AC_Helpers.debugLog(_payload);
         /**
          * @type {Window.XMLHttpRequest|XMLHttpRequest}
          */
         let xhr = new XMLHttpRequest();
         xhr.addEventListener('loadend', (e) => {
-            AC_Helpers.debugLog(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
+            console.debug(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
         }, false);
-        xhr.open('post', _url, true);
+        xhr.open('post', _url, false);
         xhr.send(_payload);
-
     }
 
     /**
