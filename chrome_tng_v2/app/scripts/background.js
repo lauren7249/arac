@@ -16,6 +16,8 @@ var runtime = chrome.runtime;
 var storage = chrome.storage;
 var browserAction = chrome.browserAction;
 var qwest = require('qwest');
+var ac_uid = undefined;
+var ac_is_running = false;
 
 /**
  * Initilization routines
@@ -43,10 +45,6 @@ var init = function(that) {
             'Accept-Language': 'en-US'
         }
     };
-
-    var isRuning = false;
-    var ac_uid = undefined;
-
 
     /**
      * Get a value from local storage
@@ -82,7 +80,6 @@ var init = function(that) {
 
     /**
      * UserID getter
-     * @param that Context Object
      */
     function getUserID() {
 
@@ -133,7 +130,7 @@ var init = function(that) {
     });
 
     runtime.onSuspend.addListener(function() {
-        isRuning = false;
+        ac_is_running = false;
         buttonOff();
         browserAction.setBadgeText({text: ''});
     });
@@ -149,12 +146,10 @@ var init = function(that) {
 
             if (obj && obj[kInuse_key] === 0 || obj[kInuse_key] === undefined) {
 
-                console.log('button going on');
                 saveToStorage(kInuse_key, 1);
                 buttonOn();
 
             } else {
-                console.log('button going off');
                 saveToStorage(kInuse_key, 0);
                 buttonOff();
             }
@@ -163,12 +158,12 @@ var init = function(that) {
 
     function buttonOn():void {
         browserAction.setIcon({path: 'images/icon_active.png'});
-        isRuning = true;
+        ac_is_running = true;
     }
 
     function buttonOff():void {
         browserAction.setIcon({path: 'images/icon.png'});
-        isRuning = false;
+        ac_is_running = false;
     }
 
 };
