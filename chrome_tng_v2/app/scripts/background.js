@@ -34,8 +34,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     var lastTabId = -1;
     var ac_uid = undefined;
-    var ac_is_running = false;
-    var test_urls_retrieved = false;
+    var ac_is_running = 0;
+    var test_urls_retrieved = 0;
 
     /**
      * Pre-compile Regex for performance
@@ -76,40 +76,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     sendMessage();
 
-    /**
-     * Get a value from local storage
-     * @param obj Query object or string key
-     * @param callback of the type function(obj)
-     */
-    function getFromStorage(obj = undefined, callback = undefined) {
-        'use strict';
-        console && console.debug('Getting: ' + obj);
-        storage.local.get(obj, callback);
-    }
-
-    /**
-     * Save a key/value to local storage
-     * @param key String key v
-     * @param value Object value to save
-     * @param cb {function} callback function after save is complete
-     */
-    function saveToStorage(key = undefined, value = undefined, cb = undefined) {
-        'use strict';
-        var _toSet = {};
-        _toSet[key] = value;
-
-        console && console.debug('saveToStorage ' + key + '/' + value);
-
-        storage.local.set(_toSet, function() {
-            if (runtime.lastError !== undefined) {
-                console && console.error('Unable to save value: ' + value +
-                    ' for key: ' + key + ' error: ' + runtime.lastError.message);
-            } else {
-                console && console.debug('Saved key: ' + key + ' with value: ' + value);
-            }
-            cb && cb();
-        });
-    }
 
     /**
      * UserID getter
@@ -151,13 +117,13 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function getNextBatchOfTestURLS() {
         'use strict';
         // Only used in TEST
-        if (ac_is_running) {
-            if (test_urls_retrieved === false) {
+        if (ac_is_running === 1) {
+            if (test_urls_retrieved === 0) {
                 var promise = new Promise(function(resolve, reject) {
                     resolve(test_urls);
                 });
                 promise.then(function(urls) {
-                    test_urls_retrieved = true;
+                    test_urls_retrieved = 1;
                     onNextBatchReceived(undefined, urls);
                 });
             }
@@ -171,7 +137,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function getNextBatch() {
         'use strict';
-        if (ac_is_running) {
+        if (ac_is_running === 1) {
             console.debug('getNextBatch From: ' + AC_QUEUE_URL);
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived)
@@ -187,7 +153,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function onNextBatchReceived(xhr, data) {
         'use strict';
         console && console.debug('onNextBatchReceived ' + xhr + data);
-        if (ac_is_running) {
+        if (ac_is_running === 1) {
 
             data = AC.delimited_to_list(data, '\n');
             data.forEach(function(item) {
@@ -205,10 +171,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function onQuiesceWork() {
         'use strict';
-        console && console.info('Quiesce requestsed.');
-
+        console && console.info('Quiesce requested.');
         queue = queue.clear();
-        ac_is_running = false;
     }
 
     /**
@@ -217,7 +181,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function onCheckForWork() {
         'use strict';
-        if (ac_is_running) {
+
+        if (ac_is_running === 1) {
 
             /**
              * Type information to help IDE do code completion
@@ -333,11 +298,15 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
                 return onWorkFinished(original_url, false);
 
             } else if (data !== undefined) {
-                let uid = getUserID() ? getUserID() : 'UNKNOWN';
+                let uid = getUserID();
+                if (uid === undefined || uid === null) {
+                    throw 'UID missing.  Aborting';
+                }
+
 
                 Helpers.notify_s3_success(original_url, uid);
 
-                if (captcha.test(response) === true) {
+                if (captcha.test(response) == true) {
                     console && console.warn(`CAPTCHA DETECTED! [${original_url}]`);
                     //window.open(xhr.responseURL, 'AC_C');
                 }
@@ -376,48 +345,43 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     runtime.onSuspend.addListener(function() {
         'use strict';
+
         onQuiesceWork();
         buttonOff();
-        localStorage.setItem(kInuse_key, false);
         browserAction.setBadgeText({text: ''});
     });
 
-    //noinspection Eslint
     browserAction.onClicked.addListener(function(tab) {
         'use strict';
         //chrome.browserAction.setPopup({popup:'index.html'});
-        /**
-         * @type obj {Object}
-         */
-        getFromStorage(kInuse_key, function(obj) {
-            console && console.debug('get ac-in-use');
-            obj && console && console.debug(obj.valueOf());
 
-            if (obj && obj[kInuse_key] === 0 || obj[kInuse_key] === undefined) {
-                localStorage.setItem(kInuse_key, 1);
-                //saveToStorage(kInuse_key, 1);
-                buttonOn();
-                onCheckForWork();
+        ac_is_running = localStorage.getItem(kInuse_key);
+        console && console.debug(`button clicked.  current running state: ${ac_is_running}`);
 
-            } else {
-                onQuiesceWork();
-                buttonOff();
-                localStorage.setItem(kInuse_key, 0);
-                //saveToStorage(kInuse_key, 0);
-            }
-        });
+        if (ac_is_running === 0 || ac_is_running === undefined) {
+
+            buttonOn();
+            onCheckForWork();
+        } else {
+
+            buttonOff();
+            onQuiesceWork();
+        }
     });
 
     function buttonOn():void {
         'use strict';
         browserAction.setIcon({path: 'images/icon_active.png'});
-        ac_is_running = true;
+        localStorage.setItem(kInuse_key, 1);
+        ac_is_running = 1;
+        test_urls_retrieved = 0;
     }
 
     function buttonOff():void {
         'use strict';
         browserAction.setIcon({path: 'images/icon.png'});
-        ac_is_running = false;
+        localStorage.setItem(kInuse_key, 0);
+        ac_is_running = 0;
     }
 
 }(typeof window !== 'undefined' ? window : global));
