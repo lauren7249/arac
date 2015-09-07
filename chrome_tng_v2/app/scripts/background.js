@@ -17,12 +17,14 @@ var storage = chrome.storage;
 var browserAction = chrome.browserAction;
 var qwest = require('qwest');
 
-
 /**
  * Initilization routines
  * @param that Context object
  */
 var init = function(that) {
+
+    const kUid_key = 'acUID';
+    const kInuse_key = 'acINUSE';
 
     /**
      * Set a limit of 1 HTTP request at a time.  Note
@@ -42,8 +44,76 @@ var init = function(that) {
         }
     };
 
-    let isRuning = false;
+    var isRuning = false;
     var ac_uid = undefined;
+
+
+    /**
+     * Get a value from local storage
+     * @param obj Query object or string key
+     * @param callback of the type function(obj)
+     */
+    function getFromStorage(obj = undefined, callback = undefined) {
+        console.debug('Getting: ' + obj);
+        storage.local.get(obj, callback);
+    }
+
+    /**
+     * Save a key/value to local storage
+     * @param key String key v
+     * @param value Object value to save
+     * @param cb {function} callback function after save is complete
+     */
+    function saveToStorage(key = undefined, value = undefined, cb = undefined) {
+        var _toSet = {};
+        _toSet[key] = value;
+
+        console.debug('saveToStorage ' + key + '/' + value);
+
+        storage.local.set(_toSet, function() {
+            if (runtime.lastError !== undefined) {
+                console.error('Unable to save value: ' + value + ' for key: ' + key + ' error: ' + runtime.lastError.message);
+            } else {
+                console.debug('Saved key: ' + key + ' with value: ' + value);
+            }
+            cb && cb();
+        });
+    }
+
+    /**
+     * UserID getter
+     * @param that Context Object
+     */
+    function getUserID() {
+
+        if (that && ac_uid === undefined) {
+            // Look for userid in local storage
+            getFromStorage(kUid_key, function(obj) {
+
+                if (obj && obj[kUid_key] === undefined) {
+                    // No saved id, create a UUID
+                    var _uuid = uuid.v4();
+                    if (_uuid === undefined) {
+                        throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
+                    } else {
+                        // UUID generated, save to storage, set local variable and return value
+                        console.debug('New UID: ' + _uuid.toString());
+                        saveToStorage(kUid_key, _uuid, function() {
+                            var that = this;
+                            that.ac_uid = obj.ac_uid;
+                        });
+
+                        return getFromStorage(kUid_key);
+                    }
+                } else {
+                    // Found.  Set local variable and return value
+                    console.debug('UID found in storage: ' + obj.ac_uid);
+                    ac_uid = obj.ac_uid;
+                    return obj.ac_uid;
+                }
+            });
+        }
+    }
 
     runtime.onInstalled.addListener(function(deets) {
         console.debug('On installed reason: ' + deets.reason + ' USER: ' + getUserID());
@@ -62,21 +132,30 @@ var init = function(that) {
         console.debug(sender);
     });
 
+    runtime.onSuspend.addListener(function() {
+        isRuning = false;
+        buttonOff();
+        browserAction.setBadgeText({text: ''});
+    });
+
     browserAction.onClicked.addListener(function(tab) {
         //chrome.browserAction.setPopup({popup:'index.html'});
-        getFromStorage('ac_in_use', function(obj) {
+        /**
+         * @type obj {Object}
+         */
+        getFromStorage(kInuse_key, function(obj) {
             console.debug('get ac-in-use');
-            console.debug(obj.toString());
+            obj && console.debug(obj.valueOf());
 
-            if (obj && obj['ac_in_use'] === 0 || obj['ac_in_use'] === undefined) {
+            if (obj && obj[kInuse_key] === 0 || obj[kInuse_key] === undefined) {
 
                 console.log('button going on');
-                saveToStorage('ac_in_use', 1);
+                saveToStorage(kInuse_key, 1);
                 buttonOn();
 
             } else {
                 console.log('button going off');
-                saveToStorage('ac_in_use', 0);
+                saveToStorage(kInuse_key, 0);
                 buttonOff();
             }
         });
@@ -84,68 +163,14 @@ var init = function(that) {
 
     function buttonOn():void {
         browserAction.setIcon({path: 'images/icon_active.png'});
+        isRuning = true;
     }
 
     function buttonOff():void {
         browserAction.setIcon({path: 'images/icon.png'});
+        isRuning = false;
     }
 
-
-    /**
-     * UserID getter
-     * @param that Context Object
-     */
-    function getUserID() {
-
-        if (that && ac_uid === undefined) {
-            // Look for userid in local storage
-            getFromStorage('ac_uid', function(obj) {
-
-                if (obj && obj['ac_uid'] === undefined) {
-                    // No saved id, create a UUID
-                    var _uuid = uuid.v4();
-                    if (_uuid === undefined) {
-                        throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
-                    } else {
-                        // UUID generated, save to storage, set local variable and return value
-                        saveToStorage('ac_uid', _uuid);
-                        ac_uid = obj.ac_uid;
-                        return obj.ac_uid;
-                    }
-                } else {
-                    // Found.  Set local variable and return value
-                    ac_uid = obj.ac_uid;
-                    return obj.ac_uid;
-                }
-            });
-        }
-    }
-
-    /**
-     * Get a value from local storage
-     * @param obj Query object or string key
-     * @param callback of the type function(obj)
-     */
-    function getFromStorage(obj = undefined, callback = undefined) {
-        console.debug('Getting: ' + obj);
-        storage.local.get(obj, callback);
-    }
-
-    /**
-     * Save a key/value to local storage
-     * @param key String key v
-     * @param value Object value to save
-     */
-    function saveToStorage(key = undefined, value = undefined) {
-        console.debug('saveToStorage ' + key + '/' + value);
-        storage.local.set({key: value}, function() {
-            if (runtime.lastError !== undefined) {
-                console.error('Unable to save value: ' + value + ' for key: ' + key + ' error: ' + runtime.lastError.message);
-            } else {
-                console.debug('Saved key: ' + key + ' for value: ' + value);
-            }
-        });
-    }
 };
 
 init(this);
