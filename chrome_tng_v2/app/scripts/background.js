@@ -36,6 +36,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     var ac_uid = undefined;
     var ac_is_running = 0;
     var test_urls_retrieved = 0;
+    var run_loop_active = 0;
 
     /**
      * Pre-compile Regex for performance
@@ -154,7 +155,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function getNextBatch() {
         'use strict';
-        if (ac_is_running == 1) {
+        if (ac_is_running == 1 && run_loop_active == 1) {
+            run_loop_active = !run_loop_active;
             console.debug('getNextBatch From: ' + AC_QUEUE_URL);
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived)
@@ -213,6 +215,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             if (_queue.peek() !== undefined) {
                 _item = _queue.first();
                 _queue = _queue.shift();
+                // FIXME These seem to no honor the delay.  Not 100% sure, just a suspicion.
                 // Create a promise that will wait for 5-30 seconds
                 // between scrape requests
                 var p = new Promise(function(resolve, reject) {
@@ -222,7 +225,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
                     }, _delay);
                 });
                 p.then(function(_item) {
-                    console && console.debug('calling onWorkTaken');
                     onWorkTaken(_item);
                     onQueueModified();
                     return true;
@@ -230,8 +232,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
 
             } else {
-                getNextBatchOfTestURLS();
-                //getNextBatch();
+                //getNextBatchOfTestURLS();
+                getNextBatch();
             }
         }
     }
@@ -447,6 +449,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         'use strict';
         browserAction.setIcon({path: 'images/icon_active.png'});
         localStorage.setItem(kInuse_key, 1);
+        run_loop_active = 1;
         ac_is_running = 1;
         test_urls_retrieved = 0;
     }
@@ -456,6 +459,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         browserAction.setIcon({path: 'images/icon.png'});
         localStorage.setItem(kInuse_key, 0);
         ac_is_running = 0;
+        run_loop_active = 0;
     }
 
 }(typeof window !== 'undefined' ? window : global));
