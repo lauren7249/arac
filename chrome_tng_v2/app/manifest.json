@@ -1,7 +1,7 @@
 {
     "name": "AC Browser",
     "description": "Earn money while this app browses in the background.",
-    "version": "0.0.1.1",
+    "version": "0.0.2.0",
     "manifest_version": 2,
     "icons": {
         "128": "images/icon.png"
@@ -21,13 +21,11 @@
     "permissions": [
         "<all_urls>",
         "activeTab",
-        "pageCapture",
         "background",
         "storage"
     ],
     "optional_permissions": [
         "idle",
-        "declarativeContent",
         "notifications"
     ],
     "incognito": "split"
