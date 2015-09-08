@@ -3,6 +3,22 @@ from prime.prospects.get_prospect import *
 from prime.utils.networks import *
 import scipy.stats as stats
 import datetime
+import joblib
+import re
+
+pegasos_model = joblib.load("../data/pegasos_model.dump")
+
+def title_qualifies(title):
+	try:
+		title_split = re.sub('[^A-Za-z0-9]+', ' ', title).lower().split()
+	except:
+		print "error"
+		return False
+	d = dict((i,title_split.count(i)) for i in title_split)
+	dotproduct=0
+	for j in d:
+		if j in pegasos_model: dotproduct+=d[j]*pegasos_model[j] 
+	return (dotproduct > 0)
 
 def agent_network(prospects, locales=['New York','Greater New York City Area']):
 	#employed, in ny, not in financial services

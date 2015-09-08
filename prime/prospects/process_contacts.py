@@ -6,6 +6,7 @@ from prime.utils import bing
 import pandas
 from consume.li_scrape_job import *
 
+##CSV download from linkedin. cloudsponge does not provide job title info
 li_df = pandas.read_csv("/Users/lauren/Downloads/linkedin_connections_export_microsoft_outlook.csv")
 li_df = li_df[["Job Title","Company","E-mail Address","First Name","Middle Name","Last Name"]]
 li_df.fillna("",inplace=True)
@@ -40,6 +41,7 @@ for index, row in test_df.iterrows():
 print bing_api_hits #2189
 print len(job_urls) #10881 
 
+#9992
 seconds_scraped, urls_scraped = scrape_job(job_urls)
 
 #run chrome extension

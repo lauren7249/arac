@@ -29,42 +29,58 @@
 
   </head>
   <body>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1608721912712330',
+          xfbml      : true,
+          version    : 'v2.4'
+        });
+      };
 
-  <div class='overlay'>
-<!--     <div class='linkedin modal'>
-      <a href='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook' target='_blank'>
-        <img src='./img/linkedin.png' />
-      </a>
-    </div> -->
-    <div class='email modal'>
-      <h3>Select Email Provider</h3>
-      <ol>
-<!--       <i id='gmail' class='fa fa-google' type="Submit"></i>
-      <i id='yahoo' class='fa fa-yahoo' type="Submit"></i>
-      <i id='windowslive' class='fa fa-windows' type="Submit"></i>     -->    
-        <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
-        <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
-        <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
-        <!-- <li><a><i type="Submit" class='fa fa-envelope-o'></i> AOL</a></li> -->
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <div class='overlay'>
+  <!--     <div class='linkedin modal'>
+        <a href='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook' target='_blank'>
+          <img src='./img/linkedin.png' />
+        </a>
+      </div> -->
+      <div class='email modal'>
+        <h3>Select Email Provider</h3>
+        <ol>
+  <!--       <i id='gmail' class='fa fa-google' type="Submit"></i>
+        <i id='yahoo' class='fa fa-yahoo' type="Submit"></i>
+        <i id='windowslive' class='fa fa-windows' type="Submit"></i>     -->    
+          <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
+          <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
+          <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
+          <!-- <li><a><i type="Submit" class='fa fa-envelope-o'></i> AOL</a></li> -->
+        </div>
       </div>
-    </div>
-  <div class='signup'>
-    <div class='logo'>
-      <img src='./img/NewYorkLife.png' />
-    </div>
-    <h2>Add Contacts To Your P200</h2>
-    <p>The more accounts you connect, the better the results.</p>
-    <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
-    <button class='button' id='em' type="Submit">Add Email Contacts <i class='fa fa-envelope-o'></i></button>
-   <!--  <button class='button'>Add Email Contacts<ol>  -->
+    <div class='signup'>
+      <div class='logo'>
+        <img src='./img/NewYorkLife.png' />
+      </div>
+      <h2>Add Contacts To Your P200</h2>
+      <p>The more accounts you connect, the better the results.</p>
+      <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
+      <button class='button' id='em' type="Submit">Add Email Contacts <i class='fa fa-envelope-o'></i></button>
+     <!--  <button class='button'>Add Email Contacts<ol>  -->
 
-      <!-- <i id='apple' class='fa fa-apple' type="Submit"></i> -->
-    <!-- </button> -->
-    <button class='button' type="Submit" id='csv'>Manually Add Contacts <i class='fa fa-cog'></i></button>
-    <br/>
-    <br/>
-    <a ><button id="next" type="Submit" class='button'>Next &raquo;</button></a>
-  </div>
+        <!-- <i id='apple' class='fa fa-apple' type="Submit"></i> -->
+      <!-- </button> -->
+      <button class='button' type="Submit" id='csv'>Manually Add Contacts <i class='fa fa-cog'></i></button>
+      <br/>
+      <br/>
+      <a ><button id="next" type="Submit" class='button'>Next &raquo;</button></a>
+    </div>
   </body>
   
   
