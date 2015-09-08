@@ -81,7 +81,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function onQueueModified():void {
 
         var p = new Promise(function(resolve, reject) {
-            if (ac_is_running) {
+            if (_queue !== undefined) {
                 resolve(_queue);
             } else {
                 reject('not running');
