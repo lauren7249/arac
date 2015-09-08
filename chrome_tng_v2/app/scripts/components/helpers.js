@@ -4,13 +4,42 @@
 
 /* eslint no-unused-vars:0 */
 
-import qwest from 'qwest';
+
 import log from '../../bower_components/log';
-import URI from 'uri-js';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './constants';
+
+var console = require('console-browserify');
+var URI = require('uri-js');
+var qwest = require('qwest');
+var AWS = require('aws-sdk');
+
+var AC = AC || {};
+
+/**
+ * Add done method to Promise API
+ * @param onFulfilled
+ * @param onRejected
+ */
+Promise.prototype.done = function(onFulfilled, onRejected) {
+    this
+        .then(onFulfilled, onRejected)
+        .catch(function(e) {
+            setTimeout(Promise.onError || function() { throw e; }, 1, e);
+        })
+    ;
+};
+
+/**
+ * Default error handler
+ * @param e
+ */
+Promise.onError = function(e) {
+    console.log('Error caught in promise: ', e);
+    throw e;
+};
 
 /**
  * Helper functions and non-ui code.
@@ -233,24 +262,27 @@ export default class AC_Helpers extends Object {
      * and the result is loaded into S3.
      * @static
      * @param {string} uri - URI scraped
+     * @param {string} userid - UserID of postger
      *
      * @see {@link http://medialize.github.io/URI.js/docs.html#iso8859}
      * FIXME This is truly fire and forget -- no concept of error handling, retry etc.
      */
-    notify_s3_success(uri) {
+    notify_s3_success(uri, userid) {
         'use strict';
 
-        var _url = AC_QUEUE_SUCCESS_URL_BASE + uri.replace(/\//g, ';').replace(/\?/g, '`');
+        let _url = AC_QUEUE_SUCCESS_URL_BASE;
+        let _payload = JSON.stringify({url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid});
+        console && console.log(_payload);
+
         /**
          * @type {Window.XMLHttpRequest|XMLHttpRequest}
          */
         let xhr = new XMLHttpRequest();
         xhr.addEventListener('loadend', (e) => {
-            AC_Helpers.debugLog(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
+            console && console.debug(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
         }, false);
-        xhr.open('get', _url, true);
-        xhr.send();
-
+        xhr.open('post', _url, true);
+        xhr.send(_payload);
     }
 
     /**
@@ -322,4 +354,13 @@ export default class AC_Helpers extends Object {
         }
     }
 
+    /**
+     * Return a random integer between min and max,
+     * inclusive
+     */
+    static getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
 }
+
+export {AC, console, URI, log, AC_Helpers};
