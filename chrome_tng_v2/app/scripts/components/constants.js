@@ -51,7 +51,7 @@ var AC_QUEUE_URL = `${AC_QUEUE_BASE_URL}/select/n=${AC_QUEUE_URLS_AT_A_TIME}`;
  * @constant Url to notify of successful scrape
  * @type {string}
  */
-var AC_QUEUE_SUCCESS_URL_BASE = `${AC_QUEUE_BASE_URL}/log_uploaded/url=`;
+var AC_QUEUE_SUCCESS_URL_BASE = `${AC_QUEUE_BASE_URL}/post_uploaded`;
 
 export { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS, AC_AWS_REGION, AC_DEBUG_MODE,
     AC_QUEUE_BASE_URL, AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL };
