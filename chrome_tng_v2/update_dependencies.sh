@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
 npm install gulp
-npm install
+npm install --save
 bower install
+gulp build:production
