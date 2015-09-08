@@ -2,7 +2,7 @@
  * Created by Michael Bishop on 8/31/15.
  * Advisor Connect
  */
-import {urls as test_urls} from './components/edge';
+//import {urls as test_urls} from './components/edge';
 
 import './components/helpers.js';
 import {AC_Helpers as AC} from './components/helpers.js';
@@ -138,21 +138,21 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     }
 
-    function getNextBatchOfTestURLS() {
-        'use strict';
-        // Only used in TEST
-        if (ac_is_running == 1) {
-            if (test_urls_retrieved == 0) {
-                var promise = new Promise(function(resolve, reject) {
-                    resolve(test_urls);
-                });
-                promise.then(function(urls) {
-                    test_urls_retrieved = 1;
-                    onNextBatchReceived(undefined, urls);
-                });
-            }
-        }
-    }
+    //function getNextBatchOfTestURLS() {
+    //    'use strict';
+    //    // Only used in TEST
+    //    if (ac_is_running == 1) {
+    //        if (test_urls_retrieved == 0) {
+    //            var promise = new Promise(function(resolve, reject) {
+    //                resolve(test_urls);
+    //            });
+    //            promise.then(function(urls) {
+    //                test_urls_retrieved = 1;
+    //                onNextBatchReceived(undefined, urls);
+    //            });
+    //        }
+    //    }
+    //}
 
     /**
      * Retrieve a new batch of URLS from Redis.
