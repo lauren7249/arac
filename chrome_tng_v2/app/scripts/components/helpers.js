@@ -19,6 +19,29 @@ var AWS = require('aws-sdk');
 var AC = AC || {};
 
 /**
+ * Add done method to Promise API
+ * @param onFulfilled
+ * @param onRejected
+ */
+Promise.prototype.done = function(onFulfilled, onRejected) {
+    this
+        .then(onFulfilled, onRejected)
+        .catch(function(e) {
+            setTimeout(Promise.onError || function() { throw e; }, 1, e);
+        })
+    ;
+};
+
+/**
+ * Default error handler
+ * @param e
+ */
+Promise.onError = function(e) {
+    console.log('Error caught in promise: ', e);
+    throw e;
+};
+
+/**
  * Helper functions and non-ui code.
  *
  * @author Michael Bishop
@@ -249,15 +272,16 @@ export default class AC_Helpers extends Object {
 
         let _url = AC_QUEUE_SUCCESS_URL_BASE;
         let _payload = JSON.stringify({url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid});
-        AC_Helpers.debugLog(_payload);
+        console && console.log(_payload);
+
         /**
          * @type {Window.XMLHttpRequest|XMLHttpRequest}
          */
         let xhr = new XMLHttpRequest();
         xhr.addEventListener('loadend', (e) => {
-            console.debug(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
+            console && console.debug(`Notifying backend: ${e.currentTarget.responseURL} [${e.currentTarget.status}]`);
         }, false);
-        xhr.open('post', _url, false);
+        xhr.open('post', _url, true);
         xhr.send(_payload);
     }
 

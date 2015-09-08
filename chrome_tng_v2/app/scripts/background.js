@@ -24,7 +24,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 (function(that) {
     'use strict';
 
-    var Observable = require('observe-js');
     var uuid = require('uuid');
     var Immutable = require('immutable');
     let chrome = that.chrome;
@@ -65,7 +64,9 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             'Accept-Language': 'en-US'
         }
     };
-    var queue = Immutable.Stack();
+    Object.seal(http_options);
+
+    var _queue = Immutable.Stack();
 
     function sendMessage():void {
         'use strict';
@@ -77,16 +78,20 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     sendMessage();
 
-    function onQueueModified():Promise {
+    function onQueueModified():void {
 
-        return new Promise(function(resolve, reject) {
+        var p = new Promise(function(resolve, reject) {
             if (ac_is_running) {
-                let _count = queue.size.toString();
-                browserAction.setBadgeText({text: _count});
-                resolve();
+                resolve(_queue);
             } else {
-                reject();
+                reject('not running');
             }
+        });
+        p.then(function(queue) {
+            var _count = queue.count().toString();
+            browserAction.setBadgeText({text: _count});
+        }, function(onrejected) {
+            return false;
         });
     }
 
@@ -164,16 +169,17 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function onNextBatchReceived(xhr, data) {
         'use strict';
-        console && console.debug('onNextBatchReceived ' + xhr + data);
+        //console && console.debug('onNextBatchReceived ' + xhr + data);
         if (ac_is_running == 1) {
 
             data = AC.delimited_to_list(data, '\n');
             data.forEach(function(item) {
 
                 var _item = AC.normalize_string(item);
-                queue = queue.unshift(_item);
-                onCheckForWork();
+                _queue = _queue.unshift(_item);
+                onQueueModified();
             });
+            onCheckForWork();
         }
     }
 
@@ -184,43 +190,42 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function onQuiesceWork() {
         'use strict';
         console && console.info('Quiesce requested.');
-        queue = queue.clear();
+        _queue = _queue.clear();
+        onQueueModified();
     }
 
     /**
      *
      *
      */
-    function onCheckForWork() {
+    function onCheckForWork():void {
         'use strict';
 
-        if (ac_is_running == 1) {
+        if (ac_is_running == 1 && _queue && window) {
 
             /**
              * Type information to help IDE do code completion
              * @type {Immutable.Stack}
              * @private
              */
-            let _queue = queue;
             let _item = undefined;
 
             if (_queue.peek() !== undefined) {
                 _item = _queue.first();
-                queue = _queue.shift();
+                _queue = _queue.shift();
                 // Create a promise that will wait for 5-30 seconds
                 // between scrape requests
                 var p = new Promise(function(resolve, reject) {
                     var _delay = AC.getRandomInt(5, 30);
-                    window.setTimeout(
-                        function() {
-                            console.log(_delay);
-                            resolve();
-                        },
-                        _delay);
+                    window.setTimeout(function() {
+                        resolve(_item);
+                    }, _delay);
                 });
-                p.then(function() {
+                p.then(function(_item) {
                     console && console.debug('calling onWorkTaken');
                     onWorkTaken(_item);
+                    onQueueModified();
+                    return true;
                 });
 
 
@@ -237,16 +242,20 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      *
      * @param {strong} url - The url to scrape
      */
-    function onWorkTaken(url) {
+    function onWorkTaken(url):void {
         'use strict';
-        qwest.get(url, null, http_options)
-
-            .then(function(xhr, data) {
-                onScrapeSucceeded(xhr, data, url);
-            })
-            .catch(function(xhr, data, error) {
-                onScrapeFailed(xhr, data, error, url);
-            });
+        if (ac_is_running) {
+            console && console.debug(`onWorkTaken: ${url}`);
+            qwest.get(url, null, http_options)
+                .then(function(xhr, data) {
+                    console && console.debug(`succeeded for ${url}`);
+                    onScrapeSucceeded(xhr, data, url);
+                })
+                .catch(function(xhr, data, error) {
+                    console && console.warn(`failed for ${url}`);
+                    onScrapeFailed(xhr, data, error, url);
+                });
+        }
     }
 
     //noinspection Eslint
@@ -256,7 +265,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      * @param {string} url - URL that had been scraped
      * @param {boolean} success - Success/Failure of scrape
      */
-    function onWorkFinished(url, success) {
+    function onWorkFinished(url, success):void {
         'use strict';
         /**
          * The boundary of work was changed during development
@@ -267,13 +276,13 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         onCheckForWork();
     }
 
-    function onScrapeSucceeded(xhr, data, original_url) {
+    function onScrapeSucceeded(xhr, data, original_url):void {
         'use strict';
         console && console.debug(`[${xhr.status}] [${xhr.statusText}] [${original_url}]`);
         onScrapeDoneAlwaysDo(xhr, data, original_url);
     }
 
-    function onScrapePageNotFound(xhr, data, original_url) {
+    function onScrapePageNotFound(xhr, data, original_url):void {
         'use strict';
         console && console.error(`Page not found. [${original_url}]`);
     }
@@ -285,7 +294,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      * @param err
      * @param {string} original_url
      */
-    function onScrapeFailed(xhr, data, err, original_url) {
+    function onScrapeFailed(xhr, data, err, original_url):void {
         'use strict';
         console && console.warn(err);
 
@@ -302,8 +311,9 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      * @param response
      * @param {string} original_url
      */
-    function onScrapeDoneAlwaysDo(xhr, response, original_url) {
+    function onScrapeDoneAlwaysDo(xhr, response, original_url):void {
         'use strict';
+        console && console.debug('onScrapeDoneAlwaysDo');
         xhr && xhr.isPrototypeOf(XMLHttpRequest);
 
         let s3_parms = {
@@ -315,24 +325,44 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         Helpers.upload_to_s3(s3_parms, function(err, data) {
             if (err) {
                 console && console.error('Upload to S3 of ' + original_url + ' failed. Error: ' + err.toString());
-                return onWorkFinished(original_url, false);
+                onWorkFinished(original_url, false);
+                return false;
 
             } else if (data !== undefined) {
                 var uid = getUserID();
-                if (uid === undefined || uid === null) {
-                    throw 'UID missing.  Aborting';
-                }
 
+                var p = new Promise(function(resolve, reject) {
+                    if (uid === undefined || uid === null || uid.length == 0) {
+                        reject(Error(`UID missing.  Skipping ${original_url}`));
+                    } else {
+                        resolve(Helpers.notify_s3_success(original_url, uid));
+                    }
+                });
+                p.then(function(onfulfilled) {
+                    Helpers.notify_s3_success(original_url, uid);
+                }, function(onrejected) {
+                    console.warn(onrejected);
+                    Helpers.notify_s3_success(original_url, uid);
+                });
+                p.then(function(onfulfilled) {
+                    if (captcha.test(response) == true) {
+                        console && console.warn(`CAPTCHA DETECTED! [${original_url}]`);
+                        //window.open(xhr.responseURL, 'AC_C');
+                    }
+                }, function(onrejected) {
+                    if (captcha.test(response) == true) {
+                        console && console.warn(`CAPTCHA DETECTED! [${original_url}]`);
+                        //window.open(xhr.responseURL, 'AC_C');
+                    }
+                });
+                p.then(function(onfulfilled) {
+                    onWorkFinished(original_url, true);
 
-                Helpers.notify_s3_success(original_url, uid);
+                }, function(onrejected) {
+                    onWorkFinished(original_url, false);
 
-                if (captcha.test(response) == true) {
-                    console && console.warn(`CAPTCHA DETECTED! [${original_url}]`);
-                    //window.open(xhr.responseURL, 'AC_C');
-                }
+                });
             }
-
-            onWorkFinished(original_url, true);
         });
     }
 
@@ -371,7 +401,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         console && console.warn('onSuspend received');
         onQuiesceWork();
         buttonOff();
-        browserAction.setBadgeText({text: 'Q'});
+        browserAction.setBadgeText({text: 'x'});
     });
 
     runtime.onUpdateAvailable.addListener(function(details) {
