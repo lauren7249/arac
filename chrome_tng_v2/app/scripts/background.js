@@ -89,6 +89,12 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             }
         });
         p.then(function(queue) {
+            if(ac_is_running == 0){
+                //TODO Change color of badge based on running state
+                //browserAction.setBadgeBackgroundColor({color: [0,0,0]});
+            } else {
+                //browserAction.setBadgeBackgroundColor({color: [255,0,0]});
+            }
             var _count = queue.count().toString();
             browserAction.setBadgeText({text: _count});
         }, function(onrejected) {
@@ -162,6 +168,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
                 .then(onNextBatchReceived)
                 .catch(onNetworkError);
         }
+        onQueueModified();
     }
 
     /**
@@ -457,6 +464,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function buttonOff():void {
         'use strict';
         browserAction.setIcon({path: 'images/icon.png'});
+        browserAction.setBadgeText({text: ''});
         localStorage.setItem(kInuse_key, 0);
         ac_is_running = 0;
         run_loop_active = 0;
