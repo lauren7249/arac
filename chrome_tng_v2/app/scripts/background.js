@@ -97,6 +97,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             }
             var _count = queue.count().toString();
             browserAction.setBadgeText({text: _count});
+
         }, function(onrejected) {
             return false;
         });
@@ -162,8 +163,9 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function getNextBatch() {
         'use strict';
         if (ac_is_running == 1 && run_loop_active == 1) {
-            run_loop_active = !run_loop_active;
-            console.debug('getNextBatch From: ' + AC_QUEUE_URL);
+            //run_loop_active = !run_loop_active;
+            console && console.debug('getNextBatch From: ' + AC_QUEUE_URL);
+
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived)
                 .catch(onNetworkError);
@@ -240,7 +242,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
             } else {
                 //getNextBatchOfTestURLS();
-                getNextBatch();
+                window.setTimeout(getNextBatch, 60000);
             }
         }
     }
@@ -350,7 +352,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
                 p.then(function(onfulfilled) {
                     Helpers.notify_s3_success(original_url, uid);
                 }, function(onrejected) {
-                    console.warn(onrejected);
+                    console && console.warn(onrejected);
                     Helpers.notify_s3_success(original_url, uid);
                 });
                 p.then(function(onfulfilled) {
@@ -385,19 +387,21 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         'use strict';
         getUserID();
         console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
-        buttonOff();
-        onQuiesceWork();
+        buttonOn();
     });
 
     runtime.onStartup.addListener(function() {
         'use strict';
         getUserID();
         console && console.log('Startup.');
+        sendMessage();
+        buttonOn();
     });
 
     runtime.onConnect.addListener(function(port) {
         'use strict';
         console && console.debug(`Connect received on port [${port}]`);
+        buttonOn();
     });
 
     runtime.onMessage.addListener(function(msg, sender) {
@@ -443,11 +447,11 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         if (ac_is_running == 0 || ac_is_running === undefined) {
 
             buttonOn();
-            onCheckForWork();
+            //onCheckForWork();
         } else {
 
             buttonOff();
-            onQuiesceWork();
+            //onQuiesceWork();
         }
     });
     //endregion
@@ -459,6 +463,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         run_loop_active = 1;
         ac_is_running = 1;
         test_urls_retrieved = 0;
+        onCheckForWork();
     }
 
     function buttonOff():void {
@@ -466,6 +471,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         browserAction.setIcon({path: 'images/icon.png'});
         browserAction.setBadgeText({text: ''});
         localStorage.setItem(kInuse_key, 0);
+        onQuiesceWork();
         ac_is_running = 0;
         run_loop_active = 0;
     }
