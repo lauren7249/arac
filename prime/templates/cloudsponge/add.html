@@ -35,15 +35,7 @@
           appId      : '1608721912712330',
           xfbml      : true,
           version    : 'v2.4'
-        });
-        FB.getLoginStatus(function(response) {
-          if (response.status === 'connected') {
-            console.log('Logged in.');
-          }
-          else {
-            FB.login();
-          }
-        });         
+        });        
       };
       (function(d, s, id){
          var js, fjs = d.getElementsByTagName(s)[0];
@@ -84,8 +76,10 @@
       <h2>Upload contacts</h2>
       <div id="linkedin_area">
         <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
-        
       </div>
+      <div id="facebook_area">
+        <button class='button' id='fb' type="Submit">Add Facebook Connections <i class='fa fa-facebook'></i></button>
+      </div>      
       <div id="email_area">
         <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
       </div>
@@ -178,7 +172,17 @@
           $("div#enter_email").hide();
           $("div#upload_area").show();
         }
-      })      
+      })  
+      $("#fb").click(function() {
+        FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+            console.log('Logged in.');
+          }
+          else {
+            FB.login();
+          }
+        }); 
+      })          
       $("#em").click(function() {
         $(".overlay").fadeIn();
         $(".email").slideDown();
