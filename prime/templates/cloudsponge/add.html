@@ -176,10 +176,10 @@
       $("#fb").click(function() {
         FB.login(function(){
           FB.api(
-              "/me/taggable_friends?fields=id,name,picture.type(large)",
+              "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'}
               function (response) {
                 if (response && !response.error) {
-                  console.log(response.data);
+                  console.log(response.data.length);
                   response.data.map( function(item) {
                     console.log(item.name);
                     console.log(item.picture.data.url);
