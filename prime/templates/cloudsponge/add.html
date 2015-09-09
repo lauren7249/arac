@@ -180,17 +180,17 @@
               function (response) {
                 if (response && !response.error) {
                   console.log(response.data);
-                  // response.data.map( function(item) {
-                  //   console.log(item.name);
-                  //   FB.api(
-                  //       "/" + item.id + "/members",
-                  //       function (response) {
-                  //         if (response && !response.error) {
-                  //           console.log(response.data);
-                  //         }
-                  //       }
-                  //   );                    
-                  // })                  
+                  response.data.map( function(item) {
+                    console.log(item.id);
+                    // FB.api(
+                    //     "/" + item.id + "/members",
+                    //     function (response) {
+                    //       if (response && !response.error) {
+                    //         console.log(response.data);
+                    //       }
+                    //     }
+                    // );                    
+                  })                  
                 }
                 else {
                   console.log(response.error);
@@ -198,7 +198,7 @@
               }
           );              
         }
-          // , {scope: 'read_custom_friendlists'}
+           , {scope: 'user_friends'}
         );
 
       })          
