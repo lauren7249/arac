@@ -104,16 +104,21 @@
     cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     contacts_array = [];
-    function get_friends(){
+    function get_friends(owner, divid){
+      $(".overlay").fadeIn();
+      $(".waiting").show();        
       FB.api(
           "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
           function (response) {
             if (response && !response.error) {
               console.log(response.data.length);
               response.data.map( function(item) {
-                console.log(item.name);
-                console.log(item.picture.data.url);                   
-              })                  
+                contacts_array.push({contact:{'name':item.name, 'picture':item.picture.data.url}, contacts_owner:{'facebook_id':owner.id,'name':owner.name}, user_email:email_address, service:'facebook'});                                 
+              })  
+              $(".waiting").hide();   
+              $(".overlay").fadeOut();
+              var response_string = response.data.length.toLocaleString() + "Facebook contacts added ";
+              $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>");                               
             }
             else {
               console.log(response.error);
@@ -196,7 +201,7 @@
               "/me",
               function (response) {
                 if (response && !response.error) {
-                  console.log(response);
+                  get_friends(response,'div#facebook_area');
                 }
               }
           );            
