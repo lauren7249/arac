@@ -180,7 +180,7 @@
               function (response) {
                 if (response && !response.error) {
                   response.data.map( function(item) {
-                    //console.log(item.id);
+                    console.log(item.name);
                     FB.api(
                         "/" + item.id + "/members",
                         function (response) {
