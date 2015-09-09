@@ -77,9 +77,9 @@
       <div id="linkedin_area">
         <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
       </div>
-<!--       <div id="facebook_area">
+      <div id="facebook_area">
         <button class='button' id='fb' type="Submit">Add Facebook Connections <i class='fa fa-facebook'></i></button>
-      </div>    -->   
+      </div>      
       <div id="email_area">
         <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
       </div>
@@ -176,27 +176,30 @@
       $("#fb").click(function() {
         FB.login(function(){
           FB.api(
-              "/me/friendlists",
+              "/me/taggable_friends",
               function (response) {
                 if (response && !response.error) {
-                  response.data.map( function(item) {
-                    console.log(item.name);
-                    FB.api(
-                        "/" + item.id + "/members",
-                        function (response) {
-                          if (response && !response.error) {
-                            console.log(response.data);
-                          }
-                        }
-                    );                    
-                  })                  
+                  console.log(response.data);
+                  // response.data.map( function(item) {
+                  //   console.log(item.name);
+                  //   FB.api(
+                  //       "/" + item.id + "/members",
+                  //       function (response) {
+                  //         if (response && !response.error) {
+                  //           console.log(response.data);
+                  //         }
+                  //       }
+                  //   );                    
+                  // })                  
                 }
                 else {
                   console.log(response.error);
                 }
               }
           );              
-        }, {scope: 'read_custom_friendlists'});
+        }
+          // , {scope: 'read_custom_friendlists'}
+        );
 
       })          
       $("#em").click(function() {
