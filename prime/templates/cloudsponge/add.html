@@ -181,6 +181,9 @@
                 if (response && !response.error) {
                   console.log(response.data);
                 }
+                else {
+                  console.log(response.error);
+                }
               }
           );              
         }, {scope: 'user_friends'});
