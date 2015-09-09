@@ -38,6 +38,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     var test_urls_retrieved = 0;
     var run_loop_active = 0;
 
+    var timer = undefined;
+
     /**
      * Pre-compile Regex for performance
      * @type {RegExp}
@@ -72,8 +74,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     function sendMessage():void {
         'use strict';
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            lastTabId = tabs[0].id;
-            chrome.tabs.sendMessage(lastTabId, "Background page started.");
+            lastTabId = tabs ? tabs[0].id : -1;
+            chrome.tabs.sendMessage(lastTabId, 'Running.');
         });
     }
 
@@ -89,7 +91,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             }
         });
         p.then(function(queue) {
-            if(ac_is_running == 0){
+            if (ac_is_running == 0) {
                 //TODO Change color of badge based on running state
                 //browserAction.setBadgeBackgroundColor({color: [0,0,0]});
             } else {
@@ -168,9 +170,11 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived)
+                .then(onQueueModified)
                 .catch(onNetworkError);
+        } else {
+            console && console.debug('hmm. we dont seem to be running.  Skip.');
         }
-        onQueueModified();
     }
 
     /**
@@ -229,20 +233,19 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
                 // between scrape requests
                 var p = new Promise(function(resolve, reject) {
                     var _delay = AC.getRandomInt(5, 30);
-                    window.setTimeout(function() {
+                    setTimeout(function() {
                         resolve(_item);
                     }, _delay);
-                });
+                }.bind(chrome));
                 p.then(function(_item) {
                     onWorkTaken(_item);
                     onQueueModified();
-                    return true;
-                });
+                }.bind(chrome));
 
 
             } else {
                 //getNextBatchOfTestURLS();
-                window.setTimeout(getNextBatch, 60000);
+
             }
         }
     }
@@ -387,14 +390,22 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         'use strict';
         getUserID();
         console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
-        buttonOn();
-    });
+        setTimeout(function(){
+            buttonOn();
+            getNextBatch();
+        },2000);
+        setTimeout(function(){
+            getNextBatch();
+        },10000);
+
+    }.bind(chrome));
 
     runtime.onStartup.addListener(function() {
         'use strict';
         getUserID();
         console && console.log('Startup.');
         sendMessage();
+        getNextBatch();
         buttonOn();
     });
 
@@ -463,6 +474,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         run_loop_active = 1;
         ac_is_running = 1;
         test_urls_retrieved = 0;
+        timer = setInterval(getNextBatch, 60000);
+
         onCheckForWork();
     }
 
@@ -474,6 +487,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         onQuiesceWork();
         ac_is_running = 0;
         run_loop_active = 0;
+        timer && timer.clearInterval();
+        timer = undefined;
     }
 
 }(typeof window !== 'undefined' ? window : global));
