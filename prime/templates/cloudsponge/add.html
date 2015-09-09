@@ -180,6 +180,9 @@
               function (response) {
                 if (response && !response.error) {
                   console.log(response.data);
+                  response.data.map( function(item) {
+                    console.log(item.members);
+                  })                  
                 }
                 else {
                   console.log(response.error);
