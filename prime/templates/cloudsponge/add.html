@@ -179,7 +179,9 @@
             console.log('Logged in.');
           }
           else {
-            FB.login();
+            FB.login(function(){
+              
+            }, {scope: 'read_custom_friendlists'});
           }
         }); 
       })          
