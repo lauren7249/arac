@@ -175,7 +175,7 @@
       })  
       $("#fb").click(function() {
         FB.getLoginStatus(function(response) {
-          if (response.status === 'connected') {
+          if (response.status === 'connected' && false) {
               FB.api(
                   "/me/friendlists",
                   function (response) {
