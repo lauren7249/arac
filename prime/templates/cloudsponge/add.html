@@ -29,7 +29,23 @@
 
   </head>
   <body>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1608721912712330',
+          xfbml      : true,
+          version    : 'v2.4'
+        });        
+      };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
 
+    </script>
   <div class='overlay'>
     <div class='email modal'>
       <h3>Select Email Provider</h3>
@@ -60,8 +76,10 @@
       <h2>Upload contacts</h2>
       <div id="linkedin_area">
         <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
-        
       </div>
+      <div id="facebook_area">
+        <button class='button' id='fb' type="Submit">Add Facebook Connections <i class='fa fa-facebook'></i></button>
+      </div>      
       <div id="email_area">
         <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
       </div>
@@ -86,6 +104,28 @@
     cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     contacts_array = [];
+    function get_friends(owner, divid){
+      $(".overlay").fadeIn();
+      $(".waiting").show();        
+      FB.api(
+          "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
+          function (response) {
+            if (response && !response.error) {
+              console.log(response.data.length);
+              response.data.map( function(item) {
+                contacts_array.push({contact:{'name':item.name, 'picture':item.picture.data.url}, contacts_owner:{'facebook_id':owner.id,'name':owner.name}, user_email:email_address, service:'facebook'});                                 
+              })  
+              $(".waiting").hide();   
+              $(".overlay").fadeOut();
+              var response_string = response.data.length.toLocaleString() + " Facebook contacts added ";
+              $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>");                               
+            }
+            else {
+              console.log(response.error);
+            }
+          }
+      );      
+    }
     function do_import(service, divid) {
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
         function(data) {
@@ -154,7 +194,22 @@
           $("div#enter_email").hide();
           $("div#upload_area").show();
         }
-      })      
+      })  
+      $("#fb").click(function() {
+        FB.login(function(){
+          FB.api(
+              "/me",
+              function (response) {
+                if (response && !response.error) {
+                  get_friends(response,'div#facebook_area');
+                }
+              }
+          );            
+        }
+          , {scope: 'user_friends'}
+        );
+
+      })          
       $("#em").click(function() {
         $(".overlay").fadeIn();
         $(".email").slideDown();

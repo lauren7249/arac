@@ -5,6 +5,14 @@ from prime.utils import r
 
 update_interval = 10 #days
 
+def query_prospects(job_urls):
+	job_urls_http = [url.replace("https://","http://") for url in job_urls]
+	job_urls_https = [url.replace("http://","https://") for url in job_urls]
+	recs = session.query(ProspectUrl.linkedin_id).filter(and_(ProspectUrl.url.in_(list(job_urls)), ProspectUrl.linkedin_id != 1)).distinct().all()
+	lids = [rec[0] for rec in recs]
+	recs = session.query(Prospect).filter(or_(Prospect.linkedin_id.in_(lids), Prospect.url.in_(job_urls_https), Prospect.url.in_(job_urls_http))).all()
+	return recs
+	
 def scrape_job(job_urls):
 	start_time = datetime.datetime.now()
 	print str(len(job_urls)) + " job urls"

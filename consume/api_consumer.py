@@ -116,5 +116,4 @@ def get_indeed_salary(title, location=None):
         return int(re.sub('\D','', salary))
     except Exception, err:
         print title + " not found by indeed"
-        pass
     return None
