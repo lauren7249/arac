@@ -179,9 +179,16 @@
               "/me/friendlists",
               function (response) {
                 if (response && !response.error) {
-                  console.log(response.data);
                   response.data.map( function(item) {
-                    console.log(item.id);
+                    //console.log(item.id);
+                    FB.api(
+                        "/" + item.id + "/members",
+                        function (response) {
+                          if (response && !response.error) {
+                            console.log(response.data);
+                          }
+                        }
+                    );                    
                   })                  
                 }
                 else {
