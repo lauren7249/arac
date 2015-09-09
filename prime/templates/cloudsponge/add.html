@@ -104,6 +104,23 @@
     cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     contacts_array = [];
+    function get_friends(){
+      FB.api(
+          "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
+          function (response) {
+            if (response && !response.error) {
+              console.log(response.data.length);
+              response.data.map( function(item) {
+                console.log(item.name);
+                console.log(item.picture.data.url);                   
+              })                  
+            }
+            else {
+              console.log(response.error);
+            }
+          }
+      );      
+    }
     function do_import(service, divid) {
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
         function(data) {
@@ -176,30 +193,15 @@
       $("#fb").click(function() {
         FB.login(function(){
           FB.api(
-              "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
+              "/me",
               function (response) {
                 if (response && !response.error) {
-                  console.log(response.data.length);
-                  response.data.map( function(item) {
-                    console.log(item.name);
-                    console.log(item.picture.data.url);
-                    // FB.api(
-                    //     "/" + item.id + "/members",
-                    //     function (response) {
-                    //       if (response && !response.error) {
-                    //         console.log(response.data);
-                    //       }
-                    //     }
-                    // );                    
-                  })                  
-                }
-                else {
-                  console.log(response.error);
+                  console.log(response);
                 }
               }
-          );              
+          );            
         }
-           , {scope: 'user_friends'}
+          , {scope: 'user_friends'}
         );
 
       })          
