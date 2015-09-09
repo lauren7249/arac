@@ -174,30 +174,17 @@
         }
       })  
       $("#fb").click(function() {
-        FB.getLoginStatus(function(response) {
-          if (response.status === 'connected' && false) {
-              FB.api(
-                  "/me/friendlists",
-                  function (response) {
-                    if (response && !response.error) {
-                      console.log(response);
-                    }
-                  }
-              ); 
-          }
-          else {
-            FB.login(function(){
-              FB.api(
-                  "/me/friendlists",
-                  function (response) {
-                    if (response && !response.error) {
-                      console.log(response);
-                    }
-                  }
-              );              
-            }, {scope: 'read_custom_friendlists'});
-          }
-        }); 
+        FB.login(function(){
+          FB.api(
+              "/me/invitable_friends",
+              function (response) {
+                if (response && !response.error) {
+                  console.log(response);
+                }
+              }
+          );              
+        }, {scope: 'user_friends'});
+
       })          
       $("#em").click(function() {
         $(".overlay").fadeIn();
