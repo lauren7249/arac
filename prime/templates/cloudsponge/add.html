@@ -176,7 +176,7 @@
       $("#fb").click(function() {
         FB.login(function(){
           FB.api(
-              "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'}
+              "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
               function (response) {
                 if (response && !response.error) {
                   console.log(response.data.length);
