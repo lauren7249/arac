@@ -176,7 +176,7 @@
       $("#fb").click(function() {
         FB.login(function(){
           FB.api(
-              "/me/invitable_friends",
+              "/me/friendlists",
               function (response) {
                 if (response && !response.error) {
                   console.log(response.data);
@@ -186,7 +186,7 @@
                 }
               }
           );              
-        }, {scope: 'user_friends'});
+        }, {scope: 'read_custom_friendlists'});
 
       })          
       $("#em").click(function() {
