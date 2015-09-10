@@ -271,7 +271,8 @@ export default class AC_Helpers extends Object {
         'use strict';
 
         let _url = AC_QUEUE_SUCCESS_URL_BASE;
-        let _payload = JSON.stringify({url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid});
+        let _payload = JSON.stringify({url:uri, user_id:userid});
+        //let _payload = JSON.stringify({url: uri.replace(/\//g, ';').replace(/\?/g, '`'), user_id: userid});
         console && console.log(_payload);
 
         /**
@@ -326,6 +327,7 @@ export default class AC_Helpers extends Object {
         'use strict';
         let _obj = obj.replace(/^"(.*)"$/, '$1');
         _obj = _obj.trim();
+        console && console.debug(`Normalized URL: ${obj}`);
         return _obj;
     }
 
