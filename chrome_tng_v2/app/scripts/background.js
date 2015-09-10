@@ -244,6 +244,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
 
             } else {
+                getNextBatch();
                 //getNextBatchOfTestURLS();
 
             }
@@ -388,15 +389,15 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     //region chrome platform listeners
     runtime.onInstalled.addListener(function(deets) {
         'use strict';
+        buttonOff();
         getUserID();
         console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
         setTimeout(function(){
-            buttonOn();
             getNextBatch();
         },2000);
         setTimeout(function(){
             getNextBatch();
-        },10000);
+        },5000);
 
     }.bind(chrome));
 
@@ -406,13 +407,11 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         console && console.log('Startup.');
         sendMessage();
         getNextBatch();
-        buttonOn();
     });
 
     runtime.onConnect.addListener(function(port) {
         'use strict';
         console && console.debug(`Connect received on port [${port}]`);
-        buttonOn();
     });
 
     runtime.onMessage.addListener(function(msg, sender) {
@@ -446,6 +445,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     runtime.onSuspendCanceled.addListener(function() {
         'use strict';
         console && console.warn('onSuspendCanceled received');
+        runtime.reload();
     });
 
     browserAction.onClicked.addListener(function(tab) {
@@ -474,7 +474,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         run_loop_active = 1;
         ac_is_running = 1;
         test_urls_retrieved = 0;
-        timer = setInterval(getNextBatch, 60000);
+        timer = window.setInterval(getNextBatch, 60000);
 
         onCheckForWork();
     }
@@ -487,7 +487,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         onQuiesceWork();
         ac_is_running = 0;
         run_loop_active = 0;
-        timer && timer.clearInterval();
+        timer && window.clearInterval(timer);
         timer = undefined;
     }
 
