@@ -1,6 +1,6 @@
 from prime.prospects.models import *
 from sqlalchemy import and_, or_
-import datetime
+import datetime, time
 from prime.utils import r
 
 update_interval = 10 #days
@@ -12,7 +12,7 @@ def query_prospects(job_urls):
 	lids = [rec[0] for rec in recs]
 	recs = session.query(Prospect).filter(or_(Prospect.linkedin_id.in_(lids), Prospect.url.in_(job_urls_https), Prospect.url.in_(job_urls_http))).all()
 	return recs
-	
+
 def scrape_job(job_urls):
 	start_time = datetime.datetime.now()
 	print str(len(job_urls)) + " job urls"
@@ -46,7 +46,7 @@ def scrape_job(job_urls):
 	left_to_scrape = len(r.smembers("urls") & new_urls)
 	while(left_to_scrape>5):
 		print str(left_to_scrape) + " left to scrape"
-		time.sleep(2)
+		time.sleep(5)
 		left_to_scrape = len(r.smembers("urls") & new_urls)
 
 	total_seconds = (datetime.datetime.now() - start_time).seconds

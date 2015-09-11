@@ -2,11 +2,12 @@ import requests
 from . import headers
 import lxml.html
 from geoindex.geo_point import GeoPoint
-import reverse_geocoder as rg
+# import reverse_geocoder as rg
 import re
 import numpy as np
 import itertools
 import operator
+from prime.prospects.models import MapquestGeocodes, get_or_create, session
 
 def parse_out(text, startTag, endTag):
 	region = ""
@@ -55,6 +56,8 @@ def most_common(L):
 
 
 def get_mapquest_coordinates(raw):
+	rec = get_or_create(session, MapquestGeocodes, name=raw)
+	if rec.geocode: return rec.geocode
 	url =  "https://www.mapquest.com/?q=%s" % (raw)
 	response = requests.get(url, headers=headers)
 	raw_html = lxml.html.fromstring(response.content)
@@ -89,7 +92,12 @@ def get_mapquest_coordinates(raw):
 		center = get_center(locality_coords)
 	else:
 		center = get_center(coords)
-	return {"latlng":(center.latitude, center.longitude) if center else None, "locality":main_locality, "region":main_region,"country":main_country, "latlng_result":rg.get((center.latitude, center.longitude)) if center else None}
+	rec.geocode = {"latlng":(center.latitude, center.longitude) if center else None, "locality":main_locality, "region":main_region,"country":main_country
+		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
+		}
+	session.add(rec)
+	session.commit()
+	return rec.geocode
 
 def get_center(coords, remove_outliers=False):
 	distances = []

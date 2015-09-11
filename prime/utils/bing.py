@@ -6,7 +6,10 @@ from difflib import SequenceMatcher
 
 #api_key = "xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg" #jimmy@advisorconnect.co
 #api_key = "VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s" #lauren@advisorconnect.co
-api_key = "ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU" #laurentracytalbot@gmail.com
+#api_key = "ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU" #laurentracytalbot@gmail.com
+#api_key = "CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU" #lauren.tracy.talbot@gmail.com
+#api_key = "hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls" #lauren.tracytalbot@gmail.com
+api_key = "FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0" #laurentracy.talbot@gmail.com
 
 def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=None, include_terms_in_title=None):
 	filtered = []
@@ -31,30 +34,37 @@ def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=N
 		if limit == len(filtered): return filtered
 	return filtered
 
-def query(terms, domain="", intitle="", page_limit=1):
-	record = session.query(BingSearches).get((terms,domain,intitle))
+def query(terms, site="", intitle="", inbody="", page_limit=1):
+	record = session.query(BingSearches).get((terms,site,intitle,inbody))
 	if not record: 
 		querystring = "https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web?Query=%27"
-		#if len(terms): querystring += re.sub(r" ","%20",terms) 
-		if len(domain): querystring += "site%3A" + domain + "%20"
-		if len(intitle): querystring += "intitle%3A" + intitle 
+		if len(terms): querystring += re.sub(r" ","%20",terms) 
+		if len(site): querystring += "site%3A" + site + "%20"
+		if len(inbody): querystring += "inbody%3A" + inbody + "%20"
+		if len(intitle): querystring += "intitle%3A" + intitle + "%20"
 		querystring += "%27&Adult=%27Strict%27" 
-		record = BingSearches(terms=terms, site=domain, intitle=intitle, pages=0, results=[], next_querystring=querystring)
+		record = BingSearches(terms=terms, site=site, intitle=intitle, inbody=inbody, pages=0, results=[], next_querystring=querystring)
 		#print querystring
 	#print record.next_querystring
 	while record.next_querystring and record.pages<page_limit:
 		response = requests.get(record.next_querystring + "&$format=json" , auth=(api_key, api_key))
-		raw_results = json.loads(response.content)['d']
-		record.results += raw_results.get("results",[])
-		record.next_querystring = raw_results.get("__next")
-		record.pages+=1
-		session.add(record)
-		session.commit()
+		try:
+			raw_results = json.loads(response.content)['d']
+			record.results += raw_results.get("results",[])
+			record.next_querystring = raw_results.get("__next")		
+			record.pages+=1	
+			session.add(record)
+			session.commit()			
+		except:
+			print response.content
+			break
 	return record
 
 # %27site%3Alinkedin.com%20intitle%3AYesenia%2BMiranda%2Blinkedin%27&Adult=%27Strict%27
-def search_linkedin_by_name(name, page_limit=1, limit=10):
-	record = query("", domain="linkedin.com", intitle=re.sub(r" ","%2B",name), page_limit=page_limit)
+def search_linkedin_by_name(name, school='', page_limit=1, limit=10):
+	if len(school): inbody = '%22' + re.sub(r" ", "%20",school) + '%22' 
+	else: inbody = ''
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",name), inbody=inbody, page_limit=page_limit)
 	profiles = filter_results(record.results, url_regex=profile_re, include_terms_in_title=name)
 	return profiles[:limit]
 

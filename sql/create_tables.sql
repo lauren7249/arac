@@ -101,7 +101,10 @@ CREATE TABLE google_profile_searches (
 
 alter table education add column school_linkedin_id int references linkedin_schools(id);
 
-
+create table mapquest_geocode (
+    name CITEXT primary key not null,
+    geocode json
+);
 
 update proxy_domain_status s set last_used = now() from (select id from proxy_domain_status where last_used BETWEEN now()::timestamp - (interval '1s') * 1000 AND now()::timestamp - (interval '1s') * 60 limit 1 FOR UPDATE) sub where s.id=sub.id returning *;
 
