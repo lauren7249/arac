@@ -312,17 +312,10 @@ class Prospect(db.Model):
         return '<Prospect id={0} url={1}>'.format(self.id, self.url)
 
 
-class RawLocation(db.Model):
-    __tablename__ = "raw_locations"
-
-    location = db.Column(CIText(), primary_key=True)
-    lat = db.Column(Float)
-    lng = db.Column(Float)
-
-    def __repr__(self):
-        return '<Location={0} lat={1}, lng={2}>'.format(
-                self.location, self.lat, self.lng
-                )
+class MapquestGeocodes(db.Model):
+    __tablename__ = "mapquest_geocode"
+    name = db.Column(CIText(), primary_key=True)
+    geocode = db.Column(JSON)
 
 class Location(db.Model):
     __tablename__ = "location"

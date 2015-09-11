@@ -46,7 +46,7 @@ def scrape_job(job_urls):
 	left_to_scrape = len(r.smembers("urls") & new_urls)
 	while(left_to_scrape>5):
 		print str(left_to_scrape) + " left to scrape"
-		time.sleep(2)
+		time.sleep(5)
 		left_to_scrape = len(r.smembers("urls") & new_urls)
 
 	total_seconds = (datetime.datetime.now() - start_time).seconds
