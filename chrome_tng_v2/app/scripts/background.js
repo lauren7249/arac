@@ -81,6 +81,22 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     sendMessage();
 
+    /**
+     * Check if the plugin is running in an Incognito context
+     * @return {boolean}
+     */
+    function isIncognito() {
+        let _incognito = chrome && chrome.extension.inIncognitoContext;
+        if (_incognito === false || _incognito === undefined) {
+            window && window.alert('Please start in incognito mode.');
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Called when the queue/stack of urls changes
+     */
     function onQueueModified():void {
 
         var p = new Promise(function(resolve, reject) {
@@ -91,17 +107,17 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             }
         });
         p.then(function(queue) {
-            if (ac_is_running == 0) {
-                //TODO Change color of badge based on running state
-                //browserAction.setBadgeBackgroundColor({color: [0,0,0]});
-            } else {
-                //browserAction.setBadgeBackgroundColor({color: [255,0,0]});
-            }
+            //if (ac_is_running == 0) {
+            //    //TODO Change color of badge based on running state
+            //    //browserAction.setBadgeBackgroundColor({color: [0,0,0]});
+            //} else {
+            //    //browserAction.setBadgeBackgroundColor({color: [255,0,0]});
+            //}
             var _count = queue.count().toString();
             browserAction.setBadgeText({text: _count});
 
         }, function(onrejected) {
-            return false;
+            return undefined;
         });
     }
 
@@ -389,15 +405,14 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     //region chrome platform listeners
     runtime.onInstalled.addListener(function(deets) {
         'use strict';
-        buttonOff();
         getUserID();
         console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
-        setTimeout(function(){
+        setTimeout(function() {
             getNextBatch();
-        },2000);
-        setTimeout(function(){
+        }, 2000);
+        setTimeout(function() {
             getNextBatch();
-        },5000);
+        }, 5000);
 
     }.bind(chrome));
 
@@ -422,14 +437,12 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     runtime.onSuspend.addListener(function() {
         'use strict';
         console && console.warn('onSuspend received');
-        onQuiesceWork();
         buttonOff();
         browserAction.setBadgeText({text: 'x'});
     });
 
     runtime.onUpdateAvailable.addListener(function(details) {
         console && console.info(`onUpdateAvailable called.  Reloading. Details [${details}]`);
-        onQuiesceWork();
         buttonOff();
         runtime.reload();
     });
@@ -437,7 +450,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     runtime.onRestartRequired.addListener(function(reason) {
         'use strict';
         console && console.warn(`onRestartRequired received [${reason}]. Quiescing.`);
-        onQuiesceWork();
         buttonOff();
         browserAction.setBadgeText({text: ''});
     });
@@ -469,14 +481,16 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     function buttonOn():void {
         'use strict';
-        browserAction.setIcon({path: 'images/icon_active.png'});
-        localStorage.setItem(kInuse_key, 1);
-        run_loop_active = 1;
-        ac_is_running = 1;
-        test_urls_retrieved = 0;
-        timer = window.setInterval(getNextBatch, 60000);
+        if (isIncognito()) {
+            browserAction.setIcon({path: 'images/icon_active.png'});
+            localStorage.setItem(kInuse_key, 1);
+            run_loop_active = 1;
+            ac_is_running = 1;
+            test_urls_retrieved = 0;
+            timer = window.setInterval(getNextBatch, 60000);
 
-        onCheckForWork();
+            onCheckForWork();
+        }
     }
 
     function buttonOff():void {
