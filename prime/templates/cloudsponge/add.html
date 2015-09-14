@@ -270,7 +270,8 @@
                   $(".overlay").fadeOut();                
                   var value = responseData.someKey;
                   $("div#upload_area").hide();
-                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total contacts uploaded " + "</i>"); 
+                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total records uploaded " + "</i>"); 
+                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + responseData + " unique contacts " + "</i>");                   
                   //alert('uploaded ' + contacts_array.length + ' contacts!')
               },
               error: function (responseData, textStatus, errorThrown) {
