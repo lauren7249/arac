@@ -89,7 +89,7 @@ class add:
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
             user_email = record.get("user_email")
-            service = record.get("service").lower()
+            service = record.get("service")
             first_name = re.sub('[^a-z]','',contact.get("first_name","").lower())
             last_name = re.sub('[^a-z]','',contact.get("last_name","").lower().replace('[^a-z ]',''))
             emails = contact.get("email",[{}])
