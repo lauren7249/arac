@@ -108,12 +108,12 @@
       $(".overlay").fadeIn();
       $(".waiting").show();        
       FB.api(
-          "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
+          "/me/taggable_friends?fields=id,name,first_name,last_name,picture.type(large)",{'limit': '5000'},
           function (response) {
             if (response && !response.error) {
               console.log(response.data.length);
               response.data.map( function(item) {
-                contacts_array.push({contact:{'name':item.name, 'picture':item.picture.data.url}, contacts_owner:{'facebook_id':owner.id,'name':owner.name}, user_email:email_address, service:'facebook'});                                 
+                contacts_array.push({contact:{'first_name':item.first_name, 'last_name':item.last_name, 'name':item.name, 'picture':item.picture.data.url}, contacts_owner:{'facebook_id':owner.id,'name':owner.name}, user_email:email_address, service:'facebook'});                                 
               })  
               $(".waiting").hide();   
               $(".overlay").fadeOut();
