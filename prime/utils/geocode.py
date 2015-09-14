@@ -92,13 +92,17 @@ def get_mapquest_coordinates(raw):
 		center = get_center(locality_coords)
 	else:
 		center = get_center(coords)
-	rec.geocode = {"latlng":(center.latitude, center.longitude) if center else None, "locality":main_locality, "region":main_region,"country":main_country
+	if center:
+		rec.geocode = {"latlng":(center.latitude, center.longitude), "locality":main_locality, "region":main_region,"country":main_country
 		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
 		}
-	session.add(rec)
-	session.commit()
-	return rec.geocode
-
+		session.add(rec)
+		session.commit()
+		return rec.geocode
+	if raw.split(",")[0] != raw:
+		return get_mapquest_coordinates(raw.split(",")[0])
+	return {}
+	
 def get_center(coords, remove_outliers=False):
 	distances = []
 	for coord in coords:

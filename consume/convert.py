@@ -352,6 +352,8 @@ def parse_html(html):
 
     skills = [e.text_content() for e in raw_html.xpath("//ul[@class='skills-section compact-view']/li") if "jsControl" not in e.text_content()]
     interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li") if "jsControl" not in e.text_content()]
+    causes = [e.text_content() for e in raw_html.xpath("//div[@id='volunteering-causes-view']/div/ul/li")]
+    organizations = [e.text_content() for e in raw_html.xpath("//div[@id='volunteering-organizations-view']/div/ul/li")]
     people = get_linked_profiles(raw_html)
     groups = get_groups(raw_html)
     projects = get_projects(raw_html)
@@ -386,6 +388,8 @@ def parse_html(html):
         "complete": complete,
         "urls":people,
         "interests": interests,
+        "causes":causes,
+        "organizations":organizations,
         "source_url": source_url
     }
 

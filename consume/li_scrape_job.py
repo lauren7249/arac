@@ -3,7 +3,7 @@ from sqlalchemy import and_, or_
 import datetime, time
 from prime.utils import r
 
-update_interval = 10 #days
+ #days
 
 def query_prospects(job_urls):
 	job_urls_http = [url.replace("https://","http://") for url in job_urls]
@@ -13,7 +13,7 @@ def query_prospects(job_urls):
 	recs = session.query(Prospect).filter(or_(Prospect.linkedin_id.in_(lids), Prospect.url.in_(job_urls_https), Prospect.url.in_(job_urls_http))).all()
 	return recs
 
-def scrape_job(job_urls):
+def scrape_job(job_urls, update_interval = 10):
 	start_time = datetime.datetime.now()
 	print str(len(job_urls)) + " job urls"
 
