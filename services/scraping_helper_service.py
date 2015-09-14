@@ -102,7 +102,7 @@ class add:
             r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service)
             session.add(r)
         session.commit()
-        return by_name
+        return json.dumps(by_name)
 
 class post_uploaded:
     def POST(self):
