@@ -135,7 +135,7 @@ class Prospect(db.Model):
         dob_year_max = None
         if self.schools:
             for school in self.schools:
-                if school.school_linkedin_id:
+                if school.school_linkedin_id or school.name.lower().find('university')>-1 or school.name.lower().find('college')>-1:
                     if school.start_date and (not first_school_year or school.start_date.year<first_school_year): first_school_year = school.start_date.year
                     if school.end_date and (not first_grad_year or school.end_date.year<first_grad_year): first_grad_year = school.end_date.year   
                 else:
