@@ -187,6 +187,11 @@
         });      
     }
     $(function() {
+      $("#email_address").keyup(function(event){
+          if(event.keyCode == 13){
+              $("#enter").click();
+          }
+      });      
       $("#enter").click(function() {
         email_address = document.getElementById("email_address").value;
         if (email_address != "") {
