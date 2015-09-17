@@ -77,9 +77,9 @@
       <div id="linkedin_area">
         <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
       </div>
-      <div id="facebook_area">
+<!--       <div id="facebook_area">
         <button class='button' id='fb' type="Submit">Add Facebook Connections <i class='fa fa-facebook'></i></button>
-      </div>      
+      </div>   -->    
       <div id="email_area">
         <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
       </div>
@@ -108,12 +108,12 @@
       $(".overlay").fadeIn();
       $(".waiting").show();        
       FB.api(
-          "/me/taggable_friends?fields=id,name,picture.type(large)",{'limit': '5000'},
+          "/me/taggable_friends?fields=id,name,first_name,last_name,picture.type(large)",{'limit': '5000'},
           function (response) {
             if (response && !response.error) {
               console.log(response.data.length);
               response.data.map( function(item) {
-                contacts_array.push({contact:{'name':item.name, 'picture':item.picture.data.url}, contacts_owner:{'facebook_id':owner.id,'name':owner.name}, user_email:email_address, service:'facebook'});                                 
+                contacts_array.push({contact:{'first_name':item.first_name, 'last_name':item.last_name, 'name':item.name, 'picture':item.picture.data.url}, contacts_owner:{'facebook_id':owner.id,'name':owner.name}, user_email:email_address, service:'facebook'});                                 
               })  
               $(".waiting").hide();   
               $(".overlay").fadeOut();
@@ -187,6 +187,11 @@
         });      
     }
     $(function() {
+      $("#email_address").keyup(function(event){
+          if(event.keyCode == 13){
+              $("#enter").click();
+          }
+      });      
       $("#enter").click(function() {
         email_address = document.getElementById("email_address").value;
         if (email_address != "") {
@@ -206,7 +211,7 @@
               }
           );            
         }
-          , {scope: 'user_friends'}
+          , {scope: 'user_friends,user_photos'}
         );
 
       })          
@@ -265,7 +270,8 @@
                   $(".overlay").fadeOut();                
                   var value = responseData.someKey;
                   $("div#upload_area").hide();
-                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total contacts uploaded " + "</i>"); 
+                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total records uploaded " + "</i>"); 
+                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + Object.keys(JSON.parse(responseData)).length.toLocaleString() + " unique contacts " + "</i>");                   
                   //alert('uploaded ' + contacts_array.length + ' contacts!')
               },
               error: function (responseData, textStatus, errorThrown) {

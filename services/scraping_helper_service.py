@@ -80,6 +80,8 @@ class add:
         web.header('Access-Control-Allow-Headers', '*')
         web.header('Access-Control-Allow-Methods','*')
         i = web.data()
+        by_name = {}
+        by_email = {}           
         for record in json.loads(i):
             if len(str(record)) > 10000: 
                 print "CloudspongeRecord is too big"
@@ -88,10 +90,19 @@ class add:
             contact = record.get("contact",{})
             user_email = record.get("user_email")
             service = record.get("service")
+            first_name = re.sub('[^a-z]','',contact.get("first_name","").lower())
+            last_name = re.sub('[^a-z]','',contact.get("last_name","").lower().replace('[^a-z ]',''))
+            emails = contact.get("email",[{}])
+            try: email_address = emails[0].get("address",'').lower()
+            except: email_address = ''
+            if email_address: 
+                by_email.setdefault(email_address,{}).setdefault(service,[]).append(first_name + " " + last_name)
+            if first_name and last_name:
+                by_name.setdefault(first_name + " " + last_name,{}).setdefault(service,[]).append(email_address)            
             r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service)
             session.add(r)
         session.commit()
-        return "good"
+        return json.dumps(by_name)
 
 class post_uploaded:
     def POST(self):

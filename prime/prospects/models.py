@@ -4,7 +4,7 @@ import datetime
 import json
 import requests
 import lxml.html
-import os, re, json
+import os, re, json, numpy
 from prime.utils import headers, get_bucket
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSON, TSVECTOR, ARRAY
@@ -121,23 +121,34 @@ class Prospect(db.Model):
 
     @property 
     def dob_year(self):
+        dob_year_range = self.dob_year_range
+        if not max(dob_year_range): return None
+        return numpy.mean(dob_year_range)
+
+    @property 
+    def dob_year_range(self):
         first_school_year = None
         first_grad_year = None
         first_weird_school_year = None
         first_weird_grad_year = None
-        dob_year = None
+        dob_year_min = None
+        dob_year_max = None
         if self.schools:
             for school in self.schools:
-                if school.school_linkedin_id:
+                if school.school_linkedin_id or school.name.lower().find('university')>-1 or school.name.lower().find('college')>-1:
                     if school.start_date and (not first_school_year or school.start_date.year<first_school_year): first_school_year = school.start_date.year
                     if school.end_date and (not first_grad_year or school.end_date.year<first_grad_year): first_grad_year = school.end_date.year   
                 else:
                     if school.start_date and (not first_weird_school_year or school.start_date.year<first_weird_school_year): first_weird_school_year = school.start_date.year
                     if school.end_date and (not first_weird_grad_year or school.end_date.year<first_weird_grad_year): first_weird_grad_year = school.end_date.year   
 
-        if first_school_year: dob_year = first_school_year - 18
-        elif first_grad_year: dob_year = first_grad_year - 22
-        if dob_year: return dob_year
+        if first_school_year: 
+            dob_year_max = first_school_year - 17
+            dob_year_min = first_school_year - 20
+        elif first_grad_year: 
+            dob_year_max = first_grad_year - 21
+            dob_year_min = first_grad_year - 25
+        if dob_year_min: return (dob_year_min, dob_year_max)
 
         first_year_experience = None
         first_quitting_year = None
@@ -146,11 +157,25 @@ class Prospect(db.Model):
                 if job.start_date and (not first_year_experience or job.start_date.year<first_year_experience): first_year_experience = job.start_date.year
                 if job.end_date and (not first_quitting_year or job.end_date.year<first_quitting_year): first_quitting_year = job.end_date.year  
 
-        if first_year_experience: dob_year = first_year_experience - 20
-        elif first_quitting_year: dob_year = first_quitting_year - 22
-        elif first_weird_school_year: dob_year = first_weird_school_year - 14
-        elif first_weird_grad_year: dob_year = first_weird_grad_year - 18
-        return dob_year
+        if first_year_experience: 
+            dob_year_max = first_year_experience - 18
+            dob_year_min = first_year_experience - 24
+        elif first_quitting_year: 
+            dob_year_max = first_quitting_year - 19
+            dob_year_min = first_quitting_year - 28
+
+        #add age-based fuzz factor for people who only list job years
+        if dob_year_min:
+            dob_year_min -= (datetime.datetime.today().year - dob_year_min)/10
+            return (dob_year_min, dob_year_max)
+
+        if first_weird_school_year: 
+            dob_year_max = first_weird_school_year - 14
+            dob_year_min = first_weird_school_year - 22
+        elif first_weird_grad_year: 
+            dob_year_max = first_weird_grad_year - 17
+            dob_year_min = first_weird_grad_year - 27
+        return (dob_year_min, dob_year_max)
 
     @property 
     def get_location(self):
