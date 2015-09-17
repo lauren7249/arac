@@ -9,7 +9,7 @@ import {AC_Helpers as AC} from './components/helpers.js';
 import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
-    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './components/constants';
+    AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL, kUid_key } from './components/constants';
 
 /**
  * @module
@@ -46,7 +46,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     const captcha = /captcha/i;
     const html_mime = 'text/html';
-    const kUid_key = 'acUID';
     const kInuse_key = 'acINUSE';
     const Helpers = new AC();
 
