@@ -44,7 +44,7 @@ class Prospect(db.Model):
 
     id = db.Column(Integer, primary_key=True)
 
-    url = db.Column(String(1024))
+    url = db.Column(String(1024), index=True)
     name = db.Column(String(1024))
     linkedin_id = db.Column(String(1024), index=True)
 
@@ -58,7 +58,7 @@ class Prospect(db.Model):
 
     s3_key = db.Column(String(1024), index=True)
     complete = db.Column(Boolean)
-    updated = db.Column(Date)
+    updated = db.Column(Date, index=True)
     connections = db.Column(Integer)
     json = db.Column(JSON)
 
