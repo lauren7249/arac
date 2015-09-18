@@ -3,7 +3,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     AC_AWS_REGION,
     AC_DEBUG_MODE, AC_QUEUE_BASE_URL,
     AC_QUEUE_SUCCESS_URL_BASE, AC_QUEUE_URL } from './components/constants';
-import {urls as test_urls} from './components/regular_urls';
+//import {urls as test_urls} from './components/regular_urls';
 import {console, AC_Helpers} from './components/helpers';
 
 var React = require('react');
@@ -83,7 +83,8 @@ var App = React.createClass({
     getNextBatchOfTestURLS: function(ctx) {
         // Only used in TEST
         var promise = new Promise(function(resolve, reject) {
-            resolve(test_urls);
+            //resolve(test_urls);
+            resolve([]);
         });
         promise.then(function(urls) {
             ctx.onNextBatchReceived(undefined, urls);
