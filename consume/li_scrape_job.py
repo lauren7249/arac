@@ -14,7 +14,7 @@ def query_prospects(job_urls):
 	return recs
 
 def scrape_job(job_urls, update_interval = 10):
-	start_time = datetime.datetime.now()
+	
 	print str(len(job_urls)) + " job urls"
 
 	refresh_date = start_time + datetime.timedelta(-update_interval)
@@ -39,9 +39,9 @@ def scrape_job(job_urls, update_interval = 10):
 
 	new_urls = job_urls - set(updated_urls_http) - set(updated_urls_https) - set(updated_urls)
 	print str(len(new_urls)) + " incremental urls to scrape! adding to queue"
-	
-	for url in new_urls:
-	    r.sadd("urls",url)
+	r.sadd("urls",*new_urls)
+
+	start_time = datetime.datetime.now()
 
 	left_to_scrape = len(r.smembers("urls") & new_urls)
 	while(left_to_scrape>5):

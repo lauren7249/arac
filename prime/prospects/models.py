@@ -460,6 +460,7 @@ class Job(db.Model):
     company_linkedin_id = db.Column(Integer, ForeignKey("linkedin_companies.id"), index=True)
     linkedin_company = relationship('LinkedinCompany', foreign_keys='Job.company_linkedin_id')
     indeed_salary = db.Column(Integer)
+    glassdoor_salary = db.Column(Integer)
 
     @property
     def name(self):
@@ -487,6 +488,15 @@ class Job(db.Model):
         session.add(self)
         session.commit()
         return self.indeed_salary
+
+    @property 
+    def get_glassdoor_salary(self):
+        if self.glassdoor_salary:
+            return self.glassdoor_salary
+        self.glassdoor_salary = get_glassdoor_salary(self.title)
+        session.add(self)
+        session.commit()
+        return self.glassdoor_salary
 
     @property
     def get_url(self):
