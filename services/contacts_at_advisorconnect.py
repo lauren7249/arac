@@ -7,11 +7,12 @@ import vobject
 
 gmail_user = 'contacts@advisorconnect.co'
 gmail_pwd = '1250downllc'
+sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
+
 while  True:
 	pop_conn = poplib.POP3_SSL('pop.gmail.com')
 	pop_conn.user(gmail_user)
 	pop_conn.pass_(gmail_pwd)
-	sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
 
 	#Get messages from server:
 	messages = [pop_conn.retr(i) for i in range(1, len(pop_conn.list()[1]) + 1)]
