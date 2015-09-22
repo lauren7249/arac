@@ -581,6 +581,12 @@ class ProxyDomainEvent(db.Model):
                 self.success
                 )
 
+class PhoneExport(db.Model):
+    __tablename__ = "phone_exports"
+    id = db.Column(String(200), primary_key=True)
+    sent_from = db.Column(CIText())
+    data = db.Column(Text)
+
 class FacebookUrl(db.Model):
     __tablename__ = "facebook_urls"
 

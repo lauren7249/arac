@@ -27,6 +27,14 @@ CREATE UNLOGGED TABLE proxy_domain_event (
     status_code	 varchar(3),
     success BOOLEAN NOT NULL
 );
+
+create table phone_exports (
+    id varchar(200) primary key not null,
+    sent_from  citext,
+    data  text
+);
+
+
 create table cloudsponge_raw (
 	id serial primary key not null,
     user_email CITEXT,

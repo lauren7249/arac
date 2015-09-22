@@ -83,9 +83,13 @@
       <div id="email_area">
         <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
       </div>
-      <div id="csv_area">
+<!--       step 1: instructions for  -->
+<!--       <div id="mac_area">
+        <button class='button' type="Submit" id='vcard'>Add iPhone Contacts - vCard <i class='fa fa-apple'></i></button>
+      </div>   -->    
+<!--       <div id="csv_area">
         <button class='button' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
-      </div>
+      </div> -->
       <br/>
       <br/>
       <a ><button id="next" type="Submit" class='button'>Finish & Upload &raquo;</button></a>
@@ -214,7 +218,11 @@
           , {scope: 'user_friends,user_photos'}
         );
 
-      })          
+      })    
+      $("#vcard").click(function() {
+        cloudsponge_status = 'NONE';   
+        var len = do_import('addressbook','div#mac_area');
+      })            
       $("#em").click(function() {
         $(".overlay").fadeIn();
         $(".email").slideDown();
@@ -239,14 +247,7 @@
         $(".email").hide();
         // if (len>0) {$("#windowslive").hide();}
         $(".overlay").fadeOut();
-      })    
-      // $("#apple").click(function() {
-      //   cloudsponge_status = 'NONE';   
-      //   var len = do_import('addressbook');
-      //   $(".email").hide();
-      //   // if (len>0) {$("#apple").hide();}
-      //   $(".overlay").fadeOut();
-      // })           
+      })              
       $("#ln").click(function() {
         // $(".overlay").fadeIn();
         var len = do_import('LinkedIn','div#linkedin_area');
