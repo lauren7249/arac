@@ -3,11 +3,11 @@ from email import parser
 import uuid
 from prime.prospects.models import PhoneExport, session
 import sendgrid
+import vobject
 
 gmail_user = 'contacts@advisorconnect.co'
 gmail_pwd = '1250downllc'
-
-while True:
+while  True:
 	pop_conn = poplib.POP3_SSL('pop.gmail.com')
 	pop_conn.user(gmail_user)
 	pop_conn.pass_(gmail_pwd)
@@ -24,7 +24,7 @@ while True:
 		message_id = None
 		for part in message.walk():
 			name = part.get_filename()
-			if name and name.find('MyContacts-')==0: 
+			if name and name.find('MyContacts-')==0 and name.find('.vcf')>-1: 
 				from_email = message['From']
 				subject = message['Subject']
 				message_id = message['Message-ID']
@@ -32,7 +32,16 @@ while True:
 				break
 		if from_email and data:
 			id = str(uuid.uuid4().int)
-			e = PhoneExport(id=id, data=data, sent_from=from_email)
+			vcard = vobject.readComponents(data)
+			j = []
+			for item in vcard:
+				d = {}
+				for child in item.getChildren():
+					value = child.value
+					if not isinstance(value,basestring): value = str(value)
+					d.update({child.name: value.encode('utf-8')})
+				j.append(d)
+			e = PhoneExport(id=id, data=j, sent_from=from_email)
 			session.add(e)
 			session.commit()		
 			text = 'Your export code is ' + id

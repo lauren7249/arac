@@ -31,7 +31,7 @@ CREATE UNLOGGED TABLE proxy_domain_event (
 create table phone_exports (
     id varchar(200) primary key not null,
     sent_from  citext,
-    data  text
+    data  json
 );
 
 
