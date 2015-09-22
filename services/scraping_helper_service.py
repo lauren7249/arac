@@ -59,15 +59,14 @@ class log_uploaded:
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
         return url
-# http://www.google.com/search?q=site:www.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
-# http://www.google.com/search?q=site%3Awww.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
+
 class get_my_total:
     def GET(self, user_id):
         return r.hget("chrome_uploads_successes",user_id)
 
 class get_phone_export:
     def GET(self, id):
-        print id
+        web.header('Access-Control-Allow-Origin', '*')
         exp = session.query(PhoneExport).get(id)
         if not exp or not exp.data: return ""
         result = {}
