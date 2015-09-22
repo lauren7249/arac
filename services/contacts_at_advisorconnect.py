@@ -12,9 +12,9 @@ gmail_user = 'contacts@advisorconnect.co'
 gmail_pwd = '1250downllc'
 sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
 
-imapSession = imaplib.IMAP4_SSL('imap.gmail.com')
-typ, accountDetails = imapSession.login(gmail_user, gmail_pwd)
 while  True:
+	imapSession = imaplib.IMAP4_SSL('imap.gmail.com')
+	typ, accountDetails = imapSession.login(gmail_user, gmail_pwd)
 	imapSession.select('INBOX')
 	typ, data = imapSession.search(None, 'ALL')
 	for msgId in data[0].split():
