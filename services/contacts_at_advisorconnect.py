@@ -4,25 +4,27 @@ import uuid
 from prime.prospects.models import PhoneExport, session
 import sendgrid
 import vobject
+import getpass, imaplib
+import time
+import email
 
 gmail_user = 'contacts@advisorconnect.co'
 gmail_pwd = '1250downllc'
 sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
 
+imapSession = imaplib.IMAP4_SSL('imap.gmail.com')
+typ, accountDetails = imapSession.login(gmail_user, gmail_pwd)
 while  True:
-	pop_conn = poplib.POP3_SSL('pop.gmail.com')
-	pop_conn.user(gmail_user)
-	pop_conn.pass_(gmail_pwd)
-
-	#Get messages from server:
-	messages = [pop_conn.retr(i) for i in range(1, len(pop_conn.list()[1]) + 1)]
-	messages = ["\n".join(mssg[1]) for mssg in messages]
-	messages = [parser.Parser().parsestr(mssg) for mssg in messages]
-	for message in messages:
+	imapSession.select('INBOX')
+	typ, data = imapSession.search(None, 'ALL')
+	for msgId in data[0].split():
+		typ, messageParts = imapSession.fetch(msgId, '(RFC822)')
+		emailBody = messageParts[0][1]
 		from_email = None
 		data = None
 		subject = None
 		message_id = None
+		message = email.message_from_string(emailBody)
 		for part in message.walk():
 			name = part.get_filename()
 			if name and name.find('MyContacts-')==0 and name.find('.vcf')>-1: 
@@ -47,9 +49,10 @@ while  True:
 			session.commit()		
 			text = 'Your export code is ' + id
 			mail = sendgrid.Mail()
-			mail.add_to('<' + from_email + '>')
+			mail.add_to(from_email)
 			mail.set_subject(subject)
 			mail.set_text(text)
-			mail.set_from('<' + gmail_user + '>')
+			mail.set_from(gmail_user)
 			status, msg = sg.send(mail)
-	pop_conn.quit()
+		imapSession.store(int(msgId), '+FLAGS', '\\Deleted')
+		imapSession.expunge()
