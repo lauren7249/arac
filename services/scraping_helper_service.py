@@ -67,8 +67,13 @@ class get_my_total:
 
 class get_phone_export:
     def GET(self, id):
+        print id
         exp = session.query(PhoneExport).get(id)
         if not exp or not exp.data: return ""
+        result = {}
+        result['email'] = exp.sent_from
+        result['export'] = exp.data
+        return json.dumps(result)        
 
 class select:
     def GET(self, n):
