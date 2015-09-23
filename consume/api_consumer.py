@@ -117,3 +117,30 @@ def get_indeed_salary(title, location=None):
     except Exception, err:
         print title + " not found by indeed"
     return None
+
+def get_glassdoor_salary(title):
+    if not title: return None
+    url =  "http://www.glassdoor.com/Salaries/" +  title.replace(" ",'-').strip() + "-salary-SRCH_KO0," + str(len(title.strip())) + ".htm"
+    try:
+        response = requests.get(url, headers=headers)
+        clean = lxml.html.fromstring(response.content)
+    except:
+        print "bad request"
+        return None
+    try:
+        salary = clean.xpath("//div[@class='meanPay nowrap positive']")[0].text_content()
+        return int(re.sub('\D','', salary))
+    except Exception, err:
+        listings = clean.xpath(".//span[@class='i-occ strong noMargVert ']")
+        if not listings: return None
+        common = None
+        for listing in listings:
+            text = re.sub('[^a-z]',' ', listing.text.lower())
+            words = set(text.split())
+            common = common & words if common else words
+        if not common: return None
+        new_title = " ".join([w for w in text.split() if w in common])
+        if new_title.lower().strip() == title.lower().strip(): return None
+        print title + "-->" + new_title
+        return get_glassdoor_salary(new_title)
+    return None

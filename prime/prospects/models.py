@@ -44,7 +44,7 @@ class Prospect(db.Model):
 
     id = db.Column(Integer, primary_key=True)
 
-    url = db.Column(String(1024))
+    url = db.Column(String(1024), index=True)
     name = db.Column(String(1024))
     linkedin_id = db.Column(String(1024), index=True)
 
@@ -58,7 +58,7 @@ class Prospect(db.Model):
 
     s3_key = db.Column(String(1024), index=True)
     complete = db.Column(Boolean)
-    updated = db.Column(Date)
+    updated = db.Column(Date, index=True)
     connections = db.Column(Integer)
     json = db.Column(JSON)
 
@@ -460,6 +460,7 @@ class Job(db.Model):
     company_linkedin_id = db.Column(Integer, ForeignKey("linkedin_companies.id"), index=True)
     linkedin_company = relationship('LinkedinCompany', foreign_keys='Job.company_linkedin_id')
     indeed_salary = db.Column(Integer)
+    glassdoor_salary = db.Column(Integer)
 
     @property
     def name(self):
@@ -487,6 +488,15 @@ class Job(db.Model):
         session.add(self)
         session.commit()
         return self.indeed_salary
+
+    @property 
+    def get_glassdoor_salary(self):
+        if self.glassdoor_salary:
+            return self.glassdoor_salary
+        self.glassdoor_salary = get_glassdoor_salary(self.title)
+        session.add(self)
+        session.commit()
+        return self.glassdoor_salary
 
     @property
     def get_url(self):
@@ -570,6 +580,12 @@ class ProxyDomainEvent(db.Model):
                 self.status_code,
                 self.success
                 )
+
+class PhoneExport(db.Model):
+    __tablename__ = "phone_exports"
+    id = db.Column(String(200), primary_key=True)
+    sent_from = db.Column(CIText())
+    data = db.Column(JSON)
 
 class FacebookUrl(db.Model):
     __tablename__ = "facebook_urls"

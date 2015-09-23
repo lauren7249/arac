@@ -11,12 +11,9 @@ from boto.s3.key import Key
 from prime.utils import *
 import web, re
 from prime.utils.update_database_from_dict import insert_linkedin_profile
-from prime.prospects.get_prospect import get_session
 from consume.consumer import *
-from prime.prospects.models import CloudspongeRecord
+from prime.prospects.models import CloudspongeRecord, PhoneExport, session
 from services.touchpoints_costs import *
-
-session = get_session()
 
 web.config.debug = False
 urls = (
@@ -24,6 +21,7 @@ urls = (
     '/log_uploaded/url=(.+)', 'log_uploaded',
     '/post_uploaded', 'post_uploaded',
     '/add', 'add',
+    '/get_phone_export/id=(.+)', 'get_phone_export',
     '/calculate_costs', 'calculate_costs',
     '/get_my_total/user_id=(.+)', 'get_my_total'
 )
@@ -61,11 +59,20 @@ class log_uploaded:
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
         return url
-# http://www.google.com/search?q=site:www.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
-# http://www.google.com/search?q=site%3Awww.linkedin.com+John+Lamont+Baritelle+California&es_sm=91&ei=NZxTVY_lB8mPyATvpoGACg&sa=N&num=100&start=0
+
 class get_my_total:
     def GET(self, user_id):
         return r.hget("chrome_uploads_successes",user_id)
+
+class get_phone_export:
+    def GET(self, id):
+        web.header('Access-Control-Allow-Origin', '*')
+        exp = session.query(PhoneExport).get(id)
+        if not exp or not exp.data: return ""
+        result = {}
+        result['email'] = exp.sent_from
+        result['export'] = exp.data
+        return json.dumps(result)        
 
 class select:
     def GET(self, n):

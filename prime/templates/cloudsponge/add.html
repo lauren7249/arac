@@ -65,7 +65,12 @@
     <div class='logo'>
       <img src='./img/AC_logo.png' />
     </div>
-    <div id="enter_email">
+    <div id="enter_export_id">
+      <p>Copy and paste the confirmation code into the box to proceed to the next step</p>
+      <input type='text' id="export_id"/>
+      <button id="submit" class='button' type="Submit">Submit</button>
+    </div>       
+    <div id="enter_email" hidden>
       <h2>Welcome</h2>
       <p>Enter the email address where you would like to receive your P200.</p>
       <input type='email' id="email_address"/>
@@ -83,9 +88,13 @@
       <div id="email_area">
         <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
       </div>
-      <div id="csv_area">
+<!--       step 1: instructions for  -->
+<!--       <div id="mac_area">
+        <button class='button' type="Submit" id='vcard'>Add iPhone Contacts - vCard <i class='fa fa-apple'></i></button>
+      </div>   -->    
+<!--       <div id="csv_area">
         <button class='button' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
-      </div>
+      </div> -->
       <br/>
       <br/>
       <a ><button id="next" type="Submit" class='button'>Finish & Upload &raquo;</button></a>
@@ -187,11 +196,25 @@
         });      
     }
     $(function() {
+      $("#export_id").keyup(function(event){
+          if(event.keyCode == 13){
+              $("#submit").click();
+          }
+      });        
       $("#email_address").keyup(function(event){
           if(event.keyCode == 13){
               $("#enter").click();
           }
       });      
+      $("#submit").click(function() {
+        var export_id_string = document.getElementById("export_id").value;
+        console.log(export_id_string);
+        console.log('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string);
+        $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
+          function(data) {
+            console.log(data);
+        });                
+      })       
       $("#enter").click(function() {
         email_address = document.getElementById("email_address").value;
         if (email_address != "") {
@@ -214,7 +237,11 @@
           , {scope: 'user_friends,user_photos'}
         );
 
-      })          
+      })    
+      $("#vcard").click(function() {
+        cloudsponge_status = 'NONE';   
+        var len = do_import('addressbook','div#mac_area');
+      })            
       $("#em").click(function() {
         $(".overlay").fadeIn();
         $(".email").slideDown();
@@ -239,14 +266,7 @@
         $(".email").hide();
         // if (len>0) {$("#windowslive").hide();}
         $(".overlay").fadeOut();
-      })    
-      // $("#apple").click(function() {
-      //   cloudsponge_status = 'NONE';   
-      //   var len = do_import('addressbook');
-      //   $(".email").hide();
-      //   // if (len>0) {$("#apple").hide();}
-      //   $(".overlay").fadeOut();
-      // })           
+      })              
       $("#ln").click(function() {
         // $(".overlay").fadeIn();
         var len = do_import('LinkedIn','div#linkedin_area');

@@ -10,7 +10,8 @@ from difflib import SequenceMatcher
 #api_key = "CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU" #lauren.tracy.talbot@gmail.com
 #api_key = "hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls" #lauren.tracytalbot@gmail.com
 #api_key = "FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0" #laurentracy.talbot@gmail.com
-api_key = "U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE" #lau.rentracytalbot@gmail.com
+#api_key = "U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE" #lau.rentracytalbot@gmail.com
+api_key = "VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA" #l.aurentracytalbot@gmail.com
 
 def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=None, include_terms_in_title=None):
 	filtered = []

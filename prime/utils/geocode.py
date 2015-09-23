@@ -3,6 +3,7 @@ from . import headers
 import lxml.html
 from geoindex.geo_point import GeoPoint
 # import reverse_geocoder as rg
+from consume.convert import uu
 import re
 import numpy as np
 import itertools
@@ -56,6 +57,7 @@ def most_common(L):
 
 
 def get_mapquest_coordinates(raw):
+	if not raw: return None
 	rec = get_or_create(session, MapquestGeocodes, name=raw)
 	if rec.geocode: return rec.geocode
 	url =  "https://www.mapquest.com/?q=%s" % (raw)
@@ -96,10 +98,11 @@ def get_mapquest_coordinates(raw):
 		rec.geocode = {"latlng":(center.latitude, center.longitude), "locality":main_locality, "region":main_region,"country":main_country
 		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
 		}
-		session.add(rec)
-		session.commit()
+		if rec.geocode:
+			session.add(rec)
+			session.commit()
 		return rec.geocode
-	if raw.split(",")[0] != raw:
+	if uu(raw.split(",")[0]) != uu(raw):
 		return get_mapquest_coordinates(raw.split(",")[0])
 	return {}
 	
