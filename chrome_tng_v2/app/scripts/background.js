@@ -93,6 +93,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         return true;
     }
 
+
     /**
      * Called when the queue/stack of urls changes
      */
@@ -319,7 +320,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     /**
      *
-     * @param  {XMLHttpRequest} xhr
+     * @param {XMLHttpRequest} xhr
      * @param data
      * @param err
      * @param {string} original_url

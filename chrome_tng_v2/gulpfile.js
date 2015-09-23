@@ -12,11 +12,15 @@ var babelify = require('babelify');
 
 require('harmonize')();
 
+/**
+ * Any javascript you'd like to run through the bundler, just add to the
+ * entries key and it will be bundled into app.js
+ */
 var bundler = {
     w: null,
     init: function() {
         this.w = watchify(browserify({
-            entries: ['./app/scripts/components/helpers.js', './app/scripts/app.js',
+            entries: ['./app/scripts/components/helpers.js',
                 './app/scripts/options.js', './app/scripts/background.js'],
             insertGlobals: true,
             cache: {},

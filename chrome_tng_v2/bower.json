@@ -1,6 +1,6 @@
 {
     "name": "ac-browser",
-    "version": "0.0.2",
+    "version": "0.0.5",
     "dependencies": {
         "bootstrap-sass-official": ">=3.3.5",
         "log": ">=0.3.0"

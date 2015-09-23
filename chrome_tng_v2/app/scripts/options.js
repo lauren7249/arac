@@ -1,5 +1,6 @@
 /**
- * Created by mbishop on 9/17/15.
+ * Created by Michael Bishop on 9/17/15.
+ * (c) Advisor Connect, Inc. 2015
  */
 
 import {console, AC_Helpers} from './components/helpers';
@@ -9,15 +10,13 @@ var React = require('react');
 var Immutable = require('immutable');
 /**
  * @module
- * App is the outer container for the extension
+ * ACOptions is the outer container for the extension
  */
 'use strict';
 
 var ACOptions = React.createClass({
     getInitialState: ()=> {
-        return {
-
-        };
+        return {};
     },
     getDefaultProps: ()=> {
         return {
@@ -44,4 +43,16 @@ var ACOptions = React.createClass({
 export { ACOptions };
 
 
-React.render(<ACOptions />, document.getElementById('ACOptions'));
+/**
+ * Need to have this in try/catch.  When bundled, this code should only
+ * get called if the options.html page is actually on-screen and the dom
+ * element is there.
+ */
+try {
+    let element = document && document.getElementById('ACOptions');
+    if (element) {
+        React.render(<ACOptions />, document.getElementById('ACOptions'));
+    }
+} catch (e) {
+    console.error(e);
+}
