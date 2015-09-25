@@ -76,6 +76,8 @@ class get_phone_export:
 
 class select:
     def GET(self, n):
+        ip = web.ctx['ip']
+        print ip
         all = list(r.smembers("urls"))
         shuffle(all)
         return "\n".join(all[0:int(n)]) 
