@@ -25,12 +25,22 @@ def send_alert(id, failures, successes):
 
 def record_bad(url, user_id, ip):
 	n_tries = r.hincrby("bad_urls",url,1)
-	ip_failures = float(r.hincrby("chrome_uploads_failures",ip,1))
-	ip_successes = float(r.hget("chrome_uploads_successes",ip))
-	ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)	
-	user_failures = float(r.hincrby("chrome_uploads_failures",user_id,1))
-	user_successes = float(r.hget("chrome_uploads_successes",user_id))
-	user_success_rate = float(user_successes)/float(user_successes+user_failures)
+	try:
+		ip_failures = float(r.hincrby("chrome_uploads_failures",ip,1))
+		ip_successes = float(r.hget("chrome_uploads_successes",ip))
+		ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)	
+	except:
+		ip_successes = 0
+		ip_failures = 0
+		ip_success_rate = 1.0
+	try:
+		user_failures = float(r.hincrby("chrome_uploads_failures",user_id,1))
+		user_successes = float(r.hget("chrome_uploads_successes",user_id))
+		user_success_rate = float(user_successes)/float(user_successes+user_failures)
+	except:
+		user_successes = 0
+		user_failures = 0
+		user_success_rate = 1.0
 	if n_tries<3 or user_success_rate<0.9 or ip_success_rate<0.9: r.sadd("urls",url)
 	if ip_success_rate<0.5 and ip_failures>=100:
 		send_alert(ip, ip_failures, ip_successes)
