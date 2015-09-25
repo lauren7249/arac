@@ -77,7 +77,6 @@ class get_phone_export:
 class select:
     def GET(self, n):
         ip = web.ctx['ip']
-        print ip
         all = list(r.smembers("urls"))
         shuffle(all)
         return "\n".join(all[0:int(n)]) 
@@ -115,12 +114,14 @@ class add:
 
 class post_uploaded:
     def POST(self):
+        ip = web.ctx['ip']
         d = json.loads(web.data())
         real_url = d.get("url")
         user_id = d.get("user_id")
         r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
         r.hset("chrome_uploads_users",real_url, user_id)
+        r.hset("chrome_uploads_ips",real_url, ip)
         return real_url
 
 class calculate_costs:
