@@ -128,28 +128,40 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         'use strict';
 
         if (ac_uid === undefined || ac_uid === null) {
+
             console.info('ac_uid is undefined, checking in storage');
 
             ac_uid = localStorage.getItem(kUid_key);
 
             if (ac_uid === undefined || ac_uid === null) {
+                var xhr = new XMLHttpRequest(),
+                    IP_ADDRESS;
 
-                // No saved id, create a UUID
-                var _uuid = uuid.v4();
-                console && console.info('ID not stored, creating new one: ' + _uuid);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState==4 && xhr.status==200) {
+                        IP_ADDRESS = JSON.parse(xhr.responseText).ip;
+                        // No saved id, create a UUID
+                        var _uuid = IP_ADDRESS + ":" + uuid.v4();
+                        console && console.info('ID not stored, creating new one: ' + _uuid);
 
-                if (_uuid === undefined || _uuid === null) {
-                    throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
+                        if (_uuid === undefined || _uuid === null) {
+                            throw 'UUID was not created, cannot continue without a userid: ' + _uuid;
 
-                } else {
-                    // UUID generated, save to storage, set local variable and return value
-                    console && console.debug('New UID: ' + _uuid.toString());
-                    localStorage.setItem(kUid_key, _uuid);
+                        } else {
+                            // UUID generated, save to storage, set local variable and return value
+                            console && console.debug('New UID: ' + _uuid.toString());
+                            localStorage.setItem(kUid_key, _uuid);
 
-                    ac_uid = _uuid;
+                            ac_uid = _uuid;
 
-                    return getUserID();
+                            return getUserID();
+                        }
+                    }
                 }
+
+                xhr.open('GET', 'http://jsonip.com/', true);
+                xhr.send();     
+
             }
         } else {
             return ac_uid;
@@ -467,12 +479,10 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         ac_is_running = localStorage.getItem(kInuse_key);
         console && console.debug(`button clicked.  current running state: ${ac_is_running}`);
 
-        if (ac_is_running == 0 || ac_is_running === undefined) {
-
+        if (ac_is_running == 0 || ac_is_running === undefined || ac_is_running == null) {
             buttonOn();
             //onCheckForWork();
         } else {
-
             buttonOff();
             //onQuiesceWork();
         }

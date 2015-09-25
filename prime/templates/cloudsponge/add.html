@@ -77,6 +77,7 @@
       <button id="enter" class='button' type="Submit">Enter</button>
     </div>    
     <div id="upload_area" hidden>
+      <p id="owner_name"></p>
       <p id="owner_email"></p>
       <h2>Upload contacts</h2>
       <div id="linkedin_area">
@@ -208,12 +209,23 @@
       });      
       $("#submit").click(function() {
         var export_id_string = document.getElementById("export_id").value;
-        console.log(export_id_string);
-        console.log('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string);
         $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
           function(data) {
-            console.log(data);
-        });                
+            try {
+              var email_str = data.email;
+              email_address = email_str.split("<")[1].split(">")[0];
+              email_name = email_str.split("<")[0];
+              document.getElementById("owner_name").innerHTML = email_name;   
+              document.getElementById("owner_email").innerHTML = email_address;   
+              $("div#upload_area").show();        
+            } 
+            catch (err) {
+              console.log("Err");
+              alert("Invalid code");
+            }
+
+        })
+        .error(function() { alert("Invalid code"); });               
       })       
       $("#enter").click(function() {
         email_address = document.getElementById("email_address").value;
