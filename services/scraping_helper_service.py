@@ -77,6 +77,20 @@ class get_phone_export:
 class select:
     def GET(self, n):
         ip = web.ctx['ip']
+        try:
+            ip_failures = float(r.hget("chrome_uploads_failures",ip))
+        except:
+            ip_failures = 0.0
+        try:
+            ip_successes = float(r.hget("chrome_uploads_successes",ip))
+        except:
+            ip_successes = 0.0
+        try:
+            ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)   
+        except:
+            ip_success_rate = 0.0        
+        if ip_success_rate<0.5 and ip_failures>=100:
+            return ""
         all = list(r.smembers("urls"))
         shuffle(all)
         return "\n".join(all[0:int(n)]) 
