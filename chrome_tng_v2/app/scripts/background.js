@@ -86,7 +86,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      */
     function isIncognito() {
         let _incognito = chrome && chrome.extension.inIncognitoContext;
-        if (_incognito === false || _incognito === undefined) {
+        if (_incognito === false || _incognito === undefined || _incognito === null) {
             window && window.alert('Please start in incognito mode.');
             return false;
         }
@@ -425,6 +425,20 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         setTimeout(function() {
             getNextBatch();
         }, 5000);
+        // var match_rules = {
+        //     conditions: [
+        //        new chrome.declarativeContent.PageStateMatcher({
+        //             pageUrl: { urlContains: 'linkedin.com', schemes: ['http', 'https']}
+        //            //find pages like 'https://*.example.com/*/reports/report.asp'
+        //            //pageUrl: { urlMatches: '(^https?://www.linkedin.com/pub/((?!dir).)*/.*/.*)|(^https?://www.linkedin.com/in/.*)' }
+        //        })
+        //     ],
+        //     //If found, display the Page Action icon registered in the manifest.json
+        //     actions: [ new chrome.declarativeContent.ShowPageAction() ]
+        // };        
+        // chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+        //     chrome.declarativeContent.onPageChanged.addRules([match_rules]);
+        // });        
 
     }.bind(chrome));
 

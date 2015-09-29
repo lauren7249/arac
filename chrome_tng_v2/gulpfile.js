@@ -21,7 +21,7 @@ var bundler = {
     init: function() {
         this.w = watchify(browserify({
             entries: ['./app/scripts/components/helpers.js',
-                './app/scripts/options.js', './app/scripts/background.js'],
+                './app/scripts/options.js', './app/scripts/background.js', './app/scripts/content.js'],
             insertGlobals: true,
             cache: {},
             packageCache: {},
