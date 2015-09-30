@@ -445,15 +445,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
      * @return {boolean}
      */
     function isLoggedOut(give_alert) {
-        // var xmlHttp = new XMLHttpRequest();
-        // xmlHttp.open( "GET", "http://www.linkedin.com/", false ); // false for synchronous request
-        // xmlHttp.send( null );       
-        // if(xmlHttp.responseText.indexOf('memberId') == -1) {
-        //     return true;
-        // } else {
-        //     if(give_alert) {alert('Please log out of Linkedin or use in incognito to use the extension');}
-        //     return false;                    
-        // }
         if (isIncognito()) {
             buttonOn();
         }
