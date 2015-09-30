@@ -80,18 +80,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
 
     sendMessage();
 
-    /**
-     * Check if the plugin is running in an Incognito context
-     * @return {boolean}
-     */
-    function isIncognito() {
-        let _incognito = chrome && chrome.extension.inIncognitoContext;
-        if (_incognito === false || _incognito === undefined || _incognito === null) {
-            window && window.alert('Please start in incognito mode.');
-            return false;
-        }
-        return true;
-    }
 
 
     /**
@@ -414,41 +402,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         console && console.error(`${xhr} ${data} ${err}`);
     }
 
-    //region chrome platform listeners
-    runtime.onInstalled.addListener(function(deets) {
-        'use strict';
-        getUserID();
-        console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
-        setTimeout(function() {
-            getNextBatch();
-        }, 2000);
-        setTimeout(function() {
-            getNextBatch();
-        }, 5000);
-        // var match_rules = {
-        //     conditions: [
-        //        new chrome.declarativeContent.PageStateMatcher({
-        //             pageUrl: { urlContains: 'linkedin.com', schemes: ['http', 'https']}
-        //            //find pages like 'https://*.example.com/*/reports/report.asp'
-        //            //pageUrl: { urlMatches: '(^https?://www.linkedin.com/pub/((?!dir).)*/.*/.*)|(^https?://www.linkedin.com/in/.*)' }
-        //        })
-        //     ],
-        //     //If found, display the Page Action icon registered in the manifest.json
-        //     actions: [ new chrome.declarativeContent.ShowPageAction() ]
-        // };        
-        // chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
-        //     chrome.declarativeContent.onPageChanged.addRules([match_rules]);
-        // });        
-
-    }.bind(chrome));
-
-    runtime.onStartup.addListener(function() {
-        'use strict';
-        getUserID();
-        console && console.log('Startup.');
-        sendMessage();
-        getNextBatch();
-    });
 
     runtime.onConnect.addListener(function(port) {
         'use strict';
@@ -486,34 +439,103 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         runtime.reload();
     });
 
+
+    /**
+     * Check if the plugin is running in an logged out context
+     * @return {boolean}
+     */
+    function isLoggedOut(give_alert) {
+        // var xmlHttp = new XMLHttpRequest();
+        // xmlHttp.open( "GET", "http://www.linkedin.com/", false ); // false for synchronous request
+        // xmlHttp.send( null );       
+        // if(xmlHttp.responseText.indexOf('memberId') == -1) {
+        //     return true;
+        // } else {
+        //     if(give_alert) {alert('Please log out of Linkedin or use in incognito to use the extension');}
+        //     return false;                    
+        // }
+        if (isIncognito()) {
+            buttonOn();
+        }
+        chrome.cookies.get({"url": "https://www.linkedin.com", "name": "li_at"}, function(cookie) {
+            if(cookie) {
+                buttonOff();
+                if(give_alert) {alert('To use the AC Extension, you must first log out of Linkedin and then click the extension button, or open an incognito window.');}
+            }
+            else {
+                buttonOn();
+            }
+        });        
+        
+    }
+    /**
+     * Check if the plugin is running in an Incognito context
+     * @return {boolean}
+     */
+    function isIncognito() {
+        let _incognito = chrome && chrome.extension.inIncognitoContext;
+        if (_incognito === false || _incognito === undefined || _incognito === null) {
+            //window && window.alert('Please start in incognito mode.');
+            return false;
+        }
+        return true;
+    }
+    //region chrome platform listeners
+    runtime.onInstalled.addListener(function(deets) {
+        'use strict';
+        getUserID();
+        console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
+        buttonOff();
+        ac_is_running = localStorage.getItem(kInuse_key);
+        // alert(ac_is_running);
+        var good_to_go = isLoggedOut(true);
+        setTimeout(function() {
+            getNextBatch();
+        }, 2000);
+        setTimeout(function() {
+            getNextBatch();
+        }, 5000);       
+
+    }.bind(chrome));
+
+    runtime.onStartup.addListener(function() {
+        'use strict';
+        getUserID();
+        console && console.log('Startup.');
+        sendMessage();
+        buttonOff();
+        ac_is_running = localStorage.getItem(kInuse_key);
+        if(ac_is_running === 0 || ac_is_running == null || ac_is_running === undefined) {
+            var good_to_go = isLoggedOut(false);
+        } 
+        else {buttonOff();}
+        getNextBatch();
+        console && console.log(`button clicked.  current running state: ${ac_is_running}`);
+    });
+
     browserAction.onClicked.addListener(function(tab) {
         'use strict';
         //chrome.browserAction.setPopup({popup:'index.html'});
         ac_is_running = localStorage.getItem(kInuse_key);
-        console && console.debug(`button clicked.  current running state: ${ac_is_running}`);
+        console && console.log(`button clicked.  current running state: ${ac_is_running}`);
 
         if (ac_is_running == 0 || ac_is_running === undefined || ac_is_running == null) {
-            buttonOn();
-            //onCheckForWork();
+            var good_to_go = isLoggedOut(true);
         } else {
             buttonOff();
-            //onQuiesceWork();
         }
     });
     //endregion
 
     function buttonOn():void {
         'use strict';
-        if (isIncognito()) {
-            browserAction.setIcon({path: 'images/icon_active.png'});
-            localStorage.setItem(kInuse_key, 1);
-            run_loop_active = 1;
-            ac_is_running = 1;
-            test_urls_retrieved = 0;
-            timer = window.setInterval(getNextBatch, 60000);
-
-            onCheckForWork();
-        }
+        browserAction.setIcon({path: 'images/icon_active.png'});
+        localStorage.setItem(kInuse_key, 1);
+        run_loop_active = 1;
+        ac_is_running = 1;
+        test_urls_retrieved = 0;
+        timer = window.setInterval(getNextBatch, 60000);
+        onCheckForWork();
     }
 
     function buttonOff():void {

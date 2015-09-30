@@ -39,7 +39,8 @@
         "storage",
         "tabs",
         "webNavigation",
-        "https://www.linkedin.com/*"
+        "cookies",
+        "https://www.linkedin.com/"
     ],
     "optional_permissions": [
         "idle",

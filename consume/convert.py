@@ -73,10 +73,9 @@ def get_projects(raw_html):
 
 #TODO: parse languages
 
-#TODO: fix image parsing
-def get_groups(raw_html):
+def get_groups(raw_html, logged_in=False):
     try:
-        return [{"image_url": p.xpath("./a/img")[0].attrib.get("src"), "group_id": p.xpath("./a")[1].attrib.get("href").split("gid=")[1].split("&")[0], "name":p.xpath("./a")[1].text_content()} for p in raw_html.xpath("//p[@class='groups-name']")]
+        return [{"group_id": p.xpath("./a")[1].attrib.get("href").split("gid=")[1].split("&")[0], "name":p.xpath("./a")[1].text_content()} for p in raw_html.xpath("//p[@class='groups-name']")]
     except:
         return []
 
@@ -282,6 +281,8 @@ def find_background_schools(raw_html):
 
 
 def parse_html(html):
+    logged_in = False
+
     try:
         raw_html = lxml.html.fromstring(html)
     except:
@@ -297,7 +298,9 @@ def parse_html(html):
 
     linkedin_id = None
     linkedin_index = html.find("newTrkInfo=") + 10
-    if linkedin_index == 9: linkedin_index = html.find(",memberId:") + 10
+    if linkedin_index == 9: 
+        linkedin_index = html.find(",memberId:") + 10
+        logged_in = True
     linkedin_id = html[linkedin_index:].replace("'",'"').split('"')[1].split(",")[0]
 
     location = None
@@ -308,8 +311,8 @@ def parse_html(html):
         industry = all_dd[1].text
     except:
         try:
-            location = raw_html.xpath("//span[@class='locality']")[0].text
-            industry = raw_html.xpath("//dd[@class='industry']")[0].text
+            location = raw_html.xpath("//span[@class='locality']")[0].text_content()
+            industry = raw_html.xpath("//dd[@class='industry']")[0].text_content()
         except:
             pass
 
@@ -349,12 +352,16 @@ def parse_html(html):
     if len(raw_html.xpath("//div[@id='background-education']")) > 0:
         schools = find_background_schools(raw_html)
 
-
-    skills = [e.text_content() for e in raw_html.xpath("//ul[@class='skills-section compact-view']/li") if "jsControl" not in e.text_content()]
-    interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li") if "jsControl" not in e.text_content()]
+    if not logged_in:
+        skills = [e.text_content() for e in raw_html.xpath("//ul[@class='skills-section compact-view']/li") if "jsControl" not in e.text_content()]
+        interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li") if "jsControl" not in e.text_content()]
+        people = get_linked_profiles(raw_html)
+    else:
+        skills = [e.xpath(".//a")[1].text_content() for e in raw_html.xpath("//div[@id='profile-skills']/ul/li") if "jsControl" not in e.text_content()]
+        interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li/a") if "jsControl" not in e.text_content()]
     causes = [e.text_content() for e in raw_html.xpath("//div[@id='volunteering-causes-view']/div/ul/li")]
     organizations = [e.text_content() for e in raw_html.xpath("//div[@id='volunteering-organizations-view']/div/ul/li")]
-    people = get_linked_profiles(raw_html)
+    
     groups = get_groups(raw_html)
     projects = get_projects(raw_html)
     
@@ -370,7 +377,7 @@ def parse_html(html):
         complete = False
     else: 
         success = True
-        complete = html.find("background_view") > -1
+        complete = html.find("background_view") > -1 
     return {
         'image': image,
         'linkedin_id': linkedin_id,

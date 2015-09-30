@@ -1,7 +1,6 @@
 chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
   if (changeInfo.status == 'complete' && tab.active) {
   	if(tab.url.indexOf('linkedin.com/in/') !=-1 || tab.url.indexOf('linkedin.com/pub/') !=-1) {
-  		//buttonOn();
 		chrome.tabs.executeScript(null, 
 			{code: 
 				"if (document.documentElement.outerHTML.indexOf('newTrkInfo') != -1) { " +
