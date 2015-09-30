@@ -7,13 +7,13 @@
     "icons": {
         "128": "images/icon.png"
     },
-    "content_scripts": [
-      {
-        "matches": ["https://www.linkedin.com/*"],
-        // "css": ["mygooglestyles.css"],
-        "js": ["./scripts/content.js"]
-      }
-    ],      
+    // "content_scripts": [
+    //   {
+    //     "matches": ["https://www.linkedin.com/*"],
+    //     // "css": ["mygooglestyles.css"],
+    //     "js": ["./scripts/app.js"]
+    //   }
+    // ],      
     "background": {
         //        "page": "index.html",
         "persistent": false,
@@ -37,6 +37,8 @@
         "activeTab",
         "background",
         "storage",
+        "tabs",
+        "webNavigation",
         "https://www.linkedin.com/*"
     ],
     "optional_permissions": [

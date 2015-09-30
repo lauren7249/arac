@@ -14,10 +14,12 @@ from prime.utils.update_database_from_dict import insert_linkedin_profile
 from consume.consumer import *
 from prime.prospects.models import CloudspongeRecord, PhoneExport, session
 from services.touchpoints_costs import *
+from consume.api_consumer import *
 
 web.config.debug = False
 urls = (
     '/select/n=(.+)', 'select',
+    '/emailLinkedin/lid=(.+)', 'emailLinkedin',
     '/log_uploaded/url=(.+)', 'log_uploaded',
     '/post_uploaded', 'post_uploaded',
     '/add', 'add',
@@ -73,6 +75,24 @@ class get_phone_export:
         result['email'] = exp.sent_from
         result['export'] = exp.data
         return json.dumps(result)        
+
+class emailLinkedin:
+    def GET(self, lid):
+        web.header('Content-type','text/html')
+        web.header('Transfer-Encoding','chunked')
+        yield "<html><body></body><head><script src='http://fgnass.github.io/spin.js/spin.min.js'></script><script>spinner = new Spinner().spin(); document.body.appendChild(spinner.el);</script></head></html>"
+        try:
+            url = pipl_url + "&username=" + lid + "@linkedin"
+            response = requests.get(url)
+            pipl_json = json.loads(response.content)   
+            emails = get_pipl_emails(pipl_json)  
+            yield "<script>spinner.stop()</script>"   
+            yield "<script>window.open('mailto:" + emails[0] + "','_self', '');</script>"        
+            #web.seeother('mailto:'+emails[0])
+        except:
+            yield "<script>spinner.stop()</script>"
+            yield "<script>alert('Email not found')</script>"
+            yield "<script>window.close()</script>"
 
 class select:
     def GET(self, n):

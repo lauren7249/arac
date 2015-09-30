@@ -489,7 +489,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     browserAction.onClicked.addListener(function(tab) {
         'use strict';
         //chrome.browserAction.setPopup({popup:'index.html'});
-
         ac_is_running = localStorage.getItem(kInuse_key);
         console && console.debug(`button clicked.  current running state: ${ac_is_running}`);
 
@@ -530,6 +529,5 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     }
 
 }(typeof window !== 'undefined' ? window : global));
-
 
 
