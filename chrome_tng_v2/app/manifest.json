@@ -1,19 +1,13 @@
 {
     "name": "AC Browser",
     "description": "Email people directly from their linkedin page.",
-    "version": "0.0.6.0",
+    "version": "0.0.7.0",
     "manifest_version": 2,
     "update_url":"https://ac-extension.mybluemix.net/updates.xml",
     "icons": {
         "128": "images/icon.png"
     },
-    // "content_scripts": [
-    //   {
-    //     "matches": ["https://www.linkedin.com/*"],
-    //     // "css": ["mygooglestyles.css"],
-    //     "js": ["./scripts/app.js"]
-    //   }
-    // ],      
+    
     "background": {
         //        "page": "index.html",
         "persistent": false,
