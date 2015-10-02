@@ -9,6 +9,7 @@ from prime.prospects.get_prospect import from_url, session
 from prime.utils.update_database_from_dict import insert_linkedin_profile
 from consume.facebook_consumer import *
 import sendgrid
+import datetime
 
 facebook_xpaths = [".//img[@class='profilePic img']", ".//span[@id='fb-timeline-cover-name']",".//div[@role='article']"]
 gmail_user = 'contacts@advisorconnect.co'
@@ -16,13 +17,20 @@ gmail_pwd = '1250downllc'
 sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
 
 def send_alert(id, failures, successes):
+	last_sent_timestring = r.hget("email_alert",id)
+	now_time = datetime.datetime.utcnow()
+	if last_sent_timestring:
+		last_sent = datetime.datetime.strptime(last_sent_timestring.split(".")[0],'%Y-%m-%d %H:%M:%S')
+		timedelta = now_time - last_sent
+		if timedelta.seconds < 60*60: return
 	mail = sendgrid.Mail()
 	mail.add_to('lauren@advisorconnect.co')
 	mail.set_subject('Chrome plugin failure')
 	mail.set_text('User ' + str(id) + ' has had ' + str(failures) + ' failed urls and ' + str(successes) + ' successful urls.')
 	mail.set_from(gmail_user)
 	status, msg = sg.send(mail)	
-
+	r.hset("email_alert", id, now_time)
+	
 def record_bad(url, user_id, ip):
 	n_tries = r.hincrby("bad_urls",url,1)
 	ip_failures = float(r.hincrby("chrome_uploads_failures",ip,1))
@@ -40,9 +48,9 @@ def record_bad(url, user_id, ip):
 		user_successes = 0
 		user_success_rate = 0.0
 	if n_tries<3 or user_success_rate<0.9 or ip_success_rate<0.9: r.sadd("urls",url)
-	if ip_success_rate<0.5 and ip_failures>=100:
+	if ip_success_rate<=0.5 and ip_failures>=100:
 		send_alert(ip, ip_failures, ip_successes)
-	if user_success_rate<0.5 and user_failures==100:
+	if user_success_rate<=0.5 and user_failures>=100:
 		send_alert(user_id, user_failures, user_successes)
 
 

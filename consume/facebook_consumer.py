@@ -16,7 +16,7 @@ def parse_facebook_html(source):
     except: 
         pass       
     try:     
-        article = raw_html.xpath(".//div[@role='article']")[0]
+        article = raw_html.xpath(".//ol/li/div/div/div/div[@role='article']")[0]
     except:
         pass
     if not article: return profile

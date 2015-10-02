@@ -11,7 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 from pyvirtualdisplay import Display
-
+import re
+import lxml.html
 
 class LinkedinFriend(object):
 
@@ -161,25 +162,13 @@ class LinkedinFriend(object):
         self.all_friend_ids = set()
         while True:  
             try:
-                self.findConnections()
-                # views = self.wait.until(lambda driver: driver.find_elements_by_xpath(".//ul/li/span[contains(@data-li-miniprofile-id,'LI-')]"))
-                # if len(views):
-                #     source = self.driver.page_source
-                #     raw_html = lxml.html.fromstring(source)
-                #     all_views = raw_html.xpath(".//ul/li[contains(@id,'connection')]")
-                #     for view in all_views:
-                #         try:
-                #             element = view.xpath(".//span[contains(@data-li-miniprofile-id,'LI-')]")[0]
-                #             linkedin_id = element.get('data-li-miniprofile-id').split("-")[-1]
-                #             self.all_friend_ids.add(linkedin_id)
-                #         except:
-                #             break
-                #             # link = view.xpath(".//*[@class='connections-photo']").get("href")
-                #             # linkedin_id =self.get_linkedin_id(link, second_degree=True)
-                #             # print e
-                self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
+                connections_area = self.wait.until(lambda driver: driver.find_element_by_xpath(".//div[@id='connections']/div[@id='connections-view']/div[@class='connections-container connections-all']/div[@class='cardstack-container']/ul"))
+                connections_html_source = connections_area.get_attribute("outerHTML")
+                new_ids = re.findall('(?<=connection-)[0-9]+', connections_html_source)
+                self.all_friend_ids.update(new_ids)
+                print len(self.all_friend_ids)
+                connections_view = self.wait.until(lambda driver: driver.find_element_by_class_name('connections-paginate'))   
                 
-                connections_view = self.driver.find_element_by_class_name('connections-paginate')
                 buttons = connections_view.find_elements_by_tag_name('button')
             
                 next_button = buttons[1]
@@ -194,8 +183,9 @@ class LinkedinFriend(object):
     def get_public_link(self, linkedin_id):
         self.driver.get("https://www.linkedin.com/profile/view?trk=contacts-contacts-list-contact_name-0&id=" + linkedin_id)
         try:
-            profile_link = self.driver.find_element_by_class_name('view-public-profile')
-            return profile_link.text
+            profile_link = self.wait.until(lambda driver: driver.find_element_by_class_name('view-public-profile'))
+            if profile_link.text: return profile_link.text
+            return profile_link.get_attribute("href")
         except:
             return None
             
@@ -204,19 +194,19 @@ class LinkedinFriend(object):
         #all_views = self.wait.until(lambda driver: driver.find_elements_by_xpath(".//ul/li[contains(@id,'connection')]")) 
         for view in all_views:
             try:
-                link = view.find_element_by_xpath(".//*[@class='connections-photo']").get_attribute("href")
-                #link = view.get_attribute("href")
-                linkedin_id =self.get_linkedin_id(link, second_degree=True)
-                if linkedin_id.isdigit() or True:
+                # link = view.find_element_by_xpath(".//*[@class='connections-photo']").get_attribute("href")
+                # #link = view.get_attribute("href")
+                # linkedin_id =self.get_linkedin_id(link, second_degree=True)
+                # if linkedin_id.isdigit():
+                #     self.all_friend_ids.add(linkedin_id)
+                #     print linkedin_id
+                # else:
+                try:
+                    linkedin_id = view.find_element_by_xpath(".//span").get_attribute("data-li-miniprofile-id").split("-")[-1]
                     self.all_friend_ids.add(linkedin_id)
                     print linkedin_id
-                else:
-                    try:
-                        linkedin_id = view.find_element_by_xpath(".//strong/span").get_attribute("data-li-miniprofile-id").split("-")[-1]
-                        self.all_friend_ids.add(linkedin_id)
-                        print linkedin_id
-                    except:
-                        pass
+                except:
+                    pass
             except:
                 try:
                     oops_link = self.driver.find_element_by_class_name("error-search-retry")
