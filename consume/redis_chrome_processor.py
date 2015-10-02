@@ -30,9 +30,10 @@ def send_alert(id, failures, successes):
 	mail.set_from(gmail_user)
 	status, msg = sg.send(mail)	
 	r.hset("email_alert", id, now_time)
-	
+
 def record_bad(url, user_id, ip):
 	n_tries = r.hincrby("bad_urls",url,1)
+	if n_tries>=3: return
 	ip_failures = float(r.hincrby("chrome_uploads_failures",ip,1))
 	try:
 		ip_successes = float(r.hget("chrome_uploads_successes",ip))
