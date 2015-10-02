@@ -352,7 +352,7 @@ def parse_html(html):
     if len(raw_html.xpath("//div[@id='background-education']")) > 0:
         schools = find_background_schools(raw_html)
 
-
+    people = []
     if not logged_in:
         skills = [e.text_content() for e in raw_html.xpath("//ul[@class='skills-section compact-view']/li") if "jsControl" not in e.text_content()]
         interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li") if "jsControl" not in e.text_content()]
@@ -360,7 +360,7 @@ def parse_html(html):
     else:
         skills = [e.xpath(".//a")[1].text_content() for e in raw_html.xpath("//div[@id='profile-skills']/ul/li") if "jsControl" not in e.text_content()]
         interests = [e.text_content() for e in raw_html.xpath("//ul[@class='interests-listing']/li/a") if "jsControl" not in e.text_content()]
-        people = None
+        
     causes = [e.text_content() for e in raw_html.xpath("//div[@id='volunteering-causes-view']/div/ul/li")]
     organizations = [e.text_content() for e in raw_html.xpath("//div[@id='volunteering-organizations-view']/div/ul/li")]
     
