@@ -402,6 +402,80 @@ def parse_html(html):
         "source_url": source_url
     }
 
+def parse_company(html):
+    logged_in = False
+
+    try:
+        raw_html = lxml.html.fromstring(html)
+        header = raw_html.xpath(".//div[@class='header']")[0]
+        content = raw_html.xpath(".//div[@id='content']")[0]
+    except:
+        return None
+
+    if raw_html is None: return None
+    try:
+        company_id = int(re.search("(?<=companyId=)[0-9]+",html).group(0))
+    except:
+        return None
+
+    name = None
+    industry = None
+    company_size = None
+    try: name = header.xpath(".//span[@itemprop='name']")[0].text_content().replace('\n','')
+    except: pass
+    try: industry = header.xpath(".//p[@class='industry']")[0].text_content().replace('\n','')
+    except: pass
+    try: company_size = header.xpath(".//p[@class='company-size']")[0].text_content().replace('\n','').replace(",","")
+    except: pass
+
+    min_employees = None
+    max_employees = None
+    if company_size and company_size.find("-")>-1:
+        min_employees = int(company_size.split("-")[0])
+        max_employees = int(company_size.split("-")[1].split(" ")[0])
+    elif company_size and company_size.find("+")>-1:
+        min_employees = int(company_size.split("+")[0])
+    
+    specialties = None
+    description = None
+    website = None
+    company_type = None
+    headquarters = None
+    founded = None
+    try:
+        specialties = content.xpath(".//div[@class='specialties']/p")[0].text_content().replace("\n","").split(",")
+    except: pass
+    try: 
+        description = content.xpath(".//div[@class='basic-info-description']/p")[0].text_content()
+    except: pass
+    try:
+        website = content.xpath(".//ul/li[@class='website']/p")[0].text_content().replace("\n","")
+    except:
+        pass
+    try:
+        company_type = content.xpath(".//ul/li[@class='type']/p")[0].text_content().replace("\n","")
+    except:
+        pass
+    try:
+        headquarters = content.xpath(".//ul/li[@class='vcard hq']/p")[0].text_content().strip()
+    except:
+        pass
+    try:
+        founded = int(content.xpath(".//ul/li[@class='founded']/p")[0].text_content().replace("\n",""))
+    except: pass
+    return {
+        "id": company_id,
+        'name': name,
+        'industry': industry,
+        'min_employees': min_employees,
+        'max_employees': max_employees,
+        'specialties': specialties,
+        'description': description,
+        'website': website,
+        'company_type': company_type,
+        'headquarters': headquarters,
+        'founded': founded
+    }
 
 def url_to_key(url):
     return url.replace('/', '')

@@ -73,6 +73,11 @@ CREATE TABLE pipl_from_email (
     pipl_response   json
 );
 
+CREATE TABLE linkedin_company_urls (     
+    url   CITEXT PRIMARY KEY NOT NULL,
+    company_id    int NOT NULL references linkedin_companies(id)
+);
+
 CREATE TABLE facebook_urls (     
     url   CITEXT PRIMARY KEY NOT NULL,
     username    CITEXT NOT NULL references facebook_contacts(facebook_id)

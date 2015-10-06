@@ -55,7 +55,6 @@ def most_common(L):
 	except:
 		return None
 
-
 def get_mapquest_coordinates(raw):
 	if not raw: return None
 	rec = get_or_create(session, MapquestGeocodes, name=raw)
@@ -79,9 +78,9 @@ def get_mapquest_coordinates(raw):
 	countries = countries[0:len(countries)-1]	
 	regions = re.findall('(?<="regionLong":)\"*[^\"]+(?=")', raw_search_results)
 	if len(regions): regions = regions[0:len(regions)-1]
-	main_locality = most_common(localities)
-	main_region = most_common(regions)
-	main_country = most_common(countries)
+	main_locality = most_common(localities).replace(r'"','').replace("null,",'')
+	main_region = most_common(regions).replace(r'"','')
+	main_country = most_common(countries).replace(r'"','')
 	coords = []
 	for result in latlng:
 		current = [float(x) for x in re.findall('[0-9\.\-]+',result)]

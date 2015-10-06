@@ -23,6 +23,7 @@ client_engagers = client_facebook_contact.get_recent_engagers
 client_engagers = fbscraper.get_likers(client_facebook_contact)
 client_engagers = client_facebook_contact.top_engagers #75
 
+client_facebook_profile = client_facebook_contact.get_profile_info
 client_schools = list(set([school.name for school in client_linkedin_contact.schools] + [client_facebook_profile.get("school_name")]))
 
 if refresh:

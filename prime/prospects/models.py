@@ -86,6 +86,11 @@ class Prospect(db.Model):
     def get_url(self):
         return "/prospect/{}".format(self.id)
 
+    @property 
+    def get_max_salary(self):
+        if not self.current_job: return None
+        return self.current_job.get_max_salary
+
     @property
     def current_job(self):
         jobs = self.jobs
@@ -434,9 +439,18 @@ class LinkedinCompany(db.Model):
 
     id = db.Column(Integer, primary_key=True)
     name = db.Column(String(100))
+    industry = db.Column(String(200))
+    company_type = db.Column(String(200))
+    description = db.Column(Text)
     pretty_url = db.Column(String(150))
     image_url = db.Column(String(300))
-
+    founded = db.Column(Integer)
+    headquarters = db.Column(String(500))
+    min_employees = db.Column(Integer)
+    max_employees = db.Column(Integer)
+    specialties = db.Column(ARRAY(String(200)))
+    website = db.Column(CIText())
+    
     def __repr__(self):
         return '<Company id={0} name={1}>'.format(
                 self.id,
@@ -479,6 +493,10 @@ class Job(db.Model):
                 "title": self.title,
                 "location": self.location,
                 "dates": dates}
+
+    @property 
+    def get_max_salary(self):
+        return max(self.get_glassdoor_salary, self.get_indeed_salary)
 
     @property 
     def get_indeed_salary(self):
@@ -587,6 +605,12 @@ class PhoneExport(db.Model):
     sent_from = db.Column(CIText())
     data = db.Column(JSON)
 
+class LinkedinCompanyUrl(db.Model):
+    __tablename__ = "linkedin_company_urls"
+
+    url = db.Column(CIText(), primary_key=True)
+    company_id = db.Column(Integer, ForeignKey("linkedin_companies.id"), index=True)
+
 class FacebookUrl(db.Model):
     __tablename__ = "facebook_urls"
 
@@ -620,6 +644,7 @@ class FacebookContact(db.Model):
     pipl_response = db.Column(JSON)
     fullcontact_response = db.Column(JSON)
     indeed_salary = db.Column(Integer)
+    glassdoor_salary = db.Column(Integer)
     recent_engagers = db.Column(JSON)
     refresh = False
 
@@ -629,10 +654,11 @@ class FacebookContact(db.Model):
                 )
 
     @property 
-    def get_indeed_salary(self):
-        salary = None
-        if self.indeed_salary:
-            return self.indeed_salary
+    def get_max_salary(self):
+        return max(self.get_glassdoor_salary, self.get_indeed_salary)
+
+    @property 
+    def get_best_title(self):
         if not self.get_profile_info: return None
         if not self.get_profile_info.get("job_company") and not self.get_profile_info.get("job_title"): return None
         if self.get_profile_info.get("job_title") == "Worked": return None
@@ -643,8 +669,17 @@ class FacebookContact(db.Model):
             title = self.get_profile_info.get("job_title") 
         else: 
             title = self.get_profile_info.get("job_title") + " at " + self.get_profile_info.get("job_company")
+        return title
+
+    @property 
+    def get_indeed_salary(self):
+        salary = None
+        if self.indeed_salary:
+            return self.indeed_salary
+        title = self.get_best_title
+        if not title: return None
         salary = get_indeed_salary(title, location=self.get_profile_info.get("lives_in"))
-        if not salary and self.get_profile_info.get("job_title") != "Works": 
+        if not salary and self.get_profile_info.get("job_title") != "Works" and self.get_profile_info.get("job_title") != "Worked": 
             title = self.get_profile_info.get("job_title")
             salary = get_indeed_salary(title, location=self.get_profile_info.get("lives_in"))
         if not salary: salary = get_indeed_salary(title)
@@ -653,6 +688,20 @@ class FacebookContact(db.Model):
             session.add(self)
             session.commit()
         return self.indeed_salary
+
+    @property 
+    def get_glassdoor_salary(self):
+        salary = None
+        if self.glassdoor_salary:
+            return self.glassdoor_salary
+        title = self.get_profile_info.get("job_title")
+        if title == "Works" or title == "Worked": return None
+        salary = get_glassdoor_salary(title)
+        if salary:
+            self.glassdoor_salary = salary
+            session.add(self)
+            session.commit()
+        return self.glassdoor_salary
 
     @property
     def get_friends(self):

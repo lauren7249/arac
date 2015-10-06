@@ -1,12 +1,12 @@
-from prime.utils import r, profile_re
+from prime.utils import r, profile_re, company_re
 from services.scraping_helper_service import process_url, url_to_s3_key
 import time, re
 from prime.utils.googling import google_xpaths
 from prime.utils.proxy_scraping import page_is_good
 import lxml.html
-from consume.consumer import parse_html
+from consume.convert import parse_html, parse_company
 from prime.prospects.get_prospect import from_url, session
-from prime.utils.update_database_from_dict import insert_linkedin_profile
+from prime.utils.update_database_from_dict import insert_linkedin_profile, insert_linkedin_company
 from consume.facebook_consumer import *
 import sendgrid
 import datetime
@@ -88,6 +88,18 @@ while True:
 						record_bad(url, user_id, ip)
 			else:
 				record_bad(url, user_id, ip)
+		elif re.search(company_re,url): 
+			info = parse_company(content)
+			if info.get("id") :
+				info["source_url"] = url
+				company_id = insert_linkedin_company(info, session)    			
+				if not company_id: 
+					record_bad(url, user_id, ip)
+				else:
+					r.hincrby("chrome_uploads_successes",user_id,1)
+					r.hincrby("chrome_uploads_successes",ip,1)
+			else:
+				record_bad(url, user_id, ip)				
 		elif url.find("google.com"):
 			if not page_is_good(content, google_xpaths): 
 				record_bad(url, user_id, ip)

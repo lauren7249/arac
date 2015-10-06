@@ -26,6 +26,7 @@ in_use_proxies="in_use_proxies"
 requests_session = requests.Session()
 profile_re = re.compile('(^https?://www.linkedin.com/pub(?!/dir/)(/.*)+)|(^https?://www.linkedin.com/in/.*)')
 school_re = re.compile('^https://www.linkedin.com/edu/*')
+company_re = re.compile('^https://www.linkedin.com/company/*')
 
 def get_redis():
 	pool = redis.ConnectionPool(host=new_redis_host, port=new_redis_port, password=new_redis_password)

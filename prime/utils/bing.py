@@ -1,7 +1,7 @@
 import re, datetime, requests, json
 from prime.prospects.models import BingSearches
 from prime.prospects.get_prospect import session
-from prime.utils import profile_re
+from prime.utils import profile_re, school_re, company_re
 from difflib import SequenceMatcher
 
 #api_key = "xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg" #jimmy@advisorconnect.co
@@ -70,4 +70,28 @@ def search_linkedin_by_name(name, school='', page_limit=1, limit=10):
 	profiles = filter_results(record.results, url_regex=profile_re, include_terms_in_title=name)
 	return profiles[:limit]
 
+
+def search_linkedin_schools(school):
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",school), page_limit=22)
+	profiles = filter_results(record.results, url_regex=school_re, include_terms_in_title=school)
+	school_ids = []
+	for link in profiles:
+		school_id = re.search("(?<=(\=|\-))[0-9]+", link)
+		if not school_id: continue
+		school_id = school_id.group(0)
+		if school_id not in school_ids: school_ids.append(school_id) 
+	return school_ids
+
+def search_linkedin_companies(company):
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",company), page_limit=22)
+	profiles = filter_results(record.results, url_regex=company_re, include_terms_in_title=company)
+	urls = []
+	for link in profiles:
+		id = re.search('^https://www.linkedin.com/company/[a-zA-Z0-9\-]+(?=/)',link)
+		if not id:
+			if link not in urls: urls.append(link)
+			continue
+		id = id.group(0)
+		if id not in urls: urls.append(id)
+	return urls
 

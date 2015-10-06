@@ -27,7 +27,7 @@ def agent_network(prospects, locales=['New York','Greater New York City Area']):
 		if valid_lead(prospect, locales=locales): new_york_employed.append(prospect)  
 	return new_york_employed
 
-def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=['Insurance','Financial Services'], schools=[],min_salary=60000):
+def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000):
 	prospect_schools = None
 	if not lead: return False
 	if isinstance(lead, Prospect):
@@ -35,18 +35,19 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		if prospect.current_job is None or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today()): 
 			print "no job"
 			return False
-		location = prospect.get_location
-		if not location: 
-			print "no location"
-			return False		
-		if location.split(", ")[-1] not in locales:
-			print location + " not local" 
-			return False
+		if locales:
+			location = prospect.get_location
+			if not location: 
+				print "no location"
+				return False		
+			if location.split(", ")[-1] not in locales:
+				print location + " not local" 
+				return False
 		if prospect.current_job.company.name in exclude: 
 			print prospect.current_job.company.name + " at the same company " 
 			return False
-		salary = prospect.current_job.get_indeed_salary
-		if salary>0 and salary < min_salary: 
+		salary = prospect.get_max_salary
+		if salary>0 and salary < min_salary and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3): 
 			print str(salary) + " too low for " + prospect.current_job.title 
 			return False	
 		profile = clean_profile(prospect.build_profile)	
@@ -57,24 +58,25 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 		profile_info = contact.get_profile_info
 		if not profile_info:
 			print "no profile info for " + contact.facebook_id
-		location = contact.get_location
-		if not location: 
-			print "no location"
-			return False
+		if locales:
+			location = contact.get_location
+			if not location: 
+				print "no location"
+				return False
+			if location.split(", ")[-1] not in locales:
+				print location + " not local"
+				return False			
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude :
 			print profile_info.get("job_company") + " at the same company"
-			return False
-		if location.split(", ")[-1] not in locales:
-			print location + " not local"
 			return False
 		# if profile_info.get("job_title") is None:
 		# 	print "no job title for " + contact.facebook_id
 		# 	return False
-		salary = contact.get_indeed_salary
-		if not salary and (not profile_info.get("job_title") or profile_info.get("job_title") in ['Worked','Works']):
+		salary = contact.get_max_salary if profile_info.get("job_title") and profile_info.get("job_title").find("Former") != 0 else None
+		if not salary and (not profile_info.get("job_title") or profile_info.get("job_title")=='Worked' or profile_info.get("job_title").find("Former") == 0):
 			print "no job"
 			return False
-		if salary>0 and salary < min_salary:
+		if salary>0 and salary < min_salary and profile_info.get("job_title") != "Works":
 			print str(salary) + " too low for " + profile_info.get("job_title")
 			return False
 		profile = clean_profile(contact.build_profile)
@@ -89,41 +91,44 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 			contact = lead[1]
 			prospect = lead[0]	
 		profile_info = contact.get_profile_info
-		location = prospect.get_location if prospect.get_location else contact.get_location
-		if not location:
-			print "no location"
-			return False
-		if location.split(", ")[-1] not in locales: 
-			reason = location + " not local " 
-			location = contact.get_location
-			if not location: 
-				print reason
+		if locales:
+			location = prospect.get_location if prospect.get_location else contact.get_location
+			if not location:
+				print "no location"
 				return False
 			if location.split(", ")[-1] not in locales: 
-				reason = reason + " and " + location.split(", ")[-1] + " not local"
-				print reason
-				return False
+				reason = location + " not local " 
+				location = contact.get_location
+				if not location: 
+					print reason
+					return False
+				if location.split(", ")[-1] not in locales: 
+					reason = reason + " and " + location.split(", ")[-1] + " not local"
+					print reason
+					return False
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude:
 			print profile_info.get("job_company") + " at the same company"
 			return False
 		if prospect.current_job and prospect.current_job.company and prospect.current_job.company.name in exclude: 
 			print prospect.current_job.company.name + " at the same company " 
 			return False
-		prospect_salary = prospect.current_job.get_indeed_salary if prospect.current_job and prospect.current_job.get_indeed_salary and (prospect.current_job.end_date is None or prospect.current_job.end_date > datetime.date.today()) else None
-		contact_salary = contact.get_indeed_salary 
+		prospect_salary = prospect.current_job.get_max_salary if prospect.current_job and prospect.current_job.get_max_salary and (prospect.current_job.end_date is None or prospect.current_job.end_date > datetime.date.today()) else None
+		contact_salary = contact.get_max_salary if profile_info.get("job_title") and profile_info.get("job_title").find("Former") != 0 else None
 		salary = max(contact_salary, prospect_salary)
-		if salary < min_salary and (not prospect.current_job or not prospect.current_job.title or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today())):
+		if salary < min_salary and (not prospect.current_job or not prospect.current_job.title or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today())) and profile_info.get("job_title") != "Works":
 			if profile_info.get("job_title"): reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title")
 			else: reason = "no job"
 			print reason	
 			return False		
-		if salary>0 and salary < min_salary: 
+		if salary>0 and salary < min_salary and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3): 
 			if prospect.current_job.title: reason = str(prospect_salary) + " too low for " + prospect.current_job.title + ". "
 			if profile_info.get("job_title"): reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title")
 			print reason
 			return False	
 		contact_profile = clean_profile(contact.build_profile)
+		if contact_profile.get("job") and contact_profile.get("job").find("Former") == 0: contact_profile.pop("job",None)
 		prospect_profile = clean_profile(prospect.build_profile)
+		if contact_profile.get("image_url") and prospect_profile.get("image_url"): contact_profile.pop("image_url",None)
 		social_accounts = list(set(contact.social_accounts + prospect.social_accounts))
 		profile.update(prospect_profile)
 		profile.update(contact_profile)
@@ -136,7 +141,7 @@ def valid_lead(lead, locales=['New York','Greater New York City Area'], exclude=
 	if amazon: score += 2	
 	if not profile.get("image_url"): 
 		profile["image_url"] = "https://myspace.com/common/images/user.png"
-		score-=1
+		score-=5
 	if profile.get("school") not in schools: profile.pop("school", None)
 	if not profile.get("school") and prospect_schools: 
 		common_schools = set(prospect_schools) & set(schools)

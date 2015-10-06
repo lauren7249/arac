@@ -22,3 +22,15 @@ def insert_linkedin_profile(info, session):
 		session.add(ProspectUrl(url=info.get("source_url"), linkedin_id=linkedin_id))
 	session.commit()
 	return new_prospect
+
+def insert_linkedin_company(info, session):
+	record = session.query(LinkedinCompany).get(info.get("id")) 
+	if not record:
+		record = LinkedinCompany(id=info.get("id"))
+	for key, value in info.iteritems():
+	    setattr(record, key, value)
+	session.add(record)
+	if info.get("source_url") and session.query(LinkedinCompanyUrl).get(info.get("source_url")) is None:
+		session.add(LinkedinCompanyUrl(url=info.get("source_url"), company_id=info.get("id")))
+	session.commit()
+	return record
