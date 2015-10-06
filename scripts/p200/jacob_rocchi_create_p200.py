@@ -5,9 +5,17 @@ from prime.utils.bing import *
 from prime.utils.geocode import *
 from prime.utils import *
 from geoindex.geo_point import GeoPoint
+import os
 
 client_linkedin_id = '67910358'
 client_facebook_id = 'jake.rocchi'
+
+base_dir = "/Users/lauren/Documents/arachnid/p200_templates/" + client_facebook_id
+try:
+	os.makedirs(base_dir)
+	os.makedirs(base_dir + "/json")
+except: pass 
+
 client_linkedin_contact = from_linkedin_id(client_linkedin_id)
 client_json = client_linkedin_contact.json
 linkedin_friends = set(client_json["first_degree_linkedin_ids"])
@@ -288,29 +296,11 @@ for contact in all_contacts:
 contact_profiles = compute_stars(contact_profiles)
 for profile in contact_profiles:
 	if re.search("Intern(,|\s|$)",profile.get("job")): contact_profiles.remove(profile)
-	else: print profile.get("job")
-unicode(json.dumps(contact_profiles, ensure_ascii=False))
+leads_str = unicode(json.dumps(contact_profiles, ensure_ascii=False))
+leads_file = open(base_dir + "/json/leads.json", "w")
+leads_file.write(leads_str)
+leads_file.close()
 
-fbfriend = FacebookFriend()
-# total_friends = 0
-# likers = 0
-top_engagers = {}
-for i in xrange(0, len(contact_profiles)):
-	profile = contact_profiles[i]
-	if profile.get("facebook"):
-		facebook_contact = fbfriend.get_facebook_contact(profile.get("facebook"), scroll_to_bottom =True)
-		# if facebook_contact and (profile.get("image_url").find("myspace") != -1 or profile.get("image_url").find("large") != -1) and facebook_contact.get_profile_info.get("image_url"):
-		# 	profile["image_url"] = facebook_contact.get_profile_info.get("image_url")
-		# 	print facebook_contact.get_profile_info.get("image_url")
-		# 	contact_profiles[i] = profile
-		if facebook_contact: 
-			# total_friends += len(fbfriend.scrape_profile_friends(facebook_contact))
-			# likers += len(fbfriend.get_likers(facebook_contact))
-			top_engagers[profile.get("facebook")] = facebook_contact.top_engagers	
-
-for record in top_engagers:
-	for username in record:
-		facebook_contact = fbfriend.get_facebook_contact("http://www.facebook.com/" + username, scroll_to_bottom =True)
 
 
 

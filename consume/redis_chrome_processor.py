@@ -90,7 +90,7 @@ while True:
 				record_bad(url, user_id, ip)
 		elif re.search(company_re,url): 
 			info = parse_company(content)
-			if info.get("id") :
+			if info and info.get("id") :
 				info["source_url"] = url
 				company_id = insert_linkedin_company(info, session)    			
 				if not company_id: 
