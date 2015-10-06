@@ -1,5 +1,5 @@
 
-from prime.prospects.models import LinkedinSchool, LinkedinCompany, Prospect, Education, ProspectUrl, Job
+from prime.prospects.models import LinkedinSchool, LinkedinCompany, Prospect, Education, ProspectUrl, Job, LinkedinCompanyUrl
 from sqlalchemy.orm import joinedload
 from consume.consumer import update_prospect_from_info, create_prospect_from_info
 
