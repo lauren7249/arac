@@ -24,15 +24,12 @@ def get_firstname(str):
     return firstname
 
 def get_gender_from_free_apis(str):
-    try:
-        gender_str = detector2.get_gender(str)
-        if "andy" in gender_str: gender_str = detector1.guess(str)
-        if "unknown" in gender_str: gender_str = Genderizer.detect(firstName = str)
-        if gender_str is None: return None
-        if "female" in gender_str: return False
-        if "male" in gender_str: return True
-    except:
-        pass
+    gender_str = detector2.get_gender(str)
+    if "andy" in gender_str: gender_str = detector1.guess(str)
+    if "unknown" in gender_str: gender_str = Genderizer.detect(firstName = str)
+    if gender_str is None: return None
+    if "female" in gender_str: return False
+    if "male" in gender_str: return True
     return None
 
 def get_gender_from_bing(str):

@@ -163,3 +163,12 @@ def location_string(location):
 def geocode(raw):
 	location = get_mapquest(raw)
 	return location_string(location), location
+
+def miles_apart(point, location_string):
+	mapquest = get_mapquest_coordinates(location_string)
+	if not mapquest: return None
+	coords = mapquest.get("latlng")
+	if not coords: return None
+	geopoint = GeoPoint(coords[0],coords[1])
+	miles_apart = geopoint.distance_to(point)    
+	return miles_apart

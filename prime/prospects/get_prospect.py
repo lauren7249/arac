@@ -57,13 +57,13 @@ def from_linkedin_id(linkedin_id, session=session):
 	prospect = session.query(Prospect).filter_by(linkedin_id=str(linkedin_id)).first()
 	return prospect
 
-# def company_from_url(url, session=session):
-# 	from prime.prospects.models import LinkedinCompany, LinkedinCompanyUrl
-# 	companyUrl = session.query(LinkedinCompanyUrl).get(url)
-# 	if companyUrl: 
-# 		company = session.query(LinkedinCompany).get(companyUrl.company_id)
-# 		if company: return company 
-	
+def company_from_url(url, session=session):
+	from prime.prospects.models import LinkedinCompany, LinkedinCompanyUrl
+	companyUrl = session.query(LinkedinCompanyUrl).get(url)
+	if companyUrl: 
+		company = session.query(LinkedinCompany).get(companyUrl.company_id)
+		if company: return company 
+	return None
 
 def from_url(url, session=session):
 	from prime.prospects.models import Prospect, ProspectUrl

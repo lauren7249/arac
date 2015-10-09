@@ -131,6 +131,17 @@ class Prospect(db.Model):
         return numpy.mean(dob_year_range)
 
     @property 
+    def has_college_degree(self):
+        if not self.schools: return False
+        for school in self.schools:
+            if school.school_linkedin_id or school.name.lower().find('university')>-1 or school.name.lower().find('college')>-1:  
+                return True
+            if school.degree:
+                clean_degree = re.sub('[^0-9a-z\s]','',school.degree.lower())
+                if re.search('^bs($|\s)', clean_degree) or re.search('^ba($|\s)', clean_degree) or re.search('^ab($|\s)', clean_degree): return True
+        return False
+
+    @property 
     def dob_year_range(self):
         first_school_year = None
         first_grad_year = None
@@ -289,13 +300,11 @@ class Prospect(db.Model):
                 return profiles
         return []
 
+    @property
     def wealth_percentile(self):
-        if self.calculate_salary is None: return None
-        salary = re.sub("[^0-9]","",self.calculate_salary)
-        response = requests.get("http://www.whatsmypercent.com/incomeRank.php?income=" + salary + "&status=all%20filers", headers=headers)
-        html = lxml.html.fromstring(response.content)
-        percentile = html.xpath(".//td")[1].text_content()
-        return int(re.sub("[^0-9]","",percentile))
+        max_salary = self.get_max_salary
+        if max_salary is None: return None
+        return get_salary_percentile(max_salary)
 
     @property
     def wealthscore(self):
@@ -502,7 +511,11 @@ class Job(db.Model):
     def get_indeed_salary(self):
         if self.indeed_salary:
             return self.indeed_salary
-        self.indeed_salary = get_indeed_salary(self.title, location=self.location if self.location else self.prospect.location_raw)
+        salary = get_indeed_salary(self.title, location=self.location if self.location else self.prospect.location_raw)
+        if salary:
+            self.indeed_salary = salary
+        else:
+            self.indeed_salary = -1
         session.add(self)
         session.commit()
         return self.indeed_salary
@@ -511,7 +524,11 @@ class Job(db.Model):
     def get_glassdoor_salary(self):
         if self.glassdoor_salary:
             return self.glassdoor_salary
-        self.glassdoor_salary = get_glassdoor_salary(self.title)
+        salary = get_glassdoor_salary(self.title)
+        if salary:
+            self.glassdoor_salary = salary
+        else:
+            self.glassdoor_salary = -1
         session.add(self)
         session.commit()
         return self.glassdoor_salary
@@ -685,8 +702,10 @@ class FacebookContact(db.Model):
         if not salary: salary = get_indeed_salary(title)
         if salary:
             self.indeed_salary = salary
-            session.add(self)
-            session.commit()
+        else: 
+            self.indeed_salary = -1
+        session.add(self)
+        session.commit()
         return self.indeed_salary
 
     @property 
@@ -699,8 +718,10 @@ class FacebookContact(db.Model):
         salary = get_glassdoor_salary(title)
         if salary:
             self.glassdoor_salary = salary
-            session.add(self)
-            session.commit()
+        else:
+            self.glassdoor_salary = -1
+        session.add(self)
+        session.commit()
         return self.glassdoor_salary
 
     @property

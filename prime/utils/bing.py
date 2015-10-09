@@ -36,16 +36,18 @@ def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=N
 		if limit == len(filtered): return filtered
 	return filtered
 
-def query(terms, site="", intitle="", inbody="", page_limit=1):
-	record = session.query(BingSearches).get((terms,site,intitle,inbody))
+def query(terms, site="", intitle="", inbody=[], page_limit=1):
+	record = session.query(BingSearches).get((terms,site,intitle," ".join(inbody)))
 	if not record: 
 		querystring = "https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web?Query=%27"
 		if len(terms): querystring += re.sub(r" ","%20",terms) 
 		if len(site): querystring += "site%3A" + site + "%20"
-		if len(inbody): querystring += "inbody%3A" + inbody + "%20"
+		if len(inbody): 
+			for ib in inbody:
+				querystring += "inbody%3A" + ib + "%20"
 		if len(intitle): querystring += "intitle%3A" + intitle + "%20"
 		querystring += "%27&Adult=%27Strict%27" 
-		record = BingSearches(terms=terms, site=site, intitle=intitle, inbody=inbody, pages=0, results=[], next_querystring=querystring)
+		record = BingSearches(terms=terms, site=site, intitle=intitle, inbody=" ".join(inbody), pages=0, results=[], next_querystring=querystring)
 		#print querystring
 	#print record.next_querystring
 	while record.next_querystring and record.pages<page_limit:
@@ -64,15 +66,24 @@ def query(terms, site="", intitle="", inbody="", page_limit=1):
 
 # %27site%3Alinkedin.com%20intitle%3AYesenia%2BMiranda%2Blinkedin%27&Adult=%27Strict%27
 def search_linkedin_by_name(name, school='', page_limit=1, limit=10):
-	if len(school): inbody = '%22' + re.sub(r" ", "%20",school) + '%22' 
+	if len(school): inbody = '%22' + re.sub(r" ", "%20",school).replace('&','') + '%22' 
 	else: inbody = ''
-	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",name), inbody=inbody, page_limit=page_limit)
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",name), inbody=[inbody], page_limit=page_limit)
 	profiles = filter_results(record.results, url_regex=profile_re, include_terms_in_title=name)
 	return profiles[:limit]
 
+def search_extended_network(name, school='', page_limit=22):
+	inbody_name = '%22' + re.sub(r" ", "%20",name) + '%22'
+	if len(school): 
+		inbody_school = '%22' + re.sub(r" ", "%20",school).replace('&','') + '%22'
+		inbody = [inbody_name, inbody_school]
+	else: inbody = [inbody_name]
+	record = query("", site="linkedin.com", inbody=inbody, intitle="%22|%20LinkedIn%22", page_limit=page_limit)
+	profiles = filter_results(record.results, url_regex=profile_re, exclude_terms_from_title=name)
+	return profiles
 
 def search_linkedin_schools(school):
-	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",school), page_limit=22)
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",school).replace('&',''), page_limit=22)
 	profiles = filter_results(record.results, url_regex=school_re, include_terms_in_title=school)
 	school_ids = []
 	for link in profiles:
@@ -83,7 +94,7 @@ def search_linkedin_schools(school):
 	return school_ids
 
 def search_linkedin_companies(company):
-	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",company), page_limit=22)
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",company).replace('&',''), page_limit=22)
 	profiles = filter_results(record.results, url_regex=company_re, include_terms_in_title=company)
 	urls = []
 	for link in profiles:

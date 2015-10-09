@@ -144,3 +144,9 @@ def get_glassdoor_salary(title):
         print title + "-->" + new_title
         return get_glassdoor_salary(new_title)
     return None
+
+def get_salary_percentile(max_salary):
+    response = requests.get("http://www.whatsmypercent.com/incomeRank.php?income=" + str(max_salary) + "&status=all%20filers", headers=headers)
+    html = lxml.html.fromstring(response.content)
+    percentile = html.xpath(".//td")[1].text_content()
+    return int(re.sub("[^0-9]","",percentile))    
