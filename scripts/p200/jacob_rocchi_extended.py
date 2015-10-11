@@ -87,7 +87,7 @@ for i in xrange(0, len(contact_profiles)):
 	if not profile.get("industry") and profile.get("company"): 
 		urls = bing.search_linkedin_companies(profile.get("company"))
 		for url in urls:
-			if scrape: r.sadd("urls",url)
+			li = from_url(url)
 
 
 no_industry=0

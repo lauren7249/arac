@@ -102,7 +102,7 @@ class select:
         if last_query_time_str:
             last_query_time = datetime.datetime.strptime(last_query_time_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
             timedelta = now_time - last_query_time
-            if timedelta.seconds < 4: return ""
+            if timedelta.seconds < 5: return ""
         try:
             ip_failures = float(r.hget("chrome_uploads_failures",ip))
         except:
@@ -120,7 +120,7 @@ class select:
         all = list(r.smembers("urls"))
         shuffle(all)
         r.hset("last_query_time", ip, datetime.datetime.utcnow())
-        return "\n".join(all[0:int(min(n,8))]) 
+        return "\n".join(all[0:int(min(n,5))]) 
 
 class add:
     def POST(self):
