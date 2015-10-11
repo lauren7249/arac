@@ -36,7 +36,11 @@ bucket = get_bucket(bucket_name='chrome-ext-uploads')
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
 	return fn
-	
+
+def clear_user(id):
+    r.hdel("chrome_uploads_failures",id)    
+    r.hdel("chrome_uploads_successes",id)   
+
 def process_content(content, source_url=None):
     if content is None: return None
     info = parse_html(content)	
@@ -97,12 +101,17 @@ class emailLinkedin:
 class select:
     def GET(self, n):
         ip = web.ctx['ip']
-        last_query_time_str = r.hget("last_query_time",ip)
         now_time = datetime.datetime.utcnow()
+        last_query_time_str = r.hget("last_query_time",ip)
         if last_query_time_str:
             last_query_time = datetime.datetime.strptime(last_query_time_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
             timedelta = now_time - last_query_time
             if timedelta.seconds < 5: return ""
+        last_failure_str = r.hget("last_failure",ip)
+        if last_failure_str:
+            last_failure = datetime.datetime.strptime(last_failure_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
+            timedelta = now_time - last_failure
+            if timedelta.seconds > 60*30: clear_user(ip)         
         try:
             ip_failures = float(r.hget("chrome_uploads_failures",ip))
         except:

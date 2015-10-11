@@ -35,6 +35,7 @@ def record_bad(url, user_id, ip):
 	n_tries = r.hincrby("bad_urls",url,1)
 	if n_tries>=3: return
 	ip_failures = float(r.hincrby("chrome_uploads_failures",ip,1))
+	r.hset("last_failure", user_id, datetime.datetime.utcnow())
 	try:
 		ip_successes = float(r.hget("chrome_uploads_successes",ip))
 		ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)	
@@ -54,10 +55,6 @@ def record_bad(url, user_id, ip):
 	if user_success_rate<=0.5 and user_failures>=100:
 		send_alert(user_id, user_failures, user_successes)
 
-def clear_user(id):
-	r.hdel("chrome_uploads_failures",id)	
-	r.hdel("chrome_uploads_successes",id)	
-	
 if __name__=="__main__":
 	while True:
 		url = r.spop("chrome_uploads")

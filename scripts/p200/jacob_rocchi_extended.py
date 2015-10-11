@@ -83,11 +83,12 @@ for i in xrange(0, len(contact_profiles)):
 			people = linkedin_contact.json.get("people",[]) if linkedin_contact.json else []
 			urls = set(bing.search_extended_network(name, school=company) + people)
 			for url in urls:
+				from_url(url)
 				if scrape: r.sadd("urls",url)
 	if not profile.get("industry") and profile.get("company"): 
 		urls = bing.search_linkedin_companies(profile.get("company"))
 		for url in urls:
-			li = from_url(url)
+			if scrape: r.sadd("urls",url)
 
 
 no_industry=0
