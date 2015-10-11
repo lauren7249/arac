@@ -143,6 +143,35 @@ def getnattr(item, attribute, default=None):
         return getattr(item, attribute, default)
     return None
 
+# def find_positions_jobs(jobs_html):
+#     jobs = []
+#     for item in jobs_html.xpath(".//li[@class='position']"):
+#         dict_item = {}
+#         title = item.find(".//h4[@class='item-title']")
+#         if title is not None:
+#             dict_item["title"] = safe_clean_str(title.text_content())
+#         company = item.find(".//h5[@class='item-subtitle']")
+#         if company is not None:
+#             dict_item["company"] = safe_clean_str(company.text_content())
+#             company_link = company.find(".//a").get("href")
+#             if len(company_link) > 1:
+#                 dict_item["company_id"] = company_link.split("?")[0].split("company/")[1]
+#         dates = item.findall(".//abbr")
+#         if len(dates) > 1:
+#             dict_item["start_date"] = dates[0].get('title')
+#             dict_item["end_date"] = dates[1].get('title')
+#         if len(dates) == 1:
+#             dict_item["start_date"] = dates[0].get('text')
+#             dict_item["end_date"] = "Present"
+#         location = item.xpath(".//span[@class='location']")
+#         if len(location) > 0:
+#             dict_item['location'] = safe_clean_str(location[0].text_content())
+#         description = item.xpath(".//p[contains(@class, ' description ')]")
+#         if len(description) > 0:
+#             dict_item["description"] = safe_clean_str(description[0].text_content())
+#         jobs.append(dict_item)
+#     return jobs
+
 def find_profile_jobs(raw_html):
     jobs = []
     profile_jobs = raw_html.xpath("//div[@id='profile-experience']")[0]
@@ -294,7 +323,10 @@ def parse_html(html):
     try:
         full_name = raw_html.xpath("//span[@class='full-name']")[0].text_content()
     except:
-        pass
+        try:
+            full_name = raw_html.xpath("//*[@id='name']")[0].text_content()
+        except:
+            pass
 
     linkedin_id = None
     linkedin_index = html.find("newTrkInfo=") + 10
@@ -305,22 +337,26 @@ def parse_html(html):
 
     location = None
     industry = None
+    image = None
+    all_dd = raw_html.xpath("//div[@id='location']/dd")
+    if len(all_dd) == 0: all_dd = raw_html.xpath("//dl[@id='demographics']/dd")
     try:
-        all_dd = raw_html.xpath("//div[@id='location']/dd")
-        location = all_dd[0].text
-        industry = all_dd[1].text
+        location = all_dd[0].text_content()
+        industry = all_dd[1].text_content()
     except:
         try:
             location = raw_html.xpath("//span[@class='locality']")[0].text_content()
             industry = raw_html.xpath("//dd[@class='industry']")[0].text_content()
         except:
+
             pass
-
     try:
-        image = raw_html.xpath(".//div[@class='profile-picture']/a/img/@src")[0]
+        image_area = raw_html.xpath(".//div[@class='profile-picture']")[0]
+        img = image_area.xpath(".//img")[0]
+        for val in img.values():
+            if val.startswith("http"): image = val
     except:
-        image = None
-
+        pass
 
     location = safe_clean_str(location)
     industry = safe_clean_str(industry)
@@ -339,11 +375,20 @@ def parse_html(html):
 
     experiences = []
     schools = []
-    if len(raw_html.xpath("//div[@id='profile-experience']")) > 0:
-        experiences = find_profile_jobs(raw_html)
+    try:
+        # experience_title = raw_html.xpath("//*[text()='Experience']")[0]
+        # experience_section = experience_title.getparent()
 
-    if len(raw_html.xpath("//div[@id='background-experience']")) > 0:
-        experiences = find_background_jobs(raw_html)
+        # if len(experience_section.xpath("//ul[@class='positions']")) > 0:
+        #     experiences = find_positions_jobs(experience_section.xpath("//ul[@class='positions']")[0])
+
+        if len(raw_html.xpath("//div[@id='profile-experience']")) > 0:
+            experiences = find_profile_jobs(raw_html)
+
+        if len(raw_html.xpath("//div[@id='background-experience']")) > 0:
+            experiences = find_background_jobs(raw_html)
+    except:
+        pass
 
     school_type = None
     if len(raw_html.xpath("//div[@id='profile-education']")) > 0:

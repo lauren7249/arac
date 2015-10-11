@@ -95,7 +95,11 @@ class Prospect(db.Model):
     def current_job(self):
         jobs = self.jobs
         if len(jobs) > 0:
-            start_date_jobs = [job for job in jobs if job.start_date]
+            present_jobs = [job for job in jobs if job.end_date is None]
+            if len(present_jobs): 
+                start_date_jobs = [job for job in present_jobs if job.start_date]
+            else:
+                start_date_jobs = [job for job in jobs if job.start_date]
             if len(start_date_jobs) == 0:
                 return jobs[0]
             return sorted(start_date_jobs, key=lambda x:x.start_date, reverse=True)[0]

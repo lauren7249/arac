@@ -66,16 +66,16 @@ def query(terms, site="", intitle="", inbody=[], page_limit=1):
 
 # %27site%3Alinkedin.com%20intitle%3AYesenia%2BMiranda%2Blinkedin%27&Adult=%27Strict%27
 def search_linkedin_by_name(name, school='', page_limit=1, limit=10):
-	if len(school): inbody = '%22' + re.sub(r" ", "%20",school).replace('&','') + '%22' 
+	if len(school): inbody = '%22' + re.sub(r" ", "%20",school).replace('&','').replace(',','')  + '%22' 
 	else: inbody = ''
 	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",name), inbody=[inbody], page_limit=page_limit)
 	profiles = filter_results(record.results, url_regex=profile_re, include_terms_in_title=name)
 	return profiles[:limit]
 
 def search_extended_network(name, school='', page_limit=22):
-	inbody_name = '%22' + re.sub(r" ", "%20",name) + '%22'
+	inbody_name = '%22' + re.sub(r" ", "%20",name).replace('&','').replace(',','')  + '%22'
 	if len(school): 
-		inbody_school = '%22' + re.sub(r" ", "%20",school).replace('&','') + '%22'
+		inbody_school = '%22' + re.sub(r" ", "%20",school).replace('&','').replace(',','') + '%22'
 		inbody = [inbody_name, inbody_school]
 	else: inbody = [inbody_name]
 	record = query("", site="linkedin.com", inbody=inbody, intitle="%22|%20LinkedIn%22", page_limit=page_limit)
@@ -83,7 +83,7 @@ def search_extended_network(name, school='', page_limit=22):
 	return profiles
 
 def search_linkedin_schools(school):
-	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",school).replace('&',''), page_limit=22)
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",school).replace('&','').replace(',','') , page_limit=22)
 	profiles = filter_results(record.results, url_regex=school_re, include_terms_in_title=school)
 	school_ids = []
 	for link in profiles:
@@ -94,7 +94,7 @@ def search_linkedin_schools(school):
 	return school_ids
 
 def search_linkedin_companies(company):
-	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",company).replace('&',''), page_limit=22)
+	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",company).replace('&','').replace(',','') , page_limit=22)
 	profiles = filter_results(record.results, url_regex=company_re, include_terms_in_title=company)
 	urls = []
 	for link in profiles:

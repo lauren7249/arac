@@ -151,10 +151,6 @@ for contact in all_contacts:
 	if valid_profile:
 		n_valid+=1
 		contact_profiles.append(valid_profile)
-#269
-for profile in contact_profiles:
-	if re.search("Intern(,|\s|$)",profile.get("job")): contact_profiles.remove(profile)
-
 contact_profiles = compute_stars(contact_profiles)
 leads_str = unicode(json.dumps(contact_profiles, ensure_ascii=False))
 

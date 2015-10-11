@@ -97,6 +97,13 @@ class emailLinkedin:
 class select:
     def GET(self, n):
         ip = web.ctx['ip']
+        last_query_time_str = r.hget("last_query_time",ip)
+        now_time = datetime.datetime.utcnow()
+        if last_query_time_str:
+            last_query_time = datetime.datetime.strptime(last_query_time_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
+            timedelta = now_time - last_sent
+            if timedelta.seconds < 5: return ""
+
         try:
             ip_failures = float(r.hget("chrome_uploads_failures",ip))
         except:
@@ -109,11 +116,12 @@ class select:
             ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)   
         except:
             ip_success_rate = 0.0        
-        if ip_success_rate<0.5 and ip_failures>=100:
+        if ip_success_rate<0.8 and ip_failures>=100:
             return ""
         all = list(r.smembers("urls"))
         shuffle(all)
-        return "\n".join(all[0:int(n)]) 
+        r.hset("last_query_time", ip, datetime.datetime.utcnow())
+        return "\n".join(all[0:int(min(n,5))]) 
 
 class add:
     def POST(self):

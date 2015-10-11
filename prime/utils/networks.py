@@ -52,6 +52,9 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if prospect.current_job.company.name in exclude: 
 			print prospect.current_job.company.name + " at the same company " 
 			return False
+		if prospect.current_job.title and re.search("Intern(,|\s|$)",prospect.current_job.title):
+			print prospect.current_job.title + " not a real job"
+			return False
 		salary = prospect.get_max_salary
 		if salary>0 and salary < min_salary and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3): 
 			print str(salary) + " too low for " + prospect.current_job.title 
@@ -80,11 +83,11 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude :
 			print profile_info.get("job_company") + " at the same company"
 			return False
-		# if profile_info.get("job_title") is None:
-		# 	print "no job title for " + contact.facebook_id
-		# 	return False
-		salary = contact.get_max_salary if profile_info.get("job_title") and profile_info.get("job_title").find("Former") != 0 else None
-		if not salary and (not profile_info.get("job_title") or profile_info.get("job_title")=='Worked' or profile_info.get("job_title").find("Former") == 0):
+		if profile_info.get("job_title") and (re.search("Intern(,|\s|$)",profile_info.get("job_title")) or profile_info.get("job_title").find("Former") == 0 or profile_info.get("job_title")=='Worked'):
+			print profile_info.get("job_title") + " not a real job"
+			return False
+		salary = contact.get_max_salary 
+		if salary<0 and not profile_info.get("job_title"):
 			print "no job " + profile_info.get("job_title"," ") + " " + profile_info.get("job_company"," ")
 			return False
 		if salary>0 and salary < min_salary and profile_info.get("job_title") != "Works":
@@ -119,9 +122,9 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 				if (miles_p>75 or miles_p is None) and not contact.get_location: 				
 					print prospect.get_location + " not local " 
 					return False
-			if contact.get_location: 
+			if contact.get_location and (not prospect.get_location or miles_p > 75 or miles_p is None): 
 				miles_c = miles_apart(geopoint, contact.get_location)
-				if (miles_c>75 or miles_c is None) and (not prospect.get_location or miles_p>75 or miles_p is None): 				
+				if (miles_c>75 or miles_c is None): 				
 					print contact.get_location + " not local " 
 					return False				
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude:
@@ -130,19 +133,26 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if prospect.current_job and prospect.current_job.company and prospect.current_job.company.name in exclude: 
 			print prospect.current_job.company.name + " at the same company " 
 			return False
-		prospect_salary = prospect.current_job.get_max_salary if prospect.current_job and prospect.current_job.get_max_salary and (prospect.current_job.end_date is None or prospect.current_job.end_date > datetime.date.today()) else None
-		contact_salary = contact.get_max_salary if profile_info.get("job_title") and profile_info.get("job_title").find("Former") != 0 else None
+		prospect_has_job = prospect.current_job and (prospect.current_job.end_date is None or prospect.current_job.end_date >= datetime.date.today())
+		prospect_salary = prospect.current_job.get_max_salary if prospect.current_job else None
+		contact_salary = contact.get_max_salary 
+		contact_has_job = profile_info.get("job_title") and profile_info.get("job_title").find("Former") != 0  and profile_info.get("job_title").find("Worked") != 0
 		salary = max(contact_salary, prospect_salary)
-		if salary < min_salary and (not prospect.current_job or not prospect.current_job.title or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today())) and profile_info.get("job_title") != "Works":
-			if profile_info.get("job_title"): reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title")
-			else: reason = "no job " + contact.facebook_id + " " + prospect.url
-			print reason	
-			return False		
-		if salary>0 and salary < min_salary and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3): 
-			if prospect.current_job.title: reason = str(prospect_salary) + " too low for " + prospect.current_job.title + ". "
-			if profile_info.get("job_title"): reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title")
-			print reason
-			return False	
+		if salary < min_salary:
+			if not contact_has_job and not prospect_has_job:
+				print "no job " + contact.facebook_id + " " + prospect.url
+				return False
+			if salary>0 and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3):
+				if contact_salary: reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title"," ") + " " + profile_info.get("job_company"," ")
+				if prospect_salary: reason += reason +  str(prospect_salary) + " too low for " + prospect.current_job.title
+				print reason	
+				return False		
+		if profile_info.get("job_title") and re.search("Intern(,|\s|$)",profile_info.get("job_title")) and not prospect_has_job:
+			print profile_info.get("job_title") + " not a real job"
+			return False			
+		if prospect.current_job and prospect.current_job.title and re.search("Intern(,|\s|$)",prospect.current_job.title) and not contact_has_job:
+			print prospect.current_job.title + " not a real job"
+			return False				
 		contact_profile = clean_profile(contact.build_profile)
 		if contact_profile.get("job") and contact_profile.get("job").find("Former") == 0: contact_profile.pop("job",None)
 		prospect_profile = clean_profile(prospect.build_profile)
@@ -153,7 +163,7 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if salary>0: profile["salary"] = salary
 		prospect_schools = [school.name for school in prospect.schools]
 
-	if salary is None: salary = 0
+	if salary is None or salary == -1: salary = 0
 	n_social_accounts = len(social_accounts)
 	score = n_social_accounts + salary/30000 
 	amazon = get_specific_url(social_accounts, type="amazon.com")
@@ -167,7 +177,7 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if common_schools:
 			profile["school"] = common_schools.pop()
 			score+=1
-	if profile.get("job","").find("Financial") > -1: score-=4
+	if profile.get("job") and profile.get("job").find("Financial") > -1: score-=4
 	profile.update({"leadscore":score})
 	return profile
 
@@ -182,20 +192,24 @@ def collegeGrad(prospect):
 			return None, education.linkedin_school.name			
 	return vals
 
+def link_exists(url):
+	try:
+		response = requests.head(url,headers=headers)
+		if response.status_code != 200: return False	
+	except:	return False
+	return True
+
 def clean_profile(profile):
+	clean = profile
 	for key in profile.keys():
 		value = profile[key]
 		if not value: 
-			profile.pop(key,None)
+			clean.pop(key,None)
 			continue
 		if not isinstance(value, basestring): continue
-		if value.find("http") == 0 or key.find("url")>-1:
-			try:
-				response = requests.head(value,headers=headers)
-				if response.status_code != 200: profile.pop(key,None)	
-			except:
-				profile.pop(key,None)	
-	return profile
+		if value.find("http") == 0:
+			if not link_exists(value): clean.pop(key,None)	
+	return clean
 
 def leadScore(prospect):
 	valid_school = False
@@ -309,6 +323,7 @@ def facebook_to_linkedin_from_urls(facebook_contacts, urls_xwalk):
 		urls = urls_xwalk.get(facebook_contact.facebook_id)
 		if not urls: continue
 		name = facebook_contact.get_profile_info.get("name")
+		facebook_words = set(name.lower().split(" "))
 		job_title = facebook_contact.get_profile_info.get("job_title") 
 		if job_title in ["Works","Worked"]: job_title = None
 		job_company = facebook_contact.get_profile_info.get("job_company")
@@ -318,6 +333,9 @@ def facebook_to_linkedin_from_urls(facebook_contacts, urls_xwalk):
 		for url in urls:
 			li = from_url(url)
 			if not li: continue
+			linkedin_name = li.name.lower()
+			intersect = facebook_words & set(linkedin_name.split(" "))
+			if len(intersect)<2: continue 			
 			if job_company or job_title: 
 				for job in li.jobs:
 					if job_company and job.company and job.company.name and name_match(job_company, job.company.name):
