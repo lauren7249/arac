@@ -463,7 +463,20 @@ class LinkedinCompany(db.Model):
     max_employees = db.Column(Integer)
     specialties = db.Column(ARRAY(String(200)))
     website = db.Column(CIText())
-    
+    clearbit_response = db.Column(JSON)
+
+    @property 
+    def get_clearbit_response(self):
+        if self.clearbit_response and not self.clearbit_response.get("pending"): return self.clearbit_response
+        if not self.website: return None
+        website = self.website.replace("http://","").replace("https://","")
+        if not website: return None
+        company = clearbit.Company.find(domain=website)
+        self.clearbit_response = company
+        session.add(self)
+        session.commit()
+        return self.clearbit_response
+
     def __repr__(self):
         return '<Company id={0} name={1}>'.format(
                 self.id,
@@ -547,6 +560,12 @@ class Job(db.Model):
                 self.company.name,
                 self.prospect.name
                 )
+
+class GoogleMapsSearch(db.Model):
+    __tablename__ = "google_maps_results"
+    query = db.Column(CIText(), primary_key=True)
+    phone_numbers = db.Column(ARRAY(String(20)))
+    plus_links = db.Column(ARRAY(String(100)))
 
 class BingSearches(db.Model):
     __tablename__ = "bing_searches"
@@ -948,7 +967,10 @@ class EmailContact(db.Model):
         fullcontact_response = self.get_fullcontact_response
         fullcontact_social_accounts = get_fullcontact_social_accounts(fullcontact_response)
 
-        for link in pipl_social_accounts + vibe_social_accounts + fullcontact_social_accounts:
+        clearbit_response = self.get_clearbit_response
+        clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
+
+        for link in pipl_social_accounts + vibe_social_accounts + fullcontact_social_accounts + clearbit_social_accounts:
             if type(link) is dict or link in s: continue
             s.append(link)  
         return s
@@ -957,6 +979,7 @@ class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"
     id = db.Column(Integer, primary_key=True)
     user_email = db.Column(CIText())
+    geolocation = db.Column(CIText())
     contacts_owner = db.Column(JSON)
     contact = db.Column(JSON)
     service = db.Column(CIText())

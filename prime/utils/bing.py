@@ -40,7 +40,7 @@ def query(terms, site="", intitle="", inbody=[], page_limit=1):
 	record = session.query(BingSearches).get((terms,site,intitle," ".join(inbody)))
 	if not record: 
 		querystring = "https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web?Query=%27"
-		if len(terms): querystring += re.sub(r" ","%20",terms) 
+		if len(terms): querystring += re.sub(r" ","%20",terms) + '%20'
 		if len(site): querystring += "site%3A" + site + "%20"
 		if len(inbody): 
 			for ib in inbody:

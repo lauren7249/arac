@@ -147,6 +147,7 @@ class add:
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
             user_email = record.get("user_email")
+            geolocation = record.get("geolocation")
             service = record.get("service")
             first_name = re.sub('[^a-z]','',contact.get("first_name","").lower())
             last_name = re.sub('[^a-z]','',contact.get("last_name","").lower().replace('[^a-z ]',''))
@@ -157,7 +158,7 @@ class add:
                 by_email.setdefault(email_address,{}).setdefault(service,[]).append(first_name + " " + last_name)
             if first_name and last_name:
                 by_name.setdefault(first_name + " " + last_name,{}).setdefault(service,[]).append(email_address)            
-            r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service)
+            r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service, geolocation=geolocation)
             session.add(r)
         session.commit()
         return json.dumps(by_name)

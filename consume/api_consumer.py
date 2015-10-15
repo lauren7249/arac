@@ -5,14 +5,14 @@ import pandas
 import re
 import clearbit
 
-clearbit.key='6c8b167976876dd33f8000269768e925'
+clearbit.key='f2512e10a605e3dcaff606205dbd3758'
 pipl_api_key = "uegvyy86ycyvyxjhhbwsuhj9"
 vibe_api_key = "e0978324d7ac8b759084aeb96c5d7fde"
 fullcontact_api_key = "dda7318aacfcf5cd"
 pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key + "&pretty=true"
 vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="
 fullcontact_url = "http://api.fullcontact.com/v2/person.json?apiKey=" + fullcontact_api_key 
-social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel"]  
+social_domains = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel","foursquare","github"]
 
 #zillow = pandas.read_csv("/Users/lauren/Downloads/Zip_ZriPerSqft_AllHomes.csv")
 
@@ -34,7 +34,7 @@ def get_pipl_images(pipl_json):
         if not record.get('@query_params_match',True) or not record.get("emails"): continue
         for image in record.get("images",[]):
             url = image.get("url") 
-            if url and url not in images: 
+            if url and url not in images and url.find("gravatar.com")==-1: 
                 try:
                     response = requests.get(url,headers=headers)
                     if response.status_code==200: images.append(url)
@@ -84,6 +84,23 @@ def get_pipl_social_accounts(pipl_json):
         if not record.get('@query_params_match',True) or not record.get("source") or not record.get("source").get("url") or record.get("source").get("@is_sponsored"): continue
         link = record.get("source").get("url")
         social_profiles.append(link)    
+    return social_profiles
+
+def get_clearbit_social_accounts(clearbit_json):
+    social_profiles = []
+    if not clearbit_json: return social_profiles
+    for key in clearbit_json.keys():
+        if clearbit_json[key] and isinstance(clearbit_json[key], dict) and clearbit_json[key].get("handle"):
+            handle = clearbit_json[key].get("handle")
+            if key=='angellist': 
+                link = "https://angel.co/" + handle
+            elif key=='foursquare': 
+                link = "https://" + key + ".com/user/" + handle            
+            elif key=='googleplus': 
+                link = "https://plus.google.com/" + handle
+            else: 
+                link = "https://" + key + ".com/" + handle
+            social_profiles.append(link)
     return social_profiles
 
 def get_vibe_social_accounts(vibe_json):
@@ -146,7 +163,9 @@ def get_glassdoor_salary(title):
     return None
 
 def get_salary_percentile(max_salary):
-    response = requests.get("http://www.whatsmypercent.com/incomeRank.php?income=" + str(max_salary) + "&status=all%20filers", headers=headers)
-    html = lxml.html.fromstring(response.content)
-    percentile = html.xpath(".//td")[1].text_content()
+    # response = requests.get("http://www.whatsmypercent.com/incomeRank.php?income=" + str(max_salary) + "&status=all%20filers", headers=headers)
+    response = requests.get("http://www.shnugi.com/income-percentile-calculator/?min_age=18&max_age=100&income=" + str(max_salary),headers=headers)
+    percentile = re.search('(?<=ranks at: )[0-9]+(?=(\.|\%))',response.content).group(0)
+    # html = lxml.html.fromstring(response.content)
+    # percentile = html.xpath(".//td")[1].text_content()
     return int(re.sub("[^0-9]","",percentile))    

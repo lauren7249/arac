@@ -19,8 +19,7 @@ client_coords = get_mapquest_coordinates(client_linkedin_contact.location_raw).g
 client_geopoint = GeoPoint(client_coords[0],client_coords[1])
 
 #470/508
-#59 linkedin urls did not have linkedin id in html source 
-#filter linkedin friends to those in the location
+#get profiles
 linkedin_contacts = []
 for friend in linkedin_friends:
 	contact = from_linkedin_id(friend)
@@ -152,13 +151,13 @@ for contact in all_contacts:
 		n_valid+=1
 		contact_profiles.append(valid_profile)
 contact_profiles = compute_stars(contact_profiles)
-leads_str = unicode(json.dumps(contact_profiles, ensure_ascii=False))
 
 base_dir = "/Users/lauren/Documents/arachnid/p200_templates/" + client_facebook_id
 try:
 	os.makedirs(base_dir)
 	os.makedirs(base_dir + "/json")
 except: pass 
+leads_str = unicode(json.dumps(contact_profiles, ensure_ascii=False))
 leads_file = open(base_dir + "/json/leads.json", "w")
 leads_file.write(leads_str.encode('utf8', 'replace'))
 leads_file.close()

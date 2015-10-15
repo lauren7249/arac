@@ -100,6 +100,13 @@ CREATE TABLE bing_searches (
     results json
 );
 
+
+CREATE TABLE google_maps_results (
+    query CITEXT PRIMARY KEY NOT NULL,  
+    phone_numbers varchar(20)[],
+    plus_links varchar(100)[]
+);
+
 CREATE TABLE geocoded_locations (
     raw_location CITEXT NOT NULL,
 

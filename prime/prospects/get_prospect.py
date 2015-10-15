@@ -2,6 +2,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from flask import Flask
 from prime.utils import r
+from difflib import SequenceMatcher
 import re, os, sys
 try:
 	from prime.prospects.prospect_list import *
@@ -20,8 +21,16 @@ def get_session():
 
 session = get_session()
 
-def has_common_institutions(p1,p2):
-	return len(common_school_ids(p1,p2))>0 or len(common_company_ids(p1,p2))>0
+def has_common_institutions(p1,p2, intersect_threshold=5):
+	common_schools = common_school_ids(p1,p2)
+	if len(common_schools)>0: return "Attended " + session.query(LinkedinSchool).get(common_schools.pop()).name
+	common_companies = common_company_ids(p1,p2)
+	if len(common_companies)>0: return "Worked at " + session.query(LinkedinCompany).get(common_companies.pop()).name
+	common_school = has_common_school_names(p1,p2, intersect_threshold=intersect_threshold)
+	if common_school: return "Attended " + common_school
+	common_company = has_common_company_names(p1,p2, intersect_threshold=intersect_threshold)
+	if common_company: return "Worked at " + common_company
+	return False
 
 def average_wealth_score(prospects):
 	perc = [prospect.wealth_percentile() for prospect in prospects]
@@ -33,6 +42,45 @@ def average_wealth_score(prospects):
 		count += 1
 	average = tot/count
 	return average
+
+def name_match(name1, name2, intersect_threshold=2):
+	name1 = name1.lower()
+	name2 = name2.lower()
+	name1_words = set(name1.split(" "))
+	name2_words = set(name2.split(" "))
+	stop_words = ["the", "of","and","a","the","at","for","in","on"]
+	for stop_word in stop_words:
+		if stop_word in name1_words: name1_words.remove(stop_word)
+		if stop_word in name2_words: name2_words.remove(stop_word)	
+	intersect = name1_words & name2_words
+	intersect_threshold = min(intersect_threshold, len(name2_words))
+	intersect_threshold = min(intersect_threshold, len(name2_words))
+	if len(intersect)>=intersect_threshold: return True
+	ratio = SequenceMatcher(None, name1, name2)
+	if ratio>=0.8: return True
+	return False	
+
+def has_common_school_names(p1, p2, intersect_threshold=3):
+	for school1 in p1.schools:
+		if not school1.name: continue
+		for school2 in p2.schools:
+			if not school2.name: continue
+			if name_match(school1.name, school2.name, intersect_threshold=intersect_threshold): 
+				print school1.name + "-->" + school2.name
+				if len(school2.name) < len(school1.name): return school2.name
+				return school1.name
+	return None
+
+def has_common_company_names(p1, p2, intersect_threshold=3):
+	for job1 in p1.jobs:
+		if not job1.company or not job1.company.name: continue
+		for job2 in p2.jobs:
+			if not job2.company or not job2.company.name: continue
+			if name_match(job2.company.name, job1.company.name, intersect_threshold=intersect_threshold): 
+				print job2.company.name + "-->" + job1.company.name
+				if len(job2.company.name) < len(job1.company.name): return job2.company.name
+				return job1.company.name
+	return None
 
 def common_school_ids(p1, p2):
 	p1_school_ids = set()

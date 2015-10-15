@@ -6,7 +6,6 @@ import scipy.stats as stats
 import datetime
 import joblib
 import re
-from difflib import SequenceMatcher
 
 # pegasos_model = joblib.load("../data/pegasos_model.dump")
 
@@ -60,6 +59,7 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			print str(salary) + " too low for " + prospect.current_job.title 
 			return False	
 		profile = clean_profile(prospect.build_profile)	
+		profile["location"] = location
 		if salary>0: profile["salary"] = salary
 		prospect_schools = [school.name for school in prospect.schools]
 		social_accounts = prospect.social_accounts
@@ -94,6 +94,7 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			print str(salary) + " too low for " + profile_info.get("job_title")
 			return False
 		profile = clean_profile(contact.build_profile)
+		profile["location"] = location
 		if salary>0: profile["salary"] = salary
 		social_accounts = contact.social_accounts
 	elif isinstance(lead, tuple):
@@ -118,12 +119,14 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 				return False
 		if geopoint:
 			if prospect.get_location: 
-				miles_p = miles_apart(geopoint, prospect.get_location)
+				location = prospect.get_location
+				miles_p = miles_apart(geopoint, location)
 				if (miles_p>75 or miles_p is None) and not contact.get_location: 				
 					print prospect.get_location + " not local " 
 					return False
 			if contact.get_location and (not prospect.get_location or miles_p > 75 or miles_p is None): 
-				miles_c = miles_apart(geopoint, contact.get_location)
+				location = contact.get_location
+				miles_c = miles_apart(geopoint, location)
 				if (miles_c>75 or miles_c is None): 				
 					print contact.get_location + " not local " 
 					return False				
@@ -158,8 +161,9 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		prospect_profile = clean_profile(prospect.build_profile)
 		if contact_profile.get("image_url") and prospect_profile.get("image_url"): contact_profile.pop("image_url",None)
 		social_accounts = list(set(contact.social_accounts + prospect.social_accounts))
-		profile.update(prospect_profile)
 		profile.update(contact_profile)
+		profile.update(prospect_profile)
+		profile["location"] = location
 		if salary>0: profile["salary"] = salary
 		prospect_schools = [school.name for school in prospect.schools]
 
@@ -203,7 +207,7 @@ def clean_profile(profile):
 	clean = profile
 	for key in profile.keys():
 		value = profile[key]
-		if not value: 
+		if not value and value != 0: 
 			clean.pop(key,None)
 			continue
 		if not isinstance(value, basestring): continue
@@ -243,25 +247,6 @@ def compute_stars(contact_profiles):
 def valid_second_degree(prospect, contact, contact_friend):
 	return prospect and contact and contact_friend and contact_friend.connections>20 and contact.connections>20 and valid_lead(contact_friend) and has_common_institutions(contact_friend, contact) and not valid_first_degree(prospect, contact_friend)
 
-def name_match(name1, name2):
-	name1 = name1.lower()
-	name2 = name2.lower()
-	name1_words = set(name1.split(" "))
-	name2_words = set(name2.split(" "))
-	intersect = name1_words & name2_words
-	if "the" in intersect: intersect.remove("the")
-	if "of" in intersect: intersect.remove("of")
-	if "and" in intersect: intersect.remove("and")
-	if "a" in intersect: intersect.remove("a")
-	if "the" in intersect: intersect.remove("the")
-	if "at" in intersect: intersect.remove("at")
-	if "for" in intersect: intersect.remove("for")
-	if "in" in intersect: intersect.remove("in")
-	if "on" in intersect: intersect.remove("on")
-	if len(intersect)>=2: return True
-	ratio = SequenceMatcher(None, name1, name2)
-	if ratio>=0.8: return True
-	return False	
 
 def facebook_to_linkedin_by_name(linkedin_contacts, facebook_contacts):
 	names = {}
@@ -363,3 +348,113 @@ def facebook_to_linkedin_from_urls(facebook_contacts, urls_xwalk):
 						break
 			if found_match: break
 	return facebook_to_linkedin
+
+def get_phone_number(profile, liscraper):
+	if profile.get("phone"): return profile.get("phone")
+	li = None
+	if profile.get("linkedin"): li = from_url(profile.get("linkedin"))
+	phone = ""
+	headquarters = ""
+	website = ""
+	mapquest_coordinates = ""
+	mapquest = ""
+	company_name = ""
+	li_company = None
+	location = ""
+	if li:
+		if li.current_job:
+			li_company = li.current_job.linkedin_company
+			if not li_company and li.current_job.company:
+				results = search_linkedin_companies(li.current_job.company.name)
+				if results: 
+					company_url = results[0]
+					li_company = company_from_url(company_url)
+		location = li.current_job.location if li.current_job and li.current_job.location else li.location_raw
+	else: 
+		results = search_linkedin_companies(profile.get("company"))
+		if results: 
+			company_url = results[0]
+			li_company = company_from_url(company_url)		
+		fbcontact = session.query(FacebookContact).get(profile.get("facebook").split("/")[-1])
+		location = fbcontact.get_location
+	company_name = li_company.name if li_company else profile.get("company")
+	if li_company:
+		if li_company.website: website = li_company.website.replace("https://","").replace("http://","").split("/")[0]
+		if li_company.headquarters: headquarters = li_company.headquarters.replace("\n"," ")	
+	if location:
+		mapquest = get_mapquest_coordinates(location)
+		if mapquest and mapquest.get("latlng_result",{}).get("name"): mapquest_coordinates = mapquest.get("latlng_result",{}).get("name")
+	queries = ["+".join([company_name,mapquest_coordinates])]
+	if website: queries = ["+".join([website, company_name, mapquest_coordinates]),"+".join([website,mapquest_coordinates])] + queries + ["+".join([website,company_name,headquarters]),"+".join([website,headquarters]),"+".join([company_name,headquarters]),"+".join([website, company_name]),website] 
+	for q in queries:
+		if q.endswith("+") or q.startswith("+"): 
+			continue
+		google_results = get_google_results(liscraper, q)	
+		if google_results.phone_numbers and len(set(google_results.phone_numbers))==1 and len(set(google_results.plus_links))==1: 
+			phone = google_results.phone_numbers[0]
+			#print query
+			return phone
+		elif len(google_results.phone_numbers)==len(google_results.plus_links):
+			for k in xrange(0, len(google_results.plus_links)):
+				plus_link = google_results.plus_links[k]
+				bing_results = query("", site="%22" + plus_link + "%22").results
+				if not bing_results: continue
+				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
+				if name_match(bing_title, company_name):
+					phone = google_results.phone_numbers[k]
+					#print company_name + " " + plus_link
+					#break
+					return phone
+		else: 
+			for k in xrange(0, len(google_results.plus_links)):
+				plus_link = google_results.plus_links[k]
+				bing_results = query("", site="%22" + plus_link + "%22").results
+				if not bing_results: continue
+				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
+				if name_match(bing_title, company_name):
+					response = requests.get(plus_link, headers=headers)
+					source = response.content
+					# try:
+					# 	liscraper.driver.get(plus_link)
+					# except:
+					# 	liscraper.login()
+					# 	liscraper.driver.get(plus_link)
+					# source = liscraper.driver.page_source
+					phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)
+					if phone_numbers: return phone_numbers[0]
+	if li_company:
+		clearbit_response = li_company.get_clearbit_response
+		if clearbit_response: 
+			phone = clearbit_response.get("phone")	
+			if phone: return phone
+	if li:
+		pipl_json = li.get_pipl_response
+		if pipl_json: 
+			pipl_valid_recs = []
+			for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
+				if not record.get('@query_params_match',True): continue
+				pipl_valid_recs.append(record)
+			pipl_json_str = json.dumps(pipl_valid_recs)
+			if re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str):
+				phone = re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str).group(0)
+				#print li.url	
+				return phone
+	return phone
+
+def get_mailto(profile):
+	if profile.get("mailto"): return profile.get("mailto")
+	all_emails = set()
+	if profile.get("linkedin"): 
+		li = from_url(profile.get("linkedin"))
+		if li: 
+			emails = get_pipl_emails(li.get_pipl_response)
+			if emails: all_emails.update(emails)
+	if profile.get("facebook"): 
+		fb = session.query(FacebookContact).get(profile.get("facebook").split("/")[-1])
+		if fb: 
+			emails = get_pipl_emails(fb.get_pipl_response)
+			if emails: all_emails.update(emails)	
+	if all_emails:
+		mailto = 'mailto:' + ",".join(list(all_emails))	
+		return mailto
+	return None		
