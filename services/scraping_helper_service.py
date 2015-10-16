@@ -15,6 +15,7 @@ from consume.consumer import *
 from prime.prospects.models import CloudspongeRecord, PhoneExport, session
 from services.touchpoints_costs import *
 from consume.api_consumer import *
+import sendgrid
 
 web.config.debug = False
 urls = (
