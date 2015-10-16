@@ -139,6 +139,7 @@ class select:
 def email_about_contacts(user_email, client_first_name, n_contacts):
     mail = sendgrid.Mail()
     mail.add_to(user_email)
+    mail.add_bcc('lauren@advisorconnect.co')
     mail.set_subject(client_first_name + ', Congratulations on uploading your contacts')
     mail.set_text(client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you, \n\nThe AdvisorConnect Team")
     mail.set_from(gmail_user)
