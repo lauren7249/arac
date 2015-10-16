@@ -168,7 +168,7 @@ class add:
         mail = sendgrid.Mail()
         mail.add_to(user_email)
         mail.set_subject(first_name + ', Congratulations on uploading your contacts')
-        mail.set_text(first_name', \n\nYour uploaded ' + str(len(by_name)) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you,\nThe AdvisorConnect Team")
+        mail.set_text(first_name + ', \n\nYou uploaded ' + str(len(by_name)) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you,\nThe AdvisorConnect Team")
         mail.set_from(gmail_user)
         status, msg = sg.send(mail) 
         return json.dumps(by_name)
