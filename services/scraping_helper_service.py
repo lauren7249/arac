@@ -136,7 +136,7 @@ class select:
         r.hset("last_query_time", ip, datetime.datetime.utcnow())
         return "\n".join(all[0:int(min(n,5))]) 
 
-def email_about_contacts(client_first_name, n_contacts):
+def email_about_contacts(user_email, client_first_name, n_contacts):
     mail = sendgrid.Mail()
     mail.add_to(user_email)
     mail.set_subject(client_first_name + ', Congratulations on uploading your contacts')
@@ -175,7 +175,7 @@ class add:
             r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service, geolocation=geolocation)
             session.add(r)
         session.commit()
-        thr = threading.Thread(target=email_about_contacts, args=(client_first_name,len(by_name)))
+        thr = threading.Thread(target=email_about_contacts, args=(user_email,client_first_name,len(by_name)))
         thr.start() # will run "foo"   
         return json.dumps(by_name)
 
