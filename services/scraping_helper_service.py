@@ -16,6 +16,7 @@ from prime.prospects.models import CloudspongeRecord, PhoneExport, session
 from services.touchpoints_costs import *
 from consume.api_consumer import *
 import sendgrid
+import threading
 
 web.config.debug = False
 urls = (
@@ -135,6 +136,14 @@ class select:
         r.hset("last_query_time", ip, datetime.datetime.utcnow())
         return "\n".join(all[0:int(min(n,5))]) 
 
+def email_about_contacts(client_first_name, n_contacts):
+    mail = sendgrid.Mail()
+    mail.add_to(user_email)
+    mail.set_subject(client_first_name + ', Congratulations on uploading your contacts')
+    mail.set_text(client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you, \n\nThe AdvisorConnect Team")
+    mail.set_from(gmail_user)
+    status, msg = sg.send(mail)     
+
 class add:
     def POST(self):
         web.header('Access-Control-Allow-Origin', '*')
@@ -166,12 +175,8 @@ class add:
             r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service, geolocation=geolocation)
             session.add(r)
         session.commit()
-        mail = sendgrid.Mail()
-        mail.add_to(user_email)
-        mail.set_subject(client_first_name + ', Congratulations on uploading your contacts')
-        mail.set_text(client_first_name + ', \n\nYou uploaded ' + str(len(by_name)) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you,\nThe AdvisorConnect Team")
-        mail.set_from(gmail_user)
-        status, msg = sg.send(mail) 
+        thr = threading.Thread(target=email_about_contacts, args=(client_first_name,len(by_name)))
+        thr.start() # will run "foo"   
         return json.dumps(by_name)
 
 class post_uploaded:
