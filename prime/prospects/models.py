@@ -957,15 +957,17 @@ class EmailContact(db.Model):
     def social_accounts(self):
         s = []
 
-        vibe_json = self.get_vibe_response
-        if vibe_json.get("name") == 'Not a Person': return s
-        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+        vibe_social_accounts = []
+        fullcontact_social_accounts = []
+        # vibe_json = self.get_vibe_response
+        # if vibe_json.get("name") == 'Not a Person': return s
+        # vibe_social_accounts = get_vibe_social_accounts(vibe_json)
 
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
 
-        fullcontact_response = self.get_fullcontact_response
-        fullcontact_social_accounts = get_fullcontact_social_accounts(fullcontact_response)
+        # fullcontact_response = self.get_fullcontact_response
+        # fullcontact_social_accounts = get_fullcontact_social_accounts(fullcontact_response)
 
         clearbit_response = self.get_clearbit_response
         clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
@@ -975,6 +977,24 @@ class EmailContact(db.Model):
             s.append(link)  
         return s
 
+    @property
+    def get_linkedin_url(self):
+        if self.linkedin_url: return self.linkedin_url
+        url = None
+        clearbit_response = self.get_clearbit_response
+        clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
+        url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
+        if url: return url
+        pipl_response = self.get_pipl_response
+        pipl_social_accounts = get_pipl_social_accounts(pipl_response)
+        url = get_specific_url(pipl_social_accounts, type="linkedin.com")
+        if url:
+            self.linkedin_url = url
+            session.add(self)
+            session.commit()
+        return url
+
+
 class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"
     id = db.Column(Integer, primary_key=True)
@@ -983,6 +1003,16 @@ class CloudspongeRecord(db.Model):
     contacts_owner = db.Column(JSON)
     contact = db.Column(JSON)
     service = db.Column(CIText())
+
+    @property
+    def get_emails(self):
+        all_emails = []
+        info = self.contact 
+        emails = info.get("email",[{}])
+        for email in emails:
+            address = email.get("address").lower()
+            if address: all_emails.append(address)
+        return all_emails        
 
 class Proxy(db.Model):
     __tablename__ = "proxy"

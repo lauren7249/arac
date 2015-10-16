@@ -32,6 +32,9 @@ app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
 bucket = get_bucket(bucket_name='chrome-ext-uploads')
+gmail_user = 'contacts@advisorconnect.co'
+gmail_pwd = '1250downllc'
+sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)  
 
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
@@ -146,6 +149,7 @@ class add:
                 continue
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
+            first_name = record.get("firstName")
             user_email = record.get("user_email")
             geolocation = record.get("geolocation")
             service = record.get("service")
@@ -161,6 +165,12 @@ class add:
             r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service, geolocation=geolocation)
             session.add(r)
         session.commit()
+        mail = sendgrid.Mail()
+        mail.add_to(user_email)
+        mail.set_subject(first_name + ', Congratulations on uploading your contacts')
+        mail.set_text(first_name', \n\nYour uploaded ' + str(len(by_name)) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you,\nThe AdvisorConnect Team")
+        mail.set_from(gmail_user)
+        status, msg = sg.send(mail) 
         return json.dumps(by_name)
 
 class post_uploaded:
