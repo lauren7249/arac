@@ -379,8 +379,8 @@
           var outData = {geolocation:geolocation, firstName: firstName, public_url:public_url, user_email:email_address, contacts_array: contacts_array}          
           $.ajax({
               type: 'POST',
-              // url: 'http://169.55.28.212:8080/add',
-              url: 'http://localhost:8080/add',
+              url: 'http://169.55.28.212:8080/add',
+              // url: 'http://localhost:8080/add',
               crossDomain: true,
               data: JSON.stringify(outData),
               success: function(responseData, textStatus, jqXHR) {
