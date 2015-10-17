@@ -12,7 +12,7 @@ from prime.utils import *
 import web, re
 from prime.utils.update_database_from_dict import insert_linkedin_profile
 from consume.consumer import *
-from prime.prospects.models import CloudspongeRecord, PhoneExport, session
+from prime.prospects.models import CloudspongeRecord, PhoneExport, session, Agent, get_or_create
 from services.touchpoints_costs import *
 from consume.api_consumer import *
 import sendgrid
@@ -152,17 +152,26 @@ class add:
         web.header('Access-Control-Allow-Headers', '*')
         web.header('Access-Control-Allow-Methods','*')
         i = web.data()
+        indata = json.loads(i)
+        client_first_name = indata.get("firstName")
+        user_email = indata.get("user_email")
+        geolocation = indata.get("geolocation")  
+        public_url = indata.get("public_url")    
+        contacts_array = indata.get("contacts_array")  
+        agent = get_or_create(session, Agent, email=user_email)
+        agent.geolocation=geolocation
+        agent.first_name=client_first_name
+        agent.public_url = public_url
+        session.add(agent)
+        session.commit()
         by_name = {}
         by_email = {}           
-        for record in json.loads(i):
+        for record in contacts_array:
             if len(str(record)) > 10000: 
                 print "CloudspongeRecord is too big"
                 continue
             owner = record.get("contacts_owner",{})
             contact = record.get("contact",{})
-            client_first_name = record.get("firstName")
-            user_email = record.get("user_email")
-            geolocation = record.get("geolocation")
             service = record.get("service")
             first_name = re.sub('[^a-z]','',contact.get("first_name","").lower())
             last_name = re.sub('[^a-z]','',contact.get("last_name","").lower().replace('[^a-z ]',''))
@@ -173,7 +182,7 @@ class add:
                 by_email.setdefault(email_address,{}).setdefault(service,[]).append(first_name + " " + last_name)
             if first_name and last_name:
                 by_name.setdefault(first_name + " " + last_name,{}).setdefault(service,[]).append(email_address)            
-            r = CloudspongeRecord(user_email=user_email, contacts_owner=owner, contact=contact, service=service, geolocation=geolocation)
+            r = CloudspongeRecord(contacts_owner=owner, contact=contact, service=service, agent=agent)
             session.add(r)
         session.commit()
         thr = threading.Thread(target=email_about_contacts, args=(user_email,client_first_name,len(by_name)))

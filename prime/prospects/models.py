@@ -994,12 +994,18 @@ class EmailContact(db.Model):
             session.commit()
         return url
 
+class Agent(db.Model):
+    __tablename__ = "agent"
+    email = db.Column(CIText(), primary_key=True)
+    geolocation = db.Column(CIText())
+    public_url = db.Column(CIText())
+    first_name = db.Column(CIText())
 
 class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"
     id = db.Column(Integer, primary_key=True)
-    user_email = db.Column(CIText())
-    geolocation = db.Column(CIText())
+    user_email = db.Column(CIText(), ForeignKey("agent.email"), index=True)
+    agent = relationship('Agent', foreign_keys='CloudspongeRecord.user_email')
     contacts_owner = db.Column(JSON)
     contact = db.Column(JSON)
     service = db.Column(CIText())
