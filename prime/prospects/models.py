@@ -21,6 +21,9 @@ import dateutil.parser
 from boto.s3.key import Key
 from consume.facebook_consumer import *
 from consume.api_consumer import *
+from requests import HTTPError
+import unirest 
+from random import shuffle
 
 bucket = get_bucket('facebook-profiles')
 
@@ -885,17 +888,36 @@ class EmailContact(db.Model):
     vibe_response = db.Column(JSON)
     fullcontact_response = db.Column(JSON)
     clearbit_response = db.Column(JSON)
+    emailsherlock_urls = db.Column(ARRAY(CIText()))
 
     def __repr__(self):
         return '<email ={0} linkedin_url={1}>'.format(
                 self.email,
                 self.linkedin_url
                 )
+    @property 
+    def get_emailsherlock_urls(self):
+        urls = []
+        if self.emailsherlock_urls is not None: return self.emailsherlock_urls
+        try:
+            response = unirest.get("https://emailsherlock.p.mashape.com/?client_ref=192.168.1.1&email=" + self.email.replace('@','%40'),headers={"X-Mashape-Key": "8iod39oVwPmshKCSKkP59F3ykWOnp1IVfGDjsnsFkiCQ9UXOui","Accept": "text/plain"})
+            raw_html = lxml.html.fromstring(response.body)
+            for element in raw_html.xpath(".//url") + raw_html.xpath(".//profile") + raw_html.xpath(".//profileurl") :
+                urls.append(element.text)
+        except:
+            pass
+        self.emailsherlock_urls = urls
+        session.add(self)
+        session.commit()
+        return self.emailsherlock_urls
 
     @property 
     def get_clearbit_response(self):
         if self.clearbit_response: return self.clearbit_response
-        person = clearbit.Person.find(email=self.email, stream=True)
+        try:
+            person = clearbit.Person.find(email=self.email, stream=True)
+        except HTTPError as e:
+            person = {"ERROR": e.strerror}
         self.clearbit_response = person
         session.add(self)
         session.commit()
@@ -921,16 +943,19 @@ class EmailContact(db.Model):
     @property
     def get_vibe_response(self) :
         content = {}
-        if self.vibe_response: 
-            content = self.vibe_response      
-        else:         
+        if self.vibe_response and self.vibe_response.get("status") !="Rate Limit Overrage": 
+            return self.vibe_response      
+        for vibe_api_key in shuffle(vibe_api_keys):
             try:
+                vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="                
                 url = vibe_url + self.email
                 response = requests.get(url)
                 content = json.loads(response.content)    
-                self.vibe_response = content     
-                session.add(self)
-                session.commit()                                        
+                if content and content.get("status") !="Rate Limit Overrage":  
+                    self.vibe_response = content    
+                    session.add(self)
+                    session.commit()   
+                    return content                                     
             except:
                 pass    
         return content  
@@ -981,10 +1006,24 @@ class EmailContact(db.Model):
     def get_linkedin_url(self):
         if self.linkedin_url: return self.linkedin_url
         url = None
+        vibe_json = self.get_vibe_response
+        if vibe_json and vibe_json.get("name") == 'Not a Person': return None
+        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+        url = get_specific_url(vibe_social_accounts, type="linkedin.com")
+        if url:
+            self.linkedin_url = url
+            session.add(self)
+            session.commit()
+            return url
         clearbit_response = self.get_clearbit_response
+        if clearbit_response is None or clearbit_response.get("ERROR"): return None
         clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
         url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
-        if url: return url
+        if url:
+            self.linkedin_url = url
+            session.add(self)
+            session.commit()
+            return url
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
         url = get_specific_url(pipl_social_accounts, type="linkedin.com")
@@ -992,6 +1031,7 @@ class EmailContact(db.Model):
             self.linkedin_url = url
             session.add(self)
             session.commit()
+            return url
         return url
 
 class Agent(db.Model):
@@ -1000,6 +1040,8 @@ class Agent(db.Model):
     geolocation = db.Column(CIText())
     public_url = db.Column(CIText())
     first_name = db.Column(CIText())
+    email_contacts_from_email = db.Column(ARRAY(CIText()))
+    email_contacts_from_linkedin = db.Column(ARRAY(CIText()))
 
 class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"

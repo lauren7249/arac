@@ -24,7 +24,7 @@ good_proxies ="good_proxies"
 bad_proxies="bad_proxies"
 in_use_proxies="in_use_proxies"
 requests_session = requests.Session()
-profile_re = re.compile('(^https?://www.linkedin.com/pub(?!/dir/)(/.*)+)|(^https?://www.linkedin.com/in/.*)')
+profile_re = re.compile('(^https*?://(www.)*linkedin.com/pub(?!/dir/)(/.*)+)|(^https*?://(www.)*linkedin.com/in/.*)')
 school_re = re.compile('^https://www.linkedin.com/edu/*')
 company_re = re.compile('^https://www.linkedin.com/company/*')
 
