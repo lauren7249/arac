@@ -12,3 +12,5 @@ alter table agent add column public_url citext;
 alter table agent add column first_name citext;
 alter table agent add column email_contacts_from_email json;
 alter table agent add column email_contacts_from_linkedin json;
+
+alter table prospect add column all_email_addresses

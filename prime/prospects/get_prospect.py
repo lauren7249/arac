@@ -22,6 +22,7 @@ def get_session():
 session = get_session()
 
 def has_common_institutions(p1,p2, intersect_threshold=5):
+	from prime.prospects.models import LinkedinSchool, LinkedinCompany, LinkedinCompanyUrl
 	common_schools = common_school_ids(p1,p2)
 	if len(common_schools)>0: return "Attended " + session.query(LinkedinSchool).get(common_schools.pop()).name
 	common_companies = common_company_ids(p1,p2)

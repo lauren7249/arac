@@ -9,6 +9,7 @@ import numpy as np
 import itertools
 import operator
 from prime.prospects.models import MapquestGeocodes, get_or_create, session, GoogleMapsSearch
+from consume.linkedin_friend import LinkedinFriend
 
 def parse_out(text, startTag, endTag):
 	region = ""
@@ -65,7 +66,7 @@ def get_google_results(liscraper, query):
 	try:
 		liscraper.driver.get("https://www.google.com/maps/search/" + query)
 	except:
-		liscraper.login()
+		liscraper = LinkedinFriend()
 		liscraper.driver.get("https://www.google.com/maps/search/" + query)
 	source = liscraper.driver.page_source
 	phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)

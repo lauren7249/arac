@@ -17,6 +17,8 @@ import lxml.html
 class LinkedinFriend(object):
 
     def __init__(self, *args, **kwargs):
+        self.display = Display(visible=0, size=(1024,1024))
+        self.display.start()        
         self.is_logged_in = False
         self.username = kwargs.get("username")
         self.password = kwargs.get("password")
@@ -27,16 +29,19 @@ class LinkedinFriend(object):
         self.successful_prospects = []
         self.linkedin_id = None
         self.test = kwargs.get("test")
-
-    def login(self):
-        profile=webdriver.FirefoxProfile('/Users/lauren/Library/Application Support/Firefox/Profiles/lh4ow5q9.default')
+        try:
+            profile=webdriver.FirefoxProfile('/Users/lauren/Library/Application Support/Firefox/Profiles/lh4ow5q9.default')
+        except:
+            profile=webdriver.FirefoxProfile()
         profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so',
                                       'false')
         profile.set_preference('permissions.default.image', 2)
         self.driver = webdriver.Firefox(profile)
         self.driver.implicitly_wait(3) 
         self.driver.set_page_load_timeout(5)
-        self.wait = WebDriverWait(self.driver, 3)
+        self.wait = WebDriverWait(self.driver, 3)        
+
+    def login(self):
         try:
             self.driver.get("http://linkedin.com")
         except:

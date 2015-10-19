@@ -22,7 +22,8 @@ def get_pipl_emails(pipl_json):
         if not record.get('@query_params_match',True) or not record.get("emails"): continue
         for email in record.get("emails",[]):
             url = email.get("address") 
-            if url and url not in emails: 
+            domain = url.split("@")[-1]
+            if url and url not in emails and domain != 'facebook.com': 
                 emails.append(url)
     return emails
 
@@ -34,11 +35,13 @@ def get_pipl_images(pipl_json):
         for image in record.get("images",[]):
             url = image.get("url") 
             if url and url not in images and url.find("gravatar.com")==-1: 
-                try:
-                    response = requests.get(url,headers=headers)
-                    if response.status_code==200: images.append(url)
-                except:
-                    pass
+                # try:
+                #     response = requests.head(url,headers=headers, timeout=1.5)
+                #     if response.status_code==404: 
+                #         continue
+                # except:
+                #     pass
+                images.append(url)
     return images
 
 def get_pipl_zips(pipl_json):

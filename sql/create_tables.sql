@@ -100,7 +100,47 @@ CREATE TABLE bing_searches (
     results json
 );
 
+CREATE TABLE lead_profiles (
+    id citext,
+    id_type citext not null default 'Prospect',
+    agent_id CITEXT references agent(email), 
+    facebook_id CITEXT references facebook_contacts(facebook_id),  
+    prospect_id int references prospect(id) NULL,
+    primary key (id,agent_id),
+    salary int,
+    wealthscore int,
+    leadscore int,
+    mailto citext,
+    linkedin_friend_urls json,
+    name varchar(200),
+    social_accounts json,
+    people_links json,
+    url citext,
+    location varchar(200),
+    location_lat float,
+    location_lng float,
+    job_location_lat float,
+    job_location_lng float,
+    industry varchar(200),
+    job varchar(200),
+    company_name varchar(200),
+    job_location varchar(200),
+    company_url citext,
+    company_website citext,
+    company_headquarters varchar(500),
+    phone citext,
+    image_url citext,
+    gender varchar(15),
+    college_grad BOOLEAN,
+    common_school varchar(200),
+    extended BOOLEAN,
+    referrer_url citext,
+    referrer_name varchar(200),
+    referrer_id citext,
+    referrer_connection varchar(600)    
+);
 
+alter table lead_profiles add column twitter citext, add column soundcloud citext, add  column slideshare citext, add  column plus citext, add column pinterest citext, add column facebook citext, add column linkedin citext, add column amazon citext, add column angel citext, add column foursquare citext, add column github citext;
 CREATE TABLE google_maps_results (
     query CITEXT PRIMARY KEY NOT NULL,  
     phone_numbers varchar(20)[],

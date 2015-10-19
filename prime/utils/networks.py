@@ -6,7 +6,7 @@ import scipy.stats as stats
 import datetime
 import joblib
 import re
-
+from consume.get_gender import *
 # pegasos_model = joblib.load("../data/pegasos_model.dump")
 
 # def title_qualifies(title):
@@ -28,7 +28,7 @@ def agent_network(prospects, locales=['New York','Greater New York City Area']):
 		if valid_lead(prospect, locales=locales): new_york_employed.append(prospect)  
 	return new_york_employed
 
-def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geopoint=None):
+def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geopoint=None, associated_emails=None):
 	prospect_schools = None
 	if not lead: return False
 	if isinstance(lead, Prospect):
@@ -44,24 +44,35 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			miles = miles_apart(geopoint, location)
 			if miles>75 or miles is None: 
 				print location + " not local" 	
-				return False		
-		if prospect.current_job is None or (prospect.current_job.end_date and prospect.current_job.end_date < datetime.date.today()): 
+				return False	
+		job = prospect.get_job	
+		if not job: 
 			print "no job " + prospect.url
 			return False
-		if prospect.current_job.company.name in exclude: 
-			print prospect.current_job.company.name + " at the same company " 
+		if job.get("company") in exclude: 
+			print job.get("company") + " at the same company " 
 			return False
-		if prospect.current_job.title and re.search("Intern(,|\s|$)",prospect.current_job.title):
+		if job.get("title") and re.search("Intern(,|\s|$)",job.get("title")):
 			print prospect.current_job.title + " not a real job"
 			return False
 		salary = prospect.get_max_salary
-		if salary>0 and salary < min_salary and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3): 
+		if salary>0 and salary < min_salary and (job.get("start_date") and (datetime.date.today() - job.get("start_date")).days < 365*3): 
 			print str(salary) + " too low for " + prospect.current_job.title 
 			return False	
 		profile = clean_profile(prospect.build_profile)	
-		profile["location"] = location
-		if salary>0: profile["salary"] = salary
+		if not profile.get("url"): 
+			print "url is broken for " + str(profile["id"])
+			return False 	
+		profile["prospect_id"] = profile.get("id")	
 		prospect_schools = [school.name for school in prospect.schools]
+		profile["industry"] = prospect.industry_raw
+		profile["age"] = prospect.age
+		profile["people_links"] = prospect.json.get("people",[]) if prospect.json else []
+		profile["college_grad"] = prospect.has_college_degree
+		if job.get("company_url"):
+			profile["company_url"] = job.get("company_url")
+		if job.get("location"):
+			profile["job_location"] = job.get("location")
 		social_accounts = prospect.social_accounts
 	elif isinstance(lead, FacebookContact):
 		contact = lead
@@ -94,9 +105,11 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			print str(salary) + " too low for " + profile_info.get("job_title")
 			return False
 		profile = clean_profile(contact.build_profile)
-		profile["location"] = location
-		if salary>0: profile["salary"] = salary
+		if not profile.get("url"): 
+			print "url is broken for " + str(profile["id"])
+			return False 		
 		social_accounts = contact.social_accounts
+		profile["facebook_id"] = profile.get("id")
 	elif isinstance(lead, tuple):
 		profile = {}
 		reason = ""
@@ -133,19 +146,19 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude:
 			print profile_info.get("job_company") + " at the same company"
 			return False
-		if prospect.current_job and prospect.current_job.company and prospect.current_job.company.name in exclude: 
-			print prospect.current_job.company.name + " at the same company " 
+		prospect_job = prospect.get_job
+		if prospect_job and prospect_job.get("company") in exclude: 
+			print prospect_job.get("company") + " at the same company " 
 			return False
-		prospect_has_job = prospect.current_job and (prospect.current_job.end_date is None or prospect.current_job.end_date >= datetime.date.today())
-		prospect_salary = prospect.current_job.get_max_salary if prospect.current_job else None
+		prospect_salary = prospect.get_max_salary
 		contact_salary = contact.get_max_salary 
 		contact_has_job = profile_info.get("job_title") and profile_info.get("job_title").find("Former") != 0  and profile_info.get("job_title").find("Worked") != 0
 		salary = max(contact_salary, prospect_salary)
 		if salary < min_salary:
-			if not contact_has_job and not prospect_has_job:
+			if not contact_has_job and not prospect_job:
 				print "no job " + contact.facebook_id + " " + prospect.url
 				return False
-			if salary>0 and (prospect.current_job.start_date and (datetime.date.today() - prospect.current_job.start_date).days < 365*3):
+			if salary>0 and (prospect_job.get("start_date") and (datetime.date.today() - prospect_job.get("start_date")).days < 365*3):
 				if contact_salary: reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title"," ") + " " + profile_info.get("job_company"," ")
 				if prospect_salary: reason += reason +  str(prospect_salary) + " too low for " + prospect.current_job.title
 				print reason	
@@ -157,17 +170,42 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			print prospect.current_job.title + " not a real job"
 			return False				
 		contact_profile = clean_profile(contact.build_profile)
-		if contact_profile.get("job") and contact_profile.get("job").find("Former") == 0: contact_profile.pop("job",None)
+		if contact_profile.get("job_title") and contact_profile.get("job_title").find("Former") == 0: contact_profile.pop("job_title",None)
 		prospect_profile = clean_profile(prospect.build_profile)
 		if contact_profile.get("image_url") and prospect_profile.get("image_url"): contact_profile.pop("image_url",None)
+		if not profile.get("url"): 
+			print "url is broken for " + str(profile["id"])
+			return False 		
 		social_accounts = list(set(contact.social_accounts + prospect.social_accounts))
 		profile.update(contact_profile)
 		profile.update(prospect_profile)
-		profile["location"] = location
-		if salary>0: profile["salary"] = salary
 		prospect_schools = [school.name for school in prospect.schools]
+		profile["prospect_id"] = prospect_profile.get("id")
+		profile["facebook_id"] = contact_profile.get("id")
+		profile["industry"] = prospect.industry_raw
+		profile["age"] = prospect.age
+		profile["people_links"] = prospect.json.get("people",[]) if prospect.json else []
+		profile["college_grad"] = prospect.has_college_degree
+		if prospect_job and prospect_job.get("company_url"):
+			profile["company_url"] = prospect_job.get("company_url")
+		if job.get("location"):
+			profile["job_location"] = job.get("location")
+	firstname = get_firstname(profile["name"])
+	is_male = get_gender(firstname)
+	if is_male is None: profile["gender"] = "Unknown"
+	elif is_male: profile["gender"] = "Male"
+	else: profile["gender"] = "Female"
 
-	if salary is None or salary == -1: salary = 0
+	profile["location"] = location
+	profile["salary"] = salary
+	profile["mailto"] = get_mailto(profile)
+
+	if salary:
+		wealth_percentile = get_salary_percentile(salary)
+		if wealth_percentile: 
+			profile["wealthscore"] = wealth_percentile
+	else:
+		salary = 0
 	n_social_accounts = len(social_accounts)
 	score = n_social_accounts + salary/30000 
 	amazon = get_specific_url(social_accounts, type="amazon.com")
@@ -179,9 +217,12 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 	if not profile.get("school") and prospect_schools: 
 		common_schools = set(prospect_schools) & set(schools)
 		if common_schools:
-			profile["school"] = common_schools.pop()
+			profile["common_school"] = common_schools.pop()
 			score+=1
-	if profile.get("job") and profile.get("job").find("Financial") > -1: score-=4
+	if profile.get("job_title") and profile.get("job_title").find("Financial") > -1: score-=4
+	if associated_emails:
+		score+=(len(associated_emails)*2)
+		if 'linkedin' in associated_emails: score+=6
 	profile.update({"leadscore":score})
 	return profile
 
@@ -198,8 +239,8 @@ def collegeGrad(prospect):
 
 def link_exists(url):
 	try:
-		response = requests.head(url,headers=headers)
-		if response.status_code != 200: return False	
+		response = requests.head(url,headers=headers, timeout=1.5)
+		if response.status_code == 404: return False	
 	except:	return False
 	return True
 
@@ -211,8 +252,8 @@ def clean_profile(profile):
 			clean.pop(key,None)
 			continue
 		if not isinstance(value, basestring): continue
-		if value.find("http") == 0:
-			if not link_exists(value): clean.pop(key,None)	
+		# if value.find("http") == 0:
+		# 	if not link_exists(value): clean.pop(key,None)	
 	return clean
 
 def leadScore(prospect):
@@ -349,112 +390,114 @@ def facebook_to_linkedin_from_urls(facebook_contacts, urls_xwalk):
 			if found_match: break
 	return facebook_to_linkedin
 
-def get_phone_number(profile, liscraper):
-	if profile.get("phone"): return profile.get("phone")
-	li = None
-	if profile.get("linkedin"): li = from_url(profile.get("linkedin"))
-	phone = ""
-	headquarters = ""
-	website = ""
-	mapquest_coordinates = ""
-	mapquest = ""
-	company_name = ""
-	li_company = None
-	location = ""
-	if li:
-		if li.current_job:
-			li_company = li.current_job.linkedin_company
-			if not li_company and li.current_job.company:
-				results = search_linkedin_companies(li.current_job.company.name)
-				if results: 
-					company_url = results[0]
-					li_company = company_from_url(company_url)
-		location = li.current_job.location if li.current_job and li.current_job.location else li.location_raw
-	else: 
-		results = search_linkedin_companies(profile.get("company"))
-		if results: 
-			company_url = results[0]
-			li_company = company_from_url(company_url)		
-		fbcontact = session.query(FacebookContact).get(profile.get("facebook").split("/")[-1])
-		location = fbcontact.get_location
-	company_name = li_company.name if li_company else profile.get("company")
-	if li_company:
-		if li_company.website: website = li_company.website.replace("https://","").replace("http://","").split("/")[0]
-		if li_company.headquarters: headquarters = li_company.headquarters.replace("\n"," ")	
-	if location:
-		mapquest = get_mapquest_coordinates(location)
-		if mapquest and mapquest.get("latlng_result",{}).get("name"): mapquest_coordinates = mapquest.get("latlng_result",{}).get("name")
-	queries = ["+".join([company_name,mapquest_coordinates])]
-	if website: queries = ["+".join([website, company_name, mapquest_coordinates]),"+".join([website,mapquest_coordinates])] + queries + ["+".join([website,company_name,headquarters]),"+".join([website,headquarters]),"+".join([company_name,headquarters]),"+".join([website, company_name]),website] 
-	for q in queries:
-		if q.endswith("+") or q.startswith("+"): 
-			continue
-		google_results = get_google_results(liscraper, q)	
-		if google_results.phone_numbers and len(set(google_results.phone_numbers))==1 and len(set(google_results.plus_links))==1: 
-			phone = google_results.phone_numbers[0]
-			#print query
-			return phone
-		elif len(google_results.phone_numbers)==len(google_results.plus_links):
-			for k in xrange(0, len(google_results.plus_links)):
-				plus_link = google_results.plus_links[k]
-				bing_results = query("", site="%22" + plus_link + "%22").results
-				if not bing_results: continue
-				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
-				if name_match(bing_title, company_name):
-					phone = google_results.phone_numbers[k]
-					#print company_name + " " + plus_link
-					#break
-					return phone
-		else: 
-			for k in xrange(0, len(google_results.plus_links)):
-				plus_link = google_results.plus_links[k]
-				bing_results = query("", site="%22" + plus_link + "%22").results
-				if not bing_results: continue
-				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
-				if name_match(bing_title, company_name):
-					response = requests.get(plus_link, headers=headers)
-					source = response.content
-					# try:
-					# 	liscraper.driver.get(plus_link)
-					# except:
-					# 	liscraper.login()
-					# 	liscraper.driver.get(plus_link)
-					# source = liscraper.driver.page_source
-					phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)
-					if phone_numbers: return phone_numbers[0]
-	if li_company:
-		clearbit_response = li_company.get_clearbit_response
-		if clearbit_response: 
-			phone = clearbit_response.get("phone")	
-			if phone: return phone
-	if li:
-		pipl_json = li.get_pipl_response
-		if pipl_json: 
-			pipl_valid_recs = []
-			for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-				if not record.get('@query_params_match',True): continue
-				pipl_valid_recs.append(record)
-			pipl_json_str = json.dumps(pipl_valid_recs)
-			if re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str):
-				phone = re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str).group(0)
-				#print li.url	
-				return phone
-	return phone
+# def get_phone_number(profile, liscraper):
+# 	if profile.get("phone"): return profile.get("phone")
+# 	li = None
+# 	if profile.get("linkedin"): li = from_url(profile.get("linkedin"))
+# 	phone = ""
+# 	headquarters = ""
+# 	website = ""
+# 	mapquest_coordinates = ""
+# 	mapquest = ""
+# 	company_name = ""
+# 	li_company = None
+# 	location = ""
+# 	if li:
+# 		if li.current_job:
+# 			li_company = li.current_job.linkedin_company
+# 			if not li_company and li.current_job.company:
+# 				results = search_linkedin_companies(li.current_job.company.name)
+# 				if results: 
+# 					company_url = results[0]
+# 					li_company = company_from_url(company_url)
+# 		location = li.current_job.location if li.current_job and li.current_job.location else li.location_raw
+# 	else: 
+# 		results = search_linkedin_companies(profile.get("company_name"))
+# 		if results: 
+# 			company_url = results[0]
+# 			li_company = company_from_url(company_url)		
+# 		fbcontact = session.query(FacebookContact).get(profile.get("facebook").split("/")[-1])
+# 		location = fbcontact.get_location
+# 	company_name = li_company.name if li_company else profile.get("company_name")
+# 	if li_company:
+# 		if li_company.website: website = li_company.website.replace("https://","").replace("http://","").split("/")[0]
+# 		if li_company.headquarters: headquarters = li_company.headquarters.replace("\n"," ")	
+# 	if location:
+# 		mapquest = get_mapquest_coordinates(location)
+# 		if mapquest and mapquest.get("latlng_result",{}).get("name"): mapquest_coordinates = mapquest.get("latlng_result",{}).get("name")
+# 	queries = ["+".join([company_name,mapquest_coordinates])]
+# 	if website: queries = ["+".join([website, company_name, mapquest_coordinates]),"+".join([website,mapquest_coordinates])] + queries + ["+".join([website,company_name,headquarters]),"+".join([website,headquarters]),"+".join([company_name,headquarters]),"+".join([website, company_name]),website] 
+# 	for q in queries:
+# 		if q.endswith("+") or q.startswith("+"): 
+# 			continue
+# 		google_results = get_google_results(liscraper, q)	
+# 		if google_results.phone_numbers and len(set(google_results.phone_numbers))==1 and len(set(google_results.plus_links))==1: 
+# 			phone = google_results.phone_numbers[0]
+# 			#print query
+# 			return phone
+# 		elif len(google_results.phone_numbers)==len(google_results.plus_links):
+# 			for k in xrange(0, len(google_results.plus_links)):
+# 				plus_link = google_results.plus_links[k]
+# 				bing_results = query("", site="%22" + plus_link + "%22").results
+# 				if not bing_results: continue
+# 				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
+# 				if name_match(bing_title, company_name):
+# 					phone = google_results.phone_numbers[k]
+# 					#print company_name + " " + plus_link
+# 					#break
+# 					return phone
+# 		else: 
+# 			for k in xrange(0, len(google_results.plus_links)):
+# 				plus_link = google_results.plus_links[k]
+# 				bing_results = query("", site="%22" + plus_link + "%22").results
+# 				if not bing_results: continue
+# 				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
+# 				if name_match(bing_title, company_name):
+# 					response = requests.get(plus_link, headers=headers)
+# 					source = response.content
+# 					# try:
+# 					# 	liscraper.driver.get(plus_link)
+# 					# except:
+# 					# 	liscraper.login()
+# 					# 	liscraper.driver.get(plus_link)
+# 					# source = liscraper.driver.page_source
+# 					phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)
+# 					if phone_numbers: return phone_numbers[0]
+# 	if li_company:
+# 		clearbit_response = li_company.get_clearbit_response
+# 		if clearbit_response: 
+# 			phone = clearbit_response.get("phone")	
+# 			if phone: return phone
+# 	if li:
+# 		pipl_json = li.get_pipl_response
+# 		if pipl_json: 
+# 			pipl_valid_recs = []
+# 			for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
+# 				if not record.get('@query_params_match',True): continue
+# 				pipl_valid_recs.append(record)
+# 			pipl_json_str = json.dumps(pipl_valid_recs)
+# 			if re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str):
+# 				phone = re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str).group(0)
+# 				#print li.url	
+# 				return phone
+# 	return phone
 
 def get_mailto(profile):
 	if profile.get("mailto"): return profile.get("mailto")
+	id = profile.get("id")
 	all_emails = set()
-	if profile.get("linkedin"): 
-		li = from_url(profile.get("linkedin"))
+	if isinstance(id, int): 
+		li = from_prospect_id(id)
 		if li: 
-			emails = get_pipl_emails(li.get_pipl_response)
+			emails = li.email_accounts
 			if emails: all_emails.update(emails)
-	if profile.get("facebook"): 
-		fb = session.query(FacebookContact).get(profile.get("facebook").split("/")[-1])
+	else:
+		fb = session.query(FacebookContact).get(id)
 		if fb: 
 			emails = get_pipl_emails(fb.get_pipl_response)
 			if emails: all_emails.update(emails)	
 	if all_emails:
+		all_emails = [x for x in all_emails if not x.endswith("@facebook.com")]
 		mailto = 'mailto:' + ",".join(list(all_emails))	
 		return mailto
 	return None		

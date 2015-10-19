@@ -24,6 +24,10 @@ from consume.api_consumer import *
 from requests import HTTPError
 import unirest 
 from random import shuffle
+from geoalchemy2 import Geometry
+# from consume.linkedin_friend import *
+# from prime.utils.geocode import get_google_results, get_mapquest_coordinates
+#liscraper = LinkedinFriend()
 
 bucket = get_bucket('facebook-profiles')
 
@@ -44,7 +48,7 @@ def uu(str):
 
 class Prospect(db.Model):
     __tablename__ = 'prospect'
-
+    __table_args__ = {'extend_existing':True}
     id = db.Column(Integer, primary_key=True)
 
     url = db.Column(String(1024), index=True)
@@ -71,6 +75,8 @@ class Prospect(db.Model):
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
 
+    all_email_addresses = db.Column(ARRAY(CIText()))
+
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
         (ret, ) = session.query(exists().where(
@@ -90,9 +96,30 @@ class Prospect(db.Model):
         return "/prospect/{}".format(self.id)
 
     @property 
+    def get_indeed_salary(self):
+        if self.current_job: 
+            return self.current_job.get_indeed_salary
+        job = self.get_job
+        if not job:
+            return None
+        salary = get_indeed_salary(job.get("title"), location=job.get("location"))
+        return salary
+
+    @property 
+    def get_glassdoor_salary(self):
+        if self.current_job: 
+            return self.current_job.get_glassdoor_salary     
+        job = self.get_job
+        if not job:
+            return None
+        salary = get_glassdoor_salary(job.get("title"))
+        return salary
+
+    @property 
     def get_max_salary(self):
-        if not self.current_job: return None
-        return self.current_job.get_max_salary
+        if self.current_job: 
+            return self.current_job.get_max_salary           
+        return max(self.get_glassdoor_salary, self.get_indeed_salary)
 
     @property
     def current_job(self):
@@ -211,6 +238,11 @@ class Prospect(db.Model):
     @property
     def social_accounts(self):
         s = []
+        for email in self.email_accounts:
+            ec = get_or_create(session,EmailContact,email=email)
+            for link in ec.social_accounts:
+                if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
+                s.append(link)                  
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
 
@@ -230,8 +262,16 @@ class Prospect(db.Model):
 
     @property
     def email_accounts(self):
+        if self.all_email_addresses:
+            emails = "".join(self.all_email_addresses).replace("}","").replace("{","").split(",")
+            return [x for x in emails if not x.endswith("@facebook.com")]
         pipl_response = self.get_pipl_response
-        return get_pipl_emails(pipl_response)
+        emails = get_pipl_emails(pipl_response)
+        if emails:
+            self.all_email_addresses = emails
+            session.add(self)
+            session.commit()
+        return emails
 
     @property
     def email_contacts(self):
@@ -342,13 +382,41 @@ class Prospect(db.Model):
             #data["news"] =  self.relevant_content
         return data
 
+
+    @property 
+    def get_job(self):
+        job = {}
+        if self.current_job and (not self.current_job.end_date or self.current_job.end_date >= datetime.date.today()):
+            if self.current_job.title: 
+                job["title"] = self.current_job.title
+            if self.current_job.company and self.current_job.company.name: 
+                job["company"] = self.current_job.company.name
+            if self.current_job.start_date: 
+                job["start_date"] = self.current_job.start_date
+            if self.current_job.end_date: 
+                job["end_date"] = self.current_job.end_date       
+            if self.current_job.location: 
+                job["location"] = self.current_job.location     
+            if self.current_job.linkedin_company:
+                job["company_url"] = "https://www.linkedin.com/company/" + str(self.current_job.linkedin_company.id)        
+            return job
+        for email in self.email_accounts:
+            ec = session.query(EmailContact).get(email)
+            if ec and (ec.company or ec.job_title): 
+                if ec.company:
+                    job["company"] = ec.company
+                if ec.job_title:
+                    job["title"] = ec.job_title
+                return job
+        return job
+     
     @property 
     def build_profile(self):
         image_url = self.image_url
         if not image_url:
             other_images = get_pipl_images(self.get_pipl_response)
             if len(other_images): image_url = other_images[0]
-        profile = {"id":self.id, "name":self.name, "job": self.current_job.title if self.current_job and self.current_job.company else None, "company":self.current_job.company.name if self.current_job and self.current_job.company else None, "image_url":  image_url, "url":self.url, "linkedin": self.url}
+        profile = {"id":self.id, "name":self.name, "job_title": self.get_job.get("title"), "company_name":self.get_job.get("company"), "image_url":  image_url, "url":self.url, "linkedin": self.url}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
@@ -873,7 +941,7 @@ class FacebookContact(db.Model):
             if len(other_images): image_url = other_images[0]        
         company = profile_info.get("job_company","").split("Past:")[0]
         facebook_url = "https://www.facebook.com/" + self.facebook_id
-        profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job": profile_info.get("job_title"), "company":company, "image_url": image_url, "url":facebook_url, "facebook":facebook_url, "school": profile_info.get("school_name"), "degree": profile_info.get("school_major")}
+        profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job_title": profile_info.get("job_title"), "company_name":company, "image_url": image_url, "url":facebook_url, "facebook":facebook_url, "school": profile_info.get("school_name"), "degree": profile_info.get("school_major")}
         for link in self.social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
@@ -889,6 +957,8 @@ class EmailContact(db.Model):
     fullcontact_response = db.Column(JSON)
     clearbit_response = db.Column(JSON)
     emailsherlock_urls = db.Column(ARRAY(CIText()))
+    job_title = db.Column(String(200))
+    company = db.Column(String(200))
 
     def __repr__(self):
         return '<email ={0} linkedin_url={1}>'.format(
@@ -1040,8 +1110,118 @@ class Agent(db.Model):
     geolocation = db.Column(CIText())
     public_url = db.Column(CIText())
     first_name = db.Column(CIText())
-    email_contacts_from_email = db.Column(ARRAY(CIText()))
-    email_contacts_from_linkedin = db.Column(ARRAY(CIText()))
+    email_contacts_from_email = db.Column(JSON)
+    email_contacts_from_linkedin = db.Column(JSON)
+    linkedin_urls = db.Column(JSON)
+    prospect_ids = db.Column(JSON)
+    average_age = db.Column(Float) 
+    average_wealth_score = db.Column(Float) 
+    pct_college = db.Column(Float) 
+    pct_male = db.Column(Float) 
+    pct_female = db.Column(Float) 
+    industries = db.Column(JSON) 
+    schools = db.Column(JSON) 
+    qualified_leads= db.Column(Integer) 
+    extended_leads  =db.Column(Integer) 
+
+    @property 
+    def compute_stats(self):
+        contact_profiles = session.query(LeadProfile).filter(LeadProfile.agent_id==self.email).all() 
+        industries = {}
+        schools = {}
+        if len(contact_profiles) ==0 : return 
+        n_degree = 0
+        n_wealth = 0
+        wealth_tot = 0
+        n_age = 0
+        age_tot = 0
+        n_male = 0
+        n_female = 0
+        self.qualified_leads = 0
+        self.extended_leads = 0
+        for profile in contact_profiles:
+            if profile.extended:
+                self.extended_leads+=1
+                continue
+            self.qualified_leads+=1
+            if profile.wealthscore: 
+                n_wealth+=1
+                wealth_tot+=profile.wealthscore 
+            if profile.age:
+                n_age+=1
+                age_tot+=profile.age    
+            if profile.college_grad:
+                n_degree+=1
+            if profile.gender:
+                if profile.gender=='Male':
+                    n_male+=1
+                elif profile.gender=='Female':
+                    n_female+=1
+            if profile.common_school:
+                count = schools.get(profile.common_school,0)
+                schools[profile.common_school] = count+1   
+            if profile.industry:
+                count = industries.get(profile.industry,0)
+                industries[profile.industry] = count+1                   
+        self.average_age = float(age_tot)/float(n_age)
+        self.average_wealth_score = float(wealth_tot)/float(n_wealth)
+        self.pct_college = float(n_degree)/float(self.qualified_leads)
+        self.pct_male = float(n_male)/float(n_male+n_female)
+        self.pct_female = float(n_female)/float(n_male+n_female)
+        self.industries = industries
+        self.schools = schools
+        session.add(self)
+        session.commit()
+
+    
+
+class LeadProfile(db.Model):
+    __tablename__ = "lead_profiles"
+    id = db.Column(CIText(), primary_key=True)
+    agent_id = db.Column(CIText(), ForeignKey("agent.email"), primary_key=True)
+    agent = relationship('Agent', foreign_keys='LeadProfile.agent_id')    
+    facebook_id = db.Column(CIText(), ForeignKey("facebook_contacts.facebook_id"), index=True)
+    contact = relationship('FacebookContact', foreign_keys='LeadProfile.facebook_id')
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
+    prospect = relationship('Prospect', foreign_keys='LeadProfile.prospect_id')
+    salary = db.Column(Integer)
+    age = db.Column(Float)
+    wealthscore = db.Column(Integer)
+    leadscore = db.Column(Integer)
+    mailto = db.Column(CIText())
+    friend_prospect_ids = db.Column(JSON)
+    people_links = db.Column(JSON)
+    name = db.Column(String(200))
+    twitter = db.Column(CIText())
+    soundcloud = db.Column(CIText())
+    slideshare = db.Column(CIText())
+    plus = db.Column(CIText())
+    pinterest = db.Column(CIText())
+    facebook = db.Column(CIText())
+    linkedin = db.Column(CIText())
+    amazon= db.Column(CIText())
+    angel= db.Column(CIText())
+    foursquare= db.Column(CIText())
+    github= db.Column(CIText())
+    url = db.Column(CIText())
+    location = db.Column(String(200))
+    industry = db.Column(String(200))
+    job_title = db.Column(String(200))
+    job_location = db.Column(String(200))
+    company_name = db.Column(String(200))
+    company_url = db.Column(CIText())
+    company_website = db.Column(CIText())
+    company_headquarters = db.Column(String(500))
+    phone = db.Column(CIText())
+    image_url = db.Column(CIText())
+    gender = db.Column(String(15))
+    college_grad = db.Column(Boolean)
+    common_school = db.Column(String(200))
+    extended = db.Column(Boolean)
+    referrer_url =db.Column(CIText())
+    referrer_name =db.Column(String(200))
+    referrer_id = db.Column(CIText())
+    referrer_connection =db.Column(String(600))
 
 class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"
@@ -1051,6 +1231,16 @@ class CloudspongeRecord(db.Model):
     contacts_owner = db.Column(JSON)
     contact = db.Column(JSON)
     service = db.Column(CIText())
+
+    @property
+    def get_job_title(self):
+        return self.contact.get("job_title")
+
+    @property
+    def get_company(self):
+        if self.contact.get("companies"):
+            return self.contact.get("companies")[0]
+        return None
 
     @property
     def get_emails(self):
