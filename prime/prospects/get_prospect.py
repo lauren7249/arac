@@ -128,7 +128,7 @@ def from_url(url, session=session):
 		if prospect:
 			session.add(ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))
 			session.commit()
-		return prospect
+			return prospect
 	prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(s3_key=url.replace("/", "")).first()
 	if prospect: 
 		session.add(ProspectUrl(url=url, linkedin_id=prospect.linkedin_id))

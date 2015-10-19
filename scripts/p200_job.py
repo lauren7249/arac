@@ -128,8 +128,6 @@ for prospect_id in agent.prospect_ids.keys():
 
 contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==user_email,not_(LeadProfile.extended.is_(True)))).all() 
 
-augment_company_info(contact_profiles)
-
 extended_urls = set()
 for profile in contact_profiles:
 	urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)
@@ -171,6 +169,6 @@ for profile in contact_profiles:
 		session.add(extended_lead)
 		session.commit()		
 
-extended_contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==user_email,LeadProfile.extended.is_(True))).all() 
-augment_company_info(extended_contact_profiles)
+contact_profiles = session.query(LeadProfile).filter(LeadProfile.agent_id==user_email).all() 
+augment_company_info(contact_profiles)
 agent.compute_stats

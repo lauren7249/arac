@@ -10,6 +10,7 @@ import itertools
 import operator
 from prime.prospects.models import MapquestGeocodes, get_or_create, session, GoogleMapsSearch
 from consume.linkedin_friend import LinkedinFriend
+import time
 
 def parse_out(text, startTag, endTag):
 	region = ""
@@ -62,13 +63,25 @@ def get_google_results(liscraper, query):
 	rec = session.query(GoogleMapsSearch).get(query)
 	if rec: return rec
 	rec = GoogleMapsSearch(query=query)
-	if not liscraper.is_logged_in: liscraper.login()
-	try:
-		liscraper.driver.get("https://www.google.com/maps/search/" + query)
-	except:
-		liscraper = LinkedinFriend()
-		liscraper.driver.get("https://www.google.com/maps/search/" + query)
-	source = liscraper.driver.page_source
+	url = "https://www.google.com/maps/search/" + query
+	if liscraper:
+		if not liscraper.is_logged_in: liscraper.login()
+		try:
+			liscraper.driver.get(url)
+		except:
+			try:
+				liscraper = LinkedinFriend()
+				liscraper.driver.get(url)
+				source = liscraper.driver.page_source
+			except:
+				return None
+	else:
+		time.sleep(1)
+		response = requests.get(url, headers=headers)
+		if response.status_code != 200: 
+			return None
+		source = response.content
+
 	phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)
 	google_links = re.findall('https://plus.google.com/[0-9A-Za-z]+/',source)
 	rec.phone_numbers = phone_numbers
