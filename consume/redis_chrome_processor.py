@@ -57,61 +57,63 @@ def record_bad(url, user_id, ip):
 
 if __name__=="__main__":
 	while True:
-		url = r.spop("chrome_uploads")
-		if url:
-			fn = url_to_s3_key(url)
-			user_id = r.hget("chrome_uploads_users",url)
-			ip = r.hget("chrome_uploads_ips",url)
-			content = process_url(fn)
-			if not content: 
-				record_bad(url, user_id, ip)
-				continue
-			if re.search(profile_re,url): 
-				info = parse_html(content)
-				if info.get("success") :
-					if info.get("complete"):
+		try:
+			url = r.spop("chrome_uploads")
+			if url:
+				fn = url_to_s3_key(url)
+				user_id = r.hget("chrome_uploads_users",url)
+				ip = r.hget("chrome_uploads_ips",url)
+				content = process_url(fn)
+				if not content: 
+					record_bad(url, user_id, ip)
+					continue
+				if re.search(profile_re,url): 
+					info = parse_html(content)
+					if info.get("success") :
+						if info.get("complete"):
+							info["source_url"] = url
+							new_prospect = insert_linkedin_profile(info, session)    			
+							if not new_prospect: 
+								record_bad(url, user_id, ip)
+							else:
+								r.hincrby("chrome_uploads_successes",user_id,1)
+								r.hincrby("chrome_uploads_successes",ip,1)
+						else:
+							old_prospect = from_url(url)
+							if old_prospect and old_prospect.image_url is None and info.get("image"):
+								old_prospect.image_url = info.get("image")
+								session.add(old_prospect)
+								session.commit()
+								r.hincrby("chrome_uploads_successes",user_id,1)
+								r.hincrby("chrome_uploads_successes",ip,1)
+							else:
+								record_bad(url, user_id, ip)
+					else:
+						record_bad(url, user_id, ip)
+				elif re.search(company_re,url): 
+					info = parse_company(content)
+					if info and info.get("id") :
 						info["source_url"] = url
-						new_prospect = insert_linkedin_profile(info, session)    			
-						if not new_prospect: 
+						company_id = insert_linkedin_company(info, session)    			
+						if not company_id: 
 							record_bad(url, user_id, ip)
 						else:
 							r.hincrby("chrome_uploads_successes",user_id,1)
 							r.hincrby("chrome_uploads_successes",ip,1)
 					else:
-						old_prospect = from_url(url)
-						if old_prospect and old_prospect.image_url is None and info.get("image"):
-							old_prospect.image_url = info.get("image")
-							session.add(old_prospect)
-							session.commit()
-							r.hincrby("chrome_uploads_successes",user_id,1)
-							r.hincrby("chrome_uploads_successes",ip,1)
-						else:
-							record_bad(url, user_id, ip)
-				else:
-					record_bad(url, user_id, ip)
-			elif re.search(company_re,url): 
-				info = parse_company(content)
-				if info and info.get("id") :
-					info["source_url"] = url
-					company_id = insert_linkedin_company(info, session)    			
-					if not company_id: 
+						record_bad(url, user_id, ip)				
+				elif url.find("google.com"):
+					if not page_is_good(content, google_xpaths): 
 						record_bad(url, user_id, ip)
 					else:
 						r.hincrby("chrome_uploads_successes",user_id,1)
 						r.hincrby("chrome_uploads_successes",ip,1)
-				else:
-					record_bad(url, user_id, ip)				
-			elif url.find("google.com"):
-				if not page_is_good(content, google_xpaths): 
-					record_bad(url, user_id, ip)
-				else:
-					r.hincrby("chrome_uploads_successes",user_id,1)
-					r.hincrby("chrome_uploads_successes",ip,1)
-			elif url.find("facebook.com"):
-				if not page_is_good(content, facebook_xpaths): 
-					record_bad(url, user_id, ip)
-				else:
-					r.hincrby("chrome_uploads_successes",user_id,1)
-					r.hincrby("chrome_uploads_successes",ip,1)
-		else: time.sleep(2)
-
+				elif url.find("facebook.com"):
+					if not page_is_good(content, facebook_xpaths): 
+						record_bad(url, user_id, ip)
+					else:
+						r.hincrby("chrome_uploads_successes",user_id,1)
+						r.hincrby("chrome_uploads_successes",ip,1)
+			else: time.sleep(2)
+		except:
+			pass
