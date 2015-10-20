@@ -12,7 +12,7 @@ from consume.get_gender import *
 from consume.api_consumer import *
 from consume.linkedin_friend import *
 
-industry_icons = pandas.read_csv('/Users/lauren/Documents/bash/industry_icons.csv', index_col='Industry').Icon.to_dict()
+industry_icons = pandas.read_csv('p200_templates/industry_icons.csv', index_col='Industry').Icon.to_dict()
 
 client_linkedin_id = '67910358'
 client_facebook_id = 'jake.rocchi'

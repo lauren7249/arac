@@ -1,0 +1,229 @@
+@import "compass/css3";
+
+$lato: "Lato" sans-serif;
+
+div.clear {
+  clear: both;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #fff;
+  color: #232523;
+  font-family: "Lato" sans-serif;
+}
+
+div.signup {
+  padding: 40px;
+  width: 400px;
+  margin: 20px auto;
+  text-align: center;
+
+  div.logo {
+    width: 150px;
+    margin: 0 auto 15px;
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  input {
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  button {
+    font-size: 20px;
+    margin-left: 0 !important;
+    margin: 20px auto 0;
+    width: 80%;
+  }
+}
+
+input[type='text'],[type='password'] {
+  display: block;
+  width: 100%;
+  height: 24px;
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+h2 {
+  color:#333456;
+  font-size: 35px;
+}
+
+div.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  display: none;
+}
+
+div.modal {
+  background: #fff;
+  width: 600px;
+  background: #fff;
+  display: none;
+  @include border-radius(4px);
+  border: 1px solid #000;
+  margin: 20px auto;
+  position: relative;
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  ol {
+    li {
+      font-size: 25px;
+      font-weight: 100;
+      padding: 10px;
+      text-transform: uppercase;
+
+      a {
+        color: #222;
+        text-decoration: none;
+
+        i {
+          margin-right: 15px;
+          color: #0182C6;
+        }
+      }
+    }
+  }
+}
+
+div.email  {
+  padding: 30px;
+}
+
+div.wrapper {
+  width: 960px;
+  position: relative;
+  margin: 0 auto;
+}
+
+header {
+  height: 88px;
+
+  img {
+    width: 100px;
+    float: left;
+  }
+
+  h2 {
+    font-size: 30px;
+    float: left;
+  }
+
+  button.button {
+    margin-top: 30px;
+    float: right;
+    font-size: 15px;
+    margin-left: 5px;
+  }
+}
+
+div.graphs {
+  float: left;
+  width: 50%;
+
+  h3 {
+    font-size: 25px;
+
+    span {
+      color: orange;
+    }
+  }
+
+  div.graph {
+    width: 50%;
+    float: left;
+
+    canvas {
+      width: 100%;
+    }
+
+    h4 {
+      font-size: 18px;
+      color: #0182C6;
+      text-align: center;
+    }
+  }
+
+  div.big-graph {
+    width: 80%;
+    margin: 0 auto;
+
+    canvas {
+      width: 100%;
+    }
+  }
+}
+
+div.network-stats {
+  padding-bottom: 40px;
+
+  h3 {
+    font-size: 25px;
+
+    span {
+      color: orange;
+    }
+  }
+
+  table {
+    border: 0;
+    width: 100%;
+
+    td {
+      border: 0;
+      border-top: 1px solid #efefef;
+      padding: 10px;
+      color: #232523;
+
+      h3 {
+        color: #0182C6;
+        margin: 0 0 5px;
+      }
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  a {
+      text-decoration: none;
+
+    button#main {
+      float: none;
+      display: block;
+      margin: 20px auto;
+      font-size: 30px;
+
+    }
+  }
+}

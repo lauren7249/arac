@@ -6,8 +6,9 @@ from prime.prospects.get_prospect import get_session, from_url
 from prime.utils.geocode import *
 from prime.utils.networks import *
 from prime.utils import bing
-from sqlalchemy.sql.expression import true
 from sqlalchemy import and_, not_
+from prime.utils.company_info import *
+
 # if  __name__=="__main__":
 	
 user_email = 'laurentracytalbot@gmail.com'
@@ -60,7 +61,7 @@ for email in unique_emails.keys():
 			ec.job_title = info.get("job_title")
 			ec.company = info.get("company")
 			session.add(ec)
-			session.commit()			
+			session.commit()	
 		url = ec.get_linkedin_url
 	except:
 		#pass
@@ -95,7 +96,7 @@ prospect_ids = {}
 for url in agent.linkedin_urls:
 	contact = from_url(url)
 	if not contact: continue
-	urls_associated_emails = linkedin_urls.get(url,[])
+	urls_associated_emails = agent.linkedin_urls.get(url,[])
 	prospects_associated_emails = prospect_ids.get(contact.id,[])
 	associated_emails = list(set(urls_associated_emails+prospects_associated_emails))
 	prospect_ids[contact.id] = associated_emails
@@ -171,4 +172,11 @@ for profile in contact_profiles:
 
 contact_profiles = session.query(LeadProfile).filter(LeadProfile.agent_id==user_email).all() 
 augment_company_info(contact_profiles)
-agent.compute_stats
+
+for profile in contact_profiles:
+	get_phone_number(profile, None)
+
+agent.create_visual
+
+
+	

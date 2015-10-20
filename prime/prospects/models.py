@@ -4,6 +4,8 @@ import datetime
 import json
 import requests
 import lxml.html
+import pandas
+import shutil
 import os, re, json, numpy
 from prime.utils import headers, get_bucket
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
@@ -24,12 +26,17 @@ from consume.api_consumer import *
 from requests import HTTPError
 import unirest 
 from random import shuffle
-from geoalchemy2 import Geometry
+from sqlalchemy import and_, not_
+import os
+import scipy.stats as stats
+
 # from consume.linkedin_friend import *
 # from prime.utils.geocode import get_google_results, get_mapquest_coordinates
 #liscraper = LinkedinFriend()
 
 bucket = get_bucket('facebook-profiles')
+industry_category = pandas.read_csv('p200_templates/industries.csv', index_col='Industry', sep="\t").Category.to_dict()
+category_icon = pandas.read_csv('p200_templates/industry_icons.csv', index_col='Category', sep=",").Icon.to_dict()
 
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
@@ -75,7 +82,7 @@ class Prospect(db.Model):
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
 
-    all_email_addresses = db.Column(ARRAY(CIText()))
+    all_email_addresses = db.Column(JSON)
 
     @classmethod
     def linkedin_exists(cls, session, linkedin_id):
@@ -282,7 +289,7 @@ class Prospect(db.Model):
     @property
     def email_accounts(self):
         if self.all_email_addresses:
-            emails = "".join(self.all_email_addresses).replace("}","").replace("{","").split(",")
+            emails = self.all_email_addresses
             return [x for x in emails if not x.endswith("@facebook.com")]
         pipl_response = self.get_pipl_contact_response
         emails = get_pipl_emails(pipl_response)
@@ -1003,15 +1010,30 @@ class EmailContact(db.Model):
 
     @property 
     def get_clearbit_response(self):
-        if self.clearbit_response: return self.clearbit_response
+        if self.clearbit_response: 
+            return self.clearbit_response
         try:
             person = clearbit.Person.find(email=self.email, stream=True)
         except HTTPError as e:
             person = {"ERROR": e.strerror}
+        if person is None:
+            print self.email + " returned None for clearbit"
+            return {}
         self.clearbit_response = person
         session.add(self)
         session.commit()
         return self.clearbit_response
+
+    @property
+    def get_images(self) :
+        images = get_pipl_images(self.get_pipl_response) 
+        if self.get_clearbit_response.get("avatar"):
+            images.append(self.get_clearbit_response.get("avatar"))
+        if self.get_vibe_response.get("extra_pictures"):
+            images = images + self.get_vibe_response.get("extra_pictures")
+        if self.get_vibe_response.get("profile_picture"):
+            images.append(self.get_vibe_response.get("profile_picture")) 
+        return list(set(images))
 
     @property
     def get_pipl_response(self) :
@@ -1036,7 +1058,8 @@ class EmailContact(db.Model):
         content = {}
         if self.vibe_response and self.vibe_response.get("status") !="Rate Limit Overrage": 
             return self.vibe_response      
-        for vibe_api_key in shuffle(vibe_api_keys):
+        shuffle(vibe_api_keys)
+        for vibe_api_key in vibe_api_keys:
             try:
                 vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="                
                 url = vibe_url + self.email
@@ -1144,6 +1167,22 @@ class Agent(db.Model):
     schools = db.Column(JSON) 
     qualified_leads= db.Column(Integer) 
     extended_leads  =db.Column(Integer) 
+    leads_json  =db.Column(JSON) 
+    extended_leads_json  =db.Column(JSON) 
+
+    @staticmethod
+    def compute_stars(contact_profiles):
+        all_scores = [profile.get("leadscore") for profile in contact_profiles]
+        for i in range(len(contact_profiles)):
+            profile = contact_profiles[i]
+            percentile = stats.percentileofscore(all_scores, profile["leadscore"])
+            if percentile > 66: score = 3
+            elif percentile > 33: score = 2
+            else: score = 1
+            profile["score"] = score
+            contact_profiles[i] = profile
+        contact_profiles = sorted(contact_profiles, key=lambda k: k['leadscore'], reverse=True) 
+        return contact_profiles
 
     @property 
     def compute_stats(self):
@@ -1181,9 +1220,9 @@ class Agent(db.Model):
             if profile.common_school:
                 count = schools.get(profile.common_school,0)
                 schools[profile.common_school] = count+1   
-            if profile.industry:
-                count = industries.get(profile.industry,0)
-                industries[profile.industry] = count+1                   
+            if profile.industry_category:
+                count = industries.get(profile.industry_category,0)
+                industries[profile.industry_category] = count+1                   
         self.average_age = float(age_tot)/float(n_age)
         self.average_wealth_score = float(wealth_tot)/float(n_wealth)
         self.pct_college = float(n_degree)/float(self.qualified_leads)
@@ -1194,7 +1233,163 @@ class Agent(db.Model):
         session.add(self)
         session.commit()
 
+    @property 
+    def get_leads_json(self):
+        if self.leads_json:
+            return self.leads_json
+        leads = []
+        contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email, LeadProfile.extended.isnot(True))).all() 
+        for profile in contact_profiles:
+            profile.industry_category = None
+            profile.industry_icon = None            
+            profile.categorize_industry
+            profile_json = profile.to_json
+            if not profile_json.get("url"):
+                continue               
+            leads.append(profile_json)
+            session.add(profile)
+        self.leads_json = Agent.compute_stars(leads)
+        session.add(self)
+        session.commit()
+        return leads
 
+    @property 
+    def get_extended_leads_json(self):
+        if self.extended_leads_json:
+            return self.extended_leads_json
+        leads = []
+        contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email, LeadProfile.extended.is_(True))).all() 
+        for profile in contact_profiles:
+            profile.industry_category = None
+            profile.industry_icon = None            
+            profile.categorize_industry
+            profile_json = profile.to_json
+            if not profile_json.get("url"):
+                continue            
+            leads.append(profile_json)
+            session.add(profile)
+        self.extended_leads_json = Agent.compute_stars(leads)
+        session.add(self)
+        session.commit()
+        return leads
+
+    @property 
+    def top_industries(self):
+        if not self.industries:
+            return []
+        return sorted(self.industries, key=self.industries.get, reverse=True)[:5]
+
+    @property 
+    def write_leads_js(self):
+        base_dir = 'p200_templates/' + self.email
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)        
+        js_dir = base_dir + "/js"
+        if not os.path.exists(js_dir):
+            os.makedirs(js_dir)
+        leads_str = "connectionsJ = " + unicode(json.dumps(self.leads_json, ensure_ascii=False)) + "; "
+        leads_file = open(js_dir + "/leads-ln.js", "w")
+        leads_file.write(leads_str.encode('utf8', 'replace'))
+        leads_file.close()
+        leads_str = "connectionsJ = " + unicode(json.dumps(self.extended_leads_json, ensure_ascii=False)) + "; "
+        leads_file = open(js_dir + "/leads-extended.js", "w")
+        leads_file.write(leads_str.encode('utf8', 'replace'))
+        leads_file.close()
+
+    @property 
+    def write_vars_js(self):
+        base_dir = 'p200_templates/' + self.email
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)        
+        js_dir = base_dir + "/js"
+        if not os.path.exists(js_dir):
+            os.makedirs(js_dir)
+        vars_str = 'var colors = ["#8dd8f7", "#5bbdea", "#01a1dd", "#0079c2"]; function randColor(colors) {return colors[Math.floor(Math.random() * colors.length)]}  '
+        vars_str += 'industries = ' + json.dumps(self.industries_json) + ";  "
+        vars_str += 'var schools = ' + json.dumps(self.schools_json) + ";  "
+        vars_str += 'var stats = ' + json.dumps(self.stats_json) + ";  "
+        vars_str += 'var n_extended = ' + str(self.extended_leads) + ";  "
+        vars_str += 'var n_first_degree = ' + str(self.qualified_leads) + ";  "
+        vars_str += 'var n_total = ' + str(self.qualified_leads + self.extended_leads) + ";  "
+        vars_str += 'client_name = "' + self.first_name + '";  '
+        vars_file = open(js_dir + "/vars.js", "w")
+        vars_file.write(vars_str)
+        vars_file.close()
+
+    @property 
+    def write_html_files(self):
+        base_dir = 'p200_templates/' + self.email
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)        
+        from_dir = 'p200_templates/common' 
+        shutil.copyfile(from_dir + "/leads.html", base_dir + "/leads-ln.html")     
+        shutil.copyfile(from_dir + "/leads.html", base_dir + "/leads-extended.html")     
+        shutil.copyfile(from_dir + "/summary.html", base_dir + "/summary.html")     
+        for category in self.top_industries:
+            clean = re.sub("[^a-z]","", category.lower())  
+            shutil.copyfile(from_dir + "/leads.html", base_dir + "/leads-" + clean + ".html")      
+
+    @property 
+    def create_visual(self):
+        self.get_leads_json
+        self.get_extended_leads_json           
+        self.compute_stats   
+        self.schools_json
+        self.industries_json 
+        self.write_html_files
+        self.write_vars_js
+        self.write_leads_js
+
+    @property 
+    def refresh_visual(self):
+        self.leads_json = None
+        self.extended_leads_json = None
+        self.schools = None
+        self.industries = None
+        self.get_leads_json
+        self.get_extended_leads_json 
+        self.compute_stats        
+        self.schools_json
+        self.industries_json
+        self.write_html_files
+        self.write_vars_js
+        self.write_leads_js
+
+    @property 
+    def stats_json(self):
+        percent_male = "{0:.0f}%".format(self.pct_male*100)
+        percent_female = "{0:.0f}%".format(self.pct_female*100)
+        percent_degree = "{0:.0f}%".format(self.pct_college*100)
+        average_age = int(self.average_age)
+        average_wealth = str(int(self.average_wealth_score)) + "/100"
+        stats = [{"name":"Male","value":percent_male},{"name":"Female","value":percent_female},{"name":"College Degree","value":percent_degree},{"name":"Average Income Score","value":average_wealth},{"name":"Average Age","value":average_age}]
+        return stats
+
+    @property 
+    def schools_json(self):
+        if not self.schools:
+            return []
+        school_info = []
+        for school in self.schools:
+            clean = re.sub("[^a-z]","", school.lower())
+            count = self.schools[school]
+            d = {'clean':clean,'label':school, 'value':count}
+            school_info.append(d)
+        return school_info
+
+    @property 
+    def industries_json(self):
+        if not self.industries:
+            return []
+        top_industries = self.top_industries
+        industry_info = []
+        for category in top_industries:
+            clean = re.sub("[^a-z]","", category.lower())
+            count = self.industries[category]
+            icon = category_icon[category]
+            d = {'clean':clean,'label':category, 'value':count, 'icon':icon}
+            industry_info.append(d)    
+        return industry_info   
 
 class LeadProfile(db.Model):
     __tablename__ = "lead_profiles"
@@ -1227,6 +1422,8 @@ class LeadProfile(db.Model):
     url = db.Column(CIText())
     location = db.Column(String(200))
     industry = db.Column(String(200))
+    industry_category = db.Column(String(100))
+    industry_icon = db.Column(String(40))
     job_title = db.Column(String(200))
     job_location = db.Column(String(200))
     company_name = db.Column(String(200))
@@ -1243,6 +1440,60 @@ class LeadProfile(db.Model):
     referrer_name =db.Column(String(200))
     referrer_id = db.Column(CIText())
     referrer_connection =db.Column(String(600))
+    json = db.Column(JSON)
+
+    @property 
+    def categorize_industry(self):
+        if not self.industry_category and industry_category.get(self.industry):
+            self.industry_category = industry_category.get(self.industry)
+            if not self.industry_icon and category_icon.get(self.industry_category):
+                self.industry_icon = category_icon.get(self.industry_category)
+            session.add(self)
+            session.commit()
+
+    @property 
+    def get_images(self):
+        images = []
+        images = images+ get_pipl_images(self.prospect.get_pipl_response)
+        if not self.mailto:
+            return images
+        email_accounts = self.mailto.split(":")[1].split(",")
+        for email in email_accounts:
+            email_contact = get_or_create(session,EmailContact, email=email)
+            images = images + email_contact.get_images
+        return images
+
+    @property 
+    def to_json(self):
+        keep_vars = ["company_name", "job_title","name","leadscore","id","image_url","url","industry_category","mailto","phone","referrer_url","referrer_name","referrer_connection"]
+        if self.json:
+            return self.json
+        keep_vars = keep_vars + social_domains      
+        d = {}
+        for column in self.__table__.columns:
+            attr = getattr(self, column.name) 
+            if column.name in keep_vars and attr is not None: 
+                if isinstance(attr, basestring) and attr.find("http") == 0:
+                    if not link_exists(attr): 
+                        setattr(self, column.name, None)
+                        continue        
+                d[column.name] = attr
+        if not self.image_url:
+            for image in self.get_images:
+                if link_exists(image):
+                    self.image_url = image
+                    d["image_url"] = self.image_url
+                    break
+        if not self.image_url:
+            self.leadscore-=5
+            self.image_url = "https://myspace.com/common/images/user.png"
+            d["image_url"] = self.image_url
+        self.json = d
+        session.add(self)
+        session.commit()    
+        if d.get("leadscore") is None:
+            print self.id        
+        return d     
 
 class CloudspongeRecord(db.Model):
     __tablename__ = "cloudsponge_raw"

@@ -45,8 +45,8 @@ def average_wealth_score(prospects):
 	return average
 
 def name_match(name1, name2, intersect_threshold=2):
-	name1 = name1.lower()
-	name2 = name2.lower()
+	name1 = re.sub('[^0-9a-z\s]','',name1.lower())
+	name2 = re.sub('[^0-9a-z\s]','',name2.lower())
 	name1_words = set(name1.split(" "))
 	name2_words = set(name2.split(" "))
 	stop_words = ["the", "of","and","a","the","at","for","in","on"]

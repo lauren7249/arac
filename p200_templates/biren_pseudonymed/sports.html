@@ -1,0 +1,146 @@
+<!doctype html>
+<html xmlns:fb="http://ogp.me/ns/fb#">
+  <head>
+    <title>AdvisorConnect</title>
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="./css/gh-buttons.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Carousel -->
+    <link href="./css/carousel.css" rel="stylesheet">
+
+    <!-- Animate -->
+    <link href="./css/animate.css" rel="stylesheet">
+
+
+    <!-- Change skin color here (choose from css folder) -->
+    <link rel="stylesheet" id="main-color" href="./css/skin-red.css" media="screen"/>
+
+    <!-- Custom styles for this template -->
+    <link href="./css/style.css" rel="stylesheet">
+    <link rel='shortcut icon' href='/favicon.ico' />
+    <link rel='apple-touch-icon' href="">
+
+    <meta name='title' content='' />
+    <meta name='description' content='' />
+    <meta name='keywords' content='' />
+
+    <!-- Google Site Verification -->
+    <meta name='google-site-verification' content="" />
+
+    <!-- Facebook Open Graph -->
+    <meta property="fb:admins" content="" />
+    <meta property="og:site_name" content="" />
+    <meta property="og:title" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="fb:page_id" content="" />
+
+  </head>
+  <body>
+  <header>
+    <div class='wrapper'>
+      <img src='./img/NewYorkLife.png'>
+      <h2>Sports Contacts</h2>
+      <a href="./extended_leads.html"><button class='button'>Extended Network</button></a>
+      <a href="./summary.html"><button class='button'>Network Summary</button></a>
+      <div class='clear'>
+    </div>
+  </header>
+  <div class='wrapper'>
+    <div class='network-stats'>
+      <br><br>
+      <table id='main'>
+      </table>
+      <a href='./extended_leads.html'><button id='main' class='button'>Next</button></a>
+    </div>
+  </div>
+  </body>
+  <i class='fa fa-angle-double-up'></i>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="http://www.chartjs.org/assets/Chart.min.js"></script>
+  <script src="./js/users-s.js"></script>
+  <script type='text/javascript'>
+
+  $(function() {
+      for (var i in connectionsJ) {
+        var company = connectionsJ[i].company;
+        var job = connectionsJ[i].job;
+        var name = connectionsJ[i].name;
+        var score = connectionsJ[i].score;
+        var id = connectionsJ[i].id
+        var src = connectionsJ[i].image_url;
+        var url = connectionsJ[i].url;
+        var facebook = connectionsJ[i]["facebook"];
+        var twitter = connectionsJ[i]["twitter"];
+        var soundcloud = connectionsJ[i]["soundcloud"];
+        var slideshare = connectionsJ[i]["slideshare"];
+        var google = connectionsJ[i]["plus"];
+        var pinterest = connectionsJ[i]["pinterest"];    
+        var amazon = connectionsJ[i]["amazon"];  
+        var linkedin = connectionsJ[i]["linkedin"];    
+        var marketing = connectionsJ[i]["marketing"];  
+        var realestate = connectionsJ[i]["realestate"]; 
+        var stars = "";
+        for (var j=0;j<score;j++) {
+          stars += "<i style='color: blue;' class='fa fa-star-o'></i>"
+        }
+        var x = +i + +1;
+        var social = "";
+
+        if (linkedin) {
+            social = social + "<a target=_blank href='" + linkedin + "'><i class='fa fa-linkedin' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";
+        }
+        if (facebook) {
+            social = social + "<a target=_blank href='" + facebook + "'><i class='fa fa-facebook' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";
+        }
+        if (twitter) {
+            social = social + "<a target=_blank href='" + twitter + "'><i class='fa fa-twitter' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }
+        if (soundcloud) {
+            social = social + "<a target=_blank href='" + soundcloud + "'><i class='fa fa-soundcloud' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }
+        if (slideshare) {
+            social = social + "<a target=_blank href='" + slideshare + "'><i class='fa fa-slideshare' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }           
+        if (google) {
+            social = social + "<a target=_blank href='" + google + "'><i class='fa fa-google-plus' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }    
+        if (pinterest) {
+            social = social + "<a target=_blank href='" + pinterest + "'><i class='fa fa-pinterest' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }  
+        if (amazon) {
+            social = social + "<a target=_blank href='" + amazon + "'><i class='fa fa-amazon' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }  
+        if (marketing) {
+            social = social + "<a target=_blank href='" + marketing + "'><i class='fa fa-line-chart' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        }  
+        if (realestate) {
+            social = social + "<a target=_blank href='" + realestate + "'><i class='fa fa-line-chart' style='font-size: 200%; margin: 4px 4px 4px 4px; '></i></a>";          
+        } 
+        if (social != "")  {
+            social = "<ul>" + social + "</ul>";
+            social = '<div class="span10 offset1"><div class="social-icons">' + social + '</div></div>';
+        }
+        if (job != "Works") {
+          var role = job + ", " + company;
+        } else {
+          var role = company;
+        }
+        
+        var row = $("<tr>" + "<td>" + x + "</td>"+ "<td>"+"<img src='" + src + "' width='150' height='150'></td><td><h3><a target='_blank' href='" + url + "'>" + name + "</a></h3>" + "<p>" + role + "</p>" + social + "</td>" + "<td style='width: 90px;'>" + stars + "</td><td style='width: 120px;'><button class='button'>Skip</button><button class='button'>Add</button></td></tr>")
+        $("table#main").append(row)
+      }
+  });
+  </script>
+</html>

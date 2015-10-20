@@ -2,11 +2,11 @@ from prime.prospects.models import *
 from prime.prospects.get_prospect import *
 from prime.utils.bing import *
 from prime.utils.geocode import *
-import scipy.stats as stats
 import datetime
 import joblib
 import re
 from consume.get_gender import *
+from consume.api_consumer import *
 # pegasos_model = joblib.load("../data/pegasos_model.dump")
 
 # def title_qualifies(title):
@@ -52,7 +52,7 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if job.get("company") in exclude: 
 			print job.get("company") + " at the same company " 
 			return False
-		if job.get("title") and re.search("Intern(,|\s|$)",job.get("title")):
+		if job.get("title") and (re.search("Intern(,|\s|$)",job.get("title")) or re.search("Candidate(,|\s|$)",job.get("title"))):
 			print prospect.current_job.title + " not a real job"
 			return False
 		salary = prospect.get_max_salary
@@ -94,7 +94,7 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude :
 			print profile_info.get("job_company") + " at the same company"
 			return False
-		if profile_info.get("job_title") and (re.search("Intern(,|\s|$)",profile_info.get("job_title")) or profile_info.get("job_title").find("Former") == 0 or profile_info.get("job_title")=='Worked'):
+		if profile_info.get("job_title") and (re.search("Intern(,|\s|$)",profile_info.get("job_title")) or re.search("Candidate(,|\s|$)",profile_info.get("job_title")) or profile_info.get("job_title").find("Former") == 0 or profile_info.get("job_title")=='Worked'):
 			print profile_info.get("job_title") + " not a real job"
 			return False
 		salary = contact.get_max_salary 
@@ -210,9 +210,6 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 	score = n_social_accounts + salary/30000 
 	amazon = get_specific_url(social_accounts, type="amazon.com")
 	if amazon: score += 2	
-	if not profile.get("image_url"): 
-		profile["image_url"] = "https://myspace.com/common/images/user.png"
-		score-=5
 	if profile.get("school") not in schools: profile.pop("school", None)
 	if not profile.get("school") and prospect_schools: 
 		common_schools = set(prospect_schools) & set(schools)
@@ -237,12 +234,7 @@ def collegeGrad(prospect):
 			return None, education.linkedin_school.name			
 	return vals
 
-def link_exists(url):
-	try:
-		response = requests.head(url,headers=headers, timeout=1.5)
-		if response.status_code == 404: return False	
-	except:	return False
-	return True
+
 
 def clean_profile(profile):
 	clean = profile
@@ -271,19 +263,6 @@ def valid_first_degree(prospect, contact_friend):
 	if prospect.json.get("boosted_ids") and str(contact_friend.linkedin_id) in prospect.json["boosted_ids"]: return True
 	return False
 
-
-def compute_stars(contact_profiles):
-	all_scores = [profile.get("leadscore") for profile in contact_profiles]
-	for i in range(len(contact_profiles)):
-		profile = contact_profiles[i]
-		percentile = stats.percentileofscore(all_scores, profile["leadscore"])
-		if percentile > 66: score = 3
-		elif percentile > 33: score = 2
-		else: score = 1
-		profile["score"] = score
-		contact_profiles[i] = profile
-	contact_profiles = sorted(contact_profiles, key=lambda k: k['leadscore'], reverse=True)	
-	return contact_profiles
 
 def valid_second_degree(prospect, contact, contact_friend):
 	return prospect and contact and contact_friend and contact_friend.connections>20 and contact.connections>20 and valid_lead(contact_friend) and has_common_institutions(contact_friend, contact) and not valid_first_degree(prospect, contact_friend)

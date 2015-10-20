@@ -79,6 +79,7 @@ def get_google_results(liscraper, query):
 		time.sleep(1)
 		response = requests.get(url, headers=headers)
 		if response.status_code != 200: 
+			print "google blocked us!!!"
 			return None
 		source = response.content
 
@@ -95,9 +96,12 @@ def get_mapquest_coordinates(raw):
 	rec = get_or_create(session, MapquestGeocodes, name=raw)
 	if rec.geocode: return rec.geocode
 	url =  "https://www.mapquest.com/?q=%s" % (raw)
-	response = requests.get(url, headers=headers)
-	raw_html = lxml.html.fromstring(response.content)
-	raw_search_results = raw_html.xpath(".//script[contains(.,'m3.dotcom.controller.MCP.addSite')]")[0].text
+	try:
+		response = requests.get(url, headers=headers)
+		raw_html = lxml.html.fromstring(response.content)
+		raw_search_results = raw_html.xpath(".//script[contains(.,'m3.dotcom.controller.MCP.addSite')]")[0].text
+	except:
+		return None
 	# results = json.loads(parse_out(raw_search_results, "'dotcom', ", ");"))
 	# print len(results['model']['applications'][0]['state']['locations'])
 	user_home = parse_out(response.content, 'USER_HOME = {','};')

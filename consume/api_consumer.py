@@ -171,3 +171,10 @@ def get_salary_percentile(max_salary):
     # html = lxml.html.fromstring(response.content)
     # percentile = html.xpath(".//td")[1].text_content()
     return int(re.sub("[^0-9]","",percentile))    
+
+def link_exists(url):
+    try:
+        response = requests.head(url,headers=headers, timeout=1.5)
+        if response.status_code == 404: return False    
+    except: return False
+    return True    
