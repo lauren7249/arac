@@ -115,6 +115,8 @@ def company_from_url(url, session=session):
 	return None
 
 def from_url(url, session=session):
+	if not url:
+		return None
 	from prime.prospects.models import Prospect, ProspectUrl
 	prospectUrl = session.query(ProspectUrl).get(url)
 	if prospectUrl: 

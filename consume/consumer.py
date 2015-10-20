@@ -6,7 +6,7 @@ import os
 import requests
 import datetime
 import boto
-import logging
+
 import json
 from itertools import islice
 from dateutil import parser
@@ -26,7 +26,7 @@ from sqlalchemy.orm import joinedload
 from linkedin.scraper import process_request
 
 from multiprocessing import Process, Queue
-
+import logging
 logger = logging.getLogger('consumer')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
