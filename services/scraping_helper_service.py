@@ -17,7 +17,7 @@ from services.touchpoints_costs import *
 from consume.api_consumer import *
 import sendgrid
 import threading
-
+from prime.utils import sendgrid_email
 web.config.debug = False
 urls = (
     '/select/n=(.+)', 'select',
@@ -34,9 +34,7 @@ app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
 bucket = get_bucket(bucket_name='chrome-ext-uploads')
-gmail_user = 'contacts@advisorconnect.co'
-gmail_pwd = '1250downllc'
-sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)  
+
 
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
@@ -137,13 +135,10 @@ class select:
         return "\n".join(all[0:int(min(n,5))]) 
 
 def email_about_contacts(user_email, client_first_name, n_contacts):
-    mail = sendgrid.Mail()
-    mail.add_to(user_email)
-    mail.add_bcc('lauren@advisorconnect.co')
-    mail.set_subject(client_first_name + ', Congratulations on uploading your contacts')
-    mail.set_text(client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you, \n\nThe AdvisorConnect Team")
-    mail.set_from(gmail_user)
-    status, msg = sg.send(mail)     
+    to = user_email
+    subject = client_first_name + ', Congratulations on uploading your contacts'
+    body = client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. You should receive another email within 24 hours.\n\nThank you, \n\nThe AdvisorConnect Team"   
+    sendgrid_email(to, subject, body)
 
 class add:
     def POST(self):

@@ -3,6 +3,7 @@ import re
 import requests
 import boto
 import os 
+import sendgrid
 
 redis_host='169.55.28.212'
 redis_port=6379
@@ -27,6 +28,19 @@ requests_session = requests.Session()
 profile_re = re.compile('(^https*?://(www.)*linkedin.com/pub(?!/dir/)(/.*)+)|(^https*?://(www.)*linkedin.com/in/.*)')
 school_re = re.compile('^https://www.linkedin.com/edu/*')
 company_re = re.compile('^https://www.linkedin.com/company/*')
+
+gmail_user = 'contacts@advisorconnect.co'
+gmail_pwd = '1250downllc'
+sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)  
+
+def sendgrid_email(to, subject, body):
+    mail = sendgrid.Mail()
+    mail.add_to(to)
+    mail.add_bcc('lauren@advisorconnect.co')
+    mail.set_subject(subject)
+    mail.set_text(body)
+    mail.set_from(gmail_user)
+    status, msg = sg.send(mail)  
 
 def get_redis():
 	pool = redis.ConnectionPool(host=new_redis_host, port=new_redis_port, password=new_redis_password)
