@@ -79,7 +79,7 @@ if  __name__=="__main__":
 		session.commit()
 
 		#rougly 1 url/second
-		seconds_scraped, urls_scraped = scrape_job(linkedin_urls.keys() + [public_url])
+		seconds_scraped, urls_scraped = scrape_job(linkedin_urls.keys() + [public_url],update_interval=10)
 
 		#1150
 		prospect_ids = {}

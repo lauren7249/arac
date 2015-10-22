@@ -15,13 +15,13 @@ api_key = "VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA" #l.aurentracytalbot@gmai
 api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
 def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=None, include_terms_in_title=None):
 	filtered = []
-	if exclude_terms_from_title: exclude_terms_from_title = exclude_terms_from_title.lower().strip()
-	if include_terms_in_title: include_terms_in_title = include_terms_in_title.lower().strip()
+	if exclude_terms_from_title: exclude_terms_from_title = re.sub("[^a-z\s]",'',exclude_terms_from_title.lower().strip())
+	if include_terms_in_title: include_terms_in_title = re.sub("[^a-z\s]",'',include_terms_in_title.lower().strip())
 	for result in results:
 		link = result.get("Url")
 		if re.search(url_regex,link): 
 			title = result.get("Title")
-			title_meat = title.split("|")[0].lower().strip()
+			title_meat = re.sub("[^a-z\s]",'',title.split("|")[0].lower().strip())
 			if exclude_terms_from_title:
 				ratio = SequenceMatcher(None, title_meat, exclude_terms_from_title.lower().strip()).ratio()
 				intersect = set(exclude_terms_from_title.split(" ")) & set(title_meat.split(" "))
