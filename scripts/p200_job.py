@@ -107,15 +107,18 @@ if  __name__=="__main__":
 
 
 		for prospect_id in agent.prospect_ids.keys():
-			prospect = session.query(Prospect).get(prospect_id)
-			associated_emails = agent.prospect_ids.get(prospect_id,[])
-			valid_profile = valid_lead(prospect, exclude=exclusions, min_salary=35001, schools=client_schools, geopoint=client_geopoint, associated_emails=associated_emails)
-			if valid_profile:
-				lead = get_or_create(session,LeadProfile,agent_id=agent.email, id=str(valid_profile.get("id")))
-				for key, value in valid_profile.iteritems():
-				    setattr(lead, key, value)		
-				session.add(lead)
-				session.commit()
+			try:
+				prospect = session.query(Prospect).get(prospect_id)
+				associated_emails = agent.prospect_ids.get(prospect_id,[])
+				valid_profile = valid_lead(prospect, exclude=exclusions, min_salary=35001, schools=client_schools, geopoint=client_geopoint, associated_emails=associated_emails)
+				if valid_profile:
+					lead = get_or_create(session,LeadProfile,agent_id=agent.email, id=str(valid_profile.get("id")))
+					for key, value in valid_profile.iteritems():
+					    setattr(lead, key, value)		
+					session.add(lead)
+					session.commit()
+			except:
+				continue
 
 		contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==user_email,not_(LeadProfile.extended.is_(True)))).all() 
 

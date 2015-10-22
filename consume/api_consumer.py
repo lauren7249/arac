@@ -138,7 +138,7 @@ def get_indeed_salary(title, location=None):
         salary = clean.xpath("//span[@class='salary']")[0].text
         return int(re.sub('\D','', salary))
     except Exception, err:
-        print title + " not found by indeed"
+        print title.encode('utf-8') + " not found by indeed"
     return None
 
 def get_glassdoor_salary(title):
@@ -164,7 +164,7 @@ def get_glassdoor_salary(title):
         if not common: return None
         new_title = " ".join([w for w in text.split() if w in common])
         if new_title.lower().strip() == title.lower().strip(): return None
-        print title + "-->" + new_title
+        print title.encode('utf-8') + "-->" + new_title.encode('utf-8')
         return get_glassdoor_salary(new_title)
     return None
 
@@ -218,6 +218,6 @@ def query_clearbit(email):
     except HTTPError as e:
         person = {"ERROR": e.strerror}
     if person is None:
-        print email + " returned None for clearbit"
+        print email.encode('utf-8') + " returned None for clearbit"
         return {"ERROR": 'returned None'}    
     return person

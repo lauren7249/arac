@@ -31,9 +31,10 @@ def send_alert(id, failures, successes):
 	status, msg = sg.send(mail)	
 	r.hset("email_alert", id, now_time)
 
-def record_bad(url, user_id, ip):
-	n_tries = r.hincrby("bad_urls",url,1)
-	if n_tries>=3: return
+def record_bad(url, user_id, ip, incomplete=False):
+	if not incomplete:
+		n_tries = r.hincrby("bad_urls",url,1)
+		if n_tries>=3: return
 	r.hset("last_failure", user_id, datetime.datetime.utcnow())
 	ip_success_rate = get_user_success_rate(ip)
 	user_success_rate = get_user_success_rate(user_id)
@@ -77,7 +78,7 @@ if __name__=="__main__":
 								r.hincrby("chrome_uploads_successes",user_id,1)
 								r.hincrby("chrome_uploads_successes",ip,1)
 							else:
-								record_bad(url, user_id, ip)
+								record_bad(url, user_id, ip, incomplete=True)
 					else:
 						record_bad(url, user_id, ip)
 				elif re.search(company_re,url): 
