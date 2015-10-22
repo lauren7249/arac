@@ -72,8 +72,9 @@ def get_user_success_rate(id):
     return success_rate
 
 def clear_user(id):
-    r.hdel("chrome_uploads_failures",id)    
-    r.hdel("chrome_uploads_successes",id)   
+    r.hset("chrome_uploads_failures",id,0)    
+    r.hset("chrome_uploads_successes",id,0)   
+    r.hset("checked_out_urls",id,0)
 
 def process_content(content, source_url=None):
     if content is None: return None
@@ -137,8 +138,10 @@ class select:
         check_out_max = 4
         ip = web.ctx['ip']
         checked_out_urls = r.hget("checked_out_urls",ip)
-        checked_out_urls = 0 if checked_out_urls is None else int(checked_out_urls)
-        if checked_out_urls:
+        if checked_out_urls is None:
+            r.hset("checked_out_urls",ip,0)
+        checked_out_urls = int(r.hget("checked_out_urls",ip))
+        if checked_out_urls>0:
             return ""
         now_time = datetime.datetime.utcnow()
         last_query_time_str = r.hget("last_query_time",ip)
