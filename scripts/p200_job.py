@@ -31,7 +31,7 @@ if  __name__=="__main__":
 		unique_emails = agent.get_email_contacts
 
 		print str(len(unique_emails.keys())) + " unique emails "
-		
+
 		email_contacts_from_email = {}
 		email_contacts_from_linkedin = {}
 
@@ -44,10 +44,12 @@ if  __name__=="__main__":
 			try:
 				ec = get_or_create(session,EmailContact,email=email)
 				if info.get("job_title") or info.get("company"):
-					ec.job_title = info.get("job_title")
-					ec.company = info.get("company")
-					session.add(ec)
-					session.commit()	
+					if not ec.job_title:
+						ec.job_title = info.get("job_title")
+						session.add(ec)
+					if not ec.company:
+						ec.company = info.get("company")
+						session.add(ec)	
 				url = ec.get_linkedin_url
 			except:
 				#pass
@@ -67,6 +69,7 @@ if  __name__=="__main__":
 			info["sources"] = list(sources)
 			unique_emails[email] = info 
 
+		session.commit()
 
 		agent.email_contacts_from_email = email_contacts_from_email
 		agent.email_contacts_from_linkedin = email_contacts_from_linkedin
@@ -169,7 +172,8 @@ if  __name__=="__main__":
 	except:
 		exc_info = sys.exc_info()
 		traceback.print_exception(*exc_info)
-		sendgrid_email('lauren@advisorconnect.co','failed p200',user_email + " failed with error " + str(sys.exc_info()[0]))
+		exception_str = traceback.format_exception(*exc_info)
+		sendgrid_email('lauren@advisorconnect.co','failed p200',user_email + " failed with error " + str(exception_str))
 
 
 	

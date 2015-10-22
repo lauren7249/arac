@@ -1092,15 +1092,15 @@ class EmailContact(db.Model):
     def get_linkedin_url(self):
         if self.linkedin_url: return self.linkedin_url
         url = None
-        vibe_json = self.get_vibe_response
-        if vibe_json and vibe_json.get("name") == 'Not a Person': return None
-        vibe_social_accounts = get_vibe_social_accounts(vibe_json)
-        url = get_specific_url(vibe_social_accounts, type="linkedin.com")
-        if url:
-            self.linkedin_url = url
-            session.add(self)
-            session.commit()
-            return url
+        # vibe_json = self.get_vibe_response
+        # if vibe_json and vibe_json.get("name") == 'Not a Person': return None
+        # vibe_social_accounts = get_vibe_social_accounts(vibe_json)
+        # url = get_specific_url(vibe_social_accounts, type="linkedin.com")
+        # if url:
+        #     self.linkedin_url = url
+        #     session.add(self)
+        #     session.commit()
+        #     return url
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
         url = get_specific_url(pipl_social_accounts, type="linkedin.com")
