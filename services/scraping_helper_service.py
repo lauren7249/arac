@@ -221,11 +221,12 @@ class post_uploaded:
         real_url = d.get("url")
         user_id = d.get("user_id")
         incr = r.srem("urls", real_url)
-        r.sadd("chrome_uploads",real_url)
-        r.hset("chrome_uploads_users",real_url, user_id)
-        r.hset("chrome_uploads_ips",real_url, ip)
-        r.hincrby("checked_out_urls",ip,-1*incr)
-        r.hset("last_upload_time", ip, datetime.datetime.utcnow())
+        if incr:
+            r.sadd("chrome_uploads",real_url)
+            r.hset("chrome_uploads_users",real_url, user_id)
+            r.hset("chrome_uploads_ips",real_url, ip)
+            r.hincrby("checked_out_urls",ip,-1*incr)
+            r.hset("last_upload_time", ip, datetime.datetime.utcnow())
         return real_url
 
 class calculate_costs:
