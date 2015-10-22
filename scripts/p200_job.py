@@ -31,6 +31,9 @@ if  __name__=="__main__":
 		unique_emails = agent.get_email_contacts
 
 		print str(len(unique_emails.keys())) + " unique emails "
+		
+		email_contacts_from_email = {}
+		email_contacts_from_linkedin = {}
 
 		#2533 emails to try
 		#1347 linkedin urls
