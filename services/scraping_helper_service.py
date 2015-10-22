@@ -138,7 +138,7 @@ class select:
             return ""
         now_time = datetime.datetime.utcnow()
         last_upload_time_str = r.hget("last_upload_time",ip)
-        if last_query_time_str:
+        if last_upload_time_str:
             last_upload_time = get_datetime(last_upload_time_str)
             timedelta = now_time - last_upload_time
             if timedelta.seconds <= check_out_max-1: 
