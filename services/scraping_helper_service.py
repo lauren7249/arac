@@ -134,8 +134,6 @@ class select:
         if checked_out_urls is None:
             r.hset("checked_out_urls",ip,0)
         checked_out_urls = int(r.hget("checked_out_urls",ip))
-        if checked_out_urls>0:
-            return ""
         now_time = datetime.datetime.utcnow()
         last_upload_time_str = r.hget("last_upload_time",ip)
         if last_upload_time_str:
@@ -149,6 +147,8 @@ class select:
             timedelta = now_time - last_query_time
             if timedelta.seconds <= check_out_max: 
                 return ""
+            if checked_out_urls>=timedelta.seconds:
+                return ""                
         last_failure_str = r.hget("last_failure",ip)
         if last_failure_str:
             last_failure = get_datetime(last_failure_str)
