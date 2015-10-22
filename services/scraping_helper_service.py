@@ -145,9 +145,11 @@ class select:
         if last_query_time_str:
             last_query_time = get_datetime(last_query_time_str)
             timedelta = now_time - last_query_time
-            if timedelta.seconds <= check_out_max: 
+            if timedelta.seconds > check_out_max*2:
+                r.hset("checked_out_urls",ip,0)
+            elif timedelta.seconds <= check_out_max: 
                 return ""
-            if checked_out_urls>=timedelta.seconds:
+            elif checked_out_urls>=timedelta.seconds:
                 return ""                
         last_failure_str = r.hget("last_failure",ip)
         if last_failure_str:
