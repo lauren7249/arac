@@ -94,13 +94,6 @@ def process_url(url):
     except:
 		return None
 
-class log_uploaded:
-    def GET(self, url):
-        real_url = url.replace(";","/").replace("`","?")
-        r.srem("urls", real_url)
-        r.sadd("chrome_uploads",real_url)
-        return url
-
 class get_my_total:
     def GET(self, user_id):
         return get_user_successes(user_id)
@@ -135,7 +128,7 @@ class emailLinkedin:
 
 class select:
     def GET(self, n):
-        check_out_max = 4
+        check_out_max = 2
         ip = web.ctx['ip']
         checked_out_urls = r.hget("checked_out_urls",ip)
         if checked_out_urls is None:
@@ -144,6 +137,12 @@ class select:
         if checked_out_urls>0:
             return ""
         now_time = datetime.datetime.utcnow()
+        last_upload_time_str = r.hget("last_upload_time",ip)
+        if last_query_time_str:
+            last_upload_time = get_datetime(last_upload_time_str)
+            timedelta = now_time - last_upload_time
+            if timedelta.seconds <= check_out_max-1: 
+                return ""        
         last_query_time_str = r.hget("last_query_time",ip)
         if last_query_time_str:
             last_query_time = get_datetime(last_query_time_str)
@@ -226,6 +225,7 @@ class post_uploaded:
         r.hset("chrome_uploads_users",real_url, user_id)
         r.hset("chrome_uploads_ips",real_url, ip)
         r.hincrby("checked_out_urls",ip,-1*incr)
+        r.hset("last_upload_time", ip, datetime.datetime.utcnow())
         return real_url
 
 class calculate_costs:
