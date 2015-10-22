@@ -41,19 +41,21 @@ if  __name__=="__main__":
 		for email in unique_emails.keys():
 			info = unique_emails.get(email,{})
 			sources = info.get("sources",set())	
-			try:
-				ec = get_or_create(session,EmailContact,email=email)
-				if info.get("job_title") or info.get("company"):
-					if not ec.job_title:
-						ec.job_title = info.get("job_title")
-						session.add(ec)
-					if not ec.company:
-						ec.company = info.get("company")
-						session.add(ec)	
-				url = ec.get_linkedin_url
-			except:
-				#pass
-				continue
+			url = info.get("linkedin")
+			if not url:
+				try:
+					ec = get_or_create(session,EmailContact,email=email)
+					if info.get("job_title") or info.get("company"):
+						if not ec.job_title:
+							ec.job_title = info.get("job_title")
+							session.add(ec)
+						if not ec.company:
+							ec.company = info.get("company")
+							session.add(ec)	
+					url = ec.get_linkedin_url
+				except:
+					#pass
+					continue
 			if url: 
 				associated_emails = linkedin_urls.get(url,[])
 				if email not in associated_emails: 
@@ -69,8 +71,7 @@ if  __name__=="__main__":
 			info["sources"] = list(sources)
 			unique_emails[email] = info 
 
-		session.commit()
-
+		agent.unique_emails = unique_emails
 		agent.email_contacts_from_email = email_contacts_from_email
 		agent.email_contacts_from_linkedin = email_contacts_from_linkedin
 		agent.linkedin_urls = linkedin_urls

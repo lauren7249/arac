@@ -145,7 +145,7 @@ class Prospect(db.Model):
     @property
     def get_pipl_response(self) :
         content = {}
-        if self.pipl_response: 
+        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403: 
             return self.pipl_response      
         content = query_pipl(linkedin_id=self.linkedin_id)
         if content:   
@@ -855,7 +855,7 @@ class FacebookContact(db.Model):
     @property
     def get_pipl_response(self) :
         content = {}
-        if self.pipl_response: 
+        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403:
             return self.pipl_response      
         content = query_pipl(facebook_id=self.facebook_id)
         if content:   
@@ -1022,7 +1022,7 @@ class EmailContact(db.Model):
     @property
     def get_pipl_response(self) :
         content = {}
-        if self.pipl_response: 
+        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403: 
             return self.pipl_response      
         content = query_pipl(email=self.email)
         if content:   
@@ -1110,7 +1110,6 @@ class EmailContact(db.Model):
             session.commit()
             return url            
         clearbit_response = self.get_clearbit_response
-        if clearbit_response is None or clearbit_response.get("ERROR"): return None
         clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
         url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
         if url:
