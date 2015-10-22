@@ -27,39 +27,10 @@ if  __name__=="__main__":
 		print location
 		print public_url
 
-		contacts = session.query(CloudspongeRecord).filter(CloudspongeRecord.user_email==user_email).all() 
-		email_contacts_from_email = agent.email_contacts_from_email if agent.email_contacts_from_email else {}
-		email_contacts_from_linkedin = agent.email_contacts_from_linkedin if agent.email_contacts_from_linkedin else {}
+		unique_emails = agent.get_email_contacts
 
-		print len(contacts)
-		unique_emails = {}
-		for contact in contacts:
-			service = contact.service
-			rec = contact.get_emails
-			job_title = contact.get_job_title
-			company = contact.get_company
-			for email in rec:
-				domain = email.split("@")[-1].lower().strip()
-				if domain in ['docs.google.com'] or domain.find('craigslist.org')>-1 or re.search('(\.|^)reply(\.|$)',domain): 
-					print email
-					continue
-				info = unique_emails.get(email,{})
-				sources = info.get("sources",set())
-				if service.lower()=='linkedin':
-					sources.add('linkedin')
-				elif service.lower()=='csv':
-					sources.add('csv')
-				else:
-					source = contact.contacts_owner.get("email",[{}])[0].get("address")
-					if source: sources.add(source)
-				info["sources"] = sources
-				if job_title: 
-					info["job_title"] = job_title
-				if company:
-					info["company"] = company
-				unique_emails[email] = info 
+		print str(len(unique_emails.keys())) + " unique emails "
 
-		print len(unique_emails.keys())
 		#2533 emails to try
 		#1347 linkedin urls
 		linkedin_urls = {}
@@ -192,6 +163,7 @@ if  __name__=="__main__":
 		total_hours = float((datetime.datetime.now() - start_time).seconds)/float(60*60)
 		sendgrid_email('lauren@advisorconnect.co','successful p200',user_email + " completed p200 after " + str(total_hours) + " hours" )
 	except:
+		print sys.exc_info()[0]
 		sendgrid_email('lauren@advisorconnect.co','failed p200',user_email + " failed with error " + str(sys.exc_info()[0]))
 
 

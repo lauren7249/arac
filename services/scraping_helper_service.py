@@ -127,7 +127,7 @@ class select:
             ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)   
         except:
             ip_success_rate = 0.0        
-        if ip_success_rate<0.8 and ip_failures>=100:
+        if ip_success_rate<0.6 and ip_failures>=100:
             return ""
         all = list(r.smembers("urls"))
         shuffle(all)

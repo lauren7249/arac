@@ -4,6 +4,8 @@ from prime.utils import headers
 import pandas
 import re
 import clearbit
+from random import shuffle
+import json
 
 vibe_api_keys = ["e0978324d7ac8b759084aeb96c5d7fde","acae5996e72c52835b0b15ed48208129",'b2acf1eadef73f4aeda890e0571f3e06']
 clearbit.key='f2512e10a605e3dcaff606205dbd3758'
@@ -100,6 +102,8 @@ def get_clearbit_social_accounts(clearbit_json):
                 link = "https://" + key + ".com/user/" + handle            
             elif key=='googleplus': 
                 link = "https://plus.google.com/" + handle
+            elif key=='linkedin':
+                link = "https://www." + key + ".com/" + handle
             else: 
                 link = "https://" + key + ".com/" + handle
             social_profiles.append(link)
@@ -178,3 +182,42 @@ def link_exists(url):
         if response.status_code == 404: return False    
     except: return False
     return True    
+
+def query_vibe(email):
+    shuffle(vibe_api_keys)
+    for vibe_api_key in vibe_api_keys:
+        try:
+            vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="                
+            url = vibe_url + email
+            response = requests.get(url)
+            content = json.loads(response.content)    
+            if content and content.get("statusCode") !=1005:    
+                return content    
+            print "vibe api key " + vibe_api_key + " over limit "                                 
+        except:
+            pass    
+    raise Exception("All vibe api keys are over limit") 
+
+def query_pipl(email=None, linkedin_id=None, facebook_id=None):
+    pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key_basic + "&pretty=true"
+    if email:
+        url = pipl_url + "&email=" + email
+    elif linkedin_id:
+        url = pipl_url + "&username=" + str(linkedin_id) + "@linkedin"   
+    elif facebook_id:
+        url = pipl_url + "&username=" + facebook_id + "@facebook" 
+    else:
+        return None  
+    response = requests.get(url)
+    content = json.loads(response.content)    
+    return content
+
+def query_clearbit(email):
+    try:
+        person = clearbit.Person.find(email=email, stream=True)
+    except HTTPError as e:
+        person = {"ERROR": e.strerror}
+    if person is None:
+        print email + " returned None for clearbit"
+        return {"ERROR": 'returned None'}    
+    return person

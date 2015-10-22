@@ -144,21 +144,15 @@ class Prospect(db.Model):
 
     @property
     def get_pipl_response(self) :
-        pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key_basic + "&pretty=true"
         content = {}
         if self.pipl_response: 
-            content = self.pipl_response      
-        else:         
-            try:
-                url = pipl_url + "&username=" + str(self.linkedin_id) + "@linkedin"
-                response = requests.get(url)
-                content = json.loads(response.content)    
-                self.pipl_response = content     
-                session.add(self)
-                session.commit()                                        
-            except:
-                pass    
-        return content
+            return self.pipl_response      
+        content = query_pipl(linkedin_id=self.linkedin_id)
+        if content:   
+            self.pipl_response = content     
+            session.add(self)
+            session.commit()                                         
+        return content     
 
     @property
     def get_pipl_contact_response(self) :
@@ -860,20 +854,15 @@ class FacebookContact(db.Model):
 
     @property
     def get_pipl_response(self) :
-        pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key_basic + "&pretty=true"
-        if self.pipl_response: 
-            return self.pipl_response 
         content = {}
-        try:
-            url = pipl_url + "&username=" + self.facebook_id + "@facebook"
-            response = requests.get(url)
-            content = json.loads(response.content)    
+        if self.pipl_response: 
+            return self.pipl_response      
+        content = query_pipl(facebook_id=self.facebook_id)
+        if content:   
             self.pipl_response = content     
             session.add(self)
-            session.commit()                                        
-        except:
-            pass    
-        return content 
+            session.commit()                                         
+        return content   
 
     @property
     def get_fullcontact_response(self) :
@@ -1012,17 +1001,12 @@ class EmailContact(db.Model):
     def get_clearbit_response(self):
         if self.clearbit_response: 
             return self.clearbit_response
-        try:
-            person = clearbit.Person.find(email=self.email, stream=True)
-        except HTTPError as e:
-            person = {"ERROR": e.strerror}
-        if person is None:
-            print self.email + " returned None for clearbit"
-            return {}
-        self.clearbit_response = person
-        session.add(self)
-        session.commit()
-        return self.clearbit_response
+        person = query_clearbit(self.email)
+        if person:
+            self.clearbit_response = person
+            session.add(self)
+            session.commit()
+        return person
 
     @property
     def get_images(self) :
@@ -1038,40 +1022,28 @@ class EmailContact(db.Model):
     @property
     def get_pipl_response(self) :
         content = {}
-        pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key_basic + "&pretty=true"
         if self.pipl_response: 
-            content = self.pipl_response      
-        else:         
-            try:
-                url = pipl_url + "&email=" + self.email
-                response = requests.get(url)
-                content = json.loads(response.content)    
-                self.pipl_response = content     
-                session.add(self)
-                session.commit()                                        
-            except:
-                pass    
+            return self.pipl_response      
+        content = query_pipl(email=self.email)
+        if content:   
+            self.pipl_response = content     
+            session.add(self)
+            session.commit()                                         
         return content     
 
     @property
     def get_vibe_response(self) :
         content = {}
-        if self.vibe_response and self.vibe_response.get("status") !="Rate Limit Overrage": 
-            return self.vibe_response      
-        shuffle(vibe_api_keys)
-        for vibe_api_key in vibe_api_keys:
-            try:
-                vibe_url = "https://vibeapp.co/api/v1/initial_data/?api_key=" + vibe_api_key + "&email="                
-                url = vibe_url + self.email
-                response = requests.get(url)
-                content = json.loads(response.content)    
-                if content and content.get("status") !="Rate Limit Overrage":  
-                    self.vibe_response = content    
-                    session.add(self)
-                    session.commit()   
-                    return content                                     
-            except:
-                pass    
+        if self.vibe_response and self.vibe_response.get("statusCode")!=1005: 
+            return self.vibe_response  
+        try:    
+            content = query_vibe(self.email)
+        except:
+            content = {'status': 'Daily Limit Overrage', 'statusCode': 1005, 'success': False}
+        if content:
+            self.vibe_response = content    
+            session.add(self)
+            session.commit()             
         return content  
 
     @property
@@ -1087,7 +1059,7 @@ class EmailContact(db.Model):
             if content.get("status") == 200:   
                 self.fullcontact_response = content     
                 session.add(self)
-                session.commit()                                        
+                session.comit()                                        
         except:
             pass    
         return content 
@@ -1129,18 +1101,18 @@ class EmailContact(db.Model):
             session.add(self)
             session.commit()
             return url
-        clearbit_response = self.get_clearbit_response
-        if clearbit_response is None or clearbit_response.get("ERROR"): return None
-        clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
-        url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
+        pipl_response = self.get_pipl_response
+        pipl_social_accounts = get_pipl_social_accounts(pipl_response)
+        url = get_specific_url(pipl_social_accounts, type="linkedin.com")
         if url:
             self.linkedin_url = url
             session.add(self)
             session.commit()
-            return url
-        pipl_response = self.get_pipl_response
-        pipl_social_accounts = get_pipl_social_accounts(pipl_response)
-        url = get_specific_url(pipl_social_accounts, type="linkedin.com")
+            return url            
+        clearbit_response = self.get_clearbit_response
+        if clearbit_response is None or clearbit_response.get("ERROR"): return None
+        clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
+        url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
         if url:
             self.linkedin_url = url
             session.add(self)
@@ -1156,6 +1128,7 @@ class Agent(db.Model):
     first_name = db.Column(CIText())
     email_contacts_from_email = db.Column(JSON)
     email_contacts_from_linkedin = db.Column(JSON)
+    unique_emails = db.Column(JSON)
     linkedin_urls = db.Column(JSON)
     prospect_ids = db.Column(JSON)
     average_age = db.Column(Float) 
@@ -1183,6 +1156,46 @@ class Agent(db.Model):
             contact_profiles[i] = profile
         contact_profiles = sorted(contact_profiles, key=lambda k: k['leadscore'], reverse=True) 
         return contact_profiles
+
+    @property
+    def get_email_contacts(self):
+        unique_emails = {}       
+        if self.unique_emails:
+            return self.unique_emails
+        contacts = session.query(CloudspongeRecord).filter(CloudspongeRecord.user_email==self.email).all() 
+        for contact in contacts:
+            service = contact.service
+            rec = contact.get_emails
+            job_title = contact.get_job_title
+            company = contact.get_company
+            for email in rec:
+                try:
+                    domain = email.split("@")[-1].lower().strip()
+                    if domain in ['docs.google.com'] or domain.find('craigslist.org')>-1 or re.search('(\.|^)reply(\.|$)',domain): 
+                        print email
+                        continue
+                    info = unique_emails.get(email,{})
+                    sources = info.get("sources",[])
+                    if service.lower()=='linkedin':
+                        if 'linkedin' not in sources: 
+                            sources.append('linkedin')
+                    else:
+                        source = contact.contacts_owner.get("email",[{}])[0].get("address")
+                        if source and source not in sources: 
+                            sources.append(source)
+                    info["sources"] = sources
+                    if job_title: 
+                        info["job_title"] = job_title
+                    if company:
+                        info["company"] = company
+                    unique_emails[email] = info 
+                except:
+                    print email + " failed with error " + str(sys.exc_info()[0])
+                    continue
+        self.unique_emails = unique_emails
+        session.add(self)
+        session.commit()                  
+        return unique_emails
 
     @property 
     def compute_stats(self):
