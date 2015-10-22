@@ -527,7 +527,7 @@ class LinkedinSchool(db.Model):
     id = db.Column(Integer, primary_key=True)
     name = db.Column(String(100))
     pretty_url = db.Column(String(150))
-    image_url = db.Column(String(300))
+    image_url = db.Column(String(900))
 
     def __repr__(self):
         return '<School id={0} name={1}>'.format(
@@ -544,7 +544,7 @@ class LinkedinCompany(db.Model):
     company_type = db.Column(String(200))
     description = db.Column(Text)
     pretty_url = db.Column(String(150))
-    image_url = db.Column(String(300))
+    image_url = db.Column(String(900))
     founded = db.Column(Integer)
     headquarters = db.Column(String(500))
     min_employees = db.Column(Integer)

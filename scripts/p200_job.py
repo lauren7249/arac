@@ -71,7 +71,7 @@ if  __name__=="__main__":
 				if url not in agent.linkedin_urls.keys(): extended_urls.add(url)
 
 		#1.26 urls/second
-		seconds_scraped, urls_scraped = scrape_job(extended_urls)
+		seconds_scraped, urls_scraped = scrape_job(extended_urls,update_interval=10)
 		for profile in contact_profiles:		
 			if not profile.prospect: continue
 			urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)
