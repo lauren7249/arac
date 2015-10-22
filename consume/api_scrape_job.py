@@ -59,4 +59,10 @@ def email_contacts_linkedin_urls(unique_emails):
 		print "Everything closed cleanly"			
 
 	for ec in email_contacts:
-		
+
+# for email in unique_emails.keys():
+# 	ec = get_or_create(session,EmailContact,email=email)
+# 	if not ec.pipl_response:
+# 		ec.linkedin_url = None
+# 		session.add(ec)
+
