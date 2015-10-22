@@ -134,13 +134,19 @@ class emailLinkedin:
 
 class select:
     def GET(self, n):
+        check_out_max = 4
         ip = web.ctx['ip']
+        checked_out_urls = r.hget("checked_out_urls",ip)
+        checked_out_urls = 0 if checked_out_urls is None else int(checked_out_urls)
+        if checked_out_urls:
+            return ""
         now_time = datetime.datetime.utcnow()
         last_query_time_str = r.hget("last_query_time",ip)
         if last_query_time_str:
             last_query_time = get_datetime(last_query_time_str)
             timedelta = now_time - last_query_time
-            if timedelta.seconds < 3: return ""
+            if timedelta.seconds <= check_out_max: 
+                return ""
         last_failure_str = r.hget("last_failure",ip)
         if last_failure_str:
             last_failure = get_datetime(last_failure_str)
@@ -153,7 +159,8 @@ class select:
         all = list(r.smembers("urls"))
         shuffle(all)
         r.hset("last_query_time", ip, datetime.datetime.utcnow())
-        return "\n".join(all[0:int(min(n,2))]) 
+        r.hincrby("checked_out_urls",ip,check_out_max)
+        return "\n".join(all[0:int(min(n,check_out_max))]) 
 
 def email_about_contacts(user_email, client_first_name, n_contacts):
     to = user_email
@@ -215,6 +222,7 @@ class post_uploaded:
         r.sadd("chrome_uploads",real_url)
         r.hset("chrome_uploads_users",real_url, user_id)
         r.hset("chrome_uploads_ips",real_url, ip)
+        r.hincrby("checked_out_urls",ip,-1)
         return real_url
 
 class calculate_costs:
