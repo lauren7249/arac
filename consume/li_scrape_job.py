@@ -42,6 +42,9 @@ def scrape_job(job_urls, update_interval = None):
 	else: 
 		new_urls = set(job_urls)
 
+	bad_urls = set(r.hkeys("bad_urls"))
+	new_urls = new_urls - bad_urls
+	
 	gmail_user = 'contacts@advisorconnect.co'
 	gmail_pwd = '1250downllc'
 	sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
