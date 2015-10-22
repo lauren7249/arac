@@ -4,6 +4,7 @@ from flask import Flask
 from prime.utils import r
 from difflib import SequenceMatcher
 import re, os, sys
+from prime.prospects.models import uu
 try:
 	from prime.prospects.prospect_list import *
 	from consume.consumer import *
@@ -67,7 +68,7 @@ def has_common_school_names(p1, p2, intersect_threshold=3):
 		for school2 in p2.schools:
 			if not school2.name: continue
 			if name_match(school1.name, school2.name, intersect_threshold=intersect_threshold): 
-				print school1.name + "-->" + school2.name
+				print uu(school1.name + "-->" + school2.name)
 				if len(school2.name) < len(school1.name): return school2.name
 				return school1.name
 	return None
@@ -78,7 +79,7 @@ def has_common_company_names(p1, p2, intersect_threshold=3):
 		for job2 in p2.jobs:
 			if not job2.company or not job2.company.name: continue
 			if name_match(job2.company.name, job1.company.name, intersect_threshold=intersect_threshold): 
-				print job2.company.name + "-->" + job1.company.name
+				print uu(job2.company.name + "-->" + job1.company.name)
 				if len(job2.company.name) < len(job1.company.name): return job2.company.name
 				return job1.company.name
 	return None

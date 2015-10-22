@@ -193,6 +193,17 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         }
     }
 
+    function clearCookies() {
+        chrome.cookies.getAll({}, function (cookies){
+            for(var i=0;i<cookies.length;i++){
+                var cookie = cookies[i];
+                var domain = cookie.domain;
+                if (domain.indexOf('linkedin')>-1) {
+                    chrome.cookies.remove({ 'url': "http" + (cookies[i].secure ? "s" : "") + "://" + cookies[i].domain + cookies[i].path, 'name': cookies[i].name });
+                }
+            }
+        });     
+    }
     /**
      * Chunks arrive as newline delimited url
      * strings and should be transformed into
@@ -204,6 +215,9 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         if (ac_is_running == 1) {
 
             data = AC.delimited_to_list(data, '\n');
+            if (data.length == 0 && new Date().getMinutes() % 5 == 0) {
+                clearCookies()
+            }
             data.forEach(function(item) {
 
                 var _item = AC.normalize_string(item);
@@ -477,6 +491,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         getUserID();
         console && console.debug('onInstalled called: ' + deets.reason + ' USER: ' + getUserID());
         buttonOff();
+        clearCookies();
         ac_is_running = localStorage.getItem(kInuse_key);
         // alert(ac_is_running);
         var good_to_go = isLoggedOut(true);
@@ -485,7 +500,8 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         }, 2000);
         setTimeout(function() {
             getNextBatch();
-        }, 5000);       
+        }, 5000);               
+
 
     }.bind(chrome));
 
