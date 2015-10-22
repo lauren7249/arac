@@ -6,6 +6,7 @@ import re
 import clearbit
 from random import shuffle
 import json
+from requests import HTTPError
 
 vibe_api_keys = ["e0978324d7ac8b759084aeb96c5d7fde","acae5996e72c52835b0b15ed48208129",'b2acf1eadef73f4aeda890e0571f3e06']
 clearbit.key='f2512e10a605e3dcaff606205dbd3758'

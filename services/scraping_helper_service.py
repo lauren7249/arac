@@ -18,6 +18,8 @@ from consume.api_consumer import *
 import sendgrid
 import threading
 from prime.utils import sendgrid_email
+import requests
+
 web.config.debug = False
 urls = (
     '/select/n=(.+)', 'select',
@@ -35,7 +37,10 @@ web_session = web.session.Session(app, web.session.DiskStore('sessions'), initia
 
 bucket = get_bucket(bucket_name='chrome-ext-uploads')
 
-
+def get_my_ip():
+    response = requests.get('https://enabledns.com/ip')
+    return response.content
+    
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
 	return fn

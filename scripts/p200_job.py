@@ -32,8 +32,6 @@ if  __name__=="__main__":
 
 		print str(len(unique_emails.keys())) + " unique emails "
 
-		email_contacts_from_email = {}
-		email_contacts_from_linkedin = {}
 
 		#2533 emails to try
 		#1347 linkedin urls
@@ -64,16 +62,10 @@ if  __name__=="__main__":
 					associated_emails.append('linkedin')
 				linkedin_urls[url] = associated_emails
 				info["linkedin"] = url
-			if 'linkedin' in sources: 
-				email_contacts_from_linkedin.update({email: info})
-			else:
-				email_contacts_from_email.update({email: info})
 			info["sources"] = list(sources)
 			unique_emails[email] = info 
 
 		agent.unique_emails = unique_emails
-		agent.email_contacts_from_email = email_contacts_from_email
-		agent.email_contacts_from_linkedin = email_contacts_from_linkedin
 		agent.linkedin_urls = linkedin_urls
 		session.add(agent)
 		session.commit()

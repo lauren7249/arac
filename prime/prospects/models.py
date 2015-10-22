@@ -29,10 +29,7 @@ from random import shuffle
 from sqlalchemy import and_, not_
 import os
 import scipy.stats as stats
-
-# from consume.linkedin_friend import *
-# from prime.utils.geocode import get_google_results, get_mapquest_coordinates
-#liscraper = LinkedinFriend()
+import multiprocessing
 
 bucket = get_bucket('facebook-profiles')
 industry_category = pandas.read_csv('p200_templates/industries.csv', index_col='Industry', sep="\t").Category.to_dict()
@@ -1125,8 +1122,6 @@ class Agent(db.Model):
     geolocation = db.Column(CIText())
     public_url = db.Column(CIText())
     first_name = db.Column(CIText())
-    email_contacts_from_email = db.Column(JSON)
-    email_contacts_from_linkedin = db.Column(JSON)
     unique_emails = db.Column(JSON)
     linkedin_urls = db.Column(JSON)
     prospect_ids = db.Column(JSON)
@@ -1156,6 +1151,100 @@ class Agent(db.Model):
         contact_profiles = sorted(contact_profiles, key=lambda k: k['leadscore'], reverse=True) 
         return contact_profiles
 
+    @property 
+    def get_linkedin_urls(self):
+        if self.linkedin_urls:
+            return self.linkedin_urls
+        unique_emails = self.get_email_contacts
+        linkedin_urls = {}
+        for_pipl = []
+        for email in unique_emails.keys():
+            info = unique_emails.get(email,{})
+            sources = info.get("sources",set()) 
+            url = info.get("linkedin")
+            if url:
+                associated_emails = linkedin_urls.get(url,[])
+                if email not in associated_emails: 
+                    associated_emails.append(email)
+                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
+                    associated_emails.append('linkedin')
+                linkedin_urls[url] = associated_emails          
+                continue
+            ec = get_or_create(session,EmailContact,email=email)    
+            if ec.linkedin_url:
+                associated_emails = linkedin_urls.get(url,[])
+                if email not in associated_emails: 
+                    associated_emails.append(email)
+                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
+                    associated_emails.append('linkedin')
+                linkedin_urls[url] = associated_emails          
+                info["linkedin"] = ec.linkedin_url
+                unique_emails[email] = info 
+                continue
+            if not ec.pipl_response or ec.pipl_response.get("@http_status_code")==403:
+                for_pipl.append(email)
+        print str(len(linkedin_urls)) + " linkedin urls"
+        print str(len(for_pipl)) + " for pipl"
+        pool = multiprocessing.Pool(7)
+        pipl_responses = pool.map(query_pipl, for_pipl)
+        for_clearbit = []
+        for i in xrange(0, len(for_pipl)):
+            email = for_pipl[i]
+            info = unique_emails.get(email,{})
+            sources = info.get("sources",set()) 
+            ec = session.query(EmailContact).get(email)
+            pipl_response = pipl_responses[i]
+            ec.pipl_response = pipl_response
+            session.add(ec)
+            pipl_social_accounts = get_pipl_social_accounts(pipl_response)
+            url = get_specific_url(pipl_social_accounts, type="linkedin.com")
+            if url:
+                associated_emails = linkedin_urls.get(url,[])
+                if email not in associated_emails: 
+                    associated_emails.append(email)
+                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
+                    associated_emails.append('linkedin')
+                linkedin_urls[url] = associated_emails          
+                info["linkedin"] = ec.linkedin_url
+                unique_emails[email] = info             
+                ec.linkedin_url = url
+                session.add(ec)
+                continue
+            if not ec.clearbit_response:
+                for_clearbit.append(email)
+        session.commit()
+        print str(len(linkedin_urls))+  " linkedin urls"
+        print str(len(for_clearbit)) +" for clearbit"
+        clearbit_responses = pool.map(query_clearbit, for_clearbit)
+        pool.close()
+        for i in xrange(0, len(for_clearbit)):
+            email = for_clearbit[i]
+            info = unique_emails.get(email,{})
+            sources = info.get("sources",set()) 
+            ec = session.query(EmailContact).get(email)
+            clearbit_response = clearbit_responses[i]
+            ec.clearbit_response = clearbit_response
+            session.add(ec)
+            clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
+            url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
+            if url:
+                associated_emails = linkedin_urls.get(url,[])
+                if email not in associated_emails: 
+                    associated_emails.append(email)
+                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
+                    associated_emails.append('linkedin')
+                linkedin_urls[url] = associated_emails          
+                info["linkedin"] = ec.linkedin_url
+                unique_emails[email] = info             
+                ec.linkedin_url = url
+                session.add(ec)
+        session.commit()
+        self.unique_emails = unique_emails
+        self.linkedin_urls = linkedin_urls
+        session.add(self)
+        session.commit()
+        return linkedin_urls
+
     @property
     def get_email_contacts(self):
         unique_emails = {}       
@@ -1170,7 +1259,7 @@ class Agent(db.Model):
             for email in rec:
                 try:
                     domain = email.split("@")[-1].lower().strip()
-                    if domain in ['docs.google.com'] or domain.find('craigslist.org')>-1 or re.search('(\.|^)reply(\.|$)',domain): 
+                    if domain in ['docs.google.com'] or domain.find('craigslist.org')>-1 or re.search('(\.|^)reply(\.|$)',domain) or re.search('(\-|^|\.)reply(\-|@|\.)',email) or re.search('(\-|^|\.)support(\-|@|\.)',email) or re.search('(\-|^|\.)sales(\-|@|\.)',email) or re.search('(\-|^|\.)info(\-|@|\.)',email) or re.search('(\-|^|\.)feedback(\-|@|\.)',email): 
                         print email
                         continue
                     info = unique_emails.get(email,{})

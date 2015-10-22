@@ -35,6 +35,8 @@ def record_bad(url, user_id, ip, incomplete=False):
 	if not incomplete:
 		n_tries = r.hincrby("bad_urls",url,1)
 		if n_tries>=3: return
+	else:
+		n_tries = r.hget("bad_urls",url)
 	r.hset("last_failure", user_id, datetime.datetime.utcnow())
 	ip_success_rate = get_user_success_rate(ip)
 	user_success_rate = get_user_success_rate(user_id)
