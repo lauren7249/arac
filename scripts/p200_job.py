@@ -12,6 +12,7 @@ logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
 from prime.utils import sendgrid_email
 import sys, datetime
+import traceback
 
 if  __name__=="__main__":
 	user_email = sys.argv[1]
@@ -163,7 +164,8 @@ if  __name__=="__main__":
 		total_hours = float((datetime.datetime.now() - start_time).seconds)/float(60*60)
 		sendgrid_email('lauren@advisorconnect.co','successful p200',user_email + " completed p200 after " + str(total_hours) + " hours" )
 	except:
-		print sys.exc_info()[0]
+		exc_info = sys.exc_info()
+		traceback.print_exception(*exc_info)
 		sendgrid_email('lauren@advisorconnect.co','failed p200',user_email + " failed with error " + str(sys.exc_info()[0]))
 
 
