@@ -1,5 +1,5 @@
 from prime.utils import r, profile_re, company_re
-from services.scraping_helper_service import process_url, url_to_s3_key
+from services.scraping_helper_service import process_url, url_to_s3_key, get_user_success_rate, get_user_successes, get_user_failures
 import time, re
 from prime.utils.googling import google_xpaths
 from prime.utils.proxy_scraping import page_is_good
@@ -34,21 +34,11 @@ def send_alert(id, failures, successes):
 def record_bad(url, user_id, ip):
 	n_tries = r.hincrby("bad_urls",url,1)
 	if n_tries>=3: return
-	ip_failures = float(r.hincrby("chrome_uploads_failures",ip,1))
 	r.hset("last_failure", user_id, datetime.datetime.utcnow())
-	try:
-		ip_successes = float(r.hget("chrome_uploads_successes",ip))
-		ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)	
-	except:
-		ip_successes = 0
-		ip_success_rate = 0.0
-	user_failures = float(r.hincrby("chrome_uploads_failures",user_id,1))
-	try:
-		user_successes = float(r.hget("chrome_uploads_successes",user_id))
-		user_success_rate = float(user_successes)/float(user_successes+user_failures)
-	except:
-		user_successes = 0
-		user_success_rate = 0.0
+	ip_success_rate = get_user_success_rate(ip)
+	user_success_rate = get_user_success_rate(user_id)
+	ip_failures = get_user_failures(ip)
+	user_failures = get_user_failures(user_id)
 	if n_tries<3 or user_success_rate<0.9 or ip_success_rate<0.9: r.sadd("urls",url)
 	if ip_success_rate<=0.5 and ip_failures>=100:
 		send_alert(ip, ip_failures, ip_successes)

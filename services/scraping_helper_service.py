@@ -40,6 +40,29 @@ def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
 	return fn
 
+def get_user_failures(id):
+    try:
+        failures = float(r.hget("chrome_uploads_failures",id))
+    except:
+        failures = 0
+    return failures
+
+def get_user_successes(id):
+    try:
+        successes = float(r.hget("chrome_uploads_successes",id))
+    except:
+        successes = 0
+    return successes
+
+def get_user_success_rate(id):
+    failures = get_user_failures(id)
+    successes = get_user_successes(id)
+    try:
+        success_rate = float(successes)/float(successes+failures)   
+    except:
+        success_rate = 1.0
+    return success_rate
+
 def clear_user(id):
     r.hdel("chrome_uploads_failures",id)    
     r.hdel("chrome_uploads_successes",id)   
@@ -71,7 +94,7 @@ class log_uploaded:
 
 class get_my_total:
     def GET(self, user_id):
-        return r.hget("chrome_uploads_successes",user_id)
+        return get_user_successes(user_id)
 
 class get_phone_export:
     def GET(self, id):
@@ -115,18 +138,8 @@ class select:
             last_failure = datetime.datetime.strptime(last_failure_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
             timedelta = now_time - last_failure
             if timedelta.seconds > 60*30: clear_user(ip)         
-        try:
-            ip_failures = float(r.hget("chrome_uploads_failures",ip))
-        except:
-            ip_failures = 0.0
-        try:
-            ip_successes = float(r.hget("chrome_uploads_successes",ip))
-        except:
-            ip_successes = 0.0
-        try:
-            ip_success_rate = float(ip_successes)/float(ip_successes+ip_failures)   
-        except:
-            ip_success_rate = 0.0        
+        ip_success_rate = get_user_success_rate(ip)
+        ip_failures = get_user_failures(ip)
         if ip_success_rate<0.6 and ip_failures>=100:
             return ""
         all = list(r.smembers("urls"))

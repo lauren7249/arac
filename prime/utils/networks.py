@@ -38,26 +38,26 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			print "no location"
 			return False				
 		if locales and location.split(", ")[-1] not in locales:
-			print location + " not local" 
+			print location.encode('utf-8') + " not local" 
 			return False
 		if geopoint:
 			miles = miles_apart(geopoint, location)
 			if miles>75 or miles is None: 
-				print location + " not local" 	
+				print location.encode('utf-8') + " not local" 	
 				return False	
 		job = prospect.get_job	
 		if not job: 
-			print "no job " + prospect.url
+			print "no job " + prospect.url.encode('utf-8')
 			return False
 		if job.get("company") in exclude: 
-			print job.get("company") + " at the same company " 
+			print job.get("company").encode('utf-8') + " at the same company " 
 			return False
 		if job.get("title") and (re.search("Intern(,|\s|$)",job.get("title")) or re.search("Candidate(,|\s|$)",job.get("title"))):
-			print prospect.current_job.title + " not a real job"
+			print prospect.current_job.title.encode('utf-8') + " not a real job"
 			return False
 		salary = prospect.get_max_salary
 		if salary>0 and salary < min_salary and (job.get("start_date") and (datetime.date.today() - job.get("start_date")).days < 365*3): 
-			print str(salary) + " too low for " + prospect.current_job.title 
+			print str(salary) + " too low for " + prospect.current_job.title.encode('utf-8')
 			return False	
 		profile = clean_profile(prospect.build_profile)	
 		if not profile.get("url"): 
@@ -84,12 +84,12 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			print "no location"
 			return False		
 		if locales and location.split(", ")[-1] not in locales:
-			print location + " not local"
+			print location.encode('utf-8') + " not local"
 			return False
 		if geopoint:
 			miles = miles_apart(geopoint, location)
 			if miles>75 or miles is None: 
-				print location + " not local" 		
+				print location.encode('utf-8') + " not local" 		
 				return False					
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude :
 			print profile_info.get("job_company") + " at the same company"
@@ -99,10 +99,10 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			return False
 		salary = contact.get_max_salary 
 		if salary<0 and not profile_info.get("job_title"):
-			print "no job " + profile_info.get("job_title"," ") + " " + profile_info.get("job_company"," ")
+			print "no job " + profile_info.get("job_title"," ").encode('utf-8') + " " + profile_info.get("job_company"," ").encode('utf-8')
 			return False
 		if salary>0 and salary < min_salary and profile_info.get("job_title") != "Works":
-			print str(salary) + " too low for " + profile_info.get("job_title")
+			print str(salary) + " too low for " + profile_info.get("job_title").encode('utf-8')
 			return False
 		profile = clean_profile(contact.build_profile)
 		if not profile.get("url"): 
@@ -125,30 +125,30 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 			return False		
 		if locales:
 			if prospect.get_location and prospect.get_location.split(", ")[-1] not in locales and (not contact.get_location or contact.get_location.split(", ")[-1] not in locales): 
-				print prospect.get_location + " not local " 
+				print prospect.get_location.encode('utf-8') + " not local " 
 				return False
 			if contact.get_location and contact.get_location.split(", ")[-1] not in locales and (not prospect.get_location or prospect.get_location.split(", ")[-1] not in locales): 
-				print contact.get_location + " not local " 
+				print contact.get_location.encode('utf-8') + " not local " 
 				return False
 		if geopoint:
 			if prospect.get_location: 
 				location = prospect.get_location
 				miles_p = miles_apart(geopoint, location)
 				if (miles_p>75 or miles_p is None) and not contact.get_location: 				
-					print prospect.get_location + " not local " 
+					print prospect.get_location.encode('utf-8') + " not local " 
 					return False
 			if contact.get_location and (not prospect.get_location or miles_p > 75 or miles_p is None): 
 				location = contact.get_location
 				miles_c = miles_apart(geopoint, location)
 				if (miles_c>75 or miles_c is None): 				
-					print contact.get_location + " not local " 
+					print contact.get_location.encode('utf-8') + " not local " 
 					return False				
 		if profile_info.get("job_company") and profile_info.get("job_company").split(",")[0] in exclude:
-			print profile_info.get("job_company") + " at the same company"
+			print profile_info.get("job_company").encode('utf-8') + " at the same company"
 			return False
 		prospect_job = prospect.get_job
 		if prospect_job and prospect_job.get("company") in exclude: 
-			print prospect_job.get("company") + " at the same company " 
+			print prospect_job.get("company").encode('utf-8') + " at the same company " 
 			return False
 		prospect_salary = prospect.get_max_salary
 		contact_salary = contact.get_max_salary 
@@ -156,21 +156,22 @@ def valid_lead(lead, locales=None, exclude=[], schools=[],min_salary=60000, geop
 		salary = max(contact_salary, prospect_salary)
 		if salary < min_salary:
 			if not contact_has_job and not prospect_job:
-				print "no job " + contact.facebook_id + " " + prospect.url
+				print "no job " + contact.facebook_id + " " + prospect.url.encode('utf-8')
 				return False
 			if salary>0 and (prospect_job.get("start_date") and (datetime.date.today() - prospect_job.get("start_date")).days < 365*3):
 				if contact_salary: reason = reason +  str(contact_salary) + " too low for " + profile_info.get("job_title"," ") + " " + profile_info.get("job_company"," ")
 				if prospect_salary: reason += reason +  str(prospect_salary) + " too low for " + prospect.current_job.title
-				print reason	
+				print reason.encode('utf-8')	
 				return False		
 		if profile_info.get("job_title") and re.search("Intern(,|\s|$)",profile_info.get("job_title")) and not prospect_has_job:
-			print profile_info.get("job_title") + " not a real job"
+			print profile_info.get("job_title").encode('utf-8') + " not a real job"
 			return False			
 		if prospect.current_job and prospect.current_job.title and re.search("Intern(,|\s|$)",prospect.current_job.title) and not contact_has_job:
-			print prospect.current_job.title + " not a real job"
+			print prospect.current_job.title.encode('utf-8') + " not a real job"
 			return False				
 		contact_profile = clean_profile(contact.build_profile)
-		if contact_profile.get("job_title") and contact_profile.get("job_title").find("Former") == 0: contact_profile.pop("job_title",None)
+		if contact_profile.get("job_title") and contact_profile.get("job_title").find("Former") == 0: 
+			contact_profile.pop("job_title",None)
 		prospect_profile = clean_profile(prospect.build_profile)
 		if contact_profile.get("image_url") and prospect_profile.get("image_url"): contact_profile.pop("image_url",None)
 		if not profile.get("url"): 
