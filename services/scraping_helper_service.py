@@ -37,10 +37,13 @@ web_session = web.session.Session(app, web.session.DiskStore('sessions'), initia
 
 bucket = get_bucket(bucket_name='chrome-ext-uploads')
 
+def get_datetime(str):
+    return datetime.datetime.strptime(str.split(".")[0],'%Y-%m-%d %H:%M:%S')
+
 def get_my_ip():
     response = requests.get('https://enabledns.com/ip')
     return response.content
-    
+
 def url_to_s3_key(url):
 	fn = url.replace("https://","").replace("http://", "").replace("/","-") + ".html"
 	return fn
@@ -135,12 +138,12 @@ class select:
         now_time = datetime.datetime.utcnow()
         last_query_time_str = r.hget("last_query_time",ip)
         if last_query_time_str:
-            last_query_time = datetime.datetime.strptime(last_query_time_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
+            last_query_time = get_datetime(last_query_time_str)
             timedelta = now_time - last_query_time
-            if timedelta.seconds < 7: return ""
+            if timedelta.seconds < 3: return ""
         last_failure_str = r.hget("last_failure",ip)
         if last_failure_str:
-            last_failure = datetime.datetime.strptime(last_failure_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
+            last_failure = get_datetime(last_failure_str)
             timedelta = now_time - last_failure
             if timedelta.seconds > 60*30: clear_user(ip)         
         ip_success_rate = get_user_success_rate(ip)
@@ -150,7 +153,7 @@ class select:
         all = list(r.smembers("urls"))
         shuffle(all)
         r.hset("last_query_time", ip, datetime.datetime.utcnow())
-        return "\n".join(all[0:int(min(n,5))]) 
+        return "\n".join(all[0:int(min(n,2))]) 
 
 def email_about_contacts(user_email, client_first_name, n_contacts):
     to = user_email

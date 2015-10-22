@@ -1,5 +1,5 @@
 from prime.utils import r, profile_re, company_re
-from services.scraping_helper_service import process_url, url_to_s3_key, get_user_success_rate, get_user_successes, get_user_failures
+from services.scraping_helper_service import process_url, url_to_s3_key, get_user_success_rate, get_user_successes, get_user_failures, get_datetime
 import time, re
 from prime.utils.googling import google_xpaths
 from prime.utils.proxy_scraping import page_is_good
@@ -20,7 +20,7 @@ def send_alert(id, failures, successes):
 	last_sent_timestring = r.hget("email_alert",id)
 	now_time = datetime.datetime.utcnow()
 	if last_sent_timestring:
-		last_sent = datetime.datetime.strptime(last_sent_timestring.split(".")[0],'%Y-%m-%d %H:%M:%S')
+		last_sent = get_datetime(last_sent_timestring)
 		timedelta = now_time - last_sent
 		if timedelta.seconds < 60*60: return
 	mail = sendgrid.Mail()
@@ -42,7 +42,8 @@ def record_bad(url, user_id, ip, incomplete=False):
 	user_success_rate = get_user_success_rate(user_id)
 	ip_failures = get_user_failures(ip)
 	user_failures = get_user_failures(user_id)
-	if n_tries<3 or user_success_rate<0.9 or ip_success_rate<0.9: r.sadd("urls",url)
+	if n_tries<3 or user_success_rate<0.9 or ip_success_rate<0.9: 
+		r.sadd("urls",url)
 	if ip_success_rate<=0.5 and ip_failures>=100:
 		send_alert(ip, ip_failures, ip_successes)
 	if user_success_rate<=0.5 and user_failures>=100:

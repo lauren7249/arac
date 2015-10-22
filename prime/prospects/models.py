@@ -18,7 +18,7 @@ from sqlalchemy.engine.url import URL
 from prime import db
 from prime.prospects.helper import BingSearch
 from citext import CIText
-from prime.prospects.get_prospect import session
+from prime.prospects.get_prospect import session, from_url
 import dateutil.parser
 from boto.s3.key import Key
 from consume.facebook_consumer import *
@@ -1152,6 +1152,30 @@ class Agent(db.Model):
         return contact_profiles
 
     @property 
+    def get_prospect_ids(self):
+        if self.prospect_ids:
+            return self.prospect_ids
+        prospect_ids = {}
+        linkedin_urls = self.get_linkedin_urls
+        for url in linkedin_urls.keys():
+            contact = from_url(url)
+            if not contact: 
+                continue
+            urls_associated_emails = linkedin_urls.get(url,[])
+            prospects_associated_emails = prospect_ids.get(contact.id,[])
+            associated_emails = list(set(urls_associated_emails+prospects_associated_emails))
+            prospect_ids[contact.id] = associated_emails
+            contact_email_addresses = contact.all_email_addresses
+            if 'linkedin' in associated_emails:
+                associated_emails.remove('linkedin')
+            contact.all_email_addresses = list(set(associated_emails + contact_email_addresses)) if contact_email_addresses else associated_emails
+            session.add(contact)
+        self.prospect_ids = prospect_ids
+        session.add(self)
+        session.commit()    
+        return prospect_ids
+
+    @property 
     def get_linkedin_urls(self):
         if self.linkedin_urls:
             return self.linkedin_urls
@@ -1185,6 +1209,7 @@ class Agent(db.Model):
                 for_pipl.append(email)
         print str(len(linkedin_urls)) + " linkedin urls"
         print str(len(for_pipl)) + " for pipl"
+        #pipl limits you to 20 hits/second. if you go above a pool size of 7, this could be an issue.
         pool = multiprocessing.Pool(7)
         pipl_responses = pool.map(query_pipl, for_pipl)
         for_clearbit = []

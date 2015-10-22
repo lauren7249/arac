@@ -32,66 +32,16 @@ if  __name__=="__main__":
 
 		print str(len(unique_emails.keys())) + " unique emails "
 
+		#takes about 30 minutes
+		linkedin_urls = agent.get_linkedin_urls
 
-		#2533 emails to try
-		#1347 linkedin urls
-		linkedin_urls = {}
-		for email in unique_emails.keys():
-			info = unique_emails.get(email,{})
-			sources = info.get("sources",set())	
-			url = info.get("linkedin")
-			if not url:
-				try:
-					ec = get_or_create(session,EmailContact,email=email)
-					if info.get("job_title") or info.get("company"):
-						if not ec.job_title:
-							ec.job_title = info.get("job_title")
-							session.add(ec)
-						if not ec.company:
-							ec.company = info.get("company")
-							session.add(ec)	
-					url = ec.get_linkedin_url
-				except:
-					#pass
-					continue
-			if url: 
-				associated_emails = linkedin_urls.get(url,[])
-				if email not in associated_emails: 
-					associated_emails.append(email)
-				if 'linkedin' in sources and 'linkedin' not in associated_emails: 
-					associated_emails.append('linkedin')
-				linkedin_urls[url] = associated_emails
-				info["linkedin"] = url
-			info["sources"] = list(sources)
-			unique_emails[email] = info 
-
-		agent.unique_emails = unique_emails
-		agent.linkedin_urls = linkedin_urls
-		session.add(agent)
-		session.commit()
+		print str(len(linkedin_urls.keys())) + " linkedin urls "
 
 		#rougly 1 url/second
 		seconds_scraped, urls_scraped = scrape_job(linkedin_urls.keys() + [public_url],update_interval=10)
 
 		#1150
-		prospect_ids = {}
-		for url in agent.linkedin_urls:
-			contact = from_url(url)
-			if not contact: continue
-			urls_associated_emails = agent.linkedin_urls.get(url,[])
-			prospects_associated_emails = prospect_ids.get(contact.id,[])
-			associated_emails = list(set(urls_associated_emails+prospects_associated_emails))
-			prospect_ids[contact.id] = associated_emails
-			contact_email_addresses = contact.all_email_addresses
-			if 'linkedin' in associated_emails:
-				associated_emails.remove('linkedin')
-			contact.all_email_addresses = list(set(associated_emails + contact_email_addresses)) if contact_email_addresses else associated_emails
-			session.add(contact)
-			session.commit()
-
-		agent.prospect_ids = prospect_ids
-		session.add(agent)
-		session.commit()
+		prospect_ids = agent.get_prospect_ids
 
 		client_linkedin_contact = from_url(public_url)
 		client_schools = [school.name for school in client_linkedin_contact.schools]
