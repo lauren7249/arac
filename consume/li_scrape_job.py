@@ -38,7 +38,7 @@ def scrape_job(job_urls, update_interval = None):
 
 		updated_urls = [rec[0] for rec in recs]
 
-		new_urls = job_urls - set(updated_urls_http) - set(updated_urls_https) - set(updated_urls)
+		new_urls = set(job_urls) - set(updated_urls_http) - set(updated_urls_https) - set(updated_urls)
 	else: 
 		new_urls = set(job_urls)
 
