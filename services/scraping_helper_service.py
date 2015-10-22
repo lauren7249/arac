@@ -109,7 +109,7 @@ class select:
         if last_query_time_str:
             last_query_time = datetime.datetime.strptime(last_query_time_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
             timedelta = now_time - last_query_time
-            if timedelta.seconds < 5: return ""
+            if timedelta.seconds < 7: return ""
         last_failure_str = r.hget("last_failure",ip)
         if last_failure_str:
             last_failure = datetime.datetime.strptime(last_failure_str.split(".")[0],'%Y-%m-%d %H:%M:%S')
