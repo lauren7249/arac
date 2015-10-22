@@ -18,7 +18,7 @@ def scrape_job(job_urls, update_interval = None):
 	print str(len(job_urls)) + " job urls"
 
 	if update_interval:
-		refresh_date = start_time + datetime.timedelta(-update_interval)
+		refresh_date = datetime.datetime.now() + datetime.timedelta(-update_interval)
 
 		job_urls_http = [url.replace("https://","http://") for url in job_urls]
 		job_urls_https = [url.replace("http://","https://") for url in job_urls]
