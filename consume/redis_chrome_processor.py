@@ -1,6 +1,6 @@
 from prime.utils import r, profile_re, company_re
 from services.scraping_helper_service import process_url, url_to_s3_key, get_user_success_rate, get_user_successes, get_user_failures, get_datetime
-import time, re
+import time, re, sys
 from prime.utils.googling import google_xpaths
 from prime.utils.proxy_scraping import page_is_good
 import lxml.html
@@ -10,6 +10,7 @@ from prime.utils.update_database_from_dict import insert_linkedin_profile, inser
 from consume.facebook_consumer import *
 import sendgrid
 import datetime
+import traceback
 
 facebook_xpaths = [".//img[@class='profilePic img']", ".//span[@id='fb-timeline-cover-name']",".//div[@role='article']"]
 gmail_user = 'contacts@advisorconnect.co'
@@ -110,4 +111,6 @@ if __name__=="__main__":
 						r.hincrby("chrome_uploads_successes",ip,1)
 			else: time.sleep(2)
 		except:
+			exc_info = sys.exc_info()
+			traceback.print_exception(*exc_info)
 			pass
