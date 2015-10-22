@@ -221,11 +221,11 @@ class post_uploaded:
         d = json.loads(web.data())
         real_url = d.get("url")
         user_id = d.get("user_id")
-        r.srem("urls", real_url)
+        incr = r.srem("urls", real_url)
         r.sadd("chrome_uploads",real_url)
         r.hset("chrome_uploads_users",real_url, user_id)
         r.hset("chrome_uploads_ips",real_url, ip)
-        r.hincrby("checked_out_urls",ip,-1)
+        r.hincrby("checked_out_urls",ip,-1*incr)
         return real_url
 
 class calculate_costs:
