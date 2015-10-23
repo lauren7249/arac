@@ -34,7 +34,7 @@ def record_bad(url, user_id, ip, incomplete=False):
 	user_success_rate = get_user_success_rate(user_id)
 	ip_failures = get_user_failures(ip)
 	user_failures = get_user_failures(user_id)
-	if n_tries<3 or user_success_rate<0.9 or ip_success_rate<0.9: 
+	if n_tries<3 or user_success_rate<0.5 or ip_success_rate<0.5: 
 		r.sadd("urls",url)
 	if ip_success_rate<=0.5 and ip_failures>=100:
 		send_alert(ip, ip_failures, ip_successes)
