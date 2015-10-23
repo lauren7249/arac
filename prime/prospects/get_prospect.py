@@ -3,6 +3,7 @@ from sqlalchemy import desc
 from flask import Flask
 from prime.utils import r
 from difflib import SequenceMatcher
+from consume.convert import uu
 import re, os, sys
 try:
 	from prime.prospects.prospect_list import *
