@@ -25,11 +25,10 @@ def send_alert(id, failures, successes):
 	r.hset("email_alert", id, now_time)
 
 def record_bad(url, user_id, ip, incomplete=False):
-	if not incomplete:
-		n_tries = r.hincrby("bad_urls",url,1)
-		if n_tries>=3: return
-	else:
-		n_tries = r.hget("bad_urls",url)
+	n_tries = r.hincrby("bad_urls",url,1)
+	if incomplete:
+		r.sadd("badly_parsed_urls",url)
+	if n_tries>=3: return
 	r.hset("last_failure", user_id, datetime.datetime.utcnow())
 	ip_success_rate = get_user_success_rate(ip)
 	user_success_rate = get_user_success_rate(user_id)
@@ -41,6 +40,12 @@ def record_bad(url, user_id, ip, incomplete=False):
 		send_alert(ip, ip_failures, ip_successes)
 	if user_success_rate<=0.5 and user_failures>=100:
 		send_alert(user_id, user_failures, user_successes)
+
+def try_parsing(url):
+	fn = url_to_s3_key(url)
+	content = process_url(fn)
+	info = parse_html(content)
+	return info
 
 if __name__=="__main__":
 	while True:

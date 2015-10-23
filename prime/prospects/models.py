@@ -246,11 +246,12 @@ class Prospect(db.Model):
 
     @property 
     def get_location(self):
-        location = self.location_raw   
-        if location: return location
-        locations = get_pipl_locations(self.get_pipl_response)
-        if len(locations): location = locations[0]
-        return location
+        return self.location_raw
+        # location = self.location_raw   
+        # if location: return location
+        # locations = get_pipl_locations(self.get_pipl_response)
+        # if len(locations): location = locations[0]
+        # return location
 
     @property
     def social_accounts(self):
@@ -1125,6 +1126,7 @@ class Agent(db.Model):
     unique_emails = db.Column(JSON)
     linkedin_urls = db.Column(JSON)
     prospect_ids = db.Column(JSON)
+    geospecific_prospect_ids = db.Column(JSON)
     average_age = db.Column(Float) 
     average_wealth_score = db.Column(Float) 
     pct_college = db.Column(Float) 

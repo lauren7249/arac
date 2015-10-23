@@ -182,14 +182,14 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         'use strict';
         if (ac_is_running == 1 && run_loop_active == 1) {
             //run_loop_active = !run_loop_active;
-            console && console.debug('getNextBatch From: ' + AC_QUEUE_URL);
+            //console && console.debug('getNextBatch From: ' + AC_QUEUE_URL);
 
             qwest.get(AC_QUEUE_URL, null, http_options)
                 .then(onNextBatchReceived)
                 .then(onQueueModified)
                 .catch(onNetworkError);
         } else {
-            console && console.debug('hmm. we dont seem to be running.  Skip.');
+            //console && console.debug('hmm. we dont seem to be running.  Skip.');
         }
     }
 
@@ -215,9 +215,6 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         if (ac_is_running == 1) {
 
             data = AC.delimited_to_list(data, '\n');
-            if (data.length == 0 && new Date().getMinutes() % 5 == 0) {
-                clearCookies()
-            }
             data.forEach(function(item) {
 
                 var _item = AC.normalize_string(item);
@@ -294,11 +291,15 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
             qwest.get(url, null, http_options)
                 .then(function(xhr, data) {
                     console && console.debug(`succeeded for ${url}`);
+                    if(data.indexOf("login_reg_redirect&session_redirect")>0) {
+                        clearCookies()
+                    }
                     onScrapeSucceeded(xhr, data, url);
                 })
                 .catch(function(xhr, data, error) {
                     console && console.warn(`failed for ${url}`);
                     onScrapeFailed(xhr, data, error, url);
+
                 });
         }
     }
@@ -493,7 +494,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         buttonOff();
         clearCookies();
         ac_is_running = localStorage.getItem(kInuse_key);
-        // alert(ac_is_running);
+        
         var good_to_go = isLoggedOut(true);
         setTimeout(function() {
             getNextBatch();
