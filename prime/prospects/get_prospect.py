@@ -122,8 +122,12 @@ def from_url(url, session=session):
 	if prospectUrl: 
 		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()
 		if prospect: return prospect 
-	if url.find("https:") > -1: url_new = url.replace("https:","http:")
-	elif url.find("http:") > -1: url_new = url.replace("http:","https:")
+	if url.find("https:") ==0: 
+		url_new = url.replace("https:","http:")
+	elif url.find("http:") ==0: 
+		url_new = url.replace("http:","https:")
+	else:
+		return None
 	prospectUrl = session.query(ProspectUrl).get(url_new)
 	if prospectUrl: 
 		prospect = session.query(Prospect).order_by(desc(Prospect.updated)).filter_by(linkedin_id=prospectUrl.linkedin_id).first()

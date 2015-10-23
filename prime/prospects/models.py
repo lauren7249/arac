@@ -525,7 +525,7 @@ class LinkedinSchool(db.Model):
     __tablename__ = "linkedin_schools"
 
     id = db.Column(Integer, primary_key=True)
-    name = db.Column(String(100))
+    name = db.Column(String(900))
     pretty_url = db.Column(String(150))
     image_url = db.Column(String(900))
 
@@ -539,7 +539,7 @@ class LinkedinCompany(db.Model):
     __tablename__ = "linkedin_companies"
 
     id = db.Column(Integer, primary_key=True)
-    name = db.Column(String(100))
+    name = db.Column(String(900))
     industry = db.Column(String(200))
     company_type = db.Column(String(200))
     description = db.Column(Text)
