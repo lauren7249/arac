@@ -4,7 +4,6 @@ from flask import Flask
 from prime.utils import r
 from difflib import SequenceMatcher
 import re, os, sys
-from prime.prospects.models import uu
 try:
 	from prime.prospects.prospect_list import *
 	from consume.consumer import *
