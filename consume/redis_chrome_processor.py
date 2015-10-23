@@ -71,15 +71,17 @@ if __name__=="__main__":
 								r.hincrby("chrome_uploads_successes",user_id,1)
 								r.hincrby("chrome_uploads_successes",ip,1)
 						else:
-							old_prospect = from_url(url)
-							if old_prospect and old_prospect.image_url is None and info.get("image"):
-								old_prospect.image_url = info.get("image")
-								session.add(old_prospect)
-								session.commit()
-								r.hincrby("chrome_uploads_successes",user_id,1)
-								r.hincrby("chrome_uploads_successes",ip,1)
-							else:
-								record_bad(url, user_id, ip, incomplete=True)
+							record_bad(url, user_id, ip, incomplete=True)
+							#took this out because the from_url was causing the url to be forever added to the queue
+							# old_prospect = from_url(url)
+							# if old_prospect and old_prospect.image_url is None and info.get("image"):
+							# 	old_prospect.image_url = info.get("image")
+							# 	session.add(old_prospect)
+							# 	session.commit()
+							# 	r.hincrby("chrome_uploads_successes",user_id,1)
+							# 	r.hincrby("chrome_uploads_successes",ip,1)
+							# else:
+							# 	record_bad(url, user_id, ip, incomplete=True)
 					else:
 						record_bad(url, user_id, ip)
 				elif re.search(company_re,url): 
