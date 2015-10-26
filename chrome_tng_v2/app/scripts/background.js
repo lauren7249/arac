@@ -215,6 +215,9 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         if (ac_is_running == 1) {
 
             data = AC.delimited_to_list(data, '\n');
+            if (data.length==0) {
+                
+            }
             data.forEach(function(item) {
 
                 var _item = AC.normalize_string(item);

@@ -1,6 +1,9 @@
 from prime.utils import r
 from consume.li_scrape_job import scrape_job
-from prime.prospects.models import EmailContact, CloudspongeRecord, LeadProfile, get_or_create, session, Agent
+from prime.prospects.models import EmailContact, get_or_create, session
+from prime.prospects.lead_model import CloudspongeRecord
+from prime.prospects.lead_model import *
+from prime.prospects.agent_model import *
 from prime.prospects.get_prospect import get_session, from_url
 from prime.utils.geocode import *
 from prime.utils.networks import *
@@ -19,8 +22,11 @@ if  __name__=="__main__":
 	start_time = datetime.datetime.now()
 	print "starting"
 	try:
-
+		exclusions = ['New York Life Insurance Company','NYLIFE Securities LLC','NYLIFE Securities, LLC','NYLIFE Securities']
 		agent = session.query(Agent).get(user_email)
+		agent.company_exclusions = exclusions
+		session.add(agent)
+		session.commit()
 		location = agent.geolocation
 		public_url = agent.public_url
 		client_coords = get_mapquest_coordinates(location).get("latlng")
@@ -43,26 +49,7 @@ if  __name__=="__main__":
 		#1150
 		prospect_ids = agent.get_prospect_ids
 
-		client_linkedin_contact = from_url(public_url)
-		client_schools = [school.name for school in client_linkedin_contact.schools]
-		exclusions = [client_linkedin_contact.current_job.company.name, 'NYLIFE Securities LLC','NYLIFE Securities, LLC','NYLIFE Securities']
-
-
-		for prospect_id in agent.prospect_ids.keys():
-			try:
-				prospect = session.query(Prospect).get(prospect_id)
-				associated_emails = agent.prospect_ids.get(prospect_id,[])
-				valid_profile = valid_lead(prospect, exclude=exclusions, min_salary=35001, schools=client_schools, geopoint=client_geopoint, associated_emails=associated_emails)
-				if valid_profile:
-					lead = get_or_create(session,LeadProfile,agent_id=agent.email, id=str(valid_profile.get("id")))
-					for key, value in valid_profile.iteritems():
-					    setattr(lead, key, value)		
-					session.add(lead)
-					session.commit()
-			except:
-				continue
-
-		contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==user_email,not_(LeadProfile.extended.is_(True)))).all() 
+		contact_profiles = agent.get_qualified_leads
 
 		extended_urls = set()
 		for profile in contact_profiles:

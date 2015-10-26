@@ -463,7 +463,8 @@ def facebook_to_linkedin_from_urls(facebook_contacts, urls_xwalk):
 # 	return phone
 
 def get_mailto(profile):
-	if profile.get("mailto"): return profile.get("mailto")
+	if profile.get("mailto"): 
+		return profile.get("mailto")
 	id = profile.get("id")
 	all_emails = set()
 	if isinstance(id, int): 

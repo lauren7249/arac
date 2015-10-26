@@ -140,34 +140,38 @@ def get_indeed_salary(title, location=None):
         return int(re.sub('\D','', salary))
     except Exception, err:
         print title.encode('utf-8') + " not found by indeed"
-    return None
+    return -1
 
 def get_glassdoor_salary(title):
-    if not title: return None
+    if not title: 
+        return -1
     url =  "http://www.glassdoor.com/Salaries/" +  title.replace(" ",'-').strip() + "-salary-SRCH_KO0," + str(len(title.strip())) + ".htm"
     try:
         response = requests.get(url, headers=headers)
         clean = lxml.html.fromstring(response.content)
     except:
         print "bad request"
-        return None
+        return -1
     try:
         salary = clean.xpath("//div[@class='meanPay nowrap positive']")[0].text_content()
         return int(re.sub('\D','', salary))
     except Exception, err:
         listings = clean.xpath(".//span[@class='i-occ strong noMargVert ']")
-        if not listings: return None
+        if not listings: 
+            return -1
         common = None
         for listing in listings:
             text = re.sub('[^a-z]',' ', listing.text.lower())
             words = set(text.split())
             common = common & words if common else words
-        if not common: return None
+        if not common: 
+            return -1
         new_title = " ".join([w for w in text.split() if w in common])
-        if new_title.lower().strip() == title.lower().strip(): return None
+        if new_title.lower().strip() == title.lower().strip(): 
+            return -1
         print title.encode('utf-8') + "-->" + new_title.encode('utf-8')
         return get_glassdoor_salary(new_title)
-    return None
+    return -1
 
 def get_salary_percentile(max_salary):
     # response = requests.get("http://www.whatsmypercent.com/incomeRank.php?income=" + str(max_salary) + "&status=all%20filers", headers=headers)

@@ -6,7 +6,7 @@ import requests
 import lxml.html
 import pandas
 import shutil
-import os, re, json, numpy
+import os, re, json, numpy, sys
 from prime.utils import headers, get_bucket
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSON, TSVECTOR, ARRAY
@@ -18,7 +18,7 @@ from sqlalchemy.engine.url import URL
 from prime import db
 from prime.prospects.helper import BingSearch
 from citext import CIText
-from prime.prospects.get_prospect import session, from_url
+from prime.prospects.get_prospect import session, from_url, from_prospect_id
 import dateutil.parser
 from boto.s3.key import Key
 from consume.facebook_consumer import *
@@ -30,6 +30,7 @@ from sqlalchemy import and_, not_
 import os
 import scipy.stats as stats
 import multiprocessing
+import traceback
 
 bucket = get_bucket('facebook-profiles')
 industry_category = pandas.read_csv('p200_templates/industries.csv', index_col='Industry', sep="\t").Category.to_dict()
@@ -449,6 +450,22 @@ class MapquestGeocodes(db.Model):
     name = db.Column(CIText(), primary_key=True)
     geocode = db.Column(JSON)
 
+    @staticmethod
+    def get_coordinates(raw, use_db=False):
+        from prime.utils.geocode import search_mapquest_coordinates
+        if not raw: 
+            return None
+        if use_db:
+            rec = get_or_create(session, MapquestGeocodes, name=raw)
+            if rec.geocode: 
+                return rec.geocode
+        geocode = search_mapquest_coordinates(raw)
+        if geocode and use_db:
+            rec.geocode = geocode
+            session.add(rec)
+            session.commit()
+        return geocode        
+
 class Location(db.Model):
     __tablename__ = "location"
 
@@ -582,7 +599,7 @@ class Job(db.Model):
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
-    title = db.Column(String(1024))
+    title = db.Column(String(1024)) 
     fts_title = db.Column(TSVECTOR)
     start_date = db.Column(Date)
     end_date = db.Column(Date)
@@ -617,26 +634,24 @@ class Job(db.Model):
     def get_indeed_salary(self):
         if self.indeed_salary:
             return self.indeed_salary
-        salary = get_indeed_salary(self.title, location=self.location if self.location else self.prospect.location_raw)
+        jobtitle = get_or_create(session, JobTitle, title=self.title)
+        salary = jobtitle.get_indeed_salary
         if salary:
             self.indeed_salary = salary
-        else:
-            self.indeed_salary = -1
-        session.add(self)
-        session.commit()
+            session.add(self)
+            session.commit()
         return self.indeed_salary
 
     @property 
     def get_glassdoor_salary(self):
         if self.glassdoor_salary:
             return self.glassdoor_salary
-        salary = get_glassdoor_salary(self.title)
+        jobtitle = get_or_create(session, JobTitle, title=self.title)
+        salary = jobtitle.get_glassdoor_salary
         if salary:
             self.glassdoor_salary = salary
-        else:
-            self.glassdoor_salary = -1
-        session.add(self)
-        session.commit()
+            session.add(self)
+            session.commit()
         return self.glassdoor_salary
 
     @property
@@ -649,6 +664,38 @@ class Job(db.Model):
                 self.company.name,
                 self.prospect.name
                 )
+
+class JobTitle(db.Model):
+    __tablename__ = "job_titles"
+    title = db.Column(String(1024), primary_key=True)
+    indeed_salary = db.Column(Integer)
+    glassdoor_salary = db.Column(Integer)
+
+    @property 
+    def get_max_salary(self):
+        return max(self.get_glassdoor_salary, self.get_indeed_salary)
+
+    @property 
+    def get_indeed_salary(self):
+        if self.indeed_salary:
+            return self.indeed_salary
+        salary = get_indeed_salary(self.title)
+        if salary:
+            self.indeed_salary = salary
+            session.add(self)
+            session.commit()
+        return self.indeed_salary
+
+    @property 
+    def get_glassdoor_salary(self):
+        if self.glassdoor_salary:
+            return self.glassdoor_salary
+        salary = get_glassdoor_salary(self.title)
+        if salary:
+            self.glassdoor_salary = salary
+            session.add(self)
+            session.commit()
+        return self.glassdoor_salary
 
 class GoogleMapsSearch(db.Model):
     __tablename__ = "google_maps_results"
@@ -814,10 +861,8 @@ class FacebookContact(db.Model):
         if not salary: salary = get_indeed_salary(title)
         if salary:
             self.indeed_salary = salary
-        else: 
-            self.indeed_salary = -1
-        session.add(self)
-        session.commit()
+            session.add(self)
+            session.commit()
         return self.indeed_salary
 
     @property 
@@ -830,10 +875,8 @@ class FacebookContact(db.Model):
         salary = get_glassdoor_salary(title)
         if salary:
             self.glassdoor_salary = salary
-        else:
-            self.glassdoor_salary = -1
-        session.add(self)
-        session.commit()
+            session.add(self)
+            session.commit()
         return self.glassdoor_salary
 
     @property
@@ -1117,540 +1160,6 @@ class EmailContact(db.Model):
             return url
         return url
 
-class Agent(db.Model):
-    __tablename__ = "agent"
-    email = db.Column(CIText(), primary_key=True)
-    geolocation = db.Column(CIText())
-    public_url = db.Column(CIText())
-    first_name = db.Column(CIText())
-    unique_emails = db.Column(JSON)
-    linkedin_urls = db.Column(JSON)
-    prospect_ids = db.Column(JSON)
-    geospecific_prospect_ids = db.Column(JSON)
-    average_age = db.Column(Float) 
-    average_wealth_score = db.Column(Float) 
-    pct_college = db.Column(Float) 
-    pct_male = db.Column(Float) 
-    pct_female = db.Column(Float) 
-    industries = db.Column(JSON) 
-    schools = db.Column(JSON) 
-    qualified_leads= db.Column(Integer) 
-    extended_leads  =db.Column(Integer) 
-    leads_json  =db.Column(JSON) 
-    extended_leads_json  =db.Column(JSON) 
-
-    @staticmethod
-    def compute_stars(contact_profiles):
-        all_scores = [profile.get("leadscore") for profile in contact_profiles]
-        for i in range(len(contact_profiles)):
-            profile = contact_profiles[i]
-            percentile = stats.percentileofscore(all_scores, profile["leadscore"])
-            if percentile > 66: score = 3
-            elif percentile > 33: score = 2
-            else: score = 1
-            profile["score"] = score
-            contact_profiles[i] = profile
-        contact_profiles = sorted(contact_profiles, key=lambda k: k['leadscore'], reverse=True) 
-        return contact_profiles
-
-    @property 
-    def get_prospect_ids(self):
-        if self.prospect_ids:
-            return self.prospect_ids
-        prospect_ids = {}
-        linkedin_urls = self.get_linkedin_urls
-        for url in linkedin_urls.keys():
-            contact = from_url(url)
-            if not contact: 
-                continue
-            urls_associated_emails = linkedin_urls.get(url,[])
-            prospects_associated_emails = prospect_ids.get(contact.id,[])
-            associated_emails = list(set(urls_associated_emails+prospects_associated_emails))
-            prospect_ids[contact.id] = associated_emails
-            contact_email_addresses = contact.all_email_addresses
-            if 'linkedin' in associated_emails:
-                associated_emails.remove('linkedin')
-            contact.all_email_addresses = list(set(associated_emails + contact_email_addresses)) if contact_email_addresses else associated_emails
-            session.add(contact)
-        self.prospect_ids = prospect_ids
-        session.add(self)
-        session.commit()    
-        return prospect_ids
-
-    @property 
-    def get_linkedin_urls(self):
-        if self.linkedin_urls:
-            return self.linkedin_urls
-        unique_emails = self.get_email_contacts
-        linkedin_urls = {}
-        for_pipl = []
-        for email in unique_emails.keys():
-            info = unique_emails.get(email,{})
-            sources = info.get("sources",set()) 
-            url = info.get("linkedin")
-            if url:
-                associated_emails = linkedin_urls.get(url,[])
-                if email not in associated_emails: 
-                    associated_emails.append(email)
-                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
-                    associated_emails.append('linkedin')
-                linkedin_urls[url] = associated_emails          
-                continue
-            ec = get_or_create(session,EmailContact,email=email)    
-            if ec.linkedin_url:
-                associated_emails = linkedin_urls.get(url,[])
-                if email not in associated_emails: 
-                    associated_emails.append(email)
-                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
-                    associated_emails.append('linkedin')
-                linkedin_urls[url] = associated_emails          
-                info["linkedin"] = ec.linkedin_url
-                unique_emails[email] = info 
-                continue
-            if not ec.pipl_response or ec.pipl_response.get("@http_status_code")==403:
-                for_pipl.append(email)
-        print str(len(linkedin_urls)) + " linkedin urls"
-        print str(len(for_pipl)) + " for pipl"
-        #pipl limits you to 20 hits/second. if you go above a pool size of 7, this could be an issue.
-        pool = multiprocessing.Pool(7)
-        pipl_responses = pool.map(query_pipl, for_pipl)
-        for_clearbit = []
-        for i in xrange(0, len(for_pipl)):
-            email = for_pipl[i]
-            info = unique_emails.get(email,{})
-            sources = info.get("sources",set()) 
-            ec = session.query(EmailContact).get(email)
-            pipl_response = pipl_responses[i]
-            ec.pipl_response = pipl_response
-            session.add(ec)
-            pipl_social_accounts = get_pipl_social_accounts(pipl_response)
-            url = get_specific_url(pipl_social_accounts, type="linkedin.com")
-            if url:
-                associated_emails = linkedin_urls.get(url,[])
-                if email not in associated_emails: 
-                    associated_emails.append(email)
-                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
-                    associated_emails.append('linkedin')
-                linkedin_urls[url] = associated_emails          
-                info["linkedin"] = ec.linkedin_url
-                unique_emails[email] = info             
-                ec.linkedin_url = url
-                session.add(ec)
-                continue
-            if not ec.clearbit_response:
-                for_clearbit.append(email)
-        session.commit()
-        print str(len(linkedin_urls))+  " linkedin urls"
-        print str(len(for_clearbit)) +" for clearbit"
-        clearbit_responses = pool.map(query_clearbit, for_clearbit)
-        pool.close()
-        for i in xrange(0, len(for_clearbit)):
-            email = for_clearbit[i]
-            info = unique_emails.get(email,{})
-            sources = info.get("sources",set()) 
-            ec = session.query(EmailContact).get(email)
-            clearbit_response = clearbit_responses[i]
-            ec.clearbit_response = clearbit_response
-            session.add(ec)
-            clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
-            url = get_specific_url(clearbit_social_accounts, type="linkedin.com")
-            if url:
-                associated_emails = linkedin_urls.get(url,[])
-                if email not in associated_emails: 
-                    associated_emails.append(email)
-                if 'linkedin' in sources and 'linkedin' not in associated_emails: 
-                    associated_emails.append('linkedin')
-                linkedin_urls[url] = associated_emails          
-                info["linkedin"] = ec.linkedin_url
-                unique_emails[email] = info             
-                ec.linkedin_url = url
-                session.add(ec)
-        session.commit()
-        self.unique_emails = unique_emails
-        self.linkedin_urls = linkedin_urls
-        session.add(self)
-        session.commit()
-        return linkedin_urls
-
-    @property
-    def get_email_contacts(self):
-        unique_emails = {}       
-        if self.unique_emails:
-            return self.unique_emails
-        contacts = session.query(CloudspongeRecord).filter(CloudspongeRecord.user_email==self.email).all() 
-        for contact in contacts:
-            service = contact.service
-            rec = contact.get_emails
-            job_title = contact.get_job_title
-            company = contact.get_company
-            for email in rec:
-                try:
-                    domain = email.split("@")[-1].lower().strip()
-                    if domain in ['docs.google.com'] or domain.find('craigslist.org')>-1 or re.search('(\.|^)reply(\.|$)',domain) or re.search('(\-|^|\.)reply(\-|@|\.)',email) or re.search('(\-|^|\.)support(\-|@|\.)',email) or re.search('(\-|^|\.)sales(\-|@|\.)',email) or re.search('(\-|^|\.)info(\-|@|\.)',email) or re.search('(\-|^|\.)feedback(\-|@|\.)',email): 
-                        print email
-                        continue
-                    info = unique_emails.get(email,{})
-                    sources = info.get("sources",[])
-                    if service.lower()=='linkedin':
-                        if 'linkedin' not in sources: 
-                            sources.append('linkedin')
-                    else:
-                        source = contact.contacts_owner.get("email",[{}])[0].get("address")
-                        if source and source not in sources: 
-                            sources.append(source)
-                    info["sources"] = sources
-                    if job_title: 
-                        info["job_title"] = job_title
-                    if company:
-                        info["company"] = company
-                    unique_emails[email] = info 
-                except:
-                    print email + " failed with error " + str(sys.exc_info()[0])
-                    continue
-        self.unique_emails = unique_emails
-        session.add(self)
-        session.commit()                  
-        return unique_emails
-
-    @property 
-    def compute_stats(self):
-        contact_profiles = session.query(LeadProfile).filter(LeadProfile.agent_id==self.email).all() 
-        industries = {}
-        schools = {}
-        if len(contact_profiles) ==0 : return 
-        n_degree = 0
-        n_wealth = 0
-        wealth_tot = 0
-        n_age = 0
-        age_tot = 0
-        n_male = 0
-        n_female = 0
-        self.qualified_leads = 0
-        self.extended_leads = 0
-        for profile in contact_profiles:
-            if profile.extended:
-                self.extended_leads+=1
-                continue
-            self.qualified_leads+=1
-            if profile.wealthscore: 
-                n_wealth+=1
-                wealth_tot+=profile.wealthscore 
-            if profile.age:
-                n_age+=1
-                age_tot+=profile.age    
-            if profile.college_grad:
-                n_degree+=1
-            if profile.gender:
-                if profile.gender=='Male':
-                    n_male+=1
-                elif profile.gender=='Female':
-                    n_female+=1
-            if profile.common_school:
-                count = schools.get(profile.common_school,0)
-                schools[profile.common_school] = count+1   
-            if profile.industry_category:
-                count = industries.get(profile.industry_category,0)
-                industries[profile.industry_category] = count+1                   
-        self.average_age = float(age_tot)/float(n_age)
-        self.average_wealth_score = float(wealth_tot)/float(n_wealth)
-        self.pct_college = float(n_degree)/float(self.qualified_leads)
-        self.pct_male = float(n_male)/float(n_male+n_female)
-        self.pct_female = float(n_female)/float(n_male+n_female)
-        self.industries = industries
-        self.schools = schools
-        session.add(self)
-        session.commit()
-
-    @property 
-    def get_leads_json(self):
-        if self.leads_json:
-            return self.leads_json
-        leads = []
-        contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email, LeadProfile.extended.isnot(True))).all() 
-        for profile in contact_profiles:
-            profile.industry_category = None
-            profile.industry_icon = None            
-            profile.categorize_industry
-            profile_json = profile.to_json
-            if not profile_json.get("url"):
-                continue               
-            leads.append(profile_json)
-            session.add(profile)
-        self.leads_json = Agent.compute_stars(leads)
-        session.add(self)
-        session.commit()
-        return leads
-
-    @property 
-    def get_extended_leads_json(self):
-        if self.extended_leads_json:
-            return self.extended_leads_json
-        leads = []
-        contact_profiles = session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email, LeadProfile.extended.is_(True))).all() 
-        for profile in contact_profiles:
-            profile.industry_category = None
-            profile.industry_icon = None            
-            profile.categorize_industry
-            profile_json = profile.to_json
-            if not profile_json.get("url"):
-                continue            
-            leads.append(profile_json)
-            session.add(profile)
-        self.extended_leads_json = Agent.compute_stars(leads)
-        session.add(self)
-        session.commit()
-        return leads
-
-    @property 
-    def top_industries(self):
-        if not self.industries:
-            return []
-        return sorted(self.industries, key=self.industries.get, reverse=True)[:5]
-
-    @property 
-    def write_leads_js(self):
-        base_dir = 'p200_templates/' + self.email
-        if not os.path.exists(base_dir):
-            os.makedirs(base_dir)        
-        js_dir = base_dir + "/js"
-        if not os.path.exists(js_dir):
-            os.makedirs(js_dir)
-        leads_str = "connectionsJ = " + unicode(json.dumps(self.leads_json, ensure_ascii=False)) + "; "
-        leads_file = open(js_dir + "/leads-ln.js", "w")
-        leads_file.write(leads_str.encode('utf8', 'replace'))
-        leads_file.close()
-        leads_str = "connectionsJ = " + unicode(json.dumps(self.extended_leads_json, ensure_ascii=False)) + "; "
-        leads_file = open(js_dir + "/leads-extended.js", "w")
-        leads_file.write(leads_str.encode('utf8', 'replace'))
-        leads_file.close()
-
-    @property 
-    def write_vars_js(self):
-        base_dir = 'p200_templates/' + self.email
-        if not os.path.exists(base_dir):
-            os.makedirs(base_dir)        
-        js_dir = base_dir + "/js"
-        if not os.path.exists(js_dir):
-            os.makedirs(js_dir)
-        vars_str = 'var colors = ["#8dd8f7", "#5bbdea", "#01a1dd", "#0079c2"]; function randColor(colors) {return colors[Math.floor(Math.random() * colors.length)]}  '
-        vars_str += 'industries = ' + json.dumps(self.industries_json) + ";  "
-        vars_str += 'var schools = ' + json.dumps(self.schools_json) + ";  "
-        vars_str += 'var stats = ' + json.dumps(self.stats_json) + ";  "
-        vars_str += 'var n_extended = ' + str(self.extended_leads) + ";  "
-        vars_str += 'var n_first_degree = ' + str(self.qualified_leads) + ";  "
-        vars_str += 'var n_total = ' + str(self.qualified_leads + self.extended_leads) + ";  "
-        vars_str += 'client_name = "' + self.first_name + '";  '
-        vars_file = open(js_dir + "/vars.js", "w")
-        vars_file.write(vars_str)
-        vars_file.close()
-
-    @property 
-    def write_html_files(self):
-        base_dir = 'p200_templates/' + self.email
-        if not os.path.exists(base_dir):
-            os.makedirs(base_dir)        
-        from_dir = 'p200_templates/common' 
-        shutil.copyfile(from_dir + "/leads.html", base_dir + "/leads-ln.html")     
-        shutil.copyfile(from_dir + "/leads.html", base_dir + "/leads-extended.html")     
-        shutil.copyfile(from_dir + "/summary.html", base_dir + "/summary.html")     
-        for category in self.top_industries:
-            clean = re.sub("[^a-z]","", category.lower())  
-            shutil.copyfile(from_dir + "/leads.html", base_dir + "/leads-" + clean + ".html")      
-
-    @property 
-    def create_visual(self):
-        self.get_leads_json
-        self.get_extended_leads_json           
-        self.compute_stats   
-        self.schools_json
-        self.industries_json 
-        self.write_html_files
-        self.write_vars_js
-        self.write_leads_js
-
-    @property 
-    def refresh_visual(self):
-        self.leads_json = None
-        self.extended_leads_json = None
-        self.schools = None
-        self.industries = None
-        self.get_leads_json
-        self.get_extended_leads_json 
-        self.compute_stats        
-        self.schools_json
-        self.industries_json
-        self.write_html_files
-        self.write_vars_js
-        self.write_leads_js
-
-    @property 
-    def stats_json(self):
-        percent_male = "{0:.0f}%".format(self.pct_male*100)
-        percent_female = "{0:.0f}%".format(self.pct_female*100)
-        percent_degree = "{0:.0f}%".format(self.pct_college*100)
-        average_age = int(self.average_age)
-        average_wealth = str(int(self.average_wealth_score)) + "/100"
-        stats = [{"name":"Male","value":percent_male},{"name":"Female","value":percent_female},{"name":"College Degree","value":percent_degree},{"name":"Average Income Score","value":average_wealth},{"name":"Average Age","value":average_age}]
-        return stats
-
-    @property 
-    def schools_json(self):
-        if not self.schools:
-            return []
-        school_info = []
-        for school in self.schools:
-            clean = re.sub("[^a-z]","", school.lower())
-            count = self.schools[school]
-            d = {'clean':clean,'label':school, 'value':count}
-            school_info.append(d)
-        return school_info
-
-    @property 
-    def industries_json(self):
-        if not self.industries:
-            return []
-        top_industries = self.top_industries
-        industry_info = []
-        for category in top_industries:
-            clean = re.sub("[^a-z]","", category.lower())
-            count = self.industries[category]
-            icon = category_icon[category]
-            d = {'clean':clean,'label':category, 'value':count, 'icon':icon}
-            industry_info.append(d)    
-        return industry_info   
-
-class LeadProfile(db.Model):
-    __tablename__ = "lead_profiles"
-    id = db.Column(CIText(), primary_key=True)
-    agent_id = db.Column(CIText(), ForeignKey("agent.email"), primary_key=True)
-    agent = relationship('Agent', foreign_keys='LeadProfile.agent_id')    
-    facebook_id = db.Column(CIText(), ForeignKey("facebook_contacts.facebook_id"), index=True)
-    contact = relationship('FacebookContact', foreign_keys='LeadProfile.facebook_id')
-    prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
-    prospect = relationship('Prospect', foreign_keys='LeadProfile.prospect_id')
-    salary = db.Column(Integer)
-    age = db.Column(Float)
-    wealthscore = db.Column(Integer)
-    leadscore = db.Column(Integer)
-    mailto = db.Column(CIText())
-    friend_prospect_ids = db.Column(JSON)
-    people_links = db.Column(JSON)
-    name = db.Column(String(200))
-    twitter = db.Column(CIText())
-    soundcloud = db.Column(CIText())
-    slideshare = db.Column(CIText())
-    plus = db.Column(CIText())
-    pinterest = db.Column(CIText())
-    facebook = db.Column(CIText())
-    linkedin = db.Column(CIText())
-    amazon= db.Column(CIText())
-    angel= db.Column(CIText())
-    foursquare= db.Column(CIText())
-    github= db.Column(CIText())
-    url = db.Column(CIText())
-    location = db.Column(String(200))
-    industry = db.Column(String(200))
-    industry_category = db.Column(String(100))
-    industry_icon = db.Column(String(40))
-    job_title = db.Column(String(200))
-    job_location = db.Column(String(200))
-    company_name = db.Column(String(200))
-    company_url = db.Column(CIText())
-    company_website = db.Column(CIText())
-    company_headquarters = db.Column(String(500))
-    phone = db.Column(CIText())
-    image_url = db.Column(CIText())
-    gender = db.Column(String(15))
-    college_grad = db.Column(Boolean)
-    common_school = db.Column(String(200))
-    extended = db.Column(Boolean)
-    referrer_url =db.Column(CIText())
-    referrer_name =db.Column(String(200))
-    referrer_id = db.Column(CIText())
-    referrer_connection =db.Column(String(600))
-    json = db.Column(JSON)
-
-    @property 
-    def categorize_industry(self):
-        if not self.industry_category and industry_category.get(self.industry):
-            self.industry_category = industry_category.get(self.industry)
-            if not self.industry_icon and category_icon.get(self.industry_category):
-                self.industry_icon = category_icon.get(self.industry_category)
-            session.add(self)
-            session.commit()
-
-    @property 
-    def get_images(self):
-        images = []
-        images = images+ get_pipl_images(self.prospect.get_pipl_response)
-        if not self.mailto:
-            return images
-        email_accounts = self.mailto.split(":")[1].split(",")
-        for email in email_accounts:
-            email_contact = get_or_create(session,EmailContact, email=email)
-            images = images + email_contact.get_images
-        return images
-
-    @property 
-    def to_json(self):
-        keep_vars = ["company_name", "job_title","name","leadscore","id","image_url","url","industry_category","mailto","phone","referrer_url","referrer_name","referrer_connection"]
-        if self.json:
-            return self.json
-        keep_vars = keep_vars + social_domains      
-        d = {}
-        for column in self.__table__.columns:
-            attr = getattr(self, column.name) 
-            if column.name in keep_vars and attr is not None: 
-                if isinstance(attr, basestring) and attr.find("http") == 0:
-                    if not link_exists(attr): 
-                        setattr(self, column.name, None)
-                        continue        
-                d[column.name] = attr
-        if not self.image_url:
-            for image in self.get_images:
-                if link_exists(image):
-                    self.image_url = image
-                    d["image_url"] = self.image_url
-                    break
-        if not self.image_url:
-            self.leadscore-=5
-            self.image_url = "https://myspace.com/common/images/user.png"
-            d["image_url"] = self.image_url
-        self.json = d
-        session.add(self)
-        session.commit()    
-        if d.get("leadscore") is None:
-            print self.id        
-        return d     
-
-class CloudspongeRecord(db.Model):
-    __tablename__ = "cloudsponge_raw"
-    id = db.Column(Integer, primary_key=True)
-    user_email = db.Column(CIText(), ForeignKey("agent.email"), index=True)
-    agent = relationship('Agent', foreign_keys='CloudspongeRecord.user_email')
-    contacts_owner = db.Column(JSON)
-    contact = db.Column(JSON)
-    service = db.Column(CIText())
-
-    @property
-    def get_job_title(self):
-        return self.contact.get("job_title")
-
-    @property
-    def get_company(self):
-        if self.contact.get("companies"):
-            return self.contact.get("companies")[0]
-        return None
-
-    @property
-    def get_emails(self):
-        all_emails = []
-        info = self.contact 
-        emails = info.get("email",[{}])
-        for email in emails:
-            address = email.get("address").lower()
-            if address: all_emails.append(address)
-        return all_emails        
 
 class Proxy(db.Model):
     __tablename__ = "proxy"

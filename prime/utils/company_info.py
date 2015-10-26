@@ -6,6 +6,7 @@ from consume.li_scrape_job import scrape_job
 import json, re, requests
 from prime.utils import headers
 from consume.api_consumer import clearbit
+from consume.convert import uu
 
 def augment_company_info(contact_profiles):
     company_urls = set()
@@ -72,7 +73,7 @@ def get_phone_number(profile, liscraper):
             continue
         google_results = get_google_results(liscraper, q)   
         if google_results.phone_numbers and len(set(google_results.phone_numbers))==1 and len(set(google_results.plus_links))==1: 
-            print q
+            print uu(q)
             profile.phone = google_results.phone_numbers[0]
             session.add(profile)
             session.commit()
@@ -84,7 +85,7 @@ def get_phone_number(profile, liscraper):
                 if not bing_results: continue
                 bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
                 if name_match(bing_title, company_name):
-                    print q
+                    print uu(q)
                     profile.phone = google_results.phone_numbers[k]
                     session.add(profile)
                     session.commit()
@@ -100,7 +101,7 @@ def get_phone_number(profile, liscraper):
                     source = response.content
                     phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)
                     if phone_numbers: 
-                        print q
+                        print uu(q)
                         profile.phone = phone_numbers[0]
                         session.add(profile)
                         session.commit()                            
