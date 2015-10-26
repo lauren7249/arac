@@ -1,6 +1,8 @@
 from prime.prospects.models import *
 from prime.prospects.lead_model import *
 from sqlalchemy import or_, and_
+from prime.utils import bing
+from prime.prospects.get_prospect import connected
 
 class Agent(db.Model):
     __tablename__ = "agent"
@@ -10,6 +12,7 @@ class Agent(db.Model):
     first_name = db.Column(CIText())
     unique_emails = db.Column(JSON)
     linkedin_urls = db.Column(JSON)
+    extended_urls = db.Column(JSON)
     prospect_ids = db.Column(JSON)
     company_exclusions = db.Column(JSON)
     #only local to the agent
@@ -19,7 +22,11 @@ class Agent(db.Model):
     first_degree_titles = db.Column(JSON)
     extended_titles = db.Column(JSON)   
 
+    extended_prospect_ids = db.Column(JSON)
+
     qualified_leads_determined = db.Column(Boolean)
+    extended_leads_determined = db.Column(Boolean)
+
     average_age = db.Column(Float) 
     average_wealth_score = db.Column(Float) 
     pct_college = db.Column(Float) 
@@ -27,8 +34,8 @@ class Agent(db.Model):
     pct_female = db.Column(Float) 
     industries = db.Column(JSON) 
     schools = db.Column(JSON) 
-    qualified_leads= db.Column(Integer) 
-    extended_leads  =db.Column(Integer) 
+    n_qualified_leads= db.Column(Integer) 
+    n_extended_leads  =db.Column(Integer) 
     leads_json  =db.Column(JSON) 
     extended_leads_json  =db.Column(JSON) 
 
@@ -38,6 +45,108 @@ class Agent(db.Model):
         prospect_ids.sort()
         prospects =  session.query(Prospect).filter(Prospect.id.in_(prospect_ids)).all()
         return prospects
+
+    @property 
+    def get_extended_leads(self):
+        if self.extended_leads_determined:
+            return session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email,LeadProfile.extended.is_(True))).all() 
+        prospect_ids = self.get_prospect_ids.keys()
+        locations = self.get_extended_locations
+        titles = self.get_extended_titles
+        exclusions = self.company_exclusions
+        contact_profiles = self.get_qualified_leads
+        self.get_extended_prospect_ids
+        extended_profiles = []
+        for profile in contact_profiles:
+            if not profile.friend_prospect_ids: continue
+            for prospect_id in profile.friend_prospect_ids:
+                if prospect_id in prospect_ids: continue
+                li = from_prospect_id(prospect_id)
+                commonality = profile.friend_prospect_ids.get(prospect_id)
+                valid_profile = LeadProfile.validate_lead(li, exclude=exclusions, locations=locations, titles=titles)
+                if not valid_profile: 
+                    continue
+                valid_profile["referrer_id"] = profile.id
+                valid_profile["referrer_url"] = profile.url
+                valid_profile["referrer_name"] = profile.name
+                valid_profile["referrer_connection"] = commonality 
+                valid_profile["extended"] = True       
+                extended_profiles.append(valid_profile)   
+        session.commit()
+        cp = []
+        for valid_profile in extended_profiles:
+            lead = get_or_create(session,LeadProfile,agent_id=self.email, id=str(valid_profile.get("id")))
+            for key, value in valid_profile.iteritems():
+                setattr(lead, key, value)       
+            session.add(lead)   
+            cp.append(lead)
+        self.extended_leads_determined = True
+        session.add(self)
+        session.commit()                              
+        return cp
+
+    @property 
+    def get_extended_prospect_ids(self):
+        if self.extended_prospect_ids:
+            return self.extended_prospect_ids
+        contact_profiles = self.get_qualified_leads
+        linkedin_urls = self.get_linkedin_urls.keys()
+        pairs = []
+        for profile in contact_profiles:        
+            if not profile.prospect:
+                continue
+            profile.friend_prospect_ids = {}
+            session.add(profile)
+            urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)            
+            for url in urls:
+                if url in linkedin_urls: 
+                    continue           
+                extended_prospect = from_url(url)
+                if not extended_prospect or str(extended_prospect.id) in self.get_prospect_ids.keys():
+                    continue
+                pairs.append((profile.prospect,extended_prospect))
+        session.commit()
+        # pool = multiprocessing.Pool(15)
+        # results = pool.map(has_common_inst, pairs)
+        # pool.close()
+        extended_prospect_ids = {}
+        for i in xrange(0, len(pairs)):
+            #commonality = results[i]
+            pair = pairs[i] 
+            commonality = connected(pair)
+            if not commonality: 
+                continue  
+            prospect = pair[0]
+            extended_prospect = pair[1]
+            #really just a get
+            profile = get_or_create(session, LeadProfile,agent_id=self.email, id=str(prospect.id))
+            friend_prospect_ids = profile.friend_prospect_ids if profile.friend_prospect_ids else {}
+            friend_prospect_ids.update({extended_prospect.id: commonality})
+            profile.friend_prospect_ids = friend_prospect_ids
+            session.add(profile)
+            referrers = extended_prospect_ids.get(extended_prospect.id, [])
+            referrers.append((prospect.id,commonality))
+        self.extended_prospect_ids = extended_prospect_ids
+        session.add(self)
+        session.commit()
+        return extended_prospect_ids
+
+    @property 
+    def get_extended_urls(self):
+        if self.extended_urls:
+            return self.extended_urls
+        contact_profiles = self.get_qualified_leads
+        linkedin_urls = self.get_linkedin_urls.keys()
+        extended_urls = set()
+        for profile in contact_profiles:
+            urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)
+            for url in urls:
+                if url not in linkedin_urls: extended_urls.add(url)
+        extended_urls = list(extended_urls)
+        self.extended_urls = extended_urls
+        session.add(self)
+        session.commit()
+        return extended_urls
 
     @property 
     def get_qualified_leads(self):
@@ -418,13 +527,13 @@ class Agent(db.Model):
         age_tot = 0
         n_male = 0
         n_female = 0
-        self.qualified_leads = 0
-        self.extended_leads = 0
+        self.n_qualified_leads = 0
+        self.n_extended_leads = 0
         for profile in contact_profiles:
             if profile.extended:
-                self.extended_leads+=1
+                self.n_extended_leads+=1
                 continue
-            self.qualified_leads+=1
+            self.n_qualified_leads+=1
             if profile.wealthscore: 
                 n_wealth+=1
                 wealth_tot+=profile.wealthscore 
@@ -446,7 +555,7 @@ class Agent(db.Model):
                 industries[profile.industry_category] = count+1                   
         self.average_age = float(age_tot)/float(n_age)
         self.average_wealth_score = float(wealth_tot)/float(n_wealth)
-        self.pct_college = float(n_degree)/float(self.qualified_leads)
+        self.pct_college = float(n_degree)/float(self.n_qualified_leads)
         self.pct_male = float(n_male)/float(n_male+n_female)
         self.pct_female = float(n_female)/float(n_male+n_female)
         self.industries = industries
@@ -529,9 +638,9 @@ class Agent(db.Model):
         vars_str += 'industries = ' + json.dumps(self.industries_json) + ";  "
         vars_str += 'var schools = ' + json.dumps(self.schools_json) + ";  "
         vars_str += 'var stats = ' + json.dumps(self.stats_json) + ";  "
-        vars_str += 'var n_extended = ' + str(self.extended_leads) + ";  "
-        vars_str += 'var n_first_degree = ' + str(self.qualified_leads) + ";  "
-        vars_str += 'var n_total = ' + str(self.qualified_leads + self.extended_leads) + ";  "
+        vars_str += 'var n_extended = ' + str(self.n_extended_leads) + ";  "
+        vars_str += 'var n_first_degree = ' + str(self.n_qualified_leads) + ";  "
+        vars_str += 'var n_total = ' + str(self.n_qualified_leads + self.n_extended_leads) + ";  "
         vars_str += 'client_name = "' + self.first_name + '";  '
         vars_file = open(js_dir + "/vars.js", "w")
         vars_file.write(vars_str)

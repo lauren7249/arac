@@ -7,19 +7,6 @@ import joblib
 import re
 from consume.get_gender import *
 from consume.api_consumer import *
-# pegasos_model = joblib.load("../data/pegasos_model.dump")
-
-# def title_qualifies(title):
-# 	try:
-# 		title_split = re.sub('[^A-Za-z0-9]+', ' ', title).lower().split()
-# 	except:
-# 		print "error"
-# 		return False
-# 	d = dict((i,title_split.count(i)) for i in title_split)
-# 	dotproduct=0
-# 	for j in d:
-# 		if j in pegasos_model: dotproduct+=d[j]*pegasos_model[j] 
-# 	return (dotproduct > 0)
 
 def agent_network(prospects, locales=['New York','Greater New York City Area']):
 	#employed, in ny, not in financial services
@@ -370,97 +357,6 @@ def facebook_to_linkedin_from_urls(facebook_contacts, urls_xwalk):
 			if found_match: break
 	return facebook_to_linkedin
 
-# def get_phone_number(profile, liscraper):
-# 	if profile.get("phone"): return profile.get("phone")
-# 	li = None
-# 	if profile.get("linkedin"): li = from_url(profile.get("linkedin"))
-# 	phone = ""
-# 	headquarters = ""
-# 	website = ""
-# 	mapquest_coordinates = ""
-# 	mapquest = ""
-# 	company_name = ""
-# 	li_company = None
-# 	location = ""
-# 	if li:
-# 		if li.current_job:
-# 			li_company = li.current_job.linkedin_company
-# 			if not li_company and li.current_job.company:
-# 				results = search_linkedin_companies(li.current_job.company.name)
-# 				if results: 
-# 					company_url = results[0]
-# 					li_company = company_from_url(company_url)
-# 		location = li.current_job.location if li.current_job and li.current_job.location else li.location_raw
-# 	else: 
-# 		results = search_linkedin_companies(profile.get("company_name"))
-# 		if results: 
-# 			company_url = results[0]
-# 			li_company = company_from_url(company_url)		
-# 		fbcontact = session.query(FacebookContact).get(profile.get("facebook").split("/")[-1])
-# 		location = fbcontact.get_location
-# 	company_name = li_company.name if li_company else profile.get("company_name")
-# 	if li_company:
-# 		if li_company.website: website = li_company.website.replace("https://","").replace("http://","").split("/")[0]
-# 		if li_company.headquarters: headquarters = li_company.headquarters.replace("\n"," ")	
-# 	if location:
-# 		mapquest = get_mapquest_coordinates(location)
-# 		if mapquest and mapquest.get("latlng_result",{}).get("name"): mapquest_coordinates = mapquest.get("latlng_result",{}).get("name")
-# 	queries = ["+".join([company_name,mapquest_coordinates])]
-# 	if website: queries = ["+".join([website, company_name, mapquest_coordinates]),"+".join([website,mapquest_coordinates])] + queries + ["+".join([website,company_name,headquarters]),"+".join([website,headquarters]),"+".join([company_name,headquarters]),"+".join([website, company_name]),website] 
-# 	for q in queries:
-# 		if q.endswith("+") or q.startswith("+"): 
-# 			continue
-# 		google_results = get_google_results(liscraper, q)	
-# 		if google_results.phone_numbers and len(set(google_results.phone_numbers))==1 and len(set(google_results.plus_links))==1: 
-# 			phone = google_results.phone_numbers[0]
-# 			#print query
-# 			return phone
-# 		elif len(google_results.phone_numbers)==len(google_results.plus_links):
-# 			for k in xrange(0, len(google_results.plus_links)):
-# 				plus_link = google_results.plus_links[k]
-# 				bing_results = query("", site="%22" + plus_link + "%22").results
-# 				if not bing_results: continue
-# 				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
-# 				if name_match(bing_title, company_name):
-# 					phone = google_results.phone_numbers[k]
-# 					#print company_name + " " + plus_link
-# 					#break
-# 					return phone
-# 		else: 
-# 			for k in xrange(0, len(google_results.plus_links)):
-# 				plus_link = google_results.plus_links[k]
-# 				bing_results = query("", site="%22" + plus_link + "%22").results
-# 				if not bing_results: continue
-# 				bing_title = bing_results[0].get("Title").replace(' - About - Google+','')
-# 				if name_match(bing_title, company_name):
-# 					response = requests.get(plus_link, headers=headers)
-# 					source = response.content
-# 					# try:
-# 					# 	liscraper.driver.get(plus_link)
-# 					# except:
-# 					# 	liscraper.login()
-# 					# 	liscraper.driver.get(plus_link)
-# 					# source = liscraper.driver.page_source
-# 					phone_numbers = re.findall('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',source)
-# 					if phone_numbers: return phone_numbers[0]
-# 	if li_company:
-# 		clearbit_response = li_company.get_clearbit_response
-# 		if clearbit_response: 
-# 			phone = clearbit_response.get("phone")	
-# 			if phone: return phone
-# 	if li:
-# 		pipl_json = li.get_pipl_response
-# 		if pipl_json: 
-# 			pipl_valid_recs = []
-# 			for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-# 				if not record.get('@query_params_match',True): continue
-# 				pipl_valid_recs.append(record)
-# 			pipl_json_str = json.dumps(pipl_valid_recs)
-# 			if re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str):
-# 				phone = re.search('\([0-9]{3}\) [0-9]{3}\-[0-9]{4}',pipl_json_str).group(0)
-# 				#print li.url	
-# 				return phone
-# 	return phone
 
 def get_mailto(profile):
 	if profile.get("mailto"): 

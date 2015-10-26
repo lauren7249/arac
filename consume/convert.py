@@ -373,6 +373,11 @@ def parse_html(html):
         except:
             pass
 
+    try:
+        headline = raw_html.find(".//div[@id='headline']").text_content()
+    except:
+        headline = None
+
     experiences = []
     schools = []
     try:
@@ -429,6 +434,7 @@ def parse_html(html):
         'image': image,
         'linkedin_id': linkedin_id,
         'full_name': full_name,
+        'headline': headline,
         'schools': schools,
         'experiences': experiences,
         'skills': skills,

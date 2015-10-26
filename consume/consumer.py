@@ -67,6 +67,7 @@ def update_prospect(info, prospect, session=session):
         "location_raw": info.get("location"),
         "industry_raw": info.get("industry"),
         "image_url": info.get("image"),
+        "headline": info.get("headline"),
         "updated": today,
         "json": data,
         "connections": info.get("connections")

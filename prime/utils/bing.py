@@ -3,7 +3,7 @@ from prime.prospects.models import BingSearches
 from prime.prospects.get_prospect import session
 from prime.utils import profile_re, school_re, company_re
 from difflib import SequenceMatcher
-
+from random import shuffle
 #api_key = "xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg" #jimmy@advisorconnect.co
 #api_key = "VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s" #lauren@advisorconnect.co
 #api_key = "ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU" #laurentracytalbot@gmail.com
@@ -11,7 +11,7 @@ from difflib import SequenceMatcher
 #api_key = "hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls" #lauren.tracytalbot@gmail.com
 #api_key = "FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0" #laurentracy.talbot@gmail.com
 #api_key = "U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE" #la.urentracytalbot@gmail.com
-api_key = "VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA" #l.aurentracytalbot@gmail.com
+#api_key = "VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA" #l.aurentracytalbot@gmail.com
 api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
 def filter_results(results, limit=100, url_regex=".", exclude_terms_from_title=None, include_terms_in_title=None):
 	filtered = []
@@ -50,18 +50,21 @@ def query(terms, site="", intitle="", inbody=[], page_limit=1):
 		record = BingSearches(terms=terms, site=site, intitle=intitle, inbody=" ".join(inbody), pages=0, results=[], next_querystring=querystring)
 		#print querystring
 	#print record.next_querystring
+	shuffle(api_keys)
 	while record.next_querystring and record.pages<page_limit:
-		response = requests.get(record.next_querystring + "&$format=json" , auth=(api_key, api_key))
-		try:
-			raw_results = json.loads(response.content)['d']
-			record.results += raw_results.get("results",[])
-			record.next_querystring = raw_results.get("__next")		
-			record.pages+=1	
-			session.add(record)
-			session.commit()			
-		except:
-			print response.content
-			break
+		for api_key in api_keys.copy():
+			response = requests.get(record.next_querystring + "&$format=json" , auth=(api_key, api_key))
+			try:
+				raw_results = json.loads(response.content)['d']
+				record.results += raw_results.get("results",[])
+				record.next_querystring = raw_results.get("__next")		
+				record.pages+=1	
+				session.add(record)
+				session.commit()
+				break			
+			except:
+				api_keys.remove(api_key)
+				print response.content
 	return record
 
 # %27site%3Alinkedin.com%20intitle%3AYesenia%2BMiranda%2Blinkedin%27&Adult=%27Strict%27

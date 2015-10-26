@@ -64,7 +64,7 @@ class Prospect(db.Model):
     location_raw = db.Column(String)
 
     image_url = db.Column(String(1024))
-
+    headline = db.Column(String(1024))
     industry = db.Column(Integer, ForeignKey("industry.id"))
     industry_raw = db.Column(String(1024))
 
