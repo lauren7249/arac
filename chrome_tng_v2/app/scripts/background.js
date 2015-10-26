@@ -194,6 +194,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     }
 
     function clearCookies() {
+        //window.alert("clearCookies");
         chrome.cookies.getAll({}, function (cookies){
             for(var i=0;i<cookies.length;i++){
                 var cookie = cookies[i];
