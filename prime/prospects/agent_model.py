@@ -312,8 +312,6 @@ class Agent(db.Model):
         from prime.utils.geocode import search_mapquest_coordinates
         prospect_ids = []
         for prospect_id in propsect_ids_json.keys():
-            if not prospect_id.isdigit():
-                continue
             prospect_ids.append(int(prospect_id))
         prospect_ids.sort()
         prospect_locations =  session.query(Prospect.location_raw).filter(Prospect.id.in_(prospect_ids)).distinct().all()
