@@ -236,7 +236,7 @@ class Agent(db.Model):
             return Agent.only_real_jobs(self.extended_titles)
         prospects = self.get_extended_prospects
         qualified_job_titles = Agent.get_qualified_job_titles(prospects)
-        self.get_extended_titles = qualified_job_titles
+        self.extended_titles = qualified_job_titles
         session.add(self)
         session.commit()
         return Agent.only_real_jobs(qualified_job_titles)
