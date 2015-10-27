@@ -12,7 +12,9 @@ from prime.utils import *
 import web, re
 from prime.utils.update_database_from_dict import insert_linkedin_profile
 from consume.consumer import *
-from prime.prospects.models import CloudspongeRecord, PhoneExport, session, Agent, get_or_create
+from prime.prospects.models import PhoneExport, session, get_or_create
+from prime.prospects.lead_model import CloudspongeRecord
+from prime.prospects.agent_model import Agent
 from services.touchpoints_costs import *
 from consume.api_consumer import *
 import sendgrid

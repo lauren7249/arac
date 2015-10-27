@@ -5,6 +5,7 @@ import datetime
 from prime.utils import bing
 import pandas
 from consume.li_scrape_job import *
+from prime.prospects.lead_model import CloudspongeRecord
 
 ##CSV download from linkedin. cloudsponge does not provide job title info
 li_df = pandas.read_csv("/Users/lauren/Downloads/linkedin_connections_export_microsoft_outlook.csv")

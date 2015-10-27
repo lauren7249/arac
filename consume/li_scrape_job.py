@@ -24,9 +24,9 @@ def scrape_job(job_urls, update_interval = None):
 		job_urls_https = [url.replace("http://","https://") for url in job_urls]
 
 		recs = session.query(ProspectUrl.linkedin_id).filter(and_(ProspectUrl.url.in_(list(job_urls)), ProspectUrl.linkedin_id != 1)).distinct().all()
-		lids = [rec[0] for rec in recs]
+		lids = [int(rec[0]) for rec in recs]
 	 	print str(len(lids)) + " matching lids from prospecturl table"
-
+	 	lids.sort()
 		recs = session.query(Prospect).filter(and_(Prospect.updated > refresh_date, or_(Prospect.linkedin_id.in_(lids), Prospect.url.in_(job_urls_https), Prospect.url.in_(job_urls_http)))).add_columns(Prospect.url, Prospect.linkedin_id).all()
 		print str(len(recs)) + " recs from prospect table"
 

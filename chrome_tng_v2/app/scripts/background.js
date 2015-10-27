@@ -194,6 +194,7 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
     }
 
     function clearCookies() {
+        //window.alert("clearCookies");
         chrome.cookies.getAll({}, function (cookies){
             for(var i=0;i<cookies.length;i++){
                 var cookie = cookies[i];
@@ -215,6 +216,9 @@ import { AC_AWS_BUCKET_NAME, AC_AWS_CREDENTIALS,
         if (ac_is_running == 1) {
 
             data = AC.delimited_to_list(data, '\n');
+            if (data.length==0) {
+                
+            }
             data.forEach(function(item) {
 
                 var _item = AC.normalize_string(item);

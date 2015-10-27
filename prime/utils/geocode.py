@@ -8,9 +8,11 @@ import re
 import numpy as np
 import itertools
 import operator
-from prime.prospects.models import MapquestGeocodes, get_or_create, session, GoogleMapsSearch
+from prime.prospects.models import session
 from consume.linkedin_friend import LinkedinFriend
 import time
+from geopy.geocoders import Nominatim
+import json
 
 def parse_out(text, startTag, endTag):
 	region = ""
@@ -58,6 +60,7 @@ def most_common(L):
 		return None
 
 def get_google_results(liscraper, query):
+	from prime.prospects.models import session, GoogleMapsSearch
 	if not query: return None
 	query = query.strip().replace(" ","+")
 	rec = session.query(GoogleMapsSearch).get(query)
@@ -91,59 +94,131 @@ def get_google_results(liscraper, query):
 	session.commit()
 	return rec
 
-def get_mapquest_coordinates(raw):
-	if not raw: return None
-	rec = get_or_create(session, MapquestGeocodes, name=raw)
-	if rec.geocode: return rec.geocode
+def search_openstreetmaps(raw):
+	if not raw:
+		return None
+	geolocator = Nominatim()
+	location = geolocator.geocode(raw)
+	if not location or not location.latitude or not location.longitude or not location.address:
+		return None
+	country = location.address.split(",")[-1].strip()
+	locality = ",".join(location.address.split(",")[:-1]).strip()
+	return {"latlng":(location.latitude, location.longitude), "locality":locality, "country":country}
+
+def search_mapquest_coordinates(raw):
+	if not raw: 
+		return None
 	url =  "https://www.mapquest.com/?q=%s" % (raw)
 	try:
 		response = requests.get(url, headers=headers)
 		raw_html = lxml.html.fromstring(response.content)
 		raw_search_results = raw_html.xpath(".//script[contains(.,'m3.dotcom.controller.MCP.addSite')]")[0].text
 	except:
-		return None
-	# results = json.loads(parse_out(raw_search_results, "'dotcom', ", ");"))
-	# print len(results['model']['applications'][0]['state']['locations'])
-	user_home = parse_out(response.content, 'USER_HOME = {','};')
-	user_home_coords = [float(x) for x in re.findall('[0-9\.\-]+',user_home)]
+		return search_openstreetmaps(raw)
+	json_area = parse_out(raw_search_results,"m3.dotcom.controller.MCP.boot('dotcom', ","); ")
+	try:
+		json_data = json.loads(json_area)
+		locations = json_data['model']['applications'][0]['state']['locations']
+		geocode = geocode_from_json(locations)
+		if geocode:
+			return geocode
+	except:
+		pass
+	geocode= geocode_from_scraps(response.content)
+	if geocode: 
+		return geocode
+	geocode = search_openstreetmaps(raw)
+	if geocode:
+		return geocode
+	if uu(raw.split(",")[0]) != uu(raw):
+		return search_mapquest_coordinates(raw.split(",")[0])
+	return {}
+
+def geocode_from_json(locations):
+	coords = []
+	localities = []
+	regions = []
+	countries = []
+	for location in locations:
+		address = location.get("address")
+		if not address:
+			continue
+		latlng = address.get("latLng")
+		if not latlng:
+			continue
+		lat = latlng.get("lat")
+		lng = latlng.get("lng")
+		if not lat or not lng: 
+			continue
+		coords.append(GeoPoint(lat,lng))
+		regions.append(address.get("regionLong"))
+		localities.append(address.get("locality"))
+		countries.append(address.get("countryLong"))
+	main_locality = most_common(localities)
+	main_region = most_common(regions)
+	main_country = most_common(countries)
+	if main_locality =='null': main_locality=None
+	if main_region=='null': main_region=None
+	if main_country=='null': main_country=None			
+	locality_coords = []
+	for i in xrange(len(coords)):
+		if localities[i] == main_locality and regions[i] == main_region and countries[i]==main_country:
+			locality_coords.append(coords[i])
+	center = get_center(locality_coords)			
+	if center:
+		geocode = {"latlng":(center.latitude, center.longitude), "locality":main_locality, "region":main_region,"country":main_country
+		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
+		}
+		return geocode
+	return {}
+
+def geocode_from_scraps(raw_search_results):
 	latlng = re.findall('(?<="latLng":{)[A-Za-z0-9\"\',\s\.:\-]+', raw_search_results)
-	if len(latlng) < 2 : return None
+	if len(latlng) < 2 : 
+		return {}
 	latlng = latlng[0:len(latlng)-1]
-	localities = re.findall('(?<="locality":)\"*[^\"]+(?=")', raw_search_results)
-	if len(localities) < 2: return None
-	localities = localities[0:len(localities)-1]
-	countries = re.findall('(?<="countryLong":)\"*[^\"]+(?=")', raw_search_results)
-	if len(countries) < 2: return None
-	countries = countries[0:len(countries)-1]	
-	regions = re.findall('(?<="regionLong":)\"*[^\"]+(?=")', raw_search_results)
-	if len(regions): regions = regions[0:len(regions)-1]
-	main_locality = most_common(localities).replace(r'"','').replace("null,",'')
-	main_region = most_common(regions).replace(r'"','')
-	main_country = most_common(countries).replace(r'"','')
+	countries = re.findall('((?<="countryLong":\")[^\"]+(?=")|(?<="countryLong":)null)', raw_search_results)
+	if len(countries) < 2: 
+		return {}
+	countries = countries[0:len(countries)-1]		
+	localities = re.findall('((?<="locality":\")[^\"]+(?=")|(?<="locality":)null)', raw_search_results)
+	if len(localities) >=2: 
+		localities = localities[0:len(localities)-1]
+	else:
+		localities = []
+	regions = re.findall('((?<="regionLong":\")[^\"]+(?=")|(?<="regionLong":)null)', raw_search_results)
+	if len(regions)>=2: 
+		regions = regions[0:len(regions)-1]
+	main_locality = most_common(localities)
+	main_region = most_common(regions)
+	main_country = most_common(countries)
+	if main_locality =='null': main_locality=None
+	if main_region=='null': main_region=None
+	if main_country=='null': main_country=None
 	coords = []
 	for result in latlng:
 		current = [float(x) for x in re.findall('[0-9\.\-]+',result)]
 		if len(current)==2: coords.append(GeoPoint(current[0],current[1]))
 	locality_coords = []
-	if len(coords) == len(localities):
+	if len(coords) == len(localities) and len(coords) == len(countries) and len(regions)==len(coords) and main_locality:
 		for i in xrange(len(coords)):
-			if localities[i] == main_locality:
+			if localities[i] == main_locality and regions[i] == main_region and countries[i]==main_country:
 				locality_coords.append(coords[i])
 		center = get_center(locality_coords)
 	else:
 		center = get_center(coords)
 	if center:
-		rec.geocode = {"latlng":(center.latitude, center.longitude), "locality":main_locality, "region":main_region,"country":main_country
+		geocode = {"latlng":(center.latitude, center.longitude), "locality":main_locality, "region":main_region,"country":main_country
 		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
 		}
-		if rec.geocode:
-			session.add(rec)
-			session.commit()
-		return rec.geocode
-	if uu(raw.split(",")[0]) != uu(raw):
-		return get_mapquest_coordinates(raw.split(",")[0])
+		return geocode
 	return {}
-	
+
+#a relic 
+def get_mapquest_coordinates(raw):
+	from prime.prospects.models import MapquestGeocodes
+	return MapquestGeocodes.get_coordinates(raw, use_db=True)
+
 def get_center(coords, remove_outliers=False):
 	distances = []
 	for coord in coords:

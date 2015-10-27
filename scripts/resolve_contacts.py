@@ -1,5 +1,6 @@
 from prime.prospects.models import *
 import re
+from prime.prospects.lead_model import CloudspongeRecord
 
 email = 'laurentracytalbot@gmail.com'
 contacts = session.query(CloudspongeRecord).filter(CloudspongeRecord.user_email==email).all()
