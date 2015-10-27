@@ -64,7 +64,7 @@ if  __name__=="__main__":
 		for profile in contact_profiles + extended_profiles:
 			get_phone_number(profile, None)
 
-		agent.refresh_visual
+		agent.create_visual
 
 		total_hours = float((datetime.datetime.now() - start_time).seconds)/float(60*60)
 		sendgrid_email('lauren@advisorconnect.co','successful p200',user_email + " completed p200 after " + str(total_hours) + " hours" )
