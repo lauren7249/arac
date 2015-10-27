@@ -119,7 +119,11 @@ def search_mapquest_coordinates(raw):
 	try:
 		json_data = json.loads(json_area)
 		locations = json_data['model']['applications'][0]['state']['locations']
-		return geocode_from_json(locations)
+		geocode = geocode_from_json(locations)
+		if geocode:
+			return geocode
+		else:
+			return geocode_from_scraps(response.content)
 	except:
 		return geocode_from_scraps(response.content)
 
@@ -159,7 +163,7 @@ def geocode_from_json(locations):
 		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
 		}
 		return geocode
-	return search_openstreetmaps(raw)	
+	return {}
 
 def geocode_from_scraps(raw_search_results):
 	latlng = re.findall('(?<="latLng":{)[A-Za-z0-9\"\',\s\.:\-]+', raw_search_results)
