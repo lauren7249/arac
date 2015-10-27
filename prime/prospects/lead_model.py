@@ -37,6 +37,7 @@ class LeadProfile(db.Model):
     industry_category = db.Column(String(100))
     industry_icon = db.Column(String(40))
     job_title = db.Column(String(200))
+    headline = db.Column(String(200))
     job_location = db.Column(String(200))
     company_name = db.Column(String(200))
     company_url = db.Column(CIText())
@@ -109,7 +110,14 @@ class LeadProfile(db.Model):
 		emails = [x for x in associated_emails if not x.endswith("@facebook.com") and x !='linkedin']
 		profile["emails"] = emails
 		profile["mailto"] = 'mailto:' + ",".join(emails)	
-
+		if prospect.headline:
+			profile["headline"] = prospect.headline  
+		elif profile.get("job_title") and profile.get("job_title") != 'Works' and profile.get("job_company"):
+			profile["headline"] =  profile.get("job_title") + "  at " + profile.get("job_company")
+		elif profile.get("job_title") and not profile.get("job_company"):
+			profile["headline"] = profile.get("job_title")
+		else:
+			profile["headline"] = profile.get("job_company")	
 		social_accounts = prospect.social_accounts
 		if salary:
 			wealth_percentile = get_salary_percentile(salary)

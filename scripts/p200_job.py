@@ -46,10 +46,8 @@ if  __name__=="__main__":
 		#rougly 1 url/second
 		seconds_scraped, urls_scraped = scrape_job(linkedin_urls.keys() + [public_url],update_interval=10)
 
-		#1150
-		prospect_ids = agent.get_prospect_ids
-
-		contact_profiles = agent.get_qualified_leads
+		#this has a lot of other methods which take a long time and set other fields
+		agent.get_qualified_leads
 
 		extended_urls = agent.get_extended_urls
 

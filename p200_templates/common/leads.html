@@ -117,6 +117,7 @@
           for (var i in connectionsJ) {
             var company = connectionsJ[i].company_name;
             var job = connectionsJ[i].job_title;
+            var role = connectionsJ[i].headline;
             var name = connectionsJ[i].name;
             var score = connectionsJ[i].score;
             var id = connectionsJ[i].id
@@ -166,11 +167,11 @@
                 social = "<ul>" + social + "</ul>";
                 social = '<div class="span10 offset1"><div class="social-icons">' + social + '</div></div>';
             }
-            if (job != "Works") {
-              role = job + ", " + company;
-            } else {
-              role = company;
-            }
+            // if (job != "Works") {
+            //   role = job + ", " + company;
+            // } else {
+            //   role = company;
+            // }
             role = "<p>" + role + "</p>";
             if (phone) {
               phone = "<p>Business phone: " + phone + "</p>";

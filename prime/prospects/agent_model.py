@@ -139,7 +139,7 @@ class Agent(db.Model):
         linkedin_urls = self.get_linkedin_urls.keys()
         extended_urls = set()
         for profile in contact_profiles:
-            urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)
+            urls = set(bing.search_extended_network(profile.name, school=profile.headline) + profile.people_links)
             for url in urls:
                 if url not in linkedin_urls: extended_urls.add(url)
         extended_urls = list(extended_urls)

@@ -376,7 +376,10 @@ def parse_html(html):
     try:
         headline = raw_html.find(".//div[@id='headline']").text_content()
     except:
-        headline = None
+        try:
+            headline = raw_html.find(".//p[@class='headline title']").text_content()
+        except:
+            headline = None
 
     experiences = []
     schools = []

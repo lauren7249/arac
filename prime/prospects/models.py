@@ -427,6 +427,12 @@ class Prospect(db.Model):
                 if ec.job_title:
                     job["title"] = ec.job_title
                 return job
+        if self.headline:
+            if self.headline.find(" at "):
+                job["title"] = self.headline.split(" at ")[0]
+                job["company"] = " at ".join(self.headline.split(" at ")[1:])
+            else:
+                job["title"] = self.headline         
         return job
      
     @property 
