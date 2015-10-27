@@ -101,6 +101,8 @@ def search_linkedin_schools(school):
 	return school_ids
 
 def search_linkedin_companies(company):
+	if not company:
+		return []
 	record = query("", site="linkedin.com", intitle=re.sub(r" ","%2B",company).replace('&','').replace(',','') , page_limit=22)
 	profiles = filter_results(record.results, url_regex=company_re, include_terms_in_title=company)
 	urls = []
