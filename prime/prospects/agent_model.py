@@ -3,6 +3,7 @@ from prime.prospects.lead_model import *
 from sqlalchemy import or_, and_
 from prime.utils import bing
 from prime.prospects.get_prospect import connected
+from prime.utils.geocode import GeoPoint
 
 class Agent(db.Model):
     __tablename__ = "agent"
@@ -40,6 +41,13 @@ class Agent(db.Model):
     extended_leads_json  =db.Column(JSON) 
 
     @property 
+    def get_extended_prospects(self):
+        prospect_ids=[int(x) for x in self.get_extended_prospect_ids.keys()]
+        prospect_ids.sort()
+        prospects =  session.query(Prospect).filter(Prospect.id.in_(prospect_ids)).all()
+        return prospects
+
+    @property 
     def get_prospects(self):
         prospect_ids=[int(x) for x in self.get_prospect_ids.keys()]
         prospect_ids.sort()
@@ -56,11 +64,13 @@ class Agent(db.Model):
         exclusions = self.company_exclusions
         contact_profiles = self.get_qualified_leads
         self.get_extended_prospect_ids
+        me = from_url(self.public_url)
         extended_profiles = []
         for profile in contact_profiles:
             if not profile.friend_prospect_ids: continue
             for prospect_id in profile.friend_prospect_ids:
                 if prospect_id in prospect_ids: continue
+                if prospect_id==me.id: continue
                 li = from_prospect_id(prospect_id)
                 commonality = profile.friend_prospect_ids.get(prospect_id)
                 valid_profile = LeadProfile.validate_lead(li, exclude=exclusions, locations=locations, titles=titles)
@@ -92,12 +102,18 @@ class Agent(db.Model):
         contact_profiles = self.get_qualified_leads
         linkedin_urls = self.get_linkedin_urls.keys()
         pairs = []
+        session.commit()
         for profile in contact_profiles:        
             if not profile.prospect:
                 continue
             profile.friend_prospect_ids = {}
-            session.add(profile)
-            urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)            
+            print profile.id
+            if profile.headline:
+                urls = set(bing.search_extended_network(profile.name, school=profile.headline) + profile.people_links)
+            elif profile.company_name:
+                urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)
+            else:
+                urls = set(bing.search_extended_network(profile.name, school=profile.job_title) + profile.people_links)   
             for url in urls:
                 if url in linkedin_urls: 
                     continue           
@@ -105,7 +121,6 @@ class Agent(db.Model):
                 if not extended_prospect or str(extended_prospect.id) in self.get_prospect_ids.keys():
                     continue
                 pairs.append((profile.prospect,extended_prospect))
-        session.commit()
         # pool = multiprocessing.Pool(15)
         # results = pool.map(has_common_inst, pairs)
         # pool.close()
@@ -126,6 +141,7 @@ class Agent(db.Model):
             session.add(profile)
             referrers = extended_prospect_ids.get(extended_prospect.id, [])
             referrers.append((prospect.id,commonality))
+            extended_prospect_ids.update({extended_prospect.id: referrers})
         self.extended_prospect_ids = extended_prospect_ids
         session.add(self)
         session.commit()
@@ -139,9 +155,16 @@ class Agent(db.Model):
         linkedin_urls = self.get_linkedin_urls.keys()
         extended_urls = set()
         for profile in contact_profiles:
-            urls = set(bing.search_extended_network(profile.name, school=profile.headline) + profile.people_links)
+            #print profile.id
+            if profile.headline:
+                urls = set(bing.search_extended_network(profile.name, school=profile.headline) + profile.people_links)
+            elif profile.company_name:
+                urls = set(bing.search_extended_network(profile.name, school=profile.company_name) + profile.people_links)
+            else:
+                urls = set(bing.search_extended_network(profile.name, school=profile.job_title) + profile.people_links)
             for url in urls:
                 if url not in linkedin_urls: extended_urls.add(url)
+            #print str(len(extended_urls)) + " extended urls"
         extended_urls = list(extended_urls)
         self.extended_urls = extended_urls
         session.add(self)
@@ -150,6 +173,7 @@ class Agent(db.Model):
 
     @property 
     def get_qualified_leads(self):
+        prospect_ids = self.get_prospect_ids
         if self.qualified_leads_determined:
             return session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email,not_(LeadProfile.extended.is_(True)))).all() 
         exclusions = self.company_exclusions
@@ -207,6 +231,17 @@ class Agent(db.Model):
         return list(qualified_titles)
 
     @property 
+    def get_extended_titles(self):
+        if self.extended_titles:
+            return Agent.only_real_jobs(self.extended_titles)
+        prospects = self.get_extended_prospects
+        qualified_job_titles = Agent.get_qualified_job_titles(prospects)
+        self.get_extended_titles = qualified_job_titles
+        session.add(self)
+        session.commit()
+        return Agent.only_real_jobs(qualified_job_titles)
+
+    @property 
     def get_first_degree_titles(self):
         if self.first_degree_titles:
             return Agent.only_real_jobs(self.first_degree_titles)
@@ -235,10 +270,11 @@ class Agent(db.Model):
                 continue   
         for_indeed = list(titles - qualified_titles)
         print str(len(for_indeed)) + " for_indeed"
-        pool = multiprocessing.Pool(15)    
-        indeed_salaries = pool.map(get_indeed_salary, for_indeed)
-        print "done getting indeed"
-        pool.close()
+        if len(for_indeed):
+            pool = multiprocessing.Pool(15)    
+            indeed_salaries = pool.map(get_indeed_salary, for_indeed)
+            print "done getting indeed"
+            pool.close()
         for i in xrange(0, len(for_indeed)):
             title = for_indeed[i]
             salary = indeed_salaries[i]
@@ -250,10 +286,11 @@ class Agent(db.Model):
         session.commit()                
         for_glassdoor = list(titles - qualified_titles)
         print str(len(for_glassdoor)) + " for_glassdoor"
-        pool = multiprocessing.Pool(15)    
-        glassdoor_salaries = pool.map(get_glassdoor_salary, for_glassdoor)
-        print "done getting glassdoor"
-        pool.close()
+        if len(for_glassdoor):
+            pool = multiprocessing.Pool(15)    
+            glassdoor_salaries = pool.map(get_glassdoor_salary, for_glassdoor)
+            print "done getting glassdoor"
+            pool.close()
         for i in xrange(0, len(for_glassdoor)):
             title = for_glassdoor[i]
             salary = glassdoor_salaries[i]
@@ -332,6 +369,18 @@ class Agent(db.Model):
         local_locations = Agent.get_local_locations(self.get_prospect_ids, client_geopoint)
         if local_locations:
             self.first_degree_locations = local_locations
+            session.add(self)
+            session.commit()    
+        return local_locations
+
+    @property 
+    def get_extended_locations(self):
+        if self.extended_locations:
+            return self.extended_locations
+        client_geopoint = self.get_geopoint
+        local_locations = Agent.get_local_locations(self.get_extended_prospect_ids, client_geopoint)
+        if local_locations:
+            self.extended_locations = local_locations
             session.add(self)
             session.commit()    
         return local_locations

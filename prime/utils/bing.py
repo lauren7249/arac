@@ -4,6 +4,7 @@ from prime.prospects.get_prospect import session
 from prime.utils import profile_re, school_re, company_re
 from difflib import SequenceMatcher
 from random import shuffle
+from consume.convert import uu
 #api_key = "xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg" #jimmy@advisorconnect.co
 #api_key = "VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s" #lauren@advisorconnect.co
 #api_key = "ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU" #laurentracytalbot@gmail.com
@@ -52,7 +53,7 @@ def query(terms, site="", intitle="", inbody=[], page_limit=1):
 	#print record.next_querystring
 	shuffle(api_keys)
 	while record.next_querystring and record.pages<page_limit:
-		for api_key in api_keys.copy():
+		for api_key in api_keys:
 			response = requests.get(record.next_querystring + "&$format=json" , auth=(api_key, api_key))
 			try:
 				raw_results = json.loads(response.content)['d']
@@ -63,8 +64,11 @@ def query(terms, site="", intitle="", inbody=[], page_limit=1):
 				session.commit()
 				break			
 			except:
-				api_keys.remove(api_key)
-				print response.content
+				print uu(response.content)
+			if not record.next_querystring: 
+				break
+		if not record.next_querystring: 
+			break			
 	return record
 
 # %27site%3Alinkedin.com%20intitle%3AYesenia%2BMiranda%2Blinkedin%27&Adult=%27Strict%27

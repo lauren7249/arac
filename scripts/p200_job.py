@@ -3,8 +3,8 @@ from consume.li_scrape_job import scrape_job
 from prime.prospects.models import EmailContact, get_or_create, session
 from prime.prospects.lead_model import CloudspongeRecord
 from prime.prospects.lead_model import *
-from prime.prospects.agent_model import *
-from prime.prospects.get_prospect import get_session, from_url
+from prime.prospects.agent_model import Agent
+from prime.prospects.get_prospect import from_url, session
 from prime.utils.geocode import *
 from prime.utils.networks import *
 from prime.utils import bing
@@ -16,6 +16,7 @@ logger.addHandler(logging.StreamHandler())
 from prime.utils import sendgrid_email
 import sys, datetime
 import traceback
+import multiprocessing
 
 if  __name__=="__main__":
 	user_email = sys.argv[1]
@@ -27,16 +28,8 @@ if  __name__=="__main__":
 		agent.company_exclusions = exclusions
 		session.add(agent)
 		session.commit()
-		location = agent.geolocation
+
 		public_url = agent.public_url
-		client_coords = get_mapquest_coordinates(location).get("latlng")
-		client_geopoint = GeoPoint(client_coords[0],client_coords[1])
-		print location
-		print public_url
-
-		unique_emails = agent.get_email_contacts
-
-		print str(len(unique_emails.keys())) + " unique emails "
 
 		#takes about 30 minutes
 		linkedin_urls = agent.get_linkedin_urls
@@ -47,17 +40,26 @@ if  __name__=="__main__":
 		seconds_scraped, urls_scraped = scrape_job(linkedin_urls.keys() + [public_url],update_interval=10)
 
 		#this has a lot of other methods which take a long time and set other fields
-		agent.get_qualified_leads
+		contact_profiles = agent.get_qualified_leads
 
+		# def get_extended_urls():
+		# 	return agent.get_extended_urls
+
+		# pool = multiprocessing.Pool(3)
+		# extended_urls_result = pool.apply_async(get_extended_urls)
+
+		# company_info_result = pool.apply_async(augment_company_info, (contact_profiles,))
+		session.commit()
 		extended_urls = agent.get_extended_urls
+
 
 		#1.26 urls/second
 		seconds_scraped, urls_scraped = scrape_job(extended_urls,update_interval=10)
 
 		extended_profiles = agent.get_extended_leads
 
-		contact_profiles = session.query(LeadProfile).filter(LeadProfile.agent_id==user_email).all() 
-		augment_company_info(contact_profiles)
+
+		augment_company_info(contact_profiles + extended_profiles)
 
 		for profile in contact_profiles:
 			get_phone_number(profile, None)

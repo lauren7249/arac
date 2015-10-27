@@ -718,7 +718,7 @@ class BingSearches(db.Model):
     inbody = db.Column(CIText(), primary_key=True)
     results = db.Column(JSON)
     pages = db.Column(Integer)
-    next_querystring =db.Column(String(300))
+    next_querystring =db.Column(Text)
 
     def __repr__(self):
         return '<Terms={0}, site={1}, intitle={2}, inbody={4}, pages={3}>'.format(

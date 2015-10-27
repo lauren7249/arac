@@ -24,21 +24,13 @@ def get_session():
 session = get_session()
 
 def connected(tup):
-	# url = tup[1]
-	# p1 = from_url(url)
-	# if not p1: 
-	# 	return None   
-	# prospect_id = int(tup[0])
-	# p2 = from_prospect_id(prospect_id)
-	# if not p2:
-	# 	return None
 	p1 = tup[0]
 	p2 = tup[1]
 	if not p1 or not p2:
 		return None
-	if not also_viewed(p1,p2):
-		print uu(p1.url + " not also viewed for " + p2.url)
-		return None
+	# if not also_viewed(p1,p2):
+	# 	print uu(p1.url + " not also viewed for " + p2.url)
+	# 	return None
 	return has_common_institutions(p1,p2)
 
 def also_viewed(p1,p2):
