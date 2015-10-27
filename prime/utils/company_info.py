@@ -53,7 +53,9 @@ def get_phone_number(profile, liscraper):
     mapquest_coordinates = ""
     mapquest = ""
     location = profile.location if profile.location else profile.job_location
-    company_name = profile.company_name if profile.company_name else ""
+    company_name = profile.company_name 
+    if not company_name:
+        return None
     if profile.company_website: 
         website = profile.company_website.replace("https://","").replace("http://","").split("/")[0]
     else:
