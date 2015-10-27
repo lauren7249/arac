@@ -122,10 +122,17 @@ def search_mapquest_coordinates(raw):
 		geocode = geocode_from_json(locations)
 		if geocode:
 			return geocode
-		else:
-			return geocode_from_scraps(response.content)
 	except:
-		return geocode_from_scraps(response.content)
+		pass
+	geocode= geocode_from_scraps(response.content)
+	if geocode: 
+		return geocode
+	geocode = search_openstreetmaps(raw)
+	if geocode:
+		return geocode
+	if uu(raw.split(",")[0]) != uu(raw):
+		return search_mapquest_coordinates(raw.split(",")[0])
+	return {}
 
 def geocode_from_json(locations):
 	coords = []
@@ -168,11 +175,11 @@ def geocode_from_json(locations):
 def geocode_from_scraps(raw_search_results):
 	latlng = re.findall('(?<="latLng":{)[A-Za-z0-9\"\',\s\.:\-]+', raw_search_results)
 	if len(latlng) < 2 : 
-		return search_openstreetmaps(raw)
+		return {}
 	latlng = latlng[0:len(latlng)-1]
 	countries = re.findall('((?<="countryLong":\")[^\"]+(?=")|(?<="countryLong":)null)', raw_search_results)
 	if len(countries) < 2: 
-		return search_openstreetmaps(raw)
+		return {}
 	countries = countries[0:len(countries)-1]		
 	localities = re.findall('((?<="locality":\")[^\"]+(?=")|(?<="locality":)null)', raw_search_results)
 	if len(localities) >=2: 
@@ -205,9 +212,7 @@ def geocode_from_scraps(raw_search_results):
 		# , "latlng_result":rg.get((center.latitude, center.longitude)) if center else None
 		}
 		return geocode
-	if uu(raw.split(",")[0]) != uu(raw):
-		return search_mapquest_coordinates(raw.split(",")[0])
-	return search_openstreetmaps(raw)	
+	return {}
 
 #a relic 
 def get_mapquest_coordinates(raw):
