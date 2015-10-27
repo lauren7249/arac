@@ -61,7 +61,7 @@ if  __name__=="__main__":
 
 		augment_company_info(contact_profiles + extended_profiles)
 
-		for profile in contact_profiles:
+		for profile in contact_profiles + extended_profiles:
 			get_phone_number(profile, None)
 
 		agent.refresh_visual
