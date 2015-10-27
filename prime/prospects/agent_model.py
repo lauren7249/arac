@@ -58,12 +58,13 @@ class Agent(db.Model):
     def get_extended_leads(self):
         if self.extended_leads_determined:
             return session.query(LeadProfile).filter(and_(LeadProfile.agent_id==self.email,LeadProfile.extended.is_(True))).all() 
+        self.get_extended_prospect_ids
         prospect_ids = self.get_prospect_ids.keys()
         locations = self.get_extended_locations
         titles = self.get_extended_titles
         exclusions = self.company_exclusions
         contact_profiles = self.get_qualified_leads
-        self.get_extended_prospect_ids
+        
         me = from_url(self.public_url)
         extended_profiles = []
         for profile in contact_profiles:
