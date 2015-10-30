@@ -24,7 +24,7 @@ from boto.s3.key import Key
 from consume.facebook_consumer import *
 from consume.api_consumer import *
 from requests import HTTPError
-import unirest 
+import unirest
 from random import shuffle
 from sqlalchemy import and_, not_
 import os
@@ -75,8 +75,8 @@ class Prospect(db.Model):
     json = db.Column(JSON)
 
     google_network_search = db.Column(JSON)
-    pipl_response = db.Column(JSON) 
-    pipl_contact_response = db.Column(JSON) 
+    pipl_response = db.Column(JSON)
+    pipl_contact_response = db.Column(JSON)
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
 
@@ -100,9 +100,9 @@ class Prospect(db.Model):
     def get_url(self):
         return "/prospect/{}".format(self.id)
 
-    @property 
+    @property
     def get_indeed_salary(self):
-        if self.current_job: 
+        if self.current_job:
             return self.current_job.get_indeed_salary
         job = self.get_job
         if not job:
@@ -110,20 +110,20 @@ class Prospect(db.Model):
         salary = get_indeed_salary(job.get("title"), location=job.get("location"))
         return salary
 
-    @property 
+    @property
     def get_glassdoor_salary(self):
-        if self.current_job: 
-            return self.current_job.get_glassdoor_salary     
+        if self.current_job:
+            return self.current_job.get_glassdoor_salary
         job = self.get_job
         if not job:
             return None
         salary = get_glassdoor_salary(job.get("title"))
         return salary
 
-    @property 
+    @property
     def get_max_salary(self):
-        if self.current_job: 
-            return self.current_job.get_max_salary           
+        if self.current_job:
+            return self.current_job.get_max_salary
         return max(self.get_glassdoor_salary, self.get_indeed_salary)
 
     @property
@@ -131,7 +131,7 @@ class Prospect(db.Model):
         jobs = self.jobs
         if len(jobs) > 0:
             present_jobs = [job for job in jobs if job.end_date is None]
-            if len(present_jobs): 
+            if len(present_jobs):
                 start_date_jobs = [job for job in present_jobs if job.start_date]
             else:
                 start_date_jobs = [job for job in jobs if job.start_date]
@@ -143,57 +143,57 @@ class Prospect(db.Model):
     @property
     def get_pipl_response(self) :
         content = {}
-        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403: 
-            return self.pipl_response      
+        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403:
+            return self.pipl_response
         content = query_pipl(linkedin_id=self.linkedin_id)
-        if content:   
-            self.pipl_response = content     
+        if content:
+            self.pipl_response = content
             session.add(self)
-            session.commit()                                         
-        return content     
+            session.commit()
+        return content
 
     @property
     def get_pipl_contact_response(self) :
         pipl_url ="http://api.pipl.com/search/v3/json/?key=" + pipl_api_key + "&pretty=true"
         content = {}
-        if self.pipl_contact_response: 
-            content = self.pipl_contact_response      
-        else:         
+        if self.pipl_contact_response:
+            content = self.pipl_contact_response
+        else:
             try:
                 url = pipl_url + "&username=" + str(self.linkedin_id) + "@linkedin"
                 response = requests.get(url)
-                content = json.loads(response.content)    
-                self.pipl_response = content     
+                content = json.loads(response.content)
+                self.pipl_response = content
                 session.add(self)
-                session.commit()                                        
+                session.commit()
             except:
-                pass    
+                pass
         return content
 
-    @property 
+    @property
     def age(self):
         dob_year = self.dob_year
         if not dob_year: return None
         return datetime.datetime.today().year - dob_year
 
-    @property 
+    @property
     def dob_year(self):
         dob_year_range = self.dob_year_range
         if not max(dob_year_range): return None
         return numpy.mean(dob_year_range)
 
-    @property 
+    @property
     def has_college_degree(self):
         if not self.schools: return False
         for school in self.schools:
-            if school.school_linkedin_id or school.name.lower().find('university')>-1 or school.name.lower().find('college')>-1:  
+            if school.school_linkedin_id or school.name.lower().find('university')>-1 or school.name.lower().find('college')>-1:
                 return True
             if school.degree:
                 clean_degree = re.sub('[^0-9a-z\s]','',school.degree.lower())
                 if re.search('^bs($|\s)', clean_degree) or re.search('^ba($|\s)', clean_degree) or re.search('^ab($|\s)', clean_degree): return True
         return False
 
-    @property 
+    @property
     def dob_year_range(self):
         first_school_year = None
         first_grad_year = None
@@ -205,15 +205,15 @@ class Prospect(db.Model):
             for school in self.schools:
                 if school.school_linkedin_id or school.name.lower().find('university')>-1 or school.name.lower().find('college')>-1:
                     if school.start_date and (not first_school_year or school.start_date.year<first_school_year): first_school_year = school.start_date.year
-                    if school.end_date and (not first_grad_year or school.end_date.year<first_grad_year): first_grad_year = school.end_date.year   
+                    if school.end_date and (not first_grad_year or school.end_date.year<first_grad_year): first_grad_year = school.end_date.year
                 else:
                     if school.start_date and (not first_weird_school_year or school.start_date.year<first_weird_school_year): first_weird_school_year = school.start_date.year
-                    if school.end_date and (not first_weird_grad_year or school.end_date.year<first_weird_grad_year): first_weird_grad_year = school.end_date.year   
+                    if school.end_date and (not first_weird_grad_year or school.end_date.year<first_weird_grad_year): first_weird_grad_year = school.end_date.year
 
-        if first_school_year: 
+        if first_school_year:
             dob_year_max = first_school_year - 17
             dob_year_min = first_school_year - 20
-        elif first_grad_year: 
+        elif first_grad_year:
             dob_year_max = first_grad_year - 21
             dob_year_min = first_grad_year - 25
         if dob_year_min: return (dob_year_min, dob_year_max)
@@ -223,12 +223,12 @@ class Prospect(db.Model):
         if self.jobs:
             for job in self.jobs:
                 if job.start_date and (not first_year_experience or job.start_date.year<first_year_experience): first_year_experience = job.start_date.year
-                if job.end_date and (not first_quitting_year or job.end_date.year<first_quitting_year): first_quitting_year = job.end_date.year  
+                if job.end_date and (not first_quitting_year or job.end_date.year<first_quitting_year): first_quitting_year = job.end_date.year
 
-        if first_year_experience: 
+        if first_year_experience:
             dob_year_max = first_year_experience - 18
             dob_year_min = first_year_experience - 24
-        elif first_quitting_year: 
+        elif first_quitting_year:
             dob_year_max = first_quitting_year - 19
             dob_year_min = first_quitting_year - 28
 
@@ -237,18 +237,18 @@ class Prospect(db.Model):
             dob_year_min -= (datetime.datetime.today().year - dob_year_min)/10
             return (dob_year_min, dob_year_max)
 
-        if first_weird_school_year: 
+        if first_weird_school_year:
             dob_year_max = first_weird_school_year - 14
             dob_year_min = first_weird_school_year - 22
-        elif first_weird_grad_year: 
+        elif first_weird_grad_year:
             dob_year_max = first_weird_grad_year - 17
             dob_year_min = first_weird_grad_year - 27
         return (dob_year_min, dob_year_max)
 
-    @property 
+    @property
     def get_location(self):
         return self.location_raw
-        # location = self.location_raw   
+        # location = self.location_raw
         # if location: return location
         # locations = get_pipl_locations(self.get_pipl_response)
         # if len(locations): location = locations[0]
@@ -261,7 +261,7 @@ class Prospect(db.Model):
             ec = get_or_create(session,EmailContact,email=email)
             for link in ec.social_accounts:
                 if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
-                s.append(link)                  
+                s.append(link)
         pipl_response = self.get_pipl_response
         pipl_social_accounts = get_pipl_social_accounts(pipl_response)
 
@@ -270,7 +270,7 @@ class Prospect(db.Model):
 
         for link in pipl_social_accounts + vibe_social_accounts:
             if link.find('linkedin.com') > -1 or type(link) is dict or link in s: continue
-            s.append(link)  
+            s.append(link)
         return s
 
     @property
@@ -296,7 +296,7 @@ class Prospect(db.Model):
     def email_contacts(self):
         if self.json:
             return self.json.get("email_contacts")
-        return None  
+        return None
 
     @property
     def pipl_info(self):
@@ -306,7 +306,7 @@ class Prospect(db.Model):
             emails = content.get('person').get("emails")
             images = content.get('person').get("images")
             if len(emails) > 0:
-                info['email'] = emails[0].get("address")     
+                info['email'] = emails[0].get("address")
         return info
 
     @property
@@ -402,26 +402,26 @@ class Prospect(db.Model):
         return data
 
 
-    @property 
+    @property
     def get_job(self):
         job = {}
         if self.current_job and (not self.current_job.end_date or self.current_job.end_date >= datetime.date.today()):
-            if self.current_job.title: 
+            if self.current_job.title:
                 job["title"] = self.current_job.title
-            if self.current_job.company and self.current_job.company.name: 
+            if self.current_job.company and self.current_job.company.name:
                 job["company"] = self.current_job.company.name
-            if self.current_job.start_date: 
+            if self.current_job.start_date:
                 job["start_date"] = self.current_job.start_date
-            if self.current_job.end_date: 
-                job["end_date"] = self.current_job.end_date       
-            if self.current_job.location: 
-                job["location"] = self.current_job.location     
+            if self.current_job.end_date:
+                job["end_date"] = self.current_job.end_date
+            if self.current_job.location:
+                job["location"] = self.current_job.location
             if self.current_job.linkedin_company:
-                job["company_url"] = "https://www.linkedin.com/company/" + str(self.current_job.linkedin_company.id)        
+                job["company_url"] = "https://www.linkedin.com/company/" + str(self.current_job.linkedin_company.id)
             return job
         for email in self.email_accounts:
             ec = session.query(EmailContact).get(email)
-            if ec and (ec.company or ec.job_title): 
+            if ec and (ec.company or ec.job_title):
                 if ec.company:
                     job["company"] = ec.company
                 if ec.job_title:
@@ -432,17 +432,17 @@ class Prospect(db.Model):
                 job["title"] = self.headline.split(" at ")[0]
                 job["company"] = " at ".join(self.headline.split(" at ")[1:])
             else:
-                job["title"] = self.headline         
+                job["title"] = self.headline
         return job
-     
-    @property 
+
+    @property
     def build_profile(self):
         image_url = self.image_url
         if not image_url:
             other_images = get_pipl_images(self.get_pipl_response)
             if len(other_images): image_url = other_images[0]
         profile = {"id":self.id, "name":self.name, "job_title": self.get_job.get("title"), "company_name":self.get_job.get("company"), "image_url":  image_url, "url":self.url, "linkedin": self.url}
-        for link in self.social_accounts: 
+        for link in self.social_accounts:
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
         return profile
@@ -459,18 +459,18 @@ class MapquestGeocodes(db.Model):
     @staticmethod
     def get_coordinates(raw, use_db=False):
         from prime.utils.geocode import search_mapquest_coordinates
-        if not raw: 
+        if not raw:
             return None
         if use_db:
             rec = get_or_create(session, MapquestGeocodes, name=raw)
-            if rec.geocode: 
+            if rec.geocode:
                 return rec.geocode
         geocode = search_mapquest_coordinates(raw)
         if geocode and use_db:
             rec.geocode = geocode
             session.add(rec)
             session.commit()
-        return geocode        
+        return geocode
 
 class Location(db.Model):
     __tablename__ = "location"
@@ -577,7 +577,7 @@ class LinkedinCompany(db.Model):
     website = db.Column(CIText())
     clearbit_response = db.Column(JSON)
 
-    @property 
+    @property
     def get_clearbit_response(self):
         if self.clearbit_response and not self.clearbit_response.get("pending"): return self.clearbit_response
         if not self.website: return None
@@ -605,7 +605,7 @@ class Job(db.Model):
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
-    title = db.Column(String(1024)) 
+    title = db.Column(String(1024))
     fts_title = db.Column(TSVECTOR)
     start_date = db.Column(Date)
     end_date = db.Column(Date)
@@ -632,11 +632,11 @@ class Job(db.Model):
                 "location": self.location,
                 "dates": dates}
 
-    @property 
+    @property
     def get_max_salary(self):
         return max(self.get_glassdoor_salary, self.get_indeed_salary)
 
-    @property 
+    @property
     def get_indeed_salary(self):
         if self.indeed_salary:
             return self.indeed_salary
@@ -648,7 +648,7 @@ class Job(db.Model):
             session.commit()
         return self.indeed_salary
 
-    @property 
+    @property
     def get_glassdoor_salary(self):
         if self.glassdoor_salary:
             return self.glassdoor_salary
@@ -677,11 +677,11 @@ class JobTitle(db.Model):
     indeed_salary = db.Column(Integer)
     glassdoor_salary = db.Column(Integer)
 
-    @property 
+    @property
     def get_max_salary(self):
         return max(self.get_glassdoor_salary, self.get_indeed_salary)
 
-    @property 
+    @property
     def get_indeed_salary(self):
         if self.indeed_salary:
             return self.indeed_salary
@@ -692,7 +692,7 @@ class JobTitle(db.Model):
             session.commit()
         return self.indeed_salary
 
-    @property 
+    @property
     def get_glassdoor_salary(self):
         if self.glassdoor_salary:
             return self.glassdoor_salary
@@ -835,25 +835,25 @@ class FacebookContact(db.Model):
                 self.facebook_id
                 )
 
-    @property 
+    @property
     def get_max_salary(self):
         return max(self.get_glassdoor_salary, self.get_indeed_salary)
 
-    @property 
+    @property
     def get_best_title(self):
         if not self.get_profile_info: return None
         if not self.get_profile_info.get("job_company") and not self.get_profile_info.get("job_title"): return None
         if self.get_profile_info.get("job_title") == "Worked": return None
-        if self.get_profile_info.get("job_title") == "Works": 
+        if self.get_profile_info.get("job_title") == "Works":
             if not self.get_profile_info.get("job_company"): return None
             title = self.get_profile_info.get("job_company")
-        elif not self.get_profile_info.get("job_company"): 
-            title = self.get_profile_info.get("job_title") 
-        else: 
+        elif not self.get_profile_info.get("job_company"):
+            title = self.get_profile_info.get("job_title")
+        else:
             title = self.get_profile_info.get("job_title") + " at " + self.get_profile_info.get("job_company")
         return title
 
-    @property 
+    @property
     def get_indeed_salary(self):
         salary = None
         if self.indeed_salary:
@@ -861,7 +861,7 @@ class FacebookContact(db.Model):
         title = self.get_best_title
         if not title: return None
         salary = get_indeed_salary(title, location=self.get_profile_info.get("lives_in"))
-        if not salary and self.get_profile_info.get("job_title") != "Works" and self.get_profile_info.get("job_title") != "Worked": 
+        if not salary and self.get_profile_info.get("job_title") != "Works" and self.get_profile_info.get("job_title") != "Worked":
             title = self.get_profile_info.get("job_title")
             salary = get_indeed_salary(title, location=self.get_profile_info.get("lives_in"))
         if not salary: salary = get_indeed_salary(title)
@@ -871,7 +871,7 @@ class FacebookContact(db.Model):
             session.commit()
         return self.indeed_salary
 
-    @property 
+    @property
     def get_glassdoor_salary(self):
         salary = None
         if self.glassdoor_salary:
@@ -887,13 +887,13 @@ class FacebookContact(db.Model):
 
     @property
     def get_friends(self):
-        if self.friends: 
-            return self.friends 
+        if self.friends:
+            return self.friends
         key = Key(bucket)
         key.key = self.facebook_id + "-friends"
         if not key.exists(): return None
-        source = key.get_contents_as_string() 
-        friends = parse_facebook_friends(source)  
+        source = key.get_contents_as_string()
+        friends = parse_facebook_friends(source)
         self.friends = friends
         session.add(self)
         session.commit()
@@ -903,31 +903,31 @@ class FacebookContact(db.Model):
     def get_pipl_response(self) :
         content = {}
         if self.pipl_response and self.pipl_response.get("@http_status_code")!=403:
-            return self.pipl_response      
+            return self.pipl_response
         content = query_pipl(facebook_id=self.facebook_id)
-        if content:   
-            self.pipl_response = content     
+        if content:
+            self.pipl_response = content
             session.add(self)
-            session.commit()                                         
-        return content   
+            session.commit()
+        return content
 
     @property
     def get_fullcontact_response(self) :
         content = {}
-        if self.fullcontact_response: 
+        if self.fullcontact_response:
             content = self.fullcontact_response
-            return content      
+            return content
         try:
-            url = fullcontact_url + "&facebookUsername=" + self.facebook_id if not self.facebook_id.isdigit() else fullcontact_url + "&facebookId=" + self.facebook_id 
+            url = fullcontact_url + "&facebookUsername=" + self.facebook_id if not self.facebook_id.isdigit() else fullcontact_url + "&facebookId=" + self.facebook_id
             response = requests.get(url)
             content = json.loads(response.content)
             if content.get("status") == 200:
-                self.fullcontact_response = content     
+                self.fullcontact_response = content
                 session.add(self)
-                session.commit()                                        
+                session.commit()
         except:
-            pass    
-        return content 
+            pass
+        return content
 
     @property
     def social_accounts(self):
@@ -940,15 +940,15 @@ class FacebookContact(db.Model):
 
         for link in pipl_social_accounts + fullcontact_social_accounts:
             if link.find('facebook.com') > -1 or type(link) is dict or link in s: continue
-            s.append(link)  
+            s.append(link)
         return s
 
-    @property 
+    @property
     def get_profile_source(self):
         key = Key(bucket)
         key.key = self.facebook_id
         if key.exists():
-            return key.get_contents_as_string()     
+            return key.get_contents_as_string()
         return None
 
     @property
@@ -960,10 +960,10 @@ class FacebookContact(db.Model):
             if commenter != self.facebook_id: top_engagers.add(commenter)
         for sublist in engagers.get("like_links",{}).values():
             for liker in sublist:
-                if liker != self.facebook_id: top_engagers.add(liker) 
+                if liker != self.facebook_id: top_engagers.add(liker)
         return top_engagers
 
-    @property 
+    @property
     def get_recent_engagers(self):
         if self.recent_engagers:
             return self.recent_engagers
@@ -975,37 +975,37 @@ class FacebookContact(db.Model):
             session.commit()
         return engagers
 
-    @property 
-    def get_profile_info(self): 
+    @property
+    def get_profile_info(self):
         if self.profile_info and not self.refresh: return self.profile_info
         source = self.get_profile_source
         profile = parse_facebook_html(source)
-        self.profile_info = profile     
+        self.profile_info = profile
         session.add(self)
-        session.commit()          
+        session.commit()
         return profile
 
-    @property 
+    @property
     def get_location(self):
         profile_info = self.get_profile_info
         if not profile_info: return None
-        location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")     
+        location = profile_info.get("lives_in") if profile_info.get("lives_in") else profile_info.get("from")
         if location: return location
         locations = get_pipl_cities(self.get_pipl_response)
         if len(locations): location = locations[0]
         return location
 
-    @property 
+    @property
     def build_profile(self):
         profile_info = self.get_profile_info
         image_url = profile_info.get("image_url")
         if not image_url:
             other_images = get_pipl_images(self.get_pipl_response)
-            if len(other_images): image_url = other_images[0]        
+            if len(other_images): image_url = other_images[0]
         company = profile_info.get("job_company","").split("Past:")[0]
         facebook_url = "https://www.facebook.com/" + self.facebook_id
         profile = {"id":self.facebook_id, "name":profile_info.get("name"), "job_title": profile_info.get("job_title"), "company_name":company, "image_url": image_url, "url":facebook_url, "facebook":facebook_url, "school": profile_info.get("school_name"), "degree": profile_info.get("school_major")}
-        for link in self.social_accounts: 
+        for link in self.social_accounts:
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0]
             if domain in social_domains: profile.update({domain:link})
         return profile
@@ -1028,7 +1028,7 @@ class EmailContact(db.Model):
                 self.email,
                 self.linkedin_url
                 )
-    @property 
+    @property
     def get_emailsherlock_urls(self):
         urls = []
         if self.emailsherlock_urls is not None: return self.emailsherlock_urls
@@ -1044,9 +1044,9 @@ class EmailContact(db.Model):
         session.commit()
         return self.emailsherlock_urls
 
-    @property 
+    @property
     def get_clearbit_response(self):
-        if self.clearbit_response: 
+        if self.clearbit_response:
             return self.clearbit_response
         person = query_clearbit(self.email)
         if person:
@@ -1057,59 +1057,59 @@ class EmailContact(db.Model):
 
     @property
     def get_images(self) :
-        images = get_pipl_images(self.get_pipl_response) 
+        images = get_pipl_images(self.get_pipl_response)
         if self.get_clearbit_response.get("avatar"):
             images.append(self.get_clearbit_response.get("avatar"))
         if self.get_vibe_response.get("extra_pictures"):
             images = images + self.get_vibe_response.get("extra_pictures")
         if self.get_vibe_response.get("profile_picture"):
-            images.append(self.get_vibe_response.get("profile_picture")) 
+            images.append(self.get_vibe_response.get("profile_picture"))
         return list(set(images))
 
     @property
     def get_pipl_response(self) :
         content = {}
-        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403: 
-            return self.pipl_response      
+        if self.pipl_response and self.pipl_response.get("@http_status_code")!=403:
+            return self.pipl_response
         content = query_pipl(email=self.email)
-        if content:   
-            self.pipl_response = content     
+        if content:
+            self.pipl_response = content
             session.add(self)
-            session.commit()                                         
-        return content     
+            session.commit()
+        return content
 
     @property
     def get_vibe_response(self) :
         content = {}
-        if self.vibe_response and self.vibe_response.get("statusCode")!=1005: 
-            return self.vibe_response  
-        try:    
+        if self.vibe_response and self.vibe_response.get("statusCode")!=1005:
+            return self.vibe_response
+        try:
             content = query_vibe(self.email)
         except:
             content = {'status': 'Daily Limit Overrage', 'statusCode': 1005, 'success': False}
         if content:
-            self.vibe_response = content    
+            self.vibe_response = content
             session.add(self)
-            session.commit()             
-        return content  
+            session.commit()
+        return content
 
     @property
     def get_fullcontact_response(self) :
         content = {}
-        if self.fullcontact_response: 
+        if self.fullcontact_response:
             content = self.fullcontact_response
-            return content      
+            return content
         try:
             url = fullcontact_url + "&email=" + self.email
             response = requests.get(url)
-            content = json.loads(response.content) 
-            if content.get("status") == 200:   
-                self.fullcontact_response = content     
+            content = json.loads(response.content)
+            if content.get("status") == 200:
+                self.fullcontact_response = content
                 session.add(self)
-                session.comit()                                        
+                session.comit()
         except:
-            pass    
-        return content 
+            pass
+        return content
 
     @property
     def social_accounts(self):
@@ -1132,7 +1132,7 @@ class EmailContact(db.Model):
 
         for link in pipl_social_accounts + vibe_social_accounts + fullcontact_social_accounts + clearbit_social_accounts:
             if type(link) is dict or link in s: continue
-            s.append(link)  
+            s.append(link)
         return s
 
     @property
@@ -1155,7 +1155,7 @@ class EmailContact(db.Model):
             self.linkedin_url = url
             session.add(self)
             session.commit()
-            return url            
+            return url
         clearbit_response = self.get_clearbit_response
         clearbit_social_accounts = get_clearbit_social_accounts(clearbit_response)
         url = get_specific_url(clearbit_social_accounts, type="linkedin.com")

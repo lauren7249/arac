@@ -54,11 +54,24 @@ class NYLConfig(Config):
     SERVER_URL = 'http://localhost:5000'
 
 
+class TestingConfig(Config):
+    DEBUG = True
+    TESTING = True
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
+    SQLALCHEMY_DATABASE_URI = 'postgresql://arachnidtest:arachnidtest@localhost:5432/arachnidtest'
+    ASSETS_DEBUG = True
+    MAIL_SUPPRESS_SEND = True
+    COOKIE_SECURE = False
+    SERVER_URL = 'http://localhost:8080'
+
+
 
 config = {
     'development': DevelopmentConfig,
     'beta': BetaConfig,
     'default': DevelopmentConfig,
     'production': ProductionConfig,
-    'nyl': NYLConfig
+    'nyl': NYLConfig,
+    'testing': TestingConfig
 }
