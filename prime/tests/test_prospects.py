@@ -9,7 +9,7 @@ from prime import create_app, db
 from config import config
 
 
-class MyTest(unittest.TestCase):
+class p200Test(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app("testing")
@@ -21,6 +21,10 @@ class MyTest(unittest.TestCase):
         agent = Agent(email="jamesjohnson11@gmail.com")
         db.session.add(agent)
         db.session.commit()
+        assert agent in db.session
+
+    def test_agent_urls(self):
+        agent = Agent.query.filter(Agent.email == "jamesjohnson11@gmail.com").first()
         assert agent in db.session
 
     def tearDown(self):
