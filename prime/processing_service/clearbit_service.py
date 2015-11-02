@@ -42,6 +42,7 @@ class ClearbitService(Service):
                 email = person.keys()[0]
                 request = ClearbitRequest(email)
                 data = request.process()
+                self.output.append(data)
         self.logger.info('Ending Process: %s', 'Clearbit Service')
         return self.output
 
@@ -74,8 +75,12 @@ class ClearbitRequest(S3SavedRequest):
                 self.logger.info('Clearbit Fail')
                 person = None
             if person:
-                key.content_type = 'text/html'
-                key.set_contents_from_string(person)
+                #TODO, this doesn't work
+                try:
+                    key.content_type = 'text/html'
+                    key.set_contents_from_string(person)
+                except:
+                    pass
         return person
 
 
@@ -84,7 +89,7 @@ class ClearbitRequest(S3SavedRequest):
         if not clearbit_json:
             return social_accounts
         for key in clearbit_json.keys():
-            if clearbit_json[key] and isinstance(clearbit_json[key], dict) and clearbit_json[key].get("handle"):
+            if isinstance(clearbit_json[key], dict) and clearbit_json[key].get('handle'):
                 handle = clearbit_json[key].get("handle")
                 if key=='angellist':
                     link = "https://angel.co/" + handle
@@ -92,11 +97,15 @@ class ClearbitRequest(S3SavedRequest):
                     link = "https://" + key + ".com/user/" + handle
                 elif key=='googleplus':
                     link = "https://plus.google.com/" + handle
+                elif key=='twitter':
+                    link = "https://twitter.com/" + handle
+                elif key=='facebook':
+                    link = "https://facebook.com/" + handle
                 elif key=='linkedin':
                     link = "https://www." + key + ".com/" + handle
                 else:
                     link = "https://" + key + ".com/" + handle
-            social_accounts.append(link)
+                social_accounts.append(link)
         return social_accounts
 
     def _linkedin_url(self, social_accounts):

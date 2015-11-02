@@ -62,10 +62,12 @@ def register_blueprints(app):
     from .proxy import proxy as proxy_blueprint
     from .users import users as users_blueprint
     from .auth import auth as auth_blueprint
+    from .processing_service import processing_service as auth_processing_service
     app.register_blueprint(prospects_blueprint)
     app.register_blueprint(proxy_blueprint)
     app.register_blueprint(users_blueprint)
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(auth_processing_service)
 
 
     #from .auth import auth as auth_blueprint

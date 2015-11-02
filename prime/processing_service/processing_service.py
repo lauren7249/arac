@@ -1,4 +1,5 @@
 import csv
+import time
 import json
 import logging
 from collections import OrderedDict
@@ -34,6 +35,7 @@ class ProcessingService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        self.start = time.time()
 
     def _validate_data(self):
         self.logger.info('Data Valid')
@@ -59,6 +61,8 @@ class ProcessingService(Service):
                             self.user_linkedin_url,
                             self.data)
                 output = service.process()
+        end = time.time()
+        self.logger.info('Total Run Time: %s', end - self.start)
         return True
 
 
