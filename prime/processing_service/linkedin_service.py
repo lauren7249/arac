@@ -8,7 +8,8 @@ from boto.s3.key import Key
 
 from requests import session
 from service import Service, S3SavedRequest
-from constants import SCRAPING_API_KEY
+from constants import SCRAPING_API_KEY, new_redis_host, new_redis_port, \
+new_redis_password, new_redis_dbname
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(BASE_DIR.replace("/prime", ""))
@@ -29,6 +30,27 @@ class LinkedinService(Service):
         super(LinkedinService, self).__init__(*args, **kwargs)
 
     def dispatch(self):
+        pass
+
+    def _get_redis():
+        pool = redis.ConnectionPool(host=new_redis_host, port=new_redis_port, password=new_redis_password)
+        r = redis.Redis(connection_pool=pool)
+        return r
+
+    @property
+    def _s3_connection(self):
+        s3conn = boto.connect_s3("AKIAIKCNCKG6RXJHWNFA", "GAwQwgy67hmp0lMShAV4O15zfDAfc8aKUoY7l2UC")
+        return s3conn.get_bucket("aconn")
+
+    def _lookup_s3(self, url):
+        self.key = hashlib.md5(url).hexdigest()
+        key = Key(self._s3_connection)
+        key.key = self.key
+        if key.exists():
+            return key.get_contents_as_string()
+        return None
+
+    def _add_to_queue(self):
         pass
 
     def _get_linkedin_url(self, person):

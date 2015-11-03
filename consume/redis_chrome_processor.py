@@ -21,7 +21,7 @@ def send_alert(id, failures, successes):
 		last_sent = get_datetime(last_sent_timestring)
 		timedelta = now_time - last_sent
 		if timedelta.seconds < 60*60: return
-	sendgrid_email('lauren@advisorconnect.co','Chrome plugin failure', 'User ' + str(id) + ' has had ' + str(failures) + ' failed urls and ' + str(successes) + ' successful urls.')	
+	sendgrid_email('lauren@advisorconnect.co','Chrome plugin failure', 'User ' + str(id) + ' has had ' + str(failures) + ' failed urls and ' + str(successes) + ' successful urls.')
 	r.hset("email_alert", id, now_time)
 
 def record_bad(url, user_id, ip, incomplete=False):
@@ -34,7 +34,7 @@ def record_bad(url, user_id, ip, incomplete=False):
 	user_success_rate = get_user_success_rate(user_id)
 	ip_failures = get_user_failures(ip)
 	user_failures = get_user_failures(user_id)
-	if n_tries<3 or user_success_rate<0.5 or ip_success_rate<0.5: 
+	if n_tries<3 or user_success_rate<0.5 or ip_success_rate<0.5:
 		r.sadd("urls",url)
 	if ip_success_rate<=0.5 and ip_failures>=100:
 		send_alert(ip, ip_failures, ip_successes)
@@ -56,16 +56,16 @@ if __name__=="__main__":
 				user_id = r.hget("chrome_uploads_users",url)
 				ip = r.hget("chrome_uploads_ips",url)
 				content = process_url(fn)
-				if not content: 
+				if not content:
 					record_bad(url, user_id, ip)
 					continue
-				if re.search(profile_re,url): 
+				if re.search(profile_re,url):
 					info = parse_html(content)
 					if info.get("success") :
 						if info.get("complete"):
 							info["source_url"] = url
-							new_prospect = insert_linkedin_profile(info, session)    			
-							if not new_prospect: 
+							new_prospect = insert_linkedin_profile(info, session)
+							if not new_prospect:
 								record_bad(url, user_id, ip)
 							else:
 								r.hincrby("chrome_uploads_successes",user_id,1)
@@ -84,26 +84,26 @@ if __name__=="__main__":
 							# 	record_bad(url, user_id, ip, incomplete=True)
 					else:
 						record_bad(url, user_id, ip)
-				elif re.search(company_re,url): 
+				elif re.search(company_re,url):
 					info = parse_company(content)
 					if info and info.get("id") :
 						info["source_url"] = url
-						company_id = insert_linkedin_company(info, session)    			
-						if not company_id: 
+						company_id = insert_linkedin_company(info, session)
+						if not company_id:
 							record_bad(url, user_id, ip)
 						else:
 							r.hincrby("chrome_uploads_successes",user_id,1)
 							r.hincrby("chrome_uploads_successes",ip,1)
 					else:
-						record_bad(url, user_id, ip)				
+						record_bad(url, user_id, ip)
 				elif url.find("google.com"):
-					if not page_is_good(content, google_xpaths): 
+					if not page_is_good(content, google_xpaths):
 						record_bad(url, user_id, ip)
 					else:
 						r.hincrby("chrome_uploads_successes",user_id,1)
 						r.hincrby("chrome_uploads_successes",ip,1)
 				elif url.find("facebook.com"):
-					if not page_is_good(content, facebook_xpaths): 
+					if not page_is_good(content, facebook_xpaths):
 						record_bad(url, user_id, ip)
 					else:
 						r.hincrby("chrome_uploads_successes",user_id,1)
@@ -114,5 +114,5 @@ if __name__=="__main__":
 			exc_info = sys.exc_info()
 			traceback.print_exception(*exc_info)
 			exception_str = traceback.format_exception(*exc_info)
-			sendgrid_email('lauren@advisorconnect.co','Redis chrome processor had error', str(exception_str))			
+			sendgrid_email('lauren@advisorconnect.co','Redis chrome processor had error', str(exception_str))
 			pass

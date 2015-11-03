@@ -2,7 +2,7 @@ import redis
 import re
 import requests
 import boto
-import os 
+import os
 import sendgrid
 
 redis_host='169.55.28.212'
@@ -31,7 +31,7 @@ company_re = re.compile('^https://www.linkedin.com/company/*')
 
 gmail_user = 'contacts@advisorconnect.co'
 gmail_pwd = '1250downllc'
-sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)  
+sg = sendgrid.SendGridClient('lauren7249',gmail_pwd)
 
 def sendgrid_email(to, subject, body):
     mail = sendgrid.Mail()
@@ -40,14 +40,14 @@ def sendgrid_email(to, subject, body):
     mail.set_subject(subject)
     mail.set_text(body)
     mail.set_from(gmail_user)
-    status, msg = sg.send(mail)  
+    status, msg = sg.send(mail)
 
 def get_redis():
 	pool = redis.ConnectionPool(host=new_redis_host, port=new_redis_port, password=new_redis_password)
 	r = redis.Redis(connection_pool=pool)
 	return r
 
-r = get_redis() 
+r = get_redis()
 
 def get_bucket(bucket_name='chrome-ext-uploads'):
     s3conn = boto.connect_s3(os.getenv("AWS_ACCESS_KEY_ID_PVLL"), os.getenv("AWS_SECRET_ACCESS_KEY_PVLL"))
