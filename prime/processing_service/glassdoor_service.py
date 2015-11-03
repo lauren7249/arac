@@ -24,6 +24,9 @@ class GlassdoorService(Service):
         pass
 
     def _current_job(self, person):
+        #TODO need to add in more robust logic for current job, sorted on date
+        #TODO if no job, check Linkedin CSV
+        #TODO if no job check headline
         jobs = person.get("linkedin_data").get("experiences")
         for job in jobs:
             if job.get('end_date') == "Present":
@@ -65,6 +68,7 @@ class GlassdoorRequest(S3SavedRequest):
     def process(self):
         self.logger.info('Glassdoor Request: %s', 'Starting')
         try:
+            #TODO add in Lauren logic around glassdoor data
             response = self._make_request()
             clean = lxml.html.fromstring(response)
             salary = clean.xpath("//div[@class='meanPay nowrap positive']")[0].text_content()

@@ -26,6 +26,7 @@ SERVICES['clearbit_service'] =  ClearbitService
 SERVICES['linkedin_service'] = LinkedinService
 SERVICES['glassdoor_service'] = GlassdoorService
 SERVICES['indeed_service'] = IndeedService
+SERVICES['indeed_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
 
 class ProcessingService(Service):

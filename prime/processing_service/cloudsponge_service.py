@@ -24,12 +24,15 @@ class CloudSpongeService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Cloud Sponge Service')
         for person in self.data:
+            #TODO save source also, where the email came from
+            #eg {"sources": ["jlyons1004@gmail.com", "linkedin"]
             for email in person.get("email", []):
                 email_address = email.get("address").lower()
-                job_title = person.get("job_title")
-                companies = person.get("companies")
-                self.unique_emails[email_address] = {"job_title": job_title,
-                                            "companies": companies}
+                if not any(email_address in e for e in self.excluded_words):
+                    job_title = person.get("job_title")
+                    companies = person.get("companies")
+                    self.unique_emails[email_address] = {"job_title": job_title,
+                                                "companies": companies}
         self.logger.info('Emails Found: %s', len(self.unique_emails))
         self.logger.info('Ending Process: %s', 'Cloud Sponge Service')
         return self.unique_emails

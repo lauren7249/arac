@@ -35,6 +35,11 @@ class LeadService(Service):
         return False
 
     def _filter_salaries(self, person):
+        """
+        If Salary doesn't exist, we assume they specialized and good to go
+        If they have been at their job for 3 years or more, they are good
+        """
+        #TODO current job logic
         salary = max(person.get("glassdoor_salary", 0), \
                 person.get("indeed_salary", 0))
         if salary > self.salary_limit:

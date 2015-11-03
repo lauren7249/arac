@@ -24,6 +24,9 @@ class IndeedService(Service):
         pass
 
     def _current_job(self, person):
+        #TODO need to add in more robust logic for current job, sorted on date
+        #TODO if no job, check Linkedin CSV
+        #TODO if no job check headline
         jobs = person.get("linkedin_data").get("experiences")
         for job in jobs:
             if job.get('end_date') == "Present":
