@@ -5,8 +5,6 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.testing import TestCase, LiveServerTestCase
 
-from prime.prospects.agent_model import Agent
-
 from prime.processing_service.cloudsponge_service import CloudSpongeService
 from prime.processing_service.clearbit_service import ClearbitService
 from prime.processing_service.pipl_service import PiplService
