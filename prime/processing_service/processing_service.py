@@ -1,8 +1,13 @@
+import os, sys
 import csv
 import time
 import json
 import logging
 from collections import OrderedDict
+
+BASE_DIR = os.path.dirname(__file__)
+PRIME_DIR =  os.path.split(os.path.split(BASE_DIR)[0])[0]
+sys.path.append(PRIME_DIR)
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
@@ -12,7 +17,6 @@ from linkedin_service import LinkedinService
 from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from lead_service import LeadService
-
 
 
 SERVICES = OrderedDict()
