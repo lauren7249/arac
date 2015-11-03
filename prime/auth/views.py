@@ -20,32 +20,6 @@ from prime.users.models import User
 
 logger = logging.getLogger(__name__)
 
-def get_view_redis(redis_url):
-    urlparse.uses_netloc.append('redis')
-    redis_url_parsed = urlparse.urlparse(redis_url)
-    redis = Redis(
-        host=redis_url_parsed.hostname,
-        port=redis_url_parsed.port,
-        db=0,
-        password=redis_url_parsed.password
-    )
-
-    return redis
-
-
-def linkedin_friends(username, password, user_id):
-
-    data = {"username": username,
-            "password": password,
-            "user_id": user_id}
-    redis_url = 'redis://linkedin-assistant.btwauj.0001.use1.cache.amazonaws.com:6379'
-    print redis_url, "redis url"
-    instance_id = boto.utils.get_instance_metadata()['local-hostname']
-    print instance_id, "instance id"
-    q = RedisQueue('linkedin-assistant', instance_id, redis=get_view_redis(redis_url))
-    q.push(json.dumps(data), filter_seen=False, filter_failed=False, filter_working=False)
-    return True
-
 @auth.route('/auth/login', methods=['GET', 'POST'])
 def login():
     if not current_user.is_anonymous():
@@ -80,23 +54,7 @@ def signup(customer_slug):
             login_user(newuser, True)
             flask_session['first_time'] = True
             return redirect("/")
-            #return redirect("/auth/signup/{}/linkedin".format(customer.slug))
     return render_template('auth/signup.html', signup_form=form)
-
-@csrf.exempt
-@auth.route('/auth/signup/linkedin', methods=['GET', 'POST'])
-def signup_linkedin():
-    if current_user.is_anonymous():
-        return redirect(url_for('auth.login'))
-    else:
-        return redirect('/')
-    if request.method == 'POST':
-        email = request.form.get("email")
-        password = request.form.get("password")
-        user_id = current_user.user_id
-        result = linkedin_friends(email, password, user_id)
-        return redirect("/")
-    return render_template('auth/linkedin.html')
 
 
 @auth.route('/logout')

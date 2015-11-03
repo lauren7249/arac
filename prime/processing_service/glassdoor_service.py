@@ -19,21 +19,10 @@ class GlassdoorService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        super(GlassdoorService, self).__init__(*args, **kwargs)
 
     def dispatch(self):
         pass
-
-    def _current_job(self, person):
-        #TODO need to add in more robust logic for current job, sorted on date
-        #TODO if no job, check Linkedin CSV
-        #TODO if no job check headline
-        jobs = person.get("linkedin_data").get("experiences")
-        for job in jobs:
-            if job.get('end_date') == "Present":
-                return job
-        if len(jobs) > 0:
-            return jobs[0]
-        return None
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Glass Door Service')
@@ -44,7 +33,6 @@ class GlassdoorService(Service):
                 salary = request.process()
                 if salary:
                     person.update({"glassdoor_salary": salary})
-                    self.logger.info('Salary Found: %s', salary)
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'Glass Door Service')
         return self.output

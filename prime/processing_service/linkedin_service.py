@@ -26,6 +26,7 @@ class LinkedinService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        super(LinkedinService, self).__init__(*args, **kwargs)
 
     def dispatch(self):
         pass
