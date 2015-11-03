@@ -26,6 +26,10 @@ SERVICES['lead_service'] = LeadService
 
 class ProcessingService(Service):
 
+    # FIXME super __init__ not called
+    # FIXME the variable "data" is already defined in the csv import and
+    #       this data might lead to a hard to track down subtle error in the future
+    #       I'd suggest renaming just to be safe
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
         self.user_email = user_email
         self.user_linkedin_url = user_linkedin_url
@@ -65,7 +69,7 @@ class ProcessingService(Service):
         self.logger.info('Total Run Time: %s', end - self.start)
         return True
 
-
+# FIXME "file" is a built-in python name you've overridden
 if __name__ == '__main__':
     data = []
     file = csv.reader(open('data/test.csv', 'r'))
