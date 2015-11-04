@@ -101,9 +101,18 @@ class TestLinkedinService(unittest.TestCase):
         self.service = LinkedinService(email, linkedin_url, data)
 
     def test_linkedin(self):
+        expected = ['https://www.linkedin.com/pub/john-chen/1b/215/b97',
+                               'https://www.linkedin.com/pub/jake-saper/0/834/536',
+                               'https://www.linkedin.com/pub/brian-jacobs/0/a/7a6',
+                               'https://www.linkedin.com/pub/jason-green/1/22b/409',
+                               'https://www.linkedin.com/pub/joseph-floyd/2/8a4/55b',
+                               'https://www.linkedin.com/pub/alison-wagonfeld/0/669/829',
+                               'https://www.linkedin.com/pub/gordon-ritter/1/b95/a97',
+                               'https://www.linkedin.com/pub/kate-berger/18/215/a01',
+                               'https://www.linkedin.com/pub/everett-cox/3/9b6/9b8',
+                               'https://www.linkedin.com/pub/santi-subotovsky/0/2b2/6b0']
         data = self.service.process()
-        from fixtures.linkedin_fixture import expected
-        self.assertEqual(data, expected)
+        self.assertEqual(data[0].get("linkedin_data").get("urls"), expected)
 
 
 class TestGlassdoorService(unittest.TestCase):

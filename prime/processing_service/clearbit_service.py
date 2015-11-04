@@ -56,6 +56,7 @@ class ClearbitRequest(S3SavedRequest):
 
     def __init__(self, query, type='email'):
         self.clearbit = clearbit
+        self.clearbit.key='f2512e10a605e3dcaff606205dbd3758'
         self.query = query
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
