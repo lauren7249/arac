@@ -24,7 +24,7 @@ class LeadService(Service):
         self.location = None
         self.jobs = []
         self.schools = []
-        self.salary_limit = 35000
+        self.salary_threshold = 35000
         self.location_threshhold = 50
         self.good_leads = []
         self.bad_leads = []
@@ -48,8 +48,7 @@ class LeadService(Service):
 
     def _filter_salaries(self, person):
         """
-        If Salary doesn't exist, we assume they specialized and good to go
-        If they have been at their job for 3 years or more, they are good
+        If Salary doesn't exist, we assume they are specialized and good to go
         """
         #TODO current job logic
         current_job = self._current_job(person)
@@ -59,7 +58,7 @@ class LeadService(Service):
                 person.get("linkedin_data").get("source_url"), salary, current_job.get("title"))
         if salary == 0:
             return True
-        if salary > self.salary_limit:
+        if salary > self.salary_threshold:
             return True
         return False
 

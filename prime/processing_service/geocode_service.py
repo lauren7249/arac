@@ -79,7 +79,6 @@ class MapQuestRequest(S3SavedRequest):
     """
     Given an email address, This will return social profiles via PIPL
     """
-    #TODO implement geocode from scraps
 
     def __init__(self, query):
         self.url = "https://www.mapquest.com/?q={}".format(query)
@@ -94,13 +93,20 @@ class MapQuestRequest(S3SavedRequest):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _find_lat_lng(self, location):
-        latlng = location.get("address", {}).get("latLng", {})
-        lat = latlng.get("lat")
-        lng = latlng.get("lng")
-        if not lat or not lng:
-            return None, None
-        return lat, lng
+    def _find_location_coordinates(self, html):
+        try:
+            raw_html = lxml.html.fromstring(html)
+            self.raw_search_results = raw_html.xpath(".//script[contains(.,'m3.dotcom.controller.MCP.addSite')]")[0].text
+            json_area = parse_out(self.raw_search_results,"m3.dotcom.controller.MCP.boot('dotcom', ","); ")
+            json_data = json.loads(json_area)
+            locations = json_data['model']['applications'][0]['state']['locations']
+            geocode = self._geocode_from_json(locations)
+            if not geocode:
+                geocode = self._geocode_from_scraps()
+            return geocode
+        except Exception, e:
+            self.logger.error("Location Error: %s", e)
+            return None
 
     def _geocode_from_json(self, locations):
         coords = []
@@ -132,24 +138,13 @@ class MapQuestRequest(S3SavedRequest):
             return geocode
         return {}
 
-    def _find_scraps_locations(self):
-        latlng = re.findall(self.lat_lng_regex, self.raw_search_results)
-        countries = re.findall(self.countries_regex, self.raw_search_results)
-        localities = re.findall(self.localities_regex, self.raw_search_results)
-        regions = re.findall(self.regions_regex, self.raw_search_results)
-        if len(latlng) < 2 :
-            return [], [], [], []
-        latlng = latlng[0:len(latlng)-1]
-        if len(countries) < 2:
-            return [], [], [], []
-        countries = countries[0:len(countries)-1]
-        if len(localities) >=2:
-            localities = localities[0:len(localities)-1]
-        else:
-            localities = []
-        if len(regions)>=2:
-            regions = regions[0:len(regions)-1]
-        return latlng, countries, localities, regions
+    def _find_lat_lng(self, location):
+        latlng = location.get("address", {}).get("latLng", {})
+        lat = latlng.get("lat")
+        lng = latlng.get("lng")
+        if not lat or not lng:
+            return None, None
+        return lat, lng
 
     def _geocode_from_scraps(self):
         latlng, countries, localities, regions = self._find_scraps_locations()
@@ -179,21 +174,25 @@ class MapQuestRequest(S3SavedRequest):
             return geocode
         return None
 
+    def _find_scraps_locations(self):
+        latlng = re.findall(self.lat_lng_regex, self.raw_search_results)
+        countries = re.findall(self.countries_regex, self.raw_search_results)
+        localities = re.findall(self.localities_regex, self.raw_search_results)
+        regions = re.findall(self.regions_regex, self.raw_search_results)
+        if len(latlng) < 2 :
+            return [], [], [], []
+        latlng = latlng[0:len(latlng)-1]
+        if len(countries) < 2:
+            return [], [], [], []
+        countries = countries[0:len(countries)-1]
+        if len(localities) >=2:
+            localities = localities[0:len(localities)-1]
+        else:
+            localities = []
+        if len(regions)>=2:
+            regions = regions[0:len(regions)-1]
+        return latlng, countries, localities, regions
 
-    def _find_location_coordinates(self, html):
-        try:
-            raw_html = lxml.html.fromstring(html)
-            self.raw_search_results = raw_html.xpath(".//script[contains(.,'m3.dotcom.controller.MCP.addSite')]")[0].text
-            json_area = parse_out(self.raw_search_results,"m3.dotcom.controller.MCP.boot('dotcom', ","); ")
-            json_data = json.loads(json_area)
-            locations = json_data['model']['applications'][0]['state']['locations']
-            geocode = self._geocode_from_json(locations)
-            if not geocode:
-                geocode = self._geocode_from_scraps()
-            return geocode
-        except Exception, e:
-            self.logger.error("Location Error: %s", e)
-            return None
 
     def process(self):
         self.logger.info('Linkedin Request: %s', 'Starting')
