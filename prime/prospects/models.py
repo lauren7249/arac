@@ -32,10 +32,6 @@ import scipy.stats as stats
 import multiprocessing
 import traceback
 
-bucket = get_bucket('facebook-profiles')
-industry_category = pandas.read_csv('p200_templates/industries.csv', index_col='Industry', sep="\t").Category.to_dict()
-category_icon = pandas.read_csv('p200_templates/industry_icons.csv', index_col='Category', sep=",").Icon.to_dict()
-
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
