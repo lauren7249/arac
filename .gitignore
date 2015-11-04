@@ -24,5 +24,6 @@ include
 .idea
 .DS_Store
 *.iml
+out/*
 
 
