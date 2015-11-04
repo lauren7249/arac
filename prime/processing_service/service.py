@@ -70,12 +70,6 @@ class Service(object):
             return job
         return None
 
-
-
-
-
-
-
     def process(self):
         pass
 
