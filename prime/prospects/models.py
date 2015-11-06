@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime import db
-from prime.prospects.get_prospect import session, from_url, from_prospect_id
+from prime.prospects.get_prospect import session, from_url, from_prospect_id, uu
 import dateutil.parser
 from boto.s3.key import Key
 from requests import HTTPError
@@ -37,11 +37,6 @@ def get_or_create(session, model, **kwargs):
         session.add(instance)
         session.commit()
         return instance
-
-def uu(str):
-    if str:
-        return str.encode("ascii", "ignore").decode("utf-8")
-    return None
 
 class Prospect(db.Model):
     __tablename__ = 'prospect'
