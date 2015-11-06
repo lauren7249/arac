@@ -18,15 +18,7 @@ from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry, ProspectLocation, Location, ProspectGender, ProspectWealthscore
 from prime.users.models import ClientList, User
-from prime.prospects.prospect_list import ProspectList
-#from prime.prospects.prospect_list2 import ProspectList as ProspectList2
 from prime import db, csrf
-
-try:
-    #from consume.consumer import generate_prospect_from_url
-    pass
-except:
-    pass
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast, extract
@@ -35,8 +27,6 @@ from sqlalchemy.orm import aliased
 
 from prime.prospects.helper import LinkedinResults
 from prime.prospects.arequest import aRequest
-from prime.search.search import SearchRequest
-from services.exporter import Exporter
 
 session = db.session
 redis_conn = Redis()

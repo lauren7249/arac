@@ -32,7 +32,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@localhost:5432/arachnid'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/arachnid'
     ASSETS_DEBUG = True
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
@@ -43,27 +43,16 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
 
 
-class NYLConfig(Config):
-    DEBUG = True
-    SESSION_COOKIE_SECURE = False
-    REMEMBER_COOKIE_SECURE = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://nyl:newyorklife@localhost:5432/nyl'
-    ASSETS_DEBUG = True
-    MAIL_SUPPRESS_SEND = True
-    COOKIE_SECURE = False
-    SERVER_URL = 'http://localhost:5000'
-
-
 class TestingConfig(Config):
     DEBUG = True
     TESTING = True
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://arachnidtest:arachnidtest@localhost:5432/arachnidtest'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/arachnid'
     ASSETS_DEBUG = True
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
-    SERVER_URL = 'http://localhost:8080'
+    SERVER_URL = 'http://localhost:5050'
 
 
 
@@ -72,6 +61,5 @@ config = {
     'beta': BetaConfig,
     'default': DevelopmentConfig,
     'production': ProductionConfig,
-    'nyl': NYLConfig,
     'testing': TestingConfig
 }

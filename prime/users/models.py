@@ -28,7 +28,6 @@ from prime.customers.models import Customer
 
 logger = logging.getLogger(__name__)
 
-
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
@@ -39,15 +38,11 @@ class User(db.Model, UserMixin):
     email = db.Column(String(100), nullable=False, unique=True)
     _password_hash = db.Column('password_hash', String(100), nullable=False)
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
-    tour_completed = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
     customer = relationship('Customer', foreign_keys='User.customer_id')
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
     created = db.Column(Date)
-    plan_id = db.Column(Integer, ForeignKey("plan.id"),
-            index=True)
-    plan = relationship("Plan", foreign_keys="User.plan_id")
     json = db.Column(JSON, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
@@ -69,9 +64,6 @@ class User(db.Model, UserMixin):
     def is_active(self):
         return True
 
-    def is_anonymous(self):
-        return False
-
     def get_id(self):
         return unicode(self.user_id)
 
@@ -92,17 +84,6 @@ class User(db.Model, UserMixin):
         u.password = new_password
         db.session.add(u)
         return u
-
-    @property
-    def prospects_remaining_today(self):
-        today = datetime.date.today()
-        session = db.session
-        client_prospects = session.query(ClientProspect).distinct(ClientProspect.id)\
-                .filter_by(created=today).join(ClientList)\
-                .filter_by(user=self).all()
-        if self.plan:
-            leads_per_day = self.plan.leads_per_day
-        return leads_per_day - len(client_prospects)
 
     @property
     def name(self):
@@ -161,18 +142,5 @@ class ClientList(db.Model):
 
     def __str__(self):
         return '{}:{})'.format(self.user.first_name, self.prospect.first_name)
-
-
-class Plan(db.Model):
-    __tablename__ = "plan"
-
-    id = db.Column(postgresql.INTEGER, primary_key=True)
-
-    name = db.Column(String(1024), nullable=False)
-    leads_per_day = db.Column(Integer, nullable=False)
-    cost = db.Column(Float, nullable=False, default=0)
-
-    def __str__(self):
-        return self.name
 
 

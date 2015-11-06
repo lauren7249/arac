@@ -9,8 +9,6 @@ from flask import redirect, request, url_for, flash, render_template, session \
 as flask_session
 from flask.ext.login import login_user, logout_user, current_user, fresh_login_required
 
-from redis_queue import RedisQueue
-
 from . import auth
 from prime import db, csrf
 from prime.customers.models import Customer

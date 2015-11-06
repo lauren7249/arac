@@ -41,11 +41,9 @@ def create_app(config_name):
     return app
 
 def init_admin(app):
-    from .users.models import User, Plan
+    from .users.models import User
     admin = Admin(app)
     admin.add_view(ModelView(User, db.session))
-    admin.add_view(ModelView(Plan, db.session))
-
 
 def init_assets(app):
     assets_environment = Environment(app)
@@ -55,19 +53,15 @@ def init_assets(app):
                  filters='cssmin')
     assets_environment.register('css_all', css)
 
-
-
 def register_blueprints(app):
     from .prospects import prospects as prospects_blueprint
-    from .proxy import proxy as proxy_blueprint
     from .users import users as users_blueprint
     from .auth import auth as auth_blueprint
-    from .processing_service import processing_service as auth_processing_service
+    from .processing_service import processing_service as processing_service_blueprint
     app.register_blueprint(prospects_blueprint)
-    app.register_blueprint(proxy_blueprint)
     app.register_blueprint(users_blueprint)
     app.register_blueprint(auth_blueprint)
-    app.register_blueprint(auth_processing_service)
+    app.register_blueprint(processing_service_blueprint)
 
 
     #from .auth import auth as auth_blueprint

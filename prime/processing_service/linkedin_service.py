@@ -11,11 +11,7 @@ from service import Service, S3SavedRequest
 from constants import SCRAPING_API_KEY, new_redis_host, new_redis_port, \
 new_redis_password, new_redis_dbname
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(BASE_DIR.replace("/prime", ""))
-sys.path.append(BASE_DIR + "/processing_service")
-
-from consume.convert import parse_html
+from linkedin_parser import parse_html
 
 class LinkedinService(Service):
 

@@ -7,7 +7,7 @@ class LeadProfile(db.Model):
     __tablename__ = "lead_profiles"
     id = db.Column(CIText(), primary_key=True)
     agent_id = db.Column(CIText(), ForeignKey("agent.email"), primary_key=True)
-    agent = relationship('Agent', foreign_keys='LeadProfile.agent_id')    
+    agent = relationship('Agent', foreign_keys='LeadProfile.agent_id')
     facebook_id = db.Column(CIText(), ForeignKey("facebook_contacts.facebook_id"), index=True)
     contact = relationship('FacebookContact', foreign_keys='LeadProfile.facebook_id')
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
@@ -58,30 +58,30 @@ class LeadProfile(db.Model):
     @staticmethod
     def validate_lead(prospect, exclude=[], schools=[], locations=[], associated_emails_dict={}, titles=[]):
 		location = prospect.get_location
-		if not location: 
+		if not location:
 			print "no location"
-			return False				
+			return False
 		if locations and location not in locations:
-			print location.encode('utf-8') + " not local" 
+			print location.encode('utf-8') + " not local"
 			return False
 		# print prospect.id
 		# import pdb
 		# pdb.set_trace()
-		job = prospect.get_job	
-		if not job: 
+		job = prospect.get_job
+		if not job:
 			print "no job " + prospect.url.encode('utf-8')
 			return False
-		if job.get("company") in exclude: 
-			print job.get("company").encode('utf-8') + " at the same company " 
+		if job.get("company") in exclude:
+			print job.get("company").encode('utf-8') + " at the same company "
 			return False
 		if titles and job.get("title") and job.get("title") not in titles:
 			print job.get("title").encode('utf-8') + " not a qualified title"
 			return False
-		profile = clean_profile(prospect.build_profile)	
-		if not profile.get("url"): 
+		profile = clean_profile(prospect.build_profile)
+		if not profile.get("url"):
 			print "url is broken for " + str(profile["id"])
-			return False 	
-		profile["prospect_id"] = profile.get("id")	
+			return False
+		profile["prospect_id"] = profile.get("id")
 		prospect_schools = [school.name for school in prospect.schools]
 		profile["industry"] = prospect.industry_raw
 		profile["age"] = prospect.age
@@ -94,11 +94,11 @@ class LeadProfile(db.Model):
 
 		firstname = get_firstname(profile["name"])
 		is_male = get_gender(firstname)
-		if is_male is None: 
+		if is_male is None:
 			profile["gender"] = "Unknown"
-		elif is_male: 
+		elif is_male:
 			profile["gender"] = "Male"
-		else: 
+		else:
 			profile["gender"] = "Female"
 
 		jobtitle = session.query(JobTitle).get(job.get("title"))
@@ -109,28 +109,28 @@ class LeadProfile(db.Model):
 		associated_emails = associated_emails_dict.get(str(prospect.id),[])
 		emails = [x for x in associated_emails if not x.endswith("@facebook.com") and x !='linkedin']
 		profile["emails"] = emails
-		profile["mailto"] = 'mailto:' + ",".join(emails)	
+		profile["mailto"] = 'mailto:' + ",".join(emails)
 		if prospect.headline:
-			profile["headline"] = prospect.headline  
+			profile["headline"] = prospect.headline
 		elif profile.get("job_title") and profile.get("job_title") != 'Works' and profile.get("job_company"):
 			profile["headline"] =  profile.get("job_title") + "  at " + profile.get("job_company")
 		elif profile.get("job_title") and not profile.get("job_company"):
 			profile["headline"] = profile.get("job_title")
 		else:
-			profile["headline"] = profile.get("job_company")	
+			profile["headline"] = profile.get("job_company")
 		social_accounts = prospect.social_accounts
 		if salary:
 			wealth_percentile = get_salary_percentile(salary)
-			if wealth_percentile: 
+			if wealth_percentile:
 				profile["wealthscore"] = wealth_percentile
 		else:
 			salary = 0
 		n_social_accounts = len(social_accounts)
-		score = n_social_accounts + salary/30000 
+		score = n_social_accounts + salary/30000
 		amazon = get_specific_url(social_accounts, type="amazon.com")
-		if amazon: score += 2	
+		if amazon: score += 2
 		if profile.get("school") not in schools: profile.pop("school", None)
-		if not profile.get("school") and prospect_schools: 
+		if not profile.get("school") and prospect_schools:
 			common_schools = set(prospect_schools) & set(schools)
 			if common_schools:
 				profile["common_school"] = common_schools.pop()
@@ -139,10 +139,10 @@ class LeadProfile(db.Model):
 		if associated_emails_dict:
 			score+=(len(associated_emails)*2)
 			if 'linkedin' in associated_emails: score+=6
-		profile.update({"leadscore":score})		
+		profile.update({"leadscore":score})
 		return profile
 
-    @property 
+    @property
     def categorize_industry(self):
         if not self.industry_category and industry_category.get(self.industry):
             self.industry_category = industry_category.get(self.industry)
@@ -151,7 +151,7 @@ class LeadProfile(db.Model):
             session.add(self)
             session.commit()
 
-    @property 
+    @property
     def get_images(self):
         images = []
         images = images+ get_pipl_images(self.prospect.get_pipl_response)
@@ -163,20 +163,20 @@ class LeadProfile(db.Model):
             images = images + email_contact.get_images
         return images
 
-    @property 
+    @property
     def to_json(self):
         keep_vars = ["company_name", "job_title","name","leadscore","id","image_url","url","industry_category","mailto","phone","referrer_url","referrer_name","referrer_connection"]
         if self.json:
             return self.json
-        keep_vars = keep_vars + social_domains      
+        keep_vars = keep_vars + social_domains
         d = {}
         for column in self.__table__.columns:
-            attr = getattr(self, column.name) 
-            if column.name in keep_vars and attr is not None: 
+            attr = getattr(self, column.name)
+            if column.name in keep_vars and attr is not None:
                 if isinstance(attr, basestring) and attr.find("http") == 0:
-                    if not link_exists(attr): 
+                    if not link_exists(attr):
                         setattr(self, column.name, None)
-                        continue        
+                        continue
                 d[column.name] = attr
         if not self.image_url:
             for image in self.get_images:
@@ -190,36 +190,7 @@ class LeadProfile(db.Model):
             d["image_url"] = self.image_url
         self.json = d
         session.add(self)
-        session.commit()    
+        session.commit()
         if d.get("leadscore") is None:
-            print self.id        
-        return d     
-
-class CloudspongeRecord(db.Model):
-    __tablename__ = "cloudsponge_raw"
-    id = db.Column(Integer, primary_key=True)
-    user_email = db.Column(CIText(), ForeignKey("agent.email"), index=True)
-    agent = relationship('Agent', foreign_keys='CloudspongeRecord.user_email')
-    contacts_owner = db.Column(JSON)
-    contact = db.Column(JSON)
-    service = db.Column(CIText())
-
-    @property
-    def get_job_title(self):
-        return self.contact.get("job_title")
-
-    @property
-    def get_company(self):
-        if self.contact.get("companies"):
-            return self.contact.get("companies")[0]
-        return None
-
-    @property
-    def get_emails(self):
-        all_emails = []
-        info = self.contact 
-        emails = info.get("email",[{}])
-        for email in emails:
-            address = email.get("address").lower()
-            if address: all_emails.append(address)
-        return all_emails        
+            print self.id
+        return d
