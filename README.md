@@ -9,5 +9,5 @@
   `. bin/activate`
   `pip install -r requirements.txt`
 
-  Assuming postgresql is installed
+2. Assuming postgresql is installed
   `make create-db`
