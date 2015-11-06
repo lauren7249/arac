@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(BASE_DIR.replace("/prime", ""))
 sys.path.append(BASE_DIR + "/processing_service")
 
-from consume.convert import parse_html
+from convert import parse_html
 
 class GeoCodingService(Service):
 

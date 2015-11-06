@@ -1,5 +1,4 @@
 import re, datetime, requests, json
-from prime.prospects.models import BingSearches
 from prime.prospects.get_prospect import session
 from prime.utils import profile_re, school_re, company_re
 from difflib import SequenceMatcher
