@@ -16,7 +16,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime import db
-from citext import CIText
 from prime.prospects.get_prospect import session, from_url, from_prospect_id
 import dateutil.parser
 from boto.s3.key import Key
@@ -362,7 +361,7 @@ class LinkedinCompany(db.Model):
     min_employees = db.Column(Integer)
     max_employees = db.Column(Integer)
     specialties = db.Column(ARRAY(String(200)))
-    website = db.Column(CIText())
+    website = db.Column(Text)
     clearbit_response = db.Column(JSON)
 
     @property
@@ -493,19 +492,6 @@ class JobTitle(db.Model):
         return self.glassdoor_salary
 
 
-class ProspectUrl(db.Model):
-    __tablename__ = "prospect_urls"
-
-    url = db.Column(CIText(), primary_key=True)
-    linkedin_id = db.Column(BigInteger)
-
-    def __repr__(self):
-        return '<url ={0} linkedin_id={1}>'.format(
-                self.url,
-                self.linkedin_id
-                )
-
-
 class School(db.Model):
     __tablename__ = "school"
 
@@ -560,7 +546,7 @@ class Location(db.Model):
     __tablename__ = "location"
 
     id = db.Column(BigInteger, primary_key=True)
-    name = db.Column(CIText())
+    name = db.Column(Text)
     lat = db.Column(Float)
     lng = db.Column(Float)
 

@@ -6,7 +6,6 @@ pg         := ${PG_BINDIR}/psql -d ${PGDATABASE}
 create-db:
 	${PG_BINDIR}/createdb -l en_US.UTF-8  ${PGDATABASE}
 	./manage.py db upgrade
-	./manage.py add_static
 
 .PHONY: generate-fake
 generate-fake:
