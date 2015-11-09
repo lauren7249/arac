@@ -7,7 +7,7 @@ from flask.ext.script import Manager, Shell
 from prime import create_app, db
 
 
-app = create_app(os.getenv('AC_CONFIG', 'beta'))
+app = create_app(os.getenv('AC_CONFIG', 'default'))
 app.debug=True
 
 migrate = Migrate(app, db)
