@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% block content %}    
+<script>
+      $(function() {
+        $.get("./geolocations.txt", function(data) {
+            var items = data.split('"');
+            $( "#geolocation" ).autocomplete({
+              source: items
+            });            
+        });        
+      });
+    </script>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1608721912712330',
+          xfbml      : true,
+          version    : 'v2.4'
+        });        
+      };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+    </script>
+    <script type="text/javascript">
+        
+        // Setup an event listener to make an API call once auth is complete
+        function onLinkedInLoad() {
+            IN.Event.on(IN, "auth", getProfileData);
+        }
+
+        // Handle the successful return from the API call
+        function onSuccess(data) {
+            console.log(data);
+            geolocation = data.location.name;
+            public_url = data.publicProfileUrl;
+            email_address = data.emailAddress;
+            firstName = data.firstName;
+            document.getElementById("owner_email").innerHTML = email_address;
+            document.getElementById("owner_geolocation").innerHTML = geolocation;
+            document.getElementById("owner_img").src = data.pictureUrl;
+            document.getElementById("owner_name").innerHTML = "Welcome, " + firstName;
+            $("div#enter_email").hide();
+            $("div#upload_area").show();            
+        }
+
+        // Handle an error response from the API call
+        function onError(error) {
+            console.log(error);
+        }
+
+        // Use the API call wrapper to request the member's basic profile data
+        function getProfileData() {
+            IN.API.Raw("people/~:(id,num-connections,picture-url,location,industry,public-profile-url,email-address,first-name,last-name)").result(onSuccess).error(onError);
+        }
+
+    </script>    
+  <div class='overlay'>
+    <div class='email modal'>
+      <h3>Select Email Provider</h3>
+      <ol>
+        <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
+        <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
+        <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
+    </div>
+    <div class='waiting modal'>
+      <div class='logo'>
+        <img src='{{ static_url() }}img/spinner_192.gif' />
+      </div>
+    </div>    
+  </div>
+
+  <div class='signup' id="signup">
+    <div class='logo'>
+      <img src='{{ static_url() }}img/AC_logo.png' />
+    </div>
+    <div id="enter_export_id" hidden>
+      <p>Copy and paste the confirmation code into the box to proceed to the next step</p>
+      <input type='text' id="export_id"/>
+      <button id="submit" class='button' type="Submit">Submit</button>
+    </div>       
+    <div id="enter_email" >
+      <h2 hidden>Welcome</h2>
+      <p >Please sign in through LinkedIn to continue.</p>
+      <p hidden>Enter the email address where you would like to receive your P200.</p>
+      <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
+      <input hidden type='email' id="email_address" />
+      <p hidden>Enter your target region</p>
+      <div hidden class="ui-widget">
+        <input hidden id="geolocation"/>
+      </div>
+      <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
+    </div>       
+ 
+    <div id="upload_area" hidden>
+      <h2 id="owner_name"></h2>
+      <img id="owner_img" />
+      <p>Upload contacts from LinkedIn, and as many of your email accounts as possible.</p>
+      <p hidden id="owner_email"></p>
+      <p hidden id="owner_geolocation"></p>
+      <h2 hidden>Upload contacts</h2>
+      <div id="linkedin_area">
+        <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
+      </div>
+      <div id="email_area">
+        <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
+      </div>
+      <div hidden id="csv_area">
+        <button class='button' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
+      </div>
+      <br/>
+      <br/>
+      <a ><button id="next" type="Submit" class='button'>Finish &amp; Upload &raquo;</button></a>
+    </div>
+  </div>
+  <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+  <script type='text/javascript' >
+
+    var domain_key='VB652MMUEG24H4JF3SGL';
+    var domain_password='GSrAxStb9Zk5EOmD';    
+    var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
+    var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
+    var contacts_array = [];
+
+    function do_import(service, divid, win) {     
+      $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
+        function(data) {
+          var cloudsponge_url = data.url;
+          var import_id = data.import_id;
+          var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+          var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+          console.log(tempcontactsurl);
+          win.location = cloudsponge_url;
+          //var win = window.open(cloudsponge_url);
+          var timer = setInterval(function() {   
+              if(win.closed) {
+                  console.log("window closed");
+                  $(".overlay").fadeIn();
+                  $(".waiting").show();                
+                  clearInterval(timer); 
+                  $.getJSON(tempeventsurl, function(data){
+                    events = data.events;
+
+                    for (i = 0; i < events.length; i++) { 
+                        cloudsponge_status = events[i].status;
+                        if (cloudsponge_status == 'COMPLETED') {
+                          var timer2 = setInterval(function() {  
+                            $.getJSON(tempcontactsurl, function() {
+                            })
+                            .success(function(data) {
+                              clearInterval(timer2); 
+                              contacts = data.contacts;
+                              if (contacts !=undefined && contacts.length) { 
+                                contacts_owner = data.contacts_owner;
+
+                                for (i = 0; i < contacts.length; i++) { 
+                                    var contact = contacts[i];
+                                    contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
+                             
+                                }
+                                var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
+                                if (contacts_owner) {
+
+                                  response_string = response_string + "from " + contacts_owner.email[0].address;
+                                }
+                              
+                                $(".waiting").hide();   
+                                $(".overlay").fadeOut();
+                                $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); 
+                                contacts = [];
+                              } 
+                              else {
+                                $(".waiting").hide();   
+                                $(".overlay").fadeOut();                                
+                                alert('Invalid input');
+                              }                             
+                            });                          
+                          }, 1000); 
+                          break;
+                        }
+                    }     
+                  }); 
+              }  
+          }, 500);             
+        });      
+    }
+
+    $(function() {
+
+      $("#export_id").keyup(function(event){
+          if(event.keyCode == 13){
+              $("#submit").click();
+          }
+      });        
+      $("#enter_email").keyup(function(event){
+          if(event.keyCode == 13){
+              $("#geolocation").focus();
+          }
+      });         
+      $("#geolocation").keyup(function(event){
+          if(event.keyCode == 13){
+              $("#enter").click();
+          }
+      });      
+      $("#submit").click(function() {
+        var export_id_string = document.getElementById("export_id").value;
+        $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
+          function(data) {
+            try {
+              var email_str = data.email;
+              email_address = email_str.split("<")[1].split(">")[0];
+              email_name = email_str.split("<")[0];
+              document.getElementById("owner_name").innerHTML = email_name;   
+              document.getElementById("owner_email").innerHTML = email_address;   
+              document.getElementById("owner_geolocation").innerHTML = geolocation; 
+              $("div#upload_area").show();        
+            } 
+            catch (err) {
+              console.log("Err");
+              alert("Invalid code");
+            }
+
+        })
+        .error(function() { alert("Invalid code"); });               
+      });
+      $("#enter").click(function() {
+        email_address = document.getElementById("email_address").value;
+        geolocation = document.getElementById("geolocation").value;
+        if (email_address != "" && geolocation != "") {
+          document.getElementById("owner_email").innerHTML = email_address;
+          document.getElementById("owner_geolocation").innerHTML = geolocation;
+          $("div#enter_email").hide();
+          $("div#upload_area").show();
+        }
+      });
+
+      $("#vcard").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len = do_import('addressbook','div#mac_area',win);
+      });
+
+      $("#em").click(function() {
+        $(".overlay").fadeIn();
+        $(".email").slideDown();
+      });
+
+      $("#gmail").click(function(e) {
+        cloudsponge_status = 'NONE';   
+        e.preventDefault();
+        var win = window.open('');        
+        var len = do_import('Gmail','div#email_area',win);
+        $(".email").hide();
+        // if (len>0) {$("#gmail").hide();}
+        $(".overlay").fadeOut();
+      });
+
+      $("#yahoo").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len =do_import('Yahoo','div#email_area',win);
+        $(".email").hide();
+        // if (len>0) { $("#yahoo").hide();}
+        $(".overlay").fadeOut();
+      });
+
+      $("#windowslive").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len = do_import('WindowsLive','div#email_area',win);
+        $(".email").hide();
+        // if (len>0) {$("#windowslive").hide();}
+        $(".overlay").fadeOut();
+      });
+
+      $("#ln").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');
+        // $(".overlay").fadeIn();
+        var len = do_import('LinkedIn','div#linkedin_area',win);
+      });
+
+      $("#csv").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        // $(".overlay").fadeIn();
+        var len = do_import('CSV','div#csv_area',win);
+        // if (len>0) {$("#csv").hide();}
+      });
+
+      $("#next").click(function() {
+        if (contacts_array.length > 0) {
+          $(".overlay").fadeIn();
+          $(".waiting").show();   
+          var csrf_token = $("[_csrf_token]").val()
+          var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, public_url:public_url, user_email:email_address, contacts_array: contacts_array}          
+          $.ajax({
+              type: 'POST',
+              url: '/upload_cloudsponge',
+              crossDomain: true,
+              data: JSON.stringify(outData),
+              dataType: 'json',
+              contentType: 'application/json; charset=utf-8',
+              success: function(responseData, textStatus, jqXHR) {
+                  $(".waiting").hide();   
+                  $(".overlay").fadeOut();                
+                  var unique_contacts = JSON.parse(responseData);
+                  var n_unique = Object.keys(unique_contacts).length;
+                  $("div#upload_area").hide();
+                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total records uploaded " + "</i>"); 
+                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + n_unique.toLocaleString() + " unique contacts found " + "</i>");                   
+                  $("div#signup").append("<p>Congratulations on uploading your contacts. An email has been sent to " + email_address + " with further details on next steps.</p>");                   
+                  //alert('uploaded ' + contacts_array.length + ' contacts!')
+              },
+              error: function (responseData, textStatus, errorThrown) {
+                  $(".waiting").hide();   
+                  $(".overlay").fadeOut();                
+                  alert('upload failed.');
+              }
+          });   
+        } else {
+          alert('No contacts added!');
+        }     
+        //$("#csv").hide();
+      });
+
+      $(".overlay").click(function(e) {
+        if (e.target.className == "overlay") {
+            $(".linkedin").hide();
+            $(".email").hide();
+            $(this).hide();
+          }
+      });
+    });
+  </script>
+  {% endblock %}

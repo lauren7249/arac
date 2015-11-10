@@ -21,6 +21,7 @@ class Config(object):
     REMEMBER_COOKIE_HTTPONLY = True
     AWS_ACCESS_KEY_ID='AKIAIWG5K3XHEMEN3MNA'
     AWS_SECRET_ACCESS_KEY='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'
+    STATIC_URL = "/static/"
 
 
 class BetaConfig(Config):

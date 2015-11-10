@@ -1,1423 +1,229 @@
 @import "compass/css3";
-@import 'styles';
 
-$quick: "Quicksand", sans-serif;
-$noto: "Noto Sans", sans-serif;
-
-body {
-  background: #354661;
-  font-family: $quick;
-}
-
-div.perma-container {
-  width: 90%;
-  display: block;
-  margin: 0 auto;
-  background: #fff;
-  padding: 40px;
-}
-
+$lato: "Lato" sans-serif;
 
 div.clear {
   clear: both;
 }
 
-.row {
+html, body {
   margin: 0;
+  padding: 0;
 }
 
-
-div.filters {
-  
-  h1 {
-    float: left;
-  }
-
-  ul.filters {
-    float: right;
-    width: 366px;
-    padding: 35px 0 15px;
-
-    li {
-      list-style-type: none;
-      float: left;
-
-      input {
-        width: 100px;
-        height: auto;
-        margin: 0 5px;
-        font-size: 12px;
-      }
-
-      span {
-        margin-top: 10px;
-        display: block;
-      }
-    }
-  }
-}
-
-div.navbar {
-  background: #414154;
-  @include border-radius(0px);
-
-  .navbar-header {
-    float: none;
-  }
-
-  #header {
-    padding: 20.5px 20px;
-    font-family: $quick;
-    text-transform: uppercase;
-    font-weight: bold;
-
-    span {
-      color: #2196f3;
-    }
-  }
-
-  a.navbar-brand {
-    font-size: 15px;
-    color: #fff;
-  }
-
-  #settings {
-    position: relative;
-    color: #fff;
-    font-size: 15px;
-
-    &:hover {
-      div.autocomplete {
-        height: 120px;
-        z-index: 4;
-      }
-    }
-
-    div.autocomplete {
-      width: 240px;
-      position: absolute;
-      height: 0;
-      overflow: hidden;
-      top: 63px;
-      right: 7px;
-      background: #525252;
-      -webkit-transition: all 2;
-      -moz-transition: all 2;
-      -o-transition: all 2;
-      transition: all 2;
-
-      ul {
-        display: block;
-        font-size: 14px;
-        margin: 0;
-        padding: 0 30px;;
-
-        li {
-          display: block;
-          text-transform: uppercase;
-          text-align: right;
-          padding: 10px 0;
-
-          a {
-            color: #fff;
-          }
-        }
-      }
-    }
-  }
+body {
+  background: #fff;
+  color: #232523;
+  font-family: "Lato" sans-serif;
 }
 
 div.signup {
+  padding: 40px;
+  width: 400px;
+  margin: 20px auto;
+  text-align: center;
 
-  div.top-box {
-    float: none;
-    margin: 0 auto;
-  }
+  div.logo {
+    width: 150px;
+    margin: 0 auto 15px;
 
-  h1 {
-    font-family: $quick;
-    font-size: 26px;
-    text-transform: uppercase;
-    color: $blue;
-    text-align: left;
-  }
-
-  div.well {
-    width: 988px;
-    padding: 30px 40px;
-    @include box-shadow(rgba(0,0,0,0.3) 0 0 1px 2px);
-    float: none;
-    margin: 0 auto;
-
-    div {
-      padding: 0 20px;
-    }
-
-    ul, li {
-      list-style-type: decimal;
-    }
-
-    fieldset {
-
-      legend {
-        text-transform: uppercase;
-        text-align: center;
-      }
-    }
-  }
-}
-
-div.sidebar {
-  float: left;
-  height: 100%;
-  width: 20%;
-
-  div.inner {
-    min-height: 300px;
-    padding: 20px 40px;
-
-    h3 {
-      font-size: 25px;
-      color: #ccc;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    ul {
-      padding-left: 10px;
-
-      li {
-        font-size: 14px;
-        padding: 5px;
-        list-style-type: none;
-
-        a {
-          color: #fff;
-          @include text-shadow(#333 1px 1px 0);
-          font-weight: bold;
-          position: relative;
-
-          span {
-            width: 3px;
-            background: #2196f3;
-            display: none;
-            height: 100%;
-            position: absolute;
-            top: 0px;
-            left: -10px;
-          }
-
-          &:hover {
-            color: #525252;
-          }
-
-          &.active {
-            color: #eee;
-            span {
-              display: block;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-div.welcome {
-  padding-top: 20px;
-  background: #eff2f8;
-  width: auto;
-  padding-bottoM: 16px;
-  @include box-shadow(#999 0 0px 2px 0px);
-  position: relative;
-  z-index: 3;
-
-  h1 {
-    padding: 20px 30px 10px;
-    font-family: 'Noto Sans', sans-serif;
-    font-weight: 400;
-    font-size: 24px;
-    margin: 0;
-
-    a {
-      color: #505977;
-      text-decoration: none;
+    img {
+      max-width: 100%;
     }
   }
 
-  p {
-    padding: 0 30px;
-    font-size: 14px;
+  input {
     width: 80%;
-    line-height: 150%;
+    margin: 0 auto;
   }
 
-  hr {
-    border: 0;
-    height: 1px;
-    background: #ccc;
-    margin: 14px 0;
-    border-bottom: 1px solid #fff;
-  }
-
-  ul {
-    padding: 0px;
-    height: 21px;
-    margin: 0;
-
-    li {
-      display: inline;
-      font-weight: bold;
-      margin: 0 5px 0 0;
-
-      a {
-        padding: 5px 15px;
-        font-family: $quick;
-        text-decoration: none;
-        color: #bbb;
-        @include border-radius(30px);
-      }
-    }
-
-    .active {
-
-      a {
-        background: #4daff1;
-        color: #fff;
-      }
-    }
-  }
-}
-
-div.upload {
-  div.well {
-    background: #fff;
-    padding: 30px 40px;
-    @include box-shadow(rgba(0,0,0,0.3) 0 0 1px 2px);
-    float: none;
-    margin: 40px auto;
-
-    div.row-one {
-      padding: 0 20px;
-    }
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-}
-
-div.top-box {
-  h5 {
-    color: #fff;
-    font-weight: bold;
-  }
-}
-
-div.confirm {
-  div.well {
-    background: #fff;
-    padding: 30px 40px;
-    @include box-shadow(rgba(0,0,0,0.3) 0 0 1px 2px);
-    float: none;
-    margin: 40px auto;
-
-    div.row-one {
-      padding: 0 20px;
-    }
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-
-  div#skills {
-    div.skill {
-      background: #2196f3;
-      padding: 5px 10px;
-      font-weight: bold;
-      display: inline-block;
-      text-transform: uppercase;
-      color: #fff;
-      @include border-radius(4px);
-      margin-right: 10px;
-
-      span {
-        cursor: pointer;
-        padding-left: 10px;
-      }
-    }
-  }
-}
-
-h2.empty {
-  line-height: 180%;
-  background: #eee;
-  text-transform: uppercase;
-  text-align: center;
-  font-size: 18px;
-  padding: 30px;
-
-  a {
-    color: #2196f3;
-  }
-}
-
-div.wrapper {
-  width: 960px;
-  margin: 0 auto;
-  position: relative;
-}
-
-div.items {
-  position: relative;
-  float: left;
-  width: 100%;
-  background: #fafafa;
-  border-left: 1px solid #dedede;
-  min-height: 600px;
-
-  div.headers {
-    margin-top: 20px;
-    margin-bottom: 20px;
-
-    a {
-      background: #333;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 5px 15px;
-      font-family: $quick;
-      margin-right: 15px;
-      text-decoration: none;
-      font-weight: bold;
-      @include border-radius(30px);
-    }
-
-    a.active {
-      background: #fff;
-      border: 1px solid #333;
-      color: #333;
-    }
-  }
-}
-
-div.stats {
-  padding-bottom: 40px;
-  padding: 50px;
-  display: none;
-  
-  h4 {
-    font-size: 28px;
-  }
-  
-  div.stat {
-    width: 24%;
-    display: inline-block;
-    vertical-align: top;
-
-    h5 {
-      font-size: 18px;
-      text-align: center;
-      text-transform: uppercase;
-    }
-  }
-}
-
-div.person-search {
-  display: none;
-}
-
-div.dashboard-search {
-  padding: 20px 40px;
-  background: #ecf0f1;
-  z-index: 2;
-  position: relative;
-
-
-  input[type='submit'] {
-    float: left;
-  }
-
-  fieldset {
-    margin-bottom: 5px;
-    width: 100%;
-
-    input.small, input.grad {
-      padding: 10px;
-      width: 105px;
-      font-weight: bold;
-      border: 1px solid #ddd;
-      @include box-shadow(#fff 0 1px 0 1px);
-      @include border-radius(4px);
-      font-size: 12px;
-      background: #fff;
-      margin: 0;
-    }
-
-    #amount {
-      width: 30px;
-      background: transparent;
-    }
-
-    input.grad {
-      width: 215px;
-    }
-
-    div.input-holder {
-      width: 600px;
-      font-weight: bold;
-      display: inline-block;
-      border: 1px solid #ddd;
-      @include box-shadow(#fff 0 1px 0 1px);
-      @include border-radius(4px);
-      font-size: 12px;
-      background: #fff;
-      position:relative;
-      vertical-align: middle;
-      margin: 0;
-
-      ul.search {
-        min-height: 43px;
-        height: 1%;
-        margin: 0;
-        padding: 0 5px 0 0;
-        position: relative;
-        cursor: text;
-        overflow: hidden;
-
-        li {
-          float: left;
-          list-style: none;
-          border: 0;
-
-          &:last-child {
-            float: none;
-            overflow: hidden;
-          }
-        }
-
-        li.styled {
-          background: #4daff1;
-          color: #fff;
-          margin: 5px;
-          height: 40px;
-          width: auto;
-          padding: 0 10px;
-          @include border-radius(4px);
-          
-          span {
-            height: 100%;
-            display: inline-block;
-            padding-top: 8px;
-          }
-
-          a {
-            margin-left: 5px;
-            color: #fceeee;
-          }
-        }
-
-        li.input {
-          width: auto !important;
-          
-          input {
-            width: 100% !important;
-            @include box-shadow(#fff 0 0 0);
-            font-size: 12px;
-            height: 43px;
-            padding: 5px;
-            border: 0;
-            outline: 0;
-            margin: 0;
-            background: transparent;
-
-            &:focus {
-              @include box-shadow(#fff 0 0 0);
-            }
-          }
-        }
-      }
-    }
-
-    label {
-      padding-right: 10px;
-      width: 130px;
-    }
-    select {
-      padding: 13px 10px 11px;
-      font-weight: bold;
-      font-size: 12px;
-      width: 50%;
-      background-color: #fff;
-      margin: 0;
-      border: 1px solid #ddd;
-      @include box-shadow(#fff 0 1px 0 1px);
-      @include border-radius(4px);
-    }
-
-    button {
-      padding: 10px 20px;
-    }
-
-    div.date-holder {
-      position: relative;
-      display: inline;
-    }
-  }
-
-  fieldset.buttons {
-    margin-top: 20px;
-  }
-
-  div.gender-box {
-    display: inline-block;
-    padding-top: 10px;
-    label {
-      width: auto;
-      padding: 0 10px;
-    }
-  }
-}
-
-div.new-search {
-  background: #4caf50;
-  padding: 10px 20px;
-  position: absolute;
-  @include border-bottom-radius(4px);
-  display: none;
-  top: 0;
-  right: 100px;
-
-  a {
-    color: #fff;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-}
-
-#more-padding {
-  padding-top: 50px;
-}
-
-div.prospects-holder {
-  position: relative;
-}
-
-div.results {
-  width: auto;
-  padding: 20px 20px 0;
-  position: relative;
-
-
-  div.search-box {
-    padding: 10px 0px 40px;
-    width: auto;
-
-    h5 {
-      text-transform: uppercase;
-      font-weight: bold;
-      color: #525252;
-      font-size: 12px;
-
-      a {
-        color: #525252;
-      }
-    }
-
-    input.search {
-      width: 90%;
-      float: left;
-    }
-
-    input[type='submit'] {
-      float: left;
-    }
-
-    .fieldset {
-      width: 230px;
-      float: left;
-
-      input[type='text'] {
-        width: 90%;
-        padding: 10px;
-        font-weight: bold;
-        border: 1px solid #ddd;
-        @include box-shadow(#fff 0 1px 0 1px);
-        @include border-radius(4px);
-        font-size: 12px;
-        background: #fff;
-        margin: 0;
-      }
-
-
-      label {
-        padding-right: 10px;
-      }
-      select {
-        padding: 13px 10px 11px;
-        font-weight: bold;
-        font-size: 12px;
-        width: 50%;
-        background-color: #fff;
-        margin: 0;
-        border: 1px solid #ddd;
-        @include box-shadow(#fff 0 1px 0 1px);
-        @include border-radius(4px);
-      }
-
-      button {
-        padding: 10px 20px;
-      }
-
-    }
-
-    div.advanced-filters {
-      display: none;
-    }
-
-    div.date {
-      width: 180px;
-    }
-  }
-
-  div.search-page-results {
-    display: none;
-    @include box-shadow(#ddd 0 0 1px 2px);
-    margin-top: 30px;
-    padding: 30px 0;
-
-    ul {
-      padding: 0;
-      list-style-type: none;
-      
-      li {
-        list-style-type: none;
-        font-weight: bold;
-        padding-bottom: 10px;
-      }
-    }
-  }
-
-  h4 {
-    color: $blue;
-    font-size: 18px;
-    margin: 0 0 15px;
-    padding: 0 25px;
-    text-transform: uppercase;
-  }
-
-  div.result {
-    min-height: 200px;
-    width: 100%;
-    margin: 15px 0;
-    float: left;
-    background: #fff;
-    border: 1px solid #c8c7cc;
-    padding: 20px;
-
-    div.first {
-      width: 50px;
-      float: left;
-    }
-
-    div.second {
-      width: 320px;
-      float: left;
-    }
-
-    div.connections {
-      width: 200px;
-      padding: 0 20px;
-      float: left;
-
-      h5 {
-        color: #4caf50;
-        text-transform: uppercase;
-        padding: 0;
-        margin: 0 0 5px;
-        font-family: $noto;
-        font-size: 15px;
-      }
-
-      p {
-        font-size: 12px;
-        margin: 0;
-        color: #525252;
-        font-family: $quick;
-        padding: 10px 0;
-        line-height: 150%;
-
-        .small {
-          font-size: 10px;
-        }
-      }
-    }
-
-    div.buttons {
-      padding: 0 20px;
-      float: left;
-      width: 200px;
-    }
-
-    h3 {
-      color: $blue;
-      font-size: 18px;
-      font-weight: bold;
-      text-transform: capitalize;
-      margin: 0;
-
-      a {
-        cursor: pointer;
-        margin: 0;
-      }
-    }
-
-    h4 {
-      font-size: 12px;
-      text-transform: capitalize;
-      font-weight: bold;
-      padding: 5px 0 0;
-      margin: 0;
-      color: #777;
-      line-height: 160%;
-
-      span.grey {
-        color: #333;
-        padding-right: 10px;
-      }
-    }
-
-    div.image {
-      width: 100px;
-      margin:0 10px;
-      float: left;
-      text-align: center;
-
-      h4.money {
-        background: #4caf50;
-        display: inline-block;
-        width: 72px;
-        color: #fff;
-        font-size: 20px;
-        padding: 20px;
-        @include border-radius(100px);
-      }
-
-      p {
-        font-size: 14px;
-        color: #525252;
-        text-align: center;
-      }
-
-      img {
-        width: 100%;
-      }
-    }
-
-    h5 {
-      font-size: 15px;
-    }
-
-    a {
-      margin: 4px;
-      display: inline-block;
-    }
-  }
-
-}
-
-div.hide-results {
-  width: 100%;
-  position: absolute;
-  background: rgba(255, 255, 255, 0.95);
-  left: 0;
-  top: 0;
-  z-index: 100;
-  height: 100%;
-
-  h2 {
-    padding: 80px 30px 20px;
-    color: #4caf50;
+  button {
     font-size: 20px;
-    text-align: center;
-  }
-
-  p {
-    color: #444;
-    text-align: center;
+    margin-left: 0 !important;
+    margin: 20px auto 0;
+    width: 80%;
   }
 }
 
-div.loading {
+input[type='text'],[type='password'] {
+  display: block;
   width: 100%;
-  display: none;
-  position: absolute;
-  background: rgba(255, 255, 255, 0.95);
-  left: 0;
-  top: 0;
-  z-index: 100;
-  height: 100%;
-
-  h2 {
-    padding: 80px 30px 20px;
-    color: #4caf50;
-    font-size: 40px;
-    text-align: center;
-  }
-
-  p {
-    color: #444;
-    text-align: center;
-  }
+  height: 24px;
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
-div.person {
-  width: 80%;
-}
-
-div#person {
-  width: 100%;
-  margin: 0px auto;
-  background: #fff;
-  min-height: 150px;
-
-  div.top {
-    background: #eee;
-    padding: 15px 20px;
-    width: auto;
-
-    p {
-      text-transform: uppercase;
-      font-weight: 700;
-      color: #252525;
-      font-size: 18px;
-      margin: 0;
-      padding: 0;
-      font-family: $quick;
-
-      a {
-        float: right;
-        color: #fff;
-        font-size: 20px;
-      }
-    }
-  }
-
-  .prospect-profile-results {
-    display: none;
-  }
-
-  ul.tabs {
-    padding: 0px 30px;
-    height: 21px;
-    margin: 0 0 20px;
-
-    li {
-      display: inline;
-      font-weight: bold;
-
-      a {
-        padding: 5px 15px;
-        font-family: $quick;
-        text-decoration: none;
-        color: #bbb;
-        @include border-radius(30px);
-      }
-    }
-
-    .active {
-
-      a {
-        background: #4daff1;
-        color: #fff;
-      }
-    }
-  }
-
-  div.inner {
-    padding: 20px;
-
-    div.leftTop {
-      width: 40%;
-      float: left;
-      margin-bottom: 20px;
-    }
-
-    div.rightTop {
-      width: 60%;
-      float: left;
-      margin-bottom: 20px;
-
-      div.group {
-        width: 50%;
-        float: left;
-      }
-
-      h4.wealth {
-        font-size: 18px;
-        color: #525252;
-        text-transform: uppercase;
-        font-weight: 400;
-
-        span.inner {
-          color: #4caf50;
-          font-weight: 700;
-        }
-      }
-
-      h1 {
-        font-size: 18px;
-        color: $darkblue;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin: 0;
-        padding-top: 10px;
-      }
-
-      p {
-        font-size: 15px;
-      }
-
-      button {
-        margin: 0 5px 0 0;
-        font-size: 12px;
-        text-transform: capitalize;
-        font-weight: 700;
-      }
-    }
-
-    hr {
-      clear: both;
-      padding: 20px 0 0;
-      margin: 0;
-    }
-
-    div.jobsList, div.schoolList, div.newsList, div.salaryList {
-      width: 50%;
-      padding: 0 5% 5%;
-      float: left;
-
-      h3 {
-        font-size: 20px;
-        color: $darkblue;
-        font-weight: 400;
-        padding: 0;
-        margin: 0 0 10px;
-      }
-
-      h4 {
-        font-size: 19px;
-        color: #525252;
-        font-weight: 700;
-        text-transform: uppercase;
-      }
-
-      h5 {
-        font-size: 14px;
-      }
-    }
-  }
-}
-
-div#uploading {
-  width: 600px;
-  text-align: center;
-  margin: 50px auto;
-  padding: 50px;
-  background: #fff;
-  @include box-shadow(#ccc 0 0 4px 0);
-  min-height: 150px;
+h2 {
+  color:#333456;
+  font-size: 35px;
 }
 
 div.overlay {
   position: fixed;
-  overflow-y: scroll;
   top: 0;
   left: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 10;
+  height: 100%;
   width: 100%;
   display: none;
-  height: 100%;
-  z-index: 99;
-  background: rgba(255, 255, 255, 0.8);
+}
 
-  div#person, div#search-box {
-    width: 1000px;
-    margin: 20px auto;
-    background: #fff;
-    @include box-shadow(#ccc 0 0 4px 0);
-    min-height: 150px;
+div.modal {
+  background: #fff;
+  width: 600px;
+  background: #fff;
+  display: none;
+  @include border-radius(4px);
+  border: 1px solid #000;
+  margin: 20px auto;
+  position: relative;
 
-    div.top {
-      background: #525252;
-      padding: 15px 20px;
-      width: auto;
-      
-      p {
-        text-transform: uppercase;
-        font-weight: 700;
-        color: #fff;
-        font-size: 18px;
-        margin: 0;
-        padding: 0;
-        font-family: $quick;
+  img {
+    display: block;
+    margin: 0 auto;
+  }
 
-        a {
-          float: right;
-          color: #fff;
-          font-size: 20px;
-        }
-      }
-    }
+  ol {
+    li {
+      font-size: 25px;
+      font-weight: 100;
+      padding: 10px;
+      text-transform: uppercase;
 
-    div.inner {
-      padding: 20px;
+      a {
+        color: #222;
+        text-decoration: none;
 
-      div.leftTop {
-        width: 40%;
-        float: left;
-        margin-bottom: 20px;
-      }
-
-      div.rightTop {
-        width: 60%;
-        float: left;
-        margin-bottom: 20px;
-
-        div.group {
-          width: 50%;
-          float: left;
-        }
-
-        h4.wealth {
-          font-size: 18px;
-          color: #525252;
-          text-transform: uppercase;
-          font-weight: 400;
-
-          span.inner {
-            color: #4caf50;
-            font-weight: 700;
-          }
-        }
-
-        h1 {
-          font-size: 18px;
-          color: $darkblue;
-          font-weight: 700;
-          text-transform: uppercase;
-          margin: 0;
-          padding-top: 10px;
-        }
-
-        p {
-          font-size: 15px;
-        }
-
-        button {
-          margin: 0 5px 0 0;
-          font-size: 12px;
-          text-transform: capitalize;
-          font-weight: 700;
-        }
-      }
-
-      hr {
-        clear: both;
-        padding: 20px 0 0;
-        margin: 0;
-      }
-
-      div.jobsList, div.schoolList, div.newsList, div.salaryList {
-        width: 50%;
-        padding: 0 5% 5%;
-        float: left;
-
-        h3 {
-          font-size: 20px;
-          color: $darkblue;
-          font-weight: 400;
-          padding: 0;
-          margin: 0 0 10px;
-        }
-
-        h4 {
-          font-size: 19px;
-          color: #525252;
-          font-weight: 700;
-          text-transform: uppercase;
-        }
-
-        h5 {
-          font-size: 14px;
+        i {
+          margin-right: 15px;
+          color: #0182C6;
         }
       }
     }
   }
 }
 
-div#client-list {
-  width: 700px;
-  margin: 20px auto;
-  background: #fff;
-  @include box-shadow(#ccc 0 0 4px 0);
-  min-height: 150px;
-  padding: 40px 100px;
-
-  input[type='text'] {
-    width: 80%;
-  }
-
+div.email  {
+  padding: 30px;
 }
 
-div#modal {
-  width: 700px;
-  margin: 20px auto;
-  background: #fff;
-  @include box-shadow(#ccc 0 0 4px 0);
-  min-height: 150px;
-  padding: 40px 90px;
+div.wrapper {
+  width: 960px;
+  position: relative;
+  margin: 0 auto;
+}
+
+header {
+  height: 88px;
+
+  img {
+    width: 100px;
+    float: left;
+  }
 
   h2 {
-    font-size: 45px;
-    color: #525252;
-    margin-top: 0;
-    text-align: center;
-    text-transform: uppercase;
-    font-weight: 400;
+    font-size: 30px;
+    float: left;
   }
 
-  p {
+  button.button {
+    margin-top: 30px;
+    float: right;
     font-size: 15px;
-    padding: 20px;
-    text-align: center;
+    margin-left: 5px;
+  }
+}
+
+div.graphs {
+  float: left;
+  width: 50%;
+
+  h3 {
+    font-size: 25px;
 
     span {
-      color: #08db44;
+      color: orange;
     }
   }
 
-  button {
-    font-size: 25px;
-    display: block;
-    margin: 20px auto;
-  }
-}
+  div.graph {
+    width: 50%;
+    float: left;
 
-div#search-box {
-  width: 1000px;
-  margin: 20px auto;
-  background: #fff;
-  @include box-shadow(#ccc 0 0 4px 0);
-  min-height: 150px;
+    canvas {
+      width: 100%;
+    }
 
-  h1 {
-    font-size: 25px;
-    color: #525252;
-    text-align: center;
-    text-transform: uppercase;
-    font-weight: 400;
-  }
-
-  div.search-box {
-    padding: 40px;
-
-    input[type='text'] {
-      width: 80%;
-      margin-right: 15px;
+    h4 {
+      font-size: 18px;
+      color: #0182C6;
+      text-align: center;
     }
   }
 
-  label {
-    margin-right: 20px;
-  }
+  div.big-graph {
+    width: 80%;
+    margin: 0 auto;
 
-  input[type='date'] {
-    border: 0px;
-    margin-right: 10px;
-  }
-}
-
-fieldset.margin-bottom {
-  margin-bottom: 50px;
-
-  h4 {
-    padding-bottom: 15px;
+    canvas {
+      width: 100%;
+    }
   }
 }
 
-#ex1 .slider-selection {
-	background: #8283FF;
-}
+div.network-stats {
+  padding-bottom: 40px;
 
-div.padding {
-  padding: 10px 40px;
-}
+  h3 {
+    font-size: 25px;
 
-.hidden-select {
-  margin-top: 30px;
-  display: none;
-}
+    span {
+      color: orange;
+    }
+  }
 
-//AUTOCOMPLETE STUFFS 
-.ui-widget-content {
-  background: rgba(0,0,0,0.8);
-  z-index: 1000000;
-  position: absolute !important;
-  padding: 20px;
+  table {
+    border: 0;
+    width: 100%;
 
-  li {
-    display: block;
-    color: #fff;
-    font-family: $quick;
-    float: none !important;
-    padding: 10px;
+    td {
+      border: 0;
+      border-top: 1px solid #efefef;
+      padding: 10px;
+      color: #232523;
 
-    a {
-      color: #fff;
+      h3 {
+        color: #0182C6;
+        margin: 0 0 5px;
+      }
 
       p {
-        display: inline;
-        margin-left: 15px;
-        text-align: right;
-
-        span {
-          background: #4caf50;
-          padding: 4px;
-          @include border-radius(4px);
-        }
+        margin: 0;
       }
     }
   }
 
-  .ui-state-hover, .ui-state-focus {
-    background: #fff;
-    
-    a {
-      color: #222;
+  a {
+      text-decoration: none;
+
+    button#main {
+      float: none;
+      display: block;
+      margin: 20px auto;
+      font-size: 30px;
+
     }
   }
-}
-
-#ui-datepicker-div {
-  min-height: 0;
-  font-family: $quick;
-
-  th {
-    color: #fff;
-  }
-
-  select {
-    background: transparent;
-    @include box-shadow(#fff 0 0 0);
-    border: 1px solid #fff;
-    margin:0 3px;
-    @include border-radius(4px);
-    padding: 4px;
-  }
-
-  .ui-widget-header {
-    border: 0;
-    background: transparent;
-    color: #fff;
-
-    a {
-      color: #fff;
-      background: #fff;
-    }
-  }
-
-  .ui-state-active {
-    background: transparent;
-    color: #fff;
-    border: 0;
-  }
-
-  .ui-state-default {
-    background: transparent;
-    color: #fff;
-    border: 0;
-  }
-}
-
-div.empty {
-  padding: 20px 50px;
-  border: 1px solid #ccc;
-  background: #eee;
-  margin-bottom: 100px;
-  @include box-shadow(#fff 0 1px 0 1px);
-
-  h2 {
-    text-transform: uppercase;
-    padding: 0 0 15px;
-    font-size: 30px;
-    color: #525252;
-  }
-
-  p, li {
-    font-size: 15px;
-    margin-bottom: 10px;
-  }
-
-  ul, li {
-    list-style-type: decimal;
-  }
-}
-
-#next, #prev {
-  margin-bottom: 50px;
-  display: none;
-}
-
-#user-profile-data {
-  display: none;
-}
-
-div.days {
-  padding: 15px;
-
-  div.results {
-    padding: 15px;
-
-    h2.leaders {
-      text-transform: uppercase;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-      color: #354661;
-      font-weight: bold;
-      font-size: 18px;
-
-      .green {
-        color: #4caf50;
-        text-transform: capitalize;
-        font-weight: normal;
-        margin-left: 10px;
-      }
-    }
-
-    .neg-top {
-      margin-top: -9px;
-    }
-    
-    div.checked {
-      border: 1px solid #4caf50;
-      @include box-shadow(#4caf50 0 0 3px);
-    }
-  }
-}
-
-.introjs-tooltipReferenceLayer {
-  z-index: 999999;
-}
-
-#slider-range {
-  position: relative !important;
-  display: inline-block;
-  width: 560px;
-  padding: 5px;
-  background: green;
-}
-
-
-#show-always {
-  display: block;
 }

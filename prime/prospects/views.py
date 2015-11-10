@@ -1,9 +1,11 @@
+import logging
 from flask import Flask
 from collections import Counter
 import urlparse
 
 from rq import Queue
 from redis import Redis
+from rq import Queue
 
 import random
 import requests
@@ -27,10 +29,15 @@ from sqlalchemy.orm import aliased
 
 from prime.prospects.helper import LinkedinResults
 from prime.prospects.arequest import aRequest
+from flask.ext.rq import job
+
+################
+##  HELPERS   ##
+################
 
 session = db.session
-redis_conn = Redis()
-q = Queue(connection=redis_conn)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def clean_url(s):
     pr = urlparse.urlparse(s)
@@ -46,584 +53,51 @@ def clean_url(s):
 
 def uu(str):
     if str:
-        return str.encode("ascii", "ignore").decode("utf-8")
+        return str.decode("ascii", "ignore").encode("utf-8")
     return None
 
 ################
-###   TASKS   ##
+##   TASKS    ##
 ################
 
-def export_file(prospects, email):
-    exporter = Exporter(prospects, email)
-    exporter.export()
+@job
+def queue_processing_service(delay, user_email, public_url, data):
+    from prime.processing_service.processing_service import ProcessingService
+    service = ProcessingService(
+            user_email=user_email,
+            user_linkedin_url=public_url,
+            csv_data=data)
+    service.process()
     return True
 
 ################
-###   VIEWS   ##
+##    VIEWS   ##
 ################
 
+@prospects.route("/", methods=['GET', 'POST'])
+def home():
+    return render_template('start.html')
 
 @prospects.route("/terms")
 def terms():
     return render_template('terms.html')
 
 @csrf.exempt
-@prospects.route("/clients", methods=["GET", "POST"])
-def clients():
-    if request.method == 'POST':
-        name = request.form.get("name")
-        client_list = ClientList(user=current_user,
-                name=name)
-        session.add(client_list)
-        session.commit()
-        return redirect("/clients")
-    client_lists = ClientList.query.filter_by(user=current_user).all()
-    return render_template('clients.html', client_lists=client_lists)
-
-@csrf.exempt
-@prospects.route("/clients/<int:id>", methods=["GET", "POST"])
-def clients_list(id):
-    client_list = ClientList.query.get(id)
-    prospects = client_list.prospects
-    return render_template('clients/list.html', prospects=prospects,
-            client_list=client_list)
-
-@csrf.exempt
-@prospects.route("/export", methods=["POST"])
-def export():
-    if request.method == 'POST':
-        prospect_ids = request.form.get("ids").split(",")
-        prospects = session.query(Prospect).filter(\
-                Prospect.id.in_(prospect_ids))\
-                .options(joinedload('jobs'), joinedload('jobs.company')).all()
-        job = q.enqueue(export_file, prospects, current_user.email)
-    return jsonify({"success": True})
-
-
-@csrf.exempt
-@prospects.route("/", methods=['GET', 'POST'])
+@prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
 def upload():
-    if current_user.is_anonymous():
-        return redirect(url_for('auth.login'))
-    results = None
+    unique_emails = set()
     if request.method == 'POST':
-        query = request.form.get("query")
-        results = LinkedinResults(query).process()
-    else:
-        if current_user.linkedin_url or current_user.linkedin_id:
-            return redirect("dashboard")
-    return render_template('upload.html', results=results)
+        results = []
+        client_first_name = request.json.get("firstName")
+        user_email = request.json.get("user_email")
+        geolocation = request.json.get("geolocation")
+        public_url = request.json.get("public_url")
+        contacts_array = request.json.get("contacts_array")
+        for c in contacts_array:
+            if len(c.get("emails", [])) > 0:
+                email = c.get("emails")[0].get("address", "").lower()
+                unique_emails.add(email)
 
-@csrf.exempt
-@prospects.route("/select", methods=['POST'])
-def select_profile():
-    if request.method == 'POST':
-        print "started"
-        url = request.form.get("url")
-        current_user.linkedin_url = url
-        session.commit()
-        print "user saved"
-    return jsonify({"success": True})
-
-@csrf.exempt
-@prospects.route("/confirm", methods=['GET'])
-def confirm_profile():
-    print "request started"
-    if not current_user.linkedin_url:
-        return redirect("select")
-    prospect = Prospect.query.filter_by(\
-            s3_key=current_user.linkedin_url.replace("/", "")).first()
-    if request.method == 'POST':
-        url = request.form.get("url")
-        rq = aRequest(url)
-        content = rq.get()
-        url = content.get("prospect_url")
-        if not current_user.linkedin_url:
-            current_user.linkedin_url = url
-            session.commit()
-        return redirect("auth.signup_linkedin")
-    return render_template('confirm.html', prospect=prospect)
-
-# @prospects.route("/contacts_upload")
-# def contacts_upload():
-#     user = current_user
-#     prospect = None
-#     first_time = False
-#     if 'first_time' in flask_session:
-#         first_time = True
-#         del flask_session['first_time']
-#     try:
-#         prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-#     except:
-#         try:
-#             prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
-#         except:
-#             prospect = None
-#     return render_template('cloudsponge/add.html',
-#             prospect=prospect)
-
-@prospects.route("/dashboard")
-def dashboard():
-    user = current_user
-    prospect = None
-    prospects_remaining_today = user.prospects_remaining_today
-    if user.json:
-        skipped_profiles = [int(prospect_id) for prospect_id in
-                user.json.get("skipped_profiles", [])]
-        processed_profiles = [int(prospect_id) for prospect_id in
-                user.json.get("good_profiles", [])] + skipped_profiles
-    else:
-        skipped_profiles = []
-        processed_profiles = []
-    first_time = False
-    if 'first_time' in flask_session:
-        first_time = True
-        del flask_session['first_time']
-    try:
-        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-    except:
-        try:
-            prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
-        except:
-            prospect = None
-    return render_template('dashboard.html',
-            prospect=prospect,
-            prospects_remaining_today=prospects_remaining_today)
-
-@prospects.route("/dashboard/json")
-def dashboard_json():
-    page = int(request.args.get("p", 1))
-    offset = (page - 1) * 50
-    limit = offset + 50
-    type = request.args.get("type", "extended")
-    user = current_user
-    if user.json:
-        skipped_profiles = [int(prospect_id) for prospect_id in
-                user.json.get("skipped_profiles", [])]
-        processed_profiles = [int(prospect_id) for prospect_id in
-                user.json.get("good_profiles", [])] + skipped_profiles
-    else:
-        skipped_profiles = []
-        processed_profiles = []
-    results = []
-    if type == 'extended':
-        try:
-            prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-        except:
-            try:
-                prospect = session.query(Prospect).filter_by(linkedin_id=int(current_user.linkedin_id)).first()
-            except:
-                prospect = None
-        prospect_list = ProspectList(prospect)
-        results = prospect_list.get_results()
-        if prospect.json:
-            boosted_profiles = prospect.boosted_profiles
-            if len(boosted_profiles) > 0:
-                results = boosted_profiles + results
-        results = [result for result in results if result.get("id") not in
-                processed_profiles][offset:limit]
-    else:
-        if user.json and 'boosted_ids' in user.json:
-            boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
-            if len(boosted_profiles) > 0:
-                print offset, limit
-                prospects = session.query(Prospect)\
-                        .filter(Prospect.linkedin_id.in_(boosted_profiles)).offset(offset).limit(limit)
-                for prospect in prospects:
-                    results.append({'data':prospect.to_json(),
-                                'company_name': prospect.current_job.company.name if prospect.current_job else "None",
-                                'school_name': prospect.schools[0].school.name if len(prospect.schools) > 0 else "None",
-                                'current_industry': prospect.industry_raw,
-                                'current_location': prospect.location_raw
-                                })
-    return jsonify({"results": results})
-
-@prospects.route("/prospect/json/<int:id>")
-def prospect_json(id):
-    page = int(request.args.get("p", 1))
-    offset = (page - 1) * 50
-    limit = offset + 50
-    results = []
-    prospect = session.query(Prospect).filter(Prospect.id == id).first()
-    prospect_list = ProspectList(prospect)
-    results = prospect_list.get_results()
-    if prospect.json:
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    results = [result for result in results if result.get("id") not in
-            processed_profiles][offset:limit]
-    return jsonify({"results": results})
-
-@prospects.route("/network")
-def network_analysis():
-    user = current_user
-    prospect_id = request.args.get("prospect_id")
-
-    school_dict = Counter()
-    job_dict = Counter()
-    industry_dict = Counter()
-    location_dict = Counter()
-
-    extended_school_dict = Counter()
-    extended_job_dict = Counter()
-    extended_industry_dict = Counter()
-    extended_location_dict = Counter()
-
-    first_degree_results = []
-    extened_results = []
-
-    if prospect_id:
-        prospect = session.query(Prospect).filter(Prospect.id == int(prospect_id)).first()
-        prospect_list = ProspectList(prospect)
-        results = prospect_list.get_results()
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    else:
-        prospect = session.query(Prospect).filter_by(s3_key=current_user.linkedin_url.replace("/", "")).first()
-        prospect_list = ProspectList(prospect)
-        results = prospect_list.get_results()
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    for result in results:
-        company_name = result.get("company_name")
-        if company_name:
-            extended_job_dict[company_name] += 1
-        school_name = result.get("school_name")
-        if school_name:
-            extended_school_dict[school_name] += 1
-        current_industry = result.get("current_industry")
-        extended_industry_dict[current_industry] += 1
-        current_location = result.get("current_location")
-        extended_location_dict[current_location] += 1
-
-
-    if user.json and 'boosted_ids' in user.json and not prospect_id:
-        boosted_profiles = [int(id) for id in user.json.get("boosted_ids")]
-        if len(boosted_profiles) > 0:
-            prospects = session.query(Prospect)\
-                    .filter(Prospect.linkedin_id.in_(boosted_profiles)).all()
-            for prospect in prospects:
-                results.append({'data':prospect.to_json(),
-                            'company_name': prospect.current_job.company.name if prospect.current_job else "None",
-                            'school_name': prospect.schools[0].school.name if len(prospect.schools) > 0 else "None",
-                            'current_industry': prospect.industry_raw,
-                            'current_location': prospect.location_raw
-                            })
-                if len(prospect.schools) > 0:
-                    school_dict[prospect.schools[0].school.name] += 1
-                if prospect.current_job:
-                    job_dict[prospect.current_job.company.name] += 1
-                location_dict[prospect.location_raw] += 1
-                industry_dict[prospect.industry_raw] += 1
-    user_data = {'jobs': dict(job_dict.most_common(10)),
-                'schools': dict(school_dict.most_common(10)),
-                'industries': dict(industry_dict.most_common(10)),
-                'locations': dict(location_dict.most_common(10))}
-
-    extended_user_data = {'jobs': dict(extended_job_dict.most_common(10)),
-                'schools': dict(extended_school_dict.most_common(10)),
-                'industries': dict(extended_industry_dict.most_common(10)),
-                'locations': dict(extended_location_dict.most_common(10))}
-
-    return jsonify({"user_data": user_data,
-                    "extended_user_data": extended_user_data})
-
-
-@prospects.route("/prospect/<int:prospect_id>")
-def prospect(prospect_id):
-    prospect = Prospect.query.get(prospect_id)
-    user = current_user
-    prospects_remaining_today = user.prospects_remaining_today
-    skipped_profiles = []
-    processed_profiles = []
-    prospect_list = ProspectList(prospect)
-    results = prospect_list.get_results()
-    if prospect.json:
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    results = [result for result in results if result.get("id") not in
-            processed_profiles]
-    return render_template('prospect.html',prospect=prospect, \
-            json_results=json.dumps(results),
-            prospect_count=len(results),
-            prospects_remaining_today=prospects_remaining_today)
-
-@prospects.route("/company/<int:company_id>")
-def company(company_id):
-    page = int(request.args.get("p", 1))
-    company = session.query(Company).get(company_id)
-    jobs = Job.query.filter_by(company_id=company_id).paginate(page, 50,
-            False)
-    return render_template('company.html', company=company, jobs=jobs)
-
-@prospects.route("/school/<int:school_id>")
-def school(school_id):
-    page = int(request.args.get("p", 1))
-    school = session.query(School).get(school_id)
-    educations = Education.query.filter_by(school_id=school.id).paginate(page,
-            50, False)
-    return render_template('school.html', school=school, educations=educations)
-
-@prospects.route("/ajax/prospect/<int:prospect_id>")
-def ajax_prospect(prospect_id):
-    prospect = Prospect.query.get(prospect_id)
-    client_lists = ClientList.query.filter_by(user=current_user)
-    prospect_json = prospect.to_json()
-    prospect_json['news'] = prospect.relevant_content
-    prospect_list = ProspectList(prospect)
-    results = prospect_list.get_results()
-    if prospect.json:
-        boosted_profiles = prospect.boosted_profiles
-        if len(boosted_profiles) > 0:
-            results = boosted_profiles + results
-    results = [result for result in results if result.get("id")]
-    return jsonify({"prospect":prospect_json,
-        "results": results,
-        "client_lists": [{"id": cl.id, "name": cl.name} for cl in client_lists]})
-
-@prospects.route("/ajax/pipl/<int:prospect_id>")
-def ajax_pipl(prospect_id):
-    prospect = Prospect.query.get(prospect_id)
-    return jsonify(prospect.pipl_info)
-
-@csrf.exempt
-@prospects.route("/educations/create", methods=['GET', 'POST'])
-def educations_create():
-    if request.method == 'POST':
-        school_id = request.form.get("school_id")
-        school = School.query.get(school_id)
-        if not school:
-            school = School.query.first()
-        prospect = Prospect.query.filter_by(s3_key=current_user.linkedin_url.replace("/",
-        "")).first()
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("start_date")
-        degree = request.form.get("degree")
-        new_education = Education(
-                prospect = prospect,
-                school = school,
-                degree = degree,
-                start_date = start_date,
-                end_date = end_date
-                )
-        session.add(new_education)
-        session.commit()
-        return redirect("confirm")
-
-@csrf.exempt
-@prospects.route("/jobs/create", methods=['GET', 'POST'])
-def jobs_create():
-    if request.method == 'POST':
-        company_id = request.form.get("company_id")
-        company = Company.query.get(company_id)
-        if not company:
-            company = Company.query.first()
-        prospect = Prospect.query.filter_by(s3_key=current_user.linkedin_url.replace("/",
-        "")).first()
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("start_date")
-        title = request.form.get("title")
-        new_job = Job(
-                prospect = prospect,
-                company = company,
-                title = title,
-                start_date = start_date,
-                end_date = end_date
-                )
-        session.add(new_job)
-        session.commit()
-        return redirect("confirm")
-
-
-@prospects.route("/elastic_search")
-def elastic_search():
-    type = request.args.get("type", "school")
-    term = request.args.get("term")
-    search = SearchRequest(term, search_type=type)
-    data = search.search()
-    return render_template('ajax/search.html', results=data)
-
-@prospects.route("/search.json")
-def elastic_search_json():
-    type = int(request.args.get("type", 1))
-    if type == 1:
-        type = "companys"
-    elif type == 2:
-        type = "locations"
-    else:
-        type = "schools"
-
-    term = request.args.get("q")
-    search = SearchRequest(term, search_type=type)
-    data = search.search()
-    return jsonify({"data": data})
-
-@csrf.exempt
-@prospects.route("/investor_profile", methods=['GET', 'POST'])
-def investor_profile():
-    industries = Industry.query.all()
-    if request.method == 'POST':
-        locations = request.form.get("locations")
-        industries = request.form.get("industries")
-        gender = request.form.get("gender")
-        return redirect("dashboard")
-    return render_template('investor_profile.html', industries=industries)
-
-@prospects.route("/search", methods=['GET'])
-def search_view():
-    user = current_user
-    prospect = None
-    prospects_remaining_today = user.prospects_remaining_today
-    if user.json:
-        skipped_profiles = [int(prospect_id) for prospect_id in
-                user.json.get("skipped_profiles", [])]
-        processed_profiles = [int(prospect_id) for prospect_id in
-                user.json.get("good_profiles", [])] + skipped_profiles
-    else:
-        skipped_profiles = []
-        processed_profiles = []
-    return render_template("search.html", skipped_profiles=skipped_profiles,
-            processed_profiles=processed_profiles,
-            prospects_remaining_today=prospects_remaining_today)
-
-
-############
-##  API   ##
-############
-
-def filter_title(prospects, title):
-    if title:
-        title = "&".join(title.lower().split())
-        prospects = prospects.filter(Job.fts_title.match(title))
-    return prospects
-
-def filter_dates(prospects, job_start, job_end, school_end):
-    if job_end != datetime.date(2016, 01, 01):
-        prospects = prospects.filter(Job.end_date<=job_end)
-    if job_start != datetime.date(1900, 01, 01):
-        prospects = prospects.filter(Job.start_date>=job_start)
-    if school_end != "1900" and school_end != "":
-        prospects = prospects.filter(extract('year', \
-            Education.end_date) == school_end)
-    return prospects
-
-def filter_locations(prospects, location_ids):
-    if location_ids:
-        prospects = prospects.filter(ProspectLocation.location_id.in_(location_ids))
-    return prospects
-
-def filter_name(prospects, name):
-    if name:
-        prospects = prospects.filter(Prospect.name == name)
-    return prospects
-
-def filter_gender(prospects, gender):
-    if gender == 1:
-        return prospects.filter(ProspectGender.gender == True)
-    else:
-        return prospects.filter(ProspectGender.gender == False)
-
-def filter_wealthscore(prospects, wealthscore):
-    return prospects.filter(ProspectWealthscore.wealthscore >= wealthscore)
-
-def blank_string_to_none(value):
-    if value == "":
-        return None
-    return value
-
-@prospects.route("/api", methods=['GET'])
-def api():
-    page = int(request.args.get("p", 1))
-
-    company_ids = blank_string_to_none(request.args.get("company_ids", None))
-    name = blank_string_to_none(request.args.get("name", None))
-    job_title = blank_string_to_none(request.args.get("title", None))
-    job_start = datetime.datetime.strptime(request.args.get("job_start", \
-        "01/01/1900"), "%m/%d/%Y").date()
-    job_end = datetime.datetime.strptime(request.args.get("job_end", \
-            "01/01/2016"), "%m/%d/%Y").date()
-
-    school_ids = blank_string_to_none(request.args.get("school_ids", None))
-    degree = blank_string_to_none(request.args.get("degree", None))
-    school_end = request.args.get("school_end", "1900")
-
-    location_ids = blank_string_to_none(request.args.get("location_ids", None))
-    gender = int(request.args.get("gender", 0))
-    wealthscore = int(request.args.get("wealthscore", 0))
-
-    prospect_results = []
-    if company_ids:
-        company_ids = [int(c) for c in company_ids.split(",")]
-    if school_ids:
-        school_ids = [int(c) for c in school_ids.split(",")]
-    if location_ids:
-        location_ids = [int(c) for c in location_ids.split(",")]
-
-    if company_ids and school_ids:
-        prospects=session.query(Prospect, Job.title, Company.name, School.name)\
-            .filter(Job.prospect_id == Prospect.id)\
-            .filter(Company.id == Job.company_id)\
-            .filter(Job.company_id.in_(company_ids))\
-            .filter(Prospect.id == Education.prospect_id)\
-            .filter(School.id == Education.school_id)\
-            .filter(Prospect.id == ProspectLocation.prospect_id)\
-            .filter(Prospect.id == ProspectGender.prospect_id)\
-            .filter(Prospect.id == ProspectWealthscore.prospect_id)\
-            .filter(Education.school_id.in_(school_ids))
-    elif school_ids:
-        prospects=session.query(Prospect, School.name)\
-            .filter(Job.prospect_id == Prospect.id)\
-            .filter(Company.id == Job.company_id)\
-            .filter(Prospect.id == Education.prospect_id)\
-            .filter(School.id==Education.school_id)\
-            .filter(Prospect.id == ProspectLocation.prospect_id)\
-            .filter(Prospect.id == ProspectGender.prospect_id)\
-            .filter(Prospect.id == ProspectWealthscore.prospect_id)\
-            .filter(Education.school_id.in_(school_ids))
-    elif company_ids:
-        prospects=session.query(Prospect, Job.title, Company.name)\
-            .filter(Job.prospect_id == Prospect.id)\
-            .filter(Company.id == Job.company_id)\
-            .filter(Prospect.id == ProspectLocation.prospect_id)\
-            .filter(Prospect.id == ProspectGender.prospect_id)\
-            .filter(Prospect.id == ProspectWealthscore.prospect_id)\
-            .filter(Job.company_id.in_(company_ids))
-    else:
-        prospects=session.query(Prospect, Job.title, Company.name)\
-            .filter(Job.prospect_id == Prospect.id)\
-            .filter(Company.id == Job.company_id)\
-            .filter(Prospect.id == ProspectLocation.prospect_id)\
-            .filter(Prospect.id == ProspectGender.prospect_id)\
-            .filter(Prospect.id == ProspectWealthscore.prospect_id)
-
-    prospects = filter_locations(prospects, location_ids)
-    prospects = filter_title(prospects, job_title)
-    prospects = filter_dates(prospects, job_start, job_end, school_end)
-    prospects = filter_name(prospects, name)
-
-    if gender > 0:
-        prospects = filter_gender(prospects, gender)
-    if wealthscore > 50:
-        prospects = filter_wealthscore(prospects, wealthscore)
-
-    prospects = prospects.distinct(Prospect.id).limit(20).offset(20 * (page-1)).all()
-    for prospect in prospects:
-        p = {}
-        if len(prospect) == 4:
-            p['data'] = prospect[0].to_json()
-            p['relevancy'] = "Worked as a {} at {} and went to school at {}"\
-                            .format(uu(prospect[1]), uu(prospect[2]), uu(prospect[3]))
-        if len(prospect) == 3:
-            p['data'] = prospect[0].to_json()
-            p['relevancy'] = "Worked as a {} at {}"\
-                            .format(uu(prospect[1]), uu(prospect[2]))
-        if len(prospect) == 2:
-            p['data'] = prospect[0].to_json()
-            p['relevancy'] = "Went to schoool at {}"\
-                            .format(uu(prospect[1]))
-        prospect_results.append(p)
-    return jsonify({"success": prospect_results})
+        queue_processing_service.delay(3, user_email,
+                public_url, contacts_array)
+    return jsonify({"unique_contacts": len(list(unique_emails))})

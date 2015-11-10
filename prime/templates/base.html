@@ -2,16 +2,12 @@
 <html xmlns:fb="http://ogp.me/ns/fb#">
   <head>
     <title>AdvisorConnect</title>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400,700' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/themes/smoothness/jquery-ui.css" />
-    <link rel="stylesheet" href="/static/css/bootstrap-slider.css" />
-    <link rel="stylesheet" href="/static/css/introjs.min.css" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     {% assets "css_all" %}
       <link rel='stylesheet' href="{{ ASSET_URL }}">
     {% endassets %}
-
 
     <link rel='shortcut icon' href='/favicon.ico' />
     <link rel='apple-touch-icon' href="">
@@ -47,6 +43,12 @@ heap.identify({name: '{{ current_user.name }}',
     <script src="/static/js/react-with-addons-0.12.2.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/bootbox.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="//platform.linkedin.com/in.js">
+        api_key:   77kimruenyqspn
+        authorize: true
+        onLoad: onLinkedInLoad
+    </script>        
   </head>
   <body>
   <div class="navbar navbar-default">

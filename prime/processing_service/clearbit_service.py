@@ -61,6 +61,7 @@ class ClearbitRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        super(ClearbitRequest, self).__init__()
 
     def _make_request(self):
         self.key = hashlib.md5(self.query).hexdigest()

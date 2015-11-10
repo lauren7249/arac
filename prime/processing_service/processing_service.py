@@ -45,7 +45,6 @@ class ProcessingService(Service):
         self.data = csv_data
         self.services = SERVICES
         self.completed_services = {}
-        logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.start = time.time()
@@ -53,6 +52,10 @@ class ProcessingService(Service):
 
     def _validate_data(self):
         self.logger.info('Data Valid')
+        validated_data = []
+        for item in self.data:
+            validated_data.append(item.get("contact"))
+        self.data = validated_data
         return True
 
     def dispatch(self):

@@ -78,6 +78,7 @@ class LinkedinRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        super(LinkedinRequest, self).__init__()
 
     def _linkedin_request(self, max_retries):
         #TODO need a lot more logic here

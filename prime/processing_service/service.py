@@ -86,7 +86,7 @@ class S3SavedRequest(object):
     don't need to make it again
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.url = None
         self.headers = GLOBAL_HEADERS
         self.key = None

@@ -17,6 +17,7 @@ class PiplService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        super(PiplService, self).__init__(*args, **kwargs)
 
     def dispatch(self):
         pass
@@ -47,6 +48,7 @@ class PiplRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        super(PiplRequest, self).__init__()
 
     def _build_url(self):
         if self.type == 'email':

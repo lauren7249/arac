@@ -3,6 +3,8 @@ from logging.handlers import SysLogHandler
 
 from flask import Flask
 from flask.ext.assets import Environment
+from flask.ext.rq import RQ
+
 from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -37,6 +39,8 @@ def create_app(config_name):
     init_assets(app)
     register_blueprints(app)
     init_admin(app)
+    add_template_globals(app)
+    RQ(app)
 
     return app
 
@@ -47,11 +51,11 @@ def init_admin(app):
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/bootswatch.min.css','css/main.css', 'css/chosen.css', \
-            'css/bootstrap-slider.css',
+    css = Bundle('css/gh-buttons.css', 'css/chosen.css', 'css/main.css',
                  output='css/gen/main.%(version)s-min.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)
+
 
 def register_blueprints(app):
     from .prospects import prospects as prospects_blueprint
@@ -64,5 +68,8 @@ def register_blueprints(app):
     app.register_blueprint(processing_service_blueprint)
 
 
-    #from .auth import auth as auth_blueprint
-    #app.register_blueprint(auth_blueprint, url_prefix='/auth')
+def add_template_globals(app):
+    @app.template_global()
+    def static_url():
+        return app.config.get('STATIC_URL')
+
