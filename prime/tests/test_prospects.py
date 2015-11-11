@@ -127,6 +127,21 @@ class TestLinkedinService(unittest.TestCase):
         self.assertEqual(data[0].get("linkedin_data").get("urls"), expected)
 
 
+class TestBloombergService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = BloombergService(email, linkedin_url, data)
+
+    def test_glassdoor(self):
+        expected = None
+        data = self.service.process()
+        salary = data[0].get("phone_number")
+        self.assertEqual(salary, expected)
+
 class TestGlassdoorService(unittest.TestCase):
 
     def setUp(self):
@@ -142,7 +157,6 @@ class TestGlassdoorService(unittest.TestCase):
         data = self.service.process()
         salary = data[0].get("glassdoor_salary")
         self.assertEqual(salary, expected)
-
 
 class TestIndeedService(unittest.TestCase):
 
