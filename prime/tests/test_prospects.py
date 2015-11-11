@@ -153,14 +153,55 @@ class BingServiceLinkedinCompany(unittest.TestCase):
 
     def setUp(self):
         name = "triplemint"
-        self.service = BingService(name, "linkedin_company", extra_keywords=None)
+        self.service = BingService(name, "linkedin_company")
 
     def test_linkedin_company(self):
-        #TODO find someone who passes this test
         expected = "https://www.linkedin.com/company/triple-mint"
         data = self.service.process()
-        url = data[0]
-        self.assertEqual(url, expected)
+        assert(expected in data)
+
+class BingServiceBloombergCompany(unittest.TestCase):
+
+    def setUp(self):
+        name = "farmivore"
+        self.service = BingService(name, "bloomberg_company")
+
+    def test_bloomberg_company(self):
+        expected = "http://www.bloomberg.com/research/stocks/private/snapshot.asp?privcapId=262829137"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceLinkedinSchool(unittest.TestCase):
+
+    def setUp(self):
+        name = "marist college"
+        self.service = BingService(name, "linkedin_school")
+
+    def test_linkedin_school(self):
+        expected = "https://www.linkedin.com/edu/school?id=18973"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceLinkedinProfile(unittest.TestCase):
+
+    def setUp(self):
+        self.service = BingService("arianna huffington","linkedin_profile", extra_keywords="President and Editor-in-Chief at The Huffington Post Media Group")
+
+    def test_linkedin_profile(self):
+        expected = "https://www.linkedin.com/pub/arianna-huffington/40/158/aa7"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceLinkedinExtended(unittest.TestCase):
+
+    def setUp(self):
+        self.service = BingService("marissa mayer","linkedin_extended_network","Yahoo!, President & CEO")
+
+    def test_linkedin_profile(self):
+        #TODO find someone who passes this test
+        expected = "https://www.linkedin.com/in/megwhitman"
+        data = self.service.process()
+        assert(expected in data)
 
 if __name__ == '__main__':
     unittest.main()

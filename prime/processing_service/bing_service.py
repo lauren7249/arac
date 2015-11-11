@@ -26,7 +26,7 @@ class BingService(Service):
     def __init__(self, name, type, extra_keywords=None, *args, **kwargs):
         self.name = name
         self.type = type
-        self.extra_keywords = extra_keywords
+        self.extra_keywords = extra_keywords.replace('&','').replace(',','')
         self.include_terms_in_title = None
         self.exclude_terms_from_title = None
         logging.getLogger(__name__)
@@ -46,12 +46,12 @@ class BingService(Service):
         elif self.type == "bloomberg_company":
             self.regex = bloomberg_company_re
             self.include_terms_in_title = self.name
-            return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=['"' + re.sub(" ","+",self.name) + '"'], page_limit=22)        
+            return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=['"' + re.sub(" ","+",self.name) + '"'], page_limit=1)        
         elif self.type == "linkedin_profile":
             self.regex = profile_re
             self.include_terms_in_title = self.name
             if len(self.extra_keywords): 
-                inbody = '"' + extra_keywords + '"'
+                inbody = '"' + self.extra_keywords + '"'
             else: 
                 inbody = ''  
             return BingRequest("", site="linkedin.com", intitle=[self.name,'"| LinkedIn"'], inbody=[inbody], page_limit=22)          
@@ -69,7 +69,26 @@ class BingService(Service):
             return None
 
     def _process_results(self, results):
-        return filter_bing_results(results, self.regex, include_terms_in_title=self.include_terms_in_title, exclude_terms_from_title=self.exclude_terms_from_title)
+        filtered =  filter_bing_results(results, url_regex=self.regex, include_terms_in_title=self.include_terms_in_title, exclude_terms_from_title=self.exclude_terms_from_title)
+        if self.type == "linkedin_school":
+            school_ids = []
+            for link in filtered:
+                school_id = re.search("(?<=(\=|\-))[0-9]+", link)
+                if not school_id: continue
+                school_id = school_id.group(0)
+                if school_id not in school_ids: school_ids.append(school_id) 
+            filtered = ["https://www.linkedin.com/edu/school?id=" + school_id for school_id in school_ids]  
+        elif self.type == "linkedin_company":
+            urls = []
+            for link in filtered:
+                id = re.search('^https://www.linkedin.com/company/[a-zA-Z0-9\-]+(?=/)',link)
+                if not id:
+                    if link not in urls: urls.append(link)
+                    continue
+                id = id.group(0)
+                if id not in urls: urls.append(id)    
+            filtered = urls       
+        return filtered        
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Bing Service')
@@ -139,4 +158,3 @@ class BingRequest(S3SavedRequest):
         self._build_request()
         self._make_request()
         return self.results
-
