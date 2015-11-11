@@ -137,15 +137,15 @@ class BingRequest(S3SavedRequest):
         while self.next_querystring and self.pages<self.page_limit:
             for api_key in bing_api_keys:
                 try:
-                    response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
-                    raw_results = json.loads(response.content)['d']
+                    html = self._get_html(api_key)
+                    raw_results = json.loads(html)['d']
                     self.results += raw_results.get("results",[])
                     self.next_querystring = raw_results.get("__next")     
                     self.pages+=1 
                     break           
                 except:
-                    if response:
-                        self.logger.warn("Exception for bing request with the following response: " + uu(response.content))
+                    if html:
+                        self.logger.warn("Exception for bing request with the following response: " + uu(html))
                     else:
                         self.logger.warn("bing -- no response")
                 if not self.next_querystring: 
@@ -153,6 +153,21 @@ class BingRequest(S3SavedRequest):
             if not self.next_querystring: 
                 break
 
+    def _get_html(self, api_key):
+        self.key = hashlib.md5(self.next_querystring).hexdigest()
+        key = Key(self._s3_connection)
+        key.key = self.key
+        if key.exists():
+            self.logger.info('Make Request: %s', 'Get From S3')
+            html = key.get_contents_as_string()      
+        else:
+            response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
+            html = response.content
+            if html:
+                key.content_type = 'text/html'
+                key.set_contents_from_string(html)
+        return html    
+            
     def process(self):
         self.logger.info('Bloomberg Request: %s', 'Starting')
         self._build_request()
