@@ -27,6 +27,8 @@ class BingService(Service):
         self.name = name
         self.type = type
         self.extra_keywords = extra_keywords
+        self.include_terms_in_title = None
+        self.exclude_terms_from_title = None
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -36,15 +38,15 @@ class BingService(Service):
         if self.type == "linkedin_school":
             self.regex = school_re
             self.include_terms_in_title = self.name
-            return BingRequest("", site="linkedin.com", intitle=[self.name], page_limit=22)
+            return BingRequest("", site="linkedin.com", intitle=['"' + re.sub(" ","+",self.name) + '"'], page_limit=22)
         elif self.type == "linkedin_company":
             self.regex = company_re
             self.include_terms_in_title = self.name
-            return BingRequest("", site="linkedin.com", intitle=[self.name], page_limit=22)            
+            return BingRequest("", site="linkedin.com", intitle=['"' + re.sub(" ","+",self.name) + '"'], page_limit=22)            
         elif self.type == "bloomberg_company":
             self.regex = bloomberg_company_re
             self.include_terms_in_title = self.name
-            return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=[self.name], page_limit=22)        
+            return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=['"' + re.sub(" ","+",self.name) + '"'], page_limit=22)        
         elif self.type == "linkedin_profile":
             self.regex = profile_re
             self.include_terms_in_title = self.name
@@ -67,7 +69,7 @@ class BingService(Service):
             return None
 
     def _process_results(self, results):
-        return filter_bing_results(results, self.regex)
+        return filter_bing_results(results, self.regex, include_terms_in_title=self.include_terms_in_title, exclude_terms_from_title=self.exclude_terms_from_title)
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Bing Service')
@@ -106,16 +108,14 @@ class BingRequest(S3SavedRequest):
                 querystring += "inbody:" + ib + " "
         if len(self.intitle): 
             for it in self.intitle:
-                querystring += "intitle:" + it + " "            
-        querystring += "'&Adult='Strict'"        
+                querystring += "intitle:" + it + " "                 
         self.querystring = urllib.quote(querystring)
-        self.next_querystring = "https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web?Query=%27" + self.querystring 
+        self.next_querystring = "https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web?Query=%27" + self.querystring + "%27&Adult=%27Strict%27"
 
 
     def _make_request(self):
         shuffle(bing_api_keys)
         while self.next_querystring and self.pages<self.page_limit:
-            print self.next_querystring
             for api_key in bing_api_keys:
                 try:
                     response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
@@ -124,8 +124,7 @@ class BingRequest(S3SavedRequest):
                     self.next_querystring = raw_results.get("__next")     
                     self.pages+=1 
                     break           
-                except Exception, e:
-                    print e
+                except:
                     if response:
                         self.logger.warn("Exception for bing request with the following response: " + uu(response.content))
                     else:
@@ -139,9 +138,5 @@ class BingRequest(S3SavedRequest):
         self.logger.info('Bloomberg Request: %s', 'Starting')
         self._build_request()
         self._make_request()
-        print self.results
         return self.results
-
-
-
 

@@ -11,6 +11,7 @@ from prime.processing_service.pipl_service import PiplService
 from prime.processing_service.linkedin_service import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
+from prime.processing_service.bing_service import BingService
 
 from prime import create_app, db
 from config import config
@@ -147,6 +148,19 @@ class TestIndeedService(unittest.TestCase):
         data = self.service.process()
         salary = data[0].get("indeed_salary")
         self.assertEqual(salary, expected)
+
+class BingServiceLinkedinCompany(unittest.TestCase):
+
+    def setUp(self):
+        name = "triplemint"
+        self.service = BingService(name, "linkedin_company", extra_keywords=None)
+
+    def test_linkedin_company(self):
+        #TODO find someone who passes this test
+        expected = "https://www.linkedin.com/company/triple-mint"
+        data = self.service.process()
+        url = data[0]
+        self.assertEqual(url, expected)
 
 if __name__ == '__main__':
     unittest.main()

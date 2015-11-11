@@ -11,7 +11,8 @@ from random import shuffle
 #api_key = "FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0" #laurentracy.talbot@gmail.com
 #api_key = "U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE" #la.urentracytalbot@gmail.com
 #api_key = "VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA" #l.aurentracytalbot@gmail.com
-api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
+api_keys = ["VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
+
 
 def uu(str):
     if str:
@@ -117,3 +118,10 @@ def search_linkedin_companies(company):
 		if id not in urls: urls.append(id)
 	return urls
 
+def search_bloomberg_companies(company):
+	if not company:
+		return []
+	name = "%22" + re.sub(r" ","%2B",company).replace('&','').replace(',','') + "%22"
+	record = query("", site="bloomberg.com", intitle=[name, "%22Private Company Information - Businessweek%22"], inbody=[name], page_limit=22)
+	profiles = filter_results(record.results, url_regex=bloomberg_company_re, include_terms_in_title=company)
+	return profiles
