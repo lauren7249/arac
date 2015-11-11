@@ -45,7 +45,7 @@ class BloombergService(Service):
 class BloombergRequest(S3SavedRequest):
 
     """
-    Given an email address, This will return social profiles via Clearbit
+    Given a company name, this will return the bloomberg company snapshot
     """
 
     def __init__(self, query):

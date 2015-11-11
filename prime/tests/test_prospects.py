@@ -1,5 +1,4 @@
 import json
-import urllib2
 import unittest
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy

@@ -26,7 +26,7 @@ class BingService(Service):
     def __init__(self, name, type, extra_keywords=None, *args, **kwargs):
         self.name = name
         self.type = type
-        self.extra_keywords = extra_keywords.replace('&','').replace(',','')
+        self.extra_keywords = extra_keywords.replace('&','').replace(',','') if extra_keywords else None
         self.include_terms_in_title = None
         self.exclude_terms_from_title = None
         logging.getLogger(__name__)
