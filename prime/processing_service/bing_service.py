@@ -169,7 +169,7 @@ class BingRequest(S3SavedRequest):
         return html    
             
     def process(self):
-        self.logger.info('Bloomberg Request: %s', 'Starting')
+        self.logger.info('Bing Bloomberg Request: %s', 'Starting')
         self._build_request()
         self._make_request()
         return self.results
