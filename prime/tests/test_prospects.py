@@ -11,7 +11,7 @@ from prime.processing_service.linkedin_service import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
 from prime.processing_service.bing_service import BingService
-from prime.processing_service.bloomberg_service import BloombergRequest
+from prime.processing_service.bloomberg_service import BloombergRequest, BloombergService
 
 from prime import create_app, db
 from config import config
@@ -136,11 +136,11 @@ class TestBloombergService(unittest.TestCase):
         data = expected
         self.service = BloombergService(email, linkedin_url, data)
 
-    def test_glassdoor(self):
-        expected = None
+    def test_bloomberg(self):
+        expected = '800-507-9396'
         data = self.service.process()
-        salary = data[0].get("phone_number")
-        self.assertEqual(salary, expected)
+        phone = data[1].get("phone_number")
+        self.assertEqual(phone, expected)
 
 class TestGlassdoorService(unittest.TestCase):
 

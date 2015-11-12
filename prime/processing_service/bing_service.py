@@ -161,8 +161,11 @@ class BingRequest(S3SavedRequest):
             self.logger.info('Make Request: %s', 'Get From S3')
             html = key.get_contents_as_string()      
         else:
-            response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
-            html = response.content
+            try:
+                response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
+                html = response.content
+            except:
+                html = None
             if html:
                 key.content_type = 'text/html'
                 key.set_contents_from_string(html)

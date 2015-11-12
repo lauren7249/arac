@@ -3,10 +3,11 @@ import logging
 import requests
 import boto
 from dateutil.parser import parser
-
+import datetime
 from boto.s3.key import Key
 
 from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
+import dateutil
 
 class Service(object):
 
@@ -18,7 +19,7 @@ class Service(object):
 
     def _get_current_job_from_cloudsponge(self, person):
         for csv_person in self.data:
-            for email in csv_person.get("email"):
+            for email in csv_person.get("email",[]):
                 person_email = person.get("email", [{}])[0].get("address")
                 if email.get("email", {}).get("address") == person_email:
                     if email.get("company"):
@@ -45,7 +46,7 @@ class Service(object):
                 start_date_jobs = [job for job in jobs if job.get("start_date")]
             if len(start_date_jobs) == 0:
                 return jobs[0]
-            return sorted(start_date_jobs, key=lambda x:x.start_date, reverse=True)[0]
+            return sorted(start_date_jobs, key=lambda x:dateutil.parser.parse(x.get("start_date")), reverse=True)[0]
         return {}
 
     def _current_job(self, person):
@@ -53,11 +54,11 @@ class Service(object):
         current_job = self._get_current_job_from_experiences(person)
         if current_job.get("end_date") == "Present":
             return current_job
-        end_date = parser.parse(current_job.get("end_date")) if \
+        end_date = dateutil.parser.parse(current_job.get("end_date")) if \
         current_job.get("end_date") else None
-        if not end_date or end_date >= datetime.date.today():
+        if not end_date or end_date.date() >= datetime.date.today():
             return current_job
-        current_job = self._get_current_job_from_cloudsponge(self, person)
+        current_job = self._get_current_job_from_cloudsponge(person)
         if current_job:
             return current_job
         if person.get("linkedin_data").get("headline"):
