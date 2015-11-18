@@ -1,19 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class='signup'>
-  <div class='top-box col-lg-9 center'>
-    <h5>STEP 1/4</h5>
-    <div class="progress">
-      <div class="progress-bar progress-bar-success" style="width: 25%"></div>
-    </div>
-  </div>
-  <div class='clear'></div>
   <div class='well col-lg-9 center'>
     <div class='row col-md-5'>
+    <div class='logo'>
+      <img src='{{ static_url() }}img/NewYorkLife.png' />
+    </div>
       <h1>Welcome to AdvisorConnect!  </h1>
       <p>Spend less time searching and more time closing. </p>
-      <p>Looking for prospects with investable assets who are compatible with you?  Only AdvisorConnect allows you to pinpoint qualified prospects in your extended network.</p>
-      <p>Search over 100 million prospects and instantly get access to full profile information including wealth score, colleges attended, work history and contact information.</p>
     </div>
     <div class='row col-md-7'>
       <form class="form-horizontal" action='' method='POST'>
@@ -27,26 +21,9 @@
         </div>
         {%endif%}
         {{ signup_form.csrf_token }}
+        <input type='hidden' name='code' value='{{ code }}' />
         <fieldset>
-          <legend>Sign Up Below</legend>
-          <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">First Name:</label>
-            <div class="col-lg-10">
-              <input type="text" name='first_name' class="form-control" id="inputEmail" placeholder="First Name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">Last Name:</label>
-            <div class="col-lg-10">
-              <input type="text" name='last_name' class="form-control" id="inputEmail" placeholder="Last Name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">Email:</label>
-            <div class="col-lg-10">
-              <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
-            </div>
-          </div>
+          <legend>Enter a password</legend>
           <div class="form-group">
             <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
             <div class="col-lg-10">

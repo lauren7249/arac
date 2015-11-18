@@ -28,6 +28,7 @@ from prime.customers.models import Customer
 
 logger = logging.getLogger(__name__)
 
+
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
@@ -40,9 +41,15 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
     customer = relationship('Customer', foreign_keys='User.customer_id')
+
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
-    created = db.Column(Date)
+    created = db.Column(Date, default=datetime.datetime.today)
+
+    prospects = db.relationship('Prospect', secondary="client_prospect", \
+                               backref=db.backref('prospects', lazy='dynamic'))
+
+    onboarding_code = db.Column(String(40))
     json = db.Column(JSON, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
@@ -64,9 +71,14 @@ class User(db.Model, UserMixin):
     def is_active(self):
         return True
 
+    @property
+    def is_manager(self):
+        return len(self.manager_profile) > 0
+
     def get_id(self):
         return unicode(self.user_id)
 
+    @property
     def generate_reset_token(self):
         s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], 3600)
         return s.dumps({'reset': self.user_id})
@@ -105,10 +117,11 @@ class ClientProspect(db.Model):
     __tablename__ = "client_prospect"
 
     id = db.Column(postgresql.INTEGER, primary_key=True)
-    client_list_id = db.Column(Integer, ForeignKey("client_list.id"),
+
+    user_id = db.Column(Integer, ForeignKey("users.user_id"),
             index=True)
-    client_list = relationship('ClientList', \
-            foreign_keys='ClientProspect.client_list_id')
+    user = relationship('User', \
+            foreign_keys='ClientProspect.user_id')
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"),
             index=True)
@@ -121,26 +134,4 @@ class ClientProspect(db.Model):
 
     def __repr__(self):
         return '{} {}'.format(self.prospect.url, self.client_list.user.name)
-
-
-class ClientList(db.Model):
-    __tablename__ = "client_list"
-
-    id = db.Column(postgresql.INTEGER, primary_key=True)
-    name = db.Column(String(1024))
-
-    user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True)
-    user = relationship('User', foreign_keys='ClientList.user_id')
-    created = db.Column(Date, default=datetime.datetime.today)
-
-    prospects = db.relationship('Prospect', secondary="client_prospect", \
-                               backref=db.backref('prospects', lazy='dynamic'))
-
-    @property
-    def prospect_count(self):
-        return len(self.prospects)
-
-    def __str__(self):
-        return '{}:{})'.format(self.user.first_name, self.prospect.first_name)
-
 

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class='invite-agent'>
+  <div class='invite-box'>
+    <h4>Enter in email address to invite agent</h4>
+    <input type='text' name='first_name' placeholder='John' />
+    <input type='text' name='last_name' placeholder='Smith' />
+    <input type='text' name='email' placeholder='John_Smith@newyorklife.com' />
+    <button id='send' class='button primary big'><i class='fa fa-paper-plane-o'></i> Send Invitation</button><button id='close' class='button danger big'><i class='fa fa-ban'></i> Cancel</button>
+  </div>
+</div>
+<div id='manager-dashboard'>
+  <div class='wrapper'>
+    <h1>Welcome to your dashboard, {{ current_user.first_name }} <button id='invite' class='button'><i class='fa fa-users'></i> Invite New Agent</button></h1>
+    {% if agent_count > 0 %}
+    <div class='panel'>
+      <h3>25</h3>
+      <p>Active Agents</p>
+    </div>
+    <div class='panel'>
+      <h3>15,000</h3>
+      <p>Prospects Analyzed</p>
+    </div>
+    <div class='panel'>
+      <h3>1500</h3>
+      <p>Average Agent Network Size</p>
+    </div>
+    <div class='panel'>
+      <h3>77/100</h3>
+      <p>Average Income Score</p>
+    </div>
+    <div class='panel'>
+      <h3>77%</h3>
+      <p>College Degrees</p>
+    </div>
+    <div class='panel'>
+      <h3>36</h3>
+      <p>Average Age</p>
+    </div>
+    <div class='panel'>
+      <h3>55%</h3>
+      <p>Male</p>
+    </div>
+    <div class='panel'>
+      <h3>45%</h3>
+      <p>Female</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div id='manager'>
+  <div class='wrapper'>
+    <h2>Your Agents</h2>
+    <table>
+      <tr>
+        <th>Select</th>
+        <th>Name</th>
+        <th>Invited</th>
+        <th>Status</th>
+        <th>Network Size</th>
+        <th>Average Age</th>
+        <th>College Degree</th>
+        <th>Gender</th>
+        <th>p200 List</th>
+      </tr>
+      {% if agent_count < 1 %}
+      <tr>
+        <td colspan='7'><h4>Add some agents to get started!</h4></td>
+      </tr>
+      {% else %}
+      {% for agent in agents %}
+      <tr>
+        <td><input type='checkbox' /></td>
+        <td>
+          <h3>{{ agent.name }}</h3>
+          <p><a href='mailto:jamesjohnson11@gmail.com'>{{ agent.email }}</a></p>
+        </td>
+        <td>{{ agent.created }}</td>
+        <td>{% if not agent.prospects %}<div class='status green'>Delivered</div>{% else %}<div class='status green'>Completed</div>{% endif %}</td>
+        <td>{{ agent.network_size }}</td>
+        <td>{{ agent.average_age }}</td>
+        <td>{{ agent.college_percentage }}</td>
+        <td>{{ agent.male_percentage }} %M<br/>{{ agent.male_percentage }} %F</td>
+        <td><button class='button'>View p200</button></td>
+      </tr>
+      {% endfor %}
+      {% endif %}
+    </table>
+  </div>
+</div>
+<script type='text/javascript'>
+var csrftoken = "{{ csrf_token() }}"
+$(function() {
+    $("#send").click(function() {
+        var email = $("[name='email']").val();
+        var first_name = $("[name='first_name']").val();
+        var last_name = $("[name='last_name']").val();
+        if (email == '' || first_name == '' || last_name == '') {
+          alert("You must fill out all fields");
+          return false;
+        }
+        var data = {csrf_token:csrftoken, 
+                  first_name:first_name,
+                  last_name:last_name, 
+                  email:email}
+        $.post("/managers/invite", data, function(data) {
+          if (data.error) {
+            alert(data.error)
+          }
+          $(".invite-box").slideUp();
+          $(".invite-agent").fadeOut();
+      });
+    });
+
+    $("#close").click(function() {
+        $(".invite-box").slideUp();
+        $(".invite-agent").fadeOut();
+    });
+
+    $("#invite").click(function() {
+          $(".invite-agent").fadeIn();
+          $(".invite-box").slideDown();
+    });
+});
+</script>
+{% endblock %}

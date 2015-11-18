@@ -18,7 +18,8 @@ from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from geocode_service import GeoCodingService
 from lead_service import LeadService
-from extended_lead_service import ExtendedLeadService
+#from extended_lead_service import ExtendedLeadService
+from results_service import ResultService
 
 SAVE_OUTPUTS = False
 
@@ -32,6 +33,7 @@ SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
+SERVICES['results_service'] = LeadService
 
 class ProcessingService(Service):
 
@@ -84,6 +86,7 @@ class ProcessingService(Service):
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
         return True
+
 
 def save_output(output, user_email, service):
     file = open("temp_data/{}_{}.txt".format(user_email, service), "w+")

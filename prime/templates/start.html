@@ -126,6 +126,7 @@
     var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     var contacts_array = [];
+    var test = (window.location.href.indexOf("testing") > -1) ? true : false;
 
     function do_import(service, divid, win) {     
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
@@ -301,6 +302,10 @@
           $(".overlay").fadeIn();
           $(".waiting").show();   
           var csrf_token = $("[_csrf_token]").val()
+          if (test) {
+            contacts_array = contacts_array.slice(0, 20)
+          }
+
           var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, public_url:public_url, user_email:email_address, contacts_array: contacts_array}          
           $.ajax({
               type: 'POST',
@@ -321,6 +326,7 @@
                   //alert('uploaded ' + contacts_array.length + ' contacts!')
               },
               error: function (responseData, textStatus, errorThrown) {
+                  debugger;
                   $(".waiting").hide();   
                   $(".overlay").fadeOut();                
                   alert('upload failed.');

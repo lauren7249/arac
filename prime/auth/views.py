@@ -1,4 +1,5 @@
 import logging
+import hashlib
 import boto
 import json
 import os
@@ -18,41 +19,50 @@ from prime.users.models import User
 
 logger = logging.getLogger(__name__)
 
-@auth.route('/auth/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     if not current_user.is_anonymous():
-        return redirect(url_for('prospects.search'))
+        return redirect(url_for('prospects.start'))
     form = LoginForm()
     valid = True
     if form.is_submitted():
         if form.validate():
-            user = User.query.filter_by(email=form.email.data).first()
+            user = User.query.filter_by(email=form.email.data.lower()).first()
             if user is not None and user.check_password(form.password.data):
                 login_user(user)
-                return redirect(request.args.get('next') or
-                        url_for('prospects.upload'))
+
+                #If the user is a manager, lets take them to the manager
+                #dashboard
+                if user.is_manager:
+                    return redirect(url_for('managers.manager_home'))
+                return redirect(url_for('prospects.start'))
+
         valid = False
         form.email.data = ''
         form.password.data = ''
     return render_template('auth/login.html', form=form, valid=valid)
 
-@auth.route('/auth/signup/<customer_slug>', methods=['GET', 'POST'])
-def signup(customer_slug):
-    customer = Customer.query.filter_by(slug=customer_slug).first()
-    if not customer:
-        return redirect(url_for('main.index'))
+@auth.route('/signup', methods=['GET', 'POST'])
+def signup():
     form = SignUpForm()
     if form.is_submitted():
         if form.validate():
-            newuser = User(form.first_name.data, form.last_name.data, form.email.data, form.password.data)
-            newuser.customer = customer
-            newuser.plan_id = 1
-            db.session.add(newuser)
+            code = form.code.data
+            password = hashlib.md5(code).hexdigest()
+            user = User.query.filter(User.onboarding_code == password).first()
+            user.onboarding_code = None
+            user.set_password(form.password.data)
+            db.session.add(user)
             db.session.commit()
-            login_user(newuser, True)
-            flask_session['first_time'] = True
+            login_user(user, True)
             return redirect("/")
-    return render_template('auth/signup.html', signup_form=form)
+    else:
+        code = request.args.get("code")
+        password = hashlib.md5(code).hexdigest()
+        user = User.query.filter(User.onboarding_code == password).first()
+    if not user:
+        return redirect(url_for('auth.login'))
+    return render_template('auth/signup.html', signup_form=form, code=code)
 
 
 @auth.route('/logout')

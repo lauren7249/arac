@@ -1,17 +1,10 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from flask import Flask
-from prime.utils import r
 from difflib import SequenceMatcher
-import pdb
 
 import datetime
 import re, os, sys
-try:
-	from prime.prospects.prospect_list import *
-	from consume.consumer import *
-except:
-	pass
 
 from prime import create_app, db
 

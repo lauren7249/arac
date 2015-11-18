@@ -9,7 +9,7 @@ from flask.ext.login import current_user
 from . import users
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry
-from prime.users.models import ClientList, User, ClientProspect
+from prime.users.models import User, ClientProspect
 from prime.prospects.prospect_list import ProspectList
 from prime import db, csrf
 

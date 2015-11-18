@@ -1,101 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if first_time %}
-<div style='display: block;' class='overlay'>
-  <div id='modal'>
-    <h2>Congrats!</h2>
-    <p>We found <span>{{ prospect_count }}</span> prospects in your extended market.  You can view them in "Your Market" or search our database of 100m+ prospects.  
-    <p>Save the prospects you’d like to contact and remove prospects that are a bad match for you.  We’ll use this information to find you better prospects over time.</p>
-    <button onclick='javascript:hideOverlay();' class='btn btn-success'>Get Started!</button>
-  </div>
-</div>
-<script src="/static/js/intro.min.js" type="text/javascript"></script>
-<script type='text/javascript'>
-introJs().start();
-</script>
-{% endif %}
-<div class='welcome' data-step="3" data-intro="View prospects that have something in common with you in Your Network.  This is great for making a warm introduction!">
-  <div class='wrapper'>
-    <ul class='tabs'>
-      <li class='active'><a id='show-analytics' href='/dashboard'>Your Network</a><li>
-      <li><a id='show-leads' href='/search'>Search</a><li>
-      <li data-step="2" data-intro="Save good prospects and let us know when a propect is not a good fit for you.  This will help us to recommend better leads for you over time!"><a href='/clients'><span></span>Saved Prospects</a></li>
-    </ul>
-  </div>
-</div>
-<div class='items'>
-  <div class='headers'>
+  <header>
     <div class='wrapper'>
-      <a id='extended' class='active' href='javascript:;'>Extended Network</a>
-      <!--<a id='first' href='javascript:;'>First Degree Connections</a>-->
-      <a id='network' href='javascript:;'>Network Analysis</a>
+      <img src='../common/img/NewYorkLife.png'>
+      <h2 id="chart_title"></h2>
+      <a href='./leads-ln.html'><button class='button'>View Contacts</button></a>
+      <div class='clear'></div>
+    </div>
+  </header>
+  
+  <header>
+  <div class='wrapper' background-color='blue'>
+      <h3>Your Potential Markets are:</h3>
+      
+      <center>
+        <h3 id="industry_icons"></h3>
+      </center> 
+      <div class='clear'>
+      </div>
+      </header>
+
+      <br>
+
+      <div class='wrapper'>
+    <div class='graphs'>
+      <center><h3>Network Breakdown</h3></center>
+      <div class='graph'>
+        <a href="./leads-ln.html"><canvas id='industries'></canvas></a>
+        <h4>Qualified Industry Contacts</h4>
+      </div>
+      <div class='graph'>
+        <a href="./leads-extended.html"><canvas id='schools'></canvas></a>  
+        <h4>Qualified School Contacts</h4>
+      </div>
+    </div>
+    
+
+    <div class='graphs'>
+      <center><h3>Qualified Contacts</h3></center>
+      <div class='big-graph'>
+        <a href="./leads-ln.html"><canvas id='connections'></canvas></a>
+      </div>
+    </div>
+    
+
+    <div class='clear'></div>
+    <div class='network-stats'>
+     <br> <h3>Network Stats</h3>
+      <table id="network_stats">
+      </table>
     </div>
   </div>
-  <div class='user-holder'>
-    <div class='wrapper'>
-      <h4>Your Network</h4>
-      <p>Search through co-workers and classmates to identify new prospects.</p>
-      <p>Save the prospects you want to approach and we'll find out the best way to contact them.</p>
-      <p>Remove prospects that are a bad match for you.  We’ll use this information to find you better prospects over time.</p>
-      <div id='user-prospects'></div>
-    </div>
-  </div>
-  <div class='stats'>
-    <div class='wrapper'>
-    <!--
-      <h4>Your First Degree Connections</h4>
-      <div class='stat' id='user-jobs'>
-        <h5>Work Connections</h5>
-        <canvas id='one'></canvas>
-      </div>
-      <div class='stat' id='user-schools'>
-        <h5>School Connections</h5>
-        <canvas id='two'></canvas>
-      </div>
-      <div class='stat' id='user-industries'>
-        <h5>Industry Analysis</h5>
-        <canvas id='three'></canvas>
-      </div>
-      <div class='stat' id='user-locations'>
-        <h5>Location Analysis</h5>
-        <canvas id='four'></canvas>
-      </div>
-      <br/>
-        -->
-      <h4>Analyze Your Extended Network</h4>
-      <div class='stat' id='extended-user-jobs'>
-        <h5>Work Connections</h5>
-        <canvas id='one'></canvas>
-      </div>
-      <div class='stat' id='extended-user-schools'>
-        <h5>School Connections</h5>
-        <canvas id='two'></canvas>
-      </div>
-      <div class='stat' id='extended-user-industries'>
-        <h5>Industry Analysis</h5>
-        <canvas id='three'></canvas>
-      </div>
-      <div class='stat' id='extended-user-locations'>
-        <h5>Location Analysis</h5>
-        <canvas id='four'></canvas>
-      </div>
-    <!--
-      <h4>We are currenlty building your network. This may take 5-30 minutes.</h4>
-      <p>In the meantime try our search tool, or try connecting your linkedin account again <a href='/auth/signup/{{ current_user.customer.slug }}/linkedin'>here</a></p>
-        -->
-    </div>
-  </div>
-  <div class='clear'></div>
-  {% if prospects_remaining_today < 1%}
-  <div class='hide-results'>
-    <h2>You have reached your limit for today</h2>
-    <p>Please <a href=''>Upgrade</a> your account to get more leads today, or come back tomorrow!</p>
-  </div>
-  {% endif %}
-</div>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-<script type='text/javascript' src='/static/js/chosen.jquery.js'></script>
-<script src="/static/js/chart.js"></script>
-<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
-<script src="/static/js/build/app.js" type="text/javascript"></script>
+
 {% endblock %}

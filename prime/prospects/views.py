@@ -19,7 +19,7 @@ from flask.ext.login import current_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry, ProspectLocation, Location, ProspectGender, ProspectWealthscore
-from prime.users.models import ClientList, User
+from prime.users.models import User
 from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -60,8 +60,10 @@ def uu(str):
 ##   TASKS    ##
 ################
 
-@job
-def queue_processing_service(delay, user_email, public_url, data):
+def get_conn():
+    return Redis()
+
+def queue_processing_service(user_email, public_url, data):
     from prime.processing_service.processing_service import ProcessingService
     service = ProcessingService(
             user_email=user_email,
@@ -75,7 +77,11 @@ def queue_processing_service(delay, user_email, public_url, data):
 ################
 
 @prospects.route("/", methods=['GET', 'POST'])
-def home():
+def start():
+    if not current_user.is_authenticated():
+        return redirect(url_for("auth.login"))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
     return render_template('start.html')
 
 @prospects.route("/terms")
@@ -98,6 +104,13 @@ def upload():
                 email = c.get("emails")[0].get("address", "").lower()
                 unique_emails.add(email)
 
-        queue_processing_service.delay(3, user_email,
-                public_url, contacts_array)
+        conn = get_conn()
+        q = Queue(connection=conn)
+        q.enqueue(queue_processing_service, user_email,
+                public_url, contacts_array, timeout=14400)
     return jsonify({"unique_contacts": len(list(unique_emails))})
+
+@prospects.route("/dashboard", methods=['GET', 'POST'])
+def user_dashboard():
+    return render_template("dashboard.html")
+

@@ -22,11 +22,14 @@ class Config(object):
     AWS_ACCESS_KEY_ID='AKIAIWG5K3XHEMEN3MNA'
     AWS_SECRET_ACCESS_KEY='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'
     STATIC_URL = "/static/"
+    SENDGRID_EMAIL = "lauren7249"
+    SENDGRID_PASSWORD = "1250downllc"
+    SENDGRID_FROM_EMAIL = "contacts@advisorconnect.co"
 
 
 class BetaConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
-    #ARACHNID_SERVER_URL = 'http://prime.advisorconnect.co'
+    BASE_URL = 'http://prime.advisorconnect.co'
 
 
 class DevelopmentConfig(Config):
@@ -37,11 +40,11 @@ class DevelopmentConfig(Config):
     ASSETS_DEBUG = True
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
-    ARACHNID_SERVER_URL = 'http://localhost:5000'
+    BASE_URL = 'http://localhost:5000'
 
 class ProductionConfig(Config):
-    #REDSHIFT_DATABASE_URI = 'postgresql://acprime:acprime101B@localhost:5432/acprime'
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
+    BASE_URL = 'http://prime.advisorconnect.co'
 
 
 class TestingConfig(Config):
@@ -53,7 +56,7 @@ class TestingConfig(Config):
     ASSETS_DEBUG = True
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
-    SERVER_URL = 'http://localhost:5050'
+    BASE_URL = 'http://localhost:5000'
 
 
 

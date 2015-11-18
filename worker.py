@@ -9,8 +9,6 @@ redis_url = 'redis://consumer.btwauj.0001.use1.cache.amazonaws.com:6379'
 if not redis_url:
     raise RuntimeError('Set up Redis To Go first.')
 
-urlparse.uses_netloc.append('redis')
-url = urlparse.urlparse(redis_url)
 conn = Redis()
 
 with Connection(conn):

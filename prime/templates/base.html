@@ -29,41 +29,35 @@
     <meta property="og:image" content="" />
     <meta property="fb:page_id" content="" />
 
-    <script type="text/javascript">
-window.heap=window.heap||[],heap.load=function(t,e){window.heap.appid=t,window.heap.config=e;var a=document.createElement("script");a.type="text/javascript",a.async=!0,a.src=("https:"===document.location.protocol?"https:":"http:")+"//cdn.heapanalytics.com/js/heap-"+t+".js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(a,n);for(var o=function(t){return function(){heap.push([t].concat(Array.prototype.slice.call(arguments,0)))}},p=["clearEventProperties","identify","setEventProperties","track","unsetEventProperty"],c=0;c<p.length;c++)heap[p[c]]=o(p[c])};
-heap.load("113125620");
-{% if current_user.is_authenticated() %}
-heap.identify({name: '{{ current_user.name }}',
-              company: '{{ current_user.customer.name }}',
-              email: '{{ current_user.email }}'});
-{% endif %}
-
-    </script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/react-with-addons-0.12.2.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/bootbox.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script type="text/javascript" src="//platform.linkedin.com/in.js">
         api_key:   77kimruenyqspn
         authorize: true
         onLoad: onLinkedInLoad
-    </script>        
+    </script>
   </head>
   <body>
   <div class="navbar navbar-default">
     <div class="navbar-header">
-      <a id='header' class="navbar-brand active" href="/">AdvisorConnect<span>Beta</span></a>
-      {% if not current_user.is_anonymous() %}
-      <div id='settings' data-linkedin='{{ current_user.linkedin_url }}' data-id='{{ current_user.user_id }}' class="navbar-brand active pull-right" href="/">{{ current_user.name }} <i class='fa fa-cog'></i>
-        <div class='autocomplete'>
-          <ul>
-            <li><a href='/investor_profile'>Ideal Prospect Profile</a></li>
-            <li><a href='/logout'>Logout</a></li>
-          </ul>
+      <div class='wrapper'>
+        <div class='logo'>
+          <a id='header' class="navbar-brand active" href="/">
+            <img src='{{ static_url() }}img/AC_logo.png' />
+          </a>
         </div>
+        {% if not current_user.is_anonymous() %}
+        <div id='settings' data-linkedin='{{ current_user.linkedin_url }}' data-id='{{ current_user.user_id }}' class="navbar-brand active pull-right" href="/">{{ current_user.name }} <i class='fa fa-cog'></i>
+          <div class='autocomplete'>
+            <ul>
+              <li><a href='/auth/logout'>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
     {% block content %}{% endblock %}

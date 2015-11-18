@@ -56,9 +56,13 @@ class LinkedinService(Service):
         self.logger.info('Starting Process: %s', 'Linkedin Service')
         for person in self.data:
             linkedin_url = self._get_linkedin_url(person)
-            request = LinkedinRequest(linkedin_url, person)
-            data = request.process()
-            self.output.append(data)
+            if linkedin_url:
+                try:
+                    request = LinkedinRequest(linkedin_url, person)
+                    data = request.process()
+                    self.output.append(data)
+                except Exception, e:
+                    self.logger.error("Linkedin Error: {}".format(e))
         self.logger.info('Ending Process: %s', 'Linkedin Service')
         return self.output
 

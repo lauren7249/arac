@@ -1,0 +1,11 @@
+{% extends 'email.html' %}
+{% block content %}
+<h1>Welcome To Advisorconnect!</h1>
+<p>{{ invited_by }} requested that you create an account. This link will expire in 48 hours. Please click the link below!</p>
+<br/>
+<p><a style='background: #4EB34E;padding: 15px 50px;margin: 20px auto;font-weight: bold;text-transform: uppercase; color:#fff;text-decoration:none;' href='{{ base_url }}/auth/signup?code={{ code }}'>Click Here</a></p>
+<br/>
+<p>Thanks!</p>
+<p>Jeff Tompkins</p>
+<p>Founder @ Advisorconnect</p>
+{% endblock %}

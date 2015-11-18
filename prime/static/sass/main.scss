@@ -1,6 +1,7 @@
 @import "compass/css3";
 
 $lato: "Lato" sans-serif;
+$blue: #0082c6;
 
 div.clear {
   clear: both;
@@ -19,6 +20,7 @@ body {
 
 div.signup {
   padding: 40px;
+  background: #eee;
   width: 400px;
   margin: 20px auto;
   text-align: center;
@@ -125,12 +127,17 @@ div.wrapper {
   margin: 0 auto;
 }
 
-header {
-  height: 88px;
+.navbar-header {
+  height: 65px;
 
-  img {
-    width: 100px;
+  div.logo {
     float: left;
+    width: 140px;
+    margin-top: 15px;
+
+    img {
+      max-width: 100%;
+    }
   }
 
   h2 {
@@ -143,6 +150,48 @@ header {
     float: right;
     font-size: 15px;
     margin-left: 5px;
+  }
+
+  div#settings {
+    position: relative;
+    height: 46px;
+    margin-top: 15px;
+
+    div.autocomplete {
+      display: none;
+      position: absolute;
+      top: 45px;
+      right: 0;
+      border: 1px solid #eee;
+      border-top: 0;
+      background: #fff;
+      width: 208px;
+      z-index: 4;
+      padding: 15px;
+
+      ul {
+        list-style-type: none;
+        margin: 0;
+
+        li {
+          padding: 5px;
+          text-transform: uppercase;
+          text-align: right;
+
+          a {
+            color: $blue;
+            text-decoration: none;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    &:hover {
+      div.autocomplete {
+        display: block;
+      }
+    }
   }
 }
 
@@ -224,6 +273,148 @@ div.network-stats {
       margin: 20px auto;
       font-size: 30px;
 
+    }
+  }
+}
+
+div.invite-agent {
+  display: none;
+  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 5;
+
+  div.invite-box {
+    display: none;
+    background: #efefef;
+    border: 1px solid #ccc;
+    margin: 100px auto;
+    padding: 0 40px 20px;
+    width: 400px;
+
+    input {
+      width: auto;
+      margin-bottom: 10px;
+      width: 376px;
+    }
+
+    h4 {
+      font-size: 18px;
+      font-weight: 300;
+      color: $blue;
+      text-transform: uppercase;
+    }
+  }
+}
+
+div#manager-dashboard {
+  background: #eee;
+  padding: 20px 0;
+
+  h1 {
+    color: $blue;
+    margin: 0 0 20px;
+    font-weight: 300;
+    font-size: 25px;
+
+    button {
+     float: right; 
+     padding: 9px 15px;
+     font-size: 13px;
+     background: $blue;
+     color: #fff;
+     @include text-shadow(#333 0 0 1px);
+     border-color: black;
+    }
+  }
+
+  div.panel {
+    width: 200px;
+    display: inline-block;
+    margin: 0px 10px 20px 0;
+    padding: 15px;
+    background: #fff;
+
+    h3 {
+      font-size: 30px;
+      color: $blue;
+      text-align: center;
+      font-weight: 100;
+    }
+
+    p {
+      font-size: 12px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    &:nth-child(4n + 1) {
+      margin-right: 0;
+    }
+  }
+}
+
+div#manager {
+  padding: 20px 0;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  table {
+    font-size: 14px;
+    width: 100%;
+
+    tr {
+      border-top: 1px solid #efefef;
+      border-bottom: 1px solid #efefef;
+    }
+
+    th {
+      background: $blue;
+      color: #fff;
+      font-weight: 300;
+      padding: 10px;
+    }
+
+    td {
+      padding: 10px;
+      color: #525252;
+      font-weight: 300;
+
+      h3 {
+        font-size: 14px;
+        font-weight: bold;
+        color: $blue;
+        margin: 0 0 5px;
+      }
+
+      p {
+        margin: 0;
+
+        a {
+          color: #314C5A;
+          text-decoration: none;
+
+          i {
+            margin-right: 5px;
+          }
+        }
+      }
+
+      div.status {
+        padding: 10px;
+        background: #5CB75C;
+        font-weight: bold;
+        color: #fff;
+        text-align: center;
+        @include border-radius(10px);
+      }
     }
   }
 }

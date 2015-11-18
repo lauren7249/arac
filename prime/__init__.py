@@ -61,14 +61,17 @@ def register_blueprints(app):
     from .prospects import prospects as prospects_blueprint
     from .users import users as users_blueprint
     from .auth import auth as auth_blueprint
+    from .managers import manager as manager_blueprint
     from .processing_service import processing_service as processing_service_blueprint
     app.register_blueprint(prospects_blueprint)
     app.register_blueprint(users_blueprint)
-    app.register_blueprint(auth_blueprint)
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(processing_service_blueprint)
+    app.register_blueprint(manager_blueprint, url_prefix='/managers')
 
 
 def add_template_globals(app):
+
     @app.template_global()
     def static_url():
         return app.config.get('STATIC_URL')

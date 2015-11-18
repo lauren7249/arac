@@ -10,7 +10,6 @@ from geoindex.geo_point import GeoPoint
 from service import Service, S3SavedRequest
 from linkedin_service import LinkedinRequest
 from geocode_service import MapQuestRequest
-from prime.utils.bing import search_extended_network
 
 class ExtendedLeadService(Service):
     """

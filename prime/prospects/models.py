@@ -7,7 +7,6 @@ import lxml.html
 import pandas
 import shutil
 import os, re, json, numpy, sys
-from prime.utils import headers, get_bucket
 from sqlalchemy import create_engine, Column, Integer, Boolean, String, ForeignKey, Date, Text, BigInteger, Float, TIMESTAMP, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSON, TSVECTOR, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
