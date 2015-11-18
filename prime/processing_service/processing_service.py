@@ -1,4 +1,4 @@
-import os, sys
+mport os, sys
 import csv
 import time
 import json
@@ -33,7 +33,7 @@ SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
-SERVICES['results_service'] = LeadService
+SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):
 
