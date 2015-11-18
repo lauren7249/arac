@@ -15,3 +15,9 @@ new_redis_host='129.41.154.147'
 new_redis_dbname=0
 new_redis_port=6379
 new_redis_password='d78bde1a8e50bd337323fdfcda13dcbd'
+
+bing_api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
+profile_re = '(^https*?://(www.)*linkedin.com/pub(?!/dir/)(/.*)+)|(^https*?://(www.)*linkedin.com/in/.*)'
+bloomberg_company_re = '^http://www.bloomberg.com/research/stocks/private/snapshot.asp\?privcapid=[0-9]+'
+school_re = '^https://www.linkedin.com/edu/*'
+company_re = '^https://www.linkedin.com/company/*'

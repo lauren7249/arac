@@ -9,14 +9,14 @@ import re, os, sys
 from prime import create_app, db
 
 def uu(str):
-    if str:
-        return str.encode("ascii", "ignore").decode("utf-8")
-    return None
+	if str:
+		return str.encode("ascii", "ignore").decode("utf-8")
+	return None
 
 session = db.session
 
 def connected(tup):
-        session = get_session()
+	session = get_session()
 	p1 = tup[0]
 	p2 = tup[1]
 	if not p1 or not p2:

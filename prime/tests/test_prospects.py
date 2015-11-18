@@ -1,5 +1,4 @@
 import json
-import urllib2
 import unittest
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -11,6 +10,8 @@ from prime.processing_service.pipl_service import PiplService
 from prime.processing_service.linkedin_service import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
+from prime.processing_service.bing_service import BingService
+from prime.processing_service.bloomberg_service import BloombergRequest, BloombergService
 
 from prime import create_app, db
 from config import config
@@ -87,6 +88,17 @@ class TestClearbitRequest(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data, expected)
 
+class TestBloombergRequest(unittest.TestCase):
+
+    def setUp(self):
+        name = "farmivore"
+        self.service = BloombergRequest(name)
+
+    def test_bloomberg(self):
+        expected = '800-507-9396'
+        data = self.service.process()
+        phone = data.get("phone")
+        self.assertEqual(phone, expected)
 
 class TestLinkedinService(unittest.TestCase):
 
@@ -115,6 +127,21 @@ class TestLinkedinService(unittest.TestCase):
         self.assertEqual(data[0].get("linkedin_data").get("urls"), expected)
 
 
+class TestBloombergService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = BloombergService(email, linkedin_url, data)
+
+    def test_bloomberg(self):
+        expected = '800-507-9396'
+        data = self.service.process()
+        phone = data[1].get("phone_number")
+        self.assertEqual(phone, expected)
+
 class TestGlassdoorService(unittest.TestCase):
 
     def setUp(self):
@@ -131,7 +158,6 @@ class TestGlassdoorService(unittest.TestCase):
         salary = data[0].get("glassdoor_salary")
         self.assertEqual(salary, expected)
 
-
 class TestIndeedService(unittest.TestCase):
 
     def setUp(self):
@@ -147,6 +173,60 @@ class TestIndeedService(unittest.TestCase):
         data = self.service.process()
         salary = data[0].get("indeed_salary")
         self.assertEqual(salary, expected)
+
+class BingServiceLinkedinCompany(unittest.TestCase):
+
+    def setUp(self):
+        name = "triplemint"
+        self.service = BingService(name, "linkedin_company")
+
+    def test_linkedin_company(self):
+        expected = "https://www.linkedin.com/company/triple-mint"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceBloombergCompany(unittest.TestCase):
+
+    def setUp(self):
+        name = "farmivore"
+        self.service = BingService(name, "bloomberg_company")
+
+    def test_bloomberg_company(self):
+        expected = "http://www.bloomberg.com/research/stocks/private/snapshot.asp?privcapId=262829137"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceLinkedinSchool(unittest.TestCase):
+
+    def setUp(self):
+        name = "marist college"
+        self.service = BingService(name, "linkedin_school")
+
+    def test_linkedin_school(self):
+        expected = "https://www.linkedin.com/edu/school?id=18973"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceLinkedinProfile(unittest.TestCase):
+
+    def setUp(self):
+        self.service = BingService("arianna huffington","linkedin_profile", extra_keywords="President and Editor-in-Chief at The Huffington Post Media Group")
+
+    def test_linkedin_profile(self):
+        expected = "https://www.linkedin.com/pub/arianna-huffington/40/158/aa7"
+        data = self.service.process()
+        assert(expected in data)
+
+class BingServiceLinkedinExtended(unittest.TestCase):
+
+    def setUp(self):
+        self.service = BingService("marissa mayer","linkedin_extended_network","Yahoo!, President & CEO")
+
+    def test_linkedin_profile(self):
+        #TODO find someone who passes this test
+        expected = "https://www.linkedin.com/in/megwhitman"
+        data = self.service.process()
+        assert(expected in data)
 
 if __name__ == '__main__':
     unittest.main()

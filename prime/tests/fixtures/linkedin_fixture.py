@@ -144,5 +144,96 @@ expected = [
                 "https://plus.google.com/103608304178303305879/about"
             ]
         }
+    },
+    {
+        "linkedin_data":
+            {
+                "groups": [], 
+                "urls": [], 
+                "linkedin_id": "98470753", 
+                "success": True, 
+                "people": [], 
+                "headline": "Co-founder at Farmivore", 
+                "image": "https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/4/005/0b2/0ab/379679e.jpg", 
+                "interests": [], 
+                "organizations": [], 
+                "connections": "484", 
+                "skills": [
+                    "Graphic Design", 
+                    "Adobe Creative Suite", 
+                    "Adobe Bridge", 
+                    "Final Cut Pro", 
+                    "PowerPoint", 
+                    "Keynote", 
+                    "HTML 5", 
+                    "CSS", 
+                    "Data Analysis", 
+                    "Research", 
+                    "Education", 
+                    "Non-profits", 
+                    "Grant Writing", 
+                    "Social Media Marketing", 
+                    "Corporate Branding", 
+                    "Event Planning", 
+                    "Nonprofits", 
+                    "Strategy", 
+                    "Photography", 
+                    "Microsoft Office"
+                ], 
+                "experiences": [
+                    {
+                        "end_date": "May 2014", 
+                        "title": "Portfolio Company, ERA 6", 
+                        "company": "Entrepreneurs Roundtable Accelerator", 
+                        "company_id": "1968378", 
+                        "company_image_url": "https://media.licdn.com/media/p/3/000/09d/16f/2c04d95.png", 
+                        "location": "New York, New York", 
+                        "start_date": "January 2014"
+                    }, 
+                    {
+                        "description": "Modular organic hydroponic/aquaponic greenhouse systems for specialty herbs and greens.", 
+                        "end_date": "August 2013", 
+                        "title": "Co-Farmer", 
+                        "company": "Blacktop Bloom", 
+                        "location": "New Haven, CT", 
+                        "start_date": "August 2012"
+                    }, 
+                    {
+                        "description": "A sustainable agriculture camp & experiential learning program for students in Shanghai\n\u2022 Built and managed brand identity, website, and social media presence\n\u2022 Implemented grassroots marketing to reach students and partners", 
+                        "end_date": "August 2012", 
+                        "title": "Co-Founder", 
+                        "company": "Sprout", 
+                        "location": "Shanghai City, China", 
+                        "start_date": "August 2011"
+                    }, 
+                    {
+                        "description": "\u2022 Created databases of prospective donors for a multimillion dollar capital campaign\n\u2022 Restructured internship to optimize for efficiency; projected to cut downtime by 8+ hours/week\n\u2022 Explored SEO and social media strategy to boost online presence and site traffic\n\u2022 Researched alumni support initiative for the Breakthrough Schools network", 
+                        "end_date": "August 2010", 
+                        "title": "Non-profit Development Intern", 
+                        "company": "Entrepreneurship Preparatory School and Village Preparatory School", 
+                        "company_id": "1184496", 
+                        "company_image_url": "https://media.licdn.com/media/p/1/000/06d/08b/3e99f89.png", 
+                        "location": "Cleveland/Akron, Ohio Area", 
+                        "start_date": "June 2010"
+                    }
+                ], 
+                "location": "New York, New York", 
+                "full_name": "Ray Xiong", 
+                "causes": [], 
+                "schools": [
+                    {
+                        "degree": "Bachelor of Arts (B.A.) with Distinction, Psychology", 
+                        "end_date": "2012", 
+                        "college_image_url": "https://media.licdn.com/mpr/mpr/shrink_100_100/p/8/000/2c9/14b/368ed23.png", 
+                        "college": "Yale University", 
+                        "start_date": "2008", 
+                        "college_id": "18043"
+                    }
+                ], 
+                "source_url": "http://www.linkedin.com/in/xiongray", 
+                "industry": "Food & Beverages", 
+                "projects": [], 
+                "complete": True
+            }        
     }
 ]

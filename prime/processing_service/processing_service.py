@@ -19,6 +19,7 @@ from indeed_service import IndeedService
 from geocode_service import GeoCodingService
 from lead_service import LeadService
 #from extended_lead_service import ExtendedLeadService
+from bloomberg_service import BloombergService
 from results_service import ResultService
 
 SAVE_OUTPUTS = False
@@ -31,6 +32,7 @@ SERVICES['linkedin_service'] = LinkedinService
 SERVICES['glassdoor_service'] = GlassdoorService
 SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
+SERVICES['bloomberg_service'] = BloombergService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['results_service'] = ResultService
@@ -103,7 +105,10 @@ if __name__ == '__main__':
     file = csv.reader(open('data/test.csv', 'r'))
     for line in file:
         raw_json = json.loads(line[3])
-        data.append(raw_json)
+        new_json = {}
+        new_json['contact'] = raw_json
+        data.append(new_json)
+    print data
     processing_service = ProcessingService(
             user_email='jamesjohnson11@gmail.com',
             user_linkedin_url = "https://www.linkedin.com/in/jamesjohnsona",

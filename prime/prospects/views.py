@@ -1,7 +1,6 @@
 import logging
 from flask import Flask
 from collections import Counter
-import urlparse
 
 from rq import Queue
 from redis import Redis
