@@ -12,7 +12,7 @@ from service import Service, S3SavedRequest
 from bing_service import BingService
 from constants import GLOBAL_HEADERS
 
-class BloombergService(Service):
+class BloombergPhoneService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
     Output is going to be existig data enriched with bloomberg phone numbers
@@ -26,7 +26,7 @@ class BloombergService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(BloombergService, self).__init__(*args, **kwargs)
+        super(BloombergPhoneService, self).__init__(*args, **kwargs)
 
     def dispatch(self):
         pass

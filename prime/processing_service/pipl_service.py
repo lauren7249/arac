@@ -40,6 +40,7 @@ class PiplRequest(S3SavedRequest):
 
     def __init__(self, query, type='email'):
         pipl_url = "http://api.pipl.com/search/v3/json/?key="
+        #make sure we keep using the key at https://pipl.com/accounts/subscriptions/ labeled "social"
         pipl_key = "ml2msz8le74d4nno7dyk0v7c"
         json_format = "&pretty=true"
         self.api_url = "".join([pipl_url, pipl_key, json_format])
