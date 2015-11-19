@@ -6,7 +6,7 @@ import json
 from random import shuffle
 from prime.processing_service.clearbit_service import ClearbitService
 from prime.processing_service.constants import pub_profile_re
-df = pandas.read_csv("/Users/lauren/Downloads/SUMALL client test 10.26.2015 - mj_2.csv.csv")
+df = pandas.read_csv("sumall.csv")
 emails = df.email.values.tolist()
 
 shuffle(emails)
