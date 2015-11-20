@@ -306,7 +306,7 @@ expected = [
             ],
             "experiences": [
                 {
-                    "end_date": "October 2015",
+                    "end_date": "Present",
                     "title": "Marketing and Community Manager",
                     "company": "Emergence Capital Partners",
                     "company_id": "218022",

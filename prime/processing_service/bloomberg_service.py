@@ -28,28 +28,23 @@ class BloombergPhoneService(Service):
         self.logger = logging.getLogger(__name__)
         super(BloombergPhoneService, self).__init__(*args, **kwargs)
 
-    def dispatch(self):
-        pass
-
     def process(self):
         self.logger.info('Starting Process: %s', 'Bloomberg Service')
         for person in self.data:
-            if not person.get("phone_number"):
-                current_job = self._current_job(person)
-                if current_job:
-                    request = BloombergRequest(current_job.get("company"))
-                    while True:
-                        data = request.processNext()
-                        if not data: 
-                            break
-                        phone = data.get("phone")
-                        website = data.get("website")
-                        if phone:
-                            person.update({"phone_number": phone})
-                            person.update({"company_website": website})
-                            break
-                        if website:
-                            person.update({"company_website": website})
+            current_job = self._current_job(person)
+            print current_job.get("company")
+            request = BloombergRequest(current_job.get("company"))
+            data = request.processNext()
+            while not person.get("phone_number") and data:
+                phone = data.get("phone")
+                website = data.get("website")
+                if phone:
+                    person.update({"phone_number": phone})
+                    person.update({"company_website": website})
+                    break
+                if website:
+                    person.update({"company_website": website})
+                data = request.processNext()
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'Bloomberg Service')
         return self.output

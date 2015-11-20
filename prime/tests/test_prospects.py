@@ -5,7 +5,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.testing import TestCase, LiveServerTestCase
 
 from prime.processing_service.cloudsponge_service import CloudSpongeService
-from prime.processing_service.clearbit_service import ClearbitService
+from prime.processing_service.clearbit_service import ClearbitPersonService, ClearbitPhoneService
 from prime.processing_service.pipl_service import PiplService
 from prime.processing_service.linkedin_service import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
@@ -45,8 +45,8 @@ class TestMapquestRequest(unittest.TestCase):
         expected_website = 'http://emcap.com'
         latlng = self.location_service.process().get("latlng")
         business = self.business_service.get_business(latlng=latlng)
-        phone = business.get("phone")
-        website = business.get("website")
+        phone = business.get("phone_number")
+        website = business.get("company_website")
         self.assertEqual(phone, expected_phone)
         self.assertEqual(website, expected_website)
 
@@ -81,13 +81,13 @@ class TestPiplService(unittest.TestCase):
         self.assertEqual(data, expected)
 
 
-class TestClearbitService(unittest.TestCase):
+class TestClearbitPersonService(unittest.TestCase):
 
     def setUp(self):
         email = "jamesjohnson11@gmail.com"
         linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         emails = [{"alex@alexmaccaw.com":{}}]
-        self.service = ClearbitService(email, linkedin_url, emails)
+        self.service = ClearbitPersonService(email, linkedin_url, emails)
 
     def test_clearbit(self):
         expected = [{'alex@alexmaccaw.com': {'linkedin_urls': u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
@@ -101,26 +101,18 @@ class TestClearbitService(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data, expected)
 
-
-class TestClearbitRequest(unittest.TestCase):
+class TestClearbitPhoneService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
-        emails = [{"alex@alexmaccaw.com":{}}]
-        self.service = ClearbitService(email, linkedin_url, emails)
+        data = [{}]
+        data[0]["company_website"] = "www.boozallen.com"
+        self.service = ClearbitPhoneService(None, None, data)
 
     def test_clearbit(self):
-        expected = [{'alex@alexmaccaw.com': {'linkedin_urls': u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
-            'social_accounts': [u'https://twitter.com/maccaw',
-                u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
-                u'https://facebook.com/amaccaw',
-                u'https://angel.co/maccaw',
-                u'https://github.com/maccman',
-                u'https://aboutme.com/maccaw',
-                u'https://gravatar.com/maccman']}}]
+        expected_phone = '+1 703-902-5000'
         data = self.service.process()
-        self.assertEqual(data, expected)
+        phone = data[0].get("phone_number")
+        self.assertEqual(phone, expected_phone)
 
 
 class TestBloombergRequest(unittest.TestCase):
@@ -132,12 +124,32 @@ class TestBloombergRequest(unittest.TestCase):
     def test_bloomberg(self):
         expected_phone = '212-758-9700'
         expected_website = 'http://www.kpmg.com/us'
-        data = self.service.process()
+        data = self.service.processNext()
         data = self.service.processNext()
         phone = data.get("phone")
         website = data.get("website")
         self.assertEqual(phone, expected_phone)
         self.assertEqual(website, expected_website)
+
+class TestPhoneService(unittest.TestCase):
+
+    def setUp(self):
+        from fixtures.linkedin_fixture import expected
+        self.data = expected
+
+    def test_phone(self):
+        self.service = PhoneService(None, None, self.data)
+        expected = '(650) 573-3100'
+        data = self.service.process(favor_mapquest=True)
+        phone = data[2].get("phone_number")
+        self.assertEqual(phone, expected)
+
+    def test_phone2(self):
+        self.service = PhoneService(None, None, self.data)
+        expected = '+1 650-573-3100'
+        data = self.service.process(favor_mapquest=True, favor_clearbit=True)
+        phone = data[2].get("phone_number")
+        self.assertEqual(phone, expected)
 
 class TestBloombergPhoneService(unittest.TestCase):
 
@@ -149,26 +161,9 @@ class TestBloombergPhoneService(unittest.TestCase):
         self.service = BloombergPhoneService(email, linkedin_url, data)
 
     def test_bloomberg(self):
-        expected = '800-507-9396'
         data = self.service.process()
-        phone = data[1].get("phone_number")
-        self.assertEqual(phone, expected)
-
-class TestPhoneService(unittest.TestCase):
-
-    def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
-        from fixtures.linkedin_fixture import expected
-        data = expected
-        self.service = PhoneService(email, linkedin_url, data)
-
-    def test_phone(self):
-        expected = '800-507-9396'
-        data = self.service.process()
-        phone = data[1].get("phone_number")
-        self.assertEqual(phone, expected)
-
+        self.assertEqual(data[1].get("phone_number"), '800-507-9396')
+        self.assertEqual(data[2].get("phone_number"), '650-573-3100')
 
 class TestLinkedinService(unittest.TestCase):
 
@@ -242,12 +237,13 @@ class BingServiceLinkedinCompany(unittest.TestCase):
 
 class BingServiceBloombergCompany(unittest.TestCase):
 
-    def setUp(self):
-        name = "farmivore"
-        self.service = BingService(name, "bloomberg_company")
-
     def test_bloomberg_company(self):
+        self.service = BingService("farmivore", "bloomberg_company")        
         expected = "http://www.bloomberg.com/research/stocks/private/snapshot.asp?privcapId=262829137"
+        data = self.service.process()
+        assert(expected in data)
+        self.service = BingService("emergence capital partners", "bloomberg_company")        
+        expected = "http://www.bloomberg.com/research/stocks/private/snapshot.asp?privcapId=4474737"
         data = self.service.process()
         assert(expected in data)
 

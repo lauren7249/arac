@@ -10,11 +10,13 @@ from boto.s3.key import Key
 
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
-from prime.processing_service.bloomberg_service import BloombergPhoneService
+from bloomberg_service import BloombergPhoneService
+from clearbit_service import ClearbitPhoneService
+from mapquest_service import MapQuestRequest
 
 class PhoneService(Service):
     """
-    Expected input is JSON of unique email addresses from cloudsponge
+    Expected input is JSON with profile info
     Output is going to be existig data enriched with phone numbers
     """
 
@@ -28,10 +30,25 @@ class PhoneService(Service):
         self.logger = logging.getLogger(__name__)
         super(PhoneService, self).__init__(*args, **kwargs)
 
-    def dispatch(self):
-        pass
-
-    def process(self):
+    def process(self, favor_mapquest=False, favor_clearbit=False):
         self.service = BloombergPhoneService(self.user_email, self.user_linkedin_url, self.data)
         self.data = self.service.process()
-        return self.data
+        for person in self.data:
+            if person.get("phone_number") and not favor_mapquest: 
+                self.logger.info("PhoneNumber service: already has phone number")
+                self.output.append(person)   
+                continue
+            current_job = self._current_job(person)
+            if not current_job or not current_job.get("company"): 
+                self.logger.info("PhoneNumber service: no current job or company")
+                self.output.append(person)   
+                continue
+            business_service = MapQuestRequest(current_job.get("company")) 
+            location_service = MapQuestRequest(person.get("linkedin_data").get("location"))       
+            latlng = location_service.process().get("latlng")
+            business = business_service.get_business(latlng=latlng, website=person.get("company_website"))      
+            person.update(business)
+            self.output.append(person)     
+        self.service = ClearbitPhoneService(self.user_email, self.user_linkedin_url, self.output)
+        self.output = self.service.process(overwrite=favor_clearbit)                     
+        return self.output
