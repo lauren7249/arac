@@ -129,3 +129,11 @@ def name_match(name1, name2, intersect_threshold=2):
     ratio = SequenceMatcher(None, name1, name2)
     if ratio>=0.8: return True
     return False
+
+def get_firstname(str):
+    str = re.sub(" - "," ",str)
+    str = re.sub("[^a-zA-Z-]"," ",str)
+    str = re.sub("\s+"," ",str.lower().strip())
+    firstname = str.split(" ")[0]
+    if firstname in ["ms","mr","miss","mrs","dr", "rev", "reverend","professor","prof","md"] and len(str.split(" "))>1: firstname =  str.split(" ")[1]
+    return firstname

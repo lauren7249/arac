@@ -15,6 +15,7 @@ from prime.processing_service.bloomberg_service import BloombergRequest, Bloombe
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
+from prime.processing_service.gender_service import GenderService
 from prime import create_app, db
 from config import config
 
@@ -164,6 +165,20 @@ class TestBloombergPhoneService(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data[1].get("phone_number"), '800-507-9396')
         self.assertEqual(data[2].get("phone_number"), '650-573-3100')
+
+class TestGenderService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = GenderService(email, linkedin_url, data)
+
+    def test_gender(self):
+        data = self.service.process()
+        self.assertEqual(data[0].get("gender"), 'Female')
+        self.assertEqual(data[1].get("gender"), 'Unknown')
 
 class TestLinkedinService(unittest.TestCase):
 
