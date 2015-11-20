@@ -20,5 +20,6 @@ bing_api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2
 pub_profile_re = '^https*?://(www.)*linkedin.com/pub(?!/dir/)(/.*)+'
 profile_re = '(' + pub_profile_re + ')|(^https*?://(www.)*linkedin.com/in/.*)'
 bloomberg_company_re = '^http://www.bloomberg.com/research/stocks/private/snapshot.asp\?privcapid=[0-9]+'
+plus_company_re = '^https://plus.google.com/[0-9a-zA-Z]+/about'
 school_re = '^https://www.linkedin.com/edu/*'
 company_re = '^https://www.linkedin.com/company/*'
