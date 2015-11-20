@@ -74,10 +74,10 @@ class MapQuestRequest(S3SavedRequest):
     def _get_business_info(self,record):
         if not record:
             return {}
-        return {"phone":record.get("phone"),
-                "website":record.get("website"),
-                "address":record.get("address",{}).get("singleLineAddress"),
-                "latlng": self._find_lat_lng(record),
+        return {"phone_number":record.get("phone"),
+                "company_website":record.get("website"),
+                "company_address":record.get("address",{}).get("singleLineAddress"),
+                "company_latlng": self._find_lat_lng(record),
                 "business_categories":record.get("inputQuery",{}).get("categories")}
 
     def get_business(self, website=None, latlng=None, threshold_miles=75):
@@ -96,7 +96,7 @@ class MapQuestRequest(S3SavedRequest):
                     geopoint = GeoPoint(latlng[0],latlng[1])
                     if geopoint.distance_to(_geopoint) <= threshold_miles:
                         return self._get_business_info(record)
-        return None
+        return {}
 
 
     def _get_unresolved_locations(self):

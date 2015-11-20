@@ -5,10 +5,10 @@ import boto
 
 from requests import HTTPError
 from boto.s3.key import Key
-
+from helper import get_domain
 from service import Service, S3SavedRequest
 
-class ClearbitService(Service):
+class ClearbitPersonService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
     Output is going to be social accounts and Linkedin IDs via PIPL
@@ -23,7 +23,7 @@ class ClearbitService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ClearbitService, self).__init__(*args, **kwargs)
+        super(ClearbitPersonService, self).__init__(*args, **kwargs)
 
     def dispatch(self):
         pass
@@ -36,18 +36,48 @@ class ClearbitService(Service):
         return False
 
     def process(self):
-        self.logger.info('Starting Process: %s', 'Clearbit Service')
+        self.logger.info('Starting Process: %s', 'Clearbit Person Service')
         for person in self.data:
             if self._exclude_person(person):
                 self.output.append(person)
             else:
                 email = person.keys()[0]
                 request = ClearbitRequest(email)
-                data = request.process()
+                data = request.get_person()
                 self.output.append(data)
-        self.logger.info('Ending Process: %s', 'Clearbit Service')
+        self.logger.info('Ending Process: %s', 'Clearbit Person Service')
         return self.output
 
+class ClearbitPhoneService(Service):
+    """
+    Expected input is JSON with profile info
+    Output is going to be company info from clearbit
+    rate limit is 600/minute
+    """
+
+    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
+        self.user_email = user_email
+        self.user_linkedin_url = user_linkedin_url
+        self.data = data
+        self.output = []
+        logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        super(ClearbitPhoneService, self).__init__(*args, **kwargs)
+
+    def process(self, overwrite=False):
+        self.logger.info('Starting Process: %s', 'Clearbit Company Service')
+        for person in self.data:
+            if (not overwrite and person.get("phone_number")) or not person.get("company_website"):
+                self.output.append(person)
+            else:
+                website = person.get("company_website")
+                request = ClearbitRequest(get_domain(website))
+                company = request.get_company()
+                person.update({"phone_number": company.get("phone_number")})
+                self.output.append(person)
+        self.logger.info('Ending Process: %s', 'Clearbit Company Service')
+        return self.output
 
 class ClearbitRequest(S3SavedRequest):
 
@@ -64,7 +94,7 @@ class ClearbitRequest(S3SavedRequest):
         self.logger = logging.getLogger(__name__)
         super(ClearbitRequest, self).__init__()
 
-    def _make_request(self):
+    def _make_request(self, type):
         self.key = hashlib.md5(self.query).hexdigest()
         key = Key(self._s3_connection)
         key.key = self.key
@@ -74,18 +104,21 @@ class ClearbitRequest(S3SavedRequest):
         else:
             try:
                 self.logger.info('Make Request: %s', 'Query Clearbit')
-                person = clearbit.Person.find(email=self.query, stream=True)
+                if type=="person":
+                    entity = clearbit.Person.find(email=self.query, stream=True)
+                elif type=="company":
+                    entity = clearbit.Company.find(domain=self.query, stream=True)
             except HTTPError as e:
                 self.logger.info('Clearbit Fail')
-                person = None
-            if person:
+                entity = None
+            if entity:
                 #TODO, this doesn't work
                 try:
                     key.content_type = 'text/html'
-                    key.set_contents_from_string(person)
+                    key.set_contents_from_string(entity)
                 except:
                     pass
-        return person
+        return entity
 
 
     def _social_accounts(self, clearbit_json):
@@ -119,10 +152,10 @@ class ClearbitRequest(S3SavedRequest):
         self.logger.warn('Linkedin: %s', 'Not Found')
         return None
 
-    def process(self):
-        self.logger.info('Clearbit Request: %s', 'Starting')
+    def get_person(self):
+        self.logger.info('Clearbit Person Request: %s', 'Starting')
         response = {}
-        clearbit_json = self._make_request()
+        clearbit_json = self._make_request("person")
         social_accounts = self._social_accounts(clearbit_json)
         linkedin_url = self._linkedin_url(social_accounts)
         data = {"social_accounts": social_accounts,
@@ -130,6 +163,11 @@ class ClearbitRequest(S3SavedRequest):
         response[self.query] = data
         return response
 
+    def get_company(self):
+        self.logger.info('Clearbit Company Request: %s', 'Starting')
+        response = {}
+        clearbit_json = self._make_request("company")
+        return {"phone_number": clearbit_json['phone']}
 
 
 
