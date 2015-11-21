@@ -20,7 +20,7 @@ for email in emails:
     rec = {email: {}}
     emails_json.append(rec)
 
-service = ClearbitService(None, None, emails_json)
+service = ClearbitPersonService(None, None, emails_json)
 
 data = service.process()
 
