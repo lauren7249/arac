@@ -35,7 +35,10 @@ for record in data:
     if re.search(pub_profile_re,linkedin_url):
         n_pub+=1
     else:
-        print linkedin_url
+        try:
+            print linkedin_url
+        except:
+            pass
 #34 urls
 #30 pub
 print n_urls
