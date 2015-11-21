@@ -6,7 +6,7 @@ import json
 import multiprocessing
 from random import shuffle
 
-from prime.processing_service.clearbit_service import ClearbitService
+from prime.processing_service.clearbit_service import ClearbitPersonService
 from prime.processing_service.constants import pub_profile_re
 
 df = pandas.read_csv("sumall.csv")
