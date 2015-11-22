@@ -78,19 +78,19 @@ def filter_bing_results(results, limit=100, url_regex=".", exclude_terms_from_ti
     if include_terms_in_title: include_terms_in_title = re.sub("[^a-z\s]",'',include_terms_in_title.lower().strip())
     for result in results:
         link = result.get("Url")
-        if re.search(url_regex,link, re.IGNORECASE): 
+        if re.search(url_regex,link, re.IGNORECASE):
             title = result.get("Title")
             title_meat = re.sub("[^a-z\s]",'',title.split("|")[0].lower().strip())
             if exclude_terms_from_title:
                 ratio = SequenceMatcher(None, title_meat, exclude_terms_from_title.lower().strip()).ratio()
                 intersect = set(exclude_terms_from_title.split(" ")) & set(title_meat.split(" "))
-                if len(intersect) >= min(2,len(exclude_terms_from_title.split(" "))) or ratio>=0.8: 
-                    continue 
+                if len(intersect) >= min(2,len(exclude_terms_from_title.split(" "))) or ratio>=0.8:
+                    continue
             if include_terms_in_title:
                 ratio = SequenceMatcher(None, title_meat, include_terms_in_title.lower().strip()).ratio()
                 intersect = set(include_terms_in_title.split(" ")) & set(title_meat.split(" "))
-                if len(intersect) < min(2,len(include_terms_in_title.split(" "))) and ratio<0.8: 
-                    continue                    
+                if len(intersect) < min(2,len(include_terms_in_title.split(" "))) and ratio<0.8:
+                    continue
             filtered.append(link)
         if limit == len(filtered): return filtered
     return filtered

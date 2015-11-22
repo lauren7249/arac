@@ -64,21 +64,21 @@ class BloombergRequest(S3SavedRequest):
         key.key = self.key
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
-            html = key.get_contents_as_string()      
+            html = key.get_contents_as_string()
         else:
             response = requests.get(self.url,headers=GLOBAL_HEADERS)
             html = response.content
             if html:
                 key.content_type = 'text/html'
                 key.set_contents_from_string(html)
-        return html 
+        return html
 
     def parse_company_snapshot(self,content):
         raw_html = lxml.html.fromstring(content)
         try:
-            name = raw_html.find(".//*[@itemprop='name']").text_content()   
+            name = raw_html.find(".//*[@itemprop='name']").text_content()
         except:
-            name = None 
+            name = None
         try:
             phone = raw_html.find(".//*[@itemprop='telephone']").text_content()
         except:
@@ -88,15 +88,15 @@ class BloombergRequest(S3SavedRequest):
         except:
             address = None
         try:
-            foundingDate = raw_html.find(".//*[@itemprop='foundingDate']").text_content()   
+            foundingDate = raw_html.find(".//*[@itemprop='foundingDate']").text_content()
         except:
-            foundingDate = None 
+            foundingDate = None
         try:
             website = raw_html.find(".//*[@itemprop='url']").get("href")
         except:
             website = None
         try:
-            description = raw_html.find(".//*[@itemprop='description']").text_content() 
+            description = raw_html.find(".//*[@itemprop='description']").text_content()
         except:
             description = None
         fax = None
@@ -136,11 +136,11 @@ class BloombergRequest(S3SavedRequest):
             if re.search('(?<=Total Annual Compensation: )\S+',memberText):
                 salary = re.search('(?<=Total Annual Compensation: )\S+',memberText).group(0)
             else:
-                salary = None    
-            officerInfo = {"name": memberName, "url": memberPage, "title": title,"age":age,"salary":salary,"gender":gender}   
-            keyExecutives.append(officerInfo)  
+                salary = None
+            officerInfo = {"name": memberName, "url": memberPage, "title": title,"age":age,"salary":salary,"gender":gender}
+            keyExecutives.append(officerInfo)
         news = []
-        for newsItem in raw_html.xpath(".//*[@class='newsItem']"):        
+        for newsItem in raw_html.xpath(".//*[@class='newsItem']"):
             if newsItem.find(".//*[@class='storyHeadline']"):
                 headline = newsItem.find(".//*[@class='storyHeadline']").text_content()
             else:
@@ -150,14 +150,14 @@ class BloombergRequest(S3SavedRequest):
                 date = dateutil.parser.parse(date)
                 date = str(date).split(" ")[0]
             except:
-                date = None     
+                date = None
             if newsItem.find(".//p"):
                 story = newsItem.find(".//p").text_content()
             else:
                 story = None
             newsInfo = {"headline": headline,"date":date,"story":story}
-            news.append(newsInfo) 
-        tables = raw_html.xpath(".//table")  
+            news.append(newsInfo)
+        tables = raw_html.xpath(".//table")
         similarCompanies = []
         if len(tables):
             similarCompaniesTable = raw_html.xpath(".//table")[0]
@@ -180,9 +180,9 @@ class BloombergRequest(S3SavedRequest):
                 try:
                     date = details.split("\t")[1]
                     date = dateutil.parser.parse(date)
-                    date = str(date).split(" ")[0] 
+                    date = str(date).split(" ")[0]
                 except:
-                    date = None               
+                    date = None
                 info = {"company":company,"date":date,"transaction":transaction}
                 recentTransactions.append(info)
         return {
