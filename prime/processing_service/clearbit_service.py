@@ -159,7 +159,8 @@ class ClearbitRequest(S3SavedRequest):
         social_accounts = self._social_accounts(clearbit_json)
         linkedin_url = self._linkedin_url(social_accounts)
         data = {"social_accounts": social_accounts,
-                "linkedin_urls": linkedin_url}
+                "linkedin_urls": linkedin_url, 
+                "clearbit_fields": clearbit_json}
         response[self.query] = data
         return response
 
@@ -167,7 +168,7 @@ class ClearbitRequest(S3SavedRequest):
         self.logger.info('Clearbit Company Request: %s', 'Starting')
         response = {}
         clearbit_json = self._make_request("company")
-        return {"phone_number": clearbit_json['phone']}
+        return {"phone_number": clearbit_json['phone'], "clearbit_fields":clearbit_json}
 
 
 
