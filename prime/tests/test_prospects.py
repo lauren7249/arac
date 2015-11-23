@@ -115,7 +115,7 @@ class TestClearbitPersonService(unittest.TestCase):
         self.service = ClearbitPersonService(None, None, self.emails)
         data1 = self.service.process()
         self.service = ClearbitPersonService(None, None, self.emails)
-        data2 = self.service.process()        
+        data2 = self.service.multiprocess()        
         self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), [u'https://twitter.com/maccaw',
                 u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
                 u'https://facebook.com/amaccaw',
