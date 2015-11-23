@@ -109,18 +109,21 @@ class TestPiplService(unittest.TestCase):
 class TestClearbitPersonService(unittest.TestCase):
 
     def setUp(self):
-        emails = [{"alex@alexmaccaw.com":{}}]
-        self.service = ClearbitPersonService(None, None, emails)
+        self.emails = [{"alex@alexmaccaw.com":{}}]
 
     def test_clearbit(self):
-        data = self.service.process()
-        self.assertEqual(data[0].get('alex@alexmaccaw.com').get("social_accounts"), [u'https://twitter.com/maccaw',
+        self.service = ClearbitPersonService(None, None, self.emails)
+        data1 = self.service.process()
+        self.service = ClearbitPersonService(None, None, self.emails)
+        data2 = self.service.process()
+        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), [u'https://twitter.com/maccaw',
                 u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
                 u'https://facebook.com/amaccaw',
                 u'https://angel.co/maccaw',
                 u'https://github.com/maccman',
                 u'https://aboutme.com/maccaw',
                 u'https://gravatar.com/maccman'])
+        self.assertEqual(data1,data2)
 
 class TestClearbitPhoneService(unittest.TestCase):
 
