@@ -1,12 +1,17 @@
 import json
 import logging
+import multiprocessing
 
 from service import Service, S3SavedRequest
+
+def unwrap_process(person):
+    request = PiplRequest(person)
+    return request.process()
 
 class PiplService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
-    Output is going to be social accounts and Linkedin IDs via PIPL
+    Output is going to be social accounts, images, and Linkedin IDs via PIPL
     """
 
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
@@ -21,6 +26,16 @@ class PiplService(Service):
 
     def dispatch(self):
         pass
+
+    def multiprocess(self, poolsize=10):
+        self.logger.info('Starting MultiProcess: %s', 'Pipl Service')
+        items_array = [person for person, info in self.data.iteritems()]
+        pool = multiprocessing.Pool(processes=poolsize)
+        self.output = pool.map(unwrap_process, items_array)
+        pool.close()
+        pool.join()
+        self.logger.info('Ending MultiProcess: %s', 'Pipl Service')
+        return self.output
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Pipl Service')

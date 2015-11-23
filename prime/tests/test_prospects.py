@@ -95,13 +95,16 @@ class TestCloudspongeService(unittest.TestCase):
 class TestPiplService(unittest.TestCase):
 
     def setUp(self):
-        emails = {"jamesjohnson11@gmail.com":{}}
-        self.service = PiplService(None, None, emails)
+        self.emails = {"jamesjohnson11@gmail.com":{}}
 
     def test_pipl(self):
-        data = self.service.process()
-        self.assertEqual(data[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0',
+        self.service = PiplService(None, None, self.emails)
+        data1 = self.service.process()
+        self.service = PiplService(None, None, self.emails)
+        data2 = self.service.multiprocess()        
+        self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0',
                 u'https://plus.google.com/106226923266702208073/about'])
+        self.assertEqual(data1,data2)
 
 class TestClearbitPersonService(unittest.TestCase):
 
