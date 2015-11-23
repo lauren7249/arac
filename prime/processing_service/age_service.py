@@ -28,7 +28,7 @@ class AgeService(Service):
         self.logger = logging.getLogger(__name__)
         super(AgeService, self).__init__(*args, **kwargs)
 
-    def process(self, favor_mapquest=False, favor_clearbit=False):
+    def process(self):
         for person in self.data:
             age = self._get_age(person.get("linkedin_data"))
             person["age"] = age
@@ -95,7 +95,7 @@ class AgeService(Service):
                 end_date = dateutil.parser.parse(school.get("end_date"))
             except:
                 end_date = None
-            if school.get("college_id") or school.get("name","").lower().find('university')>-1 or school.get("name","").lower().find('college')>-1:
+            if school.get("college_id") or school.get("college","").lower().find('university')>-1 or school.get("college","").lower().find('college')>-1:
                 if start_date and (not first_school_year or start_date.year<first_school_year):
                     first_school_year = start_date.year
                 if end_date and (not first_grad_year or end_date.year<first_grad_year):

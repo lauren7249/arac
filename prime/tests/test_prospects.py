@@ -17,9 +17,21 @@ from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
 from prime.processing_service.gender_service import GenderService
 from prime.processing_service.age_service import AgeService
+from prime.processing_service.college_degree_service import CollegeDegreeService
 from prime import create_app, db
 from config import config
 
+class TestCollegeDegreeService(unittest.TestCase):
+
+    def setUp(self):
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = CollegeDegreeService(None, None, data)
+
+    def test_college(self):
+        data = self.service.process()
+        self.assertEqual(data[0].get("college_grad"), True)
+        self.assertEqual(data[1].get("college_grad"), True)
 
 class TestAgeService(unittest.TestCase):
 
@@ -99,22 +111,18 @@ class TestPiplService(unittest.TestCase):
 class TestClearbitPersonService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         emails = [{"alex@alexmaccaw.com":{}}]
-        self.service = ClearbitPersonService(email, linkedin_url, emails)
+        self.service = ClearbitPersonService(None, None, emails)
 
     def test_clearbit(self):
-        expected = [{'alex@alexmaccaw.com': {'linkedin_urls': u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
-            'social_accounts': [u'https://twitter.com/maccaw',
+        data = self.service.process()
+        self.assertEqual(data[0].get('alex@alexmaccaw.com').get("social_accounts"), [u'https://twitter.com/maccaw',
                 u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
                 u'https://facebook.com/amaccaw',
                 u'https://angel.co/maccaw',
                 u'https://github.com/maccman',
                 u'https://aboutme.com/maccaw',
-                u'https://gravatar.com/maccman']}}]
-        data = self.service.process()
-        self.assertEqual(data, expected)
+                u'https://gravatar.com/maccman'])
 
 class TestClearbitPhoneService(unittest.TestCase):
 
