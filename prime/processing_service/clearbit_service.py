@@ -2,11 +2,19 @@ import clearbit
 import logging
 import hashlib
 import boto
-
+import multiprocessing
 from requests import HTTPError
 from boto.s3.key import Key
 from helper import get_domain
 from service import Service, S3SavedRequest
+
+def unwrap_process_person(person):
+    if len(person.values()) > 0 and person.values()[0].get("linkedin_urls"):
+        return person
+    email = person.keys()[0]
+    request = ClearbitRequest(email)
+    data = request.get_person()
+    return data
 
 class ClearbitPersonService(Service):
     """
@@ -27,6 +35,15 @@ class ClearbitPersonService(Service):
 
     def dispatch(self):
         pass
+
+    def multiprocess(self, poolsize=10):
+        self.logger.info('Starting MultiProcess: %s', 'Clearbit Service')
+        pool = multiprocessing.Pool(processes=poolsize)
+        self.output = pool.map(unwrap_process_person, self.data)
+        pool.close()
+        pool.join()
+        self.logger.info('Ending MultiProcess: %s', 'Clearbit Service')
+        return self.output
 
     def _exclude_person(self, person):
         if len(person.values()) > 0:
