@@ -16,8 +16,22 @@ from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
 from prime.processing_service.gender_service import GenderService
+from prime.processing_service.age_service import AgeService
 from prime import create_app, db
 from config import config
+
+
+class TestAgeService(unittest.TestCase):
+
+    def setUp(self):
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = AgeService(None, None, data)
+
+    def test_age(self):
+        data = self.service.process()
+        self.assertEqual(data[0].get("age"), 27.5)
+        self.assertEqual(data[1].get("age"), 25.5)
 
 class TestGeoCodingService(unittest.TestCase):
 
