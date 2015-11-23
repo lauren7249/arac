@@ -55,7 +55,7 @@ class GenderService(Service):
         if "male" in gender_str: return True
         return None
 
-    def _get_gender_from_bing(self,str):
+    def _get_gender_from_search(self,str):
         url = "http://search.yahoo.com/search?q=facebook.com:%20" + str
         headers ={'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         response = requests.get(url, headers=GLOBAL_HEADERS)
@@ -68,5 +68,5 @@ class GenderService(Service):
 
     def _get_gender(self,str):
         gender = self._get_gender_from_free_apis(str)
-        if gender is None: gender = self._get_gender_from_bing(str)
+        if gender is None: gender = self._get_gender_from_search(str)
         return gender
