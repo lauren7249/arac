@@ -70,6 +70,16 @@ class PiplRequest(S3SavedRequest):
             social_accounts.append(link)
         return social_accounts
 
+    def _images(self, pipl_json):
+        images = []
+        for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
+            if not record.get('@query_params_match',True): continue
+            for image in record.get("images",[]):
+                url = image.get("url") 
+                if url and url not in images and url.find("gravatar.com")==-1: 
+                    images.append(url)
+        return images
+
     def _linkedin_url(self, social_accounts):
         for record in social_accounts:
             if "linkedin.com" in record:
@@ -84,9 +94,11 @@ class PiplRequest(S3SavedRequest):
         html = self._make_request()
         pipl_json = json.loads(html)
         social_accounts = self._social_accounts(pipl_json)
+        images = self._images(pipl_json)
         linkedin_url = self._linkedin_url(social_accounts)
         data = {"social_accounts": social_accounts,
-                "linkedin_urls": linkedin_url}
+                "linkedin_urls": linkedin_url, 
+                "images": images}
         response[self.query] = data
         return response
 
