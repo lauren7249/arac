@@ -12,16 +12,8 @@ from prime.processing_service.constants import pub_profile_re
 df = pandas.read_csv("sumall.csv")
 emails = df.email.values.tolist()
 
-shuffle(emails)
-
-#emails_json = []
-
-# for email in emails:
-#     rec = {email: {}}
-#     emails_json.append(rec)
-
 emails_json = {}
-for email in emails[:100]:
+for email in emails:
     rec = {email: {}}
     emails_json.update(rec)
 
