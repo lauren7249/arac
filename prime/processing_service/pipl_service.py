@@ -27,7 +27,8 @@ class PiplService(Service):
     def dispatch(self):
         pass
 
-    def multiprocess(self, poolsize=10):
+    def multiprocess(self, poolsize=5):
+        #pipl limits you to 20 hits/second. if you go above a pool size of 5, this could be an issue.
         self.logger.info('Starting MultiProcess: %s', 'Pipl Service')
         items_array = [person for person, info in self.data.iteritems()]
         pool = multiprocessing.Pool(processes=poolsize)
