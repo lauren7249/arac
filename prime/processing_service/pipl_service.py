@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 import multiprocessing
 
 from service import Service, S3SavedRequest
@@ -76,6 +77,8 @@ class PiplRequest(S3SavedRequest):
 
     def _social_accounts(self, pipl_json):
         social_accounts = []
+        if pipl_json is None:
+            return social_accounts        
         for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
             if not record.get('@query_params_match',True) or not \
                     record.get("source") or not \
@@ -88,6 +91,8 @@ class PiplRequest(S3SavedRequest):
 
     def _images(self, pipl_json):
         images = []
+        if pipl_json is None:
+            return images
         for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
             if not record.get('@query_params_match',True): continue
             for image in record.get("images",[]):
@@ -114,6 +119,7 @@ class PiplRequest(S3SavedRequest):
                 html = self._make_request()
                 pipl_json = json.loads(html)
             except:
+                time.sleep(1)
                 pass
             tries+=1
         social_accounts = self._social_accounts(pipl_json)
