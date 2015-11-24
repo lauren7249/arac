@@ -107,8 +107,13 @@ class PiplRequest(S3SavedRequest):
         response = {}
         self._build_url()
         super(PiplRequest, self)._make_request()
-        html = self._make_request()
-        pipl_json = json.loads(html)
+        pipl_json = None
+        while pipl_json is None:
+            html = self._make_request()
+            try:
+                pipl_json = json.loads(html)
+            except:
+                pass
         social_accounts = self._social_accounts(pipl_json)
         images = self._images(pipl_json)
         linkedin_url = self._linkedin_url(social_accounts)
