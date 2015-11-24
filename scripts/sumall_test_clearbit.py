@@ -18,7 +18,7 @@ for email in emails:
     emails_json.update(rec)
 
 service = PiplService(None, None, emails_json)
-data = service.multiprocess(poolsize=5)
+data = service.multiprocess(poolsize=1)
 
 service = ClearbitPersonService(None, None, data)
 
