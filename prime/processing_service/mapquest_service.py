@@ -72,13 +72,20 @@ class MapQuestRequest(S3SavedRequest):
         return self.json_locations
 
     def _get_business_info(self,record):
+        business = {}
         if not record:
-            return {}
-        return {"phone_number":record.get("phone"),
-                "company_website":record.get("website"),
-                "company_address":record.get("address",{}).get("singleLineAddress"),
-                "company_latlng": self._find_lat_lng(record),
-                "business_categories":record.get("inputQuery",{}).get("categories")}
+            return business
+        if record.get("phone"):
+            business.update({"phone_number":record.get("phone")})
+        if record.get("website"):
+            business.update({"company_website":record.get("website")})
+        if record.get("address",{}).get("singleLineAddress"):
+            business.update({"company_address":record.get("address",{}).get("singleLineAddress")})
+        if self._find_lat_lng(record):
+            business.update({"company_latlng": self._find_lat_lng(record)})
+        if record.get("inputQuery",{}).get("categories"):
+            business.update({"business_categories":record.get("inputQuery",{}).get("categories")})
+        return business
 
     def get_business(self, website=None, latlng=None, threshold_miles=75):
         unresolved = self._get_unresolved_locations()

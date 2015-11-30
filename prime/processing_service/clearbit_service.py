@@ -104,7 +104,8 @@ class ClearbitPhoneService(Service):
                 website = person.get("company_website")
                 request = ClearbitRequest(get_domain(website))
                 company = request.get_company()
-                person.update({"phone_number": company.get("phone_number")})
+                if company.get("phone_number"):
+                    person.update({"phone_number": company.get("phone_number")})
                 self.output.append(person)
         self.logger.info('Ending Process: %s', 'Clearbit Company Service')
         return self.output
