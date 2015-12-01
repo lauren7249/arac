@@ -97,6 +97,17 @@ class User(db.Model, UserMixin):
         db.session.add(u)
         return u
 
+
+    @property
+    def has_prospects(self):
+        session = db.session
+        return session.query(ClientProspect).filter(
+                ClientProspect.user_id == self.user_id).count() > 0
+
+    @property
+    def build_statistics(self):
+        pass
+
     @property
     def name(self):
         return "{} {}".format(self.first_name, self.last_name)
@@ -133,5 +144,5 @@ class ClientProspect(db.Model):
 
 
     def __repr__(self):
-        return '{} {}'.format(self.prospect.url, self.client_list.user.name)
+        return '{} {}'.format(self.prospect.url, self.user.name)
 

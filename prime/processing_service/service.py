@@ -71,6 +71,12 @@ class Service(object):
             return job
         return None
 
+    def _get_linkedin_url(self, person):
+        try:
+            return person.values()[0]["linkedin_urls"]
+        except:
+            return person.values()[0]["source_url"]
+
     def process(self):
         pass
 

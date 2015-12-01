@@ -4,10 +4,15 @@ import time
 import json
 import logging
 from collections import OrderedDict
+from flask import render_template
+from jinja2 import FileSystemLoader
+from jinja2.environment import Environment
 
 BASE_DIR = os.path.dirname(__file__)
 PRIME_DIR =  os.path.split(os.path.split(BASE_DIR)[0])[0]
 sys.path.append(PRIME_DIR)
+
+from prime.utils.email import sendgrid_email
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
@@ -87,6 +92,13 @@ class ProcessingService(Service):
 
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
+        env = Environment()
+        env.loader = FileSystemLoader("prime/templates")
+        tmpl = env.get_template('emails/done.html')
+        body = tmpl.render()
+        subject = "Your p200 List is ready!"
+        to_email = self.user_email
+        sendgrid_email(to_email, subject, body)
         return True
 
 

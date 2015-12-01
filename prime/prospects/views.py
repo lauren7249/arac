@@ -79,6 +79,9 @@ def queue_processing_service(user_email, public_url, data):
 def start():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
+    #User already has prospects, lets send them to the dashboard
+    if current_user.has_prospects:
+        return redirect(url_for('prospects.dashboard'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
     return render_template('start.html')
@@ -110,6 +113,6 @@ def upload():
     return jsonify({"unique_contacts": len(list(unique_emails))})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
-def user_dashboard():
+def dashboard():
     return render_template("dashboard.html")
 

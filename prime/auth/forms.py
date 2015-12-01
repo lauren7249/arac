@@ -12,8 +12,6 @@ class LoginForm(Form):
         if not Form.validate(self):
             return False
         user = User.query.filter_by(email = self.email.data.lower()).first()
-        import pdb
-        pdb.set_trace()
         if user:
             if not user.check_password(self.password.data):
                 self.password.errors.append("Incorrect Password")

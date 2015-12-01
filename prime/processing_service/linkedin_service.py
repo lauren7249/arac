@@ -49,9 +49,6 @@ class LinkedinService(Service):
     def _add_to_queue(self):
         pass
 
-    def _get_linkedin_url(self, person):
-        return person.values()[0].get("linkedin_urls")
-
     def process(self):
         self.logger.info('Starting Process: %s', 'Linkedin Service')
         for person in self.data:
