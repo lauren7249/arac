@@ -8,7 +8,7 @@ from flask.ext.testing import TestCase, LiveServerTestCase
 from prime.processing_service.cloudsponge_service import CloudSpongeService
 from prime.processing_service.clearbit_service import ClearbitPersonService, ClearbitPhoneService
 from prime.processing_service.pipl_service import PiplService
-from prime.processing_service.linkedin_service import LinkedinService
+from prime.processing_service.linkedin_service_crawlera import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
 from prime.processing_service.bing_service import BingService
@@ -17,21 +17,11 @@ from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
 from prime.processing_service.gender_service import GenderService
-from prime.processing_service.get_prospect_service import GetProspectService
 from prime.processing_service.age_service import AgeService
 from prime.processing_service.college_degree_service import CollegeDegreeService
 from prime import create_app, db
 from config import config
 
-# class TestGetProspectService(unittest.TestCase):
-
-#     def setUp(self):
-#         self.data = [{"alan@alanrager.com":{"linkedin_urls":u'http://www.linkedin.com/pub/alan-rager/bb/185/183'}}]
-#         self.service = GetProspectService(None, None, self.data)
-
-#     def test_get(self):
-#         data = self.service.process()
-#         self.assertEqual(data[0].get("linkedin_data",{}).get("headline"), "Police officer at Lawrenceburg city")
 
 class TestCollegeDegreeService(unittest.TestCase):
 
