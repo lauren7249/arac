@@ -61,7 +61,7 @@ class LinkedinRequest():
             attempts += 1
             request_data = '{"url":"%s","api_version":"1.0.0"}' % (self.url)
             print request_data
-            result = requests.post("http://localhost:8080/get_person_by_url",data=request_data)
+            result = requests.post("http://10.143.114.140:8888/get_person_by_url",data=request_data)
             if result.status_code == 200:
                 return result.content
             time.sleep(1)
