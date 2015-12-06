@@ -210,26 +210,25 @@ class TestGenderService(unittest.TestCase):
 class TestLinkedinService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         data = [{u'julia.mailander@gmail.com':
-                {'linkedin_urls': u'http://www.linkedin.com/pub/julia-mailander/11/898/614',
-                'social_accounts': [u'http://www.linkedin.com/pub/julia-mailander/11/898/614',\
+                {'linkedin_urls': u'https://www.linkedin.com/in/juliamailander',
+                'social_accounts': [u'https://www.linkedin.com/in/juliamailander',\
                         u'https://plus.google.com/103608304178303305879/about']}
                 }]
-        self.service = LinkedinService(email, linkedin_url, data)
+        self.service = LinkedinService(None, None, data)
 
     def test_linkedin(self):
-        expected = ['https://www.linkedin.com/pub/john-chen/1b/215/b97',
-                               'https://www.linkedin.com/pub/jake-saper/0/834/536',
-                               'https://www.linkedin.com/pub/brian-jacobs/0/a/7a6',
-                               'https://www.linkedin.com/pub/jason-green/1/22b/409',
-                               'https://www.linkedin.com/pub/joseph-floyd/2/8a4/55b',
-                               'https://www.linkedin.com/pub/alison-wagonfeld/0/669/829',
-                               'https://www.linkedin.com/pub/gordon-ritter/1/b95/a97',
-                               'https://www.linkedin.com/pub/kate-berger/18/215/a01',
-                               'https://www.linkedin.com/pub/everett-cox/3/9b6/9b8',
-                               'https://www.linkedin.com/pub/santi-subotovsky/0/2b2/6b0']
+        expected = [u'http://www.linkedin.com/pub/santi-subotovsky/0/2b2/6b0',
+                     u'http://www.linkedin.com/pub/everett-cox/3/9b6/9b8',
+                     u'http://www.linkedin.com/in/jeffweiner08',
+                     u'http://www.linkedin.com/pub/brian-jacobs/0/a/7a6',
+                     u'http://www.linkedin.com/pub/jason-green/1/22b/409',
+                     u'http://www.linkedin.com/pub/john-chen/1b/215/b97',
+                     u'http://www.linkedin.com/pub/alison-wagonfeld/0/669/829',
+                     u'http://www.linkedin.com/pub/kate-berger/18/215/a01',
+                     u'http://www.linkedin.com/pub/jake-saper/0/834/536',
+                     u'http://www.linkedin.com/pub/joseph-floyd/2/8a4/55b',
+                     u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97']
         data = self.service.process()
         self.assertEqual(data[0].get("linkedin_data").get("urls"), expected)
 
