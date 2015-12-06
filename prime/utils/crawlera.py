@@ -2,6 +2,10 @@ import re
 import json
 
 def reformat_crawlera(json):
+    if not json or not json.keys():
+        return {}
+    for key in json.keys():
+        if json[key] is None: json.pop(key)
     image = json.get("image_url")
     linkedin_id = json.get("linkedin_id")
     full_name = json.get("full_name")
