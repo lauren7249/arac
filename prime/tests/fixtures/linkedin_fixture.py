@@ -365,9 +365,9 @@ expected = [
             "complete": True
         },
         "julia.mailander@gmail.com": {
-            "linkedin_urls": "http://www.linkedin.com/pub/julia-mailander/11/898/614",
+            "linkedin_urls": "http://www.linkedin.com/in/juliamailander",
             "social_accounts": [
-                "http://www.linkedin.com/pub/julia-mailander/11/898/614",
+                "http://www.linkedin.com/in/juliamailander",
                 "https://plus.google.com/103608304178303305879/about"
             ]
         }
