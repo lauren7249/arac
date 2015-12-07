@@ -7,9 +7,7 @@ db:
     POSTGRES_USER: "arachnid"
     POSTGRES_PASSWORD: "devious8ob8"
     PGDATA: '/var/lib/postgresql/data/pgdata'
-  container-name: "postgres"
 prime:
-  container-name: "prime"
   dns: 8.8.8.8
   build: .
   links:
