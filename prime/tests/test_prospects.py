@@ -325,11 +325,9 @@ class TestGlassdoorService(unittest.TestCase):
         self.service = GlassdoorService(email, linkedin_url, data)
 
     def test_glassdoor(self):
-        #TODO find someone who passes this test
-        expected = None
         data = self.service.process()
         salary = data[0].get("glassdoor_salary")
-        self.assertEqual(salary, expected)
+        self.assertEqual(salary, 66565)
 
 class TestIndeedService(unittest.TestCase):
 
@@ -341,8 +339,7 @@ class TestIndeedService(unittest.TestCase):
         self.service = IndeedService(email, linkedin_url, data)
 
     def test_indeed(self):
-        #TODO find someone who passes this test
-        expected = 79000
+        expected = 102000
         data = self.service.process()
         salary = data[0].get("indeed_salary")
         self.assertEqual(salary, expected)
