@@ -9,6 +9,7 @@ class AssociatedProfilesService(Service):
     """
     Expected input is JSON with profile info
     Output is going to be existing data enriched with the profiles of people also viewed PLUS profiles in which the original person is in people also viewed
+    TODO: make sure the profile is not the agent. need to change structure to include client linkedin id
     """
 
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
@@ -37,7 +38,7 @@ class AssociatedProfilesService(Service):
     def process(self):
         for person in self.data:
             linkedin_data = person.get("linkedin_data")
-            associated_profiles = get_associated_profiles(linkedin_data, query_by_linkedin_id=False)
+            associated_profiles = get_associated_profiles(linkedin_data, query_by_linkedin_id=True)
             associated_profiles = self.dedupe_profiles(associated_profiles)
             if associated_profiles:
                 person["associated_profiles"] = associated_profiles

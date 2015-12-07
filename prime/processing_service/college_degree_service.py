@@ -11,6 +11,7 @@ from boto.s3.key import Key
 import datetime
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
+from helper import parse_date
 
 class CollegeDegreeService(Service):
     """
@@ -56,14 +57,8 @@ class CollegeDegreeService(Service):
                     return True
             #looks like a college or university. you need to be a college of some kind to have a college ID. proof: philips exeter academy does not have one. they only have a company page
             if school.get("college_id") or school.get("college").lower().find('university')>-1 or school.get("college").lower().find('college')>-1:
-                try:
-                    start_date = dateutil.parser.parse(school.get("start_date"))
-                except:
-                    start_date = None
-                try:
-                    end_date = dateutil.parser.parse(school.get("end_date"))
-                except:
-                    end_date = None
+                start_date = parse_date(school.get("start_date"))
+                end_date = parse_date(school.get("end_date"))
                 #cant be a 4-year degree if you finished in less than 3 years
                 if end_date and start_date and end_date.year - start_date.year < 3:
                     continue
