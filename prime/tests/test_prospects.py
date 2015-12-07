@@ -180,8 +180,8 @@ class TestBloombergRequest(unittest.TestCase):
     def test_bloomberg(self):
         expected_phone = '212-758-9700'
         expected_website = 'http://www.kpmg.com/us'
-        data = self.service.processNext()
-        data = self.service.processNext()
+        data = self.service.process_next()
+        data = self.service.process_next()
         phone = data.get("phone")
         website = data.get("website")
         self.assertEqual(phone, expected_phone)
