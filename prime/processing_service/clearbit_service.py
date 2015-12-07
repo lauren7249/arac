@@ -12,6 +12,7 @@ class ClearbitService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
     Output is going to be social accounts and Linkedin IDs via PIPL
+    rate limit is 600/minute
     """
 
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):

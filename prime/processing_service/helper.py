@@ -100,3 +100,32 @@ def convert_date(date):
         return parser.parse(date, default=datetime.date(1979,1,1))
     except:
         return None
+
+def get_domain(website):
+    if website is None:
+        return None
+    website = website.lower().replace("https://","").replace("http://","").replace("www.","")
+    domain = website.split("/")[0]
+    return domain
+
+def domain_match(website1,website2):
+    return website1 and website2 and get_domain(website2) == get_domain(website1)
+
+def name_match(name1, name2, intersect_threshold=2):
+    name1 = re.sub('[^0-9a-z\s]','',name1.lower())
+    name2 = re.sub('[^0-9a-z\s]','',name2.lower())
+    if len(name1) < 3 or len(name2) < 3:
+        return False
+    name1_words = set(name1.split(" "))
+    name2_words = set(name2.split(" "))
+    stop_words = ["the", "of","and","a","the","at","for","in","on"]
+    for stop_word in stop_words:
+        if stop_word in name1_words: name1_words.remove(stop_word)
+        if stop_word in name2_words: name2_words.remove(stop_word)
+    intersect = name1_words & name2_words
+    intersect_threshold = min(intersect_threshold, len(name2_words))
+    intersect_threshold = min(intersect_threshold, len(name2_words))
+    if len(intersect)>=intersect_threshold: return True
+    ratio = SequenceMatcher(None, name1, name2)
+    if ratio>=0.8: return True
+    return False

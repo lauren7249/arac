@@ -31,19 +31,28 @@ class BloombergPhoneService(Service):
     def dispatch(self):
         pass
 
-
     def process(self):
         self.logger.info('Starting Process: %s', 'Bloomberg Service')
         for person in self.data:
-            current_job = self._current_job(person)
-            if current_job:
-                request = BloombergRequest(current_job.get("company"))
-                data = request.process()
-                person.update({"phone_number": data.get("phone")})
+            if not person.get("phone_number"):
+                current_job = self._current_job(person)
+                if current_job:
+                    request = BloombergRequest(current_job.get("company"))
+                    while True:
+                        data = request.processNext()
+                        if not data:
+                            break
+                        phone = data.get("phone")
+                        website = data.get("website")
+                        if phone:
+                            person.update({"phone_number": phone})
+                            person.update({"company_website": website})
+                            break
+                        if website:
+                            person.update({"company_website": website})
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'Bloomberg Service')
         return self.output
-
 
 class BloombergRequest(S3SavedRequest):
 
@@ -56,6 +65,8 @@ class BloombergRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        self.urls = []
+        self.index = 0
         super(BloombergRequest, self).__init__()
 
     def _get_html(self):
@@ -72,6 +83,32 @@ class BloombergRequest(S3SavedRequest):
                 key.content_type = 'text/html'
                 key.set_contents_from_string(html)
         return html
+
+    def _get_urls(self):
+        if self.urls:
+            return
+        bing = BingService(self.company, "bloomberg_company")
+        self.urls = bing.process()
+
+    def hasNextUrl(self):
+        if self.index < len(self.urls):
+            return True
+        return False
+
+    def processNext(self):
+        self._get_urls()
+        if self.hasNextUrl():
+            self.url = self.urls[self.index]
+            self.index +=1
+            self.logger.info('Bloomberg Info Request: %s', 'Starting')
+            self.html = self._get_html()
+            info = self.parse_company_snapshot(self.html)
+            return info
+        return {}
+
+    def process(self):
+        info = self.processNext()
+        return info
 
     def parse_company_snapshot(self,content):
         raw_html = lxml.html.fromstring(content)
@@ -199,16 +236,7 @@ class BloombergRequest(S3SavedRequest):
             "similarCompanies": similarCompanies,
             "recentTransactions": recentTransactions
         }
-    def process(self):
-        self.logger.info('Bloomberg Info Request: %s', 'Starting')
-        bing = BingService(self.company, "bloomberg_company")
-        self.urls = bing.process()
-        if not self.urls:
-            return {}
-        self.url = self.urls[0]
-        self.html = self._get_html()
-        info = self.parse_company_snapshot(self.html)
-        return info
+
 
 
 

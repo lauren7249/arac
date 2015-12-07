@@ -14,7 +14,7 @@ from boto.s3.key import Key
 from constants import bing_api_keys
 from service import Service, S3SavedRequest
 from prime.prospects.views import uu
-from constants import profile_re, bloomberg_company_re, school_re, company_re
+from constants import profile_re, bloomberg_company_re, school_re, company_re, plus_company_re
 from helper import filter_bing_results
 
 
@@ -46,7 +46,7 @@ class BingService(Service):
         elif self.type == "bloomberg_company":
             self.regex = bloomberg_company_re
             self.include_terms_in_title = self.name
-            return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=['"' + re.sub(" ","+",self.name) + '"'], page_limit=1)        
+            return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=['"' + re.sub(" ","+",self.name) + '"'], page_limit=1)
         elif self.type == "linkedin_profile":
             self.regex = profile_re
             self.include_terms_in_title = self.name
@@ -93,8 +93,8 @@ class BingService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Bing Service')
         request_object = self._get_bing_request()
-        results = request_object.process()
-        clean_results = self._process_results(results)
+        self.results = request_object.process()
+        clean_results = self._process_results(self.results)
         self.logger.info('Ending Process: %s', 'Bing Service')
         return clean_results
 
@@ -172,7 +172,7 @@ class BingRequest(S3SavedRequest):
         return html    
             
     def process(self):
-        self.logger.info('Bing Bloomberg Request: %s', 'Starting')
+        self.logger.info('Bing Request: %s', 'Starting')
         self._build_request()
         self._make_request()
         return self.results

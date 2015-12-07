@@ -12,9 +12,43 @@ from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
 from prime.processing_service.bing_service import BingService
 from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService
-
+from prime.processing_service.phone_service import PhoneService
+from prime.processing_service.mapquest_service import MapQuestRequest
+from prime.processing_service.geocode_service import GeoCodingService
 from prime import create_app, db
 from config import config
+
+class TestGeoCodingService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = GeoCodingService(email, linkedin_url, data)
+
+    def test_geocode(self):
+        expected = (40.713054, -74.007228)
+        data = self.service.process()
+        latlng = data[1].get("location_coordinates").get("latlng")
+        self.assertEqual(latlng, expected)
+
+class TestMapquestRequest(unittest.TestCase):
+    def setUp(self):
+        business_name = "emergence capital partners"
+        location = "san francisco bay area"
+        self.location_service = MapQuestRequest(location)
+        self.business_service = MapQuestRequest(business_name)
+
+    def test_mapquest(self):
+        expected_phone = '(650) 573-3100'
+        expected_website = 'http://emcap.com'
+        latlng = self.location_service.process().get("latlng")
+        business = self.business_service.get_business(latlng=latlng)
+        phone = business.get("phone")
+        website = business.get("website")
+        self.assertEqual(phone, expected_phone)
+        self.assertEqual(website, expected_website)
 
 class TestCloudspongeService(unittest.TestCase):
 
@@ -88,17 +122,53 @@ class TestClearbitRequest(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data, expected)
 
+
 class TestBloombergRequest(unittest.TestCase):
 
     def setUp(self):
-        name = "farmivore"
+        name = "kpmg"
         self.service = BloombergRequest(name)
+
+    def test_bloomberg(self):
+        expected_phone = '212-758-9700'
+        expected_website = 'http://www.kpmg.com/us'
+        data = self.service.process()
+        data = self.service.processNext()
+        phone = data.get("phone")
+        website = data.get("website")
+        self.assertEqual(phone, expected_phone)
+        self.assertEqual(website, expected_website)
+
+class TestBloombergPhoneService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = BloombergPhoneService(email, linkedin_url, data)
 
     def test_bloomberg(self):
         expected = '800-507-9396'
         data = self.service.process()
-        phone = data.get("phone")
+        phone = data[1].get("phone_number")
         self.assertEqual(phone, expected)
+
+class TestPhoneService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = PhoneService(email, linkedin_url, data)
+
+    def test_phone(self):
+        expected = '800-507-9396'
+        data = self.service.process()
+        phone = data[1].get("phone_number")
+        self.assertEqual(phone, expected)
+
 
 class TestLinkedinService(unittest.TestCase):
 
@@ -126,21 +196,6 @@ class TestLinkedinService(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data[0].get("linkedin_data").get("urls"), expected)
 
-
-class TestBloombergPhoneService(unittest.TestCase):
-
-    def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
-        from fixtures.linkedin_fixture import expected
-        data = expected
-        self.service = BloombergPhoneService(email, linkedin_url, data)
-
-    def test_bloomberg(self):
-        expected = '800-507-9396'
-        data = self.service.process()
-        phone = data[1].get("phone_number")
-        self.assertEqual(phone, expected)
 
 class TestGlassdoorService(unittest.TestCase):
 
