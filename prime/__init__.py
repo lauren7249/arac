@@ -63,11 +63,13 @@ def register_blueprints(app):
     from .auth import auth as auth_blueprint
     from .managers import manager as manager_blueprint
     from .processing_service import processing_service as processing_service_blueprint
+    from .crawlera import crawlera as crawlera_blueprint
     app.register_blueprint(prospects_blueprint)
     app.register_blueprint(users_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(processing_service_blueprint)
     app.register_blueprint(manager_blueprint, url_prefix='/managers')
+    app.register_blueprint(crawlera_blueprint, url_prefix='/crawlera')
 
 
 def add_template_globals(app):

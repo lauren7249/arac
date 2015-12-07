@@ -10,13 +10,10 @@ from . import users
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry
 from prime.users.models import User, ClientProspect
-from prime.prospects.prospect_list import ProspectList
 from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
-
-from prime.prospects.helper import LinkedinResults
 
 session = db.session
 

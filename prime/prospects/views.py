@@ -26,8 +26,6 @@ from sqlalchemy import select, cast, extract
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import aliased
 
-from prime.prospects.helper import LinkedinResults
-from prime.prospects.arequest import aRequest
 from flask.ext.rq import job
 
 ################

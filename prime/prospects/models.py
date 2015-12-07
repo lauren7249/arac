@@ -15,7 +15,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime import db
-from prime.prospects.get_prospect import session, from_url, from_prospect_id, uu
 import dateutil.parser
 from boto.s3.key import Key
 from requests import HTTPError
@@ -26,6 +25,12 @@ import os
 import scipy.stats as stats
 import multiprocessing
 import traceback
+
+
+def uu(str):
+    if str:
+        return str.decode("ascii", "ignore").encode("utf-8")
+    return None
 
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()

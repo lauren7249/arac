@@ -14,7 +14,6 @@ from . import manager
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
 Industry
 from prime.users.models import User, ClientProspect
-from prime.prospects.prospect_list import ProspectList
 from prime.utils.email import sendgrid_email
 from prime.utils import random_string
 from prime import db, csrf
