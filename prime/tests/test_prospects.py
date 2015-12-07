@@ -20,6 +20,7 @@ from prime.processing_service.gender_service import GenderService
 from prime.processing_service.age_service import AgeService
 from prime.processing_service.college_degree_service import CollegeDegreeService
 from prime.processing_service.associated_profiles_service import AssociatedProfilesService
+from prime.processing_service.extended_profiles_service import ExtendedProfilesService
 from prime import create_app, db
 from config import config
 
@@ -183,6 +184,25 @@ class TestBloombergRequest(unittest.TestCase):
         self.assertEqual(phone, expected_phone)
         self.assertEqual(website, expected_website)
 
+class TestExtendedProfilesService(unittest.TestCase):
+
+    def setUp(self):
+        data = [{u'julia.mailander@gmail.com':
+                {'linkedin_urls': u'https://www.linkedin.com/in/juliamailander', 
+                'social_accounts': [u'https://www.linkedin.com/in/juliamailander',\
+                        u'https://plus.google.com/103608304178303305879/about']} 
+                }]
+        li_service = LinkedinService(None, None, data)
+        data = li_service.process()
+        service = AssociatedProfilesService(None, None, data)
+        self.data = service.process()
+
+    def test_extended(self):
+        service = ExtendedProfilesService(None, None, self.data)
+        data = service.process()
+        extended = data[0].get("extended_profiles")
+        self.assertEqual(extended[0].get("commonality"), 'Attended Yale University together 2006-2006')
+
 class TestAssociatedProfilesService(unittest.TestCase):
 
     def setUp(self):
@@ -198,7 +218,7 @@ class TestAssociatedProfilesService(unittest.TestCase):
         self.service = AssociatedProfilesService(None, None, self.data)
         data = self.service.process()
         associated = data[0].get("associated_profiles")
-        self.assertEqual(len(associated), 21)
+        self.assertEqual(len(associated), 26)
 
 
 class TestPhoneService(unittest.TestCase):
