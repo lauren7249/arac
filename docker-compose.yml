@@ -1,0 +1,20 @@
+db:
+  image: postgres:latest
+  user: postgresql
+  volumes:
+    - /var/lib/postgresql/data/pgdata
+  environment:
+    POSTGRES_USER: "arachnid"
+    POSTGRES_PASSWORD: "devious8ob8"
+    PGDATA: '/var/lib/postgresql/data/pgdata'
+  container-name: "postgres"
+prime:
+  container-name: "prime"
+  dns: 8.8.8.8
+  build: .
+  links:
+    - db:babel
+  ports:
+    - "80"
+    - "443"
+  net: "host"
