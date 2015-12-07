@@ -7,7 +7,7 @@ from flask.ext.testing import TestCase, LiveServerTestCase
 
 from prime.processing_service.cloudsponge_service import CloudSpongeService
 from prime.processing_service.clearbit_service import ClearbitPersonService, ClearbitPhoneService
-from prime.processing_service.pipl_service import PiplService
+from prime.processing_service.pipl_service import PiplService, PiplRequest
 from prime.processing_service.linkedin_service_crawlera import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
@@ -19,6 +19,7 @@ from prime.processing_service.geocode_service import GeoCodingService
 from prime.processing_service.gender_service import GenderService
 from prime.processing_service.age_service import AgeService
 from prime.processing_service.college_degree_service import CollegeDegreeService
+from prime.processing_service.associated_profiles_service import AssociatedProfilesService
 from prime import create_app, db
 from config import config
 
@@ -88,7 +89,7 @@ class TestCloudspongeService(unittest.TestCase):
                 {"email":[{"address": "jamesjohnson11@gmail.com"}]}]
         self.service = CloudSpongeService(email, linkedin_url, emails)
 
-    def test_pipl(self):
+    def test_cloudsponge(self):
         expected = {'jamesjohnson11@gmail.com': {'companies': None, 'job_title': None}}
         data = self.service.process()
         self.assertEqual(data, expected)
@@ -99,7 +100,7 @@ class TestPiplService(unittest.TestCase):
     def setUp(self):
         self.emails = {"jamesjohnson11@gmail.com":{}}
 
-    def test_pipl(self):
+    def test_pipl_from_email(self):
         self.service = PiplService(None, None, self.emails)
         data1 = self.service.process()
         self.service = PiplService(None, None, self.emails)
@@ -107,6 +108,30 @@ class TestPiplService(unittest.TestCase):
         self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0',
                 u'https://plus.google.com/106226923266702208073/about'])
         self.assertEqual(data1,data2)
+
+    def test_pipl_from_username(self):
+        request = PiplRequest("laurentracytalbot", type="facebook", level="social")
+        data = request.process()
+        self.assertEqual(data, {'images': [u'http://media.licdn.com/mpr/mpr/shrink_500_500/p/1/005/047/070/33fa685.jpg',
+               u'http://graph.facebook.com/213344/picture?type=large',
+               u'https://lh6.googleusercontent.com/-6z3fhsO9SQU/AAAAAAAAAAI/AAAAAAAAAAA/g2ihihLkzXM/photo.jpg'],
+              'linkedin_id': u'75874081',
+              'linkedin_urls': u'http://www.linkedin.com/pub/lauren-talbot/21/4b0/741',
+              'social_accounts': [u'http://www.linkedin.com/pub/lauren-talbot/21/4b0/741',
+               u'http://facebook.com/people/_/213344',
+               u'https://plus.google.com/114331116808631299757/about']})
+
+    def test_pipl_from_url(self):
+        request = PiplRequest("http://www.linkedin.com/pub/gordon-ritter/1/b95/a97", type="url", level="social")
+        data = request.process()
+        self.assertEqual(data, {'images': [u'http://graph.facebook.com/552796269/picture?type=large',
+                  u'http://media.licdn.com/mpr/mpr/p/1/000/002/275/3e677fb.jpg'],
+                 'linkedin_id': u'5919955',
+                 'linkedin_urls': u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97',
+                 'social_accounts': [u'http://www.facebook.com/people/_/552796269',
+                  u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97',
+                  u'http://www.flickr.com/people/47088076@N06/',
+                  u'http://www.facebook.com/gordon.ritter.92']})
 
 class TestClearbitPersonService(unittest.TestCase):
 
@@ -157,6 +182,24 @@ class TestBloombergRequest(unittest.TestCase):
         website = data.get("website")
         self.assertEqual(phone, expected_phone)
         self.assertEqual(website, expected_website)
+
+class TestAssociatedProfilesService(unittest.TestCase):
+
+    def setUp(self):
+        data = [{u'julia.mailander@gmail.com':
+                {'linkedin_urls': u'https://www.linkedin.com/in/juliamailander',
+                'social_accounts': [u'https://www.linkedin.com/in/juliamailander',\
+                        u'https://plus.google.com/103608304178303305879/about']}
+                }]
+        li_service = LinkedinService(None, None, data)
+        self.data = li_service.process()
+
+    def test_associated(self):
+        self.service = AssociatedProfilesService(None, None, self.data)
+        data = self.service.process()
+        associated = data[0].get("associated_profiles")
+        self.assertEqual(len(associated), 21)
+
 
 class TestPhoneService(unittest.TestCase):
 
