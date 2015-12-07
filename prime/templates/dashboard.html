@@ -1,55 +1,89 @@
 {% extends 'base.html' %}
 {% block content %}
-  <header>
-    <div class='wrapper'>
-      <img src='../common/img/NewYorkLife.png'>
-      <h2 id="chart_title"></h2>
-      <a href='./leads-ln.html'><button class='button'>View Contacts</button></a>
-      <div class='clear'></div>
-    </div>
-  </header>
-  
-  <header>
-  <div class='wrapper' background-color='blue'>
-      <h3>Your Potential Markets are:</h3>
-      
-      <center>
-        <h3 id="industry_icons"></h3>
-      </center> 
-      <div class='clear'>
-      </div>
-      </header>
-
-      <br>
-
-      <div class='wrapper'>
-    <div class='graphs'>
-      <center><h3>Network Breakdown</h3></center>
-      <div class='graph'>
-        <a href="./leads-ln.html"><canvas id='industries'></canvas></a>
-        <h4>Qualified Industry Contacts</h4>
-      </div>
-      <div class='graph'>
-        <a href="./leads-extended.html"><canvas id='schools'></canvas></a>  
-        <h4>Qualified School Contacts</h4>
-      </div>
-    </div>
-    
-
-    <div class='graphs'>
-      <center><h3>Qualified Contacts</h3></center>
-      <div class='big-graph'>
-        <a href="./leads-ln.html"><canvas id='connections'></canvas></a>
-      </div>
-    </div>
-    
-
+<header>
+  <div class='wrapper'>
+    <img style='width: 100px;' src='{{ static_url() }}img/NewYorkLife.png'>
+    <h2 id="chart_title"></h2>
+    <a href='/leads-ln.html'><button class='button'>View Contacts</button></a>
     <div class='clear'></div>
-    <div class='network-stats'>
-     <br> <h3>Network Stats</h3>
-      <table id="network_stats">
-      </table>
+  </div>
+</header>
+
+<header>
+<div class='wrapper' background-color='blue'>
+    <h3>Your Potential Markets are:</h3>
+    <center>
+      <h3 id="industry_icons"></h3>
+    </center> 
+    <div class='clear'>
+    </div>
+    </header>
+    <br>
+    <div class='wrapper'>
+  <div class='graphs'>
+    <center><h3>Network Breakdown</h3></center>
+    <div class='graph'>
+      <a href="./leads-ln.html"><canvas id='industries'></canvas></a>
+      <h4>Qualified Industry Contacts</h4>
+    </div>
+    <div class='graph'>
+      <a href="./leads-extended.html"><canvas id='schools'></canvas></a>  
+      <h4>Qualified School Contacts</h4>
     </div>
   </div>
+  
+  <div class='graphs'>
+    <center><h3>Qualified Contacts</h3></center>
+    <div class='big-graph'>
+      <a href="./leads-ln.html"><canvas id='connections'></canvas></a>
+    </div>
+  </div>
+  <div class='clear'></div>
+  <div class='network-stats'>
+   <br> <h3>Network Stats</h3>
+    <table id="network_stats">
+    </table>
+  </div>
+</div>
+<script type='text/javascript'>
+($(function(){
 
+    for (var i in industries) {
+      industries[i].color = randColor(colors);
+      var row = $('<a href="./leads-' + industries[i].clean + '.html"><span class="fa-stack"><i class="fa fa-circle fa-stack-2x" style="color:blue"></i><i class="fa fa-' + industries[i].icon + ' fa-stack-1x fa-inverse"></i></span></a>');
+      $("h3#industry_icons").append(row);
+      $("h3#industry_icons").append(industries[i].label);    
+    }
+
+    for (var i in schools) {
+      schools[i].color = randColor(colors);   
+    }
+
+    for (var i in stats) {
+      var row = $('<tr><td>' + stats[i].name + '</td><td>' + stats[i].value + '</td></tr>');
+      $("table#network_stats").append(row);   
+    }  
+
+    var $industries = $("#industries")
+    var $schools = $("#schools")
+    var $connections = $("#connections")
+    var connections = {
+        labels:["Your Connections", "Extended", "Total"],
+        datasets:[
+        {
+        label: "Your Connections",
+        fillColor: "#0079c2",
+        strokeColor: "rgba(220,220,220,0.8)",
+        highlightFill: "#8dd8f7",
+        highlightStroke: "#8dd8f7",
+        data: [n_first_degree, n_extended, n_total]
+        }]}
+    var chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {});
+    var chart = new Chart($schools.get(0).getContext("2d")).Doughnut(schools, {});
+    var chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, {});
+
+    });
+  
+ })();
+</script>
 {% endblock %}

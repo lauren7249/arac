@@ -254,6 +254,16 @@ class Prospect(db.Model):
             return score.wealthscore
         return None
 
+    @property
+    def is_male(self):
+        session = db.session
+        gender = session.query(ProspectGender).filter(ProspectGender.prospect_id == self.id).first()
+        if gender:
+            if gender.gender:
+                return True
+        return False
+
+
     def to_json(self, no_fk=False):
         data = {
             "name": self.name,

@@ -105,8 +105,55 @@ class User(db.Model, UserMixin):
                 ClientProspect.user_id == self.user_id).count() > 0
 
     @property
+    def statistics(self):
+        if self.json.get("statistics"):
+            return self.json.get("statistics")
+        return self.build_statistics()
+
     def build_statistics(self):
-        pass
+        """
+        Complicated function that will calculate most popular schools,
+        companies, gender, wealthscore, age, college degree, and income score
+        """
+        schools = {}
+        companies = {}
+        male = {True:0,False:0}
+        college_degree = {True:0,False:0}
+        wealth_score = []
+        average_age = []
+        for prospect in self.prospects:
+            for school in prospect.schools:
+                count = schools.get(school.school.name, 0)
+                count += 1
+                schools[school.school.name] = count
+            if len(prospect.schools) == 0:
+                college_degree[False] += 1
+            else:
+                college_degree[True] += 1
+            for job in prospect.jobs:
+                count = schools.get(job.company.name, 0)
+                count += 1
+                schools[job.company.name] = count
+            average_age.append(prospect.age if prospect.age else 30)
+            wealth_score.append(prospect.wealthscore if prospect.wealthscore
+                    else 40)
+            if prospect.is_male:
+                male[True] += 1
+            else:
+                male[False] += 1
+        data = {"schools": schools,
+                "companies": companies,
+                "male": male[True]/(male[True] + male[False]) * 100,
+                "college_degree": college_degree[True]/(college_degree[True] + college_degree[False]) * 100,
+                "average_age": sum(average_age)/len(average_age),
+                "wealth_score": sum(wealth_score)/len(wealth_score)}
+        old_json = self.json if self.json else {}
+        old_json['statistics'] = data
+        session = db.session
+        self.json = old_json
+        session.add(self)
+        session.commit()
+        return self.json.get("statistics")
 
     @property
     def name(self):
