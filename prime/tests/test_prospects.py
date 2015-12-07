@@ -50,20 +50,20 @@ class TestAgeService(unittest.TestCase):
         self.assertEqual(data[0].get("age"), 27.5)
         self.assertEqual(data[1].get("age"), 25.5)
 
-# class TestLeadService(unittest.TestCase):
+class TestLeadService(unittest.TestCase):
 
-#     def setUp(self):
-#         email = "jamesjohnson11@gmail.com"
-#         linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
-#         from fixtures.linkedin_fixture import expected
-#         data = expected
-#         self.service = LeadService(email, linkedin_url, data)
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = LeadService(email, linkedin_url, data)
 
-#     def test_lead(self):
-#         expected = (40.713054, -74.007228)
-#         data = self.service.process()
-#         latlng = data[1].get("location_coordinates").get("latlng")
-#         self.assertEqual(latlng, expected)
+    def test_lead(self):
+        expected = (40.713054, -74.007228)
+        data = self.service.process()
+        latlng = data[1].get("location_coordinates").get("latlng")
+        self.assertEqual(latlng, expected)
 
 class TestGeoCodingService(unittest.TestCase):
 

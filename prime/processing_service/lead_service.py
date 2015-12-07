@@ -67,7 +67,7 @@ class LeadService(Service):
         person = LinkedinRequest(self.user_linkedin_url).process()
         self.jobs = person.get("experiences")
         self.schools = person.get("schools")
-        location_raw = person.get("linkedin_data").get("location")
+        location_raw = person.get("location")
         self.location = MapQuestRequest(location_raw).process()
 
     def process(self):
