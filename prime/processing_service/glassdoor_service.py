@@ -45,7 +45,6 @@ class GlassdoorRequest(S3SavedRequest):
     """
 
     def __init__(self, title):
-        url =  "http://www.glassdoor.com/Salaries/"
         self.title = title
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -83,18 +82,6 @@ class GlassdoorRequest(S3SavedRequest):
             self.title = new_title
             return self.process()
         return -1
-    # def process(self):
-    #     self.logger.info('Glassdoor Request: %s', 'Starting')
-    #     #TODO add in Lauren logic around glassdoor data
-    #     response = self._make_request()
-    #     clean = lxml.html.fromstring(response)
-    #     try:
-    #         salary = clean.xpath("//div[@class='meanPay nowrap positive']")[0].text_content()
-    #         salary = int(re.sub('\D','', salary))
-    #     except Exception, e:
-    #         salary = None
-    #         self.logger.error(e.message)
-    #     return salary
 
 
 
