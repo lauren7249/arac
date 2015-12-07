@@ -22,6 +22,9 @@ from linkedin_service_crawlera import LinkedinService
 from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from geocode_service import GeoCodingService
+from age_service import AgeService
+from gender_service import GenderService
+from college_degree_service import CollegeDegreeService
 from lead_service import LeadService
 #from extended_lead_service import ExtendedLeadService
 from bloomberg_service import BloombergPhoneService
@@ -39,15 +42,14 @@ SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
 SERVICES['bloomberg_service'] = BloombergPhoneService
 SERVICES['lead_service'] = LeadService
+SERVICES['age_service'] = AgeService
+SERVICES['gender_service'] = GenderService
+SERVICES['college_degree_service'] = CollegeDegreeService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):
 
-    # FIXME super __init__ not called
-    # FIXME the variable "data" is already defined in the csv import and
-    #       this data might lead to a hard to track down subtle error in the future
-    #       I'd suggest renaming just to be safe
     def __init__(self, user_email, user_linkedin_url, csv_data, *args, **kwargs):
         self.user_email = user_email
         self.user_linkedin_url = user_linkedin_url

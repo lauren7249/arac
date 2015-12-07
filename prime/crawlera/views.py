@@ -43,4 +43,27 @@ def get_person():
         return jsonify(output)
     return jsonify({})
 
+@csrf.exempt
+@crawlera.route('/v1/also_viewed', methods=['POST'])
+def get_also_viewed():
+    if request.method == 'POST':
+        url = request.form.get("url")
+        conn = psycopg2.connect(CONNECTION_STRING)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        url = url.replace("https://","http://")
+        query = """SELECT * from people where also_viewed @>'["%s"]'""" % (url)
+        cur.execute(query)
+        rows = cur.fetchall()
+        if not rows:
+            return []
+        output_rows = []
+        for row in rows:
+            out_row = dict(row)
+            output = reformat_crawlera(out_row)
+            output_rows.append(output)
+        return jsonify(output_rows)
+    return jsonify([])
+
+
+
 
