@@ -16,15 +16,15 @@ from prime.utils.email import sendgrid_email
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
-from clearbit_service import ClearbitService
+from clearbit_service import ClearbitPersonService
 from pipl_service import PiplService
-from linkedin_service import LinkedinService
+from linkedin_service_crawlera import LinkedinService
 from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from geocode_service import GeoCodingService
 from lead_service import LeadService
 #from extended_lead_service import ExtendedLeadService
-from bloomberg_service import BloombergService
+from bloomberg_service import BloombergPhoneService
 from results_service import ResultService
 
 SAVE_OUTPUTS = False
@@ -32,12 +32,12 @@ SAVE_OUTPUTS = False
 SERVICES = OrderedDict()
 SERVICES['cloud_sponge'] = CloudSpongeService
 SERVICES['pipl_serice'] =  PiplService
-SERVICES['clearbit_service'] =  ClearbitService
+SERVICES['clearbit_service'] =  ClearbitPersonService
 SERVICES['linkedin_service'] = LinkedinService
 SERVICES['glassdoor_service'] = GlassdoorService
 SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
-SERVICES['bloomberg_service'] = BloombergService
+SERVICES['bloomberg_service'] = BloombergPhoneService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['results_service'] = ResultService
@@ -120,7 +120,8 @@ if __name__ == '__main__':
         new_json = {}
         new_json['contact'] = raw_json
         data.append(new_json)
-    print data
+    logger = logging.getLogger(__name__)
+    logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             user_email='jamesjohnson11@gmail.com',
             user_linkedin_url = "https://www.linkedin.com/in/jamesjohnsona",

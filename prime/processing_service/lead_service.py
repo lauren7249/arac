@@ -36,14 +36,15 @@ class LeadService(Service):
     def _filter_same_locations(self, person):
         latlng = self.location.get("latlng")
         geopoint = GeoPoint(latlng[0],latlng[1])
-        client_location = person.get("location_coordinates").get("latlng")
-        client_geopoint = GeoPoint(client_location[0], client_location[1])
-        miles_apart = geopoint.distance_to(client_geopoint)
-        self.logger.info("Location: %s Miles Apart: %s",
-                self.location.get("locality"), miles_apart)
-        if miles_apart < self.location_threshhold:
-            self.logger.info("Same Location")
-            return True
+        client_location = person.get("location_coordinates", {}).get("latlng")
+        if client_location:
+            client_geopoint = GeoPoint(client_location[0], client_location[1])
+            miles_apart = geopoint.distance_to(client_geopoint)
+            self.logger.info("Location: %s Miles Apart: %s",
+                    self.location.get("locality"), miles_apart)
+            if miles_apart < self.location_threshhold:
+                self.logger.info("Same Location")
+                return True
         return False
 
     def _filter_salaries(self, person):

@@ -32,19 +32,19 @@ class BloombergPhoneService(Service):
         self.logger.info('Starting Process: %s', 'Bloomberg Service')
         for person in self.data:
             current_job = self._current_job(person)
-            print current_job.get("company")
-            request = BloombergRequest(current_job.get("company"))
-            data = request.processNext()
-            while not person.get("phone_number") and data:
-                phone = data.get("phone")
-                website = data.get("website")
-                if phone:
-                    person.update({"phone_number": phone})
-                    person.update({"company_website": website})
-                    break
-                if website:
-                    person.update({"company_website": website})
-                data = request.processNext()
+            if current_job:
+                request = BloombergRequest(current_job.get("company"))
+                data = request.process_next()
+                while not person.get("phone_number") and data:
+                    phone = data.get("phone")
+                    website = data.get("website")
+                    if phone:
+                        person.update({"phone_number": phone})
+                        person.update({"company_website": website})
+                        break
+                    if website:
+                        person.update({"company_website": website})
+                    data = request.process_next()
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'Bloomberg Service')
         return self.output
@@ -85,14 +85,14 @@ class BloombergRequest(S3SavedRequest):
         bing = BingService(self.company, "bloomberg_company")
         self.urls = bing.process()
 
-    def hasNextUrl(self):
+    def has_next_url(self):
         if self.index < len(self.urls):
             return True
         return False
 
-    def processNext(self):
+    def process_next(self):
         self._get_urls()
-        if self.hasNextUrl():
+        if self.has_next_url():
             self.url = self.urls[self.index]
             self.index +=1
             self.logger.info('Bloomberg Info Request: %s', 'Starting')
@@ -102,33 +102,7 @@ class BloombergRequest(S3SavedRequest):
         return {}
 
     def process(self):
-        info = self.processNext()
-        return info
-
-    def _get_urls(self):
-        if self.urls:
-            return
-        bing = BingService(self.company, "bloomberg_company")
-        self.urls = bing.process()
-
-    def hasNextUrl(self):
-        if self.index < len(self.urls):
-            return True
-        return False
-
-    def processNext(self):
-        self._get_urls()
-        if self.hasNextUrl():
-            self.url = self.urls[self.index]
-            self.index +=1
-            self.logger.info('Bloomberg Info Request: %s', 'Starting')
-            self.html = self._get_html()
-            info = self.parse_company_snapshot(self.html)
-            return info
-        return {}
-
-    def process(self):
-        info = self.processNext()
+        info = self.process_next()
         return info
 
     def parse_company_snapshot(self,content):

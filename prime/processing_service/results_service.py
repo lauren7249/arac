@@ -60,6 +60,9 @@ class ResultService(Service):
         new_data["causes"] = data.get("causes")
         new_data["organizations"] = data.get("organizations")
 
+        connections = int(filter(lambda x: x.isdigit(), data.get("connections",
+            0)))
+
         new_prospect = Prospect(url=url,
             name = data['full_name'],
             linkedin_id = cleaned_id,
@@ -67,7 +70,7 @@ class ResultService(Service):
             industry_raw = data.get('industry'),
             image_url = data.get("image"),
             updated = today,
-            connections = data.get("connections"),
+            connections = connections,
             s3_key = s3_key)
         new_prospect.json = new_data
         self.session.add(new_prospect)

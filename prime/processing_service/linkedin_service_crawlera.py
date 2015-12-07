@@ -54,22 +54,24 @@ class LinkedinRequest():
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _linkedin_request(self, max_retries):
-        #TODO need a lot more logic here
-        attempts = 0
-        while attempts < max_retries:
-            attempts += 1
-            request_data = '{"url":"%s","api_version":"1.0.0"}' % (self.url)
-            print request_data
-            result = requests.post("http://10.143.114.140:8888/get_person_by_url",data=request_data)
-            if result.status_code == 200:
-                return result.content
-            time.sleep(1)
-            self.logger.info('Linkedin Failure Count: %s', attempts)
+    def _validate_data(self, data):
+        data = json.loads(data)
+        if data.get("linkedin_id") and data.get("full_name"):
+            return True
+        return False
+
+    def _linkedin_request(self):
+        request_data = '{"url":"%s","api_version":"1.0.0"}' % (self.url)
+        self.logger.info("Linkedin Request {}".format(request_data))
+        result = requests.post("http://10.143.114.140:8888/get_person_by_url",data=request_data)
+        if result.status_code == 200 and self._validate_data(result.content):
+            return result.content
+        time.sleep(1)
+        self.logger.warn('Linkedin Failure')
         return None
 
     def _make_request(self):
-        html = self._linkedin_request(max_retries=5)
+        html = self._linkedin_request()
         return html
 
     def process(self):
