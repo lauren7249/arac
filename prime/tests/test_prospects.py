@@ -12,6 +12,7 @@ from prime.processing_service.linkedin_service_crawlera import LinkedinService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
 from prime.processing_service.bing_service import BingService
+from prime.processing_service.lead_service import LeadService
 from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
@@ -48,6 +49,21 @@ class TestAgeService(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data[0].get("age"), 27.5)
         self.assertEqual(data[1].get("age"), 25.5)
+
+# class TestLeadService(unittest.TestCase):
+
+#     def setUp(self):
+#         email = "jamesjohnson11@gmail.com"
+#         linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+#         from fixtures.linkedin_fixture import expected
+#         data = expected
+#         self.service = LeadService(email, linkedin_url, data)
+
+#     def test_lead(self):
+#         expected = (40.713054, -74.007228)
+#         data = self.service.process()
+#         latlng = data[1].get("location_coordinates").get("latlng")
+#         self.assertEqual(latlng, expected)
 
 class TestGeoCodingService(unittest.TestCase):
 

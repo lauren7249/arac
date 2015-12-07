@@ -86,7 +86,17 @@ def get_person(url=None, linkedin_id=None, version='1.0.0'):
         return output
     return {}
 
-def get_associated_profiles(linkedin_data, query_by_linkedin_id=True):
+def get_profile_by_any_url(url):
+    profile = get_person(url=url)
+    if profile:
+        return profile
+    request = PiplRequest(url, type="url", level="social")
+    pipl_data = request.process()
+    profile_linkedin_id = pipl_data.get("linkedin_id")
+    profile = get_person(linkedin_id=profile_linkedin_id)
+    return profile
+
+def get_associated_profiles(linkedin_data):
     if not linkedin_data:
         return []
     source_url = linkedin_data.get("source_url")
@@ -96,18 +106,9 @@ def get_associated_profiles(linkedin_data, query_by_linkedin_id=True):
     also_viewed_urls = linkedin_data.get("urls",[])
     also_viewed = []
     for url in also_viewed_urls:
-        profile = get_person(url=url)
+        profile = get_profile_by_any_url(url)
         if profile:
-            also_viewed.append(profile)
-            continue
-        if not query_by_linkedin_id:
-            continue
-        request = PiplRequest(url, type="url", level="social")
-        pipl_data = request.process()
-        profile_linkedin_id = pipl_data.get("linkedin_id")
-        profile = get_person(linkedin_id=profile_linkedin_id)
-        if profile:
-            also_viewed.append(profile)
+            also_viewed.append(profile)            
     viewed_also = get_people_viewed_also(url=source_url)
     if len(viewed_also) == 0:
         request = PiplRequest(linkedin_id, type="linkedin", level="social")
@@ -121,7 +122,7 @@ class get_person_by_url:
         d = json.loads(web.data())
         url = d.get("url","")
         version = d.get("api_version")
-        person = get_person(url=url, version=version)
+        person = get_profile_by_any_url(url)
         return json.dumps(person)
 
 if __name__ == "__main__":

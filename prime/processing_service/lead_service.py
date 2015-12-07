@@ -8,13 +8,13 @@ from boto.s3.key import Key
 from geoindex.geo_point import GeoPoint
 
 from service import Service, S3SavedRequest
-from linkedin_service import LinkedinRequest
+from linkedin_service_crawlera import LinkedinRequest
 from geocode_service import MapQuestRequest
 
 class LeadService(Service):
     """
-    Expected input is JSON of unique email addresses from cloudsponge
-    Output is going to be social accounts and Linkedin IDs via PIPL
+    Expected input is JSON 
+    Output is filtered to qualified leads only
     """
 
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
@@ -64,7 +64,7 @@ class LeadService(Service):
         return False
 
     def _get_self_jobs_and_schools(self):
-        person = LinkedinRequest(self.user_linkedin_url, {}).process()
+        person = LinkedinRequest(self.user_linkedin_url).process()
         self.jobs = person.get("experiences")
         self.schools = person.get("schools")
         location_raw = person.get("linkedin_data").get("location")

@@ -40,12 +40,12 @@ SERVICES['linkedin_service'] = LinkedinService
 SERVICES['glassdoor_service'] = GlassdoorService
 SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
-SERVICES['bloomberg_service'] = BloombergPhoneService
 SERVICES['lead_service'] = LeadService
+#SERVICES['extended_lead_service'] = ExtendedLeadService
+SERVICES['bloomberg_service'] = BloombergPhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService
 SERVICES['college_degree_service'] = CollegeDegreeService
-#SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):

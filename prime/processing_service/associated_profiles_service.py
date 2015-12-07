@@ -38,7 +38,7 @@ class AssociatedProfilesService(Service):
     def process(self):
         for person in self.data:
             linkedin_data = person.get("linkedin_data")
-            associated_profiles = get_associated_profiles(linkedin_data, query_by_linkedin_id=True)
+            associated_profiles = get_associated_profiles(linkedin_data)
             associated_profiles = self.dedupe_profiles(associated_profiles)
             if associated_profiles:
                 person["associated_profiles"] = associated_profiles
