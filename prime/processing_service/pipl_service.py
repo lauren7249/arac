@@ -62,7 +62,6 @@ class PiplRequest(S3SavedRequest):
         self.json_format = "&pretty=true"
         pipl_url_v3 = "http://api.pipl.com/search/v3/json/?key="
         pipl_url_v4 = "http://api.pipl.com/search/v4/?key="
-        #can be found at https://pipl.com/accounts/subscriptions/
         pipl_social_keys = ["ml2msz8le74d4nno7dyk0v7c"]
         pipl_profes_keys = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
         shuffle(pipl_social_keys)

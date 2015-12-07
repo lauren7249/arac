@@ -105,6 +105,32 @@ class BloombergRequest(S3SavedRequest):
         info = self.processNext()
         return info
 
+    def _get_urls(self):
+        if self.urls:
+            return
+        bing = BingService(self.company, "bloomberg_company")
+        self.urls = bing.process()
+
+    def hasNextUrl(self):
+        if self.index < len(self.urls):
+            return True
+        return False
+
+    def processNext(self):
+        self._get_urls()
+        if self.hasNextUrl():
+            self.url = self.urls[self.index]
+            self.index +=1
+            self.logger.info('Bloomberg Info Request: %s', 'Starting')
+            self.html = self._get_html()
+            info = self.parse_company_snapshot(self.html)
+            return info
+        return {}
+
+    def process(self):
+        info = self.processNext()
+        return info
+
     def parse_company_snapshot(self,content):
         raw_html = lxml.html.fromstring(content)
         try:

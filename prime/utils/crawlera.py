@@ -23,8 +23,8 @@ def reformat_crawlera(json):
             school["degree"] = education.get("major")
 
         school["end_date"] = education.get("end")
-        school["college"] = education.get("name") 
-        school["start_date"] = education.get("start") 
+        school["college"] = education.get("name")
+        school["start_date"] = education.get("start")
         if education.get("profile_url") and education.get("profile_url").split("=")[-1] and education.get("profile_url").split("=")[-1].isdigit():
             school["college_id"] = education.get("profile_url").split("=")[-1]
         school["college_url"] = education.get("profile_url")
@@ -37,7 +37,7 @@ def reformat_crawlera(json):
         experience["description"] = job.get("description")
         experience["end_date"] = job.get("end")
         experience["title"] = job.get("title")
-        experience["company"] = job.get("organization",[{}])[0].get("name") 
+        experience["company"] = job.get("organization",[{}])[0].get("name")
         if job.get("organization",[{}])[0].get("profile_url"):
             url =  job.get("organization",[{}])[0].get("profile_url")
             experience["company_url"] = url
