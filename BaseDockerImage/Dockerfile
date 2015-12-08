@@ -7,12 +7,17 @@ RUN apt-get update && \
 		fftw-dev sfftw-dev libfftw3-dev python2.7-dev libpython2.7-dev libpython-all-dev  liblapack-dev \
   		apt-utils binfmt-support gfortran
 
-
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+# Add a base set of common requirements
+COPY requirements.txt /usr/src/app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Allow for new requirements to be added when a subsequent build occurs
 ONBUILD COPY requirements.txt /usr/src/app/
 ONBUILD RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy source into the app folder
 ONBUILD COPY . /usr/src/app
 
