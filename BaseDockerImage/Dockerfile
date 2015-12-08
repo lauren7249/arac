@@ -16,5 +16,3 @@ ONBUILD pip install --no-cache-dir -r requirements.txt
 
 ONBUILD COPY . /usr/src/app
 
-ENTRYPOINT ["make"]
-CMD ["run"]

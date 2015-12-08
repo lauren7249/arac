@@ -8,7 +8,6 @@ db:
     POSTGRES_PASSWORD: "devious8ob8"
     PGDATA: '/var/lib/postgresql/data/pgdata'
 prime:
-  dns: 8.8.8.8
   build: .
   links:
     - db:babel
