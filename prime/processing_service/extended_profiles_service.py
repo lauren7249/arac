@@ -1,9 +1,6 @@
 import logging
-import requests
-
 from service import Service
 from constants import GLOBAL_HEADERS, in_profile_re, pub_profile_re
-from services.linkedin_query_api import get_associated_profiles
 from helper import common_institutions
 
 class ExtendedProfilesService(Service):

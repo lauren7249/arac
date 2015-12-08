@@ -3,7 +3,6 @@ import psycopg2.extras
 import web
 import json
 from prime.utils.crawlera import reformat_crawlera
-from prime.processing_service.pipl_service import PiplRequest
 
 web.config.debug = False
 urls = (
@@ -11,6 +10,7 @@ urls = (
 )
 
 CONNECTION_STRING = "dbname='ac_labs' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
+PEOPLE_TABLE = 'people'
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
@@ -25,7 +25,7 @@ def get_people(urls=[], version='1.0.0'):
             return []
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         urls_string = "('" + "','".join(urls) + "')"
-        query = """SELECT * from people where url in %s""" % (urls_string)
+        query = """SELECT * from %s where url in %s""" % (PEOPLE_TABLE, urls_string)
         cur.execute(query)
         rows = cur.fetchall()
         if not rows:
@@ -39,6 +39,7 @@ def get_people(urls=[], version='1.0.0'):
     return []
 
 def get_people_viewed_also(url=None, version='1.0.0'):
+    return []
     if version=='1.0.0':
         if not url:
             return None
@@ -49,7 +50,7 @@ def get_people_viewed_also(url=None, version='1.0.0'):
             return []
         url = url.replace("https://","http://")
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = """SELECT * from people where also_viewed @>'["%s"]'""" % (url)
+        query = """SELECT * from %s where also_viewed @>'["%s"]'""" % (PEOPLE_TABLE, url)
         cur.execute(query)
         rows = cur.fetchall()
         if not rows:
@@ -74,9 +75,9 @@ def get_person(url=None, linkedin_id=None, version='1.0.0'):
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if url:
             url = url.replace("https://","http://")
-            query = """SELECT * from people where url='%s'""" % (url)
+            query = """SELECT * from %s where url='%s'""" % (PEOPLE_TABLE, url)
         else:
-            query = """SELECT * from people where linkedin_id='%s'""" % (linkedin_id)
+            query = """SELECT * from %s where linkedin_id='%s'""" % (PEOPLE_TABLE, linkedin_id)
         cur.execute(query)
         row = cur.fetchone()
         if not row:
@@ -85,37 +86,6 @@ def get_person(url=None, linkedin_id=None, version='1.0.0'):
         output = reformat_crawlera(row)
         return output
     return {}
-
-def get_profile_by_any_url(url):
-    profile = get_person(url=url)
-    if profile:
-        return profile
-    request = PiplRequest(url, type="url", level="social")
-    pipl_data = request.process()
-    profile_linkedin_id = pipl_data.get("linkedin_id")
-    profile = get_person(linkedin_id=profile_linkedin_id)
-    return profile
-
-def get_associated_profiles(linkedin_data):
-    if not linkedin_data:
-        return []
-    source_url = linkedin_data.get("source_url")
-    linkedin_id = linkedin_data.get("linkedin_id")
-    if not source_url or not linkedin_id:
-        return []
-    also_viewed_urls = linkedin_data.get("urls",[])
-    also_viewed = []
-    for url in also_viewed_urls:
-        profile = get_profile_by_any_url(url)
-        if profile:
-            also_viewed.append(profile)            
-    viewed_also = get_people_viewed_also(url=source_url)
-    if len(viewed_also) == 0:
-        request = PiplRequest(linkedin_id, type="linkedin", level="social")
-        pipl_data = request.process()
-        new_url = pipl_data.get("linkedin_urls")
-        viewed_also = get_people_viewed_also(url=new_url)
-    return also_viewed + viewed_also
 
 class get_person_by_url:
     def POST(self):

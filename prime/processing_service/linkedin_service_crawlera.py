@@ -7,8 +7,8 @@ import boto
 from boto.s3.key import Key
 import json
 import requests
-from service import Service, S3SavedRequest
-from services.linkedin_query_api import get_profile_by_any_url
+from service import Service
+from saved_request import S3SavedRequest
 
 class LinkedinService(Service):
 
@@ -31,8 +31,7 @@ class LinkedinService(Service):
             linkedin_url = self._get_linkedin_url(person)
             if linkedin_url:
                 try:
-                    request = LinkedinRequest(linkedin_url)
-                    data = request.process()
+                    data = self._get_profile_by_any_url(linkedin_url)
                     o = {"linkedin_data": data}
                     o.update(person)
                     self.output.append(o)
@@ -41,21 +40,3 @@ class LinkedinService(Service):
         self.logger.info('Ending Process: %s', 'Linkedin Service')
         return self.output
 
-
-class LinkedinRequest():
-
-    """
-    Given a url, this will return the profile json
-    """
-
-    def __init__(self, url):
-        self.url = url
-        print url
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-
-    def process(self):
-        self.logger.info('Linkedin Request: %s', 'Starting')
-        profile = get_profile_by_any_url(self.url)
-        return profile

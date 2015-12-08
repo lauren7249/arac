@@ -8,6 +8,8 @@ from boto.s3.key import Key
 
 from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
 import dateutil
+from services.linkedin_query_api import get_person, get_people_viewed_also
+from pipl_request import PiplRequest
 
 class Service(object):
 
@@ -82,6 +84,37 @@ class Service(object):
 
     def dispatch(self):
         pass
+
+    def _get_profile_by_any_url(self,url):
+        profile = get_person(url=url)
+        if profile:
+            return profile
+        request = PiplRequest(url, type="url", level="social")
+        pipl_data = request.process()
+        profile_linkedin_id = pipl_data.get("linkedin_id")
+        profile = get_person(linkedin_id=profile_linkedin_id)
+        return profile
+
+    def _get_associated_profiles(self, linkedin_data):
+        if not linkedin_data:
+            return []
+        source_url = linkedin_data.get("source_url")
+        linkedin_id = linkedin_data.get("linkedin_id")
+        if not source_url or not linkedin_id:
+            return []
+        also_viewed_urls = linkedin_data.get("urls",[])
+        also_viewed = []
+        for url in also_viewed_urls:
+            profile = self._get_profile_by_any_url(url)
+            if profile:
+                also_viewed.append(profile)            
+        viewed_also = get_people_viewed_also(url=source_url)
+        if len(viewed_also) == 0:
+            request = PiplRequest(linkedin_id, type="linkedin", level="social")
+            pipl_data = request.process()
+            new_url = pipl_data.get("linkedin_urls")
+            viewed_also = get_people_viewed_also(url=new_url)
+        return also_viewed + viewed_also
 
 class TemporaryProspect(object):
     pass

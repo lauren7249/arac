@@ -3,7 +3,6 @@ import requests
 
 from service import Service
 from constants import GLOBAL_HEADERS, in_profile_re, pub_profile_re
-from services.linkedin_query_api import get_associated_profiles
 
 class AssociatedProfilesService(Service):
     """
@@ -38,7 +37,7 @@ class AssociatedProfilesService(Service):
     def process(self):
         for person in self.data:
             linkedin_data = person.get("linkedin_data")
-            associated_profiles = get_associated_profiles(linkedin_data)
+            associated_profiles = self._get_associated_profiles(linkedin_data)
             associated_profiles = self.dedupe_profiles(associated_profiles)
             if associated_profiles:
                 person["associated_profiles"] = associated_profiles

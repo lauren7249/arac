@@ -7,8 +7,8 @@ from requests import HTTPError
 from boto.s3.key import Key
 from geoindex.geo_point import GeoPoint
 
-from service import Service, S3SavedRequest
-from linkedin_service_crawlera import LinkedinRequest
+from service import Service
+from saved_request import S3SavedRequest
 from geocode_service import MapQuestRequest
 
 class LeadService(Service):
@@ -64,7 +64,7 @@ class LeadService(Service):
         return False
 
     def _get_self_jobs_and_schools(self):
-        person = LinkedinRequest(self.user_linkedin_url).process()
+        person = self._get_profile_by_any_url(self.user_linkedin_url)
         self.jobs = person.get("experiences")
         self.schools = person.get("schools")
         location_raw = person.get("location")

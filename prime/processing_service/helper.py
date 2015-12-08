@@ -186,7 +186,8 @@ def common_school_ids(p1, p2):
             dates_overlap= date_overlap(start_date1, end_date1, start_date2, end_date2);
             if not dates_overlap: continue
             if school1.get("college_id") == school2.get("college_id"):
-                matching.add("Attended " + school2.get("college") + " together " + str(dates_overlap[0].year) + "-" + str(dates_overlap[1].year))
+                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
+                matching.add("Attended " + school2.get("college") + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
     return matching
 
 def common_company_ids(p1, p2):
@@ -204,7 +205,8 @@ def common_company_ids(p1, p2):
             dates_overlap= date_overlap(start_date1, end_date1, start_date2, end_date2);
             if not dates_overlap: continue
             if job1.get("company_id") == job2.get("company_id"):
-                matching.add("Worked at " + job2.get("company") + " together " + str(dates_overlap[0].year) + "-" + str(dates_overlap[1].year))
+                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
+                matching.add("Worked at " + job2.get("company") + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
     return matching
 
 def match_common_company_names(p1, p2, intersect_threshold=3):
@@ -228,7 +230,8 @@ def match_common_company_names(p1, p2, intersect_threshold=3):
                     company_name = job2.get("company")
                 else:
                     company_name = job1.get("company")
-                matching.add("Worked at " + company_name + " together " + str(dates_overlap[0].year) + "-" + str(dates_overlap[1].year))
+                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
+                matching.add("Worked at " + company_name + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
     return matching
 
 def match_common_school_names(p1, p2, intersect_threshold=3):
@@ -252,5 +255,6 @@ def match_common_school_names(p1, p2, intersect_threshold=3):
                     school_name = school2.get("college")
                 else:
                     school_name = school1.get("college")
-                matching.add("Attended " + school_name + " together " + str(dates_overlap[0].year) + "-" + str(dates_overlap[1].year))
+                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
+                matching.add("Attended " + school_name + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
     return matching
