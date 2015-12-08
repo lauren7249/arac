@@ -1,0 +1,20 @@
+FROM python:2
+MAINTAINER <michael@advisorconnect.co>
+
+ONBUILD RUN apt-get autoremove -y
+RUN apt-get update && \
+		apt-get install -y libblas-dev libatlas-dev g++ libatlas-dev libatlas3-base libblas3gf libopenblas-dev liblapack3 liblapacke-dev liblapacke \
+		fftw-dev sfftw-dev libfftw3-dev python2.7-dev libpython2.7-dev libpython-all-dev  liblapack-dev \
+  		apt-utils binfmt-support gfortran
+
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+ONBUILD requirements.txt /usr/src/app/
+ONBUILD pip install --no-cache-dir -r requirements.txt
+
+ONBUILD COPY . /usr/src/app
+
+ENTRYPOINT ["make"]
+CMD ["run"]
