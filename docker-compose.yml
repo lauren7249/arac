@@ -1,6 +1,6 @@
 db:
   image: postgres:latest
-  user: postgresql
+  user: postgres
   volumes:
     - /var/lib/postgresql/data/pgdata
   environment:
