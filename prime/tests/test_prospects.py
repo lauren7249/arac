@@ -9,11 +9,12 @@ from prime.processing_service.cloudsponge_service import CloudSpongeService
 from prime.processing_service.clearbit_service import ClearbitPersonService, ClearbitPhoneService
 from prime.processing_service.pipl_service import PiplService, PiplRequest
 from prime.processing_service.linkedin_service_crawlera import LinkedinService
+from prime.processing_service.linkedin_company_service import LinkedinCompanyService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
 from prime.processing_service.bing_service import BingService
 from prime.processing_service.lead_service import LeadService
-from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService
+from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService 
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
@@ -279,6 +280,21 @@ class TestBloombergPhoneService(unittest.TestCase):
         self.assertEqual(data[1].get("phone_number"), '800-507-9396')
         self.assertEqual(data[2].get("phone_number"), '650-573-3100')
 
+class TestLinkedinCompanyService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        from fixtures.linkedin_fixture import expected
+        data = expected
+        self.service = LinkedinCompanyService(email, linkedin_url, data)
+
+    def test_linkedin_company(self):
+        data = self.service.process()
+        self.assertEqual(data[0].get("company_website"), 'http://vycapital.com')
+        self.assertEqual(data[1].get("company_website"), 'http://www.farmivore.com')
+        self.assertEqual(data[2].get("company_website"), 'http://www.emcap.com')
+
 class TestGenderService(unittest.TestCase):
 
     def setUp(self):
@@ -351,11 +367,11 @@ class TestIndeedService(unittest.TestCase):
 class BingServiceLinkedinCompany(unittest.TestCase):
 
     def setUp(self):
-        name = "triplemint"
+        name = "vy capital"
         self.service = BingService(name, "linkedin_company")
 
     def test_linkedin_company(self):
-        expected = "https://www.linkedin.com/company/triple-mint"
+        expected = "https://www.linkedin.com/company/vy-capital"
         data = self.service.process()
         assert(expected in data)
 

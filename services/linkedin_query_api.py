@@ -11,6 +11,7 @@ urls = (
 
 CONNECTION_STRING = "dbname='ac_labs' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
 PEOPLE_TABLE = 'people'
+COMPANY_TABLE = 'crawlera_linkedin_companies'
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
@@ -62,6 +63,29 @@ def get_people_viewed_also(url=None, version='1.0.0'):
             output_rows.append(output)
         return output_rows
     return []
+
+def get_company(url=None, linkedin_id=None, version='1.0.0'):
+    if version=='1.0.0':
+        if not url and not linkedin_id:
+            return None
+        try:
+            conn = psycopg2.connect(CONNECTION_STRING)
+        except:
+            print "unable to connect to the database"
+            return {}
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if url:
+            url = url.replace("https://","http://")
+            query = """SELECT * from %s where company_json @> '{"url": "%s"}'""" % (COMPANY_TABLE, url)
+        else:
+            query = """SELECT * from %s where company_json @> '{"linkedin_id": "%s"}'""" % (COMPANY_TABLE, linkedin_id)
+        cur.execute(query)
+        row = cur.fetchone()
+        if not row:
+            return {}
+        row = dict(row).get("company_json")
+        return row
+    return {}
 
 def get_person(url=None, linkedin_id=None, version='1.0.0'):
     if version=='1.0.0':
