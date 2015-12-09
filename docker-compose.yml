@@ -9,12 +9,14 @@
 #    PGDATA: '/var/lib/postgresql/data/pgdata'
 prime:
   build: .
-  links:
-    - db:babel
+#  links:
+#    - db:babel
   ports:
-    - "80"
-    - "443"
+    - "80:80"
+    - "443:443"
   net: "host"
+  extra_hosts:
+    - "babel:10.143.114.177"
   environment:
    S3_BUCKET: 'arachid-results'
    AC_CONFIG: 'development'
