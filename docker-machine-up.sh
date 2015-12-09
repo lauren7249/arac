@@ -9,4 +9,4 @@ eval "$(docker-machine env PRIMEDEV)"
 docker info
 
 
-echo "docker-compose build     <----- build a fresh docker image"
+echo "docker-build-and-run <make command>     <----- build and run"
