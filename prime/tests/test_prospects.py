@@ -68,7 +68,7 @@ class TestLeadService(unittest.TestCase):
 
     def test_lead(self):
         data = self.service.process()
-        self.assertEqual(len(data[0]), 1)
+        self.assertEqual(len(data), 1)
 
 class TestGeoCodingService(unittest.TestCase):
 

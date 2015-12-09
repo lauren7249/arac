@@ -56,7 +56,7 @@ class LeadService(Service):
         salary = max(person.get("glassdoor_salary", 0), \
                 person.get("indeed_salary", 0))
         self.logger.info("Person: %s, Salary: %s, Title: %s", \
-                person.get("linkedin_data").get("source_url"), salary, current_job.get("title"))
+                person.get("linkedin_data",{}).get("source_url"), salary, current_job.get("title"))
         if salary == 0:
             return True
         if salary > self.salary_threshold:
@@ -83,4 +83,4 @@ class LeadService(Service):
         self.logger.info('Good Leads: %s', len(self.good_leads))
         self.logger.info('Bad Leads: %s', len(self.bad_leads))
         self.logger.info('Ending Process: %s', 'Lead Service')
-        return self.good_leads, self.bad_leads
+        return self.good_leads

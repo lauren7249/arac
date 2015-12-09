@@ -11,7 +11,7 @@ from boto.s3.key import Key
 from service import Service, S3SavedRequest
 from bing_service import BingService
 from constants import GLOBAL_HEADERS
-
+from helper import get_domain
 class BloombergPhoneService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge

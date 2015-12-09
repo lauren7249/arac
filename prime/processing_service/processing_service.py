@@ -28,7 +28,7 @@ from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
 from lead_service import LeadService
 #from extended_lead_service import ExtendedLeadService
-from bloomberg_service import BloombergPhoneService
+from phone_service import PhoneService
 from results_service import ResultService
 
 SAVE_OUTPUTS = False
@@ -44,7 +44,7 @@ SERVICES['geocode_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['linkedin_company_service'] = LinkedinCompanyService
-SERVICES['bloomberg_service'] = BloombergPhoneService
+SERVICES['phone_service'] = PhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService
 SERVICES['college_degree_service'] = CollegeDegreeService

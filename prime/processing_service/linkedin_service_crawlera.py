@@ -31,9 +31,13 @@ class LinkedinService(Service):
             linkedin_url = self._get_linkedin_url(person)
             if linkedin_url:
                 data = self._get_profile_by_any_url(linkedin_url)
-                o = {"linkedin_data": data}
-                o.update(person)
-                self.output.append(o)
+                if data:
+                    o = {"linkedin_data": data}
+                    o.update(person)
+                    self.output.append(o)
+                else:
+                    self.logger.warn('No linkedin data found for : %s', linkedin_url)
+                    self.output.append(person)
             else:
                 self.output.append(person)
         self.logger.info('Ending Process: %s', 'Linkedin Service')
