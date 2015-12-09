@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker-machine rm -f PRIMEDEV
+docker-machine rm -f `hostname -s`
