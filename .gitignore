@@ -22,6 +22,7 @@ include
 .DS_Store
 *.iml
 out/*
+.DS_Store/**
 
 
 

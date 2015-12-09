@@ -6,3 +6,6 @@ out/**
 supervisor/*
 .gitignore
 node_modules/**
+docker-build-and-run.sh
+docker-machine-down.sh
+docker-machine-up.sh
