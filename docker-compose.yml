@@ -14,7 +14,6 @@ prime:
   ports:
     - "80:80"
     - "443:443"
-  net: "host"
   extra_hosts:
     - "babel:10.143.114.177"
   environment:
