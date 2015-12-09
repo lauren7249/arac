@@ -19,6 +19,7 @@ from cloudsponge_service import CloudSpongeService
 from clearbit_service import ClearbitPersonService
 from pipl_service import PiplService
 from linkedin_service_crawlera import LinkedinService
+from linkedin_company_service import LinkedinCompanyService
 from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from geocode_service import GeoCodingService
@@ -42,6 +43,7 @@ SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
+SERVICES['linkedin_company_service'] = LinkedinCompanyService
 SERVICES['bloomberg_service'] = BloombergPhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService

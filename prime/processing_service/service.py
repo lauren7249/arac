@@ -36,7 +36,7 @@ class Service(object):
         """
         Helper method useful on several child services
         """
-        if len(person.get("linkedin_data", {}).get("experiences", [])) > 0:
+        if person and person.get("linkedin_data", {}).get("experiences"):
             jobs = person.get("linkedin_data").get("experiences")
             current_job =filter(lambda x:x.get("end_date") == "Present", jobs)
             if len(current_job) == 1:
