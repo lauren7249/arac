@@ -224,8 +224,8 @@ class TestExtendedProfilesService(unittest.TestCase):
     def test_extended(self):
         service = ExtendedProfilesService(None, None, self.data)
         data = service.process()
-        extended = data[0].get("extended_profiles")
-        self.assertEqual(extended[0].get("commonality"), 'Worked at Emergence Capital together 2014-Present')
+        extended = [profile for profile in data if profile.get("extended")]
+        self.assertEqual(extended[0].get("referrers")[0].get("referrer_connection"), 'Worked at Emergence Capital together 2014-Present')
 
 class TestAssociatedProfilesService(unittest.TestCase):
 
@@ -242,7 +242,7 @@ class TestAssociatedProfilesService(unittest.TestCase):
         self.service = AssociatedProfilesService(None, None, self.data)
         data = self.service.process()
         associated = data[0].get("associated_profiles")
-        self.assertEqual(len(associated), 11)
+        self.assertEqual(len(associated), 26)
 
 
 class TestPhoneService(unittest.TestCase):

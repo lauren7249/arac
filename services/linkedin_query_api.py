@@ -11,7 +11,7 @@ urls = (
 
 CONNECTION_STRING = "dbname='ac_labs' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
 PEOPLE_TABLE = 'people'
-COMPANY_TABLE = 'crawlera_linkedin_companies'
+COMPANY_TABLE = 'crawlera_linkedin_companies_u'
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
@@ -40,7 +40,6 @@ def get_people(urls=[], version='1.0.0'):
     return []
 
 def get_people_viewed_also(url=None, version='1.0.0'):
-    return []
     if version=='1.0.0':
         if not url:
             return None
@@ -76,14 +75,14 @@ def get_company(url=None, linkedin_id=None, version='1.0.0'):
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if url:
             url = url.replace("https://","http://")
-            query = """SELECT * from %s where company_json @> '{"url": "%s"}'""" % (COMPANY_TABLE, url)
+            query = """SELECT * from %s where url='%s'""" % (COMPANY_TABLE, url)
         else:
-            query = """SELECT * from %s where company_json @> '{"linkedin_id": "%s"}'""" % (COMPANY_TABLE, linkedin_id)
+            query = """SELECT * from %s where linkedin_id='%s'""" % (COMPANY_TABLE, linkedin_id)
         cur.execute(query)
         row = cur.fetchone()
         if not row:
             return {}
-        row = dict(row).get("company_json")
+        row = dict(row)
         return row
     return {}
 
