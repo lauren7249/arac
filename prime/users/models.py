@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, \
         Text, Enum, Float
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
@@ -50,7 +50,7 @@ class User(db.Model, UserMixin):
                                backref=db.backref('prospects', lazy='dynamic'))
 
     onboarding_code = db.Column(String(40))
-    json = db.Column(JSON, default={})
+    json = db.Column(JSONB, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -191,7 +191,7 @@ class ClientProspect(db.Model):
 
     lead_score = db.Column(Integer, nullable=False)
     stars = db.Column(Integer)
-    referrers = db.Column(JSON, default=[])
+    referrers = db.Column(JSONB, default=[])
     extended = db.Column(Boolean)
 
     #contains sources

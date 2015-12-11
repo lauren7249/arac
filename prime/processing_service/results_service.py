@@ -15,7 +15,7 @@ from helper import convert_date
 
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
-from prime.prospects.models import Prospect, School, Company, Job, Education
+from prime.prospects.models import Prospect, Job, Education
 try:
     app = create_app(os.getenv('AC_CONFIG', 'development'))
     db = SQLAlchemy(app)
@@ -63,16 +63,16 @@ class ResultService(Service):
         connections = int(filter(lambda x: x.isdigit(), data.get("connections",
             0)))
 
-        new_prospect = Prospect(url=url,
-            name = data['full_name'],
+        new_prospect = Prospect(
+            linkedin_url=url,
+            linkedin_name = data['full_name'],
             linkedin_id = cleaned_id,
-            location_raw = data.get('location'),
-            industry_raw = data.get('industry'),
-            image_url = data.get("image"),
+            linkedin_location_raw = data.get('location'),
+            linkedin_industry_raw = data.get('industry'),
+            linkedin_image_url = data.get("image"),
             updated = today,
-            connections = connections,
-            s3_key = s3_key)
-        new_prospect.json = new_data
+            linkedin_connections = connections)
+        new_prospect.linkedin_json = new_data
         self.session.add(new_prospect)
         self.session.commit()
         return new_prospect
@@ -83,7 +83,7 @@ class ResultService(Service):
         for info_school in schools:
             new = True
             for school in new_prospect.schools:
-                if info_school.get("degree") == school.degree and info_school.get("college") == school.school.name:
+                if info_school.get("degree") == school.degree and info_school.get("college") == school.school_name:
                     self.session.query(Education).filter_by(id=school.id).update({
                         "start_date": convert_date(info_school.get("start_date")),
                         #"school_linkedin_id": info_school.get("college_id")
@@ -105,17 +105,9 @@ class ResultService(Service):
         extra['end_date'] = convert_date(college.get('end_date'))
         if extra['end_date'] is None: extra['end_date'] = convert_date(college.get('graduation_date'))
 
-        school = self.session.query(School).filter_by(name=college['college']).first()
-        if not school:
-            school = School(
-                    name=college['college']
-                    )
-            self.session.add(school)
-            self.session.flush()
-
         new_education = Education(
                 prospect = new_prospect,
-                school = school,
+                school_name = college.get("college"),
                 degree = college.get("degree"),
                 #TODO do we still need this?
                 #school_linkedin_id = college.get("college_id"),
@@ -132,7 +124,7 @@ class ResultService(Service):
             new = True
             for job in new_prospect.jobs:
                 if info_job.get("title") == job.title and \
-                info_job.get("company") == job.company.name and \
+                info_job.get("company") == job.company_name and \
                 convert_date(info_job.get("start_date")) == job.start_date:
                     self.session.query(Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
@@ -156,20 +148,10 @@ class ResultService(Service):
         extra['start_date'] = convert_date(job.get('start_date'))
         extra['end_date'] = convert_date(job.get('end_date'))
 
-        company = self.session.query(Company).filter_by(name=job['company']).first()
-        if not company:
-            company = Company(
-                    name=job['company']
-                    )
-            self.session.add(company)
-            self.session.flush()
-
         new_job = Job(
             prospect = new_prospect,
             title = job['title'],
-            company=company,
-            #TODO do we still need this?
-            #company_linkedin_id=job.get("company_id"),
+            company_name=job.get("company"),
             **extra
         )
         self.session.add(new_job)

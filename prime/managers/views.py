@@ -11,8 +11,7 @@ jsonify, current_app
 from flask.ext.login import current_user, login_required
 
 from . import manager
-from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry
+from prime.prospects.models import Prospect, Job, Education
 from prime.users.models import User, ClientProspect
 from prime.utils.email import sendgrid_email
 from prime.utils import random_string

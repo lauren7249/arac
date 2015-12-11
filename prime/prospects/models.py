@@ -36,6 +36,7 @@ class Prospect(db.Model):
     linkedin_headline = db.Column(String(1024))
     linkedin_industry_raw = db.Column(String(1024))
     linkedin_connections = db.Column(Integer)
+    linkedin_json = db.Column(JSONB)
 
     #abstract, right now only from linkedin
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
@@ -48,9 +49,6 @@ class Prospect(db.Model):
     dob_min = db.Column(Date)
     dob_max = db.Column(Date)
     salary = db.Column(Integer)
-    company_linkedin_url = db.Column(CIText())
-    company_website = db.Column(CIText())
-    company_headquarters = db.Column(String(500))
 
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))

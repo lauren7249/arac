@@ -7,8 +7,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from flask.ext.login import current_user
 
 from . import users
-from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry
+from prime.prospects.models import Prospect, Job, Education
 from prime.users.models import User, ClientProspect
 from prime import db, csrf
 
