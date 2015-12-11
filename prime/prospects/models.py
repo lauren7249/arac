@@ -41,15 +41,18 @@ class Prospect(db.Model):
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
 
-    #linkedin derived fields
-    linkedin_lat = db.Column(Float)
-    linkedin_lng = db.Column(Float)
-
-    # general derived fields -- non-UI
-    is_male = db.Column(Boolean)
+    #derived fields, could be useful later
+    lat = db.Column(Float)
+    lng = db.Column(Float)
     email_addresses = db.Column(JSONB)
+    dob_min = db.Column(Date)
+    dob_max = db.Column(Date)
+    salary = db.Column(Integer)
+    company_linkedin_url = db.Column(CIText())
+    company_website = db.Column(CIText())
+    company_headquarters = db.Column(String(500))
 
-    #clean, normalized, curated profile fields for UI
+    #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))
     job = db.Column(String(1024))
     name = db.Column(String(1024))
@@ -57,6 +60,8 @@ class Prospect(db.Model):
     url = db.Column(String(1024))
     facebook = db.Column(String(1024))
     twitter = db.Column(String(1024))
+    angel = db.Column(String(1024))
+    flickr = db.Column(String(1024))
     soundcloud = db.Column(String(1024))
     slideshare = db.Column(String(1024))
     plus = db.Column(String(1024))
@@ -65,13 +70,21 @@ class Prospect(db.Model):
     linkedin = db.Column(String(1024))
     foursquare = db.Column(String(1024))
     github = db.Column(String(1024))
-    industry = db.Column(String(200)) 
-    industry_icon = db.Column(String(200)) 
     mailto = db.Column(String(1024)) 
     phone = db.Column(String(100)) 
+    common_school = db.Column(String(200))
+    industry = db.Column(String(200)) 
+    industry_category = db.Column(String(100))
+    industry_icon = db.Column(String(200)) 
+
+    #fields for network summary only
+    gender = db.Column(String(15))
+    college_grad = db.Column(Boolean)
+    wealthscore = db.Column(Integer)
+    age = db.Column(Float)
 
     def __repr__(self):
-        return '<Prospect id={0} url={1}>'.format(self.id, self.linkedin_url)
+        return '<Prospect id={0} url={1}>'.format(self.id, self.url)
 
 class Job(db.Model):
     __tablename__ = "job"

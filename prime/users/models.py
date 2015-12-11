@@ -194,6 +194,9 @@ class ClientProspect(db.Model):
     referrers = db.Column(JSON, default=[])
     extended = db.Column(Boolean)
 
+    #contains sources
+    email_addresses = db.Column(JSONB)
+    
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
 
