@@ -9,6 +9,7 @@ class ExtendedProfilesService(Service):
     Output is going to be array of extended profiles
     """
 
+    #TODO: change input format to include user linkedin id instead of url https://developer.linkedin.com/docs/fields/contact
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
         self.user_email = user_email
         self.user_linkedin_url = user_linkedin_url
