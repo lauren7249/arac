@@ -92,7 +92,7 @@ class MapQuestRequest(S3SavedRequest):
         for record in unresolved:
             _website = record.get("website")
             _name = record.get("name")
-            if domain_match(_website, website):
+            if _website and website and domain_match(_website, website):
                 return self._get_business_info(record)
             if name_match(_name, self.query):
                 if not latlng:

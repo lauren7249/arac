@@ -71,9 +71,8 @@ expected = [
             "experiences": [
                 {
                     "end_date": "Present",
-                    "title": "Getting things done",
-                    "company": "Vy Capital",
-                    "company_id": "3116244",
+                    "title": "Equities Finance Analyst",#i made this up
+                    "company": "Vy Capital", #i took out company id
                     "company_image_url": "https://media.licdn.com/media/p/5/000/253/157/2e1160c.png",
                     "start_date": "October 2015"
                 },

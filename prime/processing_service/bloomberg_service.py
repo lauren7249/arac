@@ -11,7 +11,7 @@ from boto.s3.key import Key
 from service import Service, S3SavedRequest
 from bing_service import BingService
 from constants import GLOBAL_HEADERS
-
+from helper import get_domain
 class BloombergPhoneService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
@@ -34,17 +34,20 @@ class BloombergPhoneService(Service):
             current_job = self._current_job(person)
             if current_job:
                 request = BloombergRequest(current_job.get("company"))
-                data = request.process_next()
-                while not person.get("phone_number") and data:
+                while not person.get("phone_number") and request.has_next_url():
+                    data = request.process_next()
                     phone = data.get("phone")
                     website = data.get("website")
+                    #if we already know the website and it does not match, keep trying other bloomberg pages
+                    if person.get("company_website") and website:
+                        if get_domain(person.get("company_website")) != get_domain(website): 
+                            continue
                     if phone:
                         person.update({"phone_number": phone})
                         person.update({"company_website": website})
                         break
                     if website:
                         person.update({"company_website": website})
-                    data = request.process_next()
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'Bloomberg Service')
         return self.output
@@ -86,12 +89,12 @@ class BloombergRequest(S3SavedRequest):
         self.urls = bing.process()
 
     def has_next_url(self):
+        self._get_urls()
         if self.index < len(self.urls):
             return True
         return False
 
     def process_next(self):
-        self._get_urls()
         if self.has_next_url():
             self.url = self.urls[self.index]
             self.index +=1

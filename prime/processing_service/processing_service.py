@@ -19,6 +19,7 @@ from cloudsponge_service import CloudSpongeService
 from clearbit_service import ClearbitPersonService
 from pipl_service import PiplService
 from linkedin_service_crawlera import LinkedinService
+from linkedin_company_service import LinkedinCompanyService
 from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from geocode_service import GeoCodingService
@@ -27,7 +28,7 @@ from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
 from lead_service import LeadService
 #from extended_lead_service import ExtendedLeadService
-from bloomberg_service import BloombergPhoneService
+from phone_service import PhoneService
 from results_service import ResultService
 
 SAVE_OUTPUTS = False
@@ -40,12 +41,13 @@ SERVICES['linkedin_service'] = LinkedinService
 SERVICES['glassdoor_service'] = GlassdoorService
 SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
-SERVICES['bloomberg_service'] = BloombergPhoneService
 SERVICES['lead_service'] = LeadService
+#SERVICES['extended_lead_service'] = ExtendedLeadService
+SERVICES['linkedin_company_service'] = LinkedinCompanyService
+SERVICES['phone_service'] = PhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService
 SERVICES['college_degree_service'] = CollegeDegreeService
-#SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):

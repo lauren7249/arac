@@ -28,7 +28,7 @@ except:
 class ResultService(Service):
 
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.good_leads, self.bad_leads = data
+        self.good_leads = data
         self.session = session
         self.user_email = user_email
         self.user_linkedin_url = user_linkedin_url
@@ -181,7 +181,7 @@ class ResultService(Service):
         self.logger.info('Starting Process: %s', 'Result Service')
         for person in self.good_leads:
             data = person.get("linkedin_data")
-            url = self._get_linkedin_url(person)
+            url = data.get("source_url")
             prospect = self._create_prospect(data, url)
             self._create_or_update_schools(prospect, data)
             self._create_or_update_jobs(prospect, data)

@@ -7,14 +7,14 @@ from requests import HTTPError
 from boto.s3.key import Key
 from geoindex.geo_point import GeoPoint
 
-from service import Service, S3SavedRequest
-from linkedin_service import LinkedinRequest
+from service import Service
+from saved_request import S3SavedRequest
 from geocode_service import MapQuestRequest
 
 class LeadService(Service):
     """
-    Expected input is JSON of unique email addresses from cloudsponge
-    Output is going to be social accounts and Linkedin IDs via PIPL
+    Expected input is JSON 
+    Output is filtered to qualified leads only
     """
 
     def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
@@ -56,7 +56,7 @@ class LeadService(Service):
         salary = max(person.get("glassdoor_salary", 0), \
                 person.get("indeed_salary", 0))
         self.logger.info("Person: %s, Salary: %s, Title: %s", \
-                person.get("linkedin_data").get("source_url"), salary, current_job.get("title"))
+                person.get("linkedin_data",{}).get("source_url"), salary, current_job.get("title"))
         if salary == 0:
             return True
         if salary > self.salary_threshold:
@@ -64,10 +64,10 @@ class LeadService(Service):
         return False
 
     def _get_self_jobs_and_schools(self):
-        person = LinkedinRequest(self.user_linkedin_url, {}).process()
+        person = self._get_profile_by_any_url(self.user_linkedin_url)
         self.jobs = person.get("experiences")
         self.schools = person.get("schools")
-        location_raw = person.get("linkedin_data").get("location")
+        location_raw = person.get("location")
         self.location = MapQuestRequest(location_raw).process()
 
     def process(self):
@@ -83,4 +83,4 @@ class LeadService(Service):
         self.logger.info('Good Leads: %s', len(self.good_leads))
         self.logger.info('Bad Leads: %s', len(self.bad_leads))
         self.logger.info('Ending Process: %s', 'Lead Service')
-        return self.good_leads, self.bad_leads
+        return self.good_leads

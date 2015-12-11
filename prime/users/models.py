@@ -189,6 +189,9 @@ class ClientProspect(db.Model):
     good = db.Column(Boolean, default=False)
     created = db.Column(Date, default=datetime.datetime.today)
 
+    lead_score = db.Column(Integer, nullable=False)
+    referrers = db.Column(JSON, default={})
+
 
     def __repr__(self):
         return '{} {}'.format(self.prospect.url, self.user.name)
