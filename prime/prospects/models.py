@@ -74,6 +74,7 @@ class Prospect(db.Model):
     jobs = relationship('Job', foreign_keys='Job.prospect_id')
     schools = relationship('Education', foreign_keys='Education.prospect_id')
 
+    is_male = db.Column(Boolean)
     all_email_addresses = db.Column(JSON)
 
     @classmethod
@@ -259,16 +260,6 @@ class Prospect(db.Model):
             return score.wealthscore
         return None
 
-    @property
-    def is_male(self):
-        session = db.session
-        gender = session.query(ProspectGender).filter(ProspectGender.prospect_id == self.id).first()
-        if gender:
-            if gender.gender:
-                return True
-        return False
-
-
     def to_json(self, no_fk=False):
         data = {
             "name": self.name,
@@ -293,29 +284,6 @@ class Prospect(db.Model):
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, self.url)
 
-
-class ProspectGender(db.Model):
-    __tablename__ = "prospect_gender"
-
-    prospect_id = db.Column(BigInteger, primary_key=True)
-    gender = db.Column(Boolean)
-
-    def __repr__(self):
-        return '<Prospect Gender prospect_id={0}>'.format(
-                self.prospect_id
-                )
-
-class ProspectWealthscore(db.Model):
-    __tablename__ = "prospect_wealthscore"
-
-    prospect_id = db.Column(BigInteger, primary_key=True)
-    wealthscore = db.Column(Integer)
-
-    def __repr__(self):
-        return '<Prospect Wealthscore prospect_id={0} wealthscore={1}>'.format(
-                self.prospect_id,
-                self.wealthscore
-                )
 
 class Industry(db.Model):
     __tablename__ = "industry"

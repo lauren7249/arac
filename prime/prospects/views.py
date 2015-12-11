@@ -17,7 +17,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry, ProspectLocation, Location, ProspectGender, ProspectWealthscore
+Industry, ProspectLocation, Location
 from prime.users.models import User
 from prime import db, csrf
 
