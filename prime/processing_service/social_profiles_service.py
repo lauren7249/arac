@@ -72,6 +72,24 @@ class SocialProfilesRequest(S3SavedRequest):
         if clearbit_data.get("gender"):
             self.genders.append(clearbit_data.get("gender"))      
 
+    def _validate_social_accounts(self, social_accounts):
+        good_links = []
+        for url in social_accounts:
+            req = UrlValidatorRequest(url, is_image=False)
+            _link = req.process()        
+            if _link:
+                good_links.append(_link)
+        return good_links
+
+    def _validate_images(self, images):
+        good_links = []
+        for url in images:
+            req = UrlValidatorRequest(url, is_image=True)
+            _link = req.process()        
+            if _link:
+                good_links.append(_link)
+        return good_links
+
     def process(self):
         pipl_data = self._get_extra_pipl_data()
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
@@ -81,8 +99,8 @@ class SocialProfilesRequest(S3SavedRequest):
         for email in self.emails:
             self._update_profile(email)                           
         self.person["email_addresses"] = list(self.emails)   
-        self.person["social_accounts"] = list(self.social_accounts)
-        self.person["images"] = list(self.images)
+        self.person["social_accounts"] = self._validate_social_accounts(self.social_accounts)
+        self.person["images"] = self._validate_images(self.images)
         self.person["clearbit_genders"] = self.genders    
         return self.person    
 
@@ -95,7 +113,8 @@ class UrlValidatorRequest(S3SavedRequest):
     def __init__(self, url, is_image=False):
         super(UrlValidatorRequest, self).__init__()
         self.url = url.lower()
-        if not is_image:
+        self.is_image = is_image
+        if not self.is_image:
             self.content_type ='text/html'
             self.bucket = None
         else:
@@ -114,5 +133,8 @@ class UrlValidatorRequest(S3SavedRequest):
     def process(self):
         html = self._make_request(content_type =self.content_type , bucket=self.bucket)
         if len(html) > 0:
-            return self.boto_key.generate_url(expires_in=0, query_auth=False)
+            if self.is_image:
+                return self.boto_key.generate_url(expires_in=0, query_auth=False)
+            else:
+                return self.url
         return None

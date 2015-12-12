@@ -173,7 +173,10 @@ class ClearbitRequest(S3SavedRequest):
                 elif key=='twitter':
                     link = "https://twitter.com/" + handle
                 elif key=='facebook':
-                    link = "https://facebook.com/" + handle
+                    if handle.isdigit():
+                        link = "https://facebook.com/people/_/" + handle
+                    else:
+                        link = "https://facebook.com/" + handle
                 elif key=='linkedin':
                     link = "https://www." + key + ".com/" + handle
                 else:
