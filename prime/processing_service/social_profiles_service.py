@@ -28,9 +28,29 @@ class SocialProfilesService(Service):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         super(SocialProfilesService, self).__init__(*args, **kwargs)
+                   
+    def process(self):
+        for person in self.data:
+            request = SocialProfilesRequest(person)
+            person = request.process()
+            self.output.append(person)
+        return self.output
 
-    def _get_extra_pipl_data(self, person):
-        linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
+class SocialProfilesRequest(S3SavedRequest):
+
+    """
+    Given a lead, this will find social profiles and images by any means necessary!
+    """
+
+    def __init__(self, person):
+        self.person = person
+        logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        super(SocialProfilesRequest, self).__init__()
+
+    def _get_extra_pipl_data(self):
+        linkedin_id = self.person.get("linkedin_data",{}).get("linkedin_id")
         if linkedin_id:
             request = PiplRequest(linkedin_id, type="linkedin", level="email")
             pipl_data = request.process()        
@@ -38,27 +58,61 @@ class SocialProfilesService(Service):
             pipl_data = {}        
         return pipl_data
 
+    def _update_profile(self, email):
+        if not email:
+            return
+        request = PiplRequest(email, type="email", level="social")
+        pipl_data = request.process()         
+        self.social_accounts.update(pipl_data.get("social_accounts",[]))           
+        self.images.update(pipl_data.get("images",[]))    
+        request = ClearbitRequest(email)
+        clearbit_data = request.get_person()       
+        self.social_accounts.update(clearbit_data.get("social_accounts",[]))           
+        self.images.update(clearbit_data.get("images",[]))     
+        if clearbit_data.get("gender"):
+            self.genders.append(clearbit_data.get("gender"))      
+
     def process(self):
-        for person in self.data:
-            pipl_data = self._get_extra_pipl_data(person)
-            emails = set(pipl_data.get("emails",[]) + person.get("email_addresses",[]))
-            social_accounts = set(pipl_data.get("social_accounts",[]) + person.get("social_accounts",[]))
-            images = set(pipl_data.get("images",[]) + person.get("images",[]))
-            genders = []
-            for email in emails:
-                request = PiplRequest(email, type="email", level="social")
-                pipl_data = request.process()         
-                social_accounts.update(pipl_data.get("social_accounts",[]))           
-                images.update(pipl_data.get("images",[]))    
-                request = ClearbitRequest(email)
-                clearbit_data = request.get_person()       
-                social_accounts.update(clearbit_data.get("social_accounts",[]))           
-                images.update(clearbit_data.get("images",[]))     
-                if clearbit_data.get("gender"):
-                    genders.append(clearbit_data.get("gender"))                                
-            person["email_addresses"] = list(emails)   
-            person["social_accounts"] = list(social_accounts)
-            person["images"] = list(images)
-            person["clearbit_genders"] = genders
-            self.output.append(person)
-        return self.output
+        pipl_data = self._get_extra_pipl_data()
+        self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
+        self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
+        self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]))
+        self.genders = []
+        for email in self.emails:
+            self._update_profile(email)                           
+        self.person["email_addresses"] = list(self.emails)   
+        self.person["social_accounts"] = list(self.social_accounts)
+        self.person["images"] = list(self.images)
+        self.person["clearbit_genders"] = self.genders    
+        return self.person    
+
+class UrlValidatorRequest(S3SavedRequest):
+
+    """
+    Given a url, this will return a boolean as to the validity, saving them to S3 as well
+    """
+
+    def __init__(self, url, is_image=False):
+        super(UrlValidatorRequest, self).__init__()
+        self.url = url.lower()
+        if not is_image:
+            self.content_type ='text/html'
+            self.bucket = None
+        else:
+            ext = self.url.split(".")[-1]
+            if ext == 'png':
+                self.content_type = 'image/png'
+            else:
+                self.content_type = 'image/jpeg'
+            s3conn = boto.connect_s3("AKIAIXDDAEVM2ECFIPTA", "4BqkeSHz5SbcAyM/cyTBCB1SwBrB9DDu0Ug/VZaQ")
+            self.bucket= s3conn.get_bucket("public-profile-photos")
+        logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        
+
+    def process(self):
+        html = self._make_request(content_type =self.content_type , bucket=self.bucket)
+        if len(html) > 0:
+            return self.boto_key.generate_url(expires_in=0, query_auth=False)
+        return None

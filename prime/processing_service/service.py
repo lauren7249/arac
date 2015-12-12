@@ -86,8 +86,6 @@ class Service(object):
         pass
 
     def _get_profile_by_any_url(self,url):
-        if not url:
-            return {}
         profile = get_person(url=url)
         if profile:
             return profile
@@ -138,16 +136,21 @@ class S3SavedRequest(object):
         s3conn = boto.connect_s3("AKIAIKCNCKG6RXJHWNFA", "GAwQwgy67hmp0lMShAV4O15zfDAfc8aKUoY7l2UC")
         return s3conn.get_bucket("aconn")
 
-    def _make_request(self):
+    def _make_request(self, content_type = 'text/html', bucket=None):
         self.key = hashlib.md5(self.url).hexdigest()
-        key = Key(self._s3_connection)
-        key.key = self.key
-        if key.exists():
-            html = key.get_contents_as_string()
+        if not bucket:
+            bucket = self._s3_connection
+        self.boto_key = Key(bucket)
+        self.boto_key.key = self.key
+        if self.boto_key.exists():
+            html = self.boto_key.get_contents_as_string()
         else:
             response = requests.get(self.url, headers=self.headers)
-            html = response.content
-            key.content_type = 'text/html'
-            key.set_contents_from_string(html)
+            if response.status_code ==200:
+                html = response.content
+            else:
+                html = ''
+            self.boto_key.content_type = content_type
+            self.boto_key.set_contents_from_string(html)
         return html
 

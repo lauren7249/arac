@@ -18,7 +18,7 @@ from prime.processing_service.bloomberg_service import BloombergRequest, Bloombe
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
-from prime.processing_service.social_profiles_service import SocialProfilesService
+from prime.processing_service.social_profiles_service import SocialProfilesService, UrlValidatorRequest
 from prime.processing_service.gender_service import GenderService
 from prime.processing_service.age_service import AgeService
 from prime.processing_service.college_degree_service import CollegeDegreeService
@@ -85,6 +85,16 @@ class TestGeoCodingService(unittest.TestCase):
         latlng = data[1].get("location_coordinates").get("latlng")
         self.assertEqual(latlng, expected)
 
+class TestUrlValidatorRequest(unittest.TestCase):
+
+    def test_url(self):
+        url = 'https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAAKmAAAAJDI4YTRlZGJiLTE3ZDktNDBmNS04MmYwLWZlM2VmZThkNjllMg.jpg'
+        req = UrlValidatorRequest(url, is_image=True)
+        self.assertEqual(req.process(), None)
+        url = 'http://graph.facebook.com/662395164/picture?type=large'
+        req = UrlValidatorRequest(url, is_image=True)
+        self.assertEqual(req.process(), 'https://public-profile-photos.s3.amazonaws.com/6231a637dc9c7dfc22577ecc11296f82')  
+              
 class TestMapquestRequest(unittest.TestCase):
     def setUp(self):
         business_name = "emergence capital partners"
