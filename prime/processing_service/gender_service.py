@@ -33,16 +33,24 @@ class GenderService(Service):
         self.logger = logging.getLogger(__name__)
         super(GenderService, self).__init__(*args, **kwargs)
 
-    def process(self, favor_mapquest=False, favor_clearbit=False):
+    def process(self):
         for person in self.data:
-            firstname = get_firstname(person.get("linkedin_data").get("full_name"))
-            is_male = self._get_gender(firstname)
-            if is_male is None:
-                person["gender"] = "Unknown"
-            elif is_male:
-                person["gender"] = "Male"
+            genders = person.get("clearbit_genders",[])
+            malecount= genders.count("male") 
+            femalecount = genders.count("female")
+            if malecount and not femalecount:
+                person["gender"] = "male"
+            elif femalecount and not malecount:
+                person["gender"] = "female"
             else:
-                person["gender"] = "Female"
+                firstname = get_firstname(person.get("linkedin_data").get("full_name"))
+                is_male = self._get_gender(firstname)
+                if is_male is None:
+                    person["gender"] = "unknown"
+                elif is_male:
+                    person["gender"] = "male"
+                else:
+                    person["gender"] = "female"
             self.output.append(person)
         return self.output
 

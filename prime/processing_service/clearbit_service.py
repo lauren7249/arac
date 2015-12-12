@@ -41,12 +41,14 @@ class ClearbitPersonService(Service):
             original_person = original_data[i].values()[0]
             output_person = output_data[i].values()[0]
             social_accounts = original_person.get("social_accounts",[]) + output_person.get("social_accounts",[])
+            images = original_person.get("images",[]) + output_person.get("images",[])
             linkedin_urls = original_person.get("linkedin_urls") if original_person.get("linkedin_urls") and re.search(pub_profile_re,original_person.get("linkedin_urls")) else output_person.get("linkedin_urls")
             output_data[i][output_data[i].keys()[0]]["social_accounts"] = social_accounts
             output_data[i][output_data[i].keys()[0]]["linkedin_urls"] = linkedin_urls
+            output_data[i][output_data[i].keys()[0]]["images"] = images
         return output_data
 
-    def multiprocess(self, poolsize=5, merge=False):
+    def multiprocess(self, poolsize=5, merge=True):
         #rate limit is 600/minute
         self.logger.info('Starting MultiProcess: %s', 'Clearbit Service')
         pool = multiprocessing.Pool(processes=poolsize)
@@ -63,7 +65,7 @@ class ClearbitPersonService(Service):
             return True
         return False
 
-    def process(self, merge=False):
+    def process(self, merge=True):
         self.logger.info('Starting Process: %s', 'Clearbit Person Service')
         for person in self.data:
             if self._exclude_person(person) and not merge:
@@ -72,7 +74,7 @@ class ClearbitPersonService(Service):
                 email = person.keys()[0]
                 request = ClearbitRequest(email)
                 data = request.get_person()
-                self.output.append(data)
+                self.output.append({email: data})
         if merge:
             self.output = self._merge(self.data,self.output)
         self.logger.info('Ending Process: %s', 'Clearbit Person Service')
@@ -142,7 +144,7 @@ class ClearbitRequest(S3SavedRequest):
                     entity = clearbit.Company.find(domain=self.query, stream=True)
             except HTTPError as e:
                 self.logger.info('Clearbit Fail')
-                entity = None
+                entity = {}
             if entity:
                 #TODO, this doesn't work
                 try:
@@ -150,7 +152,9 @@ class ClearbitRequest(S3SavedRequest):
                     key.set_contents_from_string(entity)
                 except:
                     pass
-        return entity
+        if entity:
+            return dict(entity)
+        return {}
 
 
     def _social_accounts(self, clearbit_json):
@@ -177,6 +181,16 @@ class ClearbitRequest(S3SavedRequest):
                 social_accounts.append(link)
         return social_accounts
 
+    def _images(self, clearbit_json):
+        images = []
+        if not clearbit_json:
+            return images
+        for key in clearbit_json.keys():
+            if isinstance(clearbit_json[key], dict) and clearbit_json[key].get('avatar'):
+                avatar = clearbit_json[key].get("avatar")
+                images.append(avatar)
+        return images
+
     def _linkedin_url(self, social_accounts):
         for record in social_accounts:
             if "linkedin.com" in record:
@@ -186,15 +200,17 @@ class ClearbitRequest(S3SavedRequest):
 
     def get_person(self):
         self.logger.info('Clearbit Person Request: %s', 'Starting')
-        response = {}
         clearbit_json = self._make_request("person")
         social_accounts = self._social_accounts(clearbit_json)
         linkedin_url = self._linkedin_url(social_accounts)
+        images = self._images(clearbit_json)
         data = {"social_accounts": social_accounts,
                 "linkedin_urls": linkedin_url,
+                "images": images,
                 "clearbit_fields": clearbit_json}
-        response[self.query] = data
-        return response
+        if clearbit_json and clearbit_json.get("gender"):
+            data["gender"] = clearbit_json.get("gender")
+        return data
 
     def get_company(self):
         self.logger.info('Clearbit Company Request: %s', 'Starting')

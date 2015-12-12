@@ -51,6 +51,7 @@ class Prospect(db.Model):
     dob_max_year = db.Column(Integer)
 
     email_addresses = db.Column(JSONB)
+    image_urls = db.Column(JSONB)
     
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))

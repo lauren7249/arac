@@ -86,6 +86,8 @@ class Service(object):
         pass
 
     def _get_profile_by_any_url(self,url):
+        if not url:
+            return {}
         profile = get_person(url=url)
         if profile:
             return profile

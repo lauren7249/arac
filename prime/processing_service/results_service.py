@@ -9,7 +9,7 @@ from boto.s3.key import Key
 
 from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SCRAPING_API_KEY, new_redis_host, new_redis_port, \
-new_redis_password, new_redis_dbname
+new_redis_password, new_redis_dbname, SOCIAL_DOMAINS
 
 from prime.processing_service.helper import convert_date
 
@@ -41,37 +41,25 @@ class ResultService(Service):
         super(ResultService, self).__init__(*args, **kwargs)
 
     def _create_or_update_prospect(self, person):
+        if not person:
+            self.logger.error("No person")
+            return None            
         data = person.get("linkedin_data")
-        url = data.get("source_url")        
         cleaned_id = data.get('linkedin_id').strip()
         if cleaned_id is None:
             self.logger.error("No linkedin id")
             return None
-
         prospect = get_or_create(session, Prospect, linkedin_id=cleaned_id)
+        prospect = self._update_linkedin_fields(prospect, data)
+        prospect = self._update_person_fields(prospect, person)
+        self.session.add(prospect)
+        self.session.commit()
+        self.logger.info("Prospect updated")
+        return prospect
 
-        today = datetime.date.today()
-        new_data = {}
-        new_data["skills"] = data.get("skills")
-        new_data["groups"] = data.get("groups")
-        new_data["projects"] = data.get("projects")
-        new_data["people"] = data.get("people")
-        new_data["interests"] = data.get("interests")
-        new_data["causes"] = data.get("causes")
-        new_data["organizations"] = data.get("organizations")
-
-        connections = int(filter(lambda x: x.isdigit(), data.get("connections",
-            0)))
-        print person.keys()
-        prospect.linkedin_url = url
-        prospect.linkedin_name = data.get('full_name')
-        prospect.linkedin_location_raw = data.get("location")
-        prospect.linkedin_industry_raw = data.get("industry")
-        prospect.linkedin_image_url = data.get("image")
-        prospect.linkedin_connections = connections
-        prospect.linkedin_headline = data.get("headline")
-        prospect.updated = today
-        prospect.linkedin_json = new_data
+    def _update_person_fields(self, prospect, person):
+        if not person or not prospect:
+            return prospect
         latlng = person.get("location_coordinates",{}).get("latlng",[])
         if len(latlng)==2:
             prospect.lat = latlng[0]
@@ -85,9 +73,44 @@ class ResultService(Service):
         prospect.dob_min_year = person.get("dob_min")
         prospect.dob_max_year = person.get("dob_max")
         prospect.email_addresses = person.get("email_addresses")
-        self.session.add(prospect)
-        self.session.commit()
-        self.logger.info("Prospect updated")
+        prospect.image_urls = person.get("images")
+        print person.get("social_accounts",[])
+        print person.get("email_addresses",[])
+        print person.get("images",[])
+        prospect = self._update_social_fields(prospect, person.get("social_accounts",[]))
+        return prospect
+
+    def _update_social_fields(self, prospect, social_accounts):
+        if not social_accounts or not prospect:
+            return prospect
+        for link in social_accounts: 
+            domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
+            if domain in SOCIAL_DOMAINS: 
+                setattr(prospect, domain, link)
+        return prospect 
+
+    def _update_linkedin_fields(self, prospect, data):
+        if not prospect or not data:
+            return prospect
+        new_data = {}
+        new_data["skills"] = data.get("skills")
+        new_data["groups"] = data.get("groups")
+        new_data["projects"] = data.get("projects")
+        new_data["people"] = data.get("people")
+        new_data["interests"] = data.get("interests")
+        new_data["causes"] = data.get("causes")
+        new_data["organizations"] = data.get("organizations")
+        connections = int(filter(lambda x: x.isdigit(), data.get("connections",
+            0)))
+        prospect.linkedin_url = data.get("source_url")        
+        prospect.linkedin_name = data.get('full_name')
+        prospect.linkedin_location_raw = data.get("location")
+        prospect.linkedin_industry_raw = data.get("industry")
+        prospect.linkedin_image_url = data.get("image")
+        prospect.linkedin_connections = connections
+        prospect.linkedin_headline = data.get("headline")
+        prospect.updated = datetime.date.today()
+        prospect.linkedin_json = new_data
         return prospect
 
     def _create_or_update_schools(self, new_prospect, person):

@@ -30,9 +30,11 @@ from lead_service import LeadService
 #from extended_lead_service import ExtendedLeadService
 from phone_service import PhoneService
 from results_service import ResultService
+from social_profiles_service import SocialProfilesService
 
 SAVE_OUTPUTS = False
 
+#DO NOT REORDER THESE 
 SERVICES = OrderedDict()
 SERVICES['cloud_sponge'] = CloudSpongeService
 SERVICES['pipl_serice'] =  PiplService
@@ -43,6 +45,7 @@ SERVICES['indeed_service'] = IndeedService
 SERVICES['geocode_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
 #SERVICES['extended_lead_service'] = ExtendedLeadService
+SERVICES['social_profiles_service'] = SocialProfilesService
 SERVICES['linkedin_company_service'] = LinkedinCompanyService
 SERVICES['phone_service'] = PhoneService
 SERVICES['age_service'] = AgeService

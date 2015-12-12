@@ -41,7 +41,8 @@ class LinkedinService(Service):
                     emails = info.get("email_addresses",[]) 
                     emails.append(email)
                     social_accounts = info.get("social_accounts",[]) + email_data.get("social_accounts",[])
-                    o = {"linkedin_data": data, "email_addresses":list(set(emails)), "social_accounts":list(set(social_accounts))}
+                    images = info.get("images",[]) + email_data.get("images",[])
+                    o = {"linkedin_data": data, "email_addresses":list(set(emails)), "social_accounts":list(set(social_accounts)), "images":list(set(images))}
                     info.update(o)
                     self.output.update({linkedin_id:o})
         self.logger.info('Ending Process: %s', 'Linkedin Service')

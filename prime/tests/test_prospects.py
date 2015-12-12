@@ -18,6 +18,7 @@ from prime.processing_service.bloomberg_service import BloombergRequest, Bloombe
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
+from prime.processing_service.social_profiles_service import SocialProfilesService
 from prime.processing_service.gender_service import GenderService
 from prime.processing_service.age_service import AgeService
 from prime.processing_service.college_degree_service import CollegeDegreeService
@@ -65,10 +66,9 @@ class TestLeadService(unittest.TestCase):
         service = IndeedService(email, linkedin_url, data)
         data = service.process()        
         self.service = LeadService(email, linkedin_url, data)
-
+        self.data = self.service.process()           
     def test_lead(self):
-        data = self.service.process()
-        self.assertEqual(len(data), 1)
+        self.assertEqual(len(self.data), 1)
 
 class TestGeoCodingService(unittest.TestCase):
 
@@ -159,7 +159,7 @@ class TestPiplService(unittest.TestCase):
 class TestClearbitPersonService(unittest.TestCase):
 
     def setUp(self):
-        self.emails = [{"alex@alexmaccaw.com":{"social_accounts":["boo"],"linkedin_urls":u'https://www.linkedin.com/in/alex-maccaw'}}]
+        self.emails = [{"alex@alexmaccaw.com":{"social_accounts":["boo"],"linkedin_urls":u'https://www.linkedin.com/in/alex-maccaw'}},{"laurentracytalbot@gmail.com":{}}]
 
     def test_clearbit(self):
         self.service = ClearbitPersonService(None, None, self.emails)
@@ -175,6 +175,7 @@ class TestClearbitPersonService(unittest.TestCase):
                 u'https://aboutme.com/maccaw',
                 u'https://gravatar.com/maccman'])
         self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5')
+        self.assertEqual(data1[1].get('laurentracytalbot@gmail.com').get("clearbit_fields",{}).get("gender"), 'female')
         #multiprocess is broken right now, to test later
         #self.assertEqual(data1,data2)
 
@@ -298,16 +299,14 @@ class TestLinkedinCompanyService(unittest.TestCase):
 class TestGenderService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = GenderService(email, linkedin_url, data)
+        self.service = GenderService(None, None, data)
 
     def test_gender(self):
         data = self.service.process()
-        self.assertEqual(data[0].get("gender"), 'Female')
-        self.assertEqual(data[1].get("gender"), 'Unknown')
+        self.assertEqual(data[0].get("gender"), 'female')
+        self.assertEqual(data[1].get("gender"), 'unknown')
 
 class TestLinkedinService(unittest.TestCase):
 

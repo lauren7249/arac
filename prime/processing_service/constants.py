@@ -24,3 +24,5 @@ bloomberg_company_re = '^http://www.bloomberg.com/research/stocks/private/snapsh
 plus_company_re = '^https://plus.google.com/[0-9a-zA-Z]+/about'
 school_re = '^https://www.linkedin.com/edu/*'
 company_re = '^https://www.linkedin.com/company/*'
+
+SOCIAL_DOMAINS = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel","foursquare","github","flickr"]

@@ -12,6 +12,7 @@ class PiplRequest(S3SavedRequest):
 
     def __init__(self, query, type='email', level="social"):
         self.type = type
+        self.level = level
         self.json_format = "&pretty=true"
         pipl_url_v3 = "http://api.pipl.com/search/v3/json/?key="
         pipl_url_v4 = "http://api.pipl.com/search/v4/?key="
@@ -19,7 +20,7 @@ class PiplRequest(S3SavedRequest):
         pipl_profes_keys = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
         shuffle(pipl_social_keys)
         shuffle(pipl_profes_keys)
-        if level == "social":
+        if self.level == "social":
             self.pipl_key = pipl_social_keys[0]
         else:
             self.pipl_key = pipl_profes_keys[0]
@@ -110,6 +111,18 @@ class PiplRequest(S3SavedRequest):
                 return record
         return None
 
+    def _emails(self, pipl_json):
+        emails = []
+        if not pipl_json: return emails
+        for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
+            if not record.get('@query_params_match',True) or not record.get("emails"): continue
+            for email in record.get("emails",[]):
+                url = email.get("address") 
+                domain = url.split("@")[-1]
+                if url and url not in emails and domain != 'facebook.com': 
+                    emails.append(url)
+        return emails  
+              
     def process(self):
         self.logger.info('Pipl Request: %s', 'Starting')
         self._build_url()
@@ -134,6 +147,10 @@ class PiplRequest(S3SavedRequest):
                 "linkedin_urls": linkedin_url,
                 "linkedin_id": linkedin_id,
                 "images": images}
+        if self.level == "social":
+            return data
+        emails = self._emails(self.pipl_json)
+        data["emails"] = emails
         return data
 
 
