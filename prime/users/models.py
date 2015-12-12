@@ -36,7 +36,7 @@ class User(db.Model, UserMixin):
 
     first_name = db.Column(String(100), nullable=False)
     last_name = db.Column(String(100), nullable=False)
-    email = db.Column(String(100), nullable=False, unique=True)
+    email = db.Column(String(100), nullable=False, unique=True, index=True)
     _password_hash = db.Column('password_hash', String(100), nullable=False)
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
@@ -122,10 +122,10 @@ class User(db.Model, UserMixin):
         wealth_score = []
         average_age = []
         for prospect in self.prospects:
-            for school in prospect.schools:
-                count = schools.get(school.school.name, 0)
+            for school in prospect.common_schools:
+                count = schools.get(school, 0)
                 count += 1
-                schools[school.school.name] = count
+                schools[school] = count
             if len(prospect.schools) == 0:
                 college_degree[False] += 1
             else:

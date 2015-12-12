@@ -103,7 +103,7 @@ class ProcessingService(Service):
         subject = "Your p200 List is ready!"
         to_email = self.user_email
         sendgrid_email(to_email, subject, body)
-        return True
+        return output
 
 
 def save_output(output, user_email, service):

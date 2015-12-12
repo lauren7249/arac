@@ -51,7 +51,7 @@ def manager_invite_agent():
     agent = User.query.filter(User.email == to_email).first()
     if agent:
         error_message = "This agent already exists in our system. Please \
-                contact jeff@adivsorconnect if this seems incorrect to you"
+                contact jeff@adivsorconnect.co if this seems incorrect to you"
         response = {"error": error_message}
         return jsonify(response)
     else:

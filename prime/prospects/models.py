@@ -45,11 +45,13 @@ class Prospect(db.Model):
     #derived fields, could be useful later
     lat = db.Column(Float)
     lng = db.Column(Float)
-    email_addresses = db.Column(JSONB)
-    dob_min = db.Column(Date)
-    dob_max = db.Column(Date)
-    salary = db.Column(Integer)
+    indeed_salary = db.Column(Integer)
+    glassdoor_salary = db.Column(Integer)
+    dob_min_year = db.Column(Integer)
+    dob_max_year = db.Column(Integer)
 
+    email_addresses = db.Column(JSONB)
+    
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))
     job = db.Column(String(1024))
@@ -70,10 +72,11 @@ class Prospect(db.Model):
     github = db.Column(String(1024))
     mailto = db.Column(String(1024)) 
     phone = db.Column(String(100)) 
-    common_school = db.Column(String(200))
+    #for filtering and network summary
     industry = db.Column(String(200)) 
     industry_category = db.Column(String(100))
     industry_icon = db.Column(String(200)) 
+    common_schools = db.Column(JSONB, default=[])
 
     #fields for network summary only
     gender = db.Column(String(15))

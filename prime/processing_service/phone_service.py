@@ -35,7 +35,7 @@ class PhoneService(Service):
         self.data = self.service.process()
         for person in self.data:
             if person.get("phone_number") and not favor_mapquest:
-                self.logger.info("PhoneNumber service: already has phone number")
+                self.logger.info("PhoneNumber service: already has phone number %s", person.get("phone_number"))
                 self.output.append(person)
                 continue
             current_job = self._current_job(person)

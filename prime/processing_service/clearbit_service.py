@@ -96,9 +96,10 @@ class ClearbitPhoneService(Service):
         super(ClearbitPhoneService, self).__init__(*args, **kwargs)
 
     def process(self, overwrite=False):
-        self.logger.info('Starting Process: %s', 'Clearbit Company Service')
+        self.logger.info('Starting Process: %s', 'Clearbit Phone Service')
         for person in self.data:
-            if (not overwrite and person.get("phone_number")) or not person.get("company_website"):
+            if (not overwrite and person.get("phone_number")) or (not person.get("company_website")):
+                self.logger.info('Skipping clearbit phone service. Phone: %s, website: %s', person.get("phone_number",""), person.get("company_website",""))
                 self.output.append(person)
             else:
                 website = person.get("company_website")
@@ -107,7 +108,7 @@ class ClearbitPhoneService(Service):
                 if company.get("phone_number"):
                     person.update({"phone_number": company.get("phone_number")})
                 self.output.append(person)
-        self.logger.info('Ending Process: %s', 'Clearbit Company Service')
+        self.logger.info('Ending Process: %s', 'Clearbit Phone Service')
         return self.output
 
 class ClearbitRequest(S3SavedRequest):

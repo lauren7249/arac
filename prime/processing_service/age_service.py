@@ -31,7 +31,11 @@ class AgeService(Service):
     def process(self):
         for person in self.data:
             age = self._get_age(person.get("linkedin_data"))
+            dob_range = self._get_dob_year_range(person.get("linkedin_data"))
             person["age"] = age
+            if dob_range and len(dob_range)==2:
+                person["dob_min"] = dob_range[0]
+                person["dob_max"] = dob_range[1]
             self.output.append(person)
         return self.output
 
