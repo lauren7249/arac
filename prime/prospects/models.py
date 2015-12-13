@@ -74,8 +74,7 @@ class Prospect(db.Model):
     linkedin = db.Column(String(1024))
     foursquare = db.Column(String(1024))
     github = db.Column(String(1024))    
-    #for filtering and network summary
-    industry = db.Column(String(200)) 
+    #for filtering and network summary: TODO: ADD IN
     industry_category = db.Column(String(100))
     industry_icon = db.Column(String(200)) 
     common_schools = db.Column(JSONB, default=[])
@@ -87,7 +86,7 @@ class Prospect(db.Model):
     age = db.Column(Float)
 
     def __repr__(self):
-        return '<Prospect id={0} url={1}>'.format(self.id, self.url)
+        return '<Prospect id={0} url={1}>'.format(self.id, self.main_profile_url)
 
 class Job(db.Model):
     __tablename__ = "job"

@@ -32,6 +32,7 @@ from profile_builder_service import ProfileBuilderService
 from phone_service import PhoneService
 from results_service import ResultService
 from social_profiles_service import SocialProfilesService
+from wealthscore_service import WealthScoreService
 
 SAVE_OUTPUTS = False
 
@@ -52,6 +53,7 @@ SERVICES['phone_service'] = PhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService
 SERVICES['college_degree_service'] = CollegeDegreeService
+SERVICES['wealthscore_service'] = WealthScoreService
 SERVICES['profile_builder_service'] = ProfileBuilderService
 SERVICES['results_service'] = ResultService
 

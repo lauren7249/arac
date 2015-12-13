@@ -16,8 +16,11 @@ class Service(object):
     def __init__(self):
         pass
 
-    def _validate_data(self):
-        return False
+    def _get_self_jobs_and_schools(self):
+        person = self._get_profile_by_any_url(self.user_linkedin_url)
+        self.jobs = person.get("experiences")
+        self.schools = person.get("schools")
+        self.location_raw = person.get("location")
 
     def _get_current_job_from_cloudsponge(self, person):
         for csv_person in self.data:
@@ -30,7 +33,6 @@ class Service(object):
                         job["title"] = email.get("job_title")
                     return job
         return {}
-
 
     def _get_current_job_from_experiences(self, person):
         """
@@ -79,12 +81,6 @@ class Service(object):
         except:
             return person.values()[0]["source_url"]
 
-    def process(self):
-        pass
-
-    def dispatch(self):
-        pass
-
     def _get_profile_by_any_url(self,url):
         profile = get_person(url=url)
         if profile:
@@ -116,8 +112,6 @@ class Service(object):
             viewed_also = get_people_viewed_also(url=new_url)
         return also_viewed + viewed_also
 
-class TemporaryProspect(object):
-    pass
 
 class S3SavedRequest(object):
 
@@ -153,4 +147,5 @@ class S3SavedRequest(object):
             self.boto_key.content_type = content_type
             self.boto_key.set_contents_from_string(html)
         return html
+
 

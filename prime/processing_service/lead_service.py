@@ -63,16 +63,10 @@ class LeadService(Service):
             return True
         return False
 
-    def _get_self_jobs_and_schools(self):
-        person = self._get_profile_by_any_url(self.user_linkedin_url)
-        self.jobs = person.get("experiences")
-        self.schools = person.get("schools")
-        location_raw = person.get("location")
-        self.location = MapQuestRequest(location_raw).process()
-
     def process(self):
         self.logger.info('Starting Process: %s', 'Lead Service')
         self._get_self_jobs_and_schools()
+        self.location = MapQuestRequest(self.location_raw).process()        
         for person in self.data:
             salary = self._filter_salaries(person)
             location = self._filter_same_locations(person)
