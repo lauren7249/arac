@@ -3,6 +3,7 @@ import logging
 import time
 from random import shuffle
 from saved_request import S3SavedRequest
+from prime.processing_service.constants import PIPL_SOCIAL_KEYS, PIPL_PROFES_KEYS
 
 class PiplRequest(S3SavedRequest):
 
@@ -16,14 +17,12 @@ class PiplRequest(S3SavedRequest):
         self.json_format = "&pretty=true"
         pipl_url_v3 = "http://api.pipl.com/search/v3/json/?key="
         pipl_url_v4 = "http://api.pipl.com/search/v4/?key="
-        pipl_social_keys = ["ml2msz8le74d4nno7dyk0v7c"]
-        pipl_profes_keys = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
-        shuffle(pipl_social_keys)
-        shuffle(pipl_profes_keys)
+        shuffle(PIPL_SOCIAL_KEYS)
+        shuffle(PIPL_PROFES_KEYS)
         if self.level == "social":
-            self.pipl_key = pipl_social_keys[0]
+            self.pipl_key = PIPL_SOCIAL_KEYS[0]
         else:
-            self.pipl_key = pipl_profes_keys[0]
+            self.pipl_key = PIPL_PROFES_KEYS[0]
         if self.type=="url":
             self.pipl_url = pipl_url_v4
             self.pipl_version = 4

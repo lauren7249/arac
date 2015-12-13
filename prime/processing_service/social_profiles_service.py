@@ -3,15 +3,18 @@ import hashlib
 import boto
 import lxml.html
 import re
+import json
 import dateutil
 import requests
 from requests import HTTPError
 from boto.s3.key import Key
 
 from service import Service, S3SavedRequest
-from constants import GLOBAL_HEADERS
+from constants import GLOBAL_HEADERS, ALCHEMY_API_KEYS
 from pipl_request import PiplRequest
 from clearbit_service import ClearbitRequest
+from prime.utils.alchemyapi import AlchemyAPI
+from random import shuffle
 
 class SocialProfilesService(Service):
     """
@@ -39,7 +42,7 @@ class SocialProfilesService(Service):
 class SocialProfilesRequest(S3SavedRequest):
 
     """
-    Given a lead, this will find social profiles and images by any means necessary!
+    Given a lead, this will find social profiles and images by any means necessary! It will also tag them =)
     """
 
     def __init__(self, person):
@@ -47,6 +50,9 @@ class SocialProfilesRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        shuffle(ALCHEMY_API_KEYS)
+        self.api_key = ALCHEMY_API_KEYS[0]
+        self.alchemyapi = AlchemyAPI(self.api_key)
         super(SocialProfilesRequest, self).__init__()
 
     def _get_extra_pipl_data(self):
@@ -72,7 +78,7 @@ class SocialProfilesRequest(S3SavedRequest):
         if clearbit_data.get("gender"):
             self.genders.append(clearbit_data.get("gender"))      
 
-    def _validate_social_accounts(self, social_accounts):
+    def _process_social_accounts(self, social_accounts):
         good_links = []
         for url in social_accounts:
             req = UrlValidatorRequest(url, is_image=False)
@@ -81,13 +87,54 @@ class SocialProfilesRequest(S3SavedRequest):
                 good_links.append(_link)
         return good_links
 
-    def _validate_images(self, images):
-        good_links = []
+    def _get_alchemy_tags(self, url):
+        if not url:
+            return {}
+        query = "alchemyapiimageTaggingurl" + url
+        key = hashlib.md5(query).hexdigest()
+        bucket = self._s3_connection
+        boto_key = Key(bucket)
+        boto_key.key = key        
+        if boto_key.exists():
+            html = boto_key.get_contents_as_string()
+            try:
+                return json.loads(html)
+            except:
+                return {}
+        else:
+            response = self.alchemyapi.imageTagging('url', url)
+            if response and response.get("imageKeywords"):
+                output = response.get("imageKeywords")
+            else:
+                output = {}
+            boto_key.set_contents_from_string(json.dumps(output))
+            return output
+        return {}
+
+    def _get_image_tags(self, url):
+        _tags = self._get_alchemy_tags(url)
+        tags = {}
+        for tag in _tags:
+            try:
+                score = float(tag.get("score"))
+                if score<=0.5: 
+                    continue
+            except:
+                continue
+            tags.update({tag.get("text"):score})
+        if len(tags)==1 and tags.keys()[0] == "instagram":
+            return {}
+        return tags
+
+    def _process_images(self, images):
+        good_links = {}
         for url in images:
             req = UrlValidatorRequest(url, is_image=True)
             _link = req.process()        
             if _link:
-                good_links.append(_link)
+                tags = self._get_image_tags(_link)
+                if len(tags):
+                    good_links.update({_link:tags})
         return good_links
 
     def process(self):
@@ -99,8 +146,8 @@ class SocialProfilesRequest(S3SavedRequest):
         for email in self.emails:
             self._update_profile(email)                           
         self.person["email_addresses"] = list(self.emails)   
-        self.person["social_accounts"] = self._validate_social_accounts(self.social_accounts)
-        self.person["images"] = self._validate_images(self.images)
+        self.person["social_accounts"] = self._process_social_accounts(self.social_accounts)
+        self.person["images"] = self._process_images(self.images)
         self.person["clearbit_genders"] = self.genders    
         return self.person    
 
@@ -112,7 +159,7 @@ class UrlValidatorRequest(S3SavedRequest):
 
     def __init__(self, url, is_image=False):
         super(UrlValidatorRequest, self).__init__()
-        self.url = url.lower()
+        self.url = url
         self.is_image = is_image
         if not self.is_image:
             self.content_type ='text/html'

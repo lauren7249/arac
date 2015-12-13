@@ -57,6 +57,18 @@ class ResultService(Service):
         self.logger.info("Prospect updated")
         return prospect
 
+    def _get_main_profile_image(self, images):
+        if not images:
+            return None
+        best_person_score = 0.0
+        best_profile_image = None
+        for link, tags in images.iteritems():
+            person_score = tags.get("person",0.0)
+            if person_score>= best_person_score:
+                best_person_score = person_score
+                best_profile_image = link
+        return best_profile_image
+
     def _update_person_fields(self, prospect, person):
         if not person or not prospect:
             return prospect
@@ -73,10 +85,12 @@ class ResultService(Service):
         prospect.dob_min_year = person.get("dob_min")
         prospect.dob_max_year = person.get("dob_max")
         prospect.email_addresses = person.get("email_addresses")
-        prospect.image_urls = person.get("images")
-        print person.get("social_accounts",[])
-        print person.get("email_addresses",[])
-        print person.get("images",[])
+        prospect.profile_image_urls = person.get("images")
+        prospect.main_profile_image = self._get_main_profile_image(person.get("images"))
+        # print person.get("social_accounts",[])
+        # print person.get("email_addresses",[])
+        # print person.get("images",[])
+        #print prospect.main_profile_image
         prospect = self._update_social_fields(prospect, person.get("social_accounts",[]))
         return prospect
 

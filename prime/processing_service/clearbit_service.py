@@ -8,7 +8,7 @@ from requests import HTTPError
 from boto.s3.key import Key
 from helper import get_domain
 from service import Service, S3SavedRequest
-from prime.processing_service.constants import pub_profile_re
+from prime.processing_service.constants import pub_profile_re, CLEARBIT_KEY
 
 def unwrap_process_person(person):
     email = person.keys()[0]
@@ -121,7 +121,7 @@ class ClearbitRequest(S3SavedRequest):
 
     def __init__(self, query, type='email'):
         self.clearbit = clearbit
-        self.clearbit.key='f2512e10a605e3dcaff606205dbd3758'
+        self.clearbit.key=CLEARBIT_KEY
         self.query = query
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)

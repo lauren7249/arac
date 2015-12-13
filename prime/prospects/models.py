@@ -51,14 +51,14 @@ class Prospect(db.Model):
     dob_max_year = db.Column(Integer)
 
     email_addresses = db.Column(JSONB)
-    image_urls = db.Column(JSONB)
+    profile_image_urls = db.Column(JSONB)
     
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))
     job = db.Column(String(1024))
     name = db.Column(String(1024))
-    image_url = db.Column(String(1024))
-    url = db.Column(String(1024))
+    main_profile_image = db.Column(String(1024))
+    main_profile_url = db.Column(String(1024))
     facebook = db.Column(String(1024))
     twitter = db.Column(String(1024))
     angel = db.Column(String(1024))

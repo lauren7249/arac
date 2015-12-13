@@ -145,9 +145,9 @@ class S3SavedRequest(object):
         if self.boto_key.exists():
             html = self.boto_key.get_contents_as_string()
         else:
-            response = requests.get(self.url, headers=self.headers)
-            if response.status_code ==200:
-                html = response.content
+            self.response = requests.get(self.url, headers=self.headers)
+            if self.response.status_code ==200:
+                html = self.response.content
             else:
                 html = ''
             self.boto_key.content_type = content_type
