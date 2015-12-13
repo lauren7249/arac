@@ -59,6 +59,9 @@ class Prospect(db.Model):
     name = db.Column(String(1024))
     main_profile_image = db.Column(String(1024))
     main_profile_url = db.Column(String(1024))
+    mailto = db.Column(String(1024)) 
+    phone = db.Column(String(100)) 
+    #social profiles
     facebook = db.Column(String(1024))
     twitter = db.Column(String(1024))
     angel = db.Column(String(1024))
@@ -70,9 +73,7 @@ class Prospect(db.Model):
     amazon = db.Column(String(1024))
     linkedin = db.Column(String(1024))
     foursquare = db.Column(String(1024))
-    github = db.Column(String(1024))
-    mailto = db.Column(String(1024)) 
-    phone = db.Column(String(100)) 
+    github = db.Column(String(1024))    
     #for filtering and network summary
     industry = db.Column(String(200)) 
     industry_category = db.Column(String(100))

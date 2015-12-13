@@ -27,6 +27,7 @@ from age_service import AgeService
 from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
 from lead_service import LeadService
+from profile_builder_service import ProfileBuilderService
 #from extended_lead_service import ExtendedLeadService
 from phone_service import PhoneService
 from results_service import ResultService
@@ -51,6 +52,7 @@ SERVICES['phone_service'] = PhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService
 SERVICES['college_degree_service'] = CollegeDegreeService
+SERVICES['profile_builder_service'] = ProfileBuilderService
 SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):
