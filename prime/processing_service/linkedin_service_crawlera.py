@@ -14,9 +14,8 @@ class LinkedinService(Service):
     '''
     Gets linkedin data and collapses by linkedin_id
     '''
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = {}
         logging.getLogger(__name__)

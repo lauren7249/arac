@@ -137,6 +137,8 @@ def name_match(name1, name2, intersect_threshold=2):
     return False
 
 def get_firstname(str):
+    if not str:
+        return str
     str = re.sub(" - "," ",str)
     str = re.sub("[^a-zA-Z-]"," ",str)
     str = re.sub("\s+"," ",str.lower().strip())

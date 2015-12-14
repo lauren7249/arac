@@ -20,20 +20,17 @@ from clearbit_service import ClearbitPersonService
 from pipl_service import PiplService
 from linkedin_service_crawlera import LinkedinService
 from linkedin_company_service import LinkedinCompanyService
-from glassdoor_service import GlassdoorService
-from indeed_service import IndeedService
-from geocode_service import GeoCodingService
 from age_service import AgeService
 from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
 from lead_service import LeadService
 from profile_builder_service import ProfileBuilderService
-#from extended_lead_service import ExtendedLeadService
 from phone_service import PhoneService
 from results_service import ResultService
 from social_profiles_service import SocialProfilesService
 from wealthscore_service import WealthScoreService
-
+from extended_profiles_service import ExtendedProfilesService
+from extended_lead_service import ExtendedLeadService
 SAVE_OUTPUTS = False
 
 #DO NOT REORDER THESE 
@@ -42,11 +39,9 @@ SERVICES['cloud_sponge'] = CloudSpongeService
 SERVICES['pipl_serice'] =  PiplService
 SERVICES['clearbit_service'] =  ClearbitPersonService
 SERVICES['linkedin_service'] = LinkedinService
-SERVICES['glassdoor_service'] = GlassdoorService
-SERVICES['indeed_service'] = IndeedService
-SERVICES['geocode_service'] = GeoCodingService
 SERVICES['lead_service'] = LeadService
-#SERVICES['extended_lead_service'] = ExtendedLeadService
+SERVICES['extended_profiles_service'] = ExtendedProfilesService
+SERVICES['extended_lead_service'] = ExtendedLeadService
 SERVICES['social_profiles_service'] = SocialProfilesService
 SERVICES['linkedin_company_service'] = LinkedinCompanyService
 SERVICES['phone_service'] = PhoneService
@@ -59,10 +54,9 @@ SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):
 
-    def __init__(self, user_email, user_linkedin_url, csv_data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
-        self.data = csv_data
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
+        self.data = data
         self.services = SERVICES
         self.completed_services = {}
         logging.basicConfig(level=logging.INFO)
@@ -71,35 +65,36 @@ class ProcessingService(Service):
         super(ProcessingService, self).__init__(*args, **kwargs)
 
     def _validate_data(self):
-        self.logger.info('Data Valid')
         validated_data = []
+        required_client_keys = ["email","location","url","first_name","last_name"]
+        for key in required_client_keys:
+            if not self.client_data.get(key):
+                return False
         for item in self.data:
-            validated_data.append(item.get("contact"))
+            if item.get("contact"):
+                validated_data.append(item)
+            else:
+                return False
         self.data = validated_data
         return True
 
-    def dispatch(self):
-        pass
-
     def process(self):
-        d = {'user': self.user_email, 'linkedin_id': self.user_linkedin_url}
-        self.logger.info('Starting Process: %s', d)
+        self.logger.info('Starting Process: %s', self.client_data)
         output = None
         if self._validate_data():
+            self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
                 if output:
                     service = self.services[key](
-                            self.user_email,
-                            self.user_linkedin_url,
+                            self.client_data,
                             output)
                 else:
                     service = self.services[key](
-                            self.user_email,
-                            self.user_linkedin_url,
+                            self.client_data,
                             self.data)
                 output = service.process()
                 if SAVE_OUTPUTS:
-                    save_output(output, self.user_email, service.__class__.__name__)
+                    save_output(output, self.client_data.get("email"), service.__class__.__name__)
 
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
@@ -108,33 +103,26 @@ class ProcessingService(Service):
         tmpl = env.get_template('emails/done.html')
         body = tmpl.render()
         subject = "Your p200 List is ready!"
-        to_email = self.user_email
-        sendgrid_email(to_email, subject, body)
+        to_email = self.client_data.get("email")
+        #sendgrid_email(to_email, subject, body)
         return output
 
-
 def save_output(output, user_email, service):
-    file = open("temp_data/{}_{}.txt".format(user_email, service), "w+")
+    _file = open("temp_data/{}_{}.txt".format(user_email, service), "w+")
     try:
-        file.write(output)
+        _file.write(output)
     except:
-        file.write(json.dumps(output))
+        _file.write(json.dumps(output))
+    _file.close()
 
-    file.close()
-
-# FIXME "file" is a built-in python name you've overridden
 if __name__ == '__main__':
-    data = []
-    file = csv.reader(open('data/test.csv', 'r'))
-    for line in file:
-        raw_json = json.loads(line[3])
-        new_json = {}
-        new_json['contact'] = raw_json
-        data.append(new_json)
+    _file = open('data/bigtext.json', 'r')
+    data = json.loads(_file.read())[:5]
+    client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc"}  
     logger = logging.getLogger(__name__)
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
-            user_email='jamesjohnson11@gmail.com',
-            user_linkedin_url = "https://www.linkedin.com/in/jamesjohnsona",
-            csv_data=data)
+            client_data = client_data,
+            data=data)
     processing_service.process()

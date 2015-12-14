@@ -17,9 +17,8 @@ class WealthScoreService(Service):
     Output is going to be existig data enriched with wealth scores
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -51,6 +50,8 @@ class WealthScoreRequest(S3SavedRequest):
         self.logger = logging.getLogger(__name__)        
         
     def process(self):
+        if not self.max_salary:
+            return None
         self.url = "http://www.shnugi.com/income-percentile-calculator/?min_age=18&max_age=100&income=" + str(self.max_salary)
         html = self._make_request()
         try:

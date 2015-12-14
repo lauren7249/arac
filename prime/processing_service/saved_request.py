@@ -5,7 +5,7 @@ import boto
 from boto.s3.key import Key
 
 from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
-
+S3_BUCKET = boto.connect_s3(AWS_KEY, AWS_SECRET).get_bucket(AWS_BUCKET)
 class S3SavedRequest(object):
 
     """
@@ -17,22 +17,26 @@ class S3SavedRequest(object):
         self.url = None
         self.headers = GLOBAL_HEADERS
         self.key = None
+        self.bucket = S3_BUCKET
 
-    @property
-    def _s3_connection(self):
-        s3conn = boto.connect_s3(AWS_KEY, AWS_SECRET)
-        return s3conn.get_bucket(AWS_BUCKET)
-
-    def _make_request(self):
+    def _make_request(self, content_type = 'text/html', bucket=None):
         self.key = hashlib.md5(self.url).hexdigest()
-        key = Key(self._s3_connection)
-        key.key = self.key
-        if key.exists():
-            html = key.get_contents_as_string()
+        if not bucket:
+            bucket = self.bucket
+        self.boto_key = Key(bucket)
+        self.boto_key.key = self.key
+        if self.boto_key.exists():
+            html = self.boto_key.get_contents_as_string()
         else:
-            response = requests.get(self.url, headers=self.headers)
-            html = response.content
-            key.content_type = 'text/html'
-            key.set_contents_from_string(html)
+            try:
+                self.response = requests.get(self.url, headers=self.headers)
+                if self.response.status_code ==200:
+                    html = self.response.content
+                else:
+                    html = ''                
+            except:
+                html = ''
+            self.boto_key.content_type = content_type
+            self.boto_key.set_contents_from_string(html)
         return html
 

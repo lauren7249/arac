@@ -23,18 +23,14 @@ class ClearbitPersonService(Service):
     rate limit is 600/minute
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         super(ClearbitPersonService, self).__init__(*args, **kwargs)
-
-    def dispatch(self):
-        pass
 
     def _merge(self, original_data, output_data):
         for i in xrange(0, len(original_data)):
@@ -87,9 +83,7 @@ class ClearbitPhoneService(Service):
     rate limit is 600/minute
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -130,7 +124,7 @@ class ClearbitRequest(S3SavedRequest):
 
     def _make_request(self, type):
         self.key = hashlib.md5(self.query).hexdigest()
-        key = Key(self._s3_connection)
+        key = Key(self.bucket)
         key.key = self.key
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
@@ -219,7 +213,7 @@ class ClearbitRequest(S3SavedRequest):
         self.logger.info('Clearbit Company Request: %s', 'Starting')
         response = {}
         clearbit_json = self._make_request("company")
-        return {"phone_number": clearbit_json['phone'], "clearbit_fields":clearbit_json}
+        return {"phone_number": clearbit_json.get('phone'), "clearbit_fields":clearbit_json}
 
 
 

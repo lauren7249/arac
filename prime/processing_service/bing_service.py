@@ -47,6 +47,10 @@ class BingService(Service):
             self.regex = bloomberg_company_re
             self.include_terms_in_title = self.name
             return BingRequest("", site="bloomberg.com", intitle=['"' + re.sub(" ","+",self.name) + '"', '"Private Company Information - Businessweek"'], inbody=['"' + re.sub(" ","+",self.name) + '"'], page_limit=1)
+        elif self.type == "bloomberg_website":
+            self.regex = bloomberg_company_re
+            self.include_terms_in_title = None
+            return BingRequest("", site="bloomberg.com", intitle=['"Private Company Information - Businessweek"'], inbody=['"' + self.name + '"'], page_limit=1)            
         elif self.type == "linkedin_profile":
             self.regex = profile_re
             self.include_terms_in_title = self.name
@@ -92,8 +96,8 @@ class BingService(Service):
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Bing Service')
-        request_object = self._get_bing_request()
-        self.results = request_object.process()
+        self.request_object = self._get_bing_request()
+        self.results = self.request_object.process()
         clean_results = self._process_results(self.results)
         self.logger.info('Ending Process: %s', 'Bing Service')
         return clean_results
@@ -155,7 +159,7 @@ class BingRequest(S3SavedRequest):
 
     def _get_html(self, api_key):
         self.key = hashlib.md5(self.next_querystring).hexdigest()
-        key = Key(self._s3_connection)
+        key = Key(self.bucket)
         key.key = self.key
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')

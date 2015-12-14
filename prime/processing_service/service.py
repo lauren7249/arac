@@ -6,21 +6,35 @@ from dateutil.parser import parser
 import datetime
 from boto.s3.key import Key
 
-from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
+from constants import GLOBAL_HEADERS
 import dateutil
 from services.linkedin_query_api import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
+
+from saved_request import S3SavedRequest
 
 class Service(object):
 
     def __init__(self):
         pass
 
+    def _dedupe_profiles(self, profiles):
+        if not profiles:
+            return []
+        linkedin_ids = set()
+        deduped = []
+        for profile in profiles:
+            id = profile.get("linkedin_id")
+            if id in linkedin_ids:
+                continue
+            linkedin_ids.add(id)
+            deduped.append(profile)
+        return deduped
+
     def _get_self_jobs_and_schools(self):
-        person = self._get_profile_by_any_url(self.user_linkedin_url)
+        person = self._get_profile_by_any_url(self.client_data.get("url"))
         self.jobs = person.get("experiences")
         self.schools = person.get("schools")
-        self.location_raw = person.get("location")
 
     def _get_current_job_from_cloudsponge(self, person):
         for csv_person in self.data:
@@ -73,7 +87,7 @@ class Service(object):
             else:
                 job["title"] = headline
             return job
-        return None
+        return job
 
     def _get_linkedin_url(self, person):
         try:
@@ -112,40 +126,5 @@ class Service(object):
             viewed_also = get_people_viewed_also(url=new_url)
         return also_viewed + viewed_also
 
-
-class S3SavedRequest(object):
-
-    """
-    Instead of just making a request, this saves the exact request to s3 so we
-    don't need to make it again
-    """
-
-    def __init__(self):
-        self.url = None
-        self.headers = GLOBAL_HEADERS
-        self.key = None
-
-    @property
-    def _s3_connection(self):
-        s3conn = boto.connect_s3("AKIAIKCNCKG6RXJHWNFA", "GAwQwgy67hmp0lMShAV4O15zfDAfc8aKUoY7l2UC")
-        return s3conn.get_bucket("aconn")
-
-    def _make_request(self, content_type = 'text/html', bucket=None):
-        self.key = hashlib.md5(self.url).hexdigest()
-        if not bucket:
-            bucket = self._s3_connection
-        self.boto_key = Key(bucket)
-        self.boto_key.key = self.key
-        if self.boto_key.exists():
-            html = self.boto_key.get_contents_as_string()
-        else:
-            self.response = requests.get(self.url, headers=self.headers)
-            if self.response.status_code ==200:
-                html = self.response.content
-            else:
-                html = ''
-            self.boto_key.content_type = content_type
-            self.boto_key.set_contents_from_string(html)
-        return html
 
 

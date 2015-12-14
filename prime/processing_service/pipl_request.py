@@ -12,6 +12,7 @@ class PiplRequest(S3SavedRequest):
     """
 
     def __init__(self, query, type='email', level="social"):
+        super(PiplRequest, self).__init__()
         self.type = type
         self.level = level
         self.json_format = "&pretty=true"
@@ -34,7 +35,7 @@ class PiplRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(PiplRequest, self).__init__()
+        
 
     def _build_url(self):
         if self.type == 'email':
@@ -127,7 +128,6 @@ class PiplRequest(S3SavedRequest):
         self._build_url()
         if self.url is None:
             return {}
-        super(PiplRequest, self)._make_request()
         self.pipl_json = None
         tries = 0
         while self.pipl_json is None and tries<3:

@@ -8,13 +8,13 @@ import boto
 from boto.s3.key import Key
 
 from prime.processing_service.service import Service, S3SavedRequest
-from prime.processing_service.constants import SCRAPING_API_KEY, new_redis_host, new_redis_port, \
-new_redis_password, new_redis_dbname, SOCIAL_DOMAINS
+from prime.processing_service.constants import SOCIAL_DOMAINS
 
-from prime.processing_service.helper import convert_date
+from prime.processing_service.helper import convert_date, uu
 
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
+from prime.users.models import ClientProspect
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime.users.models import User
 try:
@@ -25,14 +25,12 @@ except:
     from prime import db
     session = db.session
 
-
 class ResultService(Service):
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.good_leads = data
         self.session = session
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -40,19 +38,29 @@ class ResultService(Service):
         self.logger = logging.getLogger(__name__)
         super(ResultService, self).__init__(*args, **kwargs)
 
+    def _create_or_update_client_prospect(self, prospect, user, profile):
+        client_prospect = get_or_create(self.session, ClientProspect, prospect_id = prospect.id, user_id =user.user_id)
+        client_prospect.extended = profile.get("extended")
+        client_prospect.referrers = profile.get("referrers")
+        client_prospect.lead_score = profile.get("lead_score",0)
+        client_prospect.updated = datetime.datetime.today()  
+        self.session.add(client_prospect)
+        self.session.commit()
+        self.logger.info("client prospect updated")        
+        return client_prospect
+
     def _create_or_update_prospect(self, profile):
         if not profile:
             self.logger.error("No person")
             return None            
-        cleaned_id = profile.get('linkedin_id').strip()
-        if cleaned_id is None:
+        if profile.get('linkedin_id') is None:
             self.logger.error("No linkedin id")
             return None
-        prospect = get_or_create(session, Prospect, linkedin_id=cleaned_id)
+        prospect = get_or_create(self.session, Prospect, linkedin_id=profile.get('linkedin_id').strip())
         for key, value in profile.iteritems():
             if hasattr(Prospect, key):
                 setattr(prospect, key, value)     
-        prospect.updated = datetime.date.today()  
+        prospect.updated = datetime.datetime.today()  
         self.session.add(prospect)
         self.session.commit()
         self.logger.info("Prospect updated")
@@ -70,7 +78,7 @@ class ResultService(Service):
                         #"school_linkedin_id": info_school.get("college_id")
                         "end_date": convert_date(info_school.get("end_date"))
                         })
-                    self.logger.info("Education updated: {}".format(info_school.get("college")))
+                    self.logger.info("Education updated: {}".format(uu(info_school.get("college"))))
                     new = False
                     break
             if new:
@@ -95,7 +103,7 @@ class ResultService(Service):
                 )
         self.session.add(new_education)
         self.session.flush()
-        self.logger.info("Education added: {}".format(college.get("college")))
+        self.logger.info("Education added: {}".format(uu(college.get("college"))))
 
     def _create_or_update_jobs(self, new_prospect, profile):      
         jobs = profile.get("jobs_json",[])
@@ -112,7 +120,7 @@ class ResultService(Service):
                         #"company_linkedin_id": info_job.get("company_id")
                         "end_date": convert_date(info_job.get("end_date"))
                         })
-                    self.logger.info("Job updated: {}".format(info_job.get("company")))
+                    self.logger.info("Job updated: {}".format(uu(info_job.get("company"))))
                     new = False
                     break
             if new:
@@ -136,21 +144,22 @@ class ResultService(Service):
         )
         self.session.add(new_job)
         self.session.flush()
-        self.logger.info("Job added: {}".format(job.get("company")))
+        self.logger.info("Job added: {}".format(uu(job.get("company"))))
 
     def _get_user(self):
-        user = session.query(User).filter_by(email=self.user_email).first()
+        user = session.query(User).filter_by(email=self.client_data.get("email")).first()
         return user
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Result Service')
         user = self._get_user()
         if user is None:
-            self.logger.error("No user found for %s", self.user_email)
+            self.logger.error("No user found for %s", self.client_data.get("email"))
             return None
         for profile in self.good_leads:
             prospect = self._create_or_update_prospect(profile)
             self._create_or_update_schools(prospect, profile)
             self._create_or_update_jobs(prospect, profile)
+            self._create_or_update_client_prospect(prospect, user, profile)
         self.logger.info('Ending Process: %s', 'Result Service')
         return self.output

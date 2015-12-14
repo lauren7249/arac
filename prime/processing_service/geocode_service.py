@@ -23,7 +23,7 @@ sys.path.append(BASE_DIR.replace("/prime", ""))
 sys.path.append(BASE_DIR + "/processing_service")
 
 from convert import parse_html
-
+GEOLOCATOR = Nominatim()
 class GeoCodingService(Service):
 
     """
@@ -32,18 +32,14 @@ class GeoCodingService(Service):
     Maps Request.
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         super(GeoCodingService, self).__init__(*args, **kwargs)
-
-    def dispatch(self):
-        pass
 
     def process(self):
         self.logger.info('Starting Process: %s', 'GeoCodingService')
@@ -81,8 +77,7 @@ class OpenStreetMapsRequest(S3SavedRequest):
     """
 
     def __init__(self, query):
-        self.geolocator = Nominatim()
-        self.location = self.geolocator.geocode(query)
+        self.location = GEOLOCATOR.geocode(query)
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)

@@ -19,9 +19,8 @@ class CollegeDegreeService(Service):
     Output is going to be existig data enriched with college_grad boolean
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -31,7 +30,7 @@ class CollegeDegreeService(Service):
 
     def process(self):
         for person in self.data:
-            college_grad = self._has_college_degree(person.get("linkedin_data"))
+            college_grad = self._has_college_degree(person.get("linkedin_data",{}))
             person["college_grad"] = college_grad
             self.output.append(person)
         return self.output

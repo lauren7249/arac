@@ -13,6 +13,7 @@ from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS, ALCHEMY_API_KEYS
 from pipl_request import PiplRequest
 from clearbit_service import ClearbitRequest
+from url_validator import UrlValidatorRequest
 from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
 
@@ -22,9 +23,8 @@ class SocialProfilesService(Service):
     Output is going to be existig data enriched with more email accounts and social accounts, as well as other saucy details
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -46,6 +46,7 @@ class SocialProfilesRequest(S3SavedRequest):
     """
 
     def __init__(self, person):
+        super(SocialProfilesRequest, self).__init__()
         self.person = person
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -53,7 +54,6 @@ class SocialProfilesRequest(S3SavedRequest):
         shuffle(ALCHEMY_API_KEYS)
         self.api_key = ALCHEMY_API_KEYS[0]
         self.alchemyapi = AlchemyAPI(self.api_key)
-        super(SocialProfilesRequest, self).__init__()
 
     def _get_extra_pipl_data(self):
         linkedin_id = self.person.get("linkedin_data",{}).get("linkedin_id")
@@ -92,7 +92,7 @@ class SocialProfilesRequest(S3SavedRequest):
             return {}
         query = "alchemyapiimageTaggingurl" + url
         key = hashlib.md5(query).hexdigest()
-        bucket = self._s3_connection
+        bucket = self.bucket
         boto_key = Key(bucket)
         boto_key.key = key        
         if boto_key.exists():
@@ -122,7 +122,8 @@ class SocialProfilesRequest(S3SavedRequest):
             except:
                 continue
             tags.update({tag.get("text"):score})
-        if len(tags)==1 and tags.keys()[0] == "instagram":
+        #this is the blank profile pic option
+        if len(tags)==1 and tags.keys()[0] in ["instagram","moon"]:
             return {}
         return tags
 
@@ -151,37 +152,3 @@ class SocialProfilesRequest(S3SavedRequest):
         self.person["clearbit_genders"] = self.genders    
         return self.person    
 
-class UrlValidatorRequest(S3SavedRequest):
-
-    """
-    Given a url, this will return a boolean as to the validity, saving them to S3 as well
-    """
-
-    def __init__(self, url, is_image=False):
-        super(UrlValidatorRequest, self).__init__()
-        self.url = url
-        self.is_image = is_image
-        if not self.is_image:
-            self.content_type ='text/html'
-            self.bucket = None
-        else:
-            ext = self.url.split(".")[-1]
-            if ext == 'png':
-                self.content_type = 'image/png'
-            else:
-                self.content_type = 'image/jpeg'
-            s3conn = boto.connect_s3("AKIAIXDDAEVM2ECFIPTA", "4BqkeSHz5SbcAyM/cyTBCB1SwBrB9DDu0Ug/VZaQ")
-            self.bucket= s3conn.get_bucket("public-profile-photos")
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-        
-
-    def process(self):
-        html = self._make_request(content_type =self.content_type , bucket=self.bucket)
-        if len(html) > 0:
-            if self.is_image:
-                return self.boto_key.generate_url(expires_in=0, query_auth=False)
-            else:
-                return self.url
-        return None

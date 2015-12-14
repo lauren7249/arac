@@ -20,9 +20,8 @@ class PhoneService(Service):
     Output is going to be existig data enriched with phone numbers
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -31,7 +30,7 @@ class PhoneService(Service):
         super(PhoneService, self).__init__(*args, **kwargs)
 
     def process(self, favor_mapquest=False, favor_clearbit=False):
-        self.service = BloombergPhoneService(self.user_email, self.user_linkedin_url, self.data)
+        self.service = BloombergPhoneService(self.client_data, self.data)
         self.data = self.service.process()
         for person in self.data:
             if person.get("phone_number") and not favor_mapquest:
@@ -49,6 +48,6 @@ class PhoneService(Service):
             business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
             person.update(business)
             self.output.append(person)
-        self.service = ClearbitPhoneService(self.user_email, self.user_linkedin_url, self.output)
+        self.service = ClearbitPhoneService(self.client_data, self.output)
         self.output = self.service.process(overwrite=favor_clearbit)
         return self.output

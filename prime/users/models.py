@@ -10,7 +10,7 @@ import sqlalchemy.event
 from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, \
+from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, DateTime, \
         Text, Enum, Float
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -44,7 +44,7 @@ class User(db.Model, UserMixin):
 
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
-    created = db.Column(Date, default=datetime.datetime.today)
+    created = db.Column(DateTime, default=datetime.datetime.today())
 
     prospects = db.relationship('Prospect', secondary="client_prospect", \
                                backref=db.backref('prospects', lazy='dynamic'))
@@ -116,34 +116,19 @@ class User(db.Model, UserMixin):
         companies, gender, wealthscore, age, college degree, and income score
         """
         schools = {}
-        companies = {}
-        male = {True:0,False:0}
-        college_degree = {True:0,False:0}
-        wealth_score = []
-        average_age = []
+        gender = {"female":0,"male":0,None:0}
+        college_degree = {True:0,False:0,None:0}
+        wealth_score = [prospect.wealthscore for prospect in self.prospects if prospect.wealthscore ]
+        average_age = [prospect.age for prospect in self.prospects if prospect.age]
         for prospect in self.prospects:
             for school in prospect.common_schools:
                 count = schools.get(school, 0)
                 count += 1
                 schools[school] = count
-            if len(prospect.schools) == 0:
-                college_degree[False] += 1
-            else:
-                college_degree[True] += 1
-            for job in prospect.jobs:
-                count = schools.get(job.company.name, 0)
-                count += 1
-                schools[job.company.name] = count
-            average_age.append(prospect.age if prospect.age else 30)
-            wealth_score.append(prospect.wealthscore if prospect.wealthscore
-                    else 40)
-            if prospect.is_male:
-                male[True] += 1
-            else:
-                male[False] += 1
+            college_degree[prospect.college_degree] += 1
+            gender[prospect.gender] += 1
         data = {"schools": schools,
-                "companies": companies,
-                "male": male[True]/(male[True] + male[False]) * 100,
+                "male": gender["male"]/(gender["male"] + gender["female"]) * 100,
                 "college_degree": college_degree[True]/(college_degree[True] + college_degree[False]) * 100,
                 "average_age": sum(average_age)/len(average_age),
                 "wealth_score": sum(wealth_score)/len(wealth_score)}
@@ -187,15 +172,14 @@ class ClientProspect(db.Model):
             foreign_keys="ClientProspect.prospect_id")
     processed = db.Column(Boolean, default=False)
     good = db.Column(Boolean, default=False)
-    created = db.Column(Date, default=datetime.datetime.today)
+    created = db.Column(DateTime, default=datetime.datetime.today())
+    updated = db.Column(DateTime)
 
-    lead_score = db.Column(Integer, nullable=False)
+    lead_score = db.Column(Integer)
     stars = db.Column(Integer)
     referrers = db.Column(JSONB, default=[])
     extended = db.Column(Boolean)
 
-    #contains sources
-    email_addresses = db.Column(JSONB)
     
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
