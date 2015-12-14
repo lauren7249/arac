@@ -77,24 +77,43 @@ class OpenStreetMapsRequest(S3SavedRequest):
     """
 
     def __init__(self, query):
-        self.location = GEOLOCATOR.geocode(query)
+        super(OpenStreetMapsRequest, self).__init__()
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        self.query = query
 
     def _make_request(self):
-        location = self.location
-        country = None
-        locality = None
-        if not location or not location.latitude \
-                or not location.longitude:
-            return None
-        try:
-            country = location.address.split(",")[-1].strip()
-            locality = ",".join(location.address.split(",")[:-1]).strip()
-        except:
-            pass
-        return {"latlng":(location.latitude, location.longitude), "locality":locality, "country":country}
+        coords = {}
+        if not self.query:
+            return coords
+        query = "OpenStreetMapsRequest" + self.query
+        key = hashlib.md5(query).hexdigest()
+        bucket = self.bucket
+        boto_key = Key(bucket)
+        boto_key.key = key   
+        if boto_key.exists():
+            self.logger.info('OpenStreetMapsRequest: %s', 'Using S3')
+            html = boto_key.get_contents_as_string()
+            coords = json.loads(html)
+            return coords
+        else:         
+            self.logger.info('OpenStreetMapsRequest: %s', 'Querying openstreetmaps')       
+            try:
+                location = GEOLOCATOR.geocode(self.query)
+                country = None
+                locality = None
+                if location and location.latitude and location.longitude:
+                    try:
+                        country = location.address.split(",")[-1].strip()
+                        locality = ",".join(location.address.split(",")[:-1]).strip()
+                    except:
+                        pass
+                    coords = {"latlng":(location.latitude, location.longitude), "locality":locality, "country":country}
+            except:
+                coords = {}
+            boto_key.set_contents_from_string(json.dumps(coords))
+        return coords
 
     def process(self):
         self.logger.info('OpenStreetMapsRequest: %s', 'Starting')
