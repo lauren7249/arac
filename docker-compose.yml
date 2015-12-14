@@ -1,9 +1,8 @@
 ---
-# Data volume container to support persistent data in postgres and redis.
+# Data volume container to support persistent data in redis.
 data:
   image: busybox:latest
   volumes:
-    - /var/lib/postgrsql/data/pgdata
     - /data
 
 # The Postgres container holding the latest version of postgres and
@@ -12,14 +11,14 @@ db:
   dns: 8.8.8.8
   image: postgres:latest
   user: postgres
-#  volumes:
-#    - /var/lib/postgresql/data/pgdata
-  volumes_from:
-    - data:rw
+  volumes:
+    - /var/lib/postgresql/data
+#  volumes_from:
+#    - data:rw
   environment:
-    POSTGRES_USER: "arachnid"
-    POSTGRES_PASSWORD: "test"
-    PGDATA: '/var/lib/postgresql/data/pgdata'
+    POSTGRES_USER: 'arachnid'
+    POSTGRES_PASSWORD: 'test'
+#    PGDATA: '/var/lib/postgresql/data'
 
 redis:
   dns: 8.8.8.8
@@ -41,6 +40,9 @@ prime:
   ports:
     - "80:80"
     - "443:443"
+  volumes_from:
+    - data:rw
+    - db:rw
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
