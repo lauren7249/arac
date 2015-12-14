@@ -27,7 +27,7 @@ company_re = '^https://www.linkedin.com/company/*'
 
 SOCIAL_DOMAINS = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel","foursquare","github","flickr"]
 #image processing -- 1K calls/day
-ALCHEMY_API_KEYS = ["b8d4b7af348984ce7113a4e9aeefdaaa7f906991","d0a43371f6ba8fa7214437b0d745ed352e428785","bdbe594c87316744fc3b7be8d595e5ae1169a77e"]
+ALCHEMY_API_KEYS = ["b8d4b7af348984ce7113a4e9aeefdaaa7f906991","d0a43371f6ba8fa7214437b0d745ed352e428785","bdbe594c87316744fc3b7be8d595e5ae1169a77e","8bba403a0f041ebec65ec9bd0c62b326e6eeb6e9","61b6ce78bd662c1bdaf2284d2d1cdc8b0252fee9","90e9074da17fbf4da2d0e2bf8d15dbfeac28d9b9"]
 CLEARBIT_KEY = 'f2512e10a605e3dcaff606205dbd3758'
 SCRAPING_API_KEY = "0ca62d4f6c0345ef80af1c4a9868da0f"
 bing_api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]

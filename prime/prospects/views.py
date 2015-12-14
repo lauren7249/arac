@@ -103,7 +103,7 @@ def upload():
         q = Queue(connection=conn)
         random.shuffle(contacts_array)
         f = open('data/bigtext.json','w')
-        f.write(json.dumps(contacts_array[:20]))
+        f.write(json.dumps(contacts_array))
         f.close()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
     return jsonify({"unique_contacts": len(list(unique_emails))})
