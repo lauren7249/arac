@@ -106,6 +106,7 @@ class ProfileBuilderRequest(S3SavedRequest):
             self.profile["lng"] = latlng[1]
         self.profile["phone"] = self.person.get("phone_number")
         self.profile["wealthscore"] = self.person.get("wealthscore")
+        self.profile["lead_score"] = self.person.get("lead_score")
         self.profile["age"] = self.person.get("age")
         self.profile["college_grad"] = self.person.get("college_grad")
         self.profile["gender"] = self.person.get("gender")
@@ -166,5 +167,4 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile = self._get_linkedin_fields()
         self.profile = self._get_person_fields()
         self.profile = self._get_industry_fields()
-        self.profile["lead_score"] = 5
         return self.profile

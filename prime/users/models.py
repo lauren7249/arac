@@ -175,12 +175,11 @@ class ClientProspect(db.Model):
     created = db.Column(DateTime, default=datetime.datetime.today())
     updated = db.Column(DateTime)
 
-    lead_score = db.Column(Integer)
-    stars = db.Column(Integer)
-    referrers = db.Column(JSONB, default=[])
     extended = db.Column(Boolean)
+    referrers = db.Column(JSONB, default=[])
+    lead_score = db.Column(Integer, nullable=False)
+    stars = db.Column(Integer, nullable=False)
 
-    
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
 
