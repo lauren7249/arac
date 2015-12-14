@@ -87,6 +87,8 @@ class PiplRequest(S3SavedRequest):
 
     def _linkedin_id(self, pipl_json):
         linkedin_id = None
+        if not pipl_json:
+            return None
         if self.pipl_version == 4:
             for record in pipl_json.get("person",{}).get("user_ids",[]):
                 user_id = record.get("content")
@@ -106,6 +108,8 @@ class PiplRequest(S3SavedRequest):
         return None
 
     def _linkedin_url(self, social_accounts):
+        if not social_accounts:
+            return None
         for record in social_accounts:
             if "linkedin.com" in record:
                 return record
