@@ -19,11 +19,7 @@ bin/
 include
 *.swp
 .idea
-.DS_Store
 *.iml
-out/*
-.DS_Store/**
-
-
-
+out/
+.DS_Store/
 *.log

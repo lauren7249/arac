@@ -1,13 +1,13 @@
-.idea/**
+.idea/
 *.iml
 *.log
 out/**
-supervisor/*
+supervisor/
 .gitignore
-node_modules/**
+node_modules/
 docker-build-and-run.sh
 docker-machine-down.sh
 docker-machine-up.sh
-BaseDockerImage/**
+BaseDockerImage/
 Dockerfile
 docker-compose.yml
