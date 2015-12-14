@@ -5,6 +5,7 @@ import time
 import sys
 import os
 import boto
+import json
 from boto.s3.key import Key
 
 from prime.processing_service.service import Service, S3SavedRequest
@@ -44,6 +45,7 @@ class ResultService(Service):
         client_prospect.referrers = profile.get("referrers")
         client_prospect.lead_score = profile.get("lead_score")
         client_prospect.stars = profile.get("stars")
+        client_prospect.common_schools = profile.get("common_schools")
         client_prospect.updated = datetime.datetime.today()  
         self.session.add(client_prospect)
         self.session.commit()
@@ -162,5 +164,6 @@ class ResultService(Service):
             self._create_or_update_schools(prospect, profile)
             self._create_or_update_jobs(prospect, profile)
             self._create_or_update_client_prospect(prospect, user, profile)
+        self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
         self.logger.info('Ending Process: %s', 'Result Service')
         return self.output

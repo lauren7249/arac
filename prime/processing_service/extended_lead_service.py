@@ -20,18 +20,15 @@ class ExtendedLeadService(LeadService):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)        
         
-
     def process(self):
         self.logger.info('Starting Process: %s', 'Extended Lead Service')
-        self.data = self._get_qualifying_info() 
+        self._get_qualifying_info() 
         for person in self.data:
             if not person.get("extended"):
                 person["extended"] = False
                 self.good_leads.append(person)
                 continue
-            salary = self._filter_salaries(person)
-            location = self._filter_same_locations(person)
-            if salary and location:
+            if self._valid_lead(person):
                 self.good_leads.append(person)
             else:
                 self.bad_leads.append(person)

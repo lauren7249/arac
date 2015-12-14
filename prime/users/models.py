@@ -46,9 +46,8 @@ class User(db.Model, UserMixin):
     linkedin_url = db.Column(String(1024))
     created = db.Column(DateTime, default=datetime.datetime.today())
 
-    prospects = db.relationship('Prospect', secondary="client_prospect", \
-                               backref=db.backref('prospects', lazy='dynamic'))
-
+    prospects = db.relationship('Prospect', secondary="client_prospect", backref=db.backref('prospects', lazy='dynamic'))
+    client_prospects = db.relationship('ClientProspect', backref=db.backref('client_prospects'))
     onboarding_code = db.Column(String(40))
     json = db.Column(JSONB, default={})
 
@@ -97,48 +96,42 @@ class User(db.Model, UserMixin):
         db.session.add(u)
         return u
 
-
     @property
     def has_prospects(self):
-        session = db.session
-        return session.query(ClientProspect).filter(
-                ClientProspect.user_id == self.user_id).count() > 0
-
-    @property
-    def statistics(self):
-        if self.json.get("statistics"):
-            return self.json.get("statistics")
-        return self.build_statistics()
+        return self.client_prospects.count() > 0
 
     def build_statistics(self):
         """
-        Complicated function that will calculate most popular schools,
-        companies, gender, wealthscore, age, college degree, and income score
+        Calculate most popular schools,
+        industries, average gender, age, college degree, and wealth score
         """
         schools = {}
-        gender = {"female":0,"male":0,None:0}
+        industries = {}
+        gender = {"female":0,"male":0,"unknown":0}
         college_degree = {True:0,False:0,None:0}
         wealth_score = [prospect.wealthscore for prospect in self.prospects if prospect.wealthscore ]
         average_age = [prospect.age for prospect in self.prospects if prospect.age]
-        for prospect in self.prospects:
-            for school in prospect.common_schools:
-                count = schools.get(school, 0)
-                count += 1
-                schools[school] = count
-            college_degree[prospect.college_degree] += 1
-            gender[prospect.gender] += 1
+        extended_count = 0
+        first_degree_count = 0
+        for client_prospect in self.client_prospects:
+            if client_prospect.extended:
+                extended_count+=1
+                continue
+            first_degree_count+=1
+            college_degree[client_prospect.prospect.college_grad] += 1
+            gender[client_prospect.prospect.gender] += 1      
+            industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
+            for school in client_prospect.common_schools:
+                schools[school] = schools.get(school, 0) + 1
         data = {"schools": schools,
-                "male": gender["male"]/(gender["male"] + gender["female"]) * 100,
-                "college_degree": college_degree[True]/(college_degree[True] + college_degree[False]) * 100,
+                "count_first_degree": first_degree_count,
+                "count_extended": extended_count,
+                "industries": industries,
+                "male": float(gender["male"])/float(gender["male"] + gender["female"]) * 100,
+                "college_degree": float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100,
                 "average_age": sum(average_age)/len(average_age),
                 "wealth_score": sum(wealth_score)/len(wealth_score)}
-        old_json = self.json if self.json else {}
-        old_json['statistics'] = data
-        session = db.session
-        self.json = old_json
-        session.add(self)
-        session.commit()
-        return self.json.get("statistics")
+        return data
 
     @property
     def name(self):
@@ -179,7 +172,8 @@ class ClientProspect(db.Model):
     referrers = db.Column(JSONB, default=[])
     lead_score = db.Column(Integer, nullable=False)
     stars = db.Column(Integer, nullable=False)
-
+    common_schools = db.Column(JSONB, default=[])
+    
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
 

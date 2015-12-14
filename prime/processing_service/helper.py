@@ -1,13 +1,19 @@
+from constants import profile_re, bloomberg_company_re, school_re, company_re
 import itertools
 import operator
 import re
 import datetime
 import dateutil
 import json
+import logging
 from difflib import SequenceMatcher
 from random import shuffle
 import numpy as np
-from constants import profile_re, bloomberg_company_re, school_re, company_re
+
+
+logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def uu(str):
     if str:
@@ -117,23 +123,27 @@ def get_domain(website):
 def domain_match(website1,website2):
     return website1 and website2 and get_domain(website2) == get_domain(website1)
 
-def name_match(name1, name2, intersect_threshold=2):
+def name_match(name1, name2, intersect_threshold=5):
     name1 = re.sub('[^0-9a-z\s]','',name1.lower())
     name2 = re.sub('[^0-9a-z\s]','',name2.lower())
     if len(name1) < 3 or len(name2) < 3:
         return False
     name1_words = set(name1.split(" "))
     name2_words = set(name2.split(" "))
-    stop_words = ["the", "of","and","a","the","at","for","in","on"]
+    stop_words = ["the", "of","and","a","the","at","for","in","on","school","","inc","llc","co"]
     for stop_word in stop_words:
         if stop_word in name1_words: name1_words.remove(stop_word)
         if stop_word in name2_words: name2_words.remove(stop_word)
     intersect = name1_words & name2_words
+    intersect_threshold = min(intersect_threshold, len(name1_words))
     intersect_threshold = min(intersect_threshold, len(name2_words))
-    intersect_threshold = min(intersect_threshold, len(name2_words))
-    if len(intersect)>=intersect_threshold: return True
+    if len(intersect)>=intersect_threshold: 
+        logger.info("Name match: %s == %s", name1, name2)
+        return True
     ratio = SequenceMatcher(None, name1, name2)
-    if ratio>=0.8: return True
+    if ratio>=0.8: 
+        logger.info("Name match: %s == %s", name1, name2)
+        return True
     return False
 
 def get_firstname(str):
@@ -146,17 +156,27 @@ def get_firstname(str):
     if firstname in ["ms","mr","miss","mrs","dr", "rev", "reverend","professor","prof","md"] and len(str.split(" "))>1: firstname =  str.split(" ")[1]
     return firstname
 
+def merge_by_key(d1, d2):
+    merged = {}
+    for key in set(d1.keys()) & set(d2.keys()):
+        merged[key] = d1[key] + d2[key]
+    for key in set(d1.keys()) - set(d2.keys()):
+        merged[key] = d1[key]     
+    for key in set(d2.keys()) - set(d1.keys()):
+        merged[key] = d2[key]              
+    return merged
+
 def common_institutions(p1,p2, intersect_threshold=5):
-    commonalities = set()
+    commonalities = {}
     common_schools = common_school_ids(p1,p2)
-    commonalities.update(common_schools)
+    commonalities = merge_by_key(common_schools, commonalities)
     common_companies = common_company_ids(p1,p2)
-    commonalities.update(common_companies)
+    commonalities = merge_by_key(common_companies, commonalities)
     common_school_names = match_common_school_names(p1,p2, intersect_threshold=intersect_threshold)
-    commonalities.update(common_school_names)
+    commonalities = merge_by_key(common_school_names, commonalities)
     common_company_names = match_common_company_names(p1,p2, intersect_threshold=intersect_threshold)
-    commonalities.update(common_company_names)
-    commonalities = list(commonalities)
+    commonalities = merge_by_key(common_company_names, commonalities)
+    commonalities = collapse_commonalies(commonalities)
     return ", ".join(commonalities)
 
 def parse_date(datestr):
@@ -173,27 +193,18 @@ def date_overlap(start_date1, end_date1, start_date2, end_date2):
         return (start_date1, end_date2)
     return None
 
-def common_school_ids(p1, p2):
-    matching = set()
-    for school1 in p1.get("schools",[]):
-        if not school1.get("college_id"): continue
-        if not school1.get("start_date") and not school1.get("end_date"): continue
-        start_date1 = parse_date(school1.get("start_date")).date() if parse_date(school1.get("start_date")) else datetime.date(1900,1,1)
-        end_date1 = parse_date(school1.get("end_date")).date() if parse_date(school1.get("end_date")) else datetime.date.today()
-        for school2 in p2.get("schools",[]):
-            if not school2.get("college_id"): continue
-            if not school2.get("start_date") and not school2.get("end_date"): continue
-            start_date2 = parse_date(school2.get("start_date")).date() if parse_date(school2.get("start_date")) else datetime.date(1900,1,1)
-            end_date2 = parse_date(school2.get("end_date")).date() if parse_date(school2.get("end_date")) else datetime.date.today()
-            dates_overlap= date_overlap(start_date1, end_date1, start_date2, end_date2);
-            if not dates_overlap: continue
-            if school1.get("college_id") == school2.get("college_id"):
-                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
-                matching.add("Attended " + school2.get("college") + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
-    return matching
+def collapse_commonalies(commonalities):
+    collapsed = []
+    for connection, date_ranges in commonalities.iteritems():
+        start_date = min([date_range[0] for date_range in date_ranges])
+        end_date = max([date_range[1] for date_range in date_ranges])
+        start_date_str = str(start_date.year)
+        end_date_str = 'Present' if end_date == datetime.date.today() else str(end_date.year)
+        collapsed.append(connection + start_date_str + "-" + end_date_str)
+    return collapsed
 
 def common_company_ids(p1, p2):
-    matching = set()
+    matching = {}
     for job1 in p1.get("experiences",[]):
         if not job1.get("company_id"): continue
         if not job1.get("start_date") and not job1.get("end_date"): continue
@@ -207,12 +218,12 @@ def common_company_ids(p1, p2):
             dates_overlap= date_overlap(start_date1, end_date1, start_date2, end_date2);
             if not dates_overlap: continue
             if job1.get("company_id") == job2.get("company_id"):
-                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
-                matching.add("Worked at " + job2.get("company") + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
+                connection = "Worked at " + job2.get("company") + " together "
+                matching[connection] = matching.get(connection,[]) + [dates_overlap]
     return matching
 
 def match_common_company_names(p1, p2, intersect_threshold=3):
-    matching = set()
+    matching = {}
     for job1 in p1.get("experiences",[]):
         if not job1.get("company"): continue
         if not job1.get("start_date") and not job1.get("end_date"): continue
@@ -232,12 +243,31 @@ def match_common_company_names(p1, p2, intersect_threshold=3):
                     company_name = job2.get("company")
                 else:
                     company_name = job1.get("company")
-                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
-                matching.add("Worked at " + company_name + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
+                connection = "Worked at " + company_name + " together "
+                matching[connection] = matching.get(connection,[]) + [dates_overlap]
+    return matching
+
+def common_school_ids(p1, p2):
+    matching = {}
+    for school1 in p1.get("schools",[]):
+        if not school1.get("college_id"): continue
+        if not school1.get("start_date") and not school1.get("end_date"): continue
+        start_date1 = parse_date(school1.get("start_date")).date() if parse_date(school1.get("start_date")) else datetime.date(1900,1,1)
+        end_date1 = parse_date(school1.get("end_date")).date() if parse_date(school1.get("end_date")) else datetime.date.today()
+        for school2 in p2.get("schools",[]):
+            if not school2.get("college_id"): continue
+            if not school2.get("start_date") and not school2.get("end_date"): continue
+            start_date2 = parse_date(school2.get("start_date")).date() if parse_date(school2.get("start_date")) else datetime.date(1900,1,1)
+            end_date2 = parse_date(school2.get("end_date")).date() if parse_date(school2.get("end_date")) else datetime.date.today()
+            dates_overlap= date_overlap(start_date1, end_date1, start_date2, end_date2);
+            if not dates_overlap: continue
+            if school1.get("college_id") == school2.get("college_id"):
+                connection = "Attended " + school2.get("college") + " together "
+                matching[connection] = matching.get(connection,[]) + [dates_overlap]
     return matching
 
 def match_common_school_names(p1, p2, intersect_threshold=3):
-    matching = set()
+    matching = {}
     for school1 in p1.get("schools",[]):
         if not school1.get("college"): continue
         if not school1.get("start_date") and not school1.get("end_date"): continue
@@ -257,6 +287,11 @@ def match_common_school_names(p1, p2, intersect_threshold=3):
                     school_name = school2.get("college")
                 else:
                     school_name = school1.get("college")
-                end_date_str = 'Present' if dates_overlap[1] == datetime.date.today() else str(dates_overlap[1].year)
-                matching.add("Attended " + school_name + " together " + str(dates_overlap[0].year) + "-" + end_date_str)
+                connection = "Attended " + school_name + " together "
+                matching[connection] = matching.get(connection,[]) + [dates_overlap]
     return matching
+
+def get_specific_url(social_accounts, type="linkedin.com"):
+    for account in social_accounts:
+        if account.find(type) > -1: return account
+    return None

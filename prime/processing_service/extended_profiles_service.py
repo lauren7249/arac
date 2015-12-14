@@ -40,7 +40,7 @@ class ExtendedProfilesService(Service):
                 referrer["referrer_connection"] = commonality
                 referrer["referrer_id"] = person_profile.get("linkedin_id")
                 referrer["referrer_url"] = person_profile.get("source_url")
-                referrer["referrer_name"] = person_profile.get("name")
+                referrer["referrer_name"] = person_profile.get("full_name")
                 referrers.append(referrer)
                 extended_referrers[associated_profile.get("linkedin_id")] = referrers
             self.output.append(person)

@@ -43,6 +43,7 @@ class PiplService(Service):
         for person, info in self.data.iteritems():
             request = PiplRequest(person, type="email", level="social")
             data = request.process()
+            data.update(info)
             self.output.append({person:data})
         self.logger.info('Ending Process: %s', 'Pipl Service')
         return self.output

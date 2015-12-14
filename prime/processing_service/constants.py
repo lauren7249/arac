@@ -4,6 +4,7 @@
 EXCLUDED_EMAIL_WORDS = ["reply","support","sales","info","feedback","noreply",\
 "docs.google.com", "craigslist.org", "sale"]
 NOT_REAL_JOB_WORDS = ["intern","candidate","student","summer","part-time","former","worked"]
+EXCLUDED_COMPANIES = ['New York Life Insurance Company','NYLIFE Securities LLC','NYLIFE Securities, LLC','NYLIFE Securities','MassMutual Financial Group','First Financial Group, LLC', 'First Financial Group','First Financial Group LLC','MassMutual Metro New York','MassMutual Brooklyn','MassMutual NJ-NYC','MassMutual New Jersey-NYC','MassMutual Greater Long Island','MassMutual Westchester','Northwestern Mutual','Northwestern Mutual Life']
 AWS_KEY = "AKIAIKCNCKG6RXJHWNFA"
 AWS_SECRET = "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"
 AWS_BUCKET = "aconn"

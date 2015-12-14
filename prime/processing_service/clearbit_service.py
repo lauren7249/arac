@@ -4,6 +4,7 @@ import hashlib
 import boto
 import multiprocessing
 import re
+import json
 from requests import HTTPError
 from boto.s3.key import Key
 from helper import get_domain
@@ -37,11 +38,13 @@ class ClearbitPersonService(Service):
             original_person = original_data[i].values()[0]
             output_person = output_data[i].values()[0]
             social_accounts = original_person.get("social_accounts",[]) + output_person.get("social_accounts",[])
+            sources = original_person.get("sources",[]) + output_person.get("sources",[])
             images = original_person.get("images",[]) + output_person.get("images",[])
-            linkedin_urls = original_person.get("linkedin_urls") if original_person.get("linkedin_urls") and re.search(pub_profile_re,original_person.get("linkedin_urls")) else output_person.get("linkedin_urls")
+            linkedin_urls = original_person.get("linkedin_urls") if original_person.get("linkedin_urls") else output_person.get("linkedin_urls")
             output_data[i][output_data[i].keys()[0]]["social_accounts"] = social_accounts
             output_data[i][output_data[i].keys()[0]]["linkedin_urls"] = linkedin_urls
             output_data[i][output_data[i].keys()[0]]["images"] = images
+            output_data[i][output_data[i].keys()[0]]["sources"] = sources
         return output_data
 
     def multiprocess(self, poolsize=5, merge=True):
@@ -80,7 +83,8 @@ class ClearbitPhoneService(Service):
     """
     Expected input is JSON with profile info
     Output is going to be company info from clearbit
-    rate limit is 600/minute
+    rate limit is 600/minute with webhooks
+    TODO: change to webhooks (instead of streaming)
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
@@ -114,21 +118,23 @@ class ClearbitRequest(S3SavedRequest):
     """
 
     def __init__(self, query, type='email'):
+        super(ClearbitRequest, self).__init__()
         self.clearbit = clearbit
         self.clearbit.key=CLEARBIT_KEY
         self.query = query
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ClearbitRequest, self).__init__()
 
     def _make_request(self, type):
-        self.key = hashlib.md5(self.query).hexdigest()
+        entity = {}
+        self.key = hashlib.md5("clearbit" + type + self.query).hexdigest()
         key = Key(self.bucket)
         key.key = self.key
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
             html = key.get_contents_as_string()
+            entity = json.loads(html)
         else:
             try:
                 self.logger.info('Make Request: %s', 'Query Clearbit')
@@ -138,17 +144,11 @@ class ClearbitRequest(S3SavedRequest):
                     entity = clearbit.Company.find(domain=self.query, stream=True)
             except HTTPError as e:
                 self.logger.info('Clearbit Fail')
-                entity = {}
-            if entity:
-                #TODO, this doesn't work
-                try:
-                    key.content_type = 'text/html'
-                    key.set_contents_from_string(entity)
-                except:
-                    pass
-        if entity:
-            return dict(entity)
-        return {}
+            key.content_type = 'text/html'
+            key.set_contents_from_string(json.dumps(entity))
+        if entity is None:
+            entity = {}
+        return dict(entity)
 
 
     def _social_accounts(self, clearbit_json):

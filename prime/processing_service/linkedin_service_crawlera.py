@@ -12,7 +12,8 @@ from saved_request import S3SavedRequest
 
 class LinkedinService(Service):
     '''
-    Gets linkedin data and collapses by linkedin_id
+    Gets linkedin data and collapses by linkedin_id, merging the email addresses, images, and social acounts for the person, 
+    as well as the cloudsponge sources from whence the person was obtained
     '''
     def __init__(self, client_data, data, *args, **kwargs):
         self.client_data = client_data
@@ -40,8 +41,10 @@ class LinkedinService(Service):
                     emails = info.get("email_addresses",[]) 
                     emails.append(email)
                     social_accounts = info.get("social_accounts",[]) + email_data.get("social_accounts",[])
+                    sources = info.get("sources",[]) + email_data.get("sources",[])
                     images = info.get("images",[]) + email_data.get("images",[])
-                    o = {"linkedin_data": data, "email_addresses":list(set(emails)), "social_accounts":list(set(social_accounts)), "images":list(set(images))}
+                    o = {"linkedin_data": data, "email_addresses":list(set(emails)), "sources":list(set(sources)), 
+                        "social_accounts":list(set(social_accounts)), "images":list(set(images))}
                     info.update(o)
                     self.output.update({linkedin_id:o})
         self.logger.info('Ending Process: %s', 'Linkedin Service')

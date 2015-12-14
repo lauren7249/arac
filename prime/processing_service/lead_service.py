@@ -6,8 +6,8 @@ import re
 from requests import HTTPError
 from boto.s3.key import Key
 from geoindex.geo_point import GeoPoint
-from helper import uu
-from constants import NOT_REAL_JOB_WORDS
+from helper import uu, name_match
+from constants import NOT_REAL_JOB_WORDS, EXCLUDED_COMPANIES
 from service import Service
 from saved_request import S3SavedRequest
 from geocode_service import MapQuestRequest
@@ -19,7 +19,7 @@ class LeadService(Service):
     """
     Expected input is JSON 
     Output is filtered to qualified leads only
-    TODO: check that the person is not the agent
+    
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
@@ -80,6 +80,24 @@ class LeadService(Service):
         data = service.process()     
         return data
 
+    def _is_same_person(self, person):
+        person_name = person.get("linkedin_data",{}).get("full_name")
+        if name_match(person_name.split(" ")[0], self.client_data.get("first_name")) \
+            and name_match(person_name.split(" ")[1], self.client_data.get("last_name")):
+            self.logger.info("%s is ME", person_name)
+            return True
+        self.logger.info("%s is NOT ME", person_name)
+        return False
+
+    #TODO: make this more robust
+    def _is_competitor(self, person):
+        person_company = self._current_job(person).get("company")
+        if person_company.strip() in EXCLUDED_COMPANIES:
+            self.logger.info("%s is a competitor", person_company)
+            return True
+        self.logger.info("%s is NOT a competitor", person_company)
+        return False
+
     def _filter_title(self, title):
         if not title:
             return False
@@ -90,13 +108,18 @@ class LeadService(Service):
                 return False
         return True
 
+    def _valid_lead(self, person):
+        salary = self._filter_salaries(person)
+        location = self._filter_same_locations(person)
+        same_person = self._is_same_person(person)        
+        competitor = self._is_competitor(person)    
+        return salary and location and not same_person and not competitor
+
     def process(self):
         self.logger.info('Starting Process: %s', 'Lead Service')   
         self.data = self._get_qualifying_info() 
         for person in self.data:
-            salary = self._filter_salaries(person)
-            location = self._filter_same_locations(person)
-            if salary and location:
+            if self._valid_lead(person):
                 self.good_leads.append(person)
             else:
                 self.bad_leads.append(person)

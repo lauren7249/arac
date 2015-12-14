@@ -41,7 +41,7 @@ class ProfileBuilderService(Service):
         common_schools = set()
         for school1 in prospect_schools:
             for school2 in agent_schools:
-                if name_match(school1,school2):
+                if school1 and school2 and name_match(school1,school2):
                     common_schools.add(school2)
         profile["common_schools"] = list(common_schools)
         return profile
@@ -91,10 +91,12 @@ class ProfileBuilderRequest(S3SavedRequest):
     def _get_social_fields(self, social_accounts):      
         if not social_accounts:
             return self.profile
+        self.profile["social_accounts"] = []
         for link in social_accounts: 
             domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
             if domain in SOCIAL_DOMAINS: 
                 self.profile[domain] = link
+                self.profile["social_accounts"].append(link)
         return self.profile 
 
     def _get_person_fields(self):     
@@ -105,8 +107,6 @@ class ProfileBuilderRequest(S3SavedRequest):
             self.profile["lat"] = latlng[0]
             self.profile["lng"] = latlng[1]
         self.profile["phone"] = self.person.get("phone_number")
-        self.profile["wealthscore"] = self.person.get("wealthscore")
-        self.profile["lead_score"] = self.person.get("lead_score")
         self.profile["age"] = self.person.get("age")
         self.profile["college_grad"] = self.person.get("college_grad")
         self.profile["gender"] = self.person.get("gender")
@@ -118,8 +118,9 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["profile_image_urls"] = self.person.get("images")
         self.profile["main_profile_image"] = self._get_main_profile_image()
         self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if not x.endswith("@facebook.com")])      
-        self.profile["referrers"] = self.person.get("referrers")  
+        self.profile["referrers"] = self.person.get("referrers",[])  
         self.profile["extended"] = self.person.get("extended")  
+        self.profile["sources"] = self.person.get("sources",[])
         self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
         return self.profile
 

@@ -10,10 +10,11 @@ from boto.s3.key import Key
 import scipy.stats as stats
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
+from helper import get_specific_url
 
 class ScoringService(Service):
     """
-    Expected input is JSON with profile info
+    Expected input is JSON with fully built profiles
     Output is going to be existig data enriched with wealth scores
     """
 
@@ -49,7 +50,7 @@ class ScoringService(Service):
 class WealthScoreRequest(S3SavedRequest):
 
     """
-    Given a person, this will get a wealth score
+    Given a fully built profile, this will get a wealth score
     """
 
     def __init__(self, person):
@@ -75,17 +76,37 @@ class WealthScoreRequest(S3SavedRequest):
 class LeadScoreRequest(S3SavedRequest):
 
     """
-    Given a person and agent data, this will calculate a lead score
+    Given a fully built profile, this will calculate a lead score
     """
 
     def __init__(self, person):
         super(LeadScoreRequest, self).__init__()
+        self.amazon = person.get("amazon")
         self.indeed_salary = person.get("indeed_salary")
         self.glassdoor_salary = person.get("glassdoor_salary")
-        self.max_salary = max(self.indeed_salary, self.glassdoor_salary)
+        self.social_accounts = person.get("social_accounts",[])
+        self.salary = max(self.indeed_salary, self.glassdoor_salary)
+        self.common_schools = person.get("common_schools",[])
+        self.referrers = person.get("referrers",[])
+        self.emails = person.get("email_addresses",[])
+        self.sources = person.get("sources",[])
+        self.images = person.get("profile_image_urls",[])
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)        
         
     def process(self):
-        return 5
+        score = 0
+        score+=len(self.social_accounts) 
+        score+=self.salary/10000 
+        if self.amazon: 
+            score += 2   
+        score+=len(self.common_schools)
+        score+=len(self.referrers)
+        score+=len(self.emails)
+        score+=len(self.sources)
+        score+=len(self.images)
+        if 'linkedin' in self.sources: 
+            score+=6
+        self.logger.info("Social accounts: %d, salary: %d, common schools: %d, referrers: %d, emails: %d, sources: %d, images: %d", len(self.social_accounts), self.salary, len(self.common_schools), len(self.referrers), len(self.emails), len(self.sources), len(self.images))
+        return score

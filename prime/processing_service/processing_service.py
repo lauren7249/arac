@@ -11,6 +11,7 @@ from jinja2.environment import Environment
 BASE_DIR = os.path.dirname(__file__)
 PRIME_DIR =  os.path.split(os.path.split(BASE_DIR)[0])[0]
 sys.path.append(PRIME_DIR)
+logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
 
@@ -32,7 +33,7 @@ from scoring_service import ScoringService
 from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
 SAVE_OUTPUTS = False
-
+RUN_EXTENDED = (sys.argv[-1] == "1")
 #DO NOT REORDER THESE 
 SERVICES = OrderedDict()
 SERVICES['cloud_sponge'] = CloudSpongeService
@@ -40,16 +41,21 @@ SERVICES['pipl_serice'] =  PiplService
 SERVICES['clearbit_service'] =  ClearbitPersonService
 SERVICES['linkedin_service'] = LinkedinService
 SERVICES['lead_service'] = LeadService
-SERVICES['extended_profiles_service'] = ExtendedProfilesService
-SERVICES['extended_lead_service'] = ExtendedLeadService
+#it goes much faster if you dont run extended
+if RUN_EXTENDED:
+    logger.info("RUNNING extended network for comprehensive check!!!!")
+    SERVICES['extended_profiles_service'] = ExtendedProfilesService
+    SERVICES['extended_lead_service'] = ExtendedLeadService
+else:
+    logger.info("SKIPPING extended network for speed!!!!")
 SERVICES['social_profiles_service'] = SocialProfilesService
 SERVICES['linkedin_company_service'] = LinkedinCompanyService
 SERVICES['phone_service'] = PhoneService
 SERVICES['age_service'] = AgeService
 SERVICES['gender_service'] = GenderService
 SERVICES['college_degree_service'] = CollegeDegreeService
-SERVICES['scoring_service'] = ScoringService
 SERVICES['profile_builder_service'] = ProfileBuilderService
+SERVICES['scoring_service'] = ScoringService
 SERVICES['results_service'] = ResultService
 
 class ProcessingService(Service):
@@ -120,7 +126,6 @@ if __name__ == '__main__':
     data = json.loads(_file.read())[:5]
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
                     "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc"}  
-    logger = logging.getLogger(__name__)
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,

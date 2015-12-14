@@ -7,6 +7,7 @@ from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime import db
 import dateutil.parser
+from prime.processing_service.helper import uu
 from sqlalchemy import and_, not_
 
 def get_or_create(session, model, **kwargs):
@@ -15,8 +16,6 @@ def get_or_create(session, model, **kwargs):
         return instance
     else:
         instance = model(**kwargs)
-        session.add(instance)
-        session.commit()
         return instance
 
 class Prospect(db.Model):
@@ -77,7 +76,6 @@ class Prospect(db.Model):
     #for filtering and network summary: TODO: ADD IN
     industry_category = db.Column(String(100))
     industry_icon = db.Column(String(200)) 
-    common_schools = db.Column(JSONB, default=[])
 
     #fields for network summary only
     gender = db.Column(String(15))
@@ -86,7 +84,7 @@ class Prospect(db.Model):
     age = db.Column(Float)
 
     def __repr__(self):
-        return '<Prospect id={0} url={1}>'.format(self.id, self.main_profile_url)
+        return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
 
 class Job(db.Model):
     __tablename__ = "job"
@@ -104,8 +102,8 @@ class Job(db.Model):
     def __repr__(self):
         return '<Job id={0} name={1} user={2}>'.format(
                 self.id,
-                self.company_name,
-                self.prospect.linkedin_name
+                uu(self.company_name),
+                uu(self.prospect.linkedin_name)
                 )
 
 class Education(db.Model):
@@ -123,8 +121,8 @@ class Education(db.Model):
     def __repr__(self):
         return '<Education id={0} name={1} user={2}>'.format(
                 self.id,
-                self.school_name,
-                self.prospect.linkedin_name
+                uu(self.school_name),
+                uu(self.prospect.linkedin_name)
                 )
 
 
