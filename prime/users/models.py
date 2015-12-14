@@ -98,7 +98,7 @@ class User(db.Model, UserMixin):
 
     @property
     def has_prospects(self):
-        return self.client_prospects.count() > 0
+        return self.client_prospects and len(self.client_prospects) > 0
 
     def build_statistics(self):
         """
@@ -124,11 +124,12 @@ class User(db.Model, UserMixin):
             for school in client_prospect.common_schools:
                 schools[school] = schools.get(school, 0) + 1
         data = {"schools": schools,
-                "count_first_degree": first_degree_count,
+                "network_size": first_degree_count,
                 "count_extended": extended_count,
                 "industries": industries,
-                "male": float(gender["male"])/float(gender["male"] + gender["female"]) * 100,
-                "college_degree": float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100,
+                "male_percentage": float(gender["male"])/float(gender["male"] + gender["female"]) * 100,
+                "female_percentage": float(gender["female"])/float(gender["male"] + gender["female"]) * 100,
+                "college_percentage": float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100,
                 "average_age": sum(average_age)/len(average_age),
                 "wealth_score": sum(wealth_score)/len(wealth_score)}
         return data

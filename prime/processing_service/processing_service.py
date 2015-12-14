@@ -110,7 +110,7 @@ class ProcessingService(Service):
         body = tmpl.render()
         subject = "Your p200 List is ready!"
         to_email = self.client_data.get("email")
-        #sendgrid_email(to_email, subject, body)
+        sendgrid_email(to_email, subject, body)
         return output
 
 def save_output(output, user_email, service):
@@ -123,7 +123,7 @@ def save_output(output, user_email, service):
 
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
-    data = json.loads(_file.read())[:5]
+    data = json.loads(_file.read())
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
                     "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc"}  
     logger.info("Input: {}".format(data))
