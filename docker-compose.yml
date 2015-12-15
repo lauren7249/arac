@@ -1,37 +1,42 @@
 ---
-# Data volume container to support persistent data in redis.
-data:
-  image: busybox:latest
-  volumes:
-    - /data
+## Data volume container to support persistent data in redis.
+#data:
+#  image: postgres:latest
+#  volumes:
+#    - /data
 
 # The Postgres container holding the latest version of postgres and
 # binds to the storage volume, pgdata where persistent data is kept.
 db:
+  restart: always
   dns: 8.8.8.8
   image: postgres:latest
-  user: postgres
+#  user: postgres
   volumes:
+    - /var/run/postgresql
     - /var/lib/postgresql/data
 #  volumes_from:
 #    - data:rw
   environment:
-    POSTGRES_USER: 'arachnid'
-    POSTGRES_PASSWORD: 'test'
+    POSTGRES_USER: 'postgres'
+    POSTGRES_PASSWORD: ''
+    LC_COLLATE: 'en_US.utf8'
 #    PGDATA: '/var/lib/postgresql/data'
 
 redis:
+  restart: always
   dns: 8.8.8.8
   image: redis:latest
-  volumes_from:
-    - data:rw
   ports:
     - "6379:6379"
+  environment:
+    LC-COLLATE: 'en_US.utf8'
 
 # Prime is the main application, which up execution will run the make
 # command within the container, with a default target of 'test' if not
 # otherwise overridden on the command line.
 prime:
+  restart: always
   dns: 8.8.8.8
   build: .
   links:
@@ -41,7 +46,6 @@ prime:
     - "80:80"
     - "443:443"
   volumes_from:
-    - data:rw
     - db:rw
 #  extra_hosts:
 #    - "babel:10.143.114.177"
@@ -49,6 +53,8 @@ prime:
    S3_BUCKET: 'arachid-results'
    AC_CONFIG: 'development'
    REDIS_URL: 'redis://redis:6379'
-   DB_URL: 'postgresql://arachnid:test@babel/arachnid'
+   DB_URL: 'postgresql://postgres@babel/arachnid'
    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
    AWS_SECRET_ACCESS_KEY_PVLL: '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'
+   LC_COLLATE: 'en_US.utf8'
+
