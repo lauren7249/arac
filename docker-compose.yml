@@ -21,14 +21,6 @@ db:
     POSTGRES_PASSWORD: ''
     LC_ALL: 'en_US.utf8'
 
-nginx:
-    restart: always
-    image: nginx:latest
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./misc/nginx_view.conf:/etc/nginx/conf.d/nginx_default.conf
 redis:
   restart: always
   dns: 8.8.8.8
@@ -48,13 +40,11 @@ prime:
   links:
     - db:babel
     - redis:redis
-    - nginx:www
 #  ports:
 #    - "80:80"
 #    - "443:443"
   volumes_from:
     - db
-    - nginx
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
@@ -66,4 +56,15 @@ prime:
    DB_URL: 'postgresql://arachnid@babel/arachnid'
    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
    AWS_SECRET_ACCESS_KEY_PVLL: '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'
+nginx:
+    restart: always
+    image: nginx:latest
+    links: prime:p200
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./misc/nginx_venv.conf:/etc/nginx/conf.d/nginx_default.conf
+    volumes_from:
+      - prime
 
