@@ -33,6 +33,7 @@ redis:
 nginx:
   restart: always
   image: nginx:latest
+  dns: 8.8.8.8
   links:
     - prime:p200
   ports:
