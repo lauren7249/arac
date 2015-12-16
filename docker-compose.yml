@@ -11,7 +11,8 @@ db:
   restart: always
   dns: 8.8.8.8
   image: postgres:latest
-#  user: postgres
+  ports:
+    - "5432:5432"
   volumes:
     - /var/run/postgresql
     - /var/lib/postgresql/data
@@ -45,12 +46,13 @@ prime:
   ports:
     - "80:80"
     - "443:443"
+    - "5432:5432"
   volumes_from:
     - db:rw
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
-   PRIME_DB_USR: 'arachnid'
+   PRIME_DB_USER: 'arachnid'
    PRIME_DB_PASS: 'test'
    S3_BUCKET: 'arachid-results'
    AC_CONFIG: 'development'
