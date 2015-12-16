@@ -5,10 +5,7 @@ from rq import Worker, Queue, Connection
 
 listen = ['high', 'default', 'low']
 
-redis_url = 'redis://consumer.btwauj.0001.use1.cache.amazonaws.com:6379'
-if not redis_url:
-    raise RuntimeError('Set up Redis To Go first.')
-
+redis_url = os.getenv('REDIS_URL','http://localhost:6379')
 conn = Redis()
 
 with Connection(conn):

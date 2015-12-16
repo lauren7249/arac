@@ -33,7 +33,7 @@ test:
 
 .PHONY: uwsgi
 uwsgi:
-	cd prime &&  uwsgi -s /tmp/uwsgi.sock --module app --callable app --chmod-socket=666 --protocol=http --processes=8 --enable-threads --gid=nogroup  --ugreen -M
+	uwsgi --ini production.ini
 
 .PHONY: run
 run: is-ready uwsgi
