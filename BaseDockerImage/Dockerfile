@@ -5,7 +5,7 @@ RUN apt-get autoremove -y
 RUN apt-get update && \
 		apt-get install -y libblas-dev libatlas-dev g++ libatlas-dev libatlas3-base libblas3gf libopenblas-dev liblapack3 liblapacke-dev liblapacke \
 		fftw-dev sfftw-dev libfftw3-dev python2.7-dev libpython2.7-dev libpython-all-dev  liblapack-dev \
-  		apt-utils binfmt-support gfortran postgresql-client libpq-dev libpq5 libpqxx-dev libhiredis-dev libghc-hedis-dev redis-tools
+  		apt-utils binfmt-support gfortran postgresql-client libpq-dev libpq5 libpqxx-dev libhiredis-dev libghc-hedis-dev redis-tools locales-all
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app

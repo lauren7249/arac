@@ -20,7 +20,7 @@ db:
   environment:
     POSTGRES_USER: 'postgres'
     POSTGRES_PASSWORD: ''
-    LC_COLLATE: 'en_US.utf8'
+    LC_ALL: 'en_US.utf8'
 #    PGDATA: '/var/lib/postgresql/data'
 
 redis:
@@ -30,7 +30,7 @@ redis:
   ports:
     - "6379:6379"
   environment:
-    LC-COLLATE: 'en_US.utf8'
+    LC_ALL: 'en_US.utf8'
 
 # Prime is the main application, which up execution will run the make
 # command within the container, with a default target of 'test' if not
@@ -50,11 +50,13 @@ prime:
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
+   PRIME_DB_USR: 'arachnid'
+   PRIME_DB_PASS: 'test'
    S3_BUCKET: 'arachid-results'
    AC_CONFIG: 'development'
    REDIS_URL: 'redis://redis:6379'
-   DB_URL: 'postgresql://postgres@babel/arachnid'
+   DB_URL: 'postgresql://arachnid:test@babel/arachnid'
    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
    AWS_SECRET_ACCESS_KEY_PVLL: '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'
-   LC_COLLATE: 'en_US.utf8'
+   LC_ALL: 'en_US.utf8'
 
