@@ -24,7 +24,7 @@ def do_work():
     should redis not be immediately available
     """
     try:
-        conn = Redis()
+        conn = Redis.from_url(url=redis_url, db=0)
 
         with Connection(conn):
             worker = Worker(map(Queue, listen))
