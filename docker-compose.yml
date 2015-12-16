@@ -22,6 +22,7 @@ db:
     LC_ALL: 'en_US.utf8'
 
 redis:
+  command: redis-server --appendonly yes
   restart: always
   dns: 8.8.8.8
   image: redis:latest
