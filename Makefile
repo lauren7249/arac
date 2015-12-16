@@ -30,3 +30,7 @@ reset: is-ready drop-db create-db
 .PHONY: test
 test:
 	./manage.py test
+
+.PHONY: uwsgi
+uwsgi:
+	cd prime &&  uwsgi -s /tmp/uwsgi.sock --module app --callable app --chmod-socket=666 --protocol=http --processes=8 --enable-threads --gid=nogroup  --ugreen -M

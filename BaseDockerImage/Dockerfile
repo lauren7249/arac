@@ -2,7 +2,7 @@ FROM python:2
 MAINTAINER <michael@advisorconnect.co>
 
 ENV LC_ALL en_US.utf8
-
+ENV MAKEFLAGS -j 8
 RUN apt-get autoremove -y
 RUN apt-get update && \
 		apt-get install -y libblas-dev libatlas-dev g++ libatlas-dev libatlas3-base libblas3gf libopenblas-dev liblapack3 liblapacke-dev liblapacke \
