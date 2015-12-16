@@ -30,6 +30,21 @@ redis:
   environment:
     LC_ALL: 'en_US.utf8'
 
+nginx:
+    restart: always
+    image: nginx:latest
+    links:
+      - prime:p200
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./misc/nginx_venv.conf:/etc/nginx/conf.d/nginx_default.conf
+    volumes_from:
+      - prime
+    environment:
+      LC_ALL: 'en_US.utf8'
+
 # Prime is the main application, which up execution will run the make
 # command within the container, with a default target of 'test' if not
 # otherwise overridden on the command line.
@@ -45,6 +60,8 @@ prime:
 #    - "443:443"
   volumes_from:
     - db
+  volumes:
+    - /tmp
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
@@ -56,15 +73,5 @@ prime:
    DB_URL: 'postgresql://arachnid@babel/arachnid'
    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
    AWS_SECRET_ACCESS_KEY_PVLL: '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'
-nginx:
-    restart: always
-    image: nginx:latest
-    links: prime:p200
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./misc/nginx_venv.conf:/etc/nginx/conf.d/nginx_default.conf
-    volumes_from:
-      - prime
+
 

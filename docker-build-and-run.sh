@@ -8,6 +8,6 @@ set -i
 # Changes in your files should also trigger an auto-rebuild automatically.
 
 
-docker-compose build
+docker-compose build --pull
 
 docker-compose run --name prime --rm --service-ports prime $1
