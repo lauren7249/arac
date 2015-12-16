@@ -1,12 +1,14 @@
 SHELL := /bin/bash
 PGDATABASE ?= arachnid
 PG_BINDIR  := $(shell pg_config --bindir)
-pg         := ${PG_BINDIR}/psql -h babel -U ${PRIME_DB_USER} -d ${PGDATABASE}
+PRIME_DB_USER := $(shell echo $PRIME_DB_USER)
+PRIME_DB_PASS := $(shell echo $PRIMIE_DB_PASS)
+pg         := ${PG_BINDIR}/psql -h babel -U arachnid -d ${PGDATABASE}
 
 .PHONY: create-db
 create-db:
 	until ${PG_BINDIR}/pg_isready -q ; do sleep 5 ; done
-	${PG_BINDIR}/createuser -d -s -U postgres -w  ${PRMIE_DB_USER}
+	${PG_BINDIR}/createuser -d -s -U postgres -w  arachnid  || true
 	${PG_BINDIR}/createdb -l en_US.utf8 -w -U postgres ${PGDATABASE}
 	./manage.py db upgrade
 
