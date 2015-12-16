@@ -14,7 +14,6 @@ def retry_if_connection_error(ex):
     :param ex: Exception
     :return: Boolean
     """
-
     return isinstance(ex, ConnectionError)
 
 
@@ -31,7 +30,8 @@ def do_work():
             worker = Worker(map(Queue, listen))
             worker.work()
     except ConnectionError:
-        pass
+        print('Connection Error, will attempt a retry up to 10 times.')
+        raise
 
 
 if __name__ == '__main__':
