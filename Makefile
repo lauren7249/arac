@@ -33,6 +33,7 @@ test:
 
 .PHONY: uwsgi
 uwsgi:
+	python worker.py &
 	uwsgi --ini production.ini
 
 .PHONY: run
