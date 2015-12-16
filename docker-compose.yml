@@ -59,5 +59,4 @@ prime:
    DB_URL: 'postgresql://arachnid@babel/arachnid'
    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
    AWS_SECRET_ACCESS_KEY_PVLL: '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'
-   LC_ALL: 'en_US.utf8'
 
