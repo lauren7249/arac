@@ -16,7 +16,6 @@ from flask.ext.admin.contrib.sqla import ModelView
 
 from config import config
 
-
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
