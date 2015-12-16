@@ -46,18 +46,17 @@ prime:
   ports:
     - "80:80"
     - "443:443"
-    - "5432:5432"
   volumes_from:
     - db:rw
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
    PRIME_DB_USER: 'arachnid'
-   PRIME_DB_PASS: 'test'
+   PRIME_DB_PASS: ''
    S3_BUCKET: 'arachid-results'
    AC_CONFIG: 'development'
    REDIS_URL: 'redis://redis:6379'
-   DB_URL: 'postgresql://arachnid:test@babel/arachnid'
+   DB_URL: 'postgresql://arachnid@babel/arachnid'
    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
    AWS_SECRET_ACCESS_KEY_PVLL: '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'
    LC_ALL: 'en_US.utf8'
