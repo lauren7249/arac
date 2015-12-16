@@ -22,10 +22,12 @@ db:
     LC_ALL: 'en_US.utf8'
 
 redis:
-  command: redis-server --appendonly yes
+  command: redis-server /usr/local/etc/redis/redis.conf
   restart: always
   dns: 8.8.8.8
   image: redis:latest
+  volumes:
+    - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
   ports:
     - "6379:6379"
   environment:
