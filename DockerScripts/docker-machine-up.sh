@@ -8,7 +8,9 @@ docker-machine --debug create  --driver softlayer  --softlayer-api-key 3cee267a0
 
 eval "$(docker-machine env ${MACHINE})"
 
+IP = eval "$(docker-machine ip ${MACHINE})"
+
 docker info
 
+echo "THE IP OF YOUR REMOTE MACHINE IS ${IP}"
 
-echo "docker-build-and-run <make command>     <----- build and run"
