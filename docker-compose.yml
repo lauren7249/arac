@@ -3,6 +3,7 @@
 data:
   image: busybox:latest
   command: /bin/true
+  domainname: advisorconnect.co
   volumes:
     - /data
     - /tmp
@@ -15,6 +16,7 @@ db:
   restart: always
   dns: 8.8.8.8
   image: postgres:latest
+  domainname: advisorconnect.co
   ports:
     - "5432:5432"
   volumes:
@@ -29,6 +31,7 @@ db:
 
 redis:
   command: redis-server /usr/local/etc/redis/redis.conf
+  domainname: advisorconnect.co
   restart: always
   dns: 8.8.8.8
   image: redis:latest
@@ -42,6 +45,9 @@ redis:
     LC_ALL: 'en_US.utf8'
 
 nginx:
+  command: nginx -g 'daemon off;'
+  domainname: advisorconnect.co
+  hostname: beta
   restart: always
   build: ./misc/nginx/
   dns: 8.8.8.8
@@ -61,6 +67,7 @@ nginx:
 # otherwise overridden on the command line.
 prime:
   restart: always
+  domainname: advisorconnect.co
   dns: 8.8.8.8
   build: .
   links:
