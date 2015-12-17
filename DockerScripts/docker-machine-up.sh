@@ -8,7 +8,7 @@ docker-machine --debug create  --driver softlayer  --softlayer-api-key 3cee267a0
 
 eval "$(docker-machine env ${MACHINE})"
 
-IP = "$(docker-machine ip ${MACHINE})"
+IP="$(docker-machine ip ${MACHINE})"
 
 docker info
 
