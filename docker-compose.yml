@@ -25,9 +25,9 @@ db:
   volumes_from:
     - data
   environment:
-    POSTGRES_USER: 'postgres'
-    POSTGRES_PASSWORD: ''
-    LC_ALL: 'en_US.utf8'
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: ""
+    LC_ALL: "en_US.utf8"
 
 redis:
   command: redis-server /usr/local/etc/redis/redis.conf
@@ -45,7 +45,7 @@ redis:
     LC_ALL: 'en_US.utf8'
 
 nginx:
-  command: nginx -g 'daemon off;'
+  command: nginx -g "daemon off;"
   domainname: advisorconnect.co
   hostname: beta
   restart: always
@@ -59,7 +59,7 @@ nginx:
   volumes_from:
     - prime
   environment:
-    LC_ALL: 'en_US.utf8'
+    LC_ALL: "en_US.utf8"
 
 
 # Prime is the main application, which up execution will run the make
@@ -78,15 +78,15 @@ prime:
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
-    PRIME_DB_USER: 'arachnid'
-    PRIME_DB_PASS: ''
-    S3_BUCKET: 'arachid-results'
-    AC_CONFIG: 'development'
-    REDIS_URL: 'redis://redis:6379'
-    DB_URL: 'postgresql://arachnid@babel/arachnid'
-    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
-    AWS_SECRET_ACCESS_KEY_PVLL: '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'
-    LC_ALL: 'en_US.utf8'
+    PRIME_DB_USER: "arachnid"
+    PRIME_DB_PASS: ""
+    S3_BUCKET: "arachid-results"
+    AC_CONFIG: "development"
+    REDIS_URL: "redis://redis:6379"
+    DB_URL: "postgresql://arachnid@babel/arachnid"
+    AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
+    AWS_SECRET_ACCESS_KEY_PVLL: "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"
+    LC_ALL: "en_US.utf8"
 
 
 
