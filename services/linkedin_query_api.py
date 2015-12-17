@@ -18,7 +18,7 @@ web_session = web.session.Session(app, web.session.DiskStore('sessions'), initia
 def get_people(urls=[], version='1.0.0'):
     if version=='1.0.0':
         if not urls:
-            return None
+            return []
         try:
             conn = psycopg2.connect(CONNECTION_STRING)
         except:
@@ -42,7 +42,7 @@ def get_people(urls=[], version='1.0.0'):
 def get_people_viewed_also(url=None, version='1.0.0'):
     if version=='1.0.0':
         if not url:
-            return None
+            return []
         try:
             conn = psycopg2.connect(CONNECTION_STRING)
         except:
@@ -66,7 +66,7 @@ def get_people_viewed_also(url=None, version='1.0.0'):
 def get_company(url=None, linkedin_id=None, version='1.0.0'):
     if version=='1.0.0':
         if not url and not linkedin_id:
-            return None
+            return {}
         try:
             conn = psycopg2.connect(CONNECTION_STRING)
         except:
@@ -89,7 +89,7 @@ def get_company(url=None, linkedin_id=None, version='1.0.0'):
 def get_person(url=None, linkedin_id=None, version='1.0.0'):
     if version=='1.0.0':
         if not url and not linkedin_id:
-            return None
+            return {}
         try:
             conn = psycopg2.connect(CONNECTION_STRING)
         except:
