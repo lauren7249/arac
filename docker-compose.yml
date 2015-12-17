@@ -2,7 +2,7 @@
 ## Data volume container to support persistent data in redis.
 data:
   image: busybox:latest
-  command: /bin/true
+  command: "/bin/true"
   domainname: advisorconnect.co
   volumes:
     - /data
@@ -14,14 +14,12 @@ data:
 # binds to the storage volume, pgdata where persistent data is kept.
 db:
   restart: always
-  dns: 8.8.8.8
   image: postgres:latest
   domainname: advisorconnect.co
   ports:
     - "5432:5432"
   volumes:
     - /var/run/postgresql
-#    - /var/lib/postgresql/data
   volumes_from:
     - data
   environment:
