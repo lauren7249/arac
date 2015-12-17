@@ -18,9 +18,8 @@ class AgeService(Service):
     Output is going to be existig data enriched with ages
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -31,7 +30,11 @@ class AgeService(Service):
     def process(self):
         for person in self.data:
             age = self._get_age(person.get("linkedin_data"))
+            dob_range = self._get_dob_year_range(person.get("linkedin_data"))
             person["age"] = age
+            if dob_range and len(dob_range)==2:
+                person["dob_min"] = dob_range[0]
+                person["dob_max"] = dob_range[1]
             self.output.append(person)
         return self.output
 
@@ -48,6 +51,8 @@ class AgeService(Service):
     def _get_dob_year_range(self,person):
         dob_year_min = None
         dob_year_max = None
+        if not person:
+            return (dob_year_min, dob_year_max)        
         school_milestones = self._get_school_milestones(person.get("schools",[]))
         first_school_year = school_milestones.get("first_school_year")
         first_grad_year = school_milestones.get("first_grad_year")

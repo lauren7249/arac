@@ -232,7 +232,8 @@ expected = [
                 "industry": "Food & Beverages",
                 "projects": [],
                 "complete": True
-            }
+            },
+        "laurentracytalbot@gmail.com": { }
     },
     {
         "linkedin_data": {

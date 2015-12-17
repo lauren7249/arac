@@ -72,15 +72,15 @@
       <tr>
         <td><input type='checkbox' /></td>
         <td>
-          <h3>{{ agent.name }}</h3>
+          <h3>{{ agent.first_name }}</h3>
           <p><a href='mailto:jamesjohnson11@gmail.com'>{{ agent.email }}</a></p>
         </td>
         <td>{{ agent.created }}</td>
-        <td>{% if not agent.prospects %}<div class='status green'>Delivered</div>{% else %}<div class='status green'>Completed</div>{% endif %}</td>
+        <td>{% if not agent.client_prospects %}<div class='status green'>Delivered</div>{% else %}<div class='status green'>Completed</div>{% endif %}</td>
         <td>{{ agent.network_size }}</td>
         <td>{{ agent.average_age }}</td>
         <td>{{ agent.college_percentage }}</td>
-        <td>{{ agent.male_percentage }} %M<br/>{{ agent.male_percentage }} %F</td>
+        <td>{{ agent.male_percentage }} %M<br/>{{ agent.female_percentage }} %F</td>
         <td><button class='button'>View p200</button></td>
       </tr>
       {% endfor %}

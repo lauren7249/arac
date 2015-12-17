@@ -11,12 +11,14 @@ from service import Service
 from saved_request import S3SavedRequest
 
 class LinkedinService(Service):
-
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    '''
+    Gets linkedin data and collapses by linkedin_id, merging the email addresses, images, and social acounts for the person, 
+    as well as the cloudsponge sources from whence the person was obtained
+    '''
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
-        self.output = []
+        self.output = {}
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -28,18 +30,23 @@ class LinkedinService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Linkedin Service')
         for person in self.data:
+            email = person.keys()[0]
+            email_data = person.values()[0]
             linkedin_url = self._get_linkedin_url(person)
             if linkedin_url:
                 data = self._get_profile_by_any_url(linkedin_url)
                 if data:
-                    o = {"linkedin_data": data}
-                    o.update(person)
-                    self.output.append(o)
-                else:
-                    self.logger.warn('No linkedin data found for : %s', linkedin_url)
-                    self.output.append(person)
-            else:
-                self.output.append(person)
+                    linkedin_id = data.get("linkedin_id")
+                    info = self.output.get(linkedin_id,{})
+                    emails = info.get("email_addresses",[]) 
+                    emails.append(email)
+                    social_accounts = info.get("social_accounts",[]) + email_data.get("social_accounts",[])
+                    sources = info.get("sources",[]) + email_data.get("sources",[])
+                    images = info.get("images",[]) + email_data.get("images",[])
+                    o = {"linkedin_data": data, "email_addresses":list(set(emails)), "sources":list(set(sources)), 
+                        "social_accounts":list(set(social_accounts)), "images":list(set(images))}
+                    info.update(o)
+                    self.output.update({linkedin_id:o})
         self.logger.info('Ending Process: %s', 'Linkedin Service')
-        return self.output
+        return self.output.values()
 

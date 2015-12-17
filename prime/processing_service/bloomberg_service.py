@@ -12,15 +12,15 @@ from service import Service, S3SavedRequest
 from bing_service import BingService
 from constants import GLOBAL_HEADERS
 from helper import get_domain
+
 class BloombergPhoneService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
     Output is going to be existig data enriched with bloomberg phone numbers
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -28,26 +28,54 @@ class BloombergPhoneService(Service):
         self.logger = logging.getLogger(__name__)
         super(BloombergPhoneService, self).__init__(*args, **kwargs)
 
+    def _get_phone_from_website(self, company_domain):
+        if not company_domain:
+            return None
+        request = BloombergRequest(company_domain.split(".")[0], query_type="bloomberg_website")
+        while request.has_next_url():
+            data = request.process_next()
+            phone = data.get("phone")
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if website and company_domain == get_domain(website) and phone: 
+                return phone
+        return None   
+
+    def _get_phone_from_name(self, company, company_domain):
+        phone = None
+        website = None
+        if not company:
+            return phone, website
+        request = BloombergRequest(company)
+        while request.has_next_url():
+            data = request.process_next()
+            phone = data.get("phone")
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if company_domain and website and company_domain != get_domain(website): 
+                phone = None
+                website = None
+                continue
+            #found phone and website matches, we are done
+            if phone:
+                return phone, website
+        return phone, website 
+
     def process(self):
         self.logger.info('Starting Process: %s', 'Bloomberg Service')
         for person in self.data:
-            current_job = self._current_job(person)
-            if current_job:
-                request = BloombergRequest(current_job.get("company"))
-                while not person.get("phone_number") and request.has_next_url():
-                    data = request.process_next()
-                    phone = data.get("phone")
-                    website = data.get("website")
-                    #if we already know the website and it does not match, keep trying other bloomberg pages
-                    if person.get("company_website") and website:
-                        if get_domain(person.get("company_website")) != get_domain(website): 
-                            continue
-                    if phone:
-                        person.update({"phone_number": phone})
-                        person.update({"company_website": website})
-                        break
-                    if website:
-                        person.update({"company_website": website})
+            company_website = person.get("company_website")
+            company_domain = get_domain(company_website)
+            phone = self._get_phone_from_website(company_domain)   
+            if phone:
+                person["phone_number"]= phone
+            else:
+                company = self._current_job(person).get("company")
+                phone, website = self._get_phone_from_name(company, company_domain)
+                if phone:
+                    person["phone_number"]= phone
+                if website:
+                    person["company_website"] = website
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'Bloomberg Service')
         return self.output
@@ -58,8 +86,9 @@ class BloombergRequest(S3SavedRequest):
     Given a company name, this will return the bloomberg company snapshot
     """
 
-    def __init__(self, company):
+    def __init__(self, company, query_type="bloomberg_company"):
         self.company = company
+        self.query_type = query_type
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -67,26 +96,11 @@ class BloombergRequest(S3SavedRequest):
         self.index = 0
         super(BloombergRequest, self).__init__()
 
-    def _get_html(self):
-        self.key = hashlib.md5(self.url).hexdigest()
-        key = Key(self._s3_connection)
-        key.key = self.key
-        if key.exists():
-            self.logger.info('Make Request: %s', 'Get From S3')
-            html = key.get_contents_as_string()
-        else:
-            response = requests.get(self.url,headers=GLOBAL_HEADERS)
-            html = response.content
-            if html:
-                key.content_type = 'text/html'
-                key.set_contents_from_string(html)
-        return html
-
     def _get_urls(self):
         if self.urls:
             return
-        bing = BingService(self.company, "bloomberg_company")
-        self.urls = bing.process()
+        self.bing = BingService(self.company, self.query_type)
+        self.urls = self.bing.process()
 
     def has_next_url(self):
         self._get_urls()
@@ -99,7 +113,7 @@ class BloombergRequest(S3SavedRequest):
             self.url = self.urls[self.index]
             self.index +=1
             self.logger.info('Bloomberg Info Request: %s', 'Starting')
-            self.html = self._get_html()
+            self.html = self._make_request()
             info = self.parse_company_snapshot(self.html)
             return info
         return {}

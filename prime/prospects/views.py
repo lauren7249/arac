@@ -5,7 +5,7 @@ from collections import Counter
 from rq import Queue
 from redis import Redis
 from rq import Queue
-
+import re
 import random
 import requests
 import datetime
@@ -16,8 +16,7 @@ session as flask_session, jsonify
 from flask.ext.login import current_user
 
 from . import prospects
-from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry, ProspectLocation, Location
+from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime.users.models import User
 from prime import db, csrf
 
@@ -60,12 +59,9 @@ def uu(str):
 def get_conn():
     return Redis()
 
-def queue_processing_service(user_email, public_url, data):
+def queue_processing_service(client_data, contacts_array):
     from prime.processing_service.processing_service import ProcessingService
-    service = ProcessingService(
-            user_email=user_email,
-            user_linkedin_url=public_url,
-            csv_data=data)
+    service = ProcessingService(client_data, contacts_array)
     service.process()
     return True
 
@@ -93,21 +89,23 @@ def terms():
 def upload():
     unique_emails = set()
     if request.method == 'POST':
-        results = []
-        client_first_name = request.json.get("firstName")
-        user_email = request.json.get("user_email")
-        geolocation = request.json.get("geolocation")
-        public_url = request.json.get("public_url")
-        contacts_array = request.json.get("contacts_array")
-        for c in contacts_array:
-            if len(c.get("emails", [])) > 0:
-                email = c.get("emails")[0].get("address", "").lower()
-                unique_emails.add(email)
-
+        first_name = request.json.get("firstName",)
+        last_name = request.json.get("lastName")
+        email = request.json.get("user_email","").lower()
+        location = request.json.get("geolocation")
+        url = request.json.get("public_url","").lower()  
+        client_data = {"first_name":first_name,"last_name":last_name, "email":email,"location":location,"url":url}      
+        contacts_array = request.json.get("contacts_array",[])
+        for record in contacts_array:
+            contact_email = record.get("emails",[{}])[0].get("address", "").lower() 
+            unique_emails.add(contact_email)       
         conn = get_conn()
         q = Queue(connection=conn)
-        q.enqueue(queue_processing_service, user_email,
-                public_url, contacts_array, timeout=14400)
+        random.shuffle(contacts_array)
+        f = open('data/bigtext.json','w')
+        f.write(json.dumps(contacts_array))
+        f.close()
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
     return jsonify({"unique_contacts": len(list(unique_emails))})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])

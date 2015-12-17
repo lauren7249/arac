@@ -11,18 +11,14 @@ class IndeedService(Service):
     Expected input is JSON of Linkedin Data
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         super(IndeedService, self).__init__(*args, **kwargs)
-
-    def dispatch(self):
-        pass
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Indeed Service')

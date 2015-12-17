@@ -16,18 +16,14 @@ class PiplService(Service):
     Output is going to be social accounts, images, and Linkedin IDs via PIPL
     """
 
-    def __init__(self, user_email, user_linkedin_url, data, *args, **kwargs):
-        self.user_email = user_email
-        self.user_linkedin_url = user_linkedin_url
+    def __init__(self, client_data, data, *args, **kwargs):
+        self.client_data = client_data
         self.data = data
         self.output = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         super(PiplService, self).__init__(*args, **kwargs)
-
-    def dispatch(self):
-        pass
 
     def multiprocess(self, poolsize=5):
         #pipl limits you to 20 hits/second. if you go above a pool size of 5, this could be an issue.
@@ -47,6 +43,7 @@ class PiplService(Service):
         for person, info in self.data.iteritems():
             request = PiplRequest(person, type="email", level="social")
             data = request.process()
+            data.update(info)
             self.output.append({person:data})
         self.logger.info('Ending Process: %s', 'Pipl Service')
         return self.output

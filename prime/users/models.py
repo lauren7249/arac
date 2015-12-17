@@ -10,9 +10,9 @@ import sqlalchemy.event
 from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, \
+from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, Date, DateTime, \
         Text, Enum, Float
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
@@ -36,7 +36,7 @@ class User(db.Model, UserMixin):
 
     first_name = db.Column(String(100), nullable=False)
     last_name = db.Column(String(100), nullable=False)
-    email = db.Column(String(100), nullable=False, unique=True)
+    email = db.Column(String(100), nullable=False, unique=True, index=True)
     _password_hash = db.Column('password_hash', String(100), nullable=False)
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
@@ -44,13 +44,12 @@ class User(db.Model, UserMixin):
 
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
-    created = db.Column(Date, default=datetime.datetime.today)
+    created = db.Column(DateTime, default=datetime.datetime.today())
 
-    prospects = db.relationship('Prospect', secondary="client_prospect", \
-                               backref=db.backref('prospects', lazy='dynamic'))
-
+    prospects = db.relationship('Prospect', secondary="client_prospect", backref=db.backref('prospects', lazy='dynamic'))
+    client_prospects = db.relationship('ClientProspect', backref=db.backref('client_prospects'))
     onboarding_code = db.Column(String(40))
-    json = db.Column(JSON, default={})
+    json = db.Column(JSONB, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -97,63 +96,43 @@ class User(db.Model, UserMixin):
         db.session.add(u)
         return u
 
-
     @property
     def has_prospects(self):
-        session = db.session
-        return session.query(ClientProspect).filter(
-                ClientProspect.user_id == self.user_id).count() > 0
-
-    @property
-    def statistics(self):
-        if self.json.get("statistics"):
-            return self.json.get("statistics")
-        return self.build_statistics()
+        return self.client_prospects and len(self.client_prospects) > 0
 
     def build_statistics(self):
         """
-        Complicated function that will calculate most popular schools,
-        companies, gender, wealthscore, age, college degree, and income score
+        Calculate most popular schools,
+        industries, average gender, age, college degree, and wealth score
         """
         schools = {}
-        companies = {}
-        male = {True:0,False:0}
-        college_degree = {True:0,False:0}
-        wealth_score = []
-        average_age = []
-        for prospect in self.prospects:
-            for school in prospect.schools:
-                count = schools.get(school.school.name, 0)
-                count += 1
-                schools[school.school.name] = count
-            if len(prospect.schools) == 0:
-                college_degree[False] += 1
-            else:
-                college_degree[True] += 1
-            for job in prospect.jobs:
-                count = schools.get(job.company.name, 0)
-                count += 1
-                schools[job.company.name] = count
-            average_age.append(prospect.age if prospect.age else 30)
-            wealth_score.append(prospect.wealthscore if prospect.wealthscore
-                    else 40)
-            if prospect.is_male:
-                male[True] += 1
-            else:
-                male[False] += 1
+        industries = {}
+        gender = {"female":0,"male":0,"unknown":0}
+        college_degree = {True:0,False:0,None:0}
+        wealth_score = [prospect.wealthscore for prospect in self.prospects if prospect.wealthscore ]
+        average_age = [prospect.age for prospect in self.prospects if prospect.age]
+        extended_count = 0
+        first_degree_count = 0
+        for client_prospect in self.client_prospects:
+            if client_prospect.extended:
+                extended_count+=1
+                continue
+            first_degree_count+=1
+            college_degree[client_prospect.prospect.college_grad] += 1
+            gender[client_prospect.prospect.gender] += 1      
+            industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
+            for school in client_prospect.common_schools:
+                schools[school] = schools.get(school, 0) + 1
         data = {"schools": schools,
-                "companies": companies,
-                "male": male[True]/(male[True] + male[False]) * 100,
-                "college_degree": college_degree[True]/(college_degree[True] + college_degree[False]) * 100,
+                "network_size": first_degree_count,
+                "count_extended": extended_count,
+                "industries": industries,
+                "male_percentage": float(gender["male"])/float(gender["male"] + gender["female"]) * 100,
+                "female_percentage": float(gender["female"])/float(gender["male"] + gender["female"]) * 100,
+                "college_percentage": float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100,
                 "average_age": sum(average_age)/len(average_age),
                 "wealth_score": sum(wealth_score)/len(wealth_score)}
-        old_json = self.json if self.json else {}
-        old_json['statistics'] = data
-        session = db.session
-        self.json = old_json
-        session.add(self)
-        session.commit()
-        return self.json.get("statistics")
+        return data
 
     @property
     def name(self):
@@ -187,12 +166,15 @@ class ClientProspect(db.Model):
             foreign_keys="ClientProspect.prospect_id")
     processed = db.Column(Boolean, default=False)
     good = db.Column(Boolean, default=False)
-    created = db.Column(Date, default=datetime.datetime.today)
+    created = db.Column(DateTime, default=datetime.datetime.today())
+    updated = db.Column(DateTime)
 
+    extended = db.Column(Boolean)
+    referrers = db.Column(JSONB, default=[])
     lead_score = db.Column(Integer, nullable=False)
-    referrers = db.Column(JSON, default={})
-
-
+    stars = db.Column(Integer, nullable=False)
+    common_schools = db.Column(JSONB, default=[])
+    
     def __repr__(self):
-        return '{} {}'.format(self.prospect.url, self.user.name)
+        return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
 

@@ -3,6 +3,7 @@ import logging
 import time
 from random import shuffle
 from saved_request import S3SavedRequest
+from prime.processing_service.constants import PIPL_SOCIAL_KEYS, PIPL_PROFES_KEYS
 
 class PiplRequest(S3SavedRequest):
 
@@ -11,18 +12,18 @@ class PiplRequest(S3SavedRequest):
     """
 
     def __init__(self, query, type='email', level="social"):
+        super(PiplRequest, self).__init__()
         self.type = type
+        self.level = level
         self.json_format = "&pretty=true"
         pipl_url_v3 = "http://api.pipl.com/search/v3/json/?key="
         pipl_url_v4 = "http://api.pipl.com/search/v4/?key="
-        pipl_social_keys = ["ml2msz8le74d4nno7dyk0v7c"]
-        pipl_profes_keys = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
-        shuffle(pipl_social_keys)
-        shuffle(pipl_profes_keys)
-        if level == "social":
-            self.pipl_key = pipl_social_keys[0]
+        shuffle(PIPL_SOCIAL_KEYS)
+        shuffle(PIPL_PROFES_KEYS)
+        if self.level == "social":
+            self.pipl_key = PIPL_SOCIAL_KEYS[0]
         else:
-            self.pipl_key = pipl_profes_keys[0]
+            self.pipl_key = PIPL_PROFES_KEYS[0]
         if self.type=="url":
             self.pipl_url = pipl_url_v4
             self.pipl_version = 4
@@ -34,7 +35,7 @@ class PiplRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(PiplRequest, self).__init__()
+        
 
     def _build_url(self):
         if self.type == 'email':
@@ -86,6 +87,8 @@ class PiplRequest(S3SavedRequest):
 
     def _linkedin_id(self, pipl_json):
         linkedin_id = None
+        if not pipl_json:
+            return None
         if self.pipl_version == 4:
             for record in pipl_json.get("person",{}).get("user_ids",[]):
                 user_id = record.get("content")
@@ -105,17 +108,30 @@ class PiplRequest(S3SavedRequest):
         return None
 
     def _linkedin_url(self, social_accounts):
+        if not social_accounts:
+            return None
         for record in social_accounts:
             if "linkedin.com" in record:
                 return record
         return None
 
+    def _emails(self, pipl_json):
+        emails = []
+        if not pipl_json: return emails
+        for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
+            if not record.get('@query_params_match',True) or not record.get("emails"): continue
+            for email in record.get("emails",[]):
+                url = email.get("address") 
+                domain = url.split("@")[-1]
+                if url and url not in emails and domain != 'facebook.com': 
+                    emails.append(url)
+        return emails  
+              
     def process(self):
         self.logger.info('Pipl Request: %s', 'Starting')
         self._build_url()
         if self.url is None:
             return {}
-        super(PiplRequest, self)._make_request()
         self.pipl_json = None
         tries = 0
         while self.pipl_json is None and tries<3:
@@ -134,6 +150,10 @@ class PiplRequest(S3SavedRequest):
                 "linkedin_urls": linkedin_url,
                 "linkedin_id": linkedin_id,
                 "images": images}
+        if self.level == "social":
+            return data
+        emails = self._emails(self.pipl_json)
+        data["emails"] = emails
         return data
 
 

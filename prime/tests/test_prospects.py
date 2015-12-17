@@ -18,21 +18,35 @@ from prime.processing_service.bloomberg_service import BloombergRequest, Bloombe
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_service import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
+from prime.processing_service.social_profiles_service import SocialProfilesService, UrlValidatorRequest
 from prime.processing_service.gender_service import GenderService
 from prime.processing_service.age_service import AgeService
 from prime.processing_service.college_degree_service import CollegeDegreeService
-from prime.processing_service.associated_profiles_service import AssociatedProfilesService
 from prime.processing_service.extended_profiles_service import ExtendedProfilesService
 from prime import create_app, db
 from config import config
 
+class TestCloudspongeService(unittest.TestCase):
+
+    def setUp(self):
+        email = "jamesjohnson11@gmail.com"
+        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        client_data = {"email": email, "url":linkedin_url,"location":"New York, New York","first_name":"James", "last_name":"Johnson"}
+        emails = [{"contact": {"email":[{"address": "jamesjohnson11@gmail.com"}]}},
+                {"contact": {"email":[{"address": "jamesjohnson11@gmail.com"}]}}]
+        self.service = CloudSpongeService(client_data, emails)
+
+    def test_cloudsponge(self):
+        expected = {'jamesjohnson11@gmail.com': {'sources':[],'companies': None,'job_title': None}}
+        data = self.service.process()
+        self.assertEqual(data, expected)
 
 class TestCollegeDegreeService(unittest.TestCase):
 
     def setUp(self):
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = CollegeDegreeService(None, None, data)
+        self.service = CollegeDegreeService(None, data)
 
     def test_college(self):
         data = self.service.process()
@@ -44,7 +58,7 @@ class TestAgeService(unittest.TestCase):
     def setUp(self):
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = AgeService(None, None, data)
+        self.service = AgeService(None, data)
 
     def test_age(self):
         data = self.service.process()
@@ -56,28 +70,23 @@ class TestLeadService(unittest.TestCase):
     def setUp(self):
         email = "jamesjohnson11@gmail.com"
         linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        client_data = {"email": email, "url":linkedin_url,"location":"New York, New York","first_name":"James", "last_name":"Johnson"}
         from fixtures.linkedin_fixture import expected
-        data = expected
-        service = GeoCodingService(email, linkedin_url, data)
-        data = service.process()        
-        service = GlassdoorService(email, linkedin_url, data)
-        data = service.process()
-        service = IndeedService(email, linkedin_url, data)
-        data = service.process()        
-        self.service = LeadService(email, linkedin_url, data)
-
+        data = expected    
+        self.service = LeadService(client_data, data)
+        self.data = self.service.process()           
     def test_lead(self):
-        data = self.service.process()
-        self.assertEqual(len(data), 1)
+        self.assertEqual(len(self.data), 1)
 
 class TestGeoCodingService(unittest.TestCase):
 
     def setUp(self):
         email = "jamesjohnson11@gmail.com"
         linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
+        client_data = {"email": email, "url":linkedin_url,"location":"New York, New York","first_name":"James", "last_name":"Johnson"}
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = GeoCodingService(email, linkedin_url, data)
+        self.service = GeoCodingService(client_data, data)
 
     def test_geocode(self):
         expected = (40.713054, -74.007228)
@@ -85,6 +94,16 @@ class TestGeoCodingService(unittest.TestCase):
         latlng = data[1].get("location_coordinates").get("latlng")
         self.assertEqual(latlng, expected)
 
+class TestUrlValidatorRequest(unittest.TestCase):
+
+    def test_url(self):
+        url = 'https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAAKmAAAAJDI4YTRlZGJiLTE3ZDktNDBmNS04MmYwLWZlM2VmZThkNjllMg.jpg'
+        req = UrlValidatorRequest(url, is_image=True)
+        self.assertEqual(req.process(), None)
+        url = 'http://graph.facebook.com/662395164/picture?type=large'
+        req = UrlValidatorRequest(url, is_image=True)
+        self.assertEqual(req.process(), 'https://public-profile-photos.s3.amazonaws.com/6231a637dc9c7dfc22577ecc11296f82')  
+              
 class TestMapquestRequest(unittest.TestCase):
     def setUp(self):
         business_name = "emergence capital partners"
@@ -102,20 +121,6 @@ class TestMapquestRequest(unittest.TestCase):
         self.assertEqual(phone, expected_phone)
         self.assertEqual(website, expected_website)
 
-class TestCloudspongeService(unittest.TestCase):
-
-    def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
-        emails = [{"email":[{"address": "jamesjohnson11@gmail.com"}]},
-                {"email":[{"address": "jamesjohnson11@gmail.com"}]}]
-        self.service = CloudSpongeService(email, linkedin_url, emails)
-
-    def test_cloudsponge(self):
-        expected = {'jamesjohnson11@gmail.com': {'companies': None, 'job_title': None}}
-        data = self.service.process()
-        self.assertEqual(data, expected)
-
 
 class TestPiplService(unittest.TestCase):
 
@@ -123,9 +128,9 @@ class TestPiplService(unittest.TestCase):
         self.emails = {"jamesjohnson11@gmail.com":{}}
 
     def test_pipl_from_email(self):
-        self.service = PiplService(None, None, self.emails)
+        self.service = PiplService(None, self.emails)
         data1 = self.service.process()
-        self.service = PiplService(None, None, self.emails)
+        self.service = PiplService(None, self.emails)
         #TODO multiprocess broken
         #data2 = self.service.multiprocess()
         self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0',
@@ -159,12 +164,12 @@ class TestPiplService(unittest.TestCase):
 class TestClearbitPersonService(unittest.TestCase):
 
     def setUp(self):
-        self.emails = [{"alex@alexmaccaw.com":{"social_accounts":["boo"],"linkedin_urls":u'https://www.linkedin.com/in/alex-maccaw'}}]
+        self.emails = [{"alex@alexmaccaw.com":{"social_accounts":["boo"],"linkedin_urls":u'https://www.linkedin.com/in/alex-maccaw'}},{"laurentracytalbot@gmail.com":{}}]
 
     def test_clearbit(self):
-        self.service = ClearbitPersonService(None, None, self.emails)
+        self.service = ClearbitPersonService(None, self.emails)
         data1 = self.service.process(merge=True)
-        self.service = ClearbitPersonService(None, None, self.emails)
+        self.service = ClearbitPersonService(None, self.emails)
         #multiprocess is broken right now, to test later
         #data2 = self.service.multiprocess(merge=True)
         self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), ["boo",u'https://twitter.com/maccaw',
@@ -174,7 +179,8 @@ class TestClearbitPersonService(unittest.TestCase):
                 u'https://github.com/maccman',
                 u'https://aboutme.com/maccaw',
                 u'https://gravatar.com/maccman'])
-        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5')
+        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/in/alex-maccaw')
+        self.assertEqual(data1[1].get('laurentracytalbot@gmail.com').get("clearbit_fields",{}).get("gender"), 'female')
         #multiprocess is broken right now, to test later
         #self.assertEqual(data1,data2)
 
@@ -183,7 +189,7 @@ class TestClearbitPhoneService(unittest.TestCase):
     def setUp(self):
         data = [{}]
         data[0]["company_website"] = "www.boozallen.com"
-        self.service = ClearbitPhoneService(None, None, data)
+        self.service = ClearbitPhoneService(None, data)
 
     def test_clearbit(self):
         expected_phone = '+1 703-902-5000'
@@ -216,34 +222,14 @@ class TestExtendedProfilesService(unittest.TestCase):
                 'social_accounts': [u'https://www.linkedin.com/in/juliamailander',\
                         u'https://plus.google.com/103608304178303305879/about']}
                 }]
-        li_service = LinkedinService(None, None, data)
-        data = li_service.process()
-        service = AssociatedProfilesService(None, None, data)
-        self.data = service.process()
+        li_service = LinkedinService(None, data)
+        self.data = li_service.process()
 
     def test_extended(self):
-        service = ExtendedProfilesService(None, None, self.data)
+        service = ExtendedProfilesService(None, self.data)
         data = service.process()
         extended = [profile for profile in data if profile.get("extended")]
         self.assertEqual(extended[0].get("referrers")[0].get("referrer_connection"), 'Worked at Emergence Capital together 2014-Present')
-
-class TestAssociatedProfilesService(unittest.TestCase):
-
-    def setUp(self):
-        data = [{u'julia.mailander@gmail.com':
-                {'linkedin_urls': u'https://www.linkedin.com/in/juliamailander',
-                'social_accounts': [u'https://www.linkedin.com/in/juliamailander',\
-                        u'https://plus.google.com/103608304178303305879/about']}
-                }]
-        li_service = LinkedinService(None, None, data)
-        self.data = li_service.process()
-
-    def test_associated(self):
-        self.service = AssociatedProfilesService(None, None, self.data)
-        data = self.service.process()
-        associated = data[0].get("associated_profiles")
-        self.assertEqual(len(associated), 26)
-
 
 class TestPhoneService(unittest.TestCase):
 
@@ -252,7 +238,7 @@ class TestPhoneService(unittest.TestCase):
         self.data = expected
 
     def test_phone(self):
-        self.service = PhoneService(None, None, self.data)
+        self.service = PhoneService(None, self.data)
         expected = '(650) 573-3100'
         data = self.service.process(favor_mapquest=True)
         phone = data[2].get("phone_number")
@@ -260,7 +246,7 @@ class TestPhoneService(unittest.TestCase):
 
     #clearbit data can be variable over time.
     def test_phone2(self):
-        self.service = PhoneService(None, None, self.data)
+        self.service = PhoneService(None, self.data)
         expected = '(650) 573-3100'
         data = self.service.process(favor_mapquest=True, favor_clearbit=True)
         phone = data[2].get("phone_number")
@@ -269,11 +255,9 @@ class TestPhoneService(unittest.TestCase):
 class TestBloombergPhoneService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = BloombergPhoneService(email, linkedin_url, data)
+        self.service = BloombergPhoneService(None, data)
 
     def test_bloomberg(self):
         data = self.service.process()
@@ -283,11 +267,9 @@ class TestBloombergPhoneService(unittest.TestCase):
 class TestLinkedinCompanyService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = LinkedinCompanyService(email, linkedin_url, data)
+        self.service = LinkedinCompanyService(None, data)
 
     def test_linkedin_company(self):
         data = self.service.process()
@@ -298,16 +280,14 @@ class TestLinkedinCompanyService(unittest.TestCase):
 class TestGenderService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = GenderService(email, linkedin_url, data)
+        self.service = GenderService(None, data)
 
     def test_gender(self):
         data = self.service.process()
-        self.assertEqual(data[0].get("gender"), 'Female')
-        self.assertEqual(data[1].get("gender"), 'Unknown')
+        self.assertEqual(data[0].get("gender"), 'female')
+        self.assertEqual(data[1].get("gender"), 'unknown')
 
 class TestLinkedinService(unittest.TestCase):
 
@@ -316,11 +296,16 @@ class TestLinkedinService(unittest.TestCase):
                 {'linkedin_urls': u'https://www.linkedin.com/in/juliamailander',
                 'social_accounts': [u'https://www.linkedin.com/in/juliamailander',\
                         u'https://plus.google.com/103608304178303305879/about']}
+                },
+                {u'julia.mailander2@gmail.com':
+                {'linkedin_urls': u'http://www.linkedin.com/pub/julia-mailander/11/898/614',
+                'social_accounts': [u'http://www.gravatar.com/5cb9f218a2e29a21ab19b3a524b3506d',u'https://plus.google.com/103608304178303305879/about']}
                 }]
-        self.service = LinkedinService(None, None, data)
+        self.service = LinkedinService(None, data)
 
     def test_linkedin(self):
-        expected = [u'http://www.linkedin.com/pub/santi-subotovsky/0/2b2/6b0',
+        data = self.service.process()
+        self.assertEqual(data[0].get("linkedin_data").get("urls"), [u'http://www.linkedin.com/pub/santi-subotovsky/0/2b2/6b0',
                      u'http://www.linkedin.com/pub/everett-cox/3/9b6/9b8',
                      u'http://www.linkedin.com/in/jeffweiner08',
                      u'http://www.linkedin.com/pub/brian-jacobs/0/a/7a6',
@@ -330,19 +315,17 @@ class TestLinkedinService(unittest.TestCase):
                      u'http://www.linkedin.com/pub/kate-berger/18/215/a01',
                      u'http://www.linkedin.com/pub/jake-saper/0/834/536',
                      u'http://www.linkedin.com/pub/joseph-floyd/2/8a4/55b',
-                     u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97']
-        data = self.service.process()
-        self.assertEqual(data[0].get("linkedin_data").get("urls"), expected)
-
+                     u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97'])
+        self.assertEqual(len(data),1)
+        self.assertEqual(len(data[0].get("email_addresses")),2)
+        self.assertEqual(len(data[0].get("social_accounts")),3)
 
 class TestGlassdoorService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = GlassdoorService(email, linkedin_url, data)
+        self.service = GlassdoorService(None, data)
 
     def test_glassdoor(self):
         data = self.service.process()
@@ -352,11 +335,9 @@ class TestGlassdoorService(unittest.TestCase):
 class TestIndeedService(unittest.TestCase):
 
     def setUp(self):
-        email = "jamesjohnson11@gmail.com"
-        linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         from fixtures.linkedin_fixture import expected
         data = expected
-        self.service = IndeedService(email, linkedin_url, data)
+        self.service = IndeedService(None, data)
 
     def test_indeed(self):
         expected = 102000

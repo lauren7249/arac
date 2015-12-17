@@ -6,18 +6,35 @@ from dateutil.parser import parser
 import datetime
 from boto.s3.key import Key
 
-from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
+from constants import GLOBAL_HEADERS
 import dateutil
 from services.linkedin_query_api import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
+
+from saved_request import S3SavedRequest
 
 class Service(object):
 
     def __init__(self):
         pass
 
-    def _validate_data(self):
-        return False
+    def _dedupe_profiles(self, profiles):
+        if not profiles:
+            return []
+        linkedin_ids = set()
+        deduped = []
+        for profile in profiles:
+            id = profile.get("linkedin_id")
+            if id in linkedin_ids:
+                continue
+            linkedin_ids.add(id)
+            deduped.append(profile)
+        return deduped
+
+    def _get_self_jobs_and_schools(self):
+        person = self._get_profile_by_any_url(self.client_data.get("url"))
+        self.jobs = person.get("experiences")
+        self.schools = person.get("schools")
 
     def _get_current_job_from_cloudsponge(self, person):
         for csv_person in self.data:
@@ -30,7 +47,6 @@ class Service(object):
                         job["title"] = email.get("job_title")
                     return job
         return {}
-
 
     def _get_current_job_from_experiences(self, person):
         """
@@ -71,19 +87,13 @@ class Service(object):
             else:
                 job["title"] = headline
             return job
-        return None
+        return job
 
     def _get_linkedin_url(self, person):
         try:
             return person.values()[0]["linkedin_urls"]
         except:
             return person.values()[0]["source_url"]
-
-    def process(self):
-        pass
-
-    def dispatch(self):
-        pass
 
     def _get_profile_by_any_url(self,url):
         profile = get_person(url=url)
@@ -116,36 +126,5 @@ class Service(object):
             viewed_also = get_people_viewed_also(url=new_url)
         return also_viewed + viewed_also
 
-class TemporaryProspect(object):
-    pass
 
-class S3SavedRequest(object):
-
-    """
-    Instead of just making a request, this saves the exact request to s3 so we
-    don't need to make it again
-    """
-
-    def __init__(self):
-        self.url = None
-        self.headers = GLOBAL_HEADERS
-        self.key = None
-
-    @property
-    def _s3_connection(self):
-        s3conn = boto.connect_s3("AKIAIKCNCKG6RXJHWNFA", "GAwQwgy67hmp0lMShAV4O15zfDAfc8aKUoY7l2UC")
-        return s3conn.get_bucket("aconn")
-
-    def _make_request(self):
-        self.key = hashlib.md5(self.url).hexdigest()
-        key = Key(self._s3_connection)
-        key.key = self.key
-        if key.exists():
-            html = key.get_contents_as_string()
-        else:
-            response = requests.get(self.url, headers=self.headers)
-            html = response.content
-            key.content_type = 'text/html'
-            key.set_contents_from_string(html)
-        return html
 

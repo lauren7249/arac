@@ -11,8 +11,7 @@ jsonify, current_app
 from flask.ext.login import current_user, login_required
 
 from . import manager
-from prime.prospects.models import Prospect, Job, Education, Company, School, \
-Industry
+from prime.prospects.models import Prospect, Job, Education
 from prime.users.models import User, ClientProspect
 from prime.utils.email import sendgrid_email
 from prime.utils import random_string
@@ -52,7 +51,7 @@ def manager_invite_agent():
     agent = User.query.filter(User.email == to_email).first()
     if agent:
         error_message = "This agent already exists in our system. Please \
-                contact jeff@adivsorconnect if this seems incorrect to you"
+                contact jeff@adivsorconnect.co if this seems incorrect to you"
         response = {"error": error_message}
         return jsonify(response)
     else:
