@@ -2,12 +2,12 @@
 ## Data volume container to support persistent data in redis.
 data:
   image: busybox:latest
+  command: /bin/true
   volumes:
     - /data
     - /tmp
-    - /var/run/postgresql
     - /var/lib/postgresql/data
-    - /usr/src/app
+
 
 # The Postgres container holding the latest version of postgres and
 # binds to the storage volume, pgdata where persistent data is kept.
@@ -17,8 +17,8 @@ db:
   image: postgres:latest
   ports:
     - "5432:5432"
-#  volumes:
-#    - /var/run/postgresql
+  volumes:
+    - /var/run/postgresql
 #    - /var/lib/postgresql/data
   volumes_from:
     - data
@@ -35,7 +35,7 @@ redis:
   volumes:
     - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
   volumes_from:
-    - data
+    - db
   ports:
     - "6379:6379"
   environment:
@@ -53,7 +53,7 @@ nginx:
   volumes:
     - ./misc/nginx_venv.conf:/etc/nginx/conf.d/nginx_default.conf
   volumes_from:
-    - data
+    - prime
   environment:
     LC_ALL: 'en_US.utf8'
 
@@ -68,7 +68,7 @@ prime:
     - db:babel
     - redis:redis
   volumes_from:
-    - data
+    - redis
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
