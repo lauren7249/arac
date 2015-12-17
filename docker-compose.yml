@@ -9,7 +9,6 @@ data:
     - /tmp
     - /var/lib/postgresql/data
 
-
 # The Postgres container holding the latest version of postgres and
 # binds to the storage volume, pgdata where persistent data is kept.
 db:
@@ -83,6 +82,3 @@ prime:
     AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
     AWS_SECRET_ACCESS_KEY_PVLL: "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"
     LC_ALL: "en_US.utf8"
-
-
-
