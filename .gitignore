@@ -21,6 +21,6 @@ include
 .idea
 *.DS_Store
 *.iml
-out/*
-
-
+out/
+.DS_Store/
+*.log

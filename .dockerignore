@@ -1,0 +1,13 @@
+.idea/
+*.iml
+*.log
+out/**
+supervisor/
+.gitignore
+node_modules/
+docker-build-and-run.sh
+docker-machine-down.sh
+docker-machine-up.sh
+BaseDockerImage/
+Dockerfile
+docker-compose.yml
