@@ -20,8 +20,8 @@ if (-z $1 gt 0)
         while true; do
             read -p "Daemonize?" yn
             case $yn in
-                [Yy]* ) docker-compose --file ../docker-compose.yml -d up; exit;;
-                [Nn]* ) docker-compose --file ../docker-compose.yml up; exit;;
+                [Yy]* ) docker-compose --file ../docker-compose.yml up -d prime; exit;;
+                [Nn]* ) docker-compose --file ../docker-compose.yml up prime; exit;;
                 * ) echo "Please answer yes or no.";;
             esac
         done
