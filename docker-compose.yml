@@ -41,7 +41,7 @@ redis:
     LC_ALL: "en_US.utf8"
 
 nginx:
-  command: "nginx -g daemon off;"
+  command: "nginx -g "daemon off;""
   domainname: advisorconnect.co
   hostname: "beta"
   restart: always
