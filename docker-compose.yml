@@ -41,12 +41,11 @@ redis:
     LC_ALL: "en_US.utf8"
 
 nginx:
-  command: 'nginx -g "daemon off;"'
+  command: "nginx -g 'daemon off;"
   domainname: advisorconnect.co
-  hostname: beta
+  hostname: "beta"
   restart: always
   build: ./misc/nginx/
-  dns: 8.8.8.8
   links:
     - prime:p200
   ports:
