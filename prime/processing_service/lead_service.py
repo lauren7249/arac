@@ -92,6 +92,8 @@ class LeadService(Service):
     #TODO: make this more robust
     def _is_competitor(self, person):
         person_company = self._current_job(person).get("company")
+        if not person_company:
+            return False
         if person_company.strip() in EXCLUDED_COMPANIES:
             self.logger.info("%s is a competitor", person_company)
             return True
