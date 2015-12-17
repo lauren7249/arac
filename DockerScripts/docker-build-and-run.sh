@@ -9,7 +9,7 @@
 
 docker-compose --file ../docker-compose.yml build --pull
 
-if (-z $1 gt 0)
+if (test -z $1 gt 0)
     then
         docker-compose --file ../docker-compose.yml run --name prime --rm --service-ports prime $1
     else
