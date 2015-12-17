@@ -1,9 +1,13 @@
 ---
 ## Data volume container to support persistent data in redis.
-#data:
-#  image: postgres:latest
-#  volumes:
-#    - /data
+data:
+  image: busybox:latest
+  volumes:
+    - /data
+    - /tmp
+    - /var/run/postgresql
+    - /var/lib/postgresql/data
+    - /usr/src/app
 
 # The Postgres container holding the latest version of postgres and
 # binds to the storage volume, pgdata where persistent data is kept.
@@ -13,9 +17,11 @@ db:
   image: postgres:latest
   ports:
     - "5432:5432"
-  volumes:
-    - /var/run/postgresql
-    - /var/lib/postgresql/data
+#  volumes:
+#    - /var/run/postgresql
+#    - /var/lib/postgresql/data
+  volumes_from:
+    - data
   environment:
     POSTGRES_USER: 'postgres'
     POSTGRES_PASSWORD: ''
@@ -28,6 +34,8 @@ redis:
   image: redis:latest
   volumes:
     - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
+  volumes_from:
+    - data
   ports:
     - "6379:6379"
   environment:
@@ -45,7 +53,7 @@ nginx:
   volumes:
     - ./misc/nginx_venv.conf:/etc/nginx/conf.d/nginx_default.conf
   volumes_from:
-    - prime
+    - data
   environment:
     LC_ALL: 'en_US.utf8'
 
@@ -59,23 +67,20 @@ prime:
   links:
     - db:babel
     - redis:redis
-#  ports:
-#    - "80:80"
-#    - "443:443"
   volumes_from:
-    - db
-  volumes:
-    - /tmp
+    - data
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:
-   PRIME_DB_USER: 'arachnid'
-   PRIME_DB_PASS: ''
-   S3_BUCKET: 'arachid-results'
-   AC_CONFIG: 'development'
-   REDIS_URL: 'redis://redis:6379'
-   DB_URL: 'postgresql://arachnid@babel/arachnid'
-   AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
-   AWS_SECRET_ACCESS_KEY_PVLL: '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'
+    PRIME_DB_USER: 'arachnid'
+    PRIME_DB_PASS: ''
+    S3_BUCKET: 'arachid-results'
+    AC_CONFIG: 'development'
+    REDIS_URL: 'redis://redis:6379'
+    DB_URL: 'postgresql://arachnid@babel/arachnid'
+    AWS_ACCESS_KEY_ID_PVLL: 'AKIAIXDDAEVM2ECFIPTA'
+    AWS_SECRET_ACCESS_KEY_PVLL: '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'
+    LC_ALL: 'en_US.utf8'
+
 
 
