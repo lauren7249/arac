@@ -129,5 +129,5 @@ if __name__ == '__main__':
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,
-            data=data)
+            data=data[:20])
     processing_service.process()

@@ -58,13 +58,13 @@ class IndeedRequest(S3SavedRequest):
         else:
             self.url ="http://www.indeed.com/salary?q1=%s" % (self.title)        
         response = self._make_request()
-        self.clean = lxml.html.fromstring(response)
         try:
+            self.clean = lxml.html.fromstring(response)
             raw_salary = self.clean.xpath("//span[@class='salary']")[0].text
             salary = int(re.sub('\D','', raw_salary))
         except Exception, e:
             salary = None
-            self.logger.error(e.message)
+            self.logger.error(e)
         return salary
 
 
