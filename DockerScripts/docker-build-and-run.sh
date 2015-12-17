@@ -13,5 +13,16 @@ if [$1]
     then
         docker-compose --file ../docker-compose.yml run --name prime --rm --service-ports prime $1
     else
-        docker-compose --file ../docker-compose.yml up
+        clear
+        echo "Would you like to run in the foreground?  No will launch in daemon/background mode."
+        echo "----"
+        echo ""
+        while true; do
+            read -p "Daemonize?" yn
+            case $yn in
+                [Yy]* ) docker-compose --file ../docker-compose.yml -d up; exit;;
+                [Nn]* ) docker-compose --file ../docker-compose.yml up; exit;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
 fi
