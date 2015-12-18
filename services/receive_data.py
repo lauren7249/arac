@@ -47,12 +47,14 @@ class clearbit_webhook:
         web.header('Access-Control-Allow-Credentials', 'true')      
         web.header('Access-Control-Allow-Headers', '*')
         web.header('Access-Control-Allow-Methods','*')
-        print web.ctx.env
+        signature =  web.ctx.env.get('HTTP_X_REQUEST_SIGNATURE')
+        if signature != 'sha1=30005c3c712a1b1b4c47306424192130bc3081dc':
+            return False
         i = json.loads(web.data())
         webhook_id = i.get("id")
         response = i.get("body")
         #r.hset("clearbit_webhooks",webhook_id,json.dumps(response))
-        return "true"
+        return True
 
 if __name__ == "__main__":
     app.run()
