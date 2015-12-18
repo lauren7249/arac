@@ -39,7 +39,7 @@ class add:
         user_email = indata.get("user_email")
         f = open('data/' + user_email + '.json','w')
         f.write(json.dumps(indata))        
-        return json.dumps(by_name)
+        return json.dumps(indata)
 
 class clearbit_webhook:
     def POST(self):
