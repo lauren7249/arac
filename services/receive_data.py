@@ -9,7 +9,7 @@ from random import shuffle
 import re
 import sendgrid
 import threading
-from prime.utils import sendgrid_email
+from prime.utils.email import sendgrid_email
 import requests
 import sys
 
