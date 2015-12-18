@@ -64,6 +64,7 @@ class TestAgeService(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data[0].get("age"), 27.5)
         self.assertEqual(data[1].get("age"), 25.5)
+        self.assertEqual(data[0].get("dob_min"), 1986)
 
 class TestLeadService(unittest.TestCase):
 
@@ -92,7 +93,8 @@ class TestGeoCodingService(unittest.TestCase):
         expected = (40.713054, -74.007228)
         data = self.service.process()
         latlng = data[1].get("location_coordinates").get("latlng")
-        self.assertEqual(latlng, expected)
+        self.assertEqual(latlng[0], expected[0])
+        self.assertEqual(latlng[1], expected[1])
 
 class TestUrlValidatorRequest(unittest.TestCase):
 

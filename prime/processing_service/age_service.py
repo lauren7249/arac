@@ -11,6 +11,7 @@ from boto.s3.key import Key
 import datetime
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
+from nameko.rpc import rpc
 
 class AgeService(Service):
     """
@@ -29,8 +30,10 @@ class AgeService(Service):
 
     def process(self):
         for person in self.data:
-            age = self._get_age(person.get("linkedin_data"))
-            dob_range = self._get_dob_year_range(person.get("linkedin_data"))
+            req = AgeRequest()
+            linkedin_data = person.get("linkedin_data")
+            dob_range = req._get_dob_year_range(linkedin_data)
+            age = req._get_age(linkedin_data)
             person["age"] = age
             if dob_range and len(dob_range)==2:
                 person["dob_min"] = dob_range[0]
@@ -38,22 +41,37 @@ class AgeService(Service):
             self.output.append(person)
         return self.output
 
-    def _get_age(self,person):
-        dob_year = self._get_dob_year(person)
+
+class AgeRequest(S3SavedRequest):
+
+    name = "age_request"
+    def __init__(self):
+        super(AgeRequest, self).__init__()
+        self.logger = logging.getLogger(__name__)
+        self.dob_year_range = None
+
+    @rpc
+    def _get_age(self, linkedin_data):
+        self.linkedin_data = linkedin_data 
+        dob_year = self._get_dob_year(self.linkedin_data)
         if not dob_year: return None
         return datetime.datetime.today().year - dob_year
 
-    def _get_dob_year(self,person):
-        dob_year_range = self._get_dob_year_range(person)
+    def _get_dob_year(self, linkedin_data):
+        self.linkedin_data = linkedin_data 
+        dob_year_range = self._get_dob_year_range(self.linkedin_data)
         if not max(dob_year_range): return None
         return numpy.mean(dob_year_range)
 
-    def _get_dob_year_range(self,person):
+    def _get_dob_year_range(self, linkedin_data):
+        self.linkedin_data = linkedin_data        
+        if self.dob_year_range:
+            return self.dob_year_range
         dob_year_min = None
         dob_year_max = None
-        if not person:
+        if not self.linkedin_data:
             return (dob_year_min, dob_year_max)        
-        school_milestones = self._get_school_milestones(person.get("schools",[]))
+        school_milestones = self._get_school_milestones(self.linkedin_data.get("schools",[]))
         first_school_year = school_milestones.get("first_school_year")
         first_grad_year = school_milestones.get("first_grad_year")
         if first_school_year:
@@ -62,8 +80,10 @@ class AgeService(Service):
         elif first_grad_year:
             dob_year_max = first_grad_year - 21
             dob_year_min = first_grad_year - 25
-        if dob_year_min: return (dob_year_min, dob_year_max)
-        work_milestones = self._get_work_milestones(person.get("experiences",[]))
+        if dob_year_min: 
+            self.dob_year_range = (dob_year_min, dob_year_max)
+            return self.dob_year_range
+        work_milestones = self._get_work_milestones(self.linkedin_data.get("experiences",[]))
         first_year_experience = work_milestones.get("first_year_experience")
         first_quitting_year = work_milestones.get("first_quitting_year")
         if first_year_experience:
@@ -75,7 +95,8 @@ class AgeService(Service):
         #add age-based fuzz factor for people who only list job years
         if dob_year_min:
             dob_year_min -= (datetime.datetime.today().year - dob_year_min)/10
-            return (dob_year_min, dob_year_max)
+            self.dob_year_range = (dob_year_min, dob_year_max)
+            return self.dob_year_range
         first_weird_school_year = school_milestones.get("first_weird_school_year")
         first_weird_grad_year = school_milestones.get("first_weird_grad_year")
         if first_weird_school_year:
@@ -84,7 +105,8 @@ class AgeService(Service):
         elif first_weird_grad_year:
             dob_year_max = first_weird_grad_year - 17
             dob_year_min = first_weird_grad_year - 27
-        return (dob_year_min, dob_year_max)
+        self.dob_year_range = (dob_year_min, dob_year_max)
+        return self.dob_year_range
 
     def _get_school_milestones(self, schools):
         first_school_year = None
