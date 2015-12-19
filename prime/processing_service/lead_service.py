@@ -45,7 +45,7 @@ class LeadService(Service):
             client_geopoint = GeoPoint(client_location[0], client_location[1])
             miles_apart = geopoint.distance_to(client_geopoint)
             self.logger.info("Location: %s Miles Apart: %s",
-                    self.location.get("locality"), miles_apart)
+                    person.get("location_coordinates",{}).get("locality"), miles_apart)
             if miles_apart < self.location_threshhold:
                 self.logger.info("Same Location")
                 return True
@@ -82,6 +82,8 @@ class LeadService(Service):
 
     def _is_same_person(self, person):
         person_name = person.get("linkedin_data",{}).get("full_name")
+        if not person_name:
+            return False
         if name_match(person_name.split(" ")[0], self.client_data.get("first_name")) \
             and name_match(person_name.split(" ")[1], self.client_data.get("last_name")):
             self.logger.info("%s is ME", person_name)

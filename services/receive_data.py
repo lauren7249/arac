@@ -53,7 +53,6 @@ class clearbit_webhook:
         i = json.loads(web.data())
         webhook_id = i.get("id")
         response = i.get("body")
-        #r.hset("clearbit_webhooks",webhook_id,json.dumps(response))
         return True
 
 if __name__ == "__main__":

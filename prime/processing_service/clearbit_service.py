@@ -11,12 +11,6 @@ from helper import get_domain
 from service import Service, S3SavedRequest
 from prime.processing_service.constants import pub_profile_re, CLEARBIT_KEY
 
-def unwrap_process_person(person):
-    email = person.keys()[0]
-    request = ClearbitRequest(email)
-    data = request.get_person()
-    return data
-
 class ClearbitPersonService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
@@ -47,18 +41,6 @@ class ClearbitPersonService(Service):
             output_data[i][output_data[i].keys()[0]]["sources"] = sources
         return output_data
 
-    def multiprocess(self, poolsize=5, merge=True):
-        #rate limit is 600/minute
-        self.logger.info('Starting MultiProcess: %s', 'Clearbit Service')
-        pool = multiprocessing.Pool(processes=poolsize)
-        self.output = pool.map(unwrap_process_person, self.data)
-        pool.close()
-        pool.join()
-        if merge:
-            self.output = self._merge(self.data,self.output)
-        self.logger.info('Ending MultiProcess: %s', 'Clearbit Service')
-        return self.output
-
     def _exclude_person(self, person):
         if len(person.values()) > 0 and person.values()[0].get("linkedin_urls"):
             return True
@@ -71,7 +53,7 @@ class ClearbitPersonService(Service):
                 self.output.append(person)
             else:
                 email = person.keys()[0]
-                request = ClearbitRequest(email)
+                request = ClearbitRequest(email, type='person')
                 data = request.get_person()
                 self.output.append({email: data})
         if merge:
@@ -117,7 +99,7 @@ class ClearbitRequest(S3SavedRequest):
     Given an email address, This will return social profiles via Clearbit
     """
 
-    def __init__(self, query, type='email'):
+    def __init__(self, query, type='person'):
         super(ClearbitRequest, self).__init__()
         self.clearbit = clearbit
         self.clearbit.key=CLEARBIT_KEY

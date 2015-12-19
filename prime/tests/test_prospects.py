@@ -6,7 +6,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.testing import TestCase, LiveServerTestCase
 
 from prime.processing_service.cloudsponge_service import CloudSpongeService
-from prime.processing_service.clearbit_service import ClearbitPersonService, ClearbitPhoneService
+from prime.processing_service.clearbit_service_webhooks import ClearbitPersonService, ClearbitPhoneService
 from prime.processing_service.pipl_service import PiplService, PiplRequest
 from prime.processing_service.linkedin_service_crawlera import LinkedinService
 from prime.processing_service.linkedin_company_service import LinkedinCompanyService
@@ -190,11 +190,11 @@ class TestClearbitPhoneService(unittest.TestCase):
 
     def setUp(self):
         data = [{}]
-        data[0]["company_website"] = "www.boozallen.com"
+        data[0]["company_website"] = "www.microsoft.com"
         self.service = ClearbitPhoneService(None, data)
 
     def test_clearbit(self):
-        expected_phone = '+1 703-902-5000'
+        expected_phone = '+1 425-882-8080'
         data = self.service.process()
         phone = data[0].get("phone_number")
         self.assertEqual(phone, expected_phone)

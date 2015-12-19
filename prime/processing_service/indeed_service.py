@@ -61,7 +61,10 @@ class IndeedRequest(S3SavedRequest):
         try:
             self.clean = lxml.html.fromstring(response)
             raw_salary = self.clean.xpath("//span[@class='salary']")[0].text
-            salary = int(re.sub('\D','', raw_salary))
+            salary = re.sub('\D','', raw_salary)
+            if not salary:
+                return None
+            salary = int(salary)
         except Exception, e:
             salary = None
             self.logger.error(e)

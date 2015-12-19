@@ -86,6 +86,8 @@ class LeadScoreRequest(S3SavedRequest):
         self.glassdoor_salary = person.get("glassdoor_salary")
         self.social_accounts = person.get("social_accounts",[])
         self.salary = max(self.indeed_salary, self.glassdoor_salary)
+        if not self.salary:
+            self.salary = -1
         self.common_schools = person.get("common_schools",[])
         self.referrers = person.get("referrers",[])
         self.emails = person.get("email_addresses",[])

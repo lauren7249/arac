@@ -7,7 +7,7 @@ from collections import OrderedDict
 from flask import render_template
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
-
+from random import shuffle
 BASE_DIR = os.path.dirname(__file__)
 PRIME_DIR =  os.path.split(os.path.split(BASE_DIR)[0])[0]
 sys.path.append(PRIME_DIR)
@@ -17,7 +17,7 @@ from prime.utils.email import sendgrid_email
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
-from clearbit_service import ClearbitPersonService
+from clearbit_service_webhooks import ClearbitPersonService
 from pipl_service import PiplService
 from linkedin_service_crawlera import LinkedinService
 from linkedin_company_service import LinkedinCompanyService
@@ -90,7 +90,7 @@ class ProcessingService(Service):
         if self._validate_data():
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
-                if output:
+                if output is not None:
                     service = self.services[key](
                             self.client_data,
                             output)
@@ -124,6 +124,8 @@ def save_output(output, user_email, service):
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     data = json.loads(_file.read())
+    shuffle(data)
+    data = data[:3]
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
                     "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc"}  
     logger.info("Input: {}".format(data))
