@@ -126,6 +126,8 @@ def domain_match(website1,website2):
 def name_match(name1, name2, intersect_threshold=5):
     name1 = re.sub('[^0-9a-z\s]','',name1.lower())
     name2 = re.sub('[^0-9a-z\s]','',name2.lower())
+    if name1 and name2 and name1 == name2:
+        return True
     if len(name1) < 3 or len(name2) < 3:
         return False
     name1_words = set(name1.split(" "))
