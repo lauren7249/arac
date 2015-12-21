@@ -125,7 +125,7 @@ if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     data = json.loads(_file.read())
     shuffle(data)
-    data = data
+    data = data[:10]
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
                     "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc"}  
     logger.info("Input: {}".format(data))

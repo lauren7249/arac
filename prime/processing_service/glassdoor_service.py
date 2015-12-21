@@ -23,6 +23,7 @@ class GlassdoorService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Glass Door Service')
         for person in self.data:
+            linkedin_data = person.get("linkedin_data",{})
             current_job = self._current_job(person)
             if current_job:
                 request = GlassdoorRequest(current_job.get("title"))

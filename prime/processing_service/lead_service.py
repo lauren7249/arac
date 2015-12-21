@@ -55,14 +55,13 @@ class LeadService(Service):
         """
         If Salary doesn't exist, we assume they are specialized and good to go
         """
+        linkedin_data = person.get("linkedin_data",{})
         current_job = self._current_job(person)
         title = current_job.get("title")
         if not self._filter_title(title):
             return False
-        salary = max(person.get("glassdoor_salary", 0), \
-                person.get("indeed_salary", 0))
-        self.logger.info("Person: %s, Salary: %s, Title: %s", \
-                person.get("linkedin_data",{}).get("source_url"), salary, title)
+        salary = max(person.get("glassdoor_salary", 0), person.get("indeed_salary", 0))
+        self.logger.info("Person: %s, Salary: %s, Title: %s", linkedin_data.get("source_url"), salary, title)
         if salary == 0:
             return True
         if salary > self.salary_threshold:
@@ -93,6 +92,7 @@ class LeadService(Service):
 
     #TODO: make this more robust
     def _is_competitor(self, person):
+        linkedin_data = person.get("linkedin_data",{})
         person_company = self._current_job(person).get("company")
         if not person_company:
             return False

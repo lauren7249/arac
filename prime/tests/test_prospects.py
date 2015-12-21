@@ -170,17 +170,14 @@ class TestClearbitPersonService(unittest.TestCase):
 
     def test_clearbit(self):
         self.service = ClearbitPersonService(None, self.emails)
-        data1 = self.service.process(merge=True)
-        self.service = ClearbitPersonService(None, self.emails)
+        data1 = self.service.process()
+        #self.service = ClearbitPersonService(None, self.emails)
         #multiprocess is broken right now, to test later
         #data2 = self.service.multiprocess(merge=True)
-        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), ["boo",u'https://twitter.com/maccaw',
-                u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
-                u'https://facebook.com/amaccaw',
-                u'https://angel.co/maccaw',
-                u'https://github.com/maccman',
-                u'https://aboutme.com/maccaw',
-                u'https://gravatar.com/maccman'])
+        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), 
+            ['boo', u'https://github.com/maccman', u'https://aboutme.com/maccaw', 
+            u'https://twitter.com/maccaw', u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5', 
+            u'https://gravatar.com/maccman', u'https://facebook.com/amaccaw', u'https://angel.co/maccaw'])
         self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/in/alex-maccaw')
         self.assertEqual(data1[1].get('laurentracytalbot@gmail.com').get("clearbit_fields",{}).get("gender"), 'female')
         #multiprocess is broken right now, to test later

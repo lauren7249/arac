@@ -64,7 +64,7 @@ class LinkedinCompanyRequest(S3SavedRequest):
         super(LinkedinCompanyRequest, self).__init__()
 
     def _get_urls(self):
-        if self.urls:
+        if self.urls or not self.company_name:
             return
         bing = BingService(self.company_name, "linkedin_company")
         self.urls = bing.process()

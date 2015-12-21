@@ -50,7 +50,6 @@ class AgeRequest(S3SavedRequest):
         self.logger = logging.getLogger(__name__)
         self.dob_year_range = None
 
-    @rpc
     def _get_age(self, linkedin_data):
         self.linkedin_data = linkedin_data 
         dob_year = self._get_dob_year(self.linkedin_data)

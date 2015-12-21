@@ -47,6 +47,8 @@ class ClearbitPersonService(Service):
             output_data[i][output_data[i].keys()[0]]["linkedin_urls"] = linkedin_urls
             output_data[i][output_data[i].keys()[0]]["images"] = images
             output_data[i][output_data[i].keys()[0]]["sources"] = sources
+            output_data[i][output_data[i].keys()[0]]["job_title"] = original_person.get("job_title")
+            output_data[i][output_data[i].keys()[0]]["company"] = original_person.get("company")
         return output_data
 
     def multiprocess(self, poolsize=5, merge=True):
@@ -66,18 +68,14 @@ class ClearbitPersonService(Service):
             return True
         return False
 
-    def process(self, merge=True):
+    def process(self):
         self.logger.info('Starting Process: %s', 'Clearbit Person Service')
-        for person in self.data:
-            if self._exclude_person(person) and not merge:
-                self.output.append(person)
-            else:
-                email = person.keys()[0]
-                request = ClearbitRequest(email)
-                data = request.get_person()
-                self.output.append({email: data})
-        if merge:
-            self.output = self._merge(self.data,self.output)
+        for person in self.data:     
+            email = person.keys()[0]
+            request = ClearbitRequest(email)
+            data = request.get_person()
+            self.output.append({email:data})             
+        self.output = self._merge(self.data,self.output)
         self.logger.info('Ending Process: %s', 'Clearbit Person Service')
         return self.output
 

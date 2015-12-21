@@ -37,13 +37,14 @@ class PhoneService(Service):
                 self.logger.info("PhoneNumber service: already has phone number %s", person.get("phone_number"))
                 self.output.append(person)
                 continue
+            linkedin_data = person.get("linkedin_data",{})
             current_job = self._current_job(person)
             if not current_job or not current_job.get("company"):
                 self.logger.info("PhoneNumber service: no current job or company")
                 self.output.append(person)
                 continue
             business_service = MapQuestRequest(current_job.get("company"))
-            location_service = MapQuestRequest(person.get("linkedin_data").get("location"))
+            location_service = MapQuestRequest(linkedin_data.get("location"))
             latlng = location_service.process().get("latlng")
             business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
             person.update(business)
