@@ -16,7 +16,7 @@ class ClearbitRequest(S3SavedRequest):
     Given an email address, This will return social profiles via Clearbit
     """
 
-    def __init__(self, query, type='person'):
+    def __init__(self, query):
         super(ClearbitRequest, self).__init__()
         self.clearbit = clearbit
         self.clearbit.key=CLEARBIT_KEY
@@ -44,7 +44,7 @@ class ClearbitRequest(S3SavedRequest):
         self.key = hashlib.md5("clearbit" + type + self.query).hexdigest()
         key = Key(self.bucket)
         key.key = self.key
-        if key.exists() and False:
+        if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
             html = key.get_contents_as_string()
             entity = json.loads(html)
