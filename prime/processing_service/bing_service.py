@@ -132,7 +132,10 @@ class BingRequest(S3SavedRequest):
         if len(self.intitle):
             for it in self.intitle:
                 querystring += "intitle:" + it + " "
-        self.querystring = urllib.quote(querystring)
+        try:
+            self.querystring = urllib.quote(querystring)
+        except:
+            self.querystring = urllib.quote(uu(querystring))
         self.next_querystring = "https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web?Query=%27" + self.querystring + "%27&Adult=%27Strict%27"
 
 
@@ -158,7 +161,10 @@ class BingRequest(S3SavedRequest):
                 break
 
     def _get_html(self, api_key):
-        self.key = hashlib.md5(self.next_querystring).hexdigest()
+        try:
+            self.key = hashlib.md5(self.next_querystring).hexdigest()
+        except:
+            self.key = hashlib.md5(uu(self.next_querystring)).hexdigest()
         key = Key(self.bucket)
         key.key = self.key
         if key.exists():
