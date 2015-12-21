@@ -8,12 +8,11 @@ pg         := ${PG_BINDIR}/psql -h babel -U arachnid -d ${PGDATABASE}
 
 .PHONY: is-ready
 is-ready:
-	until ${PG_BINDIR}/pg_isready -h babel -U postgres ; do sleep 5 ; done
+	until ${PG_BINDIR}/pg_isready; do sleep 5 ; done
 
 .PHONY: create-db
 create-db:
-	${PG_BINDIR}/createuser -d -s -U postgres -w  arachnid  || true
-	${PG_BINDIR}/createdb -l en_US.utf8 -w -U postgres ${PGDATABASE}
+	${PG_BINDIR}/createdb ${PGDATABASE}
 	./manage.py db upgrade
 
 .PHONY: generate-fake
@@ -22,7 +21,7 @@ generate-fake:
 
 .PHONY: drop-db
 drop-db:
-	${PG_BINDIR}/dropdb -U postgres -w --if-exists ${PGDATABASE}
+	${PG_BINDIR}/dropdb -w --if-exists ${PGDATABASE}
 
 .PHONY: reset
 reset: is-ready drop-db create-db
