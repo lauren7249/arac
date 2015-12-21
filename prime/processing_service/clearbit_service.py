@@ -127,6 +127,8 @@ class ClearbitRequest(S3SavedRequest):
             except HTTPError as e:
                 self.logger.info('Clearbit Fail')
             key.content_type = 'text/html'
+            if entity:
+                entity.pop('response', None)
             key.set_contents_from_string(json.dumps(entity))
         if entity is None:
             entity = {}

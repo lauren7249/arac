@@ -12,7 +12,7 @@ from boto.s3.key import Key
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS, ALCHEMY_API_KEYS, SOCIAL_DOMAINS
 from pipl_request import PiplRequest
-from clearbit_service import ClearbitRequest
+from clearbit_service_webhooks import ClearbitRequest
 from url_validator import UrlValidatorRequest
 from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
