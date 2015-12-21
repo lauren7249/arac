@@ -12,7 +12,6 @@ from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
 from prime.processing_service.helper import convert_date, uu
-
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
 from prime.users.models import ClientProspect
@@ -171,6 +170,8 @@ class ResultService(Service):
             client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
             if not client_prospect:
                 self.logger.error("no client prospect")
+                continue
+            self.output.append(client_prospect.to_json())
         if user:
             self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
         else:

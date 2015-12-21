@@ -1,7 +1,7 @@
 import os
 import datetime
 import logging
-
+import json
 from flask import current_app
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -171,10 +171,24 @@ class ClientProspect(db.Model):
 
     extended = db.Column(Boolean)
     referrers = db.Column(JSONB, default=[])
-    lead_score = db.Column(Integer, nullable=False)
-    stars = db.Column(Integer, nullable=False)
+    lead_score = db.Column(Integer)
+    stars = db.Column(Integer)
     common_schools = db.Column(JSONB, default=[])
     
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
 
+    def to_json(self):
+        out = {}
+        for c in self.__table__.columns:
+            key = c.name
+            val = getattr(self, c.name)
+            if not val:
+                continue            
+            try:
+                out[key] = json.dumps(val)
+            except Exception, e:
+                print str(e)
+                pass
+        out.update(self.prospect.to_json())
+        return out
