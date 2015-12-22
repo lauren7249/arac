@@ -22,6 +22,7 @@ class ScoringService(Service):
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.hired = self.client_data.get("hired")
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -43,8 +44,11 @@ class ScoringService(Service):
     def process(self):
         for person in self.data:
             person["wealthscore"] = WealthScoreRequest(person).process()
-            person["lead_score"] = LeadScoreRequest(person).process()
+            if self.hired:
+                person["lead_score"] = LeadScoreRequest(person).process()
             self.output.append(person)
+        if not self.hired:
+            return self.output
         return self.compute_stars()
 
 class WealthScoreRequest(S3SavedRequest):
@@ -86,6 +90,8 @@ class LeadScoreRequest(S3SavedRequest):
         self.glassdoor_salary = person.get("glassdoor_salary")
         self.social_accounts = person.get("social_accounts",[])
         self.salary = max(self.indeed_salary, self.glassdoor_salary)
+        if not self.salary:
+            self.salary = -1
         self.common_schools = person.get("common_schools",[])
         self.referrers = person.get("referrers",[])
         self.emails = person.get("email_addresses",[])

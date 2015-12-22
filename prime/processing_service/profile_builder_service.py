@@ -18,6 +18,7 @@ class ProfileBuilderService(Service):
         self.good_leads = data
         self.client_data = client_data
         self.data = data
+        self.hired = self.client_data.get("hired")
         self.output = []   
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -49,7 +50,7 @@ class ProfileBuilderService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Profile Builder Service')
         for person in self.good_leads:
-            profile = ProfileBuilderRequest(person).process()
+            profile = ProfileBuilderRequest(person, self.hired).process()
             profile = self._get_job_fields(profile, person)
             profile = self._get_common_schools(profile)
             self.output.append(profile)
@@ -62,10 +63,11 @@ class ProfileBuilderRequest(S3SavedRequest):
     Builds profile in the best output format for results service
     """
 
-    def __init__(self, person):
+    def __init__(self, person, hired):
         super(ProfileBuilderRequest, self).__init__()
         self.person = person
         self.profile = {}
+        self.hired = hired
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -114,14 +116,15 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["glassdoor_salary"] = self.person.get("glassdoor_salary")
         self.profile["dob_min_year"] = self.person.get("dob_min")
         self.profile["dob_max_year"] = self.person.get("dob_max")
-        self.profile["email_addresses"] = self.person.get("email_addresses")
-        self.profile["profile_image_urls"] = self.person.get("images")
-        self.profile["main_profile_image"] = self._get_main_profile_image()
-        self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if not x.endswith("@facebook.com")])      
-        self.profile["referrers"] = self.person.get("referrers",[])  
+        if self.hired:
+            self.profile["email_addresses"] = self.person.get("email_addresses")
+            self.profile["profile_image_urls"] = self.person.get("images")
+            self.profile["main_profile_image"] = self._get_main_profile_image()
+            self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if not x.endswith("@facebook.com")])      
+            self.profile["referrers"] = self.person.get("referrers",[])  
+            self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
+            self.profile["sources"] = self.person.get("sources",[])
         self.profile["extended"] = self.person.get("extended")  
-        self.profile["sources"] = self.person.get("sources",[])
-        self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
         return self.profile
 
     def _get_linkedin_fields(self):

@@ -45,7 +45,7 @@ class LeadService(Service):
             client_geopoint = GeoPoint(client_location[0], client_location[1])
             miles_apart = geopoint.distance_to(client_geopoint)
             self.logger.info("Location: %s Miles Apart: %s",
-                    self.location.get("locality"), miles_apart)
+                    person.get("location_coordinates",{}).get("locality"), miles_apart)
             if miles_apart < self.location_threshhold:
                 self.logger.info("Same Location")
                 return True
@@ -55,14 +55,13 @@ class LeadService(Service):
         """
         If Salary doesn't exist, we assume they are specialized and good to go
         """
+        linkedin_data = person.get("linkedin_data",{})
         current_job = self._current_job(person)
         title = current_job.get("title")
         if not self._filter_title(title):
             return False
-        salary = max(person.get("glassdoor_salary", 0), \
-                person.get("indeed_salary", 0))
-        self.logger.info("Person: %s, Salary: %s, Title: %s", \
-                person.get("linkedin_data",{}).get("source_url"), salary, title)
+        salary = max(person.get("glassdoor_salary", 0), person.get("indeed_salary", 0))
+        self.logger.info("Person: %s, Salary: %s, Title: %s", linkedin_data.get("source_url"), salary, title)
         if salary == 0:
             return True
         if salary > self.salary_threshold:
@@ -82,6 +81,8 @@ class LeadService(Service):
 
     def _is_same_person(self, person):
         person_name = person.get("linkedin_data",{}).get("full_name")
+        if not person_name:
+            return False
         if name_match(person_name.split(" ")[0], self.client_data.get("first_name")) \
             and name_match(person_name.split(" ")[1], self.client_data.get("last_name")):
             self.logger.info("%s is ME", person_name)
@@ -91,6 +92,7 @@ class LeadService(Service):
 
     #TODO: make this more robust
     def _is_competitor(self, person):
+        linkedin_data = person.get("linkedin_data",{})
         person_company = self._current_job(person).get("company")
         if not person_company:
             return False

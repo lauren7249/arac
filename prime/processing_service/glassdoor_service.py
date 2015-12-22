@@ -23,6 +23,7 @@ class GlassdoorService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Glass Door Service')
         for person in self.data:
+            linkedin_data = person.get("linkedin_data",{})
             current_job = self._current_job(person)
             if current_job:
                 request = GlassdoorRequest(current_job.get("title"))
@@ -42,6 +43,7 @@ class GlassdoorRequest(S3SavedRequest):
 
     def __init__(self, title):
         self.title = title
+        self.titles_tried = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)        
@@ -50,12 +52,13 @@ class GlassdoorRequest(S3SavedRequest):
     def process(self):
         if not self.title: 
             return -1
+        self.titles_tried.append(self.title.lower().strip())
         self.url =  "http://www.glassdoor.com/Salaries/" +  self.title.replace(" ",'-').strip() + "-salary-SRCH_KO0," + str(len(self.title.strip())) + ".htm"
         try:
             response = self._make_request()
             clean = lxml.html.fromstring(response)
         except Exception, err:
-            self.logger.error(err.message)
+            self.logger.error(str(err))
             return -1
         try:
             salary = clean.xpath("//div[@class='meanPay nowrap positive']")[0].text_content()
@@ -72,7 +75,7 @@ class GlassdoorRequest(S3SavedRequest):
             if not common: 
                 return -1
             new_title = " ".join([w for w in text.split() if w in common])
-            if new_title.lower().strip() == self.title.lower().strip(): 
+            if new_title.lower().strip() in self.titles_tried: 
                 return -1
             self.logger.info(self.title.encode('utf-8') + "-->" + new_title.encode('utf-8'))
             self.title = new_title

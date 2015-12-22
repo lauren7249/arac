@@ -40,11 +40,11 @@ class PiplService(Service):
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Pipl Service')
-        for person, info in self.data.iteritems():
-            request = PiplRequest(person, type="email", level="social")
+        for email, info in self.data.iteritems():
+            request = PiplRequest(email, type="email", level="social")
             data = request.process()
             data.update(info)
-            self.output.append({person:data})
+            self.output.append({email:data})
         self.logger.info('Ending Process: %s', 'Pipl Service')
         return self.output
 

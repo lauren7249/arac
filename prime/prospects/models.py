@@ -86,6 +86,20 @@ class Prospect(db.Model):
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
 
+    def to_json(self):
+        out = {}
+        for c in self.__table__.columns:
+            key = c.name
+            val = getattr(self, c.name)
+            if not val:
+                continue
+            try:
+                out[key] = json.dumps(val)
+            except Exception, e:
+                print str(e)
+                pass
+        return out
+
 class Job(db.Model):
     __tablename__ = "job"
 

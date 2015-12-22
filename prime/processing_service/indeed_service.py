@@ -23,6 +23,7 @@ class IndeedService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Indeed Service')
         for person in self.data:
+            linkedin_data = person.get("linkedin_data",{})
             current_job = self._current_job(person)
             if current_job:
                 title = current_job.get("title")
@@ -58,13 +59,16 @@ class IndeedRequest(S3SavedRequest):
         else:
             self.url ="http://www.indeed.com/salary?q1=%s" % (self.title)        
         response = self._make_request()
-        self.clean = lxml.html.fromstring(response)
         try:
+            self.clean = lxml.html.fromstring(response)
             raw_salary = self.clean.xpath("//span[@class='salary']")[0].text
-            salary = int(re.sub('\D','', raw_salary))
+            salary = re.sub('\D','', raw_salary)
+            if not salary:
+                return None
+            salary = int(salary)
         except Exception, e:
             salary = None
-            self.logger.error(e.message)
+            self.logger.error(e)
         return salary
 
 

@@ -12,7 +12,6 @@ from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
 from prime.processing_service.helper import convert_date, uu
-
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
 from prime.users.models import ClientProspect
@@ -40,6 +39,8 @@ class ResultService(Service):
         super(ResultService, self).__init__(*args, **kwargs)
 
     def _create_or_update_client_prospect(self, prospect, user, profile):
+        if not user or not prospect:
+            return None
         client_prospect = get_or_create(self.session, ClientProspect, prospect_id = prospect.id, user_id =user.user_id)
         client_prospect.extended = profile.get("extended")
         client_prospect.referrers = profile.get("referrers")
@@ -161,9 +162,19 @@ class ResultService(Service):
             return None
         for profile in self.good_leads:
             prospect = self._create_or_update_prospect(profile)
+            if not prospect:
+                self.logger.error("no prospect %s", json.dumps(profile))
+                continue
             self._create_or_update_schools(prospect, profile)
             self._create_or_update_jobs(prospect, profile)
-            self._create_or_update_client_prospect(prospect, user, profile)
-        self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
+            client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
+            if not client_prospect:
+                self.logger.error("no client prospect")
+                continue
+            self.output.append(client_prospect.to_json())
+        if user:
+            self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
+        else:
+            self.logger.error("NO USER!")
         self.logger.info('Ending Process: %s', 'Result Service')
         return self.output

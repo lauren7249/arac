@@ -6,7 +6,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.testing import TestCase, LiveServerTestCase
 
 from prime.processing_service.cloudsponge_service import CloudSpongeService
-from prime.processing_service.clearbit_service import ClearbitPersonService, ClearbitPhoneService
+from prime.processing_service.clearbit_service_webhooks import ClearbitPersonService, ClearbitPhoneService
 from prime.processing_service.pipl_service import PiplService, PiplRequest
 from prime.processing_service.linkedin_service_crawlera import LinkedinService
 from prime.processing_service.linkedin_company_service import LinkedinCompanyService
@@ -64,6 +64,7 @@ class TestAgeService(unittest.TestCase):
         data = self.service.process()
         self.assertEqual(data[0].get("age"), 27.5)
         self.assertEqual(data[1].get("age"), 25.5)
+        self.assertEqual(data[0].get("dob_min"), 1986)
 
 class TestLeadService(unittest.TestCase):
 
@@ -92,7 +93,8 @@ class TestGeoCodingService(unittest.TestCase):
         expected = (40.713054, -74.007228)
         data = self.service.process()
         latlng = data[1].get("location_coordinates").get("latlng")
-        self.assertEqual(latlng, expected)
+        self.assertEqual(latlng[0], expected[0])
+        self.assertEqual(latlng[1], expected[1])
 
 class TestUrlValidatorRequest(unittest.TestCase):
 
@@ -168,17 +170,14 @@ class TestClearbitPersonService(unittest.TestCase):
 
     def test_clearbit(self):
         self.service = ClearbitPersonService(None, self.emails)
-        data1 = self.service.process(merge=True)
-        self.service = ClearbitPersonService(None, self.emails)
+        data1 = self.service.process()
+        #self.service = ClearbitPersonService(None, self.emails)
         #multiprocess is broken right now, to test later
         #data2 = self.service.multiprocess(merge=True)
-        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), ["boo",u'https://twitter.com/maccaw',
-                u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
-                u'https://facebook.com/amaccaw',
-                u'https://angel.co/maccaw',
-                u'https://github.com/maccman',
-                u'https://aboutme.com/maccaw',
-                u'https://gravatar.com/maccman'])
+        self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("social_accounts"), 
+            ['boo', u'https://github.com/maccman', u'https://aboutme.com/maccaw', 
+            u'https://twitter.com/maccaw', u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5', 
+            u'https://gravatar.com/maccman', u'https://facebook.com/amaccaw', u'https://angel.co/maccaw'])
         self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/in/alex-maccaw')
         self.assertEqual(data1[1].get('laurentracytalbot@gmail.com').get("clearbit_fields",{}).get("gender"), 'female')
         #multiprocess is broken right now, to test later
@@ -188,11 +187,11 @@ class TestClearbitPhoneService(unittest.TestCase):
 
     def setUp(self):
         data = [{}]
-        data[0]["company_website"] = "www.boozallen.com"
+        data[0]["company_website"] = "www.microsoft.com"
         self.service = ClearbitPhoneService(None, data)
 
     def test_clearbit(self):
-        expected_phone = '+1 703-902-5000'
+        expected_phone = '+1 425-882-8080'
         data = self.service.process()
         phone = data[0].get("phone_number")
         self.assertEqual(phone, expected_phone)

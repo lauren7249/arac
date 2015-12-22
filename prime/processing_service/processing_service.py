@@ -7,7 +7,7 @@ from collections import OrderedDict
 from flask import render_template
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
-
+from random import shuffle
 BASE_DIR = os.path.dirname(__file__)
 PRIME_DIR =  os.path.split(os.path.split(BASE_DIR)[0])[0]
 sys.path.append(PRIME_DIR)
@@ -17,7 +17,7 @@ from prime.utils.email import sendgrid_email
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
-from clearbit_service import ClearbitPersonService
+from clearbit_service_webhooks import ClearbitPersonService
 from pipl_service import PiplService
 from linkedin_service_crawlera import LinkedinService
 from linkedin_company_service import LinkedinCompanyService
@@ -33,34 +33,25 @@ from scoring_service import ScoringService
 from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
 SAVE_OUTPUTS = False
-RUN_EXTENDED = (sys.argv[-1] == "1")
-#DO NOT REORDER THESE 
-SERVICES = OrderedDict()
-SERVICES['cloud_sponge'] = CloudSpongeService
-SERVICES['pipl_serice'] =  PiplService
-SERVICES['clearbit_service'] =  ClearbitPersonService
-SERVICES['linkedin_service'] = LinkedinService
-SERVICES['lead_service'] = LeadService
-#it goes much faster if you dont run extended
-if RUN_EXTENDED:
-    logger.info("RUNNING extended network for comprehensive check!!!!")
-    SERVICES['extended_profiles_service'] = ExtendedProfilesService
-    SERVICES['extended_lead_service'] = ExtendedLeadService
-else:
-    logger.info("SKIPPING extended network for speed!!!!")
-SERVICES['social_profiles_service'] = SocialProfilesService
-SERVICES['linkedin_company_service'] = LinkedinCompanyService
-SERVICES['phone_service'] = PhoneService
-SERVICES['age_service'] = AgeService
-SERVICES['gender_service'] = GenderService
-SERVICES['college_degree_service'] = CollegeDegreeService
-SERVICES['profile_builder_service'] = ProfileBuilderService
-SERVICES['scoring_service'] = ScoringService
-SERVICES['results_service'] = ResultService
-
+#RUN_EXTENDED = (sys.argv[-1] == "1")
+RUN_EXTENDED = True
 class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
+        #DO NOT REORDER THESE 
+        if client_data.get("hired"):
+            if RUN_EXTENDED:
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, ExtendedProfilesService, ExtendedLeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
+            else:
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]   
+        else:
+            if RUN_EXTENDED:
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ExtendedProfilesService, ExtendedLeadService, ResultService]
+            else:
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]   
+        SERVICES = OrderedDict()    
+        for CLASS in CLASS_LIST:
+            SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS  
         self.client_data = client_data
         self.data = data
         self.services = SERVICES
@@ -90,7 +81,7 @@ class ProcessingService(Service):
         if self._validate_data():
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
-                if output:
+                if output is not None:
                     service = self.services[key](
                             self.client_data,
                             output)
@@ -101,7 +92,8 @@ class ProcessingService(Service):
                 output = service.process()
                 if SAVE_OUTPUTS:
                     save_output(output, self.client_data.get("email"), service.__class__.__name__)
-
+            if output:
+                print json.dumps(output, sort_keys=True, indent=4)
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
         env = Environment()
@@ -124,8 +116,10 @@ def save_output(output, user_email, service):
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     data = json.loads(_file.read())
+    shuffle(data)
+    data = data[:10]
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
-                    "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc"}  
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc", "hired":True}  
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,

@@ -11,7 +11,7 @@ from boto.s3.key import Key
 
 from requests import session
 from service import Service, S3SavedRequest
-from helper import parse_out, most_common, get_center
+from helper import parse_out, most_common, get_center, uu
 from constants import SCRAPING_API_KEY, GLOBAL_HEADERS
 
 from geopy.geocoders import Nominatim
@@ -44,31 +44,74 @@ class GeoCodingService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'GeoCodingService')
         for person in self.data:
-            location_raw = person.get("linkedin_data", {}).get("location")
-            if location_raw:
-                location = MapQuestRequest(location_raw).process()
-                if location:
-                    self.logger.info('MapQuest Location Found: %s', location)
-                    person.update({"location_coordinates": location})
-                else:
-                    location = OpenStreetMapsRequest(location_raw).process()
-                    if location:
-                        self.logger.info('Open Street Location Found: %s', location)
-                        person.update({"location_coordinates": location})
-                    if not location:
-                        #If there is a comma, try taking it out and using the
-                        #first chunk of the raw location as a last means effort
-                        first_chunk =location_raw.split(",")[0]
-                        if first_chunk != location_raw:
-                            location = MapQuestRequest(first_chunk).process()
-                            if location:
-                                self.logger.info('Map Quest Location 2 Found: %s', location)
-                                person.update({"location_coordinates": location})
-            else:
-                self.logger.warn("No Location Found")
+            linkedin_data = person.get("linkedin_data",{})
+            location = GeocodeRequest(linkedin_data).process()
+            if location:
+                person["location_coordinates"] = location
             self.output.append(person)
         self.logger.info('Ending Process: %s', 'GeoCodingService')
         return self.output
+
+class GeocodeRequest(S3SavedRequest):
+
+    def __init__(self, linkedin_data):
+        super(GeocodeRequest, self).__init__()
+        self.linkedin_data = linkedin_data
+        self.logger = logging.getLogger(__name__)
+        self.location_raw = self.linkedin_data.get("location")
+
+    def _make_request(self):
+        if not self.location_raw:
+            return None
+        coords = {}
+        if not self.location_raw:
+            return coords
+        query = "GecodeRequest" + self.location_raw
+        try:
+            key = hashlib.md5(query).hexdigest()
+        except:
+            key = hashlib.md5(uu(query)).hexdigest()
+        bucket = self.bucket
+        boto_key = Key(bucket)
+        boto_key.key = key   
+        if boto_key.exists():
+            self.logger.info('GecodeRequest: %s', 'Using S3')
+            html = boto_key.get_contents_as_string()
+            coords = json.loads(html)
+            return coords
+        else:         
+            self.logger.info('GecodeRequest: %s', 'Calculating')       
+            coords = self._get_coords()
+            boto_key.set_contents_from_string(json.dumps(coords))
+        return coords        
+
+    def _get_coords(self):
+        location = {}
+        if self.location_raw:
+            location = MapQuestRequest(self.location_raw).process()
+            if location:
+                self.logger.info('MapQuest Location Found: %s', location)
+                return location
+
+            location = OpenStreetMapsRequest(self.location_raw).process()
+            if location:
+                self.logger.info('OpenStreetMaps Location Found: %s', location)
+                return location
+
+            #If there is a comma, try taking it out and using the
+            #first chunk of the raw location as a last means effort
+            first_chunk =self.location_raw.split(",")[0]
+            if first_chunk != self.location_raw:
+                location = MapQuestRequest(first_chunk).process()
+                if location:
+                    self.logger.info('Map Quest Location 2 Found: %s', location)
+                    return location
+        self.logger.warn("No Location")    
+        return location   
+
+    def process(self):
+        coords = self._make_request()
+        return coords
 
 class OpenStreetMapsRequest(S3SavedRequest):
 
@@ -116,5 +159,4 @@ class OpenStreetMapsRequest(S3SavedRequest):
         return coords
 
     def process(self):
-        self.logger.info('OpenStreetMapsRequest: %s', 'Starting')
         return self._make_request()

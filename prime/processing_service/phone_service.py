@@ -11,7 +11,7 @@ from boto.s3.key import Key
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
 from bloomberg_service import BloombergPhoneService
-from clearbit_service import ClearbitPhoneService
+from clearbit_service_webhooks import ClearbitPhoneService
 from mapquest_service import MapQuestRequest
 
 class PhoneService(Service):
@@ -30,6 +30,7 @@ class PhoneService(Service):
         super(PhoneService, self).__init__(*args, **kwargs)
 
     def process(self, favor_mapquest=False, favor_clearbit=False):
+        self.logger.info("PhoneNumber Service %s", "Starting")
         self.service = BloombergPhoneService(self.client_data, self.data)
         self.data = self.service.process()
         for person in self.data:
@@ -37,13 +38,14 @@ class PhoneService(Service):
                 self.logger.info("PhoneNumber service: already has phone number %s", person.get("phone_number"))
                 self.output.append(person)
                 continue
+            linkedin_data = person.get("linkedin_data",{})
             current_job = self._current_job(person)
             if not current_job or not current_job.get("company"):
                 self.logger.info("PhoneNumber service: no current job or company")
                 self.output.append(person)
                 continue
             business_service = MapQuestRequest(current_job.get("company"))
-            location_service = MapQuestRequest(person.get("linkedin_data").get("location"))
+            location_service = MapQuestRequest(linkedin_data.get("location"))
             latlng = location_service.process().get("latlng")
             business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
             person.update(business)

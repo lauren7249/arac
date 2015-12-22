@@ -10,9 +10,9 @@ from requests import HTTPError
 from boto.s3.key import Key
 
 from service import Service, S3SavedRequest
-from constants import GLOBAL_HEADERS, ALCHEMY_API_KEYS
+from constants import GLOBAL_HEADERS, ALCHEMY_API_KEYS, SOCIAL_DOMAINS
 from pipl_request import PiplRequest
-from clearbit_service import ClearbitRequest
+from clearbit_service_webhooks import ClearbitRequest
 from url_validator import UrlValidatorRequest
 from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
@@ -81,6 +81,9 @@ class SocialProfilesRequest(S3SavedRequest):
     def _process_social_accounts(self, social_accounts):
         good_links = []
         for url in social_accounts:
+            domain = url.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
+            if domain not in SOCIAL_DOMAINS: 
+                continue            
             req = UrlValidatorRequest(url, is_image=False)
             _link = req.process()        
             if _link:

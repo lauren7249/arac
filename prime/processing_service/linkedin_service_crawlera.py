@@ -39,12 +39,21 @@ class LinkedinService(Service):
                     linkedin_id = data.get("linkedin_id")
                     info = self.output.get(linkedin_id,{})
                     emails = info.get("email_addresses",[]) 
-                    emails.append(email)
+                    emails.append(email)                 
                     social_accounts = info.get("social_accounts",[]) + email_data.get("social_accounts",[])
                     sources = info.get("sources",[]) + email_data.get("sources",[])
                     images = info.get("images",[]) + email_data.get("images",[])
                     o = {"linkedin_data": data, "email_addresses":list(set(emails)), "sources":list(set(sources)), 
                         "social_accounts":list(set(social_accounts)), "images":list(set(images))}
+                    job_title = email_data.get("job_title") 
+                    companies = email_data.get("companies")
+                    if companies and len(companies) and companies[0] is not None:
+                        company = companies[0]
+                    else:
+                        company = None   
+                    if job_title:
+                        o["job_title"] = job_title
+                        o["company"] = company                        
                     info.update(o)
                     self.output.update({linkedin_id:o})
         self.logger.info('Ending Process: %s', 'Linkedin Service')
