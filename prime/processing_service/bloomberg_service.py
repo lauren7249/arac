@@ -123,7 +123,10 @@ class BloombergRequest(S3SavedRequest):
         return info
 
     def parse_company_snapshot(self,content):
-        raw_html = lxml.html.fromstring(content)
+        try:
+            raw_html = lxml.html.fromstring(content)
+        except:
+            return {}
         try:
             name = raw_html.find(".//*[@itemprop='name']").text_content()
         except:
