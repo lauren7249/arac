@@ -25,7 +25,7 @@ web_session = web.session.Session(app, web.session.DiskStore('sessions'), initia
 def email_about_contacts(user_email, client_first_name, n_contacts):
     to = user_email
     subject = client_first_name + ', Congratulations on uploading your contacts'
-    body = client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. \n\nThank you, \n\nThe AdvisorConnect Team"   
+    body = client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. \n\n\nThank you, \n\nThe AdvisorConnect Team"   
     sendgrid_email(to, subject, body)
 
 class add:
@@ -48,13 +48,16 @@ class add:
                 continue
             contact = record.get("contact",{})
             emails = contact.get("email",[{}])
-            try: email_address = emails[0].get("address",'').lower()
-            except: email_address = ''
+            try: 
+                email_address = emails[0].get("address",'').lower()
+            except Exception, e: 
+                email_address = ''
+                print str(e)
             if email_address: 
                 by_email.add(email_address)      
         thr = threading.Thread(target=email_about_contacts, args=(user_email,client_first_name,len(by_email)))
         thr.start()        
-        return json.dumps(indata)
+        return json.dumps(contacts_array)
 
 class clearbit_webhook:
     def POST(self):
