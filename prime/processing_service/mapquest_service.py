@@ -80,11 +80,11 @@ class MapQuestRequest(S3SavedRequest):
             business.update({"phone_number":record.get("phone")})
         if record.get("website"):
             business.update({"company_website":record.get("website")})
-        if isinstance(record.get("address"),dict) and record.get("address").get("singleLineAddress"):
+        if record.get("address") and isinstance(record.get("address"),dict) and record.get("address").get("singleLineAddress"):
             business.update({"company_address":record.get("address",{}).get("singleLineAddress")})
         if self._find_lat_lng(record):
             business.update({"company_latlng": self._find_lat_lng(record)})
-        if isinstance(record.get("inputQuery"), dict) and record.get("inputQuery").get("categories"):
+        if record.get("inputQuery") and isinstance(record.get("inputQuery"), dict) and record.get("inputQuery").get("categories"):
             business.update({"business_categories":record.get("inputQuery",{}).get("categories")})
         return business
 
