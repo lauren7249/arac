@@ -23,6 +23,7 @@ class ExtendedProfilesService(Service):
         self.data = data
         self.output = []
         self.intermediate_output = []
+        self.pool_size = 20
         self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)

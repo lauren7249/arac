@@ -17,7 +17,10 @@ logger = logging.getLogger(__name__)
 
 def uu(str):
     if str:
-        return str.encode("ascii", "ignore").decode("utf-8")
+        try:
+            return str.decode("ascii", "ignore").encode("utf-8")
+        except:
+            return str.encode('UTF-8')
     return None
 
 def parse_out(text, startTag, endTag):

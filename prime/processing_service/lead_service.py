@@ -75,7 +75,7 @@ class LeadService(Service):
         if not self._filter_title(title):
             return False
         salary = max(person.get("glassdoor_salary", 0), person.get("indeed_salary", 0))
-        self.logger.info("Person: %s, Salary: %s, Title: %s", linkedin_data.get("full_name"), salary, title)
+        self.logger.info("Person: %s, Salary: %s, Title: %s", uu(linkedin_data.get("full_name")), salary, uu(title))
         if salary == 0:
             return True
         if salary > self.salary_threshold:

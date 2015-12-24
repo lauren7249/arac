@@ -13,9 +13,8 @@ from random import shuffle
 from boto.s3.key import Key
 from constants import bing_api_keys
 from service import Service, S3SavedRequest
-from prime.prospects.views import uu
 from constants import profile_re, bloomberg_company_re, school_re, company_re, plus_company_re
-from helper import filter_bing_results
+from helper import filter_bing_results, uu
 
 
 class BingService(Service):

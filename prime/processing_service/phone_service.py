@@ -16,15 +16,17 @@ from mapquest_request import MapQuestRequest
 from person_request import PersonRequest
 
 def wrapper(person, favor_mapquest=False):
+    if not person:
+        return person
     if person.get("phone_number") and not favor_mapquest:
         return person
     linkedin_data = person.get("linkedin_data",{})
     current_job = PersonRequest()._current_job(person)
     if not current_job or not current_job.get("company"):
         return person
+    location = MapQuestRequest(linkedin_data.get("location")).process()
+    latlng = location.get("latlng") if location else None
     business_service = MapQuestRequest(current_job.get("company"))
-    location_service = MapQuestRequest(linkedin_data.get("location"))
-    latlng = location_service.process().get("latlng")
     business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
     person.update(business) 
     return person
