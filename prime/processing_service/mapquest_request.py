@@ -55,20 +55,21 @@ class MapQuestRequest(S3SavedRequest):
                 geocode = self._geocode_from_scraps()
             return geocode
         except Exception, e:
-            self.logger.error("Location Error: %s", e)
+            self.logger.error("Location Error: %s", str(e))
             return None
 
     def _get_json_locations(self):
         if not self.html_string:
             self.html_string = self._make_request()
-        if not self.raw_html:
-            self.raw_html = lxml.html.fromstring(self.html_string)
         try:
+            if not self.raw_html:
+                self.raw_html = lxml.html.fromstring(self.html_string)            
             self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
             json_area = parse_out(self.raw_search_results,"m3.dotcom.controller.MCP.boot('dotcom', ","); ")
             json_data = json.loads(json_area)
             self.json_locations = json_data['model']['applications'][0]['state']['locations']
-        except:
+        except Exception, e:
+            self.logger.error("Location Error: %s", str(e))
             return []
         return self.json_locations
 
@@ -197,14 +198,18 @@ class MapQuestRequest(S3SavedRequest):
     def _find_scraps_locations(self):
         if not self.html_string:
             self.html_string = self._make_request()
-        if not self.raw_html:
-            self.raw_html = lxml.html.fromstring(self.html_string)
-        if not self.raw_search_results:
-            self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
-        latlng = re.findall(self.lat_lng_regex, self.raw_search_results)
-        countries = re.findall(self.countries_regex, self.raw_search_results)
-        localities = re.findall(self.localities_regex, self.raw_search_results)
-        regions = re.findall(self.regions_regex, self.raw_search_results)
+        try:
+            if not self.raw_html:
+                self.raw_html = lxml.html.fromstring(self.html_string)
+            if not self.raw_search_results:
+                self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
+            latlng = re.findall(self.lat_lng_regex, self.raw_search_results)
+            countries = re.findall(self.countries_regex, self.raw_search_results)
+            localities = re.findall(self.localities_regex, self.raw_search_results)
+            regions = re.findall(self.regions_regex, self.raw_search_results)
+        except Exception, e:
+            self.logger.error("Location Error: %s", str(e))
+            return [], [], [], []
         if len(latlng) < 2 :
             return [], [], [], []
         latlng = latlng[0:len(latlng)-1]
