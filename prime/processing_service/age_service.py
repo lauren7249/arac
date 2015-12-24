@@ -13,6 +13,17 @@ from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
 from nameko.rpc import rpc
 
+def wrapper(person):
+    req = AgeRequest()
+    linkedin_data = person.get("linkedin_data")
+    dob_range = req._get_dob_year_range(linkedin_data)
+    age = req._get_age(linkedin_data)
+    person["age"] = age
+    if dob_range and len(dob_range)==2:
+        person["dob_min"] = dob_range[0]
+        person["dob_max"] = dob_range[1]
+    return person
+
 class AgeService(Service):
     """
     Expected input is JSON with profile info
@@ -20,27 +31,14 @@ class AgeService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(AgeService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(AgeService, self).__init__(*args, **kwargs)
-
-    def process(self):
-        for person in self.data:
-            req = AgeRequest()
-            linkedin_data = person.get("linkedin_data")
-            dob_range = req._get_dob_year_range(linkedin_data)
-            age = req._get_age(linkedin_data)
-            person["age"] = age
-            if dob_range and len(dob_range)==2:
-                person["dob_min"] = dob_range[0]
-                person["dob_max"] = dob_range[1]
-            self.output.append(person)
-        return self.output
-
 
 class AgeRequest(S3SavedRequest):
 

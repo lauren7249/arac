@@ -16,14 +16,17 @@ from constants import SCRAPING_API_KEY, GLOBAL_HEADERS
 
 from geopy.geocoders import Nominatim
 from geoindex.geo_point import GeoPoint
-from mapquest_service import MapQuestRequest
+from mapquest_request import MapQuestRequest
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(BASE_DIR.replace("/prime", ""))
-sys.path.append(BASE_DIR + "/processing_service")
-
-from convert import parse_html
 GEOLOCATOR = Nominatim()
+
+def wrapper(person):
+    linkedin_data = person.get("linkedin_data",{})
+    location = GeocodeRequest(linkedin_data).process()
+    if location:
+        person["location_coordinates"] = location    
+    return person
+
 class GeoCodingService(Service):
 
     """
@@ -33,24 +36,14 @@ class GeoCodingService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(GeoCodingService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(GeoCodingService, self).__init__(*args, **kwargs)
-
-    def process(self):
-        self.logger.info('Starting Process: %s', 'GeoCodingService')
-        for person in self.data:
-            linkedin_data = person.get("linkedin_data",{})
-            location = GeocodeRequest(linkedin_data).process()
-            if location:
-                person["location_coordinates"] = location
-            self.output.append(person)
-        self.logger.info('Ending Process: %s', 'GeoCodingService')
-        return self.output
 
 class GeocodeRequest(S3SavedRequest):
 

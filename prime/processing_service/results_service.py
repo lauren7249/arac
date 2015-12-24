@@ -1,3 +1,4 @@
+
 import hashlib
 import datetime
 import logging
@@ -154,6 +155,9 @@ class ResultService(Service):
         user = session.query(User).filter_by(email=self.client_data.get("email")).first()
         return user
 
+    def multiprocess(self):
+        return self.process()
+        
     def process(self):
         self.logger.info('Starting Process: %s', 'Result Service')
         user = self._get_user()

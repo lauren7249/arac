@@ -89,11 +89,11 @@ class ProcessingService(Service):
                     service = self.services[key](
                             self.client_data,
                             self.data)
-                output = service.process()
+                output = service.multiprocess()
                 if SAVE_OUTPUTS:
                     save_output(output, self.client_data.get("email"), service.__class__.__name__)
-            if output:
-                print json.dumps(output, sort_keys=True, indent=4)
+            # if output:
+            #     print json.dumps(output, sort_keys=True, indent=4)
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
         env = Environment()
@@ -116,8 +116,8 @@ def save_output(output, user_email, service):
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     data = json.loads(_file.read())
-    shuffle(data)
-    data = data[:9999]
+    #shuffle(data)
+    data = data[:100]
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
                     "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc", "hired":True}  
     logger.info("Input: {}".format(data))

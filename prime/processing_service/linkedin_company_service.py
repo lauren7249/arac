@@ -12,6 +12,19 @@ from service import Service, S3SavedRequest
 from bing_service import BingService
 from constants import GLOBAL_HEADERS
 from services.linkedin_query_api import get_company
+from person_request import PersonRequest
+
+def wrapper(person):
+    current_job = PersonRequest()._current_job(person)
+    if current_job:
+        request = LinkedinCompanyRequest(current_job)
+        data = request.process()
+        if data:
+            #TODO: add more fields
+            person.update({"company_website": data.get("website")})
+            person.update({"company_industry": data.get("industry")})
+            person.update({"company_headquarters": data.get("hq")})
+    return person
 
 class LinkedinCompanyService(Service):
     """
@@ -20,29 +33,15 @@ class LinkedinCompanyService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(LinkedinCompanyService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(LinkedinCompanyService, self).__init__(*args, **kwargs)
-
-    def process(self):
-        self.logger.info('Starting Process: %s', 'Linkedin Company Service')
-        for person in self.data:
-            current_job = self._current_job(person)
-            if current_job:
-                request = LinkedinCompanyRequest(current_job)
-                data = request.process()
-                if data:
-                    #TODO: add more fields
-                    person.update({"company_website": data.get("website")})
-                    person.update({"company_industry": data.get("industry")})
-                    person.update({"company_headquarters": data.get("hq")})
-            self.output.append(person)
-        self.logger.info('Ending Process: %s', 'Linkedin Company Service')
-        return self.output
+        
 
 class LinkedinCompanyRequest(S3SavedRequest):
 

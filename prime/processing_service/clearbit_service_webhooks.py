@@ -13,11 +13,11 @@ from service import Service, S3SavedRequest
 from prime.processing_service.constants import pub_profile_re, CLEARBIT_KEY
 from clearbit_request_webhooks import ClearbitRequest
 
-def unwrap_process_person(person):
+def person_wrapper(person):
     email = person.keys()[0]
     request = ClearbitRequest(email)
     data = request.get_person()
-    return data
+    return {email:data}   
 
 class ClearbitPersonService(Service):
     """
@@ -27,14 +27,15 @@ class ClearbitPersonService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(ClearbitPersonService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = person_wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ClearbitPersonService, self).__init__(*args, **kwargs)
-
+        
     def _merge(self, original_data, output_data):
         for i in xrange(0, len(original_data)):
             original_person = original_data[i].values()[0]
@@ -51,18 +52,6 @@ class ClearbitPersonService(Service):
             output_data[i][output_data[i].keys()[0]]["company"] = original_person.get("company")
         return output_data
 
-    def multiprocess(self, poolsize=5, merge=True):
-        #rate limit is 600/minute
-        self.logger.info('Starting MultiProcess: %s', 'Clearbit Service')
-        pool = multiprocessing.Pool(processes=poolsize)
-        self.output = pool.map(unwrap_process_person, self.data)
-        pool.close()
-        pool.join()
-        if merge:
-            self.output = self._merge(self.data,self.output)
-        self.logger.info('Ending MultiProcess: %s', 'Clearbit Service')
-        return self.output
-
     def _exclude_person(self, person):
         if len(person.values()) > 0 and person.values()[0].get("linkedin_urls"):
             return True
@@ -71,45 +60,49 @@ class ClearbitPersonService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', 'Clearbit Person Service')
         for person in self.data:     
-            email = person.keys()[0]
-            request = ClearbitRequest(email)
-            data = request.get_person()
-            self.output.append({email:data})             
+            person = person_wrapper(person)
+            self.output.append(person)      
         self.output = self._merge(self.data,self.output)
         self.logger.info('Ending Process: %s', 'Clearbit Person Service')
         return self.output
+
+    def multiprocess(self):
+        self.logger.info('Starting MultiProcess: %s', 'Clearbit Person Service')
+        self.pool = multiprocessing.Pool(self.pool_size)
+        output = self.pool.map(self.wrapper, self.data)
+        self.pool.close()
+        self.pool.join()
+        self.output = self._merge(self.data,output)
+        self.logger.info('Ending MultiProcess: %s', 'Clearbit Person Service')
+        return self.output
+
+def phone_wrapper(person, overwrite=False):
+    if (not overwrite and person.get("phone_number")) or (not person.get("company_website")):
+        #logger.info('Skipping clearbit phone service. Phone: %s, website: %s', person.get("phone_number",""), person.get("company_website",""))
+        return person
+    website = person.get("company_website")
+    request = ClearbitRequest(get_domain(website))
+    company = request.get_company()
+    if company.get("phone_number"):
+        person.update({"phone_number": company.get("phone_number")})
+    return person
 
 class ClearbitPhoneService(Service):
     """
     Expected input is JSON with profile info
     Output is going to be company info from clearbit
     rate limit is 600/minute with webhooks
-    TODO: change to webhooks (instead of streaming)
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(ClearbitPhoneService, self).__init__(*args, **kwargs)
         self.data = data
         self.output = []
+        self.wrapper = phone_wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ClearbitPhoneService, self).__init__(*args, **kwargs)
 
-    def process(self, overwrite=False):
-        self.logger.info('Starting Process: %s', 'Clearbit Phone Service')
-        for person in self.data:
-            if (not overwrite and person.get("phone_number")) or (not person.get("company_website")):
-                self.logger.info('Skipping clearbit phone service. Phone: %s, website: %s', person.get("phone_number",""), person.get("company_website",""))
-                self.output.append(person)
-            else:
-                website = person.get("company_website")
-                request = ClearbitRequest(get_domain(website))
-                company = request.get_company()
-                if company.get("phone_number"):
-                    person.update({"phone_number": company.get("phone_number")})
-                self.output.append(person)
-        self.logger.info('Ending Process: %s', 'Clearbit Phone Service')
-        return self.output
 
 
 

@@ -15,14 +15,19 @@ class ExtendedLeadService(LeadService):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
-        super(ExtendedLeadService, self).__init__(client_data, data, *args, **kwargs)  
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)        
+        super(ExtendedLeadService, self).__init__(client_data, data, *args, **kwargs)  
+
+    def multiprocess(self):
+        return self.process()
         
     def process(self):
         self.logger.info('Starting Process: %s', 'Extended Lead Service')
-        self._get_qualifying_info() 
+        self.data = self._get_qualifying_info() 
+        locations = [record.get("location_coordinates",{}).get("latlng") for record in self.data]
+        print locations             
         for person in self.data:
             if not person.get("extended"):
                 person["extended"] = False

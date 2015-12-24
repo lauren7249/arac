@@ -30,6 +30,7 @@ class CloudSpongeService(Service):
         self.data = data
         self.excluded_words = EXCLUDED_EMAIL_WORDS
         self.unique_emails = {}
+        self.output = []
         self.session = session
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -44,6 +45,9 @@ class CloudSpongeService(Service):
             if re.search(regex,contact_email):
                 return False
         return True
+
+    def multiprocess(self):
+        return self.process()
 
     def process(self):
         self.logger.info('Starting Process: %s', 'Cloud Sponge Service')
@@ -86,6 +90,8 @@ class CloudSpongeService(Service):
                                                 "companies": companies,
                                                 "sources": sources}             
         self.session.commit()           
+        for key, value in self.unique_emails.iteritems():
+            self.output.append({key:value})
         self.logger.info('Emails Found: %s', len(self.unique_emails))
-        self.logger.info('Ending Process: %s', 'Cloud Sponge Service')
-        return self.unique_emails
+        self.logger.info('Ending Process: %s', 'Cloud Sponge Service')            
+        return self.output

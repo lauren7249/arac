@@ -2,6 +2,14 @@ import logging
 from service import Service
 from constants import GLOBAL_HEADERS, in_profile_re, pub_profile_re
 from helper import common_institutions
+from person_request import PersonRequest
+import multiprocessing
+
+def wrapper(person):
+    person_profile = person.get("linkedin_data")
+    associated_profiles = PersonRequest()._get_associated_profiles(person_profile)
+    associated_profiles = Service()._dedupe_profiles(associated_profiles)
+    return associated_profiles
 
 class ExtendedProfilesService(Service):
     """
@@ -10,25 +18,23 @@ class ExtendedProfilesService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(ExtendedProfilesService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.intermediate_output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ExtendedProfilesService, self).__init__(*args, **kwargs)
-
-    def process(self):
+    
+    def _collapse(self):
         extended_referrers = {}
-        extended_profiles = []
-        for person in self.data:
+        extended_profiles = []        
+        for i in xrange(0, len(self.data)):
+            person = self.data[i]
+            associated_profiles = self.intermediate_output[i]
             person_profile = person.get("linkedin_data")
-            associated_profiles = self._get_associated_profiles(person_profile)
-            associated_profiles = self._dedupe_profiles(associated_profiles)
-            if not associated_profiles:
-                self.output.append(person)
-                continue
-            #extended_profiles = []
             for associated_profile in associated_profiles:
                 commonality = common_institutions(person_profile, associated_profile)
                 if not commonality:
@@ -42,11 +48,29 @@ class ExtendedProfilesService(Service):
                 referrer["referrer_url"] = person_profile.get("source_url")
                 referrer["referrer_name"] = person_profile.get("full_name")
                 referrers.append(referrer)
-                extended_referrers[associated_profile.get("linkedin_id")] = referrers
-            self.output.append(person)
+                extended_referrers[associated_profile.get("linkedin_id")] = referrers            
         for extended_profile in extended_profiles:
             referrers = extended_referrers.get(extended_profile.get("linkedin_data",{}).get("linkedin_id"),[])
             extended_profile["referrers"] = referrers
             extended_profile["extended"] = True
-            self.output.append(extended_profile)
+            self.output.append(extended_profile)    
+        return self.output
+
+    def multiprocess(self):
+        self.logger.info('Starting MultiProcess: %s', 'ExtendedProfilesService')
+        self.pool = multiprocessing.Pool(self.pool_size)
+        self.intermediate_output = self.pool.map(self.wrapper, self.data)
+        self.pool.close()
+        self.pool.join()
+        self.output = self._collapse() 
+        self.logger.info('Ending MultiProcess: %s', 'ExtendedProfilesService')
+        return self.output
+
+    def process(self):
+        self.logger.info('Starting Process: %s', 'ExtendedProfilesService')
+        for person in self.data:
+            associated_profiles = self.wrapper(person)
+            self.intermediate_output.append(associated_profiles)
+        self.output = self._collapse()
+        self.logger.info('Ending Process: %s', 'ExtendedProfilesService')
         return self.output
