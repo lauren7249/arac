@@ -28,7 +28,7 @@ class BingRequestMaker(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(BingService, self).__init__(*args, **kwargs)
+        super(BingRequestMaker, self).__init__(*args, **kwargs)
 
     def _get_bing_request(self):
         if self.type == "linkedin_school":
