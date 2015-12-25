@@ -64,7 +64,7 @@ class ResultService(Service):
         prospect = get_or_create(self.session, Prospect, linkedin_id=profile.get('linkedin_id').strip())
         for key, value in profile.iteritems():
             if hasattr(Prospect, key):
-                setattr(prospect, key, value)     
+                setattr(prospect, key, value)      
         prospect.updated = datetime.datetime.today()  
         self.session.add(prospect)
         self.session.commit()

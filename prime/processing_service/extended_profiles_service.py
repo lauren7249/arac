@@ -34,6 +34,7 @@ class ExtendedProfilesService(Service):
         extended_profiles = []        
         for i in xrange(0, len(self.data)):
             person = self.data[i]
+            self.output.append(person)
             associated_profiles = self.intermediate_output[i]
             person_profile = person.get("linkedin_data")
             for associated_profile in associated_profiles:

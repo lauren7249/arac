@@ -15,9 +15,6 @@ HIRED = False
 AGENT_SCHOOLS = set()
 
 def wrapper(person):
-    # global HIRED
-    # global AGENT_SCHOOLS
-    # print HIRED
     request = ProfileBuilderRequest(person, HIRED)
     profile = request.process()
     profile = request._get_job_fields(profile, person)

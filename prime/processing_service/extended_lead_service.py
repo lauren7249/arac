@@ -26,8 +26,7 @@ class ExtendedLeadService(LeadService):
     def process(self):
         self.logger.info('Starting Process: %s', 'Extended Lead Service')
         self.data = self._get_qualifying_info() 
-        locations = [record.get("location_coordinates",{}).get("latlng") for record in self.data]
-        print locations             
+        locations = [record.get("location_coordinates",{}).get("latlng") for record in self.data]           
         for person in self.data:
             if not person.get("extended"):
                 person["extended"] = False
