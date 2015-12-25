@@ -31,21 +31,27 @@ class Service(object):
             deduped.append(profile)
         return deduped
 
+    def logstart(self):
+        self.logger.info('Starting Process: %s with %d inputs', self.__class__.__name__, len(self.data))
+
+    def logend(self):
+        self.logger.info('Ending Process: %s with %d outputs', self.__class__.__name__, len(self.output))
+
     def multiprocess(self):
-        self.logger.info('Starting MultiProcess: %s', self.__class__.__name__)
+        self.logstart()
         self.pool = multiprocessing.Pool(self.pool_size)
         self.output = self.pool.map(self.wrapper, self.data)
         self.pool.close()
         self.pool.join()
-        self.logger.info('Ending MultiProcess: %s', self.__class__.__name__)
+        self.logend()
         return self.output
 
     def process(self):
-        self.logger.info('Starting Process: %s', self.__class__.__name__)
+        self.logstart()
         for person in self.data:
             person = self.wrapper(person)
             self.output.append(person)
-        self.logger.info('Ending Process: %s', self.__class__.__name__)
+        self.logend()
         return self.output
 
 

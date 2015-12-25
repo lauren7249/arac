@@ -48,7 +48,7 @@ class PhoneService(Service):
         self.logger = logging.getLogger(__name__)
         
     def multiprocess(self):
-        self.logger.info("PhoneNumber MultiProcess %s", "Starting")
+        self.logstart()
         self.service = BloombergPhoneService(self.client_data, self.data)
         self.data = self.service.multiprocess()
         self.pool = multiprocessing.Pool(self.pool_size)
@@ -57,11 +57,11 @@ class PhoneService(Service):
         self.pool.join()
         self.service = ClearbitPhoneService(self.client_data, self.output)
         self.output = self.service.multiprocess()
-        self.logger.info("PhoneNumber MultiProcess %s", "Ending")
+        self.logend()
         return self.output
 
     def process(self, favor_mapquest=False):
-        self.logger.info("PhoneNumber Service %s", "Starting")
+        self.logstart()
         self.service = BloombergPhoneService(self.client_data, self.data)
         self.data = self.service.process()
         for person in self.data:
@@ -69,5 +69,5 @@ class PhoneService(Service):
             self.output.append(person)
         self.service = ClearbitPhoneService(self.client_data, self.output)
         self.output = self.service.process()
-        self.logger.info("PhoneNumber Service %s", "Ending")
+        self.logend()
         return self.output

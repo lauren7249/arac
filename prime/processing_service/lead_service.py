@@ -32,7 +32,7 @@ class LeadService(Service):
         self.schools = []
         self.salary_threshold = 35000
         self.location_threshhold = 50
-        self.good_leads = []
+        self.output = []
         self.bad_leads = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -124,17 +124,15 @@ class LeadService(Service):
         return salary and location and not same_person and not competitor
         
     def process(self):
-        self.logger.info('Starting Process: %s', 'Lead Service')   
+        self.logstart()
         data = self._get_qualifying_info()         
         for person in data:
             if self._valid_lead(person):
-                self.good_leads.append(person)
+                self.output.append(person)
             else:
                 self.bad_leads.append(person)
-        self.logger.info('Good Leads: %s', len(self.good_leads))
-        self.logger.info('Bad Leads: %s', len(self.bad_leads))
-        self.logger.info('Ending Process: %s', 'Lead Service')
-        return self.good_leads
+        self.logend()
+        return self.output
 
     def multiprocess(self):
         return self.process()

@@ -52,21 +52,25 @@ class ScoringService(Service):
         return self.output
 
     def multiprocess(self):
+        self.logstart()
         self.pool = multiprocessing.Pool(self.pool_size)
         self.output = self.pool.map(self.wrapper, self.data)
         self.pool.close()
         self.pool.join()
-        if not HIRED:
-            return self.output
-        return self.compute_stars()
+        if HIRED:  
+            self.output = self.compute_stars()
+        self.logend()
+        return self.output
 
     def process(self):
+        self.logstart()
         for person in self.data:
             person = self.wrapper(person)
             self.output.append(person)
-        if not HIRED:
-            return self.output
-        return self.compute_stars()
+        if HIRED:  
+            self.output = self.compute_stars()
+        self.logend()
+        return self.output
 
 class WealthScoreRequest(S3SavedRequest):
 

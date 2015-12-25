@@ -159,7 +159,7 @@ class ResultService(Service):
         return self.process()
         
     def process(self):
-        self.logger.info('Starting Process: %s', 'Result Service')
+        self.logstart()
         user = self._get_user()
         if user is None:
             self.logger.error("No user found for %s", self.client_data.get("email"))
@@ -180,5 +180,5 @@ class ResultService(Service):
             self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
         else:
             self.logger.error("NO USER!")
-        self.logger.info('Ending Process: %s', 'Result Service')
+        self.logend()
         return self.output

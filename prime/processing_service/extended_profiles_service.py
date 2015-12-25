@@ -59,20 +59,20 @@ class ExtendedProfilesService(Service):
         return self.output
 
     def multiprocess(self):
-        self.logger.info('Starting MultiProcess: %s', 'ExtendedProfilesService')
+        self.logstart()
         self.pool = multiprocessing.Pool(self.pool_size)
         self.intermediate_output = self.pool.map(self.wrapper, self.data)
         self.pool.close()
         self.pool.join()
         self.output = self._collapse() 
-        self.logger.info('Ending MultiProcess: %s', 'ExtendedProfilesService')
+        self.logend()
         return self.output
 
     def process(self):
-        self.logger.info('Starting Process: %s', 'ExtendedProfilesService')
+        self.logstart()
         for person in self.data:
             associated_profiles = self.wrapper(person)
             self.intermediate_output.append(associated_profiles)
         self.output = self._collapse()
-        self.logger.info('Ending Process: %s', 'ExtendedProfilesService')
+        self.logend()
         return self.output
