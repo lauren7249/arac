@@ -12,15 +12,12 @@ import requests
 from random import shuffle
 from boto.s3.key import Key
 from constants import bing_api_keys
-from service import Service, S3SavedRequest
+from service import S3SavedRequest
 from constants import profile_re, bloomberg_company_re, school_re, company_re, plus_company_re
 from helper import filter_bing_results, uu
 
 
-class BingService(Service):
-    """
-    Expected input is JSON of Linkedin Data
-    """
+class BingRequestMaker(S3SavedRequest):
 
     def __init__(self, name, type, extra_keywords=None, *args, **kwargs):
         self.name = name
@@ -94,11 +91,9 @@ class BingService(Service):
         return filtered
 
     def process(self):
-        self.logger.info('Starting Process: %s', 'Bing Service')
         self.request_object = self._get_bing_request()
         self.results = self.request_object.process()
         clean_results = self._process_results(self.results)
-        self.logger.info('Ending Process: %s', 'Bing Service')
         return clean_results
 
 class BingRequest(S3SavedRequest):

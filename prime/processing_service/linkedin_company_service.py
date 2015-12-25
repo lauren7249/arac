@@ -9,7 +9,7 @@ from requests import HTTPError
 from boto.s3.key import Key
 
 from service import Service, S3SavedRequest
-from bing_service import BingService
+from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from services.linkedin_query_api import get_company
 from person_request import PersonRequest
@@ -65,7 +65,7 @@ class LinkedinCompanyRequest(S3SavedRequest):
     def _get_urls(self):
         if self.urls or not self.company_name:
             return
-        bing = BingService(self.company_name, "linkedin_company")
+        bing = BingRequestMaker(self.company_name, "linkedin_company")
         self.urls = bing.process()
 
     def has_next_url(self):

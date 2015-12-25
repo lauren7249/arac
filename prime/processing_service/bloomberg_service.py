@@ -9,7 +9,7 @@ from requests import HTTPError
 from boto.s3.key import Key
 
 from service import Service, S3SavedRequest
-from bing_service import BingService
+from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from helper import get_domain
 from person_request import PersonRequest
@@ -100,7 +100,7 @@ class BloombergRequest(S3SavedRequest):
     def _get_urls(self):
         if self.urls:
             return
-        self.bing = BingService(self.company, self.query_type)
+        self.bing = BingRequestMaker(self.company, self.query_type)
         self.urls = self.bing.process()
 
     def has_next_url(self):

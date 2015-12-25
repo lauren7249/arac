@@ -31,12 +31,15 @@ class ExtendedProfilesService(Service):
     
     def _collapse(self):
         extended_referrers = {}
-        extended_profiles = []        
+        extended_profiles = []  
+        first_degree_linkedin_ids = set()      
         for i in xrange(0, len(self.data)):
-            person = self.data[i]
-            self.output.append(person)
             associated_profiles = self.intermediate_output[i]
+            person = self.data[i]
             person_profile = person.get("linkedin_data")
+            linkedin_id = person_profile.get("linkedin_id")
+            first_degree_linkedin_ids.add(linkedin_id)
+            self.output.append(person)
             for associated_profile in associated_profiles:
                 commonality = common_institutions(person_profile, associated_profile)
                 if not commonality:
@@ -52,7 +55,10 @@ class ExtendedProfilesService(Service):
                 referrers.append(referrer)
                 extended_referrers[associated_profile.get("linkedin_id")] = referrers            
         for extended_profile in extended_profiles:
-            referrers = extended_referrers.get(extended_profile.get("linkedin_data",{}).get("linkedin_id"),[])
+            extended_linkedin_id = extended_profile.get("linkedin_data",{}).get("linkedin_id")
+            if extended_linkedin_id in first_degree_linkedin_ids:
+                continue
+            referrers = extended_referrers.get(extended_linkedin_id,[])
             extended_profile["referrers"] = referrers
             extended_profile["extended"] = True
             self.output.append(extended_profile)    
