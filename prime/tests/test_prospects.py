@@ -12,7 +12,7 @@ from prime.processing_service.linkedin_service_crawlera import LinkedinService
 from prime.processing_service.linkedin_company_service import LinkedinCompanyService
 from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
-from prime.processing_service.bing_service import BingService
+from prime.processing_service.bing_request import BingRequestMaker
 from prime.processing_service.lead_service import LeadService
 from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService 
 from prime.processing_service.phone_service import PhoneService
@@ -373,7 +373,7 @@ class BingServiceLinkedinCompany(unittest.TestCase):
 
     def setUp(self):
         name = "vy capital"
-        self.service = BingService(name, "linkedin_company")
+        self.service = BingRequestMaker(name, "linkedin_company")
 
     def test_linkedin_company(self):
         expected = "https://www.linkedin.com/company/vy-capital"
@@ -383,11 +383,11 @@ class BingServiceLinkedinCompany(unittest.TestCase):
 class BingServiceBloombergCompany(unittest.TestCase):
 
     def test_bloomberg_company(self):
-        self.service = BingService("farmivore", "bloomberg_company")
+        self.service = BingRequestMaker("farmivore", "bloomberg_company")
         expected = "http://www.bloomberg.com/research/stocks/private/snapshot.asp?privcapId=262829137"
         data = self.service.process()
         assert(expected in data)
-        self.service = BingService("emergence capital partners", "bloomberg_company")
+        self.service = BingRequestMaker("emergence capital partners", "bloomberg_company")
         expected = "http://www.bloomberg.com/research/stocks/private/snapshot.asp?privcapId=4474737"
         data = self.service.process()
         assert(expected in data)
@@ -396,7 +396,7 @@ class BingServiceLinkedinSchool(unittest.TestCase):
 
     def setUp(self):
         name = "marist college"
-        self.service = BingService(name, "linkedin_school")
+        self.service = BingRequestMaker(name, "linkedin_school")
 
     def test_linkedin_school(self):
         expected = "https://www.linkedin.com/edu/school?id=18973"
@@ -406,7 +406,7 @@ class BingServiceLinkedinSchool(unittest.TestCase):
 class BingServiceLinkedinProfile(unittest.TestCase):
 
     def setUp(self):
-        self.service = BingService("arianna huffington","linkedin_profile", extra_keywords="President and Editor-in-Chief at The Huffington Post Media Group")
+        self.service = BingRequestMaker("arianna huffington","linkedin_profile", extra_keywords="President and Editor-in-Chief at The Huffington Post Media Group")
 
     def test_linkedin_profile(self):
         expected = "https://www.linkedin.com/pub/arianna-huffington/40/158/aa7"
@@ -416,7 +416,7 @@ class BingServiceLinkedinProfile(unittest.TestCase):
 class BingServiceLinkedinExtended(unittest.TestCase):
 
     def setUp(self):
-        self.service = BingService("marissa mayer","linkedin_extended_network","Yahoo!, President & CEO")
+        self.service = BingRequestMaker("marissa mayer","linkedin_extended_network","Yahoo!, President & CEO")
 
     def test_linkedin_profile(self):
         #TODO find someone who passes this test
