@@ -113,6 +113,8 @@ class ProfileBuilderRequest(S3SavedRequest):
             self.profile["lat"] = latlng[0]
             self.profile["lng"] = latlng[1]
         self.profile["phone"] = self.person.get("phone_number")
+        self.profile["company_website"] = self.person.get("company_website")
+        self.profile["company_headquarters"] = self.person.get("company_headquarters")
         self.profile["age"] = self.person.get("age")
         self.profile["college_grad"] = self.person.get("college_grad")
         self.profile["gender"] = self.person.get("gender")
