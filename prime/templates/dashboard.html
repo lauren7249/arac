@@ -1,50 +1,129 @@
 {% extends 'base.html' %}
 {% block content %}
-<header>
-  <div class='wrapper'>
-    <img style='width: 100px;' src='{{ static_url() }}img/NewYorkLife.png'>
-    <h2 id="chart_title"></h2>
-    <a href='/leads-ln.html'><button class='button'>View Contacts</button></a>
-    <div class='clear'></div>
-  </div>
-</header>
-
-<header>
-<div class='wrapper' background-color='blue'>
-    <h3>Your Potential Markets are:</h3>
-    <center>
-      <h3 id="industry_icons"></h3>
-    </center> 
-    <div class='clear'>
+<div class="subheader">
+  <div class="wrap">
+    <div class="col-4">
+      <h2>Summary of Brian's Network</h2>
     </div>
-    </header>
-    <br>
-    <div class='wrapper'>
-  <div class='graphs'>
-    <center><h3>Network Breakdown</h3></center>
-    <div class='graph'>
-      <a href="./leads-ln.html"><canvas id='industries'></canvas></a>
-      <h4>Qualified Industry Contacts</h4>
-    </div>
-    <div class='graph'>
-      <a href="./leads-extended.html"><canvas id='schools'></canvas></a>  
-      <h4>Qualified School Contacts</h4>
+    <div class="col-8">
+      <div class="subnav">
+        <ul>
+          <li><a href="#" class="selected">Selected Tab</a></li>
+          <li><a href="#">Request Hiring Screen</a></li>
+          <li><a href="#">Request P200</a></li>
+        </ul>
+      </div>
     </div>
   </div>
-  
-  <div class='graphs'>
-    <center><h3>Qualified Contacts</h3></center>
-    <div class='big-graph'>
-      <a href="./leads-ln.html"><canvas id='connections'></canvas></a>
-    </div>
-  </div>
-  <div class='clear'></div>
-  <div class='network-stats'>
-   <br> <h3>Network Stats</h3>
-    <table id="network_stats">
+</div>  
+<!-- Contact Header Card-->
+<div class="section">
+  <div class="wrap contact-info contact-header-card">
+    <table>
+      <tr>
+        <td>
+          <div class="col-2"><img src="https://s3.amazonaws.com/uifaces/faces/twitter/jsa/128.jpg"/></div>
+          <div class="col-6">
+            <div class="name"> <span>Justin Botelho</span><span class="stars three-star"></span></div>
+            <div class="job">Infrastructure Consultant, Accenture</div>
+            <div class="tags"><span>Cornell University</span><span>Accenture</span><span>Rowing</span><span>Sailing</span><span>Marketing</span></div>
+          </div>
+          <div class="col-4">
+            <div class="contact-links"><a href="#" data-tooltip="25 Financial Services Contacts" class="financial"></a><a href="#" class="facebook"></a><a href="#" class="linkedin"></a><a href="#" class="twitter"></a><a href="#" class="pinterest"></a><a href="#" class="email"></a><a href="#" class="phone"></a><a href="#" class="location"></a><a href="#" class="amazon"></a></div>
+          </div>
+        </td>
+      </tr>
     </table>
   </div>
 </div>
+<!-- Contact Dashboard-->
+<div class="section">
+  <div class="wrap card">
+    <div class="col-6">
+      <div class="network-breakdown">
+        <h1 class="text-center">Network Breakdown</h1><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/graphs-1.png"/>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="qualified-contacts">
+        <h1 class="text-center">Qualified Contacts</h1><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/graphs-2.png"/>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <div class="wrap">
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Potential Markets</h4>
+        </div>
+        <div class="card-body">
+          <div class="potential-markets">
+            <div class="market-1"><span>Real Estate</span></div>
+            <div class="market-2"> <span>Financial Services </span><b>20</b></div>
+            <div class="market-3"><span>Marketing</span></div>
+            <div class="market-4"><span>Health Care</span></div>
+            <div class="market-5"><span>Oil & Energy</span></div>
+            <div class="market-6"><span>Sports</span></div>
+            <div class="market-7"><span>Advertising</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Network Stats</h4>
+        </div>
+        <table class="network-stats">
+          <tr>
+            <td><b>Male</b></td>
+            <td>
+              <div class="text-right">66%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Female</b></td>
+            <td>
+              <div class="text-right">34%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>College Degree</b></td>
+            <td>
+              <div class="text-right">96%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Average Income Score</b></td>
+            <td>
+              <div class="text-right">64/100</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Average Age</b></td>
+            <td>
+              <div class="text-right">32</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>  
+<!-- Footer-->
+<footer>
+  <div class="wrap">
+    <div class="col-6">
+      <div class="copyright">&copy; 2016 AdvisorConnect</div>
+      <div class="footer-links"><span><a href="#">Help</a></span><span><a href="#">FAQs</a></span><span><a href="#">Contact</a></span><span><a href="#">About</a></span></div>
+    </div>
+    <div class="col-6 text-right">
+      <div class="footer-logo"></div>
+    </div>
+  </div>
+</footer>
 <script type='text/javascript'>
 ($(function(){
 

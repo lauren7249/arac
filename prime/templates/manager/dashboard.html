@@ -9,83 +9,56 @@
     <button id='send' class='button primary big'><i class='fa fa-paper-plane-o'></i> Send Invitation</button><button id='close' class='button danger big'><i class='fa fa-ban'></i> Cancel</button>
   </div>
 </div>
-<div id='manager-dashboard'>
-  <div class='wrapper'>
-    <h1>Welcome to your dashboard, {{ current_user.first_name }} <button id='invite' class='button'><i class='fa fa-users'></i> Invite New Agent</button></h1>
-    {% if agent_count > 0 %}
-    <div class='panel'>
-      <h3>25</h3>
-      <p>Active Agents</p>
+  <div class="subheader">
+    <div class="wrap">
+      <div class="col-4">
+        <h2>Manager Dashboard</h2>
+      </div>
+      <div class="col-8">
+        <div class="subnav">
+          <ul>
+            <li><a href="#" class="selected">Selected Tab</a></li>
+            <li><a href="#">Request Hiring Screen</a></li>
+            <li><a href="#">Request P200</a></li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class='panel'>
-      <h3>15,000</h3>
-      <p>Prospects Analyzed</p>
-    </div>
-    <div class='panel'>
-      <h3>1500</h3>
-      <p>Average Agent Network Size</p>
-    </div>
-    <div class='panel'>
-      <h3>77/100</h3>
-      <p>Average Income Score</p>
-    </div>
-    <div class='panel'>
-      <h3>77%</h3>
-      <p>College Degrees</p>
-    </div>
-    <div class='panel'>
-      <h3>36</h3>
-      <p>Average Age</p>
-    </div>
-    <div class='panel'>
-      <h3>55%</h3>
-      <p>Male</p>
-    </div>
-    <div class='panel'>
-      <h3>45%</h3>
-      <p>Female</p>
-    </div>
-    {% endif %}
   </div>
-</div>
-<div id='manager'>
-  <div class='wrapper'>
-    <h2>Your Agents</h2>
-    <table>
-      <tr>
-        <th>Select</th>
-        <th>Name</th>
-        <th>Invited</th>
-        <th>Status</th>
-        <th>Network Size</th>
-        <th>Average Age</th>
-        <th>College Degree</th>
-        <th>Gender</th>
-        <th>p200 List</th>
-      </tr>
-      {% if agent_count < 1 %}
-      <tr>
-        <td colspan='7'><h4>Add some agents to get started!</h4></td>
-      </tr>
-      {% else %}
-      {% for agent in agents %}
-      <tr>
-        <td><input type='checkbox' /></td>
-        <td>
-          <h3>{{ agent.first_name }}</h3>
-          <p><a href='mailto:jamesjohnson11@gmail.com'>{{ agent.email }}</a></p>
-        </td>
-        <td>{{ agent.created }}</td>
-        <td>{% if not agent.client_prospects %}<div class='status green'>Delivered</div>{% else %}<div class='status green'>Completed</div>{% endif %}</td>
-        <td>{{ agent.network_size }}</td>
-        <td>{{ agent.average_age }}</td>
-        <td>{{ agent.college_percentage }}</td>
-        <td>{{ agent.male_percentage }} %M<br/>{{ agent.female_percentage }} %F</td>
-        <td><button class='button'>View p200</button></td>
-      </tr>
-      {% endfor %}
-      {% endif %}
-    </table>
+  <div class="section">
+    <div class="wrap"> 
+      <table class="manager-dashboard">
+        <thead>
+          <th>Agent</th>
+          <th>Primary Network</th>
+          <th>Extended Network</th>
+          <th>Total Network</th>
+          <th>Avg Income Score</th>
+          <th>Avg Age</th>
+          <th class="completed">Completed</th>
+        </thead>
+        <tbody>
+        <tr>
+        </tr>
+        {% if agent_count < 1 %}
+        <tr>
+          <td colspan='7'><h4>Add some agents to get started!</h4></td>
+        </tr>
+        {% else %}
+        {% for agent in agents %}
+        <tr>
+          <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}</span></td>
+          <td>64</td>
+          <td>720</td>
+          <td>784</td>
+          <td>48/100</td>
+          <td>34</td>
+          <td class="completed yes"></td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+        </tbody>
+      </table>
   </div>
 </div>
 <script type='text/javascript'>

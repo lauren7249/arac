@@ -40,26 +40,28 @@
     </script>
   </head>
   <body>
-  <div class="navbar navbar-default">
-    <div class="navbar-header">
-      <div class='wrapper'>
-        <div class='logo'>
-          <a id='header' class="navbar-brand active" href="/">
-            <img src='{{ static_url() }}img/AC_logo.png' />
-          </a>
-        </div>
-        {% if not current_user.is_anonymous() %}
-        <div id='settings' data-linkedin='{{ current_user.linkedin_url }}' data-id='{{ current_user.user_id }}' class="navbar-brand active pull-right" href="/">{{ current_user.name }} <i class='fa fa-cog'></i>
-          <div class='autocomplete'>
-            <ul>
-              <li><a href='/auth/logout'>Logout</a></li>
-            </ul>
-          </div>
-        </div>
+  <header>
+    <div class="wrap">
+      <div class="col-6">
+        <div class="header-logo"></div>
+      </div>
+      <div class="col-6">
+        {% if current_user.is_authenticated() %}
+        <div class="nav-right text-right">
+          <span><div class="contacts-left">300 Contacts Left</div></span>
+          <span><div id='settings'><a class="user">{{ current_user.name }}</a>
+              <div class='autocomplete'>
+                <ul>
+                  <li><a href='/auth/logout'>Logout</a></li>
+                </ul>
+              </div>
+            </div>
+          </span>
+          <span style="background-image:url(https://s3.amazonaws.com/uifaces/faces/twitter/davidburlton/128.jpg)" class="face"></span></div>
         {% endif %}
       </div>
     </div>
-  </div>
+  </header>
     {% block content %}{% endblock %}
     </body>
 </html>
