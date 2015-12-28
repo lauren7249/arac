@@ -5,7 +5,7 @@ import time
 import sys
 import os
 import pandas
-from helper import name_match
+from helper import name_match, sort_social_accounts
 from service import Service, S3SavedRequest
 from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS
 from url_validator import UrlValidatorRequest
@@ -38,7 +38,7 @@ class ProfileBuilderService(Service):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         person = PersonRequest()._get_profile_by_any_url(self.client_data.get("url"))
-        schools = person.get("schools")
+        schools = person.get("schools",[])
         AGENT_SCHOOLS = set([school.get("college") for school in schools])
 
 class ProfileBuilderRequest(S3SavedRequest):
@@ -97,12 +97,11 @@ class ProfileBuilderRequest(S3SavedRequest):
     def _get_social_fields(self, social_accounts):      
         if not social_accounts:
             return self.profile
+        social_accounts = sort_social_accounts(social_accounts)
+        self.profile.update(social_accounts)
         self.profile["social_accounts"] = []
-        for link in social_accounts: 
-            domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
-            if domain in SOCIAL_DOMAINS: 
-                self.profile[domain] = link
-                self.profile["social_accounts"].append(link)
+        for link in social_accounts.values():
+            self.profile["social_accounts"].append(link)
         return self.profile 
 
     def _get_person_fields(self):     
