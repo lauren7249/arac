@@ -50,7 +50,7 @@ def init_admin(app):
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/gh-buttons.css', 'css/chosen.css', 'css/main.css',
+    css = Bundle('css/gh-buttons.css', 'css/chosen.css', 'css/app.css', 'css/main.css',
                  output='css/gen/main.%(version)s-min.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)
