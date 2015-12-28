@@ -11,7 +11,6 @@ from boto.s3.key import Key
 import datetime
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
-from nameko.rpc import rpc
 
 def wrapper(person):
     req = AgeRequest()

@@ -6,7 +6,7 @@ from prime.processing_service.clearbit_service_webhooks import ClearbitPersonSer
 from prime.processing_service.helper import sort_social_accounts, flatten
 
 inpath = "~/arachnid/aweber_intro_export.csv"
-outpath = "~/arachnid/aweber_output.csv"
+outpath = "aweber_output.csv"
 N_ROWS = 99999
 
 def get_id_columns(inpath):
