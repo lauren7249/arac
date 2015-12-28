@@ -27,7 +27,7 @@ class MapQuestRequest(S3SavedRequest):
 
     def __init__(self, query):
         super(MapQuestRequest, self).__init__()
-        self.url = "https://www.mapquest.com/?q={}".format(query)
+        self.url = "https://www.mapquest.com/?q=" + query
         self.query = query
         self.headers = GLOBAL_HEADERS
         self.unresolved_locations = []
@@ -55,20 +55,21 @@ class MapQuestRequest(S3SavedRequest):
                 geocode = self._geocode_from_scraps()
             return geocode
         except Exception, e:
-            self.logger.error("Location Error: %s", e)
+            self.logger.error("Location Error: %s", str(e))
             return None
 
     def _get_json_locations(self):
         if not self.html_string:
             self.html_string = self._make_request()
-        if not self.raw_html:
-            self.raw_html = lxml.html.fromstring(self.html_string)
         try:
+            if not self.raw_html:
+                self.raw_html = lxml.html.fromstring(self.html_string)            
             self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
             json_area = parse_out(self.raw_search_results,"m3.dotcom.controller.MCP.boot('dotcom', ","); ")
             json_data = json.loads(json_area)
             self.json_locations = json_data['model']['applications'][0]['state']['locations']
-        except:
+        except Exception, e:
+            self.logger.error("Location Error: %s", str(e))
             return []
         return self.json_locations
 
@@ -80,17 +81,19 @@ class MapQuestRequest(S3SavedRequest):
             business.update({"phone_number":record.get("phone")})
         if record.get("website"):
             business.update({"company_website":record.get("website")})
-        if record.get("address",{}).get("singleLineAddress"):
-            business.update({"company_address":record.get("address",{}).get("singleLineAddress")})
+        if record.get("address") and isinstance(record.get("address"),dict) and record.get("address").get("singleLineAddress"):
+            business.update({"company_address":record.get("address").get("singleLineAddress")})
         if self._find_lat_lng(record):
             business.update({"company_latlng": self._find_lat_lng(record)})
-        if record.get("inputQuery",{}).get("categories"):
-            business.update({"business_categories":record.get("inputQuery",{}).get("categories")})
+        if record.get("inputQuery") and isinstance(record.get("inputQuery"), dict) and record.get("inputQuery").get("categories"):
+            business.update({"business_categories":record.get("inputQuery").get("categories")})
         return business
 
     def get_business(self, website=None, latlng=None, threshold_miles=75):
         unresolved = self._get_unresolved_locations()
         for record in unresolved:
+            if not record:
+                continue
             _website = record.get("website")
             _name = record.get("name")
             if _website and website and domain_match(_website, website):
@@ -113,6 +116,8 @@ class MapQuestRequest(S3SavedRequest):
         if not self.json_locations:
             self._get_json_locations()
         for location in self.json_locations:
+            if not location:
+                continue
             unresolved = location.get("unresolvedLocations")
             if unresolved:
                 for u in unresolved:
@@ -125,13 +130,16 @@ class MapQuestRequest(S3SavedRequest):
         regions = []
         countries = []
         for location in self.json_locations:
+            if not location:
+                continue
             address = location.get("address")
             lat, lng = self._find_lat_lng(location)
             if lat and lng:
                 coords.append(GeoPoint(lat,lng))
-                regions.append(address.get("regionLong"))
-                localities.append(address.get("locality"))
-                countries.append(address.get("countryLong"))
+                if address:
+                    regions.append(address.get("regionLong"))
+                    localities.append(address.get("locality"))
+                    countries.append(address.get("countryLong"))
         main_locality = most_common(localities)
         main_region = most_common(regions)
         main_country = most_common(countries)
@@ -150,7 +158,9 @@ class MapQuestRequest(S3SavedRequest):
         return {}
 
     def _find_lat_lng(self, location):
-        latlng = location.get("address", {}).get("latLng", {})
+        if not location or not location.get("address"):
+            return None, None
+        latlng = location.get("address").get("latLng", {})
         lat = latlng.get("lat")
         lng = latlng.get("lng")
         if not lat or not lng:
@@ -188,14 +198,18 @@ class MapQuestRequest(S3SavedRequest):
     def _find_scraps_locations(self):
         if not self.html_string:
             self.html_string = self._make_request()
-        if not self.raw_html:
-            self.raw_html = lxml.html.fromstring(self.html_string)
-        if not self.raw_search_results:
-            self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
-        latlng = re.findall(self.lat_lng_regex, self.raw_search_results)
-        countries = re.findall(self.countries_regex, self.raw_search_results)
-        localities = re.findall(self.localities_regex, self.raw_search_results)
-        regions = re.findall(self.regions_regex, self.raw_search_results)
+        try:
+            if not self.raw_html:
+                self.raw_html = lxml.html.fromstring(self.html_string)
+            if not self.raw_search_results:
+                self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
+            latlng = re.findall(self.lat_lng_regex, self.raw_search_results)
+            countries = re.findall(self.countries_regex, self.raw_search_results)
+            localities = re.findall(self.localities_regex, self.raw_search_results)
+            regions = re.findall(self.regions_regex, self.raw_search_results)
+        except Exception, e:
+            self.logger.error("Location Error: %s", str(e))
+            return [], [], [], []
         if len(latlng) < 2 :
             return [], [], [], []
         latlng = latlng[0:len(latlng)-1]
@@ -217,4 +231,4 @@ class MapQuestRequest(S3SavedRequest):
         if self.html_string:
             geocode = self._find_location_coordinates()
             return geocode
-        return None
+        return {}

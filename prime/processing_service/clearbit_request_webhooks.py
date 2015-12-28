@@ -41,6 +41,8 @@ class ClearbitRequest(S3SavedRequest):
 
     def _make_request(self, type):
         entity = {}
+        if not self.query:
+            return entity
         self.key = hashlib.md5("clearbit" + type + self.query).hexdigest()
         key = Key(self.bucket)
         key.key = self.key
@@ -63,16 +65,18 @@ class ClearbitRequest(S3SavedRequest):
             entity.pop('response', None)
             key.content_type = 'text/html'
             key.set_contents_from_string(json.dumps(entity))
+        entity.pop("id",None)
+        entity.pop("fuzzy",None)
         return entity
 
 
-    def _social_accounts(self, clearbit_json):
+    def _social_accounts(self):
         social_accounts = []
-        if not clearbit_json:
+        if not self.clearbit_json:
             return social_accounts
-        for key in clearbit_json.keys():
-            if isinstance(clearbit_json[key], dict) and clearbit_json[key].get('handle'):
-                handle = clearbit_json[key].get("handle")
+        for key in self.clearbit_json.keys():
+            if isinstance(self.clearbit_json[key], dict) and self.clearbit_json[key].get('handle'):
+                handle = self.clearbit_json[key].pop("handle")
                 if key=='angellist':
                     link = "https://angel.co/" + handle
                 elif key=='foursquare':
@@ -93,13 +97,13 @@ class ClearbitRequest(S3SavedRequest):
                 social_accounts.append(link)
         return social_accounts
 
-    def _images(self, clearbit_json):
+    def _images(self):
         images = []
-        if not clearbit_json:
+        if not self.clearbit_json:
             return images
-        for key in clearbit_json.keys():
-            if isinstance(clearbit_json[key], dict) and clearbit_json[key].get('avatar'):
-                avatar = clearbit_json[key].get("avatar")
+        for key in self.clearbit_json.keys():
+            if isinstance(self.clearbit_json[key], dict) and self.clearbit_json[key].get('avatar'):
+                avatar = self.clearbit_json[key].pop("avatar")
                 images.append(avatar)
         return images
 
@@ -112,20 +116,20 @@ class ClearbitRequest(S3SavedRequest):
 
     def get_person(self):
         self.logger.info('Clearbit Person Request: %s', 'Starting')
-        clearbit_json = self._make_request("person")
-        social_accounts = self._social_accounts(clearbit_json)
+        self.clearbit_json = self._make_request("person")
+        social_accounts = self._social_accounts()
         linkedin_url = self._linkedin_url(social_accounts)
-        images = self._images(clearbit_json)
+        images = self._images()
         data = {"social_accounts": social_accounts,
                 "linkedin_urls": linkedin_url,
                 "images": images,
-                "clearbit_fields": clearbit_json}
-        if clearbit_json and clearbit_json.get("gender"):
-            data["gender"] = clearbit_json.get("gender")
+                "clearbit_fields": self.clearbit_json}
+        if self.clearbit_json and self.clearbit_json.get("gender"):
+            data["gender"] = self.clearbit_json.pop("gender")
         return data
 
     def get_company(self):
         self.logger.info('Clearbit Company Request: %s', 'Starting')
         response = {}
-        clearbit_json = self._make_request("company")
-        return {"phone_number": clearbit_json.get('phone'), "clearbit_fields":clearbit_json}
+        self.clearbit_json = self._make_request("company")
+        return {"phone_number": self.clearbit_json.get('phone'), "clearbit_fields":self.clearbit_json}

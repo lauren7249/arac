@@ -17,6 +17,7 @@ new_redis_dbname=0
 new_redis_port=6379
 new_redis_password='d78bde1a8e50bd337323fdfcda13dcbd'
 
+facebook_re = '^https*?://(www.)*facebook.com/(_/people/)*[^/]+'
 pub_profile_re = '^https*?://(www.)*linkedin.com/pub(?!/dir/)(/.*)+'
 in_profile_re = '^https*?://(www.)*linkedin.com/in/.*'
 profile_re = '(' + pub_profile_re + ')|(' + in_profile_re +')'
@@ -24,6 +25,7 @@ bloomberg_company_re = '^http://www.bloomberg.com/research/stocks/private/snapsh
 plus_company_re = '^https://plus.google.com/[0-9a-zA-Z]+/about'
 school_re = '^https://www.linkedin.com/edu/*'
 company_re = '^https://www.linkedin.com/company/*'
+email_re = '[^@]+@[^@]+\.[^@]+'
 
 SOCIAL_DOMAINS = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel","foursquare","github","flickr"]
 #image processing -- 1K calls/day

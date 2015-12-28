@@ -5,6 +5,18 @@ import requests
 import lxml.html
 
 from service import Service, S3SavedRequest
+from person_request import PersonRequest
+def wrapper(person):
+    linkedin_data = person.get("linkedin_data",{})
+    current_job = PersonRequest()._current_job(person)
+    if current_job:
+        title = current_job.get("title")
+        location = current_job.get("location")
+        request = IndeedRequest(title, location)
+        salary = request.process()
+        if salary:
+            person.update({"indeed_salary": salary})   
+    return person
 
 class IndeedService(Service):
     """
@@ -12,30 +24,14 @@ class IndeedService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(IndeedService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(IndeedService, self).__init__(*args, **kwargs)
-
-    def process(self):
-        self.logger.info('Starting Process: %s', 'Indeed Service')
-        for person in self.data:
-            linkedin_data = person.get("linkedin_data",{})
-            current_job = self._current_job(person)
-            if current_job:
-                title = current_job.get("title")
-                location = current_job.get("location")
-                request = IndeedRequest(title, location)
-                salary = request.process()
-                if salary:
-                    person.update({"indeed_salary": salary})
-            self.output.append(person)
-        self.logger.info('Ending Process: %s', 'Indeed Service')
-        return self.output
-
 
 class IndeedRequest(S3SavedRequest):
 

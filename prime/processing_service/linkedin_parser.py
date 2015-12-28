@@ -40,7 +40,7 @@ def main():
         file = open(filename, 'r').read()
         html = json.loads(file).get("content")
         results =  parse_html(html)
-        print results
+        #print results
         #print "File:{0}, Jobs: {1}, Schools:{2}".format(filename,\
         #        len(results.get("experiences", 0)),
         #        len(results.get("schools", 0)))
@@ -99,7 +99,7 @@ def find_images():
         html = json.loads(file).get("content")
         if parse_images(html):
             exists += 1
-    print "Attempted: {} Exists: {}".format(count, exists)
+    #print "Attempted: {} Exists: {}".format(count, exists)
 
 
 def is_profile_link(link):

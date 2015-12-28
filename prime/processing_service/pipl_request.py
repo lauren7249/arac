@@ -38,6 +38,8 @@ class PiplRequest(S3SavedRequest):
         
 
     def _build_url(self):
+        if not self.query:
+            return
         if self.type == 'email':
             url = self.api_url + "&email=" + self.query
         elif self.type in ["facebook","linkedin"]:

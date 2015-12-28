@@ -13,6 +13,11 @@ from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
 from helper import parse_date
 
+def wrapper(person):
+    college_grad = CollegeDegreeRequest()._has_college_degree(person.get("linkedin_data",{}))
+    person["college_grad"] = college_grad    
+    return person
+
 class CollegeDegreeService(Service):
     """
     Expected input is JSON with profile info
@@ -20,25 +25,25 @@ class CollegeDegreeService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(CollegeDegreeService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(CollegeDegreeService, self).__init__(*args, **kwargs)
 
-    def process(self):
-        for person in self.data:
-            college_grad = self._has_college_degree(person.get("linkedin_data",{}))
-            person["college_grad"] = college_grad
-            self.output.append(person)
-        return self.output
+class CollegeDegreeRequest(S3SavedRequest):
+
+    def __init__(self):
+        super(CollegeDegreeRequest, self).__init__()
+        self.logger = logging.getLogger(__name__)
 
     def _has_college_degree(self, person):
         for school in person.get("schools",[]):
             #it's a high school so lets move on
-            if school.get("college").lower().find("high school") > -1:
+            if school.get("college") and school.get("college").lower().find("high school") > -1:
                 continue
             #still in school; hasnt earned degree
             if school.get("end_date") == "Present":

@@ -1,3 +1,4 @@
+
 import hashlib
 import datetime
 import logging
@@ -29,7 +30,6 @@ class ResultService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
         self.client_data = client_data
-        self.good_leads = data
         self.session = session
         self.data = data
         self.output = []
@@ -63,7 +63,7 @@ class ResultService(Service):
         prospect = get_or_create(self.session, Prospect, linkedin_id=profile.get('linkedin_id').strip())
         for key, value in profile.iteritems():
             if hasattr(Prospect, key):
-                setattr(prospect, key, value)     
+                setattr(prospect, key, value)      
         prospect.updated = datetime.datetime.today()  
         self.session.add(prospect)
         self.session.commit()
@@ -154,13 +154,16 @@ class ResultService(Service):
         user = session.query(User).filter_by(email=self.client_data.get("email")).first()
         return user
 
+    def multiprocess(self):
+        return self.process()
+        
     def process(self):
-        self.logger.info('Starting Process: %s', 'Result Service')
+        self.logstart()
         user = self._get_user()
         if user is None:
             self.logger.error("No user found for %s", self.client_data.get("email"))
             return None
-        for profile in self.good_leads:
+        for profile in self.data:
             prospect = self._create_or_update_prospect(profile)
             if not prospect:
                 self.logger.error("no prospect %s", json.dumps(profile))
@@ -176,5 +179,5 @@ class ResultService(Service):
             self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
         else:
             self.logger.error("NO USER!")
-        self.logger.info('Ending Process: %s', 'Result Service')
+        self.logend()
         return self.output

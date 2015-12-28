@@ -9,9 +9,26 @@ from requests import HTTPError
 from boto.s3.key import Key
 
 from service import Service, S3SavedRequest
-from bing_service import BingService
+from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from helper import get_domain
+from person_request import PersonRequest
+
+def wrapper(person):
+    company_website = person.get("company_website")
+    company_domain = get_domain(company_website)
+    request = BloombergRequest(None)
+    phone = request._get_phone_from_website(company_domain)   
+    if phone:
+        person["phone_number"]= phone
+    else:
+        company = PersonRequest()._current_job(person).get("company")
+        phone, website = request._get_phone_from_name(company, company_domain)
+        if phone:
+            person["phone_number"]= phone
+        if website:
+            person["company_website"] = website    
+    return person
 
 class BloombergPhoneService(Service):
     """
@@ -20,66 +37,15 @@ class BloombergPhoneService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(BloombergPhoneService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
+        self.wrapper = wrapper
         self.output = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(BloombergPhoneService, self).__init__(*args, **kwargs)
-
-    def _get_phone_from_website(self, company_domain):
-        if not company_domain:
-            return None
-        request = BloombergRequest(company_domain.split(".")[0], query_type="bloomberg_website")
-        while request.has_next_url():
-            data = request.process_next()
-            phone = data.get("phone")
-            website = data.get("website")
-            #if we already know the website and it does not match, keep trying other bloomberg pages
-            if website and company_domain == get_domain(website) and phone: 
-                return phone
-        return None   
-
-    def _get_phone_from_name(self, company, company_domain):
-        phone = None
-        website = None
-        if not company:
-            return phone, website
-        request = BloombergRequest(company)
-        while request.has_next_url():
-            data = request.process_next()
-            phone = data.get("phone")
-            website = data.get("website")
-            #if we already know the website and it does not match, keep trying other bloomberg pages
-            if company_domain and website and company_domain != get_domain(website): 
-                phone = None
-                website = None
-                continue
-            #found phone and website matches, we are done
-            if phone:
-                return phone, website
-        return phone, website 
-
-    def process(self):
-        self.logger.info('Starting Process: %s', 'Bloomberg Service')
-        for person in self.data:
-            company_website = person.get("company_website")
-            company_domain = get_domain(company_website)
-            phone = self._get_phone_from_website(company_domain)   
-            if phone:
-                person["phone_number"]= phone
-            else:
-                company = self._current_job(person).get("company")
-                phone, website = self._get_phone_from_name(company, company_domain)
-                if phone:
-                    person["phone_number"]= phone
-                if website:
-                    person["company_website"] = website
-            self.output.append(person)
-        self.logger.info('Ending Process: %s', 'Bloomberg Service')
-        return self.output
-
+        
 class BloombergRequest(S3SavedRequest):
 
     """
@@ -96,10 +62,45 @@ class BloombergRequest(S3SavedRequest):
         self.index = 0
         super(BloombergRequest, self).__init__()
 
+    def _get_phone_from_website(self, company_domain):
+        if not company_domain:
+            return None
+        self.company = company_domain.split(".")[0]
+        self.query_type = "bloomberg_website"
+        while self.has_next_url():
+            data = self.process_next()
+            phone = data.get("phone")
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if website and company_domain == get_domain(website) and phone: 
+                return phone
+        return None   
+
+    def _get_phone_from_name(self, company, company_domain):
+        phone = None
+        website = None
+        if not company:
+            return phone, website
+        self.company = company
+        self.query_type = "bloomberg_company"
+        while self.has_next_url():
+            data = self.process_next()
+            phone = data.get("phone")
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if company_domain and website and company_domain != get_domain(website): 
+                phone = None
+                website = None
+                continue
+            #found phone and website matches, we are done
+            if phone:
+                return phone, website
+        return phone, website 
+
     def _get_urls(self):
         if self.urls:
             return
-        self.bing = BingService(self.company, self.query_type)
+        self.bing = BingRequestMaker(self.company, self.query_type)
         self.urls = self.bing.process()
 
     def has_next_url(self):
@@ -123,7 +124,10 @@ class BloombergRequest(S3SavedRequest):
         return info
 
     def parse_company_snapshot(self,content):
-        raw_html = lxml.html.fromstring(content)
+        try:
+            raw_html = lxml.html.fromstring(content)
+        except:
+            return {}
         try:
             name = raw_html.find(".//*[@itemprop='name']").text_content()
         except:

@@ -5,6 +5,17 @@ import requests
 import lxml.html
 
 from service import Service, S3SavedRequest
+from person_request import PersonRequest
+
+def wrapper(person):
+    linkedin_data = person.get("linkedin_data",{})
+    current_job = PersonRequest()._current_job(person)
+    if current_job:
+        request = GlassdoorRequest(current_job.get("title"))
+        salary = request.process()
+        if salary:
+            person.update({"glassdoor_salary": salary})   
+    return person
 
 class GlassdoorService(Service):
     """
@@ -12,29 +23,16 @@ class GlassdoorService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(GlassdoorService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.pool_size = 20
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(GlassdoorService, self).__init__(*args, **kwargs)
-
-    def process(self):
-        self.logger.info('Starting Process: %s', 'Glass Door Service')
-        for person in self.data:
-            linkedin_data = person.get("linkedin_data",{})
-            current_job = self._current_job(person)
-            if current_job:
-                request = GlassdoorRequest(current_job.get("title"))
-                salary = request.process()
-                if salary:
-                    person.update({"glassdoor_salary": salary})
-            self.output.append(person)
-        self.logger.info('Ending Process: %s', 'Glass Door Service')
-        return self.output
-
-
+        
 class GlassdoorRequest(S3SavedRequest):
 
     """

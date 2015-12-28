@@ -169,7 +169,7 @@ class ClientProspect(db.Model):
     created = db.Column(DateTime, default=datetime.datetime.today())
     updated = db.Column(DateTime)
 
-    extended = db.Column(Boolean)
+    extended = db.Column(Boolean, default=False)
     referrers = db.Column(JSONB, default=[])
     lead_score = db.Column(Integer)
     stars = db.Column(Integer)
