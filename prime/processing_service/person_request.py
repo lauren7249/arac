@@ -58,7 +58,7 @@ class PersonRequest(object):
         current_job = self._get_current_job_from_experiences(linkedin_data)
         if current_job.get("end_date") == "Present":
             return current_job
-        end_date = dateutil.parser.parse(current_job.get("end_date")) if \
+        end_date = dateutil.parser.parse(current_job.get("end_date"), default=DEFAULT_DATE) if \
         current_job.get("end_date") else None
         if not end_date or end_date.date() >= datetime.date.today():
             return current_job
