@@ -5,10 +5,13 @@ import boto
 import dateutil
 import datetime
 from boto.s3.key import Key
+import re
 from helper import uu
-from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
+from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS, CODER_ALIASES
 from services.linkedin_query_api import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
+
+DEFAULT_DATE = dateutil.parser.parse('January 1')
 
 class PersonRequest(object):
 
@@ -31,9 +34,25 @@ class PersonRequest(object):
                 start_date_jobs = [job for job in jobs if job.get("start_date")]
             if len(start_date_jobs) == 0:
                 return jobs[0]
-            return sorted(start_date_jobs, key=lambda x:dateutil.parser.parse(x.get("start_date")), reverse=True)[0]
+            return sorted(start_date_jobs, key=lambda x:dateutil.parser.parse(x.get("start_date"), default=DEFAULT_DATE), reverse=True)[0]
         return {}
 
+    def is_programmer(self, linkedin_data):
+        programmer_points = 0
+        current_job = self._current_job_linkedin(linkedin_data)
+        # if not current_job:
+        #     return False
+        title = current_job.get("title","")
+        # if not title:
+        #     return False
+        title = re.sub("[^a-z\s]","", title.lower())
+        # if not title:
+        #     return False
+        for alias in CODER_ALIASES:
+            if title.find(alias)>-1:
+                programmer_points+=1       
+
+ 
     def _current_job_linkedin(self, linkedin_data):
         job = {}
         current_job = self._get_current_job_from_experiences(linkedin_data)
