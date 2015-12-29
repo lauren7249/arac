@@ -7,7 +7,7 @@ import datetime
 from boto.s3.key import Key
 import re
 from helper import uu
-from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS, CODER_ALIASES
+from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS, CODER_WORDS
 from services.linkedin_query_api import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
 
@@ -48,7 +48,7 @@ class PersonRequest(object):
         title = re.sub("[^a-z\s]","", title.lower())
         # if not title:
         #     return False
-        for alias in CODER_ALIASES:
+        for alias in CODER_WORDS:
             if title.find(alias)>-1:
                 programmer_points+=1       
 
