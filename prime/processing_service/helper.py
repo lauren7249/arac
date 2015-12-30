@@ -110,12 +110,6 @@ def filter_bing_results(results, limit=100, url_regex=".", exclude_terms_from_ti
         if limit == len(filtered): return filtered
     return filtered
 
-def convert_date(date):
-    try:
-        return parser.parse(date, default=datetime.date(1979,1,1))
-    except:
-        return None
-
 def get_domain(website):
     if website is None:
         return None
