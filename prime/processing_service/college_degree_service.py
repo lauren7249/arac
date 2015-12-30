@@ -56,7 +56,7 @@ class CollegeDegreeRequest(S3SavedRequest):
             else:
                 degree = None
             if degree is not None:
-                clean_degree = re.sub('[^0-9a-z\s]','',degree.lower())
+                clean_degree = re.sub('[^0-9a-z\s]','',degree.lower().strip())
                 if re.search('^bs($|\s)', clean_degree) or re.search('^ba($|\s)', clean_degree) or re.search('^ab($|\s)', clean_degree) or re.search('^bachelor[s]*($|\s)', clean_degree):
                     return True
             #looks like a college or university. you need to be a college of some kind to have a college ID. proof: philips exeter academy does not have one. they only have a company page

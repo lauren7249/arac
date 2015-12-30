@@ -71,21 +71,21 @@ class LinkedinService(Service):
         return self.output
 
     def multiprocess(self):
-        self.logger.info('Starting MultiProcess: %s', 'Linkedin Service')
+        self.logstart()
         self.pool = multiprocessing.Pool(self.pool_size)
         self.intermediate_output = self.pool.map(self.wrapper, self.data)
         self.pool.close()
         self.pool.join()
         self.output = self._collapse() 
-        self.logger.info('Ending MultiProcess: %s', 'Linkedin Service')
+        self.logend()
         return self.output.values()
 
     def process(self):
-        self.logger.info('Starting Process: %s', 'Linkedin Service')
+        self.logstart()
         for person in self.data:
             person = self.wrapper(person)
             self.intermediate_output.append(person)
         self.output = self._collapse() 
-        self.logger.info('Ending Process: %s', 'Linkedin Service')
+        self.logend()
         return self.output.values()
 

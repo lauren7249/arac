@@ -184,9 +184,10 @@ def common_institutions(p1,p2, intersect_threshold=5):
     commonalities = collapse_commonalies(commonalities)
     return ", ".join(commonalities)
 
+DEFAULT_DATE = dateutil.parser.parse('January 1')
 def parse_date(datestr):
     try:
-        date = dateutil.parser.parse(datestr)
+        date = dateutil.parser.parse(datestr, default=DEFAULT_DATE)
     except:
         date = None
     return date

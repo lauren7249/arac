@@ -2,16 +2,13 @@ import hashlib
 import logging
 import requests
 import boto
-import dateutil
 import datetime
 from boto.s3.key import Key
 import re
-from helper import uu
-from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS, CODER_WORDS
+from helper import uu, parse_date
+from constants import CODER_WORDS, PROGRAMMING_LANGUAGES
 from services.linkedin_query_api import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
-
-DEFAULT_DATE = dateutil.parser.parse('January 1')
 
 class PersonRequest(object):
 
@@ -34,32 +31,71 @@ class PersonRequest(object):
                 start_date_jobs = [job for job in jobs if job.get("start_date")]
             if len(start_date_jobs) == 0:
                 return jobs[0]
-            return sorted(start_date_jobs, key=lambda x:dateutil.parser.parse(x.get("start_date"), default=DEFAULT_DATE), reverse=True)[0]
+            return sorted(start_date_jobs, key=lambda x:parse_date(x.get("start_date")), reverse=True)[0]
         return {}
 
-    def is_programmer(self, linkedin_data):
+    def programmer_points(self, linkedin_data):
         programmer_points = 0
         current_job = self._current_job_linkedin(linkedin_data)
-        # if not current_job:
-        #     return False
-        title = current_job.get("title","")
-        # if not title:
-        #     return False
-        title = re.sub("[^a-z\s]","", title.lower())
-        # if not title:
-        #     return False
+        title = re.sub("[^a-z\s]","", current_job.get("title").lower()) if current_job.get("title") else ""
+        description = re.sub("[^a-z\s]","", current_job.get("description").lower()) if current_job.get("description") else ""
+        skills = linkedin_data.get("skills") if linkedin_data.get("skills") else []
+        industry = linkedin_data.get("industry") if linkedin_data.get("industry") else ""
+        summary = linkedin_data.get("summary") if linkedin_data.get("summary") else ""
+        if industry in ["Computer Software",'Computer & Network Security','Information Technology and Services']:
+            programmer_points+=2
+        elif industry in ['Internet','Computer Networking']:
+            programmer_points+=1
         for alias in CODER_WORDS:
             if title.find(alias)>-1:
-                programmer_points+=1       
+                programmer_points+=3
+            if description.find(alias)>-1:
+                programmer_points+=1   
+        for language in PROGRAMMING_LANGUAGES:
+            if language in skills:
+                programmer_points+=2
+            if description.find(language)>-1:
+                programmer_points+=1
+            if summary.find(language)>-1:
+                programmer_points+=1
+        return programmer_points
 
- 
+    def has_technical_degree(self, linkedin_data):
+        for school in person.get("schools",[]):
+            #it's a high school so lets move on
+            if school.get("college") and school.get("college").lower().find("high school") > -1:
+                continue
+            #still in school; hasnt earned degree
+            if school.get("end_date") == "Present":
+                continue
+            #definitely a college degree if it's a bachelors
+            if school.get("degree_type"):
+                degree = school.get("degree_type")
+            elif school.get("degree"):
+                degree = school.get("degree")
+            else:
+                degree = None
+            if not degree:
+                continue
+            clean_degree = re.sub('[^0-9a-z\s]','',degree.lower().strip())
+            if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*(s(cience(s)*)*|e(ng(ineer(ing)*)*)*)($|\s)', clean_degree):
+                return school
+            if school.get("college_id") or school.get("college").lower().find('university')>-1 or school.get("college").lower().find('college')>-1:
+                start_date = parse_date(school.get("start_date"))
+                end_date = parse_date(school.get("end_date"))
+                #cant be a 4-year degree if you finished in less than 3 years
+                if end_date and start_date and end_date.year - start_date.year < 3:
+                    continue
+                if re.search('^(it( |$)+|computer|physics|engineering)', clean_degree):
+                    return school
+        return None
+
     def _current_job_linkedin(self, linkedin_data):
         job = {}
         current_job = self._get_current_job_from_experiences(linkedin_data)
         if current_job.get("end_date") == "Present":
             return current_job
-        end_date = dateutil.parser.parse(current_job.get("end_date"), default=DEFAULT_DATE) if \
-        current_job.get("end_date") else None
+        end_date = parse_date(current_job.get("end_date")) if current_job.get("end_date") else None
         if not end_date or end_date.date() >= datetime.date.today():
             return current_job
         if linkedin_data.get("headline"):

@@ -1,6 +1,5 @@
-import datetime
 
-DEFAULT_DATE = datetime.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+
 #For Deduping real emails
 EXCLUDED_EMAIL_WORDS = ["reply","support","sales","info","feedback","noreply",\
 "docs.google.com", "craigslist.org", "sale"]
@@ -38,6 +37,8 @@ PIPL_SOCIAL_KEYS = ["ml2msz8le74d4nno7dyk0v7c"]
 PIPL_PROFES_KEYS = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
 
 CODER_WORDS = ["engineer","hacker","developer","programmer","coder","cto","data scientist","software","computer"]
+PROGRAMMING_LANGUAGES = ["Java","C","C++","Python","C#","PHP","Visual Basic .NET",".NET","ASP.NET","Software Development" "JavaScript","jQuery","VB.NET","Visual Basic", "Perl","Ruby","Assembly Language","Delphi/Object Pascal","Delphi" "Swift","Objective-C","MATLAB","Pascal","R","PL/SQL","SQL", "COBOL","Ada","Fortran","D","Groovy","Dart","Scratch","SAS","Scala","LISP","ABAP","Lua","Transact-SQL","Erlang","F#","Logo","Prolog","RPG","Scheme","Haskell","OpenEdge ABL","ABL", "ActionScript","LabVIEW","FoxPro","Ladder Logic","Awk","Rust","VBScript","ML","Apex","Go","Software Engineering"]
+
 CATEGORY_ICONS = {'Agriculture': 'pagelines',
                  'Arts': 'paint-brush',
                  'Construction': 'building',
