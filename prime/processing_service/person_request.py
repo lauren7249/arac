@@ -97,7 +97,7 @@ class PersonRequest(object):
                 if re.search('(( |^)it( |$)+|computer|physics|engineering|math|economics|information|statistic|machine|technology|software|hardware)', clean_degree):
                     return school
         if matched_before:
-            print "!!!!!!!!!!!!! " + matched_before
+            print "!!!!!!!!!!!!! " + matched_before.get("degree")
         return None
 
     def _current_job_linkedin(self, linkedin_data):
