@@ -43,7 +43,7 @@ class CollegeDegreeRequest(S3SavedRequest):
     def _has_college_degree(self, person):
         for school in person.get("schools",[]):
             #it's a high school so lets move on
-            if school.get("college") and school.get("college").lower().find("high school") > -1:
+            if school.get("college") and school.get("college","").lower().find("high school") > -1:
                 continue
             #still in school; hasnt earned degree
             if school.get("end_date") == "Present":
@@ -60,7 +60,7 @@ class CollegeDegreeRequest(S3SavedRequest):
                 if re.search('^bs($|\s)', clean_degree) or re.search('^ba($|\s)', clean_degree) or re.search('^ab($|\s)', clean_degree) or re.search('^bachelor[s]*($|\s)', clean_degree):
                     return True
             #looks like a college or university. you need to be a college of some kind to have a college ID. proof: philips exeter academy does not have one. they only have a company page
-            if school.get("college_id") or school.get("college").lower().find('university')>-1 or school.get("college").lower().find('college')>-1:
+            if school.get("college_id") or school.get("college","").lower().find('university')>-1 or school.get("college","").lower().find('college')>-1:
                 start_date = parse_date(school.get("start_date"))
                 end_date = parse_date(school.get("end_date"))
                 #cant be a 4-year degree if you finished in less than 3 years

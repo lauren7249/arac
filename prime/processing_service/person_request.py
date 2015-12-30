@@ -88,7 +88,7 @@ class PersonRequest(object):
                             return school
                 else:
                     return school
-            if school.get("college_id") or school.get("college").lower().find('university')>-1 or school.get("college").lower().find('college')>-1:
+            if school.get("college_id") or school.get("college","").lower().find('university')>-1 or school.get("college","").lower().find('college')>-1:
                 start_date = parse_date(school.get("start_date"))
                 end_date = parse_date(school.get("end_date"))
                 #cant be a 4-year degree if you finished in less than 3 years
