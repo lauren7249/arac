@@ -118,7 +118,8 @@ class AgeRequest(S3SavedRequest):
                 end_date = dateutil.parser.parse(school.get("end_date"))
             except:
                 end_date = None
-            if school.get("college_id") or school.get("college","").lower().find('university')>-1 or school.get("college","").lower().find('college')>-1:
+            college = school.get("college") if school.get("college") else ""
+            if school.get("college_id") or college.lower().find('university')>-1 or college.lower().find('college')>-1:
                 if start_date and (not first_school_year or start_date.year<first_school_year):
                     first_school_year = start_date.year
                 if end_date and (not first_grad_year or end_date.year<first_grad_year):
