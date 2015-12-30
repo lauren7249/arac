@@ -80,15 +80,18 @@ class PersonRequest(object):
             if not degree:
                 continue
             clean_degree = re.sub('[^0-9a-z\s]','',degree.lower().strip())
-            if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*(s(cience(s)*)*|e(ng(ineer(ing)*)*)*)($|\s)', clean_degree):
+            if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*e(ng(ineer(ing)*)*)*($|\s)', clean_degree):
                 return school
+            if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*s(cience(s)*)*($|\s)', clean_degree):
+                if re.search('^(it( |$)+|computer|physics|engineering|math|economics|finance|information|statistic|machine|technology)', clean_degree):
+                    return school              
             if school.get("college_id") or school.get("college").lower().find('university')>-1 or school.get("college").lower().find('college')>-1:
                 start_date = parse_date(school.get("start_date"))
                 end_date = parse_date(school.get("end_date"))
                 #cant be a 4-year degree if you finished in less than 3 years
                 if end_date and start_date and end_date.year - start_date.year < 3:
                     continue
-                if re.search('^(it( |$)+|computer|physics|engineering)', clean_degree):
+                if re.search('^(it( |$)+|computer|physics|engineering|math|economics|finance|information|statistic|machine|technology)', clean_degree):
                     return school
         return None
 
