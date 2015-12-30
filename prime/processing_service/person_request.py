@@ -82,12 +82,10 @@ class PersonRequest(object):
                 continue  
             clean_degree = re.sub('[^0-9a-z\s]','',degree.lower().strip())
             if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*(s(cience(s)*)*|e(ng(ineer(ing)*)*)*)($|\s)', clean_degree):
-                matched_before = school
-            if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*e(ng(ineer(ing)*)*)*($|\s)', clean_degree):
+                if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*s(cience(s)*)*($|\s)', clean_degree) and not re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*(e(ng(ineer(ing)*)*)*)($|\s)', clean_degree):
+                    if not re.search('(( |^)it( |$)+|computer|physics|engineering|math|economics|information|statistic|machine|technology|software|hardware)', clean_degree):
+                        continue
                 return school
-            if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*s(cience(s)*)*($|\s)', clean_degree):
-                if re.search('(( |^)it( |$)+|computer|physics|engineering|math|economics|information|statistic|machine|technology|software|hardware)', clean_degree):
-                    return school
             if school.get("college_id") or school.get("college").lower().find('university')>-1 or school.get("college").lower().find('college')>-1:
                 start_date = parse_date(school.get("start_date"))
                 end_date = parse_date(school.get("end_date"))
@@ -96,8 +94,8 @@ class PersonRequest(object):
                     continue
                 if re.search('(( |^)it( |$)+|computer|physics|engineering|math|economics|information|statistic|machine|technology|software|hardware)', clean_degree):
                     return school
-        if matched_before:
-            print "!!!!!!!!!!!!! " + matched_before.get("degree")
+        # if matched_before:
+        #     print "!!!!!!!!!!!!! " + matched_before.get("degree")
         return None
 
     def _current_job_linkedin(self, linkedin_data):
