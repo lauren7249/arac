@@ -31,7 +31,7 @@ class PersonRequest(object):
                 start_date_jobs = [job for job in jobs if job.get("start_date")]
             if len(start_date_jobs) == 0:
                 return jobs[0]
-            return sorted(start_date_jobs, key=lambda x:parse_date(x.get("start_date")) if parse_date(x.get("start_date") else parse_date("Jan 1"), reverse=True)[0]
+            return sorted(start_date_jobs, key=lambda x:parse_date(x.get("start_date")) if parse_date(x.get("start_date")) else parse_date("Jan 1"), reverse=True)[0]
         return {}
 
     def programmer_points(self, linkedin_data):
