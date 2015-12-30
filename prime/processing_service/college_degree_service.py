@@ -60,7 +60,8 @@ class CollegeDegreeRequest(S3SavedRequest):
                 if re.search('^bs($|\s)', clean_degree) or re.search('^ba($|\s)', clean_degree) or re.search('^ab($|\s)', clean_degree) or re.search('^bachelor[s]*($|\s)', clean_degree):
                     return True
             #looks like a college or university. you need to be a college of some kind to have a college ID. proof: philips exeter academy does not have one. they only have a company page
-            if school.get("college_id") or school.get("college","").lower().find('university')>-1 or school.get("college","").lower().find('college')>-1:
+            college = school.get("college") if school.get("college") else ""
+            if school.get("college_id") or college.lower().find('university')>-1 or college.lower().find('college')>-1:
                 start_date = parse_date(school.get("start_date"))
                 end_date = parse_date(school.get("end_date"))
                 #cant be a 4-year degree if you finished in less than 3 years
