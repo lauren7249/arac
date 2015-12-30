@@ -61,7 +61,9 @@ class PersonRequest(object):
         return programmer_points
 
     def has_technical_degree(self, linkedin_data):
-        for school in person.get("schools",[]):
+        if not linkedin_data or not linkedin_data.get("schools"):
+            return None
+        for school in linkedin_data.get("schools",[]):
             #it's a high school so lets move on
             if school.get("college") and school.get("college").lower().find("high school") > -1:
                 continue
