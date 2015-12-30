@@ -38,6 +38,7 @@ PIPL_PROFES_KEYS = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf
 
 CODER_WORDS = ["engineer","hacker","developer","programmer","coder","cto","data scientist","software","computer"]
 PROGRAMMING_LANGUAGES = ["Java","C","C++","Python","C#","PHP","Visual Basic .NET",".NET","ASP.NET","Software Development" "JavaScript","jQuery","VB.NET","Visual Basic", "Perl","Ruby","Assembly Language","Delphi/Object Pascal","Delphi" "Swift","Objective-C","MATLAB","Pascal","R","PL/SQL","SQL", "COBOL","Ada","Fortran","D","Groovy","Dart","Scratch","SAS","Scala","LISP","ABAP","Lua","Transact-SQL","Erlang","F#","Logo","Prolog","RPG","Scheme","Haskell","OpenEdge ABL","ABL", "ActionScript","LabVIEW","FoxPro","Ladder Logic","Awk","Rust","VBScript","ML","Apex","Go","Software Engineering"]
+TECH_DEGREE_WORDS = ['computer','physics','engineering','math','economics','information','statistic','machine','technology','software','hardware']
 
 CATEGORY_ICONS = {'Agriculture': 'pagelines',
                  'Arts': 'paint-brush',
