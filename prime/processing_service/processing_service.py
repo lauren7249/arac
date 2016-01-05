@@ -14,6 +14,8 @@ sys.path.append(PRIME_DIR)
 logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
+import pdb
+pdb.set_trace()
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
