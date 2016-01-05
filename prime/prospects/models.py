@@ -54,6 +54,8 @@ class Prospect(db.Model):
     
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))
+    company_website = db.Column(String(1024))
+    company_headquarters = db.Column(String(1024))
     job = db.Column(String(1024))
     name = db.Column(String(1024))
     main_profile_image = db.Column(String(1024))

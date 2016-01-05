@@ -11,6 +11,15 @@ import scipy.stats as stats
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
 from helper import get_specific_url
+import multiprocessing
+
+HIRED = False
+
+def wrapper(person):
+    person["wealthscore"] = WealthScoreRequest(person).process()
+    if HIRED:
+        person["lead_score"] = LeadScoreRequest(person).process()    
+    return person
 
 class ScoringService(Service):
     """
@@ -19,15 +28,16 @@ class ScoringService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(ScoringService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
-        self.hired = self.client_data.get("hired")
+        self.wrapper = wrapper
+        HIRED = self.client_data.get("hired")
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ScoringService, self).__init__(*args, **kwargs)
-
+        
     def compute_stars(self):
         all_scores = [profile.get("lead_score") for profile in self.output]
         for i in range(len(self.output)):
@@ -41,15 +51,26 @@ class ScoringService(Service):
         self.output = sorted(self.output, key=lambda k: k['lead_score'], reverse=True) 
         return self.output
 
+    def multiprocess(self):
+        self.logstart()
+        self.pool = multiprocessing.Pool(self.pool_size)
+        self.output = self.pool.map(self.wrapper, self.data)
+        self.pool.close()
+        self.pool.join()
+        if HIRED:  
+            self.output = self.compute_stars()
+        self.logend()
+        return self.output
+
     def process(self):
+        self.logstart()
         for person in self.data:
-            person["wealthscore"] = WealthScoreRequest(person).process()
-            if self.hired:
-                person["lead_score"] = LeadScoreRequest(person).process()
+            person = self.wrapper(person)
             self.output.append(person)
-        if not self.hired:
-            return self.output
-        return self.compute_stars()
+        if HIRED:  
+            self.output = self.compute_stars()
+        self.logend()
+        return self.output
 
 class WealthScoreRequest(S3SavedRequest):
 

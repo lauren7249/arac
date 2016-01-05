@@ -9,7 +9,7 @@ urls = (
     '/get_person_by_url', 'get_person_by_url'
 )
 
-CONNECTION_STRING = "dbname='ac_labs' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
+CONNECTION_STRING = "dbname='p200_production' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
 PEOPLE_TABLE = 'people'
 COMPANY_TABLE = 'crawlera_linkedin_companies_u'
 app = web.application(urls, globals())
@@ -78,12 +78,15 @@ def get_company(url=None, linkedin_id=None, version='1.0.0'):
             query = """SELECT * from %s where url='%s'""" % (COMPANY_TABLE, url)
         else:
             query = """SELECT * from %s where linkedin_id='%s'""" % (COMPANY_TABLE, linkedin_id)
-        cur.execute(query)
-        row = cur.fetchone()
-        if not row:
-            return {}
-        row = dict(row)
-        return row
+        try:
+            cur.execute(query)
+            row = cur.fetchone()
+            if not row:
+                return {}
+            row = dict(row)
+            return row
+        except:
+            pass
     return {}
 
 def get_person(url=None, linkedin_id=None, version='1.0.0'):

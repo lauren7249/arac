@@ -49,7 +49,10 @@ def clean_url(s):
 
 def uu(str):
     if str:
-        return str.decode("ascii", "ignore").encode("utf-8")
+        try:
+            return str.decode("ascii", "ignore").encode("utf-8")
+        except:
+            return str.encode('UTF-8')
     return None
 
 ################

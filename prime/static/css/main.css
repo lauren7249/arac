@@ -57,7 +57,7 @@ input[type='text'], [type='password'] {
   transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
-h2 {
+h2.signup {
   color: #333456;
   font-size: 35px;
 }
@@ -78,10 +78,8 @@ div.modal {
   width: 600px;
   background: #fff;
   display: none;
-  -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
   border-radius: 4px;
   border: 1px solid #000;
   margin: 20px auto;
@@ -137,40 +135,6 @@ div.wrapper {
   font-size: 15px;
   margin-left: 5px;
 }
-.navbar-header div#settings {
-  position: relative;
-  height: 46px;
-  margin-top: 15px;
-}
-.navbar-header div#settings div.autocomplete {
-  display: none;
-  position: absolute;
-  top: 45px;
-  right: 0;
-  border: 1px solid #eee;
-  border-top: 0;
-  background: #fff;
-  width: 208px;
-  z-index: 4;
-  padding: 15px;
-}
-.navbar-header div#settings div.autocomplete ul {
-  list-style-type: none;
-  margin: 0;
-}
-.navbar-header div#settings div.autocomplete ul li {
-  padding: 5px;
-  text-transform: uppercase;
-  text-align: right;
-}
-.navbar-header div#settings div.autocomplete ul li a {
-  color: #0082c6;
-  text-decoration: none;
-  font-size: 12px;
-}
-.navbar-header div#settings:hover div.autocomplete {
-  display: block;
-}
 
 div.graphs {
   float: left;
@@ -200,42 +164,6 @@ div.graphs div.big-graph {
 }
 div.graphs div.big-graph canvas {
   width: 100%;
-}
-
-div.network-stats {
-  padding-bottom: 40px;
-}
-div.network-stats h3 {
-  font-size: 25px;
-}
-div.network-stats h3 span {
-  color: orange;
-}
-div.network-stats table {
-  border: 0;
-  width: 100%;
-}
-div.network-stats table td {
-  border: 0;
-  border-top: 1px solid #efefef;
-  padding: 10px;
-  color: #232523;
-}
-div.network-stats table td h3 {
-  color: #0182C6;
-  margin: 0 0 5px;
-}
-div.network-stats table td p {
-  margin: 0;
-}
-div.network-stats a {
-  text-decoration: none;
-}
-div.network-stats a button#main {
-  float: none;
-  display: block;
-  margin: 20px auto;
-  font-size: 30px;
 }
 
 div.invite-agent {
@@ -285,7 +213,7 @@ div#manager-dashboard h1 button {
   font-size: 13px;
   background: #0082c6;
   color: #fff;
-  text-shadow: #333333 0 0 1px;
+  text-shadow: #333 0 0 1px;
   border-color: black;
 }
 div#manager-dashboard div.panel {
@@ -358,9 +286,7 @@ div#manager table td div.status {
   font-weight: bold;
   color: #fff;
   text-align: center;
-  -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
+  -webkit-border-radius: 10px;
   border-radius: 10px;
 }

@@ -5,57 +5,41 @@ import time
 import sys
 import os
 import pandas
-from helper import name_match
+from helper import name_match, sort_social_accounts
 from service import Service, S3SavedRequest
 from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS
 from url_validator import UrlValidatorRequest
+from person_request import PersonRequest
+
+HIRED = False
+AGENT_SCHOOLS = set()
+
+def wrapper(person):
+    request = ProfileBuilderRequest(person, HIRED)
+    profile = request.process()
+    profile = request._get_job_fields(profile, person)
+    profile = request._get_common_schools(profile, AGENT_SCHOOLS)    
+    return profile
 
 class ProfileBuilderService(Service):
     '''
     Add "profile" key to json for simplifying results service
     '''
     def __init__(self, client_data, data, *args, **kwargs):
-        self.good_leads = data
+        super(ProfileBuilderService, self).__init__(*args, **kwargs)
+        self.data = data
         self.client_data = client_data
         self.data = data
-        self.hired = self.client_data.get("hired")
+        # global HIRED
+        HIRED = self.client_data.get("hired")
         self.output = []   
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(ProfileBuilderService, self).__init__(*args, **kwargs)
-
-    def _get_job_fields(self, profile, person):   
-        if not profile:
-            profile = {}
-        if not person:
-            return profile
-        current_job = self._current_job(person)
-        profile['company'] = current_job.get("company")
-        profile["job"] = current_job.get("title")
-        return profile
-
-    def _get_common_schools(self,profile):
-        self._get_self_jobs_and_schools()
-        agent_schools = set([school.get("college") for school in self.schools])
-        prospect_schools = set([school.get("college") for school in profile.get("schools_json",[])])
-        common_schools = set()
-        for school1 in prospect_schools:
-            for school2 in agent_schools:
-                if school1 and school2 and name_match(school1,school2):
-                    common_schools.add(school2)
-        profile["common_schools"] = list(common_schools)
-        return profile
-
-    def process(self):
-        self.logger.info('Starting Process: %s', 'Profile Builder Service')
-        for person in self.good_leads:
-            profile = ProfileBuilderRequest(person, self.hired).process()
-            profile = self._get_job_fields(profile, person)
-            profile = self._get_common_schools(profile)
-            self.output.append(profile)
-        self.logger.info('Ending Process: %s', 'Profile Builder Service')
-        return self.output
+        person = PersonRequest()._get_profile_by_any_url(self.client_data.get("url"))
+        schools = person.get("schools",[])
+        AGENT_SCHOOLS = set([school.get("college") for school in schools])
 
 class ProfileBuilderRequest(S3SavedRequest):
 
@@ -72,6 +56,26 @@ class ProfileBuilderRequest(S3SavedRequest):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         
+    def _get_job_fields(self, profile, person):   
+        if not profile:
+            profile = {}
+        if not person:
+            return profile
+        current_job = PersonRequest()._current_job(person)
+        profile['company'] = current_job.get("company")
+        profile["job"] = current_job.get("title")
+        return profile
+
+    def _get_common_schools(self,profile, agent_schools):
+        prospect_schools = set([school.get("college") for school in profile.get("schools_json",[])])
+        common_schools = set()
+        for school1 in prospect_schools:
+            for school2 in agent_schools:
+                if school1 and school2 and name_match(school1,school2):
+                    common_schools.add(school2)
+        profile["common_schools"] = list(common_schools)
+        return profile
+
     def _get_main_profile_image(self):
         linkedin_image = self.person.get("linkedin_data",{}).get("image")
         if linkedin_image:
@@ -93,12 +97,11 @@ class ProfileBuilderRequest(S3SavedRequest):
     def _get_social_fields(self, social_accounts):      
         if not social_accounts:
             return self.profile
+        social_accounts = sort_social_accounts(social_accounts)
+        self.profile.update(social_accounts)
         self.profile["social_accounts"] = []
-        for link in social_accounts: 
-            domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
-            if domain in SOCIAL_DOMAINS: 
-                self.profile[domain] = link
-                self.profile["social_accounts"].append(link)
+        for link in social_accounts.values():
+            self.profile["social_accounts"].append(link)
         return self.profile 
 
     def _get_person_fields(self):     
@@ -109,6 +112,8 @@ class ProfileBuilderRequest(S3SavedRequest):
             self.profile["lat"] = latlng[0]
             self.profile["lng"] = latlng[1]
         self.profile["phone"] = self.person.get("phone_number")
+        self.profile["company_website"] = self.person.get("company_website")
+        self.profile["company_headquarters"] = self.person.get("company_headquarters")
         self.profile["age"] = self.person.get("age")
         self.profile["college_grad"] = self.person.get("college_grad")
         self.profile["gender"] = self.person.get("gender")

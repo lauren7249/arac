@@ -17,6 +17,11 @@ from url_validator import UrlValidatorRequest
 from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
 
+def wrapper(person):
+    request = SocialProfilesRequest(person)
+    person = request.process()    
+    return person
+
 class SocialProfilesService(Service):
     """
     Expected input is JSON with good leads
@@ -24,21 +29,16 @@ class SocialProfilesService(Service):
     """
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(SocialProfilesService, self).__init__(*args, **kwargs)
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.wrapper = wrapper
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        super(SocialProfilesService, self).__init__(*args, **kwargs)
+        
                    
-    def process(self):
-        for person in self.data:
-            request = SocialProfilesRequest(person)
-            person = request.process()
-            self.output.append(person)
-        return self.output
-
 class SocialProfilesRequest(S3SavedRequest):
 
     """

@@ -1,4 +1,4 @@
-from constants import profile_re, bloomberg_company_re, school_re, company_re
+from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS
 import itertools
 import operator
 import re
@@ -9,7 +9,7 @@ import logging
 from difflib import SequenceMatcher
 from random import shuffle
 import numpy as np
-
+import collections
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +17,10 @@ logger = logging.getLogger(__name__)
 
 def uu(str):
     if str:
-        return str.encode("ascii", "ignore").decode("utf-8")
+        try:
+            return str.decode("ascii", "ignore").encode("utf-8")
+        except:
+            return str.encode('UTF-8')
     return None
 
 def parse_out(text, startTag, endTag):
@@ -107,12 +110,6 @@ def filter_bing_results(results, limit=100, url_regex=".", exclude_terms_from_ti
         if limit == len(filtered): return filtered
     return filtered
 
-def convert_date(date):
-    try:
-        return parser.parse(date, default=datetime.date(1979,1,1))
-    except:
-        return None
-
 def get_domain(website):
     if website is None:
         return None
@@ -181,9 +178,10 @@ def common_institutions(p1,p2, intersect_threshold=5):
     commonalities = collapse_commonalies(commonalities)
     return ", ".join(commonalities)
 
+DEFAULT_DATE = dateutil.parser.parse('January 1')
 def parse_date(datestr):
     try:
-        date = dateutil.parser.parse(datestr)
+        date = dateutil.parser.parse(datestr, default=DEFAULT_DATE)
     except:
         date = None
     return date
@@ -297,3 +295,25 @@ def get_specific_url(social_accounts, type="linkedin.com"):
     for account in social_accounts:
         if account.find(type) > -1: return account
     return None
+
+def sort_social_accounts(social_accounts):
+    d = {}
+    for link in social_accounts: 
+        domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
+        if domain in SOCIAL_DOMAINS: 
+            d[domain] = link  
+    return d  
+
+def flatten(d, parent_key='', sep='_'):
+    items = []
+    for k, v in d.items():
+        if not v and v != 0:
+            continue
+        if isinstance(v, list):
+            continue
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
