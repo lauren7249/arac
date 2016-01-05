@@ -73,9 +73,20 @@ class GenderRequest(S3SavedRequest):
     def _get_gender_from_free_apis(self):
         if not self.name:
             return None
-        gender_str = self.detector2.get_gender(self.name)
-        if "andy" in gender_str: gender_str = self.detector1.guess(self.name)
-        if "unknown" in gender_str: gender_str = Genderizer.detect(firstName = self.name)
+        try:
+            gender_str = self.detector2.get_gender(self.name)
+        except:
+            gender_str = "andy"
+        if "andy" in gender_str: 
+            try:
+                gender_str = self.detector1.guess(self.name)
+            except:
+                gender_str = "unknown" 
+        if "unknown" in gender_str: 
+            try:
+                gender_str = Genderizer.detect(firstName = self.name)
+            except:
+                gender_str = None
         if gender_str is None: return None
         if "female" in gender_str: return False
         if "male" in gender_str: return True
