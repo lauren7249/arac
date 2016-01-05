@@ -14,8 +14,6 @@ sys.path.append(PRIME_DIR)
 logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
-import pdb
-pdb.set_trace()
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
@@ -50,7 +48,7 @@ class ProcessingService(Service):
                 CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
         else:
             if RUN_EXTENDED:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ExtendedProfilesService, ExtendedLeadService, ResultService]
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ExtendedProfilesService, ExtendedLeadService, ProfileBuilderService, ScoringService, ResultService]
             else:
                 CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
         SERVICES = OrderedDict()
@@ -124,8 +122,9 @@ if __name__ == '__main__':
     data = json.loads(_file.read())
     shuffle(data)
     data = data[:19]
-    client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
-                    "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc", "hired":True}
+    #user = User("James","Johnson","jamesjohnson11@gmail.com", "password")
+    client_data = { "first_name":"James","last_name":"Johnson", "email":"jamesjohnson11@gmail.com",
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/jamesjohnsona", "hired":False}
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,
