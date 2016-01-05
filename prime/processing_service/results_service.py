@@ -12,7 +12,7 @@ from boto.s3.key import Key
 from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
-from prime.processing_service.helper import convert_date, uu
+from prime.processing_service.helper import parse_date, uu
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
 from prime.users.models import ClientProspect
@@ -78,9 +78,9 @@ class ResultService(Service):
             for school in new_prospect.schools:
                 if info_school.get("degree") == school.degree and info_school.get("college") == school.school_name:
                     self.session.query(Education).filter_by(id=school.id).update({
-                        "start_date": convert_date(info_school.get("start_date")),
+                        "start_date": parse_date(info_school.get("start_date")),
                         #"school_linkedin_id": info_school.get("college_id")
-                        "end_date": convert_date(info_school.get("end_date"))
+                        "end_date": parse_date(info_school.get("end_date"))
                         })
                     self.logger.info("Education updated: {}".format(uu(info_school.get("college"))))
                     new = False
@@ -93,9 +93,9 @@ class ResultService(Service):
 
     def _insert_school(self, new_prospect, college):
         extra = {}
-        extra['start_date'] = convert_date(college.get('start_date'))
-        extra['end_date'] = convert_date(college.get('end_date'))
-        if extra['end_date'] is None: extra['end_date'] = convert_date(college.get('graduation_date'))
+        extra['start_date'] = parse_date(college.get('start_date'))
+        extra['end_date'] = parse_date(college.get('end_date'))
+        if extra['end_date'] is None: extra['end_date'] = parse_date(college.get('graduation_date'))
 
         new_education = Education(
                 prospect = new_prospect,
@@ -117,12 +117,12 @@ class ResultService(Service):
             for job in new_prospect.jobs:
                 if info_job.get("title") == job.title and \
                 info_job.get("company") == job.company_name and \
-                convert_date(info_job.get("start_date")) == job.start_date:
+                parse_date(info_job.get("start_date")) == job.start_date:
                     self.session.query(Job).filter_by(id=job.id).update({
                         "location": info_job.get("location"),
-                        "start_date": convert_date(info_job.get("start_date")),
+                        "start_date": parse_date(info_job.get("start_date")),
                         #"company_linkedin_id": info_job.get("company_id")
-                        "end_date": convert_date(info_job.get("end_date"))
+                        "end_date": parse_date(info_job.get("end_date"))
                         })
                     self.logger.info("Job updated: {}".format(uu(info_job.get("company"))))
                     new = False
@@ -137,8 +137,8 @@ class ResultService(Service):
 
     def _insert_job(self, new_prospect, job):
         extra = {}
-        extra['start_date'] = convert_date(job.get('start_date'))
-        extra['end_date'] = convert_date(job.get('end_date'))
+        extra['start_date'] = parse_date(job.get('start_date'))
+        extra['end_date'] = parse_date(job.get('end_date'))
 
         new_job = Job(
             prospect = new_prospect,

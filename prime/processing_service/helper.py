@@ -110,12 +110,6 @@ def filter_bing_results(results, limit=100, url_regex=".", exclude_terms_from_ti
         if limit == len(filtered): return filtered
     return filtered
 
-def convert_date(date):
-    try:
-        return parser.parse(date, default=datetime.date(1979,1,1))
-    except:
-        return None
-
 def get_domain(website):
     if website is None:
         return None
@@ -184,9 +178,10 @@ def common_institutions(p1,p2, intersect_threshold=5):
     commonalities = collapse_commonalies(commonalities)
     return ", ".join(commonalities)
 
+DEFAULT_DATE = dateutil.parser.parse('January 1')
 def parse_date(datestr):
     try:
-        date = dateutil.parser.parse(datestr)
+        date = dateutil.parser.parse(datestr, default=DEFAULT_DATE)
     except:
         date = None
     return date

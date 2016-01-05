@@ -9,7 +9,7 @@ urls = (
     '/get_person_by_url', 'get_person_by_url'
 )
 
-CONNECTION_STRING = "dbname='ac_labs' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
+CONNECTION_STRING = "dbname='p200_production' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
 PEOPLE_TABLE = 'people'
 COMPANY_TABLE = 'crawlera_linkedin_companies_u'
 app = web.application(urls, globals())
