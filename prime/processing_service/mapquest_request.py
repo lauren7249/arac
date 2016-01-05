@@ -226,7 +226,7 @@ class MapQuestRequest(S3SavedRequest):
 
 
     def process(self):
-        self.logger.info('Linkedin Request: %s', 'Starting')
+        self.logger.info('Mapquest Request: %s', 'Starting')
         self.html_string = self._make_request()
         if self.html_string:
             geocode = self._find_location_coordinates()

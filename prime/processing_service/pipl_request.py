@@ -128,7 +128,26 @@ class PiplRequest(S3SavedRequest):
                 if url and url not in emails and domain != 'facebook.com': 
                     emails.append(url)
         return emails  
-              
+        
+
+    def get_emails(self):
+        self.level = "email"
+        self._build_url()
+        if self.url is None:
+            return {}
+        self.pipl_json = None
+        tries = 0
+        while self.pipl_json is None and tries<3:
+            try:
+                html = self._make_request()
+                self.pipl_json = json.loads(html)
+            except:
+                time.sleep(1)
+                pass
+            tries+=1
+        emails = self._emails(self.pipl_json)
+        return emails
+
     def process(self):
         self.logger.info('Pipl Request: %s', 'Starting')
         self._build_url()

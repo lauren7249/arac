@@ -27,13 +27,15 @@ class S3SavedRequest(object):
     def _make_request(self, content_type = 'text/html', bucket=None):
         try:
             self.key = hashlib.md5(self.url).hexdigest()
-        except:
+        except Exception, e:
+            print e
             self.key = hashlib.md5(uu(self.url)).hexdigest()
         if not bucket:
             bucket = self.bucket
         self.boto_key = Key(bucket)
         self.boto_key.key = self.key
         if self.boto_key.exists():
+            self.logger.info("Getting from S3")
             html = self.boto_key.get_contents_as_string()
         else:
             try:
