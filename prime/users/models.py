@@ -44,11 +44,15 @@ class User(db.Model, UserMixin):
 
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
+    image_url = db.Column(String(1024))
+    linkedin_email = db.Column(String(1024))
     created = db.Column(DateTime, default=datetime.datetime.today())
 
     prospects = db.relationship('Prospect', secondary="client_prospect", backref=db.backref('prospects', lazy='dynamic'))
     client_prospects = db.relationship('ClientProspect', backref=db.backref('client_prospects'))
     onboarding_code = db.Column(String(40))
+    hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
+    p200_completed = db.Column(postgresql.BOOLEAN, default=False)
     json = db.Column(JSONB, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
@@ -57,6 +61,12 @@ class User(db.Model, UserMixin):
         self.last_name = last_name.title()
         self.email = email.lower()
         self.set_password(password)
+
+    @property
+    def image(self):
+        if self.image_url:
+            return self.image_url
+        return "/static/img/person_image.png"
 
     def set_password(self, password):
         self._password_hash = generate_password_hash(password)
@@ -100,6 +110,39 @@ class User(db.Model, UserMixin):
     def has_prospects(self):
         return self.client_prospects and len(self.client_prospects) > 0
 
+    @property
+    def statistics(self, refresh=False):
+        """
+        Adding in cache functionality to rebuild if older than 2 days
+        """
+        if refresh or not self.json.get("statistics"):
+            stats = self.build_statistics()
+            self.json['statistics'] = stats
+        return self.json.get("statistics", {})
+
+    @property
+    def primary_network_size(self):
+        return self.statistics.get("network_size", 0)
+
+    @property
+    def extended_network_size(self):
+        return self.statistics.get("count_extended", 0)
+
+    @property
+    def total_network_size(self):
+        return self.primary_network_size + self.extended_network_size
+
+    @property
+    def average_age(self):
+        try:
+            return int(self.statistics.get("average_age"))
+        except:
+            return None
+
+    @property
+    def average_income_score(self):
+        return self.statistics.get("wealth_score")
+
     def build_statistics(self):
         """
         Calculate most popular schools,
@@ -137,15 +180,30 @@ class User(db.Model, UserMixin):
         else:
             male_percentage = males/float(males + females) * 100
 
+        if college_degree[True] + college_degree[False] == 0:
+            college_percentage = 0
+        else:
+            college_percentage = float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100
+
+        if len(average_age) == 0:
+            average_age = 0
+        else:
+            average_age = sum(average_age)/len(average_age)
+
+        if len(wealth_score) == 0:
+            wealth_score = 0
+        else:
+            wealth_score = sum(wealth_score)/len(wealth_score)
+
         data = {"schools": schools,
                 "network_size": first_degree_count,
                 "count_extended": extended_count,
                 "industries": industries,
                 "male_percentage": male_percentage,
                 "female_percentage": female_percentage,
-                "college_percentage": float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100,
-                "average_age": sum(average_age)/len(average_age),
-                "wealth_score": sum(wealth_score)/len(wealth_score)}
+                "college_percentage": college_percentage,
+                "average_age": average_age,
+                "wealth_score": wealth_score}
         return data
 
     @property

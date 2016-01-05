@@ -37,39 +37,41 @@ def manager_home():
     agents = manager.users.all()
     agent_count = manager.users.count()
     return render_template('manager/dashboard.html', agents=agents,
-            agent_count=int(agent_count))
+            agent_count=int(agent_count), active="selected")
 
-@manager.route('/invite', methods=['POST'])
+@manager.route('/invite', methods=['GET', 'POST'])
 def manager_invite_agent():
+    error_message = None
+    success = None
     if not current_user.is_manager:
         response = {"error": "Forbidden"}
         return jsonify(response)
-    first_name = request.form.get("first_name")
-    last_name = request.form.get("last_name")
-    to_email = request.form.get("email").lower()
-
-    agent = User.query.filter(User.email == to_email).first()
-    if agent:
-        error_message = "This agent already exists in our system. Please \
-                contact jeff@adivsorconnect.co if this seems incorrect to you"
-        response = {"error": error_message}
-        return jsonify(response)
-    else:
-        code = random_string(10).encode('utf-8')
-        password = hashlib.md5(code).hexdigest()
-        user = User(first_name, last_name, to_email, password)
-        user.onboarding_code = password
-        session.add(user)
-        session.commit()
-        manager = current_user.manager_profile[0]
-        manager.users.append(user)
-        session.add(manager)
-        session.commit()
-    body = render_template("emails/invite.html", invited_by=current_user.name,
-            base_url=current_app.config.get("BASE_URL"), code=code)
-    subject = "Your Advisorconnect Account is Ready!"
-    sendgrid_email(to_email, subject, body)
-    return jsonify({"success": True})
+    if request.method == 'POST':
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        to_email = request.form.get("email").lower()
+        agent = User.query.filter(User.email == to_email).first()
+        if agent:
+            error_message = "This agent already exists in our system. Please \
+                    contact jeff@adivsorconnect.co if this seems incorrect to you"
+        else:
+            code = random_string(10).encode('utf-8')
+            password = hashlib.md5(code).hexdigest()
+            user = User(first_name, last_name, to_email, password)
+            user.onboarding_code = password
+            session.add(user)
+            session.commit()
+            manager = current_user.manager_profile[0]
+            manager.users.append(user)
+            session.add(manager)
+            session.commit()
+            body = render_template("emails/invite.html", invited_by=current_user.name,
+                    base_url=current_app.config.get("BASE_URL"), code=code)
+            subject = "Your Advisorconnect Account is Ready!"
+            sendgrid_email(to_email, subject, body)
+            success = True
+    return render_template('manager/invite.html', active="invite",
+            error_message=error_message, success=success)
 
 @manager.route("/test_email", methods=['GET'])
 def test_email():

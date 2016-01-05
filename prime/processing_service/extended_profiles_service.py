@@ -28,15 +28,17 @@ class ExtendedProfilesService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-    
+
     def _collapse(self):
         extended_referrers = {}
-        extended_profiles = []  
-        first_degree_linkedin_ids = set()      
+        extended_profiles = []
+        first_degree_linkedin_ids = set()
         for i in xrange(0, len(self.data)):
             associated_profiles = self.intermediate_output[i]
             person = self.data[i]
             person_profile = person.get("linkedin_data")
+            if not person_profile:
+                continue
             linkedin_id = person_profile.get("linkedin_id")
             first_degree_linkedin_ids.add(linkedin_id)
             self.output.append(person)
@@ -53,7 +55,7 @@ class ExtendedProfilesService(Service):
                 referrer["referrer_url"] = person_profile.get("source_url")
                 referrer["referrer_name"] = person_profile.get("full_name")
                 referrers.append(referrer)
-                extended_referrers[associated_profile.get("linkedin_id")] = referrers            
+                extended_referrers[associated_profile.get("linkedin_id")] = referrers
         for extended_profile in extended_profiles:
             extended_linkedin_id = extended_profile.get("linkedin_data",{}).get("linkedin_id")
             if extended_linkedin_id in first_degree_linkedin_ids:
@@ -61,7 +63,7 @@ class ExtendedProfilesService(Service):
             referrers = extended_referrers.get(extended_linkedin_id,[])
             extended_profile["referrers"] = referrers
             extended_profile["extended"] = True
-            self.output.append(extended_profile)    
+            self.output.append(extended_profile)
         return self.output
 
     def multiprocess(self):
@@ -70,7 +72,7 @@ class ExtendedProfilesService(Service):
         self.intermediate_output = self.pool.map(self.wrapper, self.data)
         self.pool.close()
         self.pool.join()
-        self.output = self._collapse() 
+        self.output = self._collapse()
         self.logend()
         return self.output
 

@@ -48,7 +48,9 @@
       <div class="col-6">
         {% if current_user.is_authenticated() %}
         <div class="nav-right text-right">
+          {% if not current_user.is_manager and current_user.p200_completed %}
           <span><div class="contacts-left">300 Contacts Left</div></span>
+          {% endif %}
           <span><div id='settings'><a class="user">{{ current_user.name }}</a>
               <div class='autocomplete'>
                 <ul>
@@ -57,7 +59,7 @@
               </div>
             </div>
           </span>
-          <span style="background-image:url(https://s3.amazonaws.com/uifaces/faces/twitter/davidburlton/128.jpg)" class="face"></span></div>
+          <span style="background-image:url({{ current_user.image }})" class="face"></span></div>
         {% endif %}
       </div>
     </div>

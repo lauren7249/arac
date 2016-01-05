@@ -47,30 +47,30 @@ class ResultService(Service):
         client_prospect.lead_score = profile.get("lead_score")
         client_prospect.stars = profile.get("stars")
         client_prospect.common_schools = profile.get("common_schools")
-        client_prospect.updated = datetime.datetime.today()  
+        client_prospect.updated = datetime.datetime.today()
         self.session.add(client_prospect)
         self.session.commit()
-        self.logger.info("client prospect updated")        
+        self.logger.info("client prospect updated")
         return client_prospect
 
     def _create_or_update_prospect(self, profile):
         if not profile:
             self.logger.error("No person")
-            return None            
+            return None
         if profile.get('linkedin_id') is None:
             self.logger.error("No linkedin id")
             return None
         prospect = get_or_create(self.session, Prospect, linkedin_id=profile.get('linkedin_id').strip())
         for key, value in profile.iteritems():
             if hasattr(Prospect, key):
-                setattr(prospect, key, value)      
-        prospect.updated = datetime.datetime.today()  
+                setattr(prospect, key, value)
+        prospect.updated = datetime.datetime.today()
         self.session.add(prospect)
         self.session.commit()
         self.logger.info("Prospect updated")
         return prospect
 
-    def _create_or_update_schools(self, new_prospect, profile):     
+    def _create_or_update_schools(self, new_prospect, profile):
         schools = profile.get("schools_json",[])
         new_schools = []
         for info_school in schools:
@@ -109,7 +109,7 @@ class ResultService(Service):
         self.session.flush()
         self.logger.info("Education added: {}".format(uu(college.get("college"))))
 
-    def _create_or_update_jobs(self, new_prospect, profile):      
+    def _create_or_update_jobs(self, new_prospect, profile):
         jobs = profile.get("jobs_json",[])
         new_jobs = []
         for info_job in jobs:
@@ -156,7 +156,7 @@ class ResultService(Service):
 
     def multiprocess(self):
         return self.process()
-        
+
     def process(self):
         self.logstart()
         user = self._get_user()
@@ -176,6 +176,15 @@ class ResultService(Service):
                 continue
             self.output.append(client_prospect.to_json())
         if user:
+            #If the agent is hired in the data then we know the p200 has been fully
+            #run and we can mark that as true also. Otherwise just the
+            #hiring screen has been completed
+
+            user.hiring_screen_completed = True
+            if self.client_data.get("hired"):
+                user.p200_completed = True
+            self.session.add(user)
+            self.session.commit()
             self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
         else:
             self.logger.error("NO USER!")

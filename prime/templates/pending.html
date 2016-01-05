@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}    
+  <div class='wrap'>
+    <div class='signup' id="signup">
+      <div class='logo'>
+        <img src='{{ static_url() }}img/AC_logo.png' />
+      </div>
+      <h2>Thanks for connecting your contacts, {{ current_user.first_name }}</h2>
+      <p>We found {{ contact_count }} unique prospects in your network. We will let you know which ones are the best contacts ASAP!</p> 
+      <p>Please look out for an email within the next 24 hours.</p> 
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include "_partials/manager_header.html" with context %}
+<div class="section">
+  <div class="wrap"> 
+    {% if error_message %}
+    <div class='error'>
+      <span>{{ error_message }}</span>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class='success'>
+      <span><b>Success!</b> The invite has been sent.</span>
+    </div>
+    {% endif %}
+    <h2>Enter in email address to invite agent</h2>
+    <div class='default-form'>
+      <form action='' method='POST'>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type='text' required name='first_name' placeholder='John' />
+        <input type='text' required name='last_name' placeholder='Smith' />
+        <input type='text' required name='email' placeholder='John_Smith@newyorklife.com' />
+        <button id='send' class='button teal'><i class='fa fa-paper-plane-o'></i> Send Invitation</button><button id='close' class='button danger big'><i class='fa fa-ban'></i> Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -41,6 +41,7 @@
             public_url = data.publicProfileUrl;
             email_address = data.emailAddress;
             firstName = data.firstName;
+            lastName = data.lastName;
             document.getElementById("owner_email").innerHTML = email_address;
             document.getElementById("owner_geolocation").innerHTML = geolocation;
             document.getElementById("owner_img").src = data.pictureUrl;
@@ -75,47 +76,49 @@
     </div>    
   </div>
 
-  <div class='signup' id="signup">
-    <div class='logo'>
-      <img src='{{ static_url() }}img/AC_logo.png' />
-    </div>
-    <div id="enter_export_id" hidden>
-      <p>Copy and paste the confirmation code into the box to proceed to the next step</p>
-      <input type='text' id="export_id"/>
-      <button id="submit" class='button' type="Submit">Submit</button>
-    </div>       
-    <div id="enter_email" >
-      <h2 hidden>Welcome</h2>
-      <p >Please sign in through LinkedIn to continue.</p>
-      <p hidden>Enter the email address where you would like to receive your P200.</p>
-      <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
-      <input hidden type='email' id="email_address" />
-      <p hidden>Enter your target region</p>
-      <div hidden class="ui-widget">
-        <input hidden id="geolocation"/>
+  <div class='wrap'>
+    <div class='signup' id="signup">
+      <div class='logo'>
+        <img src='{{ static_url() }}img/AC_logo.png' />
       </div>
-      <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
-    </div>       
- 
-    <div id="upload_area" hidden>
-      <h2 id="owner_name"></h2>
-      <img id="owner_img" />
-      <p>Upload contacts from LinkedIn, and as many of your email accounts as possible.</p>
-      <p hidden id="owner_email"></p>
-      <p hidden id="owner_geolocation"></p>
-      <h2 hidden>Upload contacts</h2>
-      <div id="linkedin_area">
-        <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
+      <div id="enter_export_id" hidden>
+        <p>Copy and paste the confirmation code into the box to proceed to the next step</p>
+        <input type='text' id="export_id"/>
+        <button id="submit" class='button' type="Submit">Submit</button>
+      </div>       
+      <div id="enter_email" >
+        <h2 hidden>Welcome</h2>
+        <p >Please sign in through LinkedIn to continue.</p>
+        <p hidden>Enter the email address where you would like to receive your P200.</p>
+        <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
+        <input hidden type='email' id="email_address" />
+        <p hidden>Enter your target region</p>
+        <div hidden class="ui-widget">
+          <input hidden id="geolocation"/>
+        </div>
+        <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
+      </div>       
+
+      <div id="upload_area" hidden>
+        <h2 id="owner_name"></h2>
+        <img id="owner_img" />
+        <p>Upload contacts from LinkedIn, and as many of your email accounts as possible.</p>
+        <p hidden id="owner_email"></p>
+        <p hidden id="owner_geolocation"></p>
+        <h2 hidden>Upload contacts</h2>
+        <div id="linkedin_area">
+          <button class='button teal' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
+        </div>
+        <div id="email_area">
+          <button class='button teal' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
+        </div>
+        <div hidden id="csv_area">
+          <button class='button teal' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
+        </div>
+        <br/>
+        <br/>
+        <a ><button id="next" type="Submit" class='button'>Finish &amp; Upload &raquo;</button></a>
       </div>
-      <div id="email_area">
-        <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
-      </div>
-      <div hidden id="csv_area">
-        <button class='button' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
-      </div>
-      <br/>
-      <br/>
-      <a ><button id="next" type="Submit" class='button'>Finish &amp; Upload &raquo;</button></a>
     </div>
   </div>
   <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
@@ -174,6 +177,7 @@
                                 $(".overlay").fadeOut();
                                 $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); 
                                 contacts = [];
+                                return;
                               } 
                               else {
                                 $(".waiting").hide();   
@@ -287,6 +291,7 @@
         var win = window.open('');
         // $(".overlay").fadeIn();
         var len = do_import('LinkedIn','div#linkedin_area',win);
+        //TODO hide linkedin button
       });
 
       $("#csv").click(function(e) {
@@ -306,7 +311,7 @@
             contacts_array = contacts_array.slice(0, 20)
           }
 
-          var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, public_url:public_url, user_email:email_address, contacts_array: contacts_array}          
+          var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, lastName:lastName, public_url:public_url, user_email:email_address, contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
           $.ajax({
               type: 'POST',
               url: '/upload_cloudsponge',
@@ -315,15 +320,7 @@
               dataType: 'json',
               contentType: 'application/json; charset=utf-8',
               success: function(responseData, textStatus, jqXHR) {
-                  $(".waiting").hide();   
-                  $(".overlay").fadeOut();                
-                  var unique_contacts = JSON.parse(responseData);
-                  var n_unique = Object.keys(unique_contacts).length;
-                  $("div#upload_area").hide();
-                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total records uploaded " + "</i>"); 
-                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + n_unique.toLocaleString() + " unique contacts found " + "</i>");                   
-                  $("div#signup").append("<p>Congratulations on uploading your contacts. An email has been sent to " + email_address + " with further details on next steps.</p>");                   
-                  //alert('uploaded ' + contacts_array.length + ' contacts!')
+                window.location.href = "/pending?contacts=" + responseData.contacts;
               },
               error: function (responseData, textStatus, errorThrown) {
                   debugger;

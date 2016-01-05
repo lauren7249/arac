@@ -68,11 +68,13 @@ class ProcessingService(Service):
         required_client_keys = ["email","location","url","first_name","last_name"]
         for key in required_client_keys:
             if not self.client_data.get(key):
+                self.logger.error("Missing Key:{}".format(key))
                 return False
         for item in self.data:
             if item.get("contact"):
                 validated_data.append(item)
             else:
+                self.logger.error("Missing Key Contact For:{}".format(item))
                 return False
         self.data = validated_data
         return True

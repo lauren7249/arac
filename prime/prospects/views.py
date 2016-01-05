@@ -83,6 +83,13 @@ def start():
         return redirect(url_for("managers.manager_home"))
     return render_template('start.html')
 
+@prospects.route("/pending", methods=['GET'])
+def pending():
+    if not current_user.is_authenticated():
+        return redirect(url_for("auth.login"))
+    contact_count = request.args.get("contacts")
+    return render_template('pending.html', contact_count=contact_count)
+
 @prospects.route("/terms")
 def terms():
     return render_template('terms.html')
@@ -96,20 +103,28 @@ def upload():
         last_name = request.json.get("lastName")
         email = request.json.get("user_email","").lower()
         location = request.json.get("geolocation")
-        url = request.json.get("public_url","").lower()  
-        client_data = {"first_name":first_name,"last_name":last_name, "email":email,"location":location,"url":url}      
+        url = request.json.get("public_url","").lower()
+        image_url = request.json.get("image_url")
+        client_data = {"first_name":first_name,"last_name":last_name,\
+                "email":current_user.email,"location":location,"url":url}
         contacts_array = request.json.get("contacts_array",[])
         for record in contacts_array:
-            contact_email = record.get("emails",[{}])[0].get("address", "").lower() 
-            unique_emails.add(contact_email)       
+            contact_email = record.get("emails",[{}])[0].get("address", "").lower()
+            unique_emails.add(contact_email)
         conn = get_conn()
+        current_user.image_url = image_url
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.linkedin_email = email
+        session.add(current_user)
+        session.commit()
         q = Queue(connection=conn)
         random.shuffle(contacts_array)
         f = open('data/bigtext.json','w')
         f.write(json.dumps(contacts_array))
         f.close()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
-    return jsonify({"unique_contacts": len(list(unique_emails))})
+    return jsonify({"contacts": len(list(unique_emails))})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():

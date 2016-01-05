@@ -1,30 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='invite-agent'>
-  <div class='invite-box'>
-    <h4>Enter in email address to invite agent</h4>
-    <input type='text' name='first_name' placeholder='John' />
-    <input type='text' name='last_name' placeholder='Smith' />
-    <input type='text' name='email' placeholder='John_Smith@newyorklife.com' />
-    <button id='send' class='button primary big'><i class='fa fa-paper-plane-o'></i> Send Invitation</button><button id='close' class='button danger big'><i class='fa fa-ban'></i> Cancel</button>
-  </div>
-</div>
-  <div class="subheader">
-    <div class="wrap">
-      <div class="col-4">
-        <h2>Manager Dashboard</h2>
-      </div>
-      <div class="col-8">
-        <div class="subnav">
-          <ul>
-            <li><a href="#" class="selected">Selected Tab</a></li>
-            <li><a href="#">Request Hiring Screen</a></li>
-            <li><a href="#">Request P200</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% include "_partials/manager_header.html" with context %}
   <div class="section">
     <div class="wrap"> 
       <table class="manager-dashboard">
@@ -48,12 +24,12 @@
         {% for agent in agents %}
         <tr>
           <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}</span></td>
-          <td>64</td>
-          <td>720</td>
-          <td>784</td>
-          <td>48/100</td>
-          <td>34</td>
-          <td class="completed yes"></td>
+          <td>{% if agent.has_prospects %}{{ agent.primary_network_size }}{% else %}N/A{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ agent.extended_network_size }}{% else %}N/A{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ agent.total_network_size }}{% else %}N/A{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ agent.average_income_score }}{% else %}N/A{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ agent.average_age }}{% else %}N/A{% endif %}</td>
+          <td class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">{% if not agent.p200_completed and agent.hiring_screen_completed %}<button>Request P200</button>{% else %}<span class='pending'>Pending</span>{% endif %}</td>
         </tr>
         {% endfor %}
         {% endif %}

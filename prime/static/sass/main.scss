@@ -21,7 +21,6 @@ body {
 div.signup {
   padding: 40px;
   background: #eee;
-  width: 400px;
   margin: 20px auto;
   text-align: center;
 
@@ -192,37 +191,28 @@ div.graphs {
 }
 
 
-div.invite-agent {
-  display: none;
-  background: #fff;
-  background: rgba(255, 255, 255, 0.8);
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 5;
 
-  div.invite-box {
-    display: none;
-    background: #efefef;
-    border: 1px solid #ccc;
-    margin: 100px auto;
-    padding: 0 40px 20px;
-    width: 400px;
+.default-form {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 40px;
 
-    input {
-      width: auto;
-      margin-bottom: 10px;
-      width: 376px;
-    }
+  input {
+    width: 100%;
+    padding: 15px;
+    height: auto;
+    margin-bottom: 10px;
+  }
 
-    h4 {
-      font-size: 18px;
-      font-weight: 300;
-      color: $blue;
-      text-transform: uppercase;
-    }
+  button {
+    margin-right: 10px;
+  }
+
+  h4 {
+    font-size: 18px;
+    font-weight: 300;
+    color: $blue;
+    text-transform: uppercase;
   }
 }
 
@@ -331,5 +321,39 @@ div#manager {
         @include border-radius(10px);
       }
     }
+  }
+}
+
+.error {
+  border: 1px solid #ebccd1;
+  color: #a94442;
+  background-color: #f2dede;
+  @include border-radius(4px);
+  padding: 10px;
+  display: block;
+  margin-bottom: 10px;
+
+  span {
+    color: #a94442;
+    font-size: 12px;
+    display: block;
+    font-weight: 300;
+  }
+}
+
+.success {
+  border: 1px solid #d6e9c6;
+  color: #3c763d;
+  background-color: #dff0d8;
+  @include border-radius(4px);
+  padding: 10px;
+  display: block;
+  margin-bottom: 10px;
+
+  span {
+    color: #3c763d;
+    font-size: 12px;
+    display: block;
+    font-weight: 300;
   }
 }
