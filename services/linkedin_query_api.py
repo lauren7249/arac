@@ -78,12 +78,15 @@ def get_company(url=None, linkedin_id=None, version='1.0.0'):
             query = """SELECT * from %s where url='%s'""" % (COMPANY_TABLE, url)
         else:
             query = """SELECT * from %s where linkedin_id='%s'""" % (COMPANY_TABLE, linkedin_id)
-        cur.execute(query)
-        row = cur.fetchone()
-        if not row:
-            return {}
-        row = dict(row)
-        return row
+        try:
+            cur.execute(query)
+            row = cur.fetchone()
+            if not row:
+                return {}
+            row = dict(row)
+            return row
+        except:
+            pass
     return {}
 
 def get_person(url=None, linkedin_id=None, version='1.0.0'):

@@ -35,23 +35,25 @@ from extended_lead_service import ExtendedLeadService
 SAVE_OUTPUTS = False
 #RUN_EXTENDED = (sys.argv[-1] == "1")
 RUN_EXTENDED = True
+
+
 class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
-        #DO NOT REORDER THESE 
+        #DO NOT REORDER THESE
         if client_data.get("hired"):
             if RUN_EXTENDED:
                 CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, ExtendedProfilesService, ExtendedLeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
             else:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]   
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
         else:
             if RUN_EXTENDED:
                 CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ExtendedProfilesService, ExtendedLeadService, ResultService]
             else:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]   
-        SERVICES = OrderedDict()    
+                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
+        SERVICES = OrderedDict()
         for CLASS in CLASS_LIST:
-            SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS  
+            SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS
         self.client_data = client_data
         self.data = data
         self.services = SERVICES
@@ -119,7 +121,7 @@ if __name__ == '__main__':
     shuffle(data)
     data = data[:19]
     client_data = { "first_name":"Lauren","last_name":"Talbot", "email":"laurentracytalbot@gmail.com",
-                    "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc", "hired":True}  
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/laurentalbotnyc", "hired":True}
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,

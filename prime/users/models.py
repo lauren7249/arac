@@ -119,16 +119,30 @@ class User(db.Model, UserMixin):
                 continue
             first_degree_count+=1
             college_degree[client_prospect.prospect.college_grad] += 1
-            gender[client_prospect.prospect.gender] += 1      
+            gender[client_prospect.prospect.gender] += 1
             industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             for school in client_prospect.common_schools:
                 schools[school] = schools.get(school, 0) + 1
+        males = float(gender["male"])
+        females = float(gender["female"])
+
+        #Can't divide by 0
+        if females == 0:
+            female_percentage = 0
+        else:
+            female_percentage = females/float(males + females) * 100
+
+        if males == 0:
+            male_percentage = 0
+        else:
+            male_percentage = males/float(males + females) * 100
+
         data = {"schools": schools,
                 "network_size": first_degree_count,
                 "count_extended": extended_count,
                 "industries": industries,
-                "male_percentage": float(gender["male"])/float(gender["male"] + gender["female"]) * 100,
-                "female_percentage": float(gender["female"])/float(gender["male"] + gender["female"]) * 100,
+                "male_percentage": male_percentage,
+                "female_percentage": female_percentage,
                 "college_percentage": float(college_degree[True])/float(college_degree[True] + college_degree[False]) * 100,
                 "average_age": sum(average_age)/len(average_age),
                 "wealth_score": sum(wealth_score)/len(wealth_score)}
@@ -174,7 +188,7 @@ class ClientProspect(db.Model):
     lead_score = db.Column(Integer)
     stars = db.Column(Integer)
     common_schools = db.Column(JSONB, default=[])
-    
+
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
 
@@ -184,7 +198,7 @@ class ClientProspect(db.Model):
             key = c.name
             val = getattr(self, c.name)
             if not val:
-                continue            
+                continue
             try:
                 out[key] = json.dumps(val)
             except Exception, e:
