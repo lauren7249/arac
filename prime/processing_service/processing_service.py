@@ -33,24 +33,22 @@ from scoring_service import ScoringService
 from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
 SAVE_OUTPUTS = False
-#RUN_EXTENDED = (sys.argv[-1] == "1")
-RUN_EXTENDED = True
 
+FIRST_DEGREE_NETWORK = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService]
+FOR_NETWORK_SUMMARY = [AgeService, GenderService, CollegeDegreeService] 
+EXTENDED_NETWORK = [ExtendedProfilesService, ExtendedLeadService]
+CONTACT_INFO = [LinkedinCompanyService, PhoneService, SocialProfilesService]
+WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 
 class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
         #DO NOT REORDER THESE
         if client_data.get("hired"):
-            if RUN_EXTENDED:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, ExtendedProfilesService, ExtendedLeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
-            else:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
+            CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK + CONTACT_INFO + WRAP_UP
         else:
-            if RUN_EXTENDED:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ExtendedProfilesService, ExtendedLeadService, ProfileBuilderService, ScoringService, ResultService]
-            else:
-                CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, LinkedinCompanyService, AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
+            CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
+
         SERVICES = OrderedDict()
         for CLASS in CLASS_LIST:
             SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS
@@ -120,11 +118,11 @@ def save_output(output, user_email, service):
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     data = json.loads(_file.read())
-    shuffle(data)
+    #shuffle(data)
     data = data[:19]
     #user = User("James","Johnson","jamesjohnson11@gmail.com", "password")
     client_data = { "first_name":"James","last_name":"Johnson", "email":"jamesjohnson11@gmail.com",
-                    "location":"New York, New York","url":"http://www.linkedin.com/in/jamesjohnsona", "hired":False}
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/jamesjohnsona", "hired":True}
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,
