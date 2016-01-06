@@ -109,7 +109,7 @@ def upload():
                 "email":current_user.email,"location":location,"url":url}
         contacts_array = request.json.get("contacts_array",[])
         for record in contacts_array:
-            contact_email = record.get("emails",[{}])[0].get("address", "").lower()
+            contact_email = record.get('contact').get("email", [{}])[0].get('address')
             unique_emails.add(contact_email)
         conn = get_conn()
         current_user.image_url = image_url
