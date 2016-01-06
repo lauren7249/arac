@@ -276,27 +276,27 @@
               $("#enter").click();
           }
       });      
-      $("#submit").click(function() {
-        var export_id_string = document.getElementById("export_id").value;
-        $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
-          function(data) {
-            try {
-              var email_str = data.email;
-              email_address = email_str.split("<")[1].split(">")[0];
-              email_name = email_str.split("<")[0];
-              document.getElementById("owner_name").innerHTML = email_name;   
-              document.getElementById("owner_email").innerHTML = email_address;   
-              document.getElementById("owner_geolocation").innerHTML = geolocation; 
-              $("div#upload_area").show();        
-            } 
-            catch (err) {
-              console.log("Err");
-              alert("Invalid code");
-            }
+      // $("#submit").click(function() {
+      //   var export_id_string = document.getElementById("export_id").value;
+      //   $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
+      //     function(data) {
+      //       try {
+      //         var email_str = data.email;
+      //         email_address = email_str.split("<")[1].split(">")[0];
+      //         email_name = email_str.split("<")[0];
+      //         document.getElementById("owner_name").innerHTML = email_name;   
+      //         document.getElementById("owner_email").innerHTML = email_address;   
+      //         document.getElementById("owner_geolocation").innerHTML = geolocation; 
+      //         $("div#upload_area").show();        
+      //       } 
+      //       catch (err) {
+      //         console.log("Err");
+      //         alert("Invalid code");
+      //       }
 
-        })
-        .error(function() { alert("Invalid code"); });               
-      })       
+      //   })
+      //   .error(function() { alert("Invalid code"); });               
+      // })       
       $("#enter").click(function() {
         email_address = document.getElementById("email_address").value;
         geolocation = document.getElementById("geolocation").value;
