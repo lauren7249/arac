@@ -14,8 +14,7 @@ sys.path.append(PRIME_DIR)
 logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
-import pdb
-pdb.set_trace()
+from prime import config
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
@@ -43,6 +42,7 @@ class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
         #DO NOT REORDER THESE
+        self.web_url = config[os.getenv('AC_CONFIG', 'default')].BASE_URL
         if client_data.get("hired"):
             if RUN_EXTENDED:
                 CLASS_LIST = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService, ExtendedProfilesService, ExtendedLeadService, SocialProfilesService, LinkedinCompanyService, PhoneService,  AgeService, GenderService, CollegeDegreeService, ProfileBuilderService, ScoringService, ResultService]
@@ -105,7 +105,7 @@ class ProcessingService(Service):
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/done.html')
-        body = tmpl.render()
+        body = tmpl.render(url=self.web_url)
         subject = "Your p200 List is ready!"
         to_email = self.client_data.get("email")
         sendgrid_email(to_email, subject, body)
