@@ -15,9 +15,19 @@ if __name__ == '__main__':
     manager = Manager(app)
 
     @manager.command
-    def daily_email():
-        from prime.users.email import send_daily_email
-        send_daily_email()
+    def generate_fake():
+        from prime.users.models import db, User
+        from prime.managers.models import ManagerProfile
+        session = db.session
+        u = User('Test', 'Person', 'jamesjohnson11@gmail.com', '123123123')
+        session.add(u)
+        u2 = User('Test', 'Manager', 'laurentracytalbot@gmail.com', '123123123')
+        session.add(u2)
+        mp = ManagerProfile()
+        mp.user = u2
+        mp.users.append(u)
+        session.add(mp)
+        session.commit()
 
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))
