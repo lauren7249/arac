@@ -88,6 +88,9 @@ class SocialProfilesRequest(S3SavedRequest):
             _link = req.process()        
             if _link:
                 good_links.append(_link)
+                #self.logger.info(_link + " was AWESOME")
+            else:
+                self.logger.warn(_link + " was invalid")
         return good_links
 
     def _get_alchemy_tags(self, url):
