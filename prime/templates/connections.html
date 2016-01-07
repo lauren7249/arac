@@ -6,21 +6,17 @@
   <div class="wrap">
     <div class="col-8">
       <div class="filters"><b>Filters:</b><span>
-          <select>
+          <select name='stars'>
             <option>Any Rating</option>
             <option>Three Stars</option>
             <option>Two Stars</option>
             <option>One Star</option>
           </select></span><span>
-          <select>
+          <select name='market'>
             <option>Any Market</option>
-            <option>Real Estate</option>
-            <option>Financial Services</option>
-            <option>Marketing</option>
-            <option>Health Care</option>
-            <option>Oil &amp; Energy</option>
-            <option>Sports</option>
-            <option>Advertising</option>
+            {% for industry in agent.industries %}
+            <option value='{{ industry[0] }}'>{{ industry[0] }}</option>
+            {% endfor %}
           </select></span></div>
     </div>
     <div class="col-4">
@@ -32,8 +28,8 @@
   </div>
 </div>
 <hr/>
-<div class="section">
-  <div class="wrap">
+<div class="section" id='connections-section'>
+  <div class="wrap" id='connections'>
     <table class="contacts-table">
       <thead>
         <th>
@@ -62,7 +58,7 @@
           <div class="contact-info">
             <div class="col-2"><img src='{{ connection.image }}' /></div>
             <div class="col-6">
-              <div class="name"> <span>{{ connection.name }}</span><span class="stars {{ connection.stars }}"></span></div>
+              <div class="name"> <span>{{ connection.linkedin_name }}</span><span class="stars {{ connection.stars }}"></span></div>
               <div class="job">{{ connection.linkedin_headline }}</div>
               <div class="tags">
                 {% for tag in connection.tags %}<span>{{ tag }}</span>{% endfor %}
@@ -72,19 +68,19 @@
               <div class="contact-links">
                 <a href="#" data-tooltip="25 Financial Services Contacts" class="financial"></a>
                 {% if connection.facebook %}
-                <a href="#" class="facebook"></a>
+                <a href="{{ connection.facebook }}" class="facebook" data-tooltip="{{ connection.facebook }}"></a>
                 {% endif %}
                 {% if connection.linkedin %}
-                <a href="#" class="linkedin"></a>
+                <a href="{{ connection.linkedin }}" class="linkedin" data-tooltip="{{ connection.linkedin }}"></a>
                 {% endif %}
                 {% if connection.twitter %}
-                <a href="#" class="twitter"></a>
+                <a href="{{ connection.twitter }}" class="twitter" data-tooltip="{{ connection.twitter }}"></a>
                 {% endif %}
                 {% if connection.pinterest %}
                 <a href="#" class="pinterest"></a>
                 {% endif %}
                 {% if connection.email_addresses %}
-                <a href="#" class="email" data-tooltip="{{ connection.email_addresses }}"></a>
+                <a href="#" class="email" data-tooltip="{{ connection.emails }}"></a>
                 {% endif %}
                 {% if connection.phone %}
                 <a href="#" class="phone" data-tooltip="{{ connection.phone }}"></a>
@@ -138,4 +134,15 @@
     </div>
   </div>
 </footer>
+<script type='text/javascript'>
+($(function() {
+   $("[name='search-box']").keyup(function() {
+     var length = $(this).val().length;
+     if (length > 2) {
+     $("#connections-section").load(function() {
+     });
+     }
+   });
+ }))();
+</script>
 {% endblock %}

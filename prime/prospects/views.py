@@ -17,6 +17,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
+from prime.users.models import User, ClientProspect
 from prime.managers.models import ManagerProfile
 from prime import db, csrf
 
@@ -173,10 +174,6 @@ class SearchResults(object):
         if self.filter:
             self.sql_query = self._filter()
         return self.sql_query
-
-
-
-
 
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
