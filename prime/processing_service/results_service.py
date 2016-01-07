@@ -170,6 +170,7 @@ class ResultService(Service):
                 continue
             self._create_or_update_schools(prospect, profile)
             self._create_or_update_jobs(prospect, profile)
+            #print prospect.to_json()
             client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
             if not client_prospect:
                 self.logger.error("no client prospect")

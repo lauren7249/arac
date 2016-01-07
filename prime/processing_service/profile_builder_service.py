@@ -15,6 +15,7 @@ HIRED = False
 AGENT_SCHOOLS = set()
 
 def wrapper(person):
+    global HIRED
     request = ProfileBuilderRequest(person, HIRED)
     profile = request.process()
     profile = request._get_job_fields(profile, person)
@@ -30,7 +31,7 @@ class ProfileBuilderService(Service):
         self.data = data
         self.client_data = client_data
         self.data = data
-        # global HIRED
+        global HIRED
         HIRED = self.client_data.get("hired")
         self.output = []
         self.wrapper = wrapper
