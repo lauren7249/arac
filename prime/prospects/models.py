@@ -87,8 +87,8 @@ class Prospect(db.Model):
 
     @property
     def image(self):
-        if self.linkedin_image_url:
-            return self.linkedin_image_url
+        if self.main_profile_image:
+            return self.main_profile_image
         return "/static/img/person_image.png"
 
     @property
