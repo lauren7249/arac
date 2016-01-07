@@ -44,6 +44,7 @@ class User(db.Model, UserMixin):
 
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
+    linkedin_location = db.Column(String(1024))
     image_url = db.Column(String(1024))
     linkedin_email = db.Column(String(1024))
     created = db.Column(DateTime, default=datetime.datetime.today())

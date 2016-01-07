@@ -18,6 +18,7 @@ from flask.ext.login import current_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime.users.models import User
+from prime.managers.models import ManagerProfile
 from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -105,17 +106,26 @@ def upload():
         location = request.json.get("geolocation")
         url = request.json.get("public_url","").lower()
         image_url = request.json.get("image_url")
+        manager = ManagerProfile.query.filter(\
+                ManagerProfile.users.contains(current_user)).first()
+        to_email = manager.user.email
         client_data = {"first_name":first_name,"last_name":last_name,\
-                "email":current_user.email,"location":location,"url":url}
+                "email":current_user.email,"location":location,"url":url,\
+                "to_email":to_email}
         contacts_array = request.json.get("contacts_array",[])
         for record in contacts_array:
             contact_email = record.get('contact').get("email", [{}])[0].get('address')
             unique_emails.add(contact_email)
+
+        from prime.processing_service.saved_request import UserRequest
+        user_request = UserRequest(current_user.email)
+        user_request._make_request(contacts_array)
         conn = get_conn()
         current_user.image_url = image_url
         current_user.first_name = first_name
         current_user.last_name = last_name
         current_user.linkedin_email = email
+        current_user.linkedin_location = location
         session.add(current_user)
         session.commit()
         q = Queue(connection=conn)
@@ -128,5 +138,8 @@ def upload():
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
-    return render_template("dashboard.html")
+    if not current_user.p200_completed:
+        return redirect(url_for('prospects.pending'))
+    agent = current_user
+    return render_template("dashboard.html", agent=agent)
 

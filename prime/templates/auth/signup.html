@@ -1,60 +1,62 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='signup'>
-  <div class='well col-lg-9 center'>
-    <div class='row col-md-5'>
-    <div class='logo'>
-      <img src='{{ static_url() }}img/NewYorkLife.png' />
-    </div>
-      <h1>Welcome to AdvisorConnect!  </h1>
-      <p>Spend less time searching and more time closing. </p>
-    </div>
-    <div class='row col-md-7'>
-      <form class="form-horizontal" action='' method='POST'>
-        {% if signup_form.errors %}
-        <div class='alert alert-dismissable alert-danger'>
-          {% for error in signup_form.errors.items() %}
-          <div>
-            <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
-          </div>
-          {% endfor %}
+<div class='wrap'>
+  <div class='signup'>
+    <div class='well col-lg-9 center'>
+      <div class='row col-md-5'>
+        <div class='logo'>
+          <img src='{{ static_url() }}img/NewYorkLife.png' />
         </div>
-        {%endif%}
-        {{ signup_form.csrf_token }}
-        <input type='hidden' name='code' value='{{ code }}' />
-        <fieldset>
-          <legend>Enter a password</legend>
-          <div class="form-group">
-            <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
-            <div class="col-lg-10">
-              <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
+        <h1>Welcome to AdvisorConnect!  </h1>
+        <p>Spend less time searching and more time closing. </p>
+      </div>
+      <div class='row col-md-7'>
+        <form class="form-horizontal" action='' method='POST'>
+          {% if signup_form.errors %}
+          <div class='alert alert-dismissable alert-danger'>
+            {% for error in signup_form.errors.items() %}
+            <div>
+              <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
             </div>
+            {% endfor %}
           </div>
-          <div class="form-group">
-            <label for="inputPassword" class="col-lg-2 control-label">Confirm Password:</label>
-            <div class="col-lg-10">
-              <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Confirm Password">
-              <span class="checkbox">
-                <label>I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a></label>
-              </span>
+          {%endif%}
+          {{ signup_form.csrf_token }}
+          <input type='hidden' name='code' value='{{ code }}' />
+          <fieldset>
+            <legend>Enter a password</legend>
+            <div class="form-group">
+              <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
+              <div class="col-lg-10">
+                <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="col-lg-10 col-lg-offset-2">
-              <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="form-group">
+              <label for="inputPassword" class="col-lg-2 control-label">Confirm Password:</label>
+              <div class="col-lg-10">
+                <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Confirm Password">
+                <span class="checkbox">
+                  <label>I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a></label>
+                </span>
+              </div>
             </div>
-          </div>
-        </fieldset>
-      </form>
+            <div class="form-group">
+              <div class="col-lg-10 col-lg-offset-2">
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        <div class='clear'></div>
+      </div>
       <div class='clear'></div>
     </div>
+    <br />
+    <div class="alert alert-dismissable alert-success col-lg-7 centered">
+      Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
+    </div>
+    <br/>
     <div class='clear'></div>
   </div>
-  <br />
-  <div class="alert alert-dismissable alert-success col-lg-7 centered">
-    Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
-  </div>
-  <br/>
-  <div class='clear'></div>
 </div>
 {% endblock %}

@@ -37,7 +37,7 @@ header #settings {
 header #settings div.autocomplete {
   display: none;
   position: absolute;
-  top: 45px;
+  top: 23px;
   right: 0;
   border: 1px solid #eee;
   border-top: 0;
@@ -506,6 +506,10 @@ table.manager-dashboard td.agent span {
   vertical-align: middle;
   font-size: 14px;
   font-weight: bold;
+}
+table.manager-dashboard td.agent .email {
+  font-size: 10px;
+  display: block;
 }
 table.manager-dashboard td.agent .face {
   margin-right: 10px;

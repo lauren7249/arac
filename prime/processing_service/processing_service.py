@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
 from prime import config
+from prime.users.models import User
+from prime.managers.models import ManagerProfile
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
@@ -100,12 +102,14 @@ class ProcessingService(Service):
             #     print json.dumps(output, sort_keys=True, indent=4)
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
+        subject = "Your p200 List is ready!"
+        name = "{} {}".format(self.client_data.get("first_name"), \
+        self.client_data.get("last_name"))
+        to_email = self.client_data.get("to_email")
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/done.html')
-        body = tmpl.render(url=self.web_url)
-        subject = "Your p200 List is ready!"
-        to_email = self.client_data.get("email")
+        body = tmpl.render(url=self.web_url, name=name)
         sendgrid_email(to_email, subject, body)
         return output
 

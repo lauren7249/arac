@@ -35,7 +35,7 @@ class ClearbitRequest(S3SavedRequest):
             else:
                 entity = None
         except HTTPError as e:
-            self.logger.info('Clearbit Fail')        
+            self.logger.info('Clearbit Fail')
             return None
         return entity
 
@@ -55,11 +55,11 @@ class ClearbitRequest(S3SavedRequest):
                 entity = self._get_entity(self.query, type)
                 if not entity:
                     entity = {}
-                    break     
-                entity = dict(entity)           
+                    break
+                entity = dict(entity)
                 if entity.get("pending",False):
                     self.logger.info('Clearbit Response PENDING')
-                    time.sleep(2)                
+                    time.sleep(2)
                 else:
                     break
             entity.pop('response', None)

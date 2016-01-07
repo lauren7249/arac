@@ -23,13 +23,13 @@
         {% else %}
         {% for agent in agents %}
         <tr>
-          <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}</span></td>
+          <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}<span class='email'>{{ agent.email }}</span></span></td>
           <td>{% if agent.has_prospects %}{{ agent.primary_network_size }}{% else %}N/A{% endif %}</td>
           <td>{% if agent.has_prospects %}{{ agent.extended_network_size }}{% else %}N/A{% endif %}</td>
           <td>{% if agent.has_prospects %}{{ agent.total_network_size }}{% else %}N/A{% endif %}</td>
           <td>{% if agent.has_prospects %}{{ agent.average_income_score }}{% else %}N/A{% endif %}</td>
           <td>{% if agent.has_prospects %}{{ agent.average_age }}{% else %}N/A{% endif %}</td>
-          <td class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">{% if not agent.p200_completed and agent.hiring_screen_completed %}<button>Request P200</button>{% else %}<span class='pending'>Pending</span>{% endif %}</td>
+          <td class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">{% if not agent.p200_completed and agent.hiring_screen_completed %}<button>Request P200</button>{% else %}{% if not agent.p200_completed %}<span class='pending'>Pending</span>{% endif %}{% endif %}</td>
         </tr>
         {% endfor %}
         {% endif %}

@@ -12,6 +12,7 @@ from flask.ext.login import current_user, login_required
 
 from . import manager
 from prime.prospects.models import Prospect, Job, Education
+from prime.managers.models import ManagerProfile
 from prime.users.models import User, ClientProspect
 from prime.utils.email import sendgrid_email
 from prime.utils import random_string
@@ -72,6 +73,33 @@ def manager_invite_agent():
             success = True
     return render_template('manager/invite.html', active="invite",
             error_message=error_message, success=success)
+
+@csrf.exempt
+@manager.route("/request_p200", methods=['GET', 'POST'])
+def request_p200():
+    if request.method == 'POST':
+        user_id = request.json.get("user_id")
+        user = User.query.filter(User.id == user_id).first()
+        manager = ManagerProfile.query.filter(\
+                ManagerProfile.users.contains(user)).first()
+        to_email = manager.user.email
+        client_data = {"first_name":user.first_name,"last_name":user.last_name,\
+                "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
+                "to_email":to_email}
+        conn = get_conn()
+        current_user.image_url = image_url
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.linkedin_email = email
+        session.add(current_user)
+        session.commit()
+        q = Queue(connection=conn)
+        random.shuffle(contacts_array)
+        f = open('data/bigtext.json','w')
+        f.write(json.dumps(contacts_array))
+        f.close()
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
+    return jsonify({"contacts": len(list(unique_emails))})
 
 @manager.route("/test_email", methods=['GET'])
 def test_email():

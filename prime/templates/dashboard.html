@@ -1,21 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="subheader">
-  <div class="wrap">
-    <div class="col-4">
-      <h2>Summary of Brian's Network</h2>
-    </div>
-    <div class="col-8">
-      <div class="subnav">
-        <ul>
-          <li><a href="#" class="selected">Selected Tab</a></li>
-          <li><a href="#">Request Hiring Screen</a></li>
-          <li><a href="#">Request P200</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>  
+{% include "_partials/agent_header.html" %}
 <!-- Contact Header Card-->
 <div class="section">
   <div class="wrap contact-info contact-header-card">
@@ -24,7 +9,7 @@
         <td>
           <div class="col-2"><img src="https://s3.amazonaws.com/uifaces/faces/twitter/jsa/128.jpg"/></div>
           <div class="col-6">
-            <div class="name"> <span>Justin Botelho</span><span class="stars three-star"></span></div>
+            <div class="name"> <span>{{ agent.name }}</span><span class="stars three-star"></span></div>
             <div class="job">Infrastructure Consultant, Accenture</div>
             <div class="tags"><span>Cornell University</span><span>Accenture</span><span>Rowing</span><span>Sailing</span><span>Marketing</span></div>
           </div>

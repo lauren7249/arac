@@ -63,7 +63,7 @@ header {
     div.autocomplete {
       display: none;
       position: absolute;
-      top: 45px;
+      top: 23px;
       right: 0;
       border: 1px solid #eee;
       border-top: 0;
@@ -536,6 +536,10 @@ table.manager-dashboard {
       vertical-align: middle;
       font-size: 14px;
       font-weight: bold;
+    }
+    .email {
+      font-size: 10px;
+      display: block;
     }
     .face {
       margin-right: 10px;
