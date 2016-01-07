@@ -171,6 +171,7 @@ class ResultService(Service):
             self._create_or_update_schools(prospect, profile)
             self._create_or_update_jobs(prospect, profile)
             client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
+            print client_prospect.prospect.facebook
             if not client_prospect:
                 self.logger.error("no client prospect")
                 continue

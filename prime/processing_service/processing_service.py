@@ -112,7 +112,7 @@ class ProcessingService(Service):
         else:
             name = "{} {}".format(self.client_data.get("first_name"), \
                 self.client_data.get("last_name"))
-            subject = "{}'s p200 List is ready!".format(name
+            subject = "{}'s p200 List is ready!".format(name)
             to_email = self.client_data.get("to_email")
             tmpl = env.get_template('emails/network_summary_done.html')
         body = tmpl.render(url=self.web_url, name=name)
