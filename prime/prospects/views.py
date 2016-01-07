@@ -143,6 +143,41 @@ def dashboard():
     agent = current_user
     return render_template("dashboard.html", agent=agent, active = "dashboard")
 
+
+class SearchResults(object):
+
+    def __init__(self, sql_query, query=None, rating=None, filter=None, *args, **kwargs):
+        self.sql_query = sql_query
+        self.query = query
+        self.rating = rating
+        self.filter = filter
+
+    def _rating(self):
+        return self.sql_query.filter(ClientProspect.stars == self.stars)
+
+    def _filter(self):
+        return self.sql_query.filter(Prospect.industry == self.filter)
+
+    def _search(self):
+        return self.sql_query.filter(
+                Prospect.linkedin_name.like("%{}%".format(query)),
+                Job.name.like("%{}%".format(query)),
+                Education.name.like("%{}%".format(query))
+                    )
+
+    def results(self):
+        if self.query:
+            self.sql_query = self._search()
+        if self.rating:
+            self.sql_query = self._rating()
+        if self.filter:
+            self.sql_query = self._filter()
+        return self.sql_query
+
+
+
+
+
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.p200_completed:
