@@ -40,7 +40,7 @@ SAVE_OUTPUTS = False
 FIRST_DEGREE_NETWORK = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService]
 FOR_NETWORK_SUMMARY = [AgeService, GenderService, CollegeDegreeService]
 EXTENDED_NETWORK = [ExtendedProfilesService, ExtendedLeadService]
-CONTACT_INFO = [LinkedinCompanyService, PhoneService, SocialProfilesService]
+CONTACT_INFO = [SocialProfilesService, LinkedinCompanyService, PhoneService]
 WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 
 class ProcessingService(Service):
