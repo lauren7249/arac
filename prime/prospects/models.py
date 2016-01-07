@@ -51,7 +51,7 @@ class Prospect(db.Model):
 
     email_addresses = db.Column(JSONB)
     profile_image_urls = db.Column(JSONB)
-    
+
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))
     company_website = db.Column(String(1024))
@@ -60,8 +60,8 @@ class Prospect(db.Model):
     name = db.Column(String(1024))
     main_profile_image = db.Column(String(1024))
     main_profile_url = db.Column(String(1024))
-    mailto = db.Column(String(1024)) 
-    phone = db.Column(String(100)) 
+    mailto = db.Column(String(1024))
+    phone = db.Column(String(100))
     #social profiles
     facebook = db.Column(String(1024))
     twitter = db.Column(String(1024))
@@ -74,16 +74,32 @@ class Prospect(db.Model):
     amazon = db.Column(String(1024))
     linkedin = db.Column(String(1024))
     foursquare = db.Column(String(1024))
-    github = db.Column(String(1024))    
+    github = db.Column(String(1024))
     #for filtering and network summary: TODO: ADD IN
     industry_category = db.Column(String(100))
-    industry_icon = db.Column(String(200)) 
+    industry_icon = db.Column(String(200))
 
     #fields for network summary only
     gender = db.Column(String(15))
     college_grad = db.Column(Boolean)
     wealthscore = db.Column(Integer)
     age = db.Column(Float)
+
+    @property
+    def image(self):
+        if self.linkedin_image_url:
+            return self.linkedin_image_url
+        return "/static/img/person_image.png"
+
+    @property
+    def name(self):
+        return "{}".format(self.linkedin_name)
+
+    @property
+    def tags(self):
+        jobs = list(set([c.company_name for c in self.jobs]))[:4]
+        schools = list(set([s.school_name for s in self.schools]))[:4]
+        return jobs + schools
 
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
@@ -170,9 +186,9 @@ class CloudspongeRecord(db.Model):
     @property
     def get_emails(self):
         all_emails = []
-        info = self.contact 
+        info = self.contact
         emails = info.get("email",[{}])
         for email in emails:
             address = email.get("address").lower()
             if address: all_emails.append(address)
-        return all_emails   
+        return all_emails

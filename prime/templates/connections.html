@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include "_partials/agent_header.html" %}
+<!-- Contacts Table-->
+<div class="section">
+  <div class="wrap">
+    <div class="col-8">
+      <div class="filters"><b>Filters:</b><span>
+          <select>
+            <option>Any Rating</option>
+            <option>Three Stars</option>
+            <option>Two Stars</option>
+            <option>One Star</option>
+          </select></span><span>
+          <select>
+            <option>Any Market</option>
+            <option>Real Estate</option>
+            <option>Financial Services</option>
+            <option>Marketing</option>
+            <option>Health Care</option>
+            <option>Oil &amp; Energy</option>
+            <option>Sports</option>
+            <option>Advertising</option>
+          </select></span></div>
+    </div>
+    <div class="col-4">
+      <div class="search">
+        <input type="search" placeholder="Search Contacts"/>
+        <button id="search-button"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<hr/>
+<div class="section">
+  <div class="wrap">
+    <table class="contacts-table">
+      <thead>
+        <th>
+          <input type="checkbox" />
+        </th>
+        <th>Add Selected Contacts</th>
+        <th class="select-all-buttons">
+          <div class="wrap">
+            <div class="col-6">
+              <button class="button teal">Add Selected</button>
+            </div>
+            <div class="col-6">
+              <button class="button grey">Skip Selected</button>
+            </div>
+          </div>
+        </th>
+      </thead>
+      <tbody>
+      {% if connections %}
+      {% for connection in connections %}
+      <tr data-row='{{ connection.id }}'>
+        <td>
+          <input data-conection-id='{{ connection.id }}' type="checkbox" />
+        </td>
+        <td>
+          <div class="contact-info">
+            <div class="col-2"><img src='{{ connection.image }}' /></div>
+            <div class="col-6">
+              <div class="name"> <span>{{ connection.name }}</span><span class="stars {{ connection.stars }}"></span></div>
+              <div class="job">{{ connection.linkedin_headline }}</div>
+              <div class="tags">
+                {% for tag in connection.tags %}<span>{{ tag }}</span>{% endfor %}
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="contact-links">
+                <a href="#" data-tooltip="25 Financial Services Contacts" class="financial"></a>
+                {% if connection.facebook %}
+                <a href="#" class="facebook"></a>
+                {% endif %}
+                {% if connection.linkedin %}
+                <a href="#" class="linkedin"></a>
+                {% endif %}
+                {% if connection.twitter %}
+                <a href="#" class="twitter"></a>
+                {% endif %}
+                {% if connection.pinterest %}
+                <a href="#" class="pinterest"></a>
+                {% endif %}
+                {% if connection.email_addresses %}
+                <a href="#" class="email" data-tooltip="{{ connection.email_addresses }}"></a>
+                {% endif %}
+                {% if connection.phone %}
+                <a href="#" class="phone" data-tooltip="{{ connection.phone }}"></a>
+                {% endif %}
+                {% if connection.linkedin_location %}
+                <a href="#" class="location"></a>
+                {% endif %}
+                {% if connection.amazon %}
+                <a href="#" class="amazon" data-tooltip="{{ connection.amazon }}"></a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="contact-buttons">
+          <div class="wrap">
+            <div class="col-6">
+              <button class="button teal">Add</button>
+            </div>
+            <div class="col-6">
+              <button class="button grey">Skip</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan='3'>
+            <div class="col-12">
+              <div class='padding-20'>
+                <div class="name"> <span>There Are currently no prospects we can show you. Please contact jeff@advisorconnect.co if this seems incorrect.</span></div>
+              </div>
+            </div>
+          </td>
+      </tr>
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- Footer-->
+<footer>
+  <div class="wrap">
+    <div class="col-6">
+      <div class="copyright">&copy; 2016 AdvisorConnect</div>
+      <div class="footer-links"><span><a href="#">Help</a></span><span><a href="#">FAQs</a></span><span><a href="#">Contact</a></span><span><a href="#">About</a></span></div>
+    </div>
+    <div class="col-6 text-right">
+      <div class="footer-logo"></div>
+    </div>
+  </div>
+</footer>
+{% endblock %}

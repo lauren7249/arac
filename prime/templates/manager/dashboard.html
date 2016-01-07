@@ -29,7 +29,16 @@
           <td>{% if agent.has_prospects %}{{ agent.total_network_size }}{% else %}N/A{% endif %}</td>
           <td>{% if agent.has_prospects %}{{ agent.average_income_score }}{% else %}N/A{% endif %}</td>
           <td>{% if agent.has_prospects %}{{ agent.average_age }}{% else %}N/A{% endif %}</td>
-          <td class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">{% if not agent.p200_completed and agent.hiring_screen_completed %}<button>Request P200</button>{% else %}{% if not agent.p200_completed %}<span class='pending'>Pending</span>{% endif %}{% endif %}</td>
+          <td data-td='{{ agent.user_id }}' class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">
+            {% if agent.status == 'p200_completed' %}
+            {% elif agent.status == 'p200_started' %}
+            <span class='pending'>P200 Pending</span>
+            {% elif agent.status == 'hiring_screen_completed' %}
+            <button data-p200-id='{{ agent.user_id }}' class='button teal'>Request P200</button>
+            {% else %}
+            <span class='pending'>Pending</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
         {% endif %}
@@ -40,36 +49,16 @@
 <script type='text/javascript'>
 var csrftoken = "{{ csrf_token() }}"
 $(function() {
-    $("#send").click(function() {
-        var email = $("[name='email']").val();
-        var first_name = $("[name='first_name']").val();
-        var last_name = $("[name='last_name']").val();
-        if (email == '' || first_name == '' || last_name == '') {
-          alert("You must fill out all fields");
-          return false;
-        }
-        var data = {csrf_token:csrftoken, 
-                  first_name:first_name,
-                  last_name:last_name, 
-                  email:email}
-        $.post("/managers/invite", data, function(data) {
-          if (data.error) {
-            alert(data.error)
-          }
-          $(".invite-box").slideUp();
-          $(".invite-agent").fadeOut();
+
+    $("[data-p200-id]").click(function() {
+        var user_id = $(this).data("p200-id")
+        $.post("/managers/request_p200", {user_id:user_id}, function(data){
+            $('["data-td="' + user_id + '"]').html("<span class='pending'>P200 Pending</span>")
+            alert("P200 Started");
+          });
       });
-    });
 
-    $("#close").click(function() {
-        $(".invite-box").slideUp();
-        $(".invite-agent").fadeOut();
-    });
 
-    $("#invite").click(function() {
-          $(".invite-agent").fadeIn();
-          $(".invite-box").slideDown();
-    });
 });
 </script>
 {% endblock %}

@@ -10,6 +10,10 @@ from flask import render_template, request, redirect, url_for, flash, session, \
 jsonify, current_app
 from flask.ext.login import current_user, login_required
 
+from rq import Queue
+from redis import Redis
+from rq import Queue
+
 from . import manager
 from prime.prospects.models import Prospect, Job, Education
 from prime.managers.models import ManagerProfile
@@ -78,28 +82,28 @@ def manager_invite_agent():
 @manager.route("/request_p200", methods=['GET', 'POST'])
 def request_p200():
     if request.method == 'POST':
-        user_id = request.json.get("user_id")
-        user = User.query.filter(User.id == user_id).first()
+        user_id = int(request.form.get('user_id'))
+        user = User.query.filter(User.user_id == user_id).first()
         manager = ManagerProfile.query.filter(\
                 ManagerProfile.users.contains(user)).first()
         to_email = manager.user.email
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
-                "to_email":to_email}
+                "to_email":to_email, "hired": True}
+        from prime.processing_service.saved_request import UserRequest
+        user_request = UserRequest(user.email)
+        contacts_array = user_request.lookup_data()
+        from prime.prospects.views import queue_processing_service, get_conn
         conn = get_conn()
-        current_user.image_url = image_url
-        current_user.first_name = first_name
-        current_user.last_name = last_name
-        current_user.linkedin_email = email
-        session.add(current_user)
-        session.commit()
         q = Queue(connection=conn)
-        random.shuffle(contacts_array)
         f = open('data/bigtext.json','w')
         f.write(json.dumps(contacts_array))
         f.close()
+        user.p200_started = True
+        session.add(user)
+        session.commit()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
-    return jsonify({"contacts": len(list(unique_emails))})
+    return jsonify({"sucess": True})
 
 @manager.route("/test_email", methods=['GET'])
 def test_email():

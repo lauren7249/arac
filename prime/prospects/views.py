@@ -17,7 +17,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
-from prime.users.models import User
+from prime.users.models import User, ClientProspect
 from prime.managers.models import ManagerProfile
 from prime import db, csrf
 
@@ -122,6 +122,7 @@ def upload():
         user_request._make_request(contacts_array)
         conn = get_conn()
         current_user.image_url = image_url
+        current_user.linkedin_url = url
         current_user.first_name = first_name
         current_user.last_name = last_name
         current_user.linkedin_email = email
@@ -141,5 +142,27 @@ def dashboard():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     agent = current_user
-    return render_template("dashboard.html", agent=agent)
+    return render_template("dashboard.html", agent=agent, active = "dashboard")
+
+@prospects.route("/connections", methods=['GET', 'POST'])
+def connections():
+    if not current_user.p200_completed:
+        return redirect(url_for('prospects.pending'))
+    agent = current_user
+    connections = agent.prospects.filter(ClientProspect.extended==False).order_by(ClientProspect.lead_score.desc())
+    return render_template("connections.html",
+            agent=agent,
+            connections=connections,
+            active="connections")
+
+@prospects.route("/extended/connections", methods=['GET', 'POST'])
+def extended_connections():
+    if not current_user.p200_completed:
+        return redirect(url_for('prospects.pending'))
+    agent = current_user
+    connections = agent.prospects.filter(ClientProspect.extended==True).order_by(ClientProspect.lead_score.desc())
+    return render_template("connections.html",
+            agent=agent,
+            connections=connections,
+            active="extended")
 

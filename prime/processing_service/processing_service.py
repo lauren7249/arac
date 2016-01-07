@@ -102,13 +102,19 @@ class ProcessingService(Service):
             #     print json.dumps(output, sort_keys=True, indent=4)
         end = time.time()
         self.logger.info('Total Run Time: %s', end - self.start)
-        subject = "Your p200 List is ready!"
-        name = "{} {}".format(self.client_data.get("first_name"), \
-        self.client_data.get("last_name"))
-        to_email = self.client_data.get("to_email")
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
-        tmpl = env.get_template('emails/done.html')
+        if self.client_data.get("hired"):
+            subject = "Your p200 List is ready!"
+            to_email = self.client_data.get("email")
+            tmpl = env.get_template('emails/p200_done.html')
+            name = self.client_data.get("first_name")
+        else:
+            name = "{} {}".format(self.client_data.get("first_name"), \
+                self.client_data.get("last_name"))
+            subject = "{}'s p200 List is ready!".format(name
+            to_email = self.client_data.get("to_email")
+            tmpl = env.get_template('emails/network_summary_done.html')
         body = tmpl.render(url=self.web_url, name=name)
         sendgrid_email(to_email, subject, body)
         return output

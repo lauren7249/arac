@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 import datetime
 import logging
 import json
@@ -28,7 +29,6 @@ from prime.customers.models import Customer
 
 logger = logging.getLogger(__name__)
 
-
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
@@ -49,10 +49,12 @@ class User(db.Model, UserMixin):
     linkedin_email = db.Column(String(1024))
     created = db.Column(DateTime, default=datetime.datetime.today())
 
-    prospects = db.relationship('Prospect', secondary="client_prospect", backref=db.backref('prospects', lazy='dynamic'))
+    prospects = db.relationship('Prospect', secondary="client_prospect",
+            backref=db.backref('prospects'), lazy="dynamic")
     client_prospects = db.relationship('ClientProspect', backref=db.backref('client_prospects'))
     onboarding_code = db.Column(String(40))
     hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
+    p200_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)
     json = db.Column(JSONB, default={})
 
@@ -62,6 +64,16 @@ class User(db.Model, UserMixin):
         self.last_name = last_name.title()
         self.email = email.lower()
         self.set_password(password)
+
+    @property
+    def status(self):
+        if self.p200_completed:
+            return "p200_completed"
+        if self.p200_started:
+            return "p200_started"
+        if self.hiring_screen_completed:
+            return "hiring_screen_completed"
+        return "new_hire"
 
     @property
     def image(self):
@@ -134,11 +146,47 @@ class User(db.Model, UserMixin):
         return self.primary_network_size + self.extended_network_size
 
     @property
+    def industries(self):
+        results = []
+        for industry, count in self.statistics.get("industries").iteritems():
+            from prime.processing_service.constants import CATEGORY_ICONS, \
+            INDUSTRY_CATEGORIES
+            industry_category = INDUSTRY_CATEGORIES.get(industry)
+            industry_icon = CATEGORY_ICONS.get(industry_category)
+            results.append((industry, count,industry_icon, ))
+        return sorted(results, key = lambda tup:tup[1])
+
+    @property
+    def states(self):
+        return self.statistics.get("locations")
+
+    @property
     def average_age(self):
         try:
             return int(self.statistics.get("average_age"))
         except:
             return None
+
+    @property
+    def female_percentage(self):
+        try:
+            return int(self.statistics.get("female_percentage"))
+        except:
+            return "N/A"
+
+    @property
+    def male_percentage(self):
+        try:
+            return int(self.statistics.get("male_percentage"))
+        except:
+            return "N/A"
+
+    @property
+    def college_percentage(self):
+        try:
+            return int(self.statistics.get("college_percentage"))
+        except:
+            return "N/A"
 
     @property
     def average_income_score(self):
@@ -155,6 +203,11 @@ class User(db.Model, UserMixin):
         college_degree = {True:0,False:0,None:0}
         wealth_score = [prospect.wealthscore for prospect in self.prospects if prospect.wealthscore ]
         average_age = [prospect.age for prospect in self.prospects if prospect.age]
+
+        #states need to be made real, these are linkedin fake"
+        locations = (prospect.linkedin_location_raw for prospect in\
+                self.prospects if prospect.linkedin_location_raw)
+        locations = Counter(locations).most_common(10)
         extended_count = 0
         first_degree_count = 0
         for client_prospect in self.client_prospects:
@@ -202,6 +255,7 @@ class User(db.Model, UserMixin):
                 "industries": industries,
                 "male_percentage": male_percentage,
                 "female_percentage": female_percentage,
+                "locations": locations,
                 "college_percentage": college_percentage,
                 "average_age": average_age,
                 "wealth_score": wealth_score}
@@ -247,6 +301,17 @@ class ClientProspect(db.Model):
     lead_score = db.Column(Integer)
     stars = db.Column(Integer)
     common_schools = db.Column(JSONB, default=[])
+
+    @property
+    def stars_display(self):
+        star_dict = {
+                1: 'one-star',
+                2: 'two-star',
+                3: 'three-star',
+                4: 'four-star',
+                5: 'five-star'
+                }
+        return star_dict[self.stars]
 
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)

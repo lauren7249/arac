@@ -1,37 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 {% include "_partials/agent_header.html" %}
-<!-- Contact Header Card-->
-<div class="section">
-  <div class="wrap contact-info contact-header-card">
-    <table>
-      <tr>
-        <td>
-          <div class="col-2"><img src="https://s3.amazonaws.com/uifaces/faces/twitter/jsa/128.jpg"/></div>
-          <div class="col-6">
-            <div class="name"> <span>{{ agent.name }}</span><span class="stars three-star"></span></div>
-            <div class="job">Infrastructure Consultant, Accenture</div>
-            <div class="tags"><span>Cornell University</span><span>Accenture</span><span>Rowing</span><span>Sailing</span><span>Marketing</span></div>
-          </div>
-          <div class="col-4">
-            <div class="contact-links"><a href="#" data-tooltip="25 Financial Services Contacts" class="financial"></a><a href="#" class="facebook"></a><a href="#" class="linkedin"></a><a href="#" class="twitter"></a><a href="#" class="pinterest"></a><a href="#" class="email"></a><a href="#" class="phone"></a><a href="#" class="location"></a><a href="#" class="amazon"></a></div>
-          </div>
-        </td>
-      </tr>
-    </table>
-  </div>
-</div>
+{% include "_partials/agent_nav.html" %}
 <!-- Contact Dashboard-->
 <div class="section">
   <div class="wrap card">
     <div class="col-6">
       <div class="network-breakdown">
-        <h1 class="text-center">Network Breakdown</h1><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/graphs-1.png"/>
+        <h1 class="text-center">Network Breakdown</h1>
+        <canvas width="250px" height="300px" id='industry'></canvas>
+        <canvas width="250px" height="300px" id='state'></canvas>
+        <h4>Qualified Industry Contacts</h4>
+        <h4>Contacts By State</h4>
       </div>
     </div>
     <div class="col-6">
       <div class="qualified-contacts">
-        <h1 class="text-center">Qualified Contacts</h1><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/graphs-2.png"/>
+        <h1 class="text-center">Qualified Contacts</h1>
+        <canvas style='width: 500px;' width="500px" height="300px" id='connections'></canvas>
+        <h4>Your Connections</h4>
+        <h4>Total Connections</h4>
       </div>
     </div>
   </div>
@@ -45,13 +33,12 @@
         </div>
         <div class="card-body">
           <div class="potential-markets">
-            <div class="market-1"><span>Real Estate</span></div>
-            <div class="market-2"> <span>Financial Services </span><b>20</b></div>
-            <div class="market-3"><span>Marketing</span></div>
-            <div class="market-4"><span>Health Care</span></div>
-            <div class="market-5"><span>Oil & Energy</span></div>
-            <div class="market-6"><span>Sports</span></div>
-            <div class="market-7"><span>Advertising</span></div>
+            {% if agent.industries|length > 0 %}
+            {% for industry in agent.industries %}
+            <div class="market-{{ loop.index }}"> <span>{{ industry[0] }}</span><b>{{ industry[1] }}</b></div>
+            {% endfor %}
+            {% else %}
+            {% endif %}
           </div>
         </div>
       </div>
@@ -65,31 +52,31 @@
           <tr>
             <td><b>Male</b></td>
             <td>
-              <div class="text-right">66%</div>
+              <div class="text-right">{{ agent.male_percentage }}%</div>
             </td>
           </tr>
           <tr>
             <td><b>Female</b></td>
             <td>
-              <div class="text-right">34%</div>
+              <div class="text-right">{{ agent.female_percentage }}%</div>
             </td>
           </tr>
           <tr>
             <td><b>College Degree</b></td>
             <td>
-              <div class="text-right">96%</div>
+              <div class="text-right">{{ agent.college_percentage }}%</div>
             </td>
           </tr>
           <tr>
             <td><b>Average Income Score</b></td>
             <td>
-              <div class="text-right">64/100</div>
+              <div class="text-right">{{ agent.average_income_score }}/100</div>
             </td>
           </tr>
           <tr>
             <td><b>Average Age</b></td>
             <td>
-              <div class="text-right">32</div>
+              <div class="text-right">{{ agent.average_age }}</div>
             </td>
           </tr>
         </table>
@@ -109,30 +96,38 @@
     </div>
   </div>
 </footer>
+<script type='text/javascript' src='{{ static_url() }}js/chart.js'></script>
 <script type='text/javascript'>
-($(function(){
+var colors = ['#231A80', '#2A90C0', '#4DC0D4', '#7DD0D0', '#A7DFCD', '#d8efc9', '#150B4B'];
+var industries = []
+var states = [];
+function randColor(colors) {
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+{% for industry in agent.industries %}
+industries.push({label: "{{ industry[0] }}", fillColor:"" + randColor(colors), value: {{ industry[1] }}});
+{% endfor %}
+
+{% for state in agent.states %}
+states.push({label: "{{ state[0] }}", fillColor:"" + randColor(colors), value: {{ state[1] }}})
+{% endfor %}
+
+
+$(function(){
 
     for (var i in industries) {
       industries[i].color = randColor(colors);
-      var row = $('<a href="./leads-' + industries[i].clean + '.html"><span class="fa-stack"><i class="fa fa-circle fa-stack-2x" style="color:blue"></i><i class="fa fa-' + industries[i].icon + ' fa-stack-1x fa-inverse"></i></span></a>');
-      $("h3#industry_icons").append(row);
-      $("h3#industry_icons").append(industries[i].label);    
     }
 
-    for (var i in schools) {
-      schools[i].color = randColor(colors);   
+    for (var i in states) {
+      states[i].color = randColor(colors);
     }
 
-    for (var i in stats) {
-      var row = $('<tr><td>' + stats[i].name + '</td><td>' + stats[i].value + '</td></tr>');
-      $("table#network_stats").append(row);   
-    }  
-
-    var $industries = $("#industries")
-    var $schools = $("#schools")
+    var $industries = $("#industry")
+    var $state = $("#state")
     var $connections = $("#connections")
     var connections = {
-        labels:["Your Connections", "Extended", "Total"],
+        labels:["Your Connections", "Total"],
         datasets:[
         {
         label: "Your Connections",
@@ -140,14 +135,15 @@
         strokeColor: "rgba(220,220,220,0.8)",
         highlightFill: "#8dd8f7",
         highlightStroke: "#8dd8f7",
-        data: [n_first_degree, n_extended, n_total]
+        data: [{{ agent.primary_network_size }}, {{ agent.total_network_size }}]
         }]}
     var chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {});
-    var chart = new Chart($schools.get(0).getContext("2d")).Doughnut(schools, {});
-    var chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, {});
+    var chart = new Chart($state.get(0).getContext("2d")).Doughnut(states, {});
+    var bar_options = {
+      showScale: false
+    }
+    var chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, bar_options);
 
-    });
-  
- })();
+ });
 </script>
 {% endblock %}

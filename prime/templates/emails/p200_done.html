@@ -1,0 +1,11 @@
+{% extends 'email.html' %}
+{% block content %}
+<h1>Hi {{ name }}, your p200 is completed</h1>
+<p>Visit advisorconnect and login to see it!</p>
+<br/>
+<p><a style='background: #4EB34E;padding: 15px 50px;margin: 20px auto;font-weight: bold;text-transform: uppercase; color:#fff;text-decoration:none;' href='{{ url }}/auth/login'>Click Here</a></p>
+<br/>
+<p>Thanks!</p>
+<p>Jeff Tompkins</p>
+<p>Founder @ Advisorconnect</p>
+{% endblock %}

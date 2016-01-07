@@ -522,6 +522,14 @@ $colcount: 12;
   }
 }
 
+$padcount: 5;
+
+@for $i from 1 through $padcount {
+  .padding-#{$i * 10} {
+    padding: ($i * 10px);
+  }
+}
+
 
 
 // Pages ==================================
@@ -576,11 +584,19 @@ table.manager-dashboard {
 }
 
 .network-breakdown, .qualified-contacts {
-/*   width: 50%; */
+   width: 100%;
   display: inline-block;
-  img {
-    width: 100%;
-    /* width: 50%; */
+  text-align: center;
+
+  canvas {
+    margin: 0 10px 0;
+  }
+
+  h4 {
+    width: 40%;
+    margin: 5px;
+    vertical-align: top;
+    display: inline-block;
   }
 }
 
