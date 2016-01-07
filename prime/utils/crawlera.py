@@ -6,10 +6,6 @@ def reformat_crawlera(json):
         return {}
     for key in json.keys():
         if json[key] is None: json.pop(key)
-    image = json.get("image_url")
-    linkedin_id = json.get("linkedin_id")
-    full_name = json.get("full_name")
-    headline = json.get("headline")
     schools = []
     for education in json.get("education",[]):
         school = {}
@@ -47,11 +43,6 @@ def reformat_crawlera(json):
         experience["duration"] = job.get("duration")
         experience["location"] = job.get("location")
         experiences.append(experience)
-    skills = json.get("skills")
-    people = json.get("also_viewed")
-    connections = json.get("num_connections")
-    location = json.get("locality")
-    industry = json.get("industry")
     groups = []
     for group in json.get("groups",[]):
         if group.get("profile_url") and group.get("profile_url").split("=")[-1].isdigit():
@@ -75,33 +66,26 @@ def reformat_crawlera(json):
                 project["start_date"] = dates[0].strip()
                 project["end_date"] = dates[0].strip()
         projects.append(project)
-    success = True
-    complete = True
-    interests = json.get("interests")
     causes = json.get("volunteering",[{}])[0].get("causes")
-    organizations = json.get("organizations")
-    source_url = json.get("url")
     return {
-        'image': image,
-        'linkedin_id': linkedin_id,
-        'full_name': full_name,
-        'headline': headline,
+        'image': json.get("image_url"),
+        'linkedin_id': json.get("linkedin_id"),
+        'full_name': json.get("full_name"),
+        'headline': json.get("headline"),
         'schools': schools,
         'experiences': experiences,
-        'skills': skills,
-        'people': people,
-        'connections': connections,
-        'location': location,
-        'industry': industry,
+        'skills': json.get("skills"),
+        'people': json.get("also_viewed"),
+        'connections': json.get("num_connections"),
+        'location': json.get("locality"),
+        'industry': json.get("industry"),
         "groups": groups,
         "projects": projects,
-        "success": success,
-        "complete": complete,
-        "urls":people,
-        "interests": interests,
+        "urls":json.get("also_viewed"),
+        "interests": json.get("interests"),
         "causes":causes,
-        "organizations":organizations,
-        "source_url": source_url,
+        "organizations":json.get("organizations"),
+        "source_url": json.get("url"),
         "family_name": json.get("family_name"),
         "given_name": json.get("given_name"),
         "updated": json.get("updated"),
