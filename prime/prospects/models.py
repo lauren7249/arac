@@ -97,6 +97,10 @@ class Prospect(db.Model):
         schools = list(set([s.school_name for s in self.schools]))[:4]
         return jobs + schools
 
+    @property
+    def emails(self):
+        return ", ".join([str(e) for e in self.email_addresses])
+
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
 
