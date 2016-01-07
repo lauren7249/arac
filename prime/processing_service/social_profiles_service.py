@@ -136,6 +136,8 @@ class SocialProfilesRequest(S3SavedRequest):
     def _process_images(self, images):
         good_links = {}
         for url in images:
+            if not url:
+                continue
             req = UrlValidatorRequest(url, is_image=True)
             _link = req.process()        
             if _link:
@@ -148,7 +150,7 @@ class SocialProfilesRequest(S3SavedRequest):
         pipl_data = self._get_extra_pipl_data()
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
-        self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]))
+        self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]) + [self.person.get("linkedin_data",{}).get("image")])
         self.genders = []
         for email in self.emails:
             self._update_profile(email)                           
