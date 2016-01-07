@@ -11,7 +11,7 @@ urls = (
 
 CONNECTION_STRING = "dbname='p200_production' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
 PEOPLE_TABLE = 'people'
-COMPANY_TABLE = 'crawlera_linkedin_companies_u'
+COMPANY_TABLE = 'companies'
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
