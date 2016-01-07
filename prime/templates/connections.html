@@ -136,11 +136,15 @@
 </footer>
 <script type='text/javascript'>
 ($(function() {
+   var $filter = $("[name='market']");
+   var $stars = $("[name='stars']");
+   var $query = $("[name='search-box']");
    $("[name='search-box']").keyup(function() {
      var length = $(this).val().length;
      if (length > 2) {
-     $("#connections-section").load(function() {
-     });
+       $("#connections-section #connections").load("/connections?query=" + $query.val() + "&filter=" + $filter.val() + "&stars=" + $stars.val(), function() {
+
+       });
      }
    });
  }))();

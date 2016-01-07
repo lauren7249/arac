@@ -175,12 +175,27 @@ class SearchResults(object):
             self.sql_query = self._filter()
         return self.sql_query
 
+def get_or_none(item):
+    if item and item.strip() == "":
+        return None
+    return item
+
+def get_args(request):
+    query = get_or_none(request.args.get("query"))
+    filter = get_or_none(request.args.get("filter"))
+    rating = get_or_none(request.args.get("rating"))
+    return query, filter, rating
+
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     agent = current_user
     connections = agent.prospects.filter(ClientProspect.extended==False).order_by(ClientProspect.lead_score.desc())
+    query, filter, rating = get_args(request)
+    search = SearchResults(connections, query=query, filter=filter,
+            rating=rating)
+    connections = search.results()
     return render_template("connections.html",
             agent=agent,
             connections=connections,
