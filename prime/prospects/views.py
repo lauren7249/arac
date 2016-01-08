@@ -188,12 +188,16 @@ def get_args(request):
     rating = get_or_none(request.args.get("rating"))
     return query, filter, rating
 
+@csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     agent = current_user
-    connections = agent.prospects.filter(ClientProspect.extended==False).order_by(ClientProspect.lead_score.desc())
+    connections = agent.prospects.filter(ClientProspect.extended==False, \
+            ClientProspect.processed==False,
+            ClientProspect.good==False
+            ).order_by(ClientProspect.lead_score.desc())
     query, filter, rating = get_args(request)
     search = SearchResults(connections, query=query, filter=filter,
             rating=rating)
@@ -203,14 +207,45 @@ def connections():
             connections=connections,
             active="connections")
 
+@csrf.exempt
 @prospects.route("/extended/connections", methods=['GET', 'POST'])
 def extended_connections():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     agent = current_user
-    connections = agent.prospects.filter(ClientProspect.extended==True).order_by(ClientProspect.lead_score.desc())
+    connections = agent.prospects.filter(ClientProspect.extended==True,
+            ClientProspect.processed==False,
+            ClientProspect.good==False
+            ).order_by(ClientProspect.lead_score.desc())
     return render_template("connections.html",
             agent=agent,
             connections=connections,
             active="extended")
 
+@csrf.exempt
+@prospects.route("/add-connections", methods=['GET', 'POST'])
+def add_connections():
+    agent = current_user
+    if request.method == 'POST':
+        connection_id = request.form.get("id")
+        prospect = Prospect.query.get(int(connection_id))
+        user = current_user
+        cp = ClientProspect(user=user, prospect=prospect)
+        cp.good = True
+        session.add(cp)
+        session.commit()
+        return jsonify({"success":True})
+
+@csrf.exempt
+@prospects.route("/skip-connections", methods=['GET', 'POST'])
+def skip_connections():
+    agent = current_user
+    if request.method == 'POST':
+        connection_id = request.form.get("id")
+        prospect = Prospect.query.get(int(connection_id))
+        user = current_user
+        cp = ClientProspect(user=user, prospect=prospect)
+        cp.processed = True
+        session.add(cp)
+        session.commit()
+        return jsonify({"success":True})

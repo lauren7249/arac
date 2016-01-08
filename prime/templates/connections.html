@@ -40,10 +40,10 @@
         <th class="select-all-buttons">
           <div class="wrap">
             <div class="col-6">
-              <button class="button teal">Add Selected</button>
+              <button id='add-all' class="button teal">Add Selected</button>
             </div>
             <div class="col-6">
-              <button class="button grey">Skip Selected</button>
+              <button id='skip-all' class="button grey">Skip Selected</button>
             </div>
           </div>
         </th>
@@ -99,10 +99,10 @@
         <td class="contact-buttons">
           <div class="wrap">
             <div class="col-6">
-              <button class="button teal">Add</button>
+              <button data-add='{{ connection.id }}' class="button teal">Add</button>
             </div>
             <div class="col-6">
-              <button class="button grey">Skip</button>
+              <button data-skip='{{ connection.id }}' class="button grey">Skip</button>
             </div>
           </div>
         </td>
@@ -156,6 +156,46 @@ $(function() {
      $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&filter=" + encodeURIComponent($filter.val()) + "&stars=" + encodeURIComponent($stars.val()) + " #connections", function() {
      });
   }
+
+  function addConnection() {
+    $("[data-add]").click(function() {
+        var id = $(this).data("add");
+        var params = {id: id}
+        $.post("/add-connections", params, function() {
+          $("[data-row=" + id + "]").slideUp();
+        });
+    });
+  }
+
+  function skipConnection() {
+    $("[data-skip]").click(function() {
+        var id = $(this).data("add");
+        var params = {id: id}
+        $.post("/skip-connections", params, function() {
+          $("[data-row=" + id + "]").slideUp();
+        });
+    });
+  }
+
+  function addAll() {
+    $("#add-all").click(function() {
+        $.post("/add-connections", function() {
+        });
+    });
+  }
+
+  function skipAll() {
+    $("#skip-all").click(function() {
+        $.post("/skip-connections", function() {
+        });
+    });
+  }
+
+
+   addConnection();
+   skipConnection();
+   addAll();
+   skipAll();
  });
 </script>
 {% endblock %}

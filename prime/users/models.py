@@ -291,6 +291,7 @@ class ClientProspect(db.Model):
             index=True)
     prospect = relationship("Prospect", \
             foreign_keys="ClientProspect.prospect_id")
+    #processed means skipped, needs name change
     processed = db.Column(Boolean, default=False)
     good = db.Column(Boolean, default=False)
     created = db.Column(DateTime, default=datetime.datetime.today())
