@@ -18,10 +18,7 @@ from prime import config
 
 from service import Service
 from cloudsponge_service import CloudSpongeService
-from clearbit_service_webhooks import ClearbitPersonService
-from pipl_service import PiplService
-from linkedin_service_crawlera import LinkedinService
-from linkedin_company_service import LinkedinCompanyService
+from person_service import PersonService
 from age_service import AgeService
 from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
@@ -35,10 +32,10 @@ from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
 SAVE_OUTPUTS = False
 
-FIRST_DEGREE_NETWORK = [CloudSpongeService, PiplService, ClearbitPersonService, LinkedinService, LeadService]
+FIRST_DEGREE_NETWORK = [CloudSpongeService, PersonService, LeadService]
 FOR_NETWORK_SUMMARY = [AgeService, GenderService, CollegeDegreeService]
 EXTENDED_NETWORK = [ExtendedProfilesService, ExtendedLeadService]
-CONTACT_INFO = [SocialProfilesService, LinkedinCompanyService, PhoneService]
+CONTACT_INFO = [SocialProfilesService, PhoneService]
 WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 
 class ProcessingService(Service):

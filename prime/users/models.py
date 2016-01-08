@@ -199,15 +199,11 @@ class User(db.Model, UserMixin):
         """
         schools = {}
         industries = {}
+        locations = {}
         gender = {"female":0,"male":0,"unknown":0}
         college_degree = {True:0,False:0,None:0}
         wealth_score = [prospect.wealthscore for prospect in self.prospects if prospect.wealthscore ]
         average_age = [prospect.age for prospect in self.prospects if prospect.age]
-
-        #states need to be made real, these are linkedin fake"
-        locations = (prospect.linkedin_location_raw for prospect in\
-                self.prospects if prospect.linkedin_location_raw)
-        locations = Counter(locations).most_common(10)
         extended_count = 0
         first_degree_count = 0
         for client_prospect in self.client_prospects:
@@ -218,11 +214,12 @@ class User(db.Model, UserMixin):
             college_degree[client_prospect.prospect.college_grad] += 1
             gender[client_prospect.prospect.gender] += 1
             industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
+            if client_prospect.prospect and client_prospect.prospect.us_state:
+                locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1            
             for school in client_prospect.common_schools:
                 schools[school] = schools.get(school, 0) + 1
         males = float(gender["male"])
         females = float(gender["female"])
-
         #Can't divide by 0
         if females == 0:
             female_percentage = 0
