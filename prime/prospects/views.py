@@ -217,6 +217,10 @@ def extended_connections():
             ClientProspect.processed==False,
             ClientProspect.good==False
             ).order_by(ClientProspect.lead_score.desc())
+    query, filter, rating = get_args(request)
+    search = SearchResults(connections, query=query, filter=filter,
+            rating=rating)
+    connections = search.results()
     return render_template("connections.html",
             agent=agent,
             connections=connections,
@@ -225,27 +229,48 @@ def extended_connections():
 @csrf.exempt
 @prospects.route("/add-connections", methods=['GET', 'POST'])
 def add_connections():
-    agent = current_user
+    user = current_user
     if request.method == 'POST':
-        connection_id = request.form.get("id")
-        prospect = Prospect.query.get(int(connection_id))
-        user = current_user
-        cp = ClientProspect(user=user, prospect=prospect)
-        cp.good = True
-        session.add(cp)
-        session.commit()
+        if request.form.get("multi"):
+            connection_ids = [int(i) for i in request.form.get("id").split(",")]
+            cp = ClientProspect.query.filter(ClientProspect.user==user,
+                    ClientProspect.prospect_id.in_(connection_ids))
+            for c in cp:
+                c.good = True
+                session.add(c)
+            session.commit()
+        else:
+            connection_id = request.form.get("id")
+            prospect = Prospect.query.get(int(connection_id))
+            cp = ClientProspect.query.filter(ClientProspect.user==user,\
+                    ClientProspect.prospect==prospect).first()
+            cp.good = True
+            session.add(cp)
+            session.commit()
         return jsonify({"success":True})
+    return jsonify({"success":False})
 
 @csrf.exempt
 @prospects.route("/skip-connections", methods=['GET', 'POST'])
 def skip_connections():
-    agent = current_user
+    user = current_user
     if request.method == 'POST':
-        connection_id = request.form.get("id")
-        prospect = Prospect.query.get(int(connection_id))
-        user = current_user
-        cp = ClientProspect(user=user, prospect=prospect)
-        cp.processed = True
-        session.add(cp)
-        session.commit()
+        if request.form.get("multi"):
+            connection_ids = [int(i) for i in request.form.get("id").split(",")]
+            cp = ClientProspect.query.filter(ClientProspect.user==user,
+                    ClientProspect.prospect_id.in_(connection_ids))
+            for c in cp:
+                c.processed = True
+                session.add(c)
+            session.commit()
+        else:
+            connection_id = request.form.get("id")
+            prospect = Prospect.query.get(int(connection_id))
+            cp = ClientProspect.query.filter(ClientProspect.user==user,\
+                    ClientProspect.prospect==prospect).first()
+            cp.processed = True
+            session.add(cp)
+            session.commit()
         return jsonify({"success":True})
+    return jsonify({"success":False})
+

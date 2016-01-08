@@ -81,6 +81,11 @@ class User(db.Model, UserMixin):
             return self.image_url
         return "/static/img/person_image.png"
 
+    @property
+    def p200_count(self):
+        return 200 - int(self.prospects.filter(\
+                ClientProspect.good==True).count())
+
     def set_password(self, password):
         self._password_hash = generate_password_hash(password)
 
@@ -158,7 +163,10 @@ class User(db.Model, UserMixin):
 
     @property
     def states(self):
-        return self.statistics.get("locations")
+        states = []
+        for state, count in self.statistics.get("locations").iteritems():
+            states.append((state, count,))
+        return states
 
     @property
     def average_age(self):
@@ -215,7 +223,7 @@ class User(db.Model, UserMixin):
             gender[client_prospect.prospect.gender] += 1
             industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             if client_prospect.prospect and client_prospect.prospect.us_state:
-                locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1            
+                locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1
             for school in client_prospect.common_schools:
                 schools[school] = schools.get(school, 0) + 1
         males = float(gender["male"])

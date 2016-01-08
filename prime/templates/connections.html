@@ -34,7 +34,7 @@
     <table class="contacts-table">
       <thead>
         <th>
-          <input type="checkbox" />
+          <input name='select-all' type="checkbox" />
         </th>
         <th>Add Selected Contacts</th>
         <th class="select-all-buttons">
@@ -49,11 +49,11 @@
         </th>
       </thead>
       <tbody>
-      {% if connections %}
+      {% if connections.count() > 0 %}
       {% for connection in connections %}
       <tr data-row='{{ connection.id }}'>
         <td>
-          <input data-conection-id='{{ connection.id }}' type="checkbox" />
+          <input class='connection-checkbox' data-connection-id='{{ connection.id }}' type="checkbox" />
         </td>
         <td>
           <div class="contact-info">
@@ -169,7 +169,7 @@ $(function() {
 
   function skipConnection() {
     $("[data-skip]").click(function() {
-        var id = $(this).data("add");
+        var id = $(this).data("skip");
         var params = {id: id}
         $.post("/skip-connections", params, function() {
           $("[data-row=" + id + "]").slideUp();
@@ -179,23 +179,51 @@ $(function() {
 
   function addAll() {
     $("#add-all").click(function() {
-        $.post("/add-connections", function() {
+        var ids = $(".connection-checkbox:checked").map(function () {
+          return $(this).data("connection-id");
+        }).get();
+        var ids = ids.join()
+        var params = {id:ids, multi:true}
+        $.post("/add-connections", params, function() {
+          var saved = ids.split(",")
+          for (var j=0;j<saved.length;j++) {
+            $("[data-row='" + saved[j] + "']").slideUp();
+          }
         });
     });
   }
 
   function skipAll() {
     $("#skip-all").click(function() {
-        $.post("/skip-connections", function() {
+        var ids = $(".connection-checkbox:checked").map(function () {
+          return $(this).data("connection-id");
+        }).get();
+        var ids = ids.join()
+        var params = {id:ids, multi:true}
+        $.post("/skip-connections", params, function() {
+          var saved = ids.split(",")
+          for (var j=0;j<saved.length;j++) {
+            $("[data-row='" + saved[j] + "']").slideUp();
+          }
         });
     });
   }
 
+  function selectAll() {
+    $("[name='select-all']").click(function() {
+        if ($(this).is(":checked")) {
+          $(".connection-checkbox").prop("checked", true)
+        } else {
+          $(".connection-checkbox").prop("checked", false)
+        }
+    });
+  }
 
    addConnection();
    skipConnection();
    addAll();
    skipAll();
+   selectAll();
  });
 </script>
 {% endblock %}

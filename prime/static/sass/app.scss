@@ -11,6 +11,7 @@ $border: #DADFE1;
 $lightgrey: #BFBFBF;
 $blue: #27B4F4;
 $teal: #02C2B9;
+$darkblue: #1378C7;
 $purple: #9F81EB;
 
 $market-color-1: #10164B;
@@ -63,8 +64,8 @@ header {
     div.autocomplete {
       display: none;
       position: absolute;
-      top: 23px;
-      right: 0;
+      top: 18px;
+      right: -20px;
       border: 1px solid #eee;
       border-top: 0;
       background: #fff;
@@ -227,11 +228,21 @@ table {
       background: lighten($teal, 5%);  
     }
   }
+  &.dark-blue {
+    background: $darkblue;
+    &:hover {
+      background: lighten($darkblue, 5%);  
+    }
+  }
   &.grey {
     background: $lightgrey;
     &:hover {
       background: lighten($lightgrey, 5%);  
     }
+  }
+  &.small {
+    height: auto;
+    font-size: 12px;
   }
 }
 
@@ -534,6 +545,9 @@ $padcount: 5;
 
 // Pages ==================================
 table.manager-dashboard {
+  th {
+    font-size: 14px;
+  }
   td {
     font-size: 18px;
     font-weight: 600;

@@ -29,6 +29,18 @@ if __name__ == '__main__':
         session.add(mp)
         session.commit()
 
+    @manager.command
+    def add_manager(first_name, last_name, email, password):
+        from prime.users.models import db, User
+        from prime.managers.models import ManagerProfile
+        session = db.session
+        u2 = User(first_name, last_name, email, password)
+        session.add(u2)
+        mp = ManagerProfile()
+        mp.user = u2
+        session.add(mp)
+        session.commit()
+
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))
     #manager.add_command('shell', Shell(make_context=make_shell_context, use_ipython=True))

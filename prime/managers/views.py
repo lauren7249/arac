@@ -78,6 +78,11 @@ def manager_invite_agent():
     return render_template('manager/invite.html', active="invite",
             error_message=error_message, success=success)
 
+@manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
+def agent(agent_id):
+    agent = User.query.get(agent_id)
+    return render_template("dashboard.html", agent=agent, active = "agent_page")
+
 @csrf.exempt
 @manager.route("/request_p200", methods=['GET', 'POST'])
 def request_p200():

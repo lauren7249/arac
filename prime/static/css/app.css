@@ -37,8 +37,8 @@ header #settings {
 header #settings div.autocomplete {
   display: none;
   position: absolute;
-  top: 23px;
-  right: 0;
+  top: 18px;
+  right: -20px;
   border: 1px solid #eee;
   border-top: 0;
   background: #fff;
@@ -181,11 +181,21 @@ table th {
 .button.teal:hover {
   background: #02dbd1;
 }
+.button.dark-blue {
+  background: #1378C7;
+}
+.button.dark-blue:hover {
+  background: #1586de;
+}
 .button.grey {
   background: #BFBFBF;
 }
 .button.grey:hover {
   background: #cccccc;
+}
+.button.small {
+  height: auto;
+  font-size: 12px;
 }
 
 input[type="checkbox"] {
@@ -517,6 +527,9 @@ hr {
   padding: 50px;
 }
 
+table.manager-dashboard th {
+  font-size: 14px;
+}
 table.manager-dashboard td {
   font-size: 18px;
   font-weight: 600;
