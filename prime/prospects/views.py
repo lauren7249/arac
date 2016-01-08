@@ -10,7 +10,7 @@ import random
 import requests
 import datetime
 import json
-import urllib
+from urllib import unquote_plus
 from flask import render_template, request, redirect, url_for, flash, \
 session as flask_session, jsonify
 from flask.ext.login import current_user
@@ -22,7 +22,7 @@ from prime.managers.models import ManagerProfile
 from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy import select, cast, extract
+from sqlalchemy import select, cast, extract, or_, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import aliased
 
@@ -154,17 +154,17 @@ class SearchResults(object):
         self.filter = filter
 
     def _rating(self):
-        return self.sql_query.filter(ClientProspect.stars == self.stars)
+        return self.sql_query.filter(ClientProspect.stars ==
+                int(self.stars))
 
     def _filter(self):
-        return self.sql_query.filter(Prospect.industry == self.filter)
+        return self.sql_query.filter(Prospect.industry_category ==
+                unquote_plus(self.filter))
 
     def _search(self):
-        return self.sql_query.filter(
-                Prospect.linkedin_name.like("%{}%".format(query)),
-                Job.name.like("%{}%".format(query)),
-                Education.name.like("%{}%".format(query))
-                    )
+        return self.sql_query.filter(or_(
+                Prospect.linkedin_name.ilike("%{}%".format(self.query)),
+                    ))
 
     def results(self):
         if self.query:
@@ -176,7 +176,9 @@ class SearchResults(object):
         return self.sql_query
 
 def get_or_none(item):
-    if item and item.strip() == "":
+    if not item:
+        return None
+    if item.strip() == "":
         return None
     return item
 
