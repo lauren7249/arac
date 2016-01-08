@@ -170,11 +170,11 @@ class ResultService(Service):
                 continue
             self._create_or_update_schools(prospect, profile)
             self._create_or_update_jobs(prospect, profile)
-            print prospect.image
             client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
             if not client_prospect:
                 self.logger.error("no client prospect")
                 continue
+            #print client_prospect.stars
             self.output.append(client_prospect.to_json())
         if user:
             #If the agent is hired in the data then we know the p200 has been fully

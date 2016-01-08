@@ -16,6 +16,7 @@ import multiprocessing
 HIRED = False
 
 def wrapper(person):
+    global HIRED
     person["wealthscore"] = WealthScoreRequest(person).process()
     if HIRED:
         person["lead_score"] = LeadScoreRequest(person).process()    
@@ -33,7 +34,9 @@ class ScoringService(Service):
         self.data = data
         self.output = []
         self.wrapper = wrapper
+        global HIRED
         HIRED = self.client_data.get("hired")
+        self.hired = HIRED
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -57,7 +60,7 @@ class ScoringService(Service):
         self.output = self.pool.map(self.wrapper, self.data)
         self.pool.close()
         self.pool.join()
-        if HIRED:  
+        if self.hired:  
             self.output = self.compute_stars()
         self.logend()
         return self.output
@@ -67,7 +70,7 @@ class ScoringService(Service):
         for person in self.data:
             person = self.wrapper(person)
             self.output.append(person)
-        if HIRED:  
+        if self.hired:  
             self.output = self.compute_stars()
         self.logend()
         return self.output
