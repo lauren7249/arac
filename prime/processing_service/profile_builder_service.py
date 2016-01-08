@@ -7,7 +7,7 @@ import os
 import pandas
 from helper import name_match, sort_social_accounts
 from service import Service, S3SavedRequest
-from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS
+from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS, US_STATES
 from url_validator import UrlValidatorRequest
 from person_request import PersonRequest
 
@@ -108,10 +108,21 @@ class ProfileBuilderRequest(S3SavedRequest):
     def _get_person_fields(self):
         if not self.person:
             return self.profile
-        latlng = self.person.get("location_coordinates",{}).get("latlng",[])
+        coords = self.person.get("location_coordinates",{})
+        latlng = coords.get("latlng",[])
         if len(latlng)==2:
             self.profile["lat"] = latlng[0]
             self.profile["lng"] = latlng[1]
+        locality = coords.get("locality").split(",")[-1].strip() if coords.get("locality") else ""
+        region = coords.get("region").split(",")[-1].strip() if coords.get("region") else ""
+        if region in US_STATES.values():
+            self.profile["us_state"] = region
+        elif locality in US_STATES.values():
+            self.profile["us_state"] = locality
+        elif region in US_STATES.keys():
+            self.profile["us_state"] = US_STATES[region]
+        elif locality in US_STATES.keys():
+            self.profile["us_state"] = US_STATES[locality]     
         self.profile["phone"] = self.person.get("phone_number")
         self.profile["company_website"] = self.person.get("company_website")
         self.profile["company_headquarters"] = self.person.get("company_headquarters")

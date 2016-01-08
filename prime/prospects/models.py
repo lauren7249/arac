@@ -78,6 +78,7 @@ class Prospect(db.Model):
     #for filtering and network summary: TODO: ADD IN
     industry_category = db.Column(String(100))
     industry_icon = db.Column(String(200))
+    us_state = db.Column(String(200))
 
     #fields for network summary only
     gender = db.Column(String(15))
