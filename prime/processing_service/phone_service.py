@@ -10,6 +10,7 @@ from boto.s3.key import Key
 import multiprocessing
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
+from linkedin_company_service import LinkedinCompanyService
 from bloomberg_service import BloombergPhoneService
 from clearbit_service_webhooks import ClearbitPhoneService
 from mapquest_request import MapQuestRequest
@@ -33,7 +34,7 @@ def wrapper(person, favor_mapquest=False):
 
 class PhoneService(Service):
     """
-    Expected input is JSON with profile info
+    Expected input is JSON with linkedin profiles
     Output is going to be existig data enriched with phone numbers
     """
 
@@ -49,6 +50,8 @@ class PhoneService(Service):
         
     def multiprocess(self):
         self.logstart()
+        self.service = LinkedinCompanyService(self.client_data, self.data)
+        self.data = self.service.multiprocess()        
         self.service = BloombergPhoneService(self.client_data, self.data)
         self.data = self.service.multiprocess()
         self.pool = multiprocessing.Pool(self.pool_size)
@@ -62,6 +65,8 @@ class PhoneService(Service):
 
     def process(self, favor_mapquest=False):
         self.logstart()
+        self.service = LinkedinCompanyService(self.client_data, self.data)
+        self.data = self.service.process()          
         self.service = BloombergPhoneService(self.client_data, self.data)
         self.data = self.service.process()
         for person in self.data:

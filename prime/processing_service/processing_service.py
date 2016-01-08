@@ -19,7 +19,6 @@ from prime import config
 from service import Service
 from cloudsponge_service import CloudSpongeService
 from person_service import PersonService
-from linkedin_company_service import LinkedinCompanyService
 from age_service import AgeService
 from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
@@ -36,7 +35,7 @@ SAVE_OUTPUTS = False
 FIRST_DEGREE_NETWORK = [CloudSpongeService, PersonService, LeadService]
 FOR_NETWORK_SUMMARY = [AgeService, GenderService, CollegeDegreeService]
 EXTENDED_NETWORK = [ExtendedProfilesService, ExtendedLeadService]
-CONTACT_INFO = [SocialProfilesService, LinkedinCompanyService, PhoneService]
+CONTACT_INFO = [SocialProfilesService, PhoneService]
 WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 
 class ProcessingService(Service):
