@@ -2,7 +2,7 @@ import boto
 from boto.s3.key import Key
 import json
 from prime.utils.crawlera import reformat_crawlera
-
+import happybase
 AWS_KEY = "AKIAIZZBJ527CKPNY6YQ"
 AWS_SECRET = "OCagmcIXQYdmcIYZ3Uafmg1RZo9goNOb83DrRJ8u"
 AWS_BUCKET = "ac-crawlera"
@@ -16,27 +16,53 @@ data = sc.textFile(filenames)
 
 keyConv = "org.apache.spark.examples.pythonconverters.StringToImmutableBytesWritableConverter"
 valueConv = "org.apache.spark.examples.pythonconverters.StringListToPutConverter"
-conf = {"hbase.mapred.outputtable": "people",  
-    "mapreduce.outputformat.class": "org.apache.hadoop.hbase.mapreduce.TableOutputFormat",  
+conf = {"mapreduce.outputformat.class": "org.apache.hadoop.hbase.mapreduce.TableOutputFormat",  
     "mapreduce.job.output.key.class": "org.apache.hadoop.hbase.io.ImmutableBytesWritable",  
     "mapreduce.job.output.value.class": "org.apache.hadoop.io.Writable"}
 
-def convert(line):
+def load_by_linkedin_id(line):
     linkedin_data = json.loads(line)
     linkedin_id = linkedin_data.get("linkedin_id")
     if linkedin_id:
-        return [(linkedin_id, [linkedin_id,"linkedin","line",line])]
+                #key           #key again   #col.family   #col.name    #col.value
+        return [(linkedin_id, [linkedin_id,"linkedin",   "line",       line])]
     return []
-# def convert_xwalk(line):
-#     linkedin_data = json.loads(line)
-#     return (linkedin_data["url"], [linkedin_data["url"],"linkedin","linkedin_id",linkedin_data["linkedin_id"]])
 
-datamap = data.flatMap(convert)
-#15 seconds to write
+def load_xwalk(line):
+    linkedin_data = json.loads(line)
+    linkedin_id = linkedin_data.get("linkedin_id")
+    url = linkedin_data.get("url")
+    if not linkedin_id or not url:
+        return []
+             #key  #key again   #col.family   #col.name    #col.value
+    return [(url, [url,         "linkedin_id","linkedin_id",linkedin_id])]
+
+conf["hbase.mapred.outputtable"]="people"  
+datamap = data.flatMap(load_by_linkedin_id)
+#15 seconds to write. does not overwrite existing table; acts as an update
 datamap.saveAsNewAPIHadoopDataset(conf=conf,keyConverter=keyConv,valueConverter=valueConv)
 
+conf["hbase.mapred.outputtable"]="url_xwalk"  
+datamap = data.flatMap(load_xwalk)
+#36 minutes
+datamap.saveAsNewAPIHadoopDataset(conf=conf,keyConverter=keyConv,valueConverter=valueConv)
 
-#read in from hbase
+connection = happybase.Connection('172.17.0.2')
+xwalk = connection.table('url_xwalk')
+
+def also_viewed(line):
+    linkedin_data = json.loads(line)
+    also_viewed = linkedin_data.get("also_viewed")
+    linkedin_id = linkedin_data.get("linkedin_id")
+    if not also_viewed or not linkedin_id:
+        return []
+    linkedin_ids = []
+    for key, data in xwalk.rows(also_viewed):
+        if data:
+            linkedin_ids.append(data)        
+    return [(linkedin_id, also_viewed)]
+
+#read in from hbase - seems much slower than rdd loaded from S3
 keyConv = "org.apache.spark.examples.pythonconverters.ImmutableBytesWritableToStringConverter"
 valueConv = "org.apache.spark.examples.pythonconverters.HBaseResultToStringConverter"
 rdd = sc.newAPIHadoopRDD("org.apache.hadoop.hbase.mapreduce.TableInputFormat", "org.apache.hadoop.hbase.io.ImmutableBytesWritable", "org.apache.hadoop.hbase.client.Result", conf={"hbase.mapreduce.inputtable": "people"},keyConverter=keyConv,valueConverter=valueConv)
