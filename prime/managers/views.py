@@ -107,7 +107,8 @@ def request_p200():
         user.p200_started = True
         session.add(user)
         session.commit()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
+        q.enqueue(queue_processing_service, client_data, contacts_array,
+                timeout=140400)
     return jsonify({"sucess": True})
 
 @manager.route("/test_email", methods=['GET'])

@@ -4,7 +4,6 @@ import logging
 import time
 import sys
 import os
-import pandas
 from helper import name_match, sort_social_accounts
 from service import Service, S3SavedRequest
 from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS, US_STATES
@@ -122,7 +121,7 @@ class ProfileBuilderRequest(S3SavedRequest):
         elif region in US_STATES.keys():
             self.profile["us_state"] = US_STATES[region]
         elif locality in US_STATES.keys():
-            self.profile["us_state"] = US_STATES[locality]     
+            self.profile["us_state"] = US_STATES[locality]
         self.profile["phone"] = self.person.get("phone_number")
         self.profile["company_website"] = self.person.get("company_website")
         self.profile["company_headquarters"] = self.person.get("company_headquarters")

@@ -114,8 +114,13 @@ def upload():
                 "to_email":to_email}
         contacts_array = request.json.get("contacts_array",[])
         for record in contacts_array:
-            contact_email = record.get('contact').get("email", [{}])[0].get('address')
-            unique_emails.add(contact_email)
+            try:
+                contact = record.get("contact",{})
+                emails = contact.get("email",[{}])
+                contact_email = emails[0].get("address",'').lower()
+                unique_emails.add(contact_email)
+            except:
+                pass
 
         from prime.processing_service.saved_request import UserRequest
         user_request = UserRequest(current_user.email)
