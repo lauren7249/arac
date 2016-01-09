@@ -4,7 +4,6 @@ import logging
 import time
 import sys
 import os
-import pandas
 from helper import name_match, sort_social_accounts
 from service import Service, S3SavedRequest
 from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS, US_STATES
