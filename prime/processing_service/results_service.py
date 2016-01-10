@@ -82,7 +82,7 @@ class ResultService(Service):
                         #"school_linkedin_id": info_school.get("college_id")
                         "end_date": parse_date(info_school.get("end_date"))
                         })
-                    self.logger.info("Education updated: {}".format(uu(info_school.get("college"))))
+                    #self.logger.info("Education updated: {}".format(uu(info_school.get("college"))))
                     new = False
                     break
             if new:
@@ -107,7 +107,7 @@ class ResultService(Service):
                 )
         self.session.add(new_education)
         self.session.flush()
-        self.logger.info("Education added: {}".format(uu(college.get("college"))))
+        #self.logger.info("Education added: {}".format(uu(college.get("college"))))
 
     def _create_or_update_jobs(self, new_prospect, profile):
         jobs = profile.get("jobs_json",[])
@@ -124,7 +124,7 @@ class ResultService(Service):
                         #"company_linkedin_id": info_job.get("company_id")
                         "end_date": parse_date(info_job.get("end_date"))
                         })
-                    self.logger.info("Job updated: {}".format(uu(info_job.get("company"))))
+                    #self.logger.info("Job updated: {}".format(uu(info_job.get("company"))))
                     new = False
                     break
             if new:
@@ -148,7 +148,7 @@ class ResultService(Service):
         )
         self.session.add(new_job)
         self.session.flush()
-        self.logger.info("Job added: {}".format(uu(job.get("company"))))
+        #self.logger.info("Job added: {}".format(uu(job.get("company"))))
 
     def _get_user(self):
         user = session.query(User).filter_by(email=self.client_data.get("email")).first()
@@ -167,7 +167,7 @@ class ResultService(Service):
             for profile in self.data:
                 prospect = self._create_or_update_prospect(profile)
                 if not prospect:
-                    self.logger.error("no prospect %s", json.dumps(profile))
+                    self.logger.error("no prospect %s", uu(json.dumps(profile)))
                     continue
                 self._create_or_update_schools(prospect, profile)
                 self._create_or_update_jobs(prospect, profile)
@@ -187,7 +187,7 @@ class ResultService(Service):
                     user.p200_completed = True
                 self.session.add(user)
                 self.session.commit()
-                self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
+                self.logger.info("Stats: %s", uu(json.dumps(user.build_statistics())))
             else:
                 self.logger.error("NO USER!")
         except:

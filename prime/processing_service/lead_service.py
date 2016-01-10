@@ -111,9 +111,9 @@ class LeadService(Service):
         if not person_company:
             return False
         if person_company.strip() in EXCLUDED_COMPANIES:
-            self.logger.info("%s is a competitor", person_company)
+            self.logger.info("%s is a competitor", uu(person_company))
             return True
-        self.logger.info("%s is NOT a competitor", person_company)
+        self.logger.info("%s is NOT a competitor", uu(person_company))
         return False
 
     def _valid_lead(self, person):
