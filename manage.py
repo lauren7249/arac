@@ -41,6 +41,24 @@ if __name__ == '__main__':
         session.add(mp)
         session.commit()
 
+    @manager.command
+    def rerun_contacts(email):
+        from prime.users.models import db, User
+        from prime.prospects.views import queue_processing_service
+        from prime.processing_service.saved_request import UserRequest
+        from redis import Redis
+        from rq import Queue
+        user = User.query.filter_by(email=email).first()
+        user_request = UserRequest(user.email)
+        contacts_array = user_request.lookup_data()
+        client_data = {"first_name":user.first_name,"last_name":user.last_name,\
+                "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
+                "to_email":email, "hired": True}
+        conn = Redis()
+        q = Queue(connection=conn)
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
+
+
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))
     #manager.add_command('shell', Shell(make_context=make_shell_context, use_ipython=True))
