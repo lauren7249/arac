@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, traceback
 import csv
 import time
 import json
@@ -78,41 +78,44 @@ class ProcessingService(Service):
 
     def process(self):
         self.logger.info('Starting Process: %s', self.client_data)
-        output = None
-        if self._validate_data():
-            self.logger.info('Data Valid')
-            for key, _ in self.services.iteritems():
-                if output is not None:
-                    service = self.services[key](
-                            self.client_data,
-                            output)
-                else:
-                    service = self.services[key](
-                            self.client_data,
-                            self.data)
-                output = service.multiprocess()
-                if SAVE_OUTPUTS:
-                    save_output(output, self.client_data.get("email"), service.__class__.__name__)
-            # if output:
-            #     print json.dumps(output, sort_keys=True, indent=4)
-        end = time.time()
-        self.logger.info('Total Run Time: %s', end - self.start)
-        env = Environment()
-        env.loader = FileSystemLoader("prime/templates")
-        if self.client_data.get("hired"):
-            subject = "Your p200 List is ready!"
-            to_email = self.client_data.get("email")
-            tmpl = env.get_template('emails/p200_done.html')
-            name = self.client_data.get("first_name")
-        else:
-            name = "{} {}".format(self.client_data.get("first_name"), \
-                self.client_data.get("last_name"))
-            subject = "{}'s p200 List is ready!".format(name)
-            to_email = self.client_data.get("to_email")
-            tmpl = env.get_template('emails/network_summary_done.html')
-        body = tmpl.render(url=self.web_url, name=name)
-        sendgrid_email(to_email, subject, body)
-        return output
+        self.output = None
+        try:
+            if self._validate_data():
+                self.logger.info('Data Valid')
+                for key, _ in self.services.iteritems():
+                    if self.output is not None:
+                        service = self.services[key](
+                                self.client_data,
+                                self.output)
+                    else:
+                        service = self.services[key](
+                                self.client_data,
+                                self.data)
+                    self.output = service.multiprocess()
+                    if SAVE_OUTPUTS:
+                        save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
+                # if output:
+                #     print json.dumps(output, sort_keys=True, indent=4)
+            end = time.time()
+            self.logger.info('Total Run Time: %s', end - self.start)
+            env = Environment()
+            env.loader = FileSystemLoader("prime/templates")
+            if self.client_data.get("hired"):
+                subject = "Your p200 List is ready!"
+                to_email = self.client_data.get("email")
+                tmpl = env.get_template('emails/p200_done.html')
+                name = self.client_data.get("first_name")
+            else:
+                name = "{} {}".format(self.client_data.get("first_name"), \
+                    self.client_data.get("last_name"))
+                subject = "{}'s p200 List is ready!".format(name)
+                to_email = self.client_data.get("to_email")
+                tmpl = env.get_template('emails/network_summary_done.html')
+            body = tmpl.render(url=self.web_url, name=name)
+            sendgrid_email(to_email, subject, body)
+            return self.output
+        except:
+            self.logerror()
 
 def save_output(output, user_email, service):
     _file = open("temp_data/{}_{}.txt".format(user_email, service), "w+")

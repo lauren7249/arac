@@ -1,4 +1,7 @@
 import hashlib
+import sys
+import traceback
+from prime.utils.email import sendgrid_email
 import logging
 import requests
 import boto
@@ -37,20 +40,32 @@ class Service(object):
     def logend(self):
         self.logger.info('Ending Process: %s with %d outputs', self.__class__.__name__, len(self.output))
 
+    def logerror(self):
+        exc_info = sys.exc_info()
+        traceback.print_exception(*exc_info)
+        exception_str = traceback.format_exception(*exc_info)
+        sendgrid_email('lauren@advisorconnect.co','failed p200',self.client_data.get("email") + "'s p200 failed during " + self.__class__.__name__ + " at " + len(self.output) + " outputs, with error " + "\n".join(exception_str) , cc='jamesjohnson11@gmail.com')          
+            
     def multiprocess(self):
         self.logstart()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
+        try:
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
     def process(self):
         self.logstart()
-        for person in self.data:
-            person = self.wrapper(person)
-            self.output.append(person)
+        try:
+            for person in self.data:
+                person = self.wrapper(person)
+                self.output.append(person)
+        except:
+            self.logerror()
         self.logend()
         return self.output
 

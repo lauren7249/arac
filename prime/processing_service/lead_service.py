@@ -125,12 +125,15 @@ class LeadService(Service):
         
     def process(self):
         self.logstart()
-        data = self._get_qualifying_info()         
-        for person in data:
-            if self._valid_lead(person):
-                self.output.append(person)
-            else:
-                self.bad_leads.append(person)
+        try:
+            data = self._get_qualifying_info()         
+            for person in data:
+                if self._valid_lead(person):
+                    self.output.append(person)
+                else:
+                    self.bad_leads.append(person)
+        except:
+            self.logerror()
         self.logend()
         return self.output
 

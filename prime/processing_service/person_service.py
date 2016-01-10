@@ -30,22 +30,28 @@ class PersonService(Service):
         
     def multiprocess(self):
         self.logstart()
-        self.service = PiplService(self.client_data, self.data)
-        self.data = self.service.multiprocess()
-        self.service = ClearbitPersonService(self.client_data, self.data)
-        self.data = self.service.multiprocess()
-        self.service = LinkedinService(self.client_data, self.data)
-        self.output = self.service.multiprocess()        
+        try:
+            self.service = PiplService(self.client_data, self.data)
+            self.data = self.service.multiprocess()
+            self.service = ClearbitPersonService(self.client_data, self.data)
+            self.data = self.service.multiprocess()
+            self.service = LinkedinService(self.client_data, self.data)
+            self.output = self.service.multiprocess()        
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
     def process(self):
         self.logstart()
-        self.service = PiplService(self.client_data, self.data)
-        self.data = self.service.process()
-        self.service = ClearbitPersonService(self.client_data, self.data)
-        self.data = self.service.process()
-        self.service = LinkedinService(self.client_data, self.data)
-        self.output = self.service.process()    
+        try:
+            self.service = PiplService(self.client_data, self.data)
+            self.data = self.service.process()
+            self.service = ClearbitPersonService(self.client_data, self.data)
+            self.data = self.service.process()
+            self.service = LinkedinService(self.client_data, self.data)
+            self.output = self.service.process()    
+        except:
+            self.logerror()
         self.logend()
         return self.output

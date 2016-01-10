@@ -50,29 +50,35 @@ class PhoneService(Service):
         
     def multiprocess(self):
         self.logstart()
-        self.service = LinkedinCompanyService(self.client_data, self.data)
-        self.data = self.service.multiprocess()        
-        self.service = BloombergPhoneService(self.client_data, self.data)
-        self.data = self.service.multiprocess()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        self.service = ClearbitPhoneService(self.client_data, self.output)
-        self.output = self.service.multiprocess()
+        try:
+            self.service = LinkedinCompanyService(self.client_data, self.data)
+            self.data = self.service.multiprocess()        
+            self.service = BloombergPhoneService(self.client_data, self.data)
+            self.data = self.service.multiprocess()
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+            self.service = ClearbitPhoneService(self.client_data, self.output)
+            self.output = self.service.multiprocess()
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
     def process(self, favor_mapquest=False):
         self.logstart()
-        self.service = LinkedinCompanyService(self.client_data, self.data)
-        self.data = self.service.process()          
-        self.service = BloombergPhoneService(self.client_data, self.data)
-        self.data = self.service.process()
-        for person in self.data:
-            person = wrapper(person, favor_mapquest=favor_mapquest)
-            self.output.append(person)
-        self.service = ClearbitPhoneService(self.client_data, self.output)
-        self.output = self.service.process()
+        try:
+            self.service = LinkedinCompanyService(self.client_data, self.data)
+            self.data = self.service.process()          
+            self.service = BloombergPhoneService(self.client_data, self.data)
+            self.data = self.service.process()
+            for person in self.data:
+                person = wrapper(person, favor_mapquest=favor_mapquest)
+                self.output.append(person)
+            self.service = ClearbitPhoneService(self.client_data, self.output)
+            self.output = self.service.process()
+        except:
+            self.logerror()
         self.logend()
         return self.output

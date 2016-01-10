@@ -159,35 +159,38 @@ class ResultService(Service):
 
     def process(self):
         self.logstart()
-        user = self._get_user()
-        if user is None:
-            self.logger.error("No user found for %s", self.client_data.get("email"))
-            return None
-        for profile in self.data:
-            prospect = self._create_or_update_prospect(profile)
-            if not prospect:
-                self.logger.error("no prospect %s", json.dumps(profile))
-                continue
-            self._create_or_update_schools(prospect, profile)
-            self._create_or_update_jobs(prospect, profile)
-            client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
-            if not client_prospect:
-                self.logger.error("no client prospect")
-                continue
-            print prospect.us_state
-            self.output.append(client_prospect.to_json())
-        if user:
-            #If the agent is hired in the data then we know the p200 has been fully
-            #run and we can mark that as true also. Otherwise just the
-            #hiring screen has been completed
+        try:
+            user = self._get_user()
+            if user is None:
+                self.logger.error("No user found for %s", self.client_data.get("email"))
+                return None
+            for profile in self.data:
+                prospect = self._create_or_update_prospect(profile)
+                if not prospect:
+                    self.logger.error("no prospect %s", json.dumps(profile))
+                    continue
+                self._create_or_update_schools(prospect, profile)
+                self._create_or_update_jobs(prospect, profile)
+                client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
+                if not client_prospect:
+                    self.logger.error("no client prospect")
+                    continue
+                print prospect.us_state
+                self.output.append(client_prospect.to_json())
+            if user:
+                #If the agent is hired in the data then we know the p200 has been fully
+                #run and we can mark that as true also. Otherwise just the
+                #hiring screen has been completed
 
-            user.hiring_screen_completed = True
-            if self.client_data.get("hired"):
-                user.p200_completed = True
-            self.session.add(user)
-            self.session.commit()
-            self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
-        else:
-            self.logger.error("NO USER!")
+                user.hiring_screen_completed = True
+                if self.client_data.get("hired"):
+                    user.p200_completed = True
+                self.session.add(user)
+                self.session.commit()
+                self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
+            else:
+                self.logger.error("NO USER!")
+        except:
+            self.logerror()
         self.logend()
         return self.output
