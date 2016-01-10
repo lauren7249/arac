@@ -36,7 +36,7 @@ class ScoringService(Service):
         self.wrapper = wrapper
         global HIRED
         HIRED = self.client_data.get("hired")
-        self.hired = HIRED
+        self.hired = self.client_data.get("hired")
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -46,8 +46,10 @@ class ScoringService(Service):
         for i in range(len(self.output)):
             profile = self.output[i]
             percentile = stats.percentileofscore(all_scores, profile.get("lead_score"))
-            if percentile > 66: score = 3
-            elif percentile > 33: score = 2
+            if percentile >=80: score = 5
+            elif percentile >= 60: score = 4
+            elif percentile >= 40: score = 3
+            elif percentile >=20: score = 2
             else: score = 1
             profile["stars"] = score
             self.output[i] = profile
