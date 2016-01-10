@@ -34,6 +34,7 @@ class SocialProfilesService(Service):
         self.data = data
         self.output = []
         self.wrapper = wrapper
+        self.pool_size = 20
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
