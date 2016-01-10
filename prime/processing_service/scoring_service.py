@@ -58,22 +58,28 @@ class ScoringService(Service):
 
     def multiprocess(self):
         self.logstart()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        if self.hired:  
-            self.output = self.compute_stars()
+        try:
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+            if self.hired:  
+                self.output = self.compute_stars()
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
     def process(self):
         self.logstart()
-        for person in self.data:
-            person = self.wrapper(person)
-            self.output.append(person)
-        if self.hired:  
-            self.output = self.compute_stars()
+        try:
+            for person in self.data:
+                person = self.wrapper(person)
+                self.output.append(person)
+            if self.hired:  
+                self.output = self.compute_stars()
+        except:
+            self.logerror()
         self.logend()
         return self.output
 

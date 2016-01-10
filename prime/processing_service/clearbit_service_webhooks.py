@@ -58,22 +58,28 @@ class ClearbitPersonService(Service):
         return False
 
     def process(self):
-        self.logger.info('Starting Process: %s', 'Clearbit Person Service')
-        for person in self.data:     
-            person = person_wrapper(person)
-            self.output.append(person)      
-        self.output = self._merge(self.data,self.output)
-        self.logger.info('Ending Process: %s', 'Clearbit Person Service')
+        self.logstart()
+        try:
+            for person in self.data:     
+                person = person_wrapper(person)
+                self.output.append(person)      
+            self.output = self._merge(self.data,self.output)
+        except:
+            self.logerror()
+        self.logend()
         return self.output
 
     def multiprocess(self):
-        self.logger.info('Starting MultiProcess: %s', 'Clearbit Person Service')
-        self.pool = multiprocessing.Pool(self.pool_size)
-        output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        self.output = self._merge(self.data,output)
-        self.logger.info('Ending MultiProcess: %s', 'Clearbit Person Service')
+        self.logstart()
+        try:
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+            self.output = self._merge(self.data,self.output)
+        except:
+            self.logerror()
+        self.logend()
         return self.output
 
 def phone_wrapper(person, overwrite=False):

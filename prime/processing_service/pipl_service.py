@@ -1,7 +1,6 @@
 import json
 import logging
 import time
-import multiprocessing
 from random import shuffle
 from service import Service
 from pipl_request import PiplRequest

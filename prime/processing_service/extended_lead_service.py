@@ -25,16 +25,19 @@ class ExtendedLeadService(LeadService):
         
     def process(self):
         self.logstart()
-        self.data = self._get_qualifying_info() 
-        locations = [record.get("location_coordinates",{}).get("latlng") for record in self.data]           
-        for person in self.data:
-            if not person.get("extended"):
-                person["extended"] = False
-                self.output.append(person)
-                continue
-            if self._valid_lead(person):
-                self.output.append(person)
-            else:
-                self.bad_leads.append(person)
+        try:
+            self.data = self._get_qualifying_info() 
+            locations = [record.get("location_coordinates",{}).get("latlng") for record in self.data]           
+            for person in self.data:
+                if not person.get("extended"):
+                    person["extended"] = False
+                    self.output.append(person)
+                    continue
+                if self._valid_lead(person):
+                    self.output.append(person)
+                else:
+                    self.bad_leads.append(person)
+        except:
+            self.logerror()
         self.logend()
         return self.output

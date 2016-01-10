@@ -72,20 +72,26 @@ class LinkedinService(Service):
 
     def multiprocess(self):
         self.logstart()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.intermediate_output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        self.output = self._collapse() 
+        try:
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.intermediate_output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+            self.output = self._collapse() 
+        except:
+            self.logerror()
         self.logend()
         return self.output.values()
 
     def process(self):
         self.logstart()
-        for person in self.data:
-            person = self.wrapper(person)
-            self.intermediate_output.append(person)
-        self.output = self._collapse() 
+        try:
+            for person in self.data:
+                person = self.wrapper(person)
+                self.intermediate_output.append(person)
+            self.output = self._collapse() 
+        except:
+            self.logerror()
         self.logend()
         return self.output.values()
 
