@@ -83,7 +83,7 @@ class SocialProfilesRequest(S3SavedRequest):
         good_links = []
         for url in social_accounts:
             domain = url.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
-            if domain not in SOCIAL_DOMAINS: 
+            if domain not in SOCIAL_DOMAINS or domain is None: 
                 continue            
             req = UrlValidatorRequest(url, is_image=False)
             _link = req.process()        
