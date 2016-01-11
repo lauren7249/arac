@@ -14,12 +14,16 @@ from saved_request import S3SavedRequest
 from person_request import PersonRequest
 
 def wrapper(person):
-    linkedin_url = PersonRequest()._get_linkedin_url(person)
-    if linkedin_url:
-        data = PersonRequest()._get_profile_by_any_url(linkedin_url)
-        return data
-    return {}
-
+    try:
+        linkedin_url = PersonRequest()._get_linkedin_url(person)
+        if linkedin_url:
+            data = PersonRequest()._get_profile_by_any_url(linkedin_url)
+            return data
+        return {}
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class LinkedinService(Service):
     '''
     Gets linkedin data and collapses by linkedin_id, merging the email addresses, images, and social acounts for the person, 

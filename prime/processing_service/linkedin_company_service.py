@@ -15,17 +15,21 @@ from services.linkedin_query_api import get_company
 from person_request import PersonRequest
 
 def wrapper(person):
-    current_job = PersonRequest()._current_job(person)
-    if current_job:
-        request = LinkedinCompanyRequest(current_job)
-        data = request.process()
-        if data:
-            #TODO: add more fields
-            person.update({"company_website": data.get("website")})
-            person.update({"company_industry": data.get("industry")})
-            person.update({"company_headquarters": data.get("hq")})
-    return person
-
+    try:
+        current_job = PersonRequest()._current_job(person)
+        if current_job:
+            request = LinkedinCompanyRequest(current_job)
+            data = request.process()
+            if data:
+                #TODO: add more fields
+                person.update({"company_website": data.get("website")})
+                person.update({"company_industry": data.get("industry")})
+                person.update({"company_headquarters": data.get("hq")})
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class LinkedinCompanyService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge

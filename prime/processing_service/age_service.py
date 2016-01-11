@@ -13,16 +13,20 @@ from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
 
 def wrapper(person):
-    req = AgeRequest()
-    linkedin_data = person.get("linkedin_data")
-    dob_range = req._get_dob_year_range(linkedin_data)
-    age = req._get_age(linkedin_data)
-    person["age"] = age
-    if dob_range and len(dob_range)==2:
-        person["dob_min"] = dob_range[0]
-        person["dob_max"] = dob_range[1]
-    return person
-
+    try:
+        req = AgeRequest()
+        linkedin_data = person.get("linkedin_data")
+        dob_range = req._get_dob_year_range(linkedin_data)
+        age = req._get_age(linkedin_data)
+        person["age"] = age
+        if dob_range and len(dob_range)==2:
+            person["dob_min"] = dob_range[0]
+            person["dob_max"] = dob_range[1]
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class AgeService(Service):
     """
     Expected input is JSON with profile info

@@ -15,20 +15,24 @@ from helper import get_domain
 from person_request import PersonRequest
 
 def wrapper(person):
-    company_website = person.get("company_website")
-    company_domain = get_domain(company_website)
-    request = BloombergRequest(None)
-    phone = request._get_phone_from_website(company_domain)   
-    if phone:
-        person["phone_number"]= phone
-    else:
-        company = PersonRequest()._current_job(person).get("company")
-        phone, website = request._get_phone_from_name(company, company_domain)
+    try:
+        company_website = person.get("company_website")
+        company_domain = get_domain(company_website)
+        request = BloombergRequest(None)
+        phone = request._get_phone_from_website(company_domain)   
         if phone:
             person["phone_number"]= phone
-        if website:
-            person["company_website"] = website    
-    return person
+        else:
+            company = PersonRequest()._current_job(person).get("company")
+            phone, website = request._get_phone_from_name(company, company_domain)
+            if phone:
+                person["phone_number"]= phone
+            if website:
+                person["company_website"] = website    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person        
 
 class BloombergPhoneService(Service):
     """

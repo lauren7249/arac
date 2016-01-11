@@ -8,15 +8,19 @@ from service import Service, S3SavedRequest
 from person_request import PersonRequest
 
 def wrapper(person):
-    linkedin_data = person.get("linkedin_data",{})
-    current_job = PersonRequest()._current_job(person)
-    if current_job:
-        request = GlassdoorRequest(current_job.get("title"))
-        salary = request.process()
-        if salary:
-            person.update({"glassdoor_salary": salary})   
-    return person
-
+    try:
+        linkedin_data = person.get("linkedin_data",{})
+        current_job = PersonRequest()._current_job(person)
+        if current_job:
+            request = GlassdoorRequest(current_job.get("title"))
+            salary = request.process()
+            if salary:
+                person.update({"glassdoor_salary": salary})   
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class GlassdoorService(Service):
     """
     Expected input is JSON of Linkedin Data

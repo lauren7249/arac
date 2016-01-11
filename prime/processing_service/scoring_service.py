@@ -16,11 +16,15 @@ import multiprocessing
 HIRED = False
 
 def wrapper(person):
-    global HIRED
-    person["wealthscore"] = WealthScoreRequest(person).process()
-    if HIRED:
-        person["lead_score"] = LeadScoreRequest(person).process()    
-    return person
+    try:
+        global HIRED
+        person["wealthscore"] = WealthScoreRequest(person).process()
+        if HIRED:
+            person["lead_score"] = LeadScoreRequest(person).process()    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
 
 class ScoringService(Service):
     """

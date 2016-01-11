@@ -14,13 +14,18 @@ HIRED = False
 AGENT_SCHOOLS = set()
 
 def wrapper(person):
-    global HIRED
-    request = ProfileBuilderRequest(person, HIRED)
-    profile = request.process()
-    profile = request._get_job_fields(profile, person)
-    profile = request._get_common_schools(profile, AGENT_SCHOOLS)
-    return profile
-
+    profile = {}
+    try:
+        global HIRED
+        request = ProfileBuilderRequest(person, HIRED)
+        profile = request.process()
+        profile = request._get_job_fields(profile, person)
+        profile = request._get_common_schools(profile, AGENT_SCHOOLS)
+        return profile
+    except Exception, e:
+        print __name__ + str(e)
+        return profile
+        
 class ProfileBuilderService(Service):
     '''
     Add "profile" key to json for simplifying results service

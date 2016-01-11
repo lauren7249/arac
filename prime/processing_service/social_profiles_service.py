@@ -18,10 +18,14 @@ from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
 
 def wrapper(person):
-    request = SocialProfilesRequest(person)
-    person = request.process()    
-    return person
-
+    try:
+        request = SocialProfilesRequest(person)
+        person = request.process()    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class SocialProfilesService(Service):
     """
     Expected input is JSON with good leads

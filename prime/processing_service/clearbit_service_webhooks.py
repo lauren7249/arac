@@ -15,9 +15,13 @@ from clearbit_request_webhooks import ClearbitRequest
 
 def person_wrapper(person):
     email = person.keys()[0]
-    request = ClearbitRequest(email)
-    data = request.get_person()
-    return {email:data}   
+    try:
+        request = ClearbitRequest(email)
+        data = request.get_person()
+        return {email:data}   
+    except Exception, e:
+        print __name__ + str(e)
+        return {email:{}}
 
 class ClearbitPersonService(Service):
     """
@@ -83,16 +87,20 @@ class ClearbitPersonService(Service):
         return self.output
 
 def phone_wrapper(person, overwrite=False):
-    if (not overwrite and person.get("phone_number")) or (not person.get("company_website")):
-        #logger.info('Skipping clearbit phone service. Phone: %s, website: %s', person.get("phone_number",""), person.get("company_website",""))
+    try:
+        if (not overwrite and person.get("phone_number")) or (not person.get("company_website")):
+            #logger.info('Skipping clearbit phone service. Phone: %s, website: %s', person.get("phone_number",""), person.get("company_website",""))
+            return person
+        website = person.get("company_website")
+        request = ClearbitRequest(get_domain(website))
+        company = request.get_company()
+        if company.get("phone_number"):
+            person.update({"phone_number": company.get("phone_number")})
         return person
-    website = person.get("company_website")
-    request = ClearbitRequest(get_domain(website))
-    company = request.get_company()
-    if company.get("phone_number"):
-        person.update({"phone_number": company.get("phone_number")})
-    return person
-
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class ClearbitPhoneService(Service):
     """
     Expected input is JSON with profile info

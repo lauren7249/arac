@@ -6,11 +6,15 @@ from person_request import PersonRequest
 import multiprocessing
 
 def wrapper(person):
-    person_profile = person.get("linkedin_data")
-    associated_profiles = PersonRequest()._get_associated_profiles(person_profile)
-    associated_profiles = Service()._dedupe_profiles(associated_profiles)
-    return associated_profiles
-
+    try:
+        person_profile = person.get("linkedin_data")
+        associated_profiles = PersonRequest()._get_associated_profiles(person_profile)
+        associated_profiles = Service()._dedupe_profiles(associated_profiles)
+        return associated_profiles
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class ExtendedProfilesService(Service):
     """
     Expected input is JSON with profile info

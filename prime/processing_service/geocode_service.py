@@ -21,12 +21,16 @@ from mapquest_request import MapQuestRequest
 GEOLOCATOR = Nominatim()
 
 def wrapper(person):
-    linkedin_data = person.get("linkedin_data",{})
-    location = GeocodeRequest(linkedin_data).process()
-    if location:
-        person["location_coordinates"] = location    
-    return person
-
+    try:
+        linkedin_data = person.get("linkedin_data",{})
+        location = GeocodeRequest(linkedin_data).process()
+        if location:
+            person["location_coordinates"] = location    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class GeoCodingService(Service):
 
     """
