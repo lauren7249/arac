@@ -99,9 +99,9 @@ class LeadService(Service):
             return False
         if name_match(person_name.split(" ")[0], self.client_data.get("first_name")) \
             and name_match(person_name.split(" ")[1], self.client_data.get("last_name")):
-            self.logger.info("%s is ME", person_name)
+            self.logger.info("%s is ME", uu(person_name))
             return True
-        self.logger.info("%s is NOT ME", person_name)
+        self.logger.info("%s is NOT ME", uu(person_name))
         return False
 
     #TODO: make this more robust

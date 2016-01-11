@@ -17,13 +17,12 @@ HIRED = False
 
 def wrapper(person):
     try:
-        global HIRED
         person["wealthscore"] = WealthScoreRequest(person).process()
-        if HIRED:
-            person["lead_score"] = LeadScoreRequest(person).process()    
+        person["lead_score"] = LeadScoreRequest(person).process()    
         return person
     except Exception, e:
         print __name__ + str(e)
+        person["lead_score"] = -99
         return person
 
 class ScoringService(Service):
