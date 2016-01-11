@@ -15,7 +15,9 @@ from pipl_request import PiplRequest
 from person_request import PersonRequest
 from saved_request import S3SavedRequest
 
-sys.setdefaultencoding('utf8')
+reload(sys) 
+sys.setdefaultencoding('utf-8')
+
 class Service(object):
 
     def __init__(self):
