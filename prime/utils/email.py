@@ -9,8 +9,9 @@ def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jimmy@adv
     sg = sendgrid.SendGridClient('lauren7249', '1250downllc')
     mail = sendgrid.Mail()
     mail.add_to(to)
-    for cc in ccs:
-        mail.add_cc(cc)
+    if ccs:
+        for cc in ccs:
+            mail.add_cc(cc)
     mail.set_subject(subject)
     mail.set_html(body)
     mail.set_from('contacts@advisorconnect.co')
