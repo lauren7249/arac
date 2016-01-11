@@ -44,7 +44,7 @@ class Service(object):
         exc_info = sys.exc_info()
         traceback.print_exception(*exc_info)
         exception_str = traceback.format_exception(*exc_info)
-        sendgrid_email('lauren@advisorconnect.co','failed p200',self.client_data.get("email") + "'s p200 failed during " + self.__class__.__name__ + " at " + len(self.output) + " outputs, with error " + "\n".join(exception_str) , cc='jamesjohnson11@gmail.com')          
+        sendgrid_email('lauren@advisorconnect.co','failed p200',self.client_data.get("email") + "'s p200 failed during " + self.__class__.__name__ + " at " + str(len(self.output)) + " outputs, with error " + "\n".join(exception_str) , cc='jamesjohnson11@gmail.com')          
             
     def multiprocess(self):
         self.logstart()
