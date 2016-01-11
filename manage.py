@@ -58,6 +58,16 @@ if __name__ == '__main__':
         q = Queue(connection=conn)
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
 
+    @manager.command
+    def delete_prospects(email):
+        from prime.users.models import db, User
+        user = User.query.filter_by(email=email).first()
+        session = db.session
+        prospects = user.client_prospects
+        for p in prospects:
+            session.delete(p)
+        session.commit()
+        print str(len(prospects)) + " client prospects deleted "
 
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))

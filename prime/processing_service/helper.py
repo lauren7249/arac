@@ -129,7 +129,7 @@ def name_match(name1, name2, intersect_threshold=5):
         return False
     name1_words = set(name1.split(" "))
     name2_words = set(name2.split(" "))
-    stop_words = ["the", "of","and","a","the","at","for","in","on","school","","inc","llc","co"]
+    stop_words = ["the", "of","and","a","the","at","for","in","on","school","","inc","llc","co","university","college"]
     for stop_word in stop_words:
         if stop_word in name1_words: name1_words.remove(stop_word)
         if stop_word in name2_words: name2_words.remove(stop_word)
