@@ -5,7 +5,7 @@ import boto
 import os
 import sendgrid
 
-def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jimmy@advisorconnect.co','jeff@advisorconnect.co','jamesjohnson11@gmail.com']):
+def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jamesjohnson11@gmail.com']):
     sg = sendgrid.SendGridClient('lauren7249', '1250downllc')
     mail = sendgrid.Mail()
     mail.add_to(to)

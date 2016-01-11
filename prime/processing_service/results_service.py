@@ -187,7 +187,8 @@ class ResultService(Service):
                     user.p200_completed = True
                 self.session.add(user)
                 self.session.commit()
-                self.logger.info("Stats: %s", unicode(json.dumps(user.build_statistics(), ensure_ascii=False)))
+                self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
+                self.logger.info(unicode(json.dumps(user.build_statistics(), ensure_ascii=False)))
             else:
                 self.logger.error("NO USER!")
         except:
