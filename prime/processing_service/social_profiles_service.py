@@ -105,7 +105,7 @@ class SocialProfilesRequest(S3SavedRequest):
         if boto_key.exists():
             html = boto_key.get_contents_as_string()
             try:
-                return json.loads(html)
+                return json.loads(html.decode("utf-8-sig"))
             except:
                 return {}
         else:
@@ -114,7 +114,7 @@ class SocialProfilesRequest(S3SavedRequest):
                 output = response.get("imageKeywords")
             else:
                 output = {}
-            boto_key.set_contents_from_string(json.dumps(output))
+            boto_key.set_contents_from_string(unicode(json.dumps(output, ensure_ascii=False)))
             return output
         return {}
 

@@ -140,7 +140,7 @@ class PiplRequest(S3SavedRequest):
         while self.pipl_json is None and tries<3:
             try:
                 html = self._make_request()
-                self.pipl_json = json.loads(html)
+                self.pipl_json = json.loads(html.decode("utf-8-sig"))
             except:
                 time.sleep(1)
                 pass
@@ -158,7 +158,7 @@ class PiplRequest(S3SavedRequest):
         while self.pipl_json is None and tries<3:
             try:
                 html = self._make_request()
-                self.pipl_json = json.loads(html)
+                self.pipl_json = json.loads(html.decode("utf-8-sig"))
             except:
                 time.sleep(1)
                 pass

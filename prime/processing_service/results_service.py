@@ -167,7 +167,7 @@ class ResultService(Service):
             for profile in self.data:
                 prospect = self._create_or_update_prospect(profile)
                 if not prospect:
-                    self.logger.error("no prospect %s", uu(json.dumps(profile)))
+                    self.logger.error("no prospect %s", unicode(json.dumps(profile, ensure_ascii=False)))
                     continue
                 self._create_or_update_schools(prospect, profile)
                 self._create_or_update_jobs(prospect, profile)
@@ -187,7 +187,7 @@ class ResultService(Service):
                     user.p200_completed = True
                 self.session.add(user)
                 self.session.commit()
-                self.logger.info("Stats: %s", uu(json.dumps(user.build_statistics())))
+                self.logger.info("Stats: %s", unicode(json.dumps(user.build_statistics(), ensure_ascii=False)))
             else:
                 self.logger.error("NO USER!")
         except:

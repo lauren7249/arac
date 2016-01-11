@@ -49,7 +49,7 @@ class ClearbitRequest(S3SavedRequest):
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
             html = key.get_contents_as_string()
-            entity = json.loads(html)
+            entity = json.loads(html.decode("utf-8-sig"))
         else:
             while True:
                 entity = self._get_entity(self.query, type)
@@ -64,7 +64,7 @@ class ClearbitRequest(S3SavedRequest):
                     break
             entity.pop('response', None)
             key.content_type = 'text/html'
-            key.set_contents_from_string(json.dumps(entity))
+            key.set_contents_from_string(unicode(json.dumps(entity, ensure_ascii=False)))
         entity.pop("id",None)
         entity.pop("fuzzy",None)
         return entity

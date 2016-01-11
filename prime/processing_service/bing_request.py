@@ -139,7 +139,7 @@ class BingRequest(S3SavedRequest):
             for api_key in bing_api_keys:
                 try:
                     html = self._get_html(api_key)
-                    raw_results = json.loads(html)['d']
+                    raw_results = json.loads(html.decode("utf-8-sig"))['d']
                     self.results += raw_results.get("results",[])
                     self.next_querystring = raw_results.get("__next")
                     self.pages+=1

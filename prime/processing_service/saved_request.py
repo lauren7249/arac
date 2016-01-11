@@ -69,7 +69,7 @@ class UserRequest(S3SavedRequest):
         self.boto_key = Key(self.bucket)
         self.boto_key.key = self.key
         self.boto_key.content_type = content_type
-        self.boto_key.set_contents_from_string(json.dumps(data))
+        self.boto_key.set_contents_from_string(unicode(json.dumps(data, ensure_ascii=False)))
         return data
 
     def lookup_data(self):
@@ -81,6 +81,6 @@ class UserRequest(S3SavedRequest):
         self.boto_key.key = self.key
         self.logger.info('Make Request: %s', 'Get From S3')
         html = self.boto_key.get_contents_as_string()
-        entity = json.loads(html)
+        entity = json.loads(html.decode("utf-8-sig"))
         return entity
 

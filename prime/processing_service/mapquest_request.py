@@ -66,7 +66,7 @@ class MapQuestRequest(S3SavedRequest):
                 self.raw_html = lxml.html.fromstring(self.html_string)            
             self.raw_search_results = self.raw_html.xpath(self.search_results_xpath)[0].text
             json_area = parse_out(self.raw_search_results,"m3.dotcom.controller.MCP.boot('dotcom', ","); ")
-            json_data = json.loads(json_area)
+            json_data = json.loads(json_area.decode("utf-8-sig"))
             self.json_locations = json_data['model']['applications'][0]['state']['locations']
         except Exception, e:
             self.logger.error("Location Error: %s", str(e))

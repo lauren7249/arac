@@ -94,8 +94,6 @@ class ProcessingService(Service):
                     self.output = service.multiprocess()
                     if SAVE_OUTPUTS:
                         save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
-                # if output:
-                #     print json.dumps(output, sort_keys=True, indent=4)
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
             env = Environment()
@@ -122,12 +120,12 @@ def save_output(output, user_email, service):
     try:
         _file.write(output)
     except:
-        _file.write(json.dumps(output))
+        _file.write(unicode(json.dumps(output, ensure_ascii=False)))
     _file.close()
 
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
-    data = json.loads(_file.read())
+    data = json.loads(_file.read().decode("utf-8-sig"))
     #shuffle(data)
     data = data[:19]
     #user = User("James","Johnson","jamesjohnson11@gmail.com", "password")
