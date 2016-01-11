@@ -20,7 +20,7 @@ from helper import filter_bing_results, uu
 class BingRequestMaker(S3SavedRequest):
 
     def __init__(self, name, type, extra_keywords=None, *args, **kwargs):
-        self.name = name
+        self.name = name if name else ""
         self.type = type
         self.extra_keywords = extra_keywords.replace('&','').replace(',','') if extra_keywords else None
         self.include_terms_in_title = None
@@ -50,7 +50,7 @@ class BingRequestMaker(S3SavedRequest):
         elif self.type == "linkedin_profile":
             self.regex = profile_re
             self.include_terms_in_title = self.name
-            if len(self.extra_keywords):
+            if self.extra_keywords and len(self.extra_keywords):
                 inbody = '"' + self.extra_keywords + '"'
             else:
                 inbody = ''
@@ -146,7 +146,7 @@ class BingRequest(S3SavedRequest):
                     break
                 except:
                     if html:
-                        self.logger.warn("Exception for bing request with the following response: " + uu(html))
+                        self.logger.warn("Exception for bing request with the following response: {}".format(uu(html)))
                     else:
                         self.logger.warn("bing -- no response")
                 if not self.next_querystring:

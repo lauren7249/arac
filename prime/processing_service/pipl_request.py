@@ -38,7 +38,7 @@ class PiplRequest(S3SavedRequest):
         
 
     def _build_url(self):
-        if not self.query:
+        if not self.query or not self.api_url:
             return
         if self.type == 'email':
             url = self.api_url + "&email=" + self.query

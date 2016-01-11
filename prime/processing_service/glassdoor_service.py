@@ -51,7 +51,7 @@ class GlassdoorRequest(S3SavedRequest):
         if not self.title: 
             return -1
         self.titles_tried.append(self.title.lower().strip())
-        self.url =  "http://www.glassdoor.com/Salaries/" +  self.title.replace(" ",'-').strip() + "-salary-SRCH_KO0," + str(len(self.title.strip())) + ".htm"
+        self.url =  "http://www.glassdoor.com/Salaries/{}-salary-SRCH_KO0,{}.htm".format(self.title.replace(" ",'-').strip(), str(len(self.title.strip())))
         try:
             response = self._make_request()
             clean = lxml.html.fromstring(response)
@@ -75,7 +75,7 @@ class GlassdoorRequest(S3SavedRequest):
             new_title = " ".join([w for w in text.split() if w in common])
             if new_title.lower().strip() in self.titles_tried: 
                 return -1
-            self.logger.info(self.title.encode('utf-8') + "-->" + new_title.encode('utf-8'))
+            self.logger.info("{}-->{}".format(self.title.encode('utf-8'), new_title.encode('utf-8')))
             self.title = new_title
             return self.process()
         return -1

@@ -27,7 +27,7 @@ class MapQuestRequest(S3SavedRequest):
 
     def __init__(self, query):
         super(MapQuestRequest, self).__init__()
-        self.url = "https://www.mapquest.com/?q=" + query
+        self.url = "https://www.mapquest.com/?q={}".format(query)
         self.query = query
         self.headers = GLOBAL_HEADERS
         self.unresolved_locations = []

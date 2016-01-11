@@ -175,7 +175,7 @@ class BloombergRequest(S3SavedRequest):
                     gender = "Female"
                 elif personalTitle in ["mr"]:
                     gender = "Male"
-            memberPage = "http://www.bloomberg.com/research/stocks/private/" + member.get("href")
+            memberPage = "http://www.bloomberg.com/research/stocks/private/{}".format(member.get("href")) 
             details = officer.xpath(".//div/div")
             if len(details) > 1:
                 title = details[1].text_content().strip()

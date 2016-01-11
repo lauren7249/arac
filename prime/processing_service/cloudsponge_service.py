@@ -40,7 +40,8 @@ class CloudSpongeService(Service):
     def real_person(self, contact_email):
         if len(contact_email.split("@")[0])>33:
             return False
-        for word in self.excluded_words:  
+        for word in self.excluded_words: 
+            if not word: continue 
             regex = '(\-|^|\.|@|^)' + word + '(\-|@|\.|$)'
             if re.search(regex,contact_email):
                 return False

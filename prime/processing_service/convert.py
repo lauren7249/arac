@@ -423,7 +423,7 @@ def parse_html(html):
     source_url_regex = re.compile(r'(?<="X-FS-Origin-Request":").+(?=",)')
     source_url_match = re.search(source_url_regex,html)
     if source_url_match is not None:
-        source_url = "http://www.linkedin.com" + source_url_match.group(0)
+        source_url = "http://www.linkedin.com{}".format(source_url_match.group(0))
     else:
         source_url = None
 

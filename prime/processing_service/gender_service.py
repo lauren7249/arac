@@ -38,7 +38,7 @@ def wrapper(person):
             person["gender"] = "male"
         else:
             person["gender"] = "female"  
-    logger.info(firstname + " is " + person.get("gender"))
+    logger.info("{} is {}".format(firstname, person.get("gender")))
     return person
 
      

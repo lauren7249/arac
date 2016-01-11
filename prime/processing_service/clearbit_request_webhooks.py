@@ -43,7 +43,7 @@ class ClearbitRequest(S3SavedRequest):
         entity = {}
         if not self.query:
             return entity
-        self.key = hashlib.md5("clearbit" + type + self.query).hexdigest()
+        self.key = hashlib.md5("clearbit{}{}".format(type,self.query)).hexdigest()
         key = Key(self.bucket)
         key.key = self.key
         if key.exists():
@@ -78,22 +78,22 @@ class ClearbitRequest(S3SavedRequest):
             if isinstance(self.clearbit_json[key], dict) and self.clearbit_json[key].get('handle'):
                 handle = self.clearbit_json[key].pop("handle")
                 if key=='angellist':
-                    link = "https://angel.co/" + handle
+                    link = "https://angel.co/{}".format(handle)
                 elif key=='foursquare':
-                    link = "https://" + key + ".com/user/" + handle
+                    link = "https://{}.com/user/{}".format(key, handle)
                 elif key=='googleplus':
-                    link = "https://plus.google.com/" + handle
+                    link = "https://plus.google.com/{}".format(handle)
                 elif key=='twitter':
-                    link = "https://twitter.com/" + handle
+                    link = "https://twitter.com/{}".format(handle)
                 elif key=='facebook':
                     if handle.isdigit():
-                        link = "https://facebook.com/people/_/" + handle
+                        link = "https://facebook.com/people/_/{}".format(handle)
                     else:
-                        link = "https://facebook.com/" + handle
+                        link = "https://facebook.com/{}".format(handle)
                 elif key=='linkedin':
-                    link = "https://www." + key + ".com/" + handle
+                    link = "https://www.{}.com/{}".format(key, handle)
                 else:
-                    link = "https://" + key + ".com/" + handle
+                    link = "https://{}.com/{}".format(key, handle)
                 social_accounts.append(link)
         return social_accounts
 

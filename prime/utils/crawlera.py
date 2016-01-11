@@ -12,7 +12,7 @@ def reformat_crawlera(json):
         if education.get("degrees"):
             school["degree"] = ", ".join(education.get("degrees"))
         elif education.get("degree") and education.get("major"):
-            school["degree"] = education.get("degree") + ", " + education.get("major")
+            school["degree"] =  "{}, {}".format(education.get("degree"), education.get("major"))
         elif education.get("degree"):
             school["degree"] = education.get("degree")
         elif education.get("major"):

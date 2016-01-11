@@ -139,7 +139,7 @@ def name_match(name1, name2, intersect_threshold=5):
     if len(intersect)>=intersect_threshold: 
         logger.info("Name match: %s == %s", name1, name2)
         return True
-    ratio = SequenceMatcher(None, name1, name2)
+    ratio = SequenceMatcher(None, name1, name2).ratio()
     if ratio>=0.8: 
         logger.info("Name match: %s == %s", name1, name2)
         return True
@@ -200,7 +200,8 @@ def collapse_commonalies(commonalities):
         end_date = max([date_range[1] for date_range in date_ranges])
         start_date_str = str(start_date.year)
         end_date_str = 'Present' if end_date == datetime.date.today() else str(end_date.year)
-        collapsed.append(connection + start_date_str + "-" + end_date_str)
+        if connection and start_date_str and end_date_str:
+            collapsed.append(connection + start_date_str + "-" + end_date_str)
     return collapsed
 
 def common_company_ids(p1, p2):
@@ -211,7 +212,7 @@ def common_company_ids(p1, p2):
         start_date1 = parse_date(job1.get("start_date")).date() if parse_date(job1.get("start_date")) else datetime.date(1900,1,1)
         end_date1 = parse_date(job1.get("end_date")).date() if parse_date(job1.get("end_date")) else datetime.date.today()
         for job2 in p2.get("experiences",[]):
-            if not job2.get("company_id"): continue
+            if not job2.get("company_id") or not job2.get("company"): continue
             if not job2.get("start_date") and not job2.get("end_date"): continue
             start_date2 = parse_date(job2.get("start_date")).date() if parse_date(job2.get("start_date")) else datetime.date(1900,1,1)
             end_date2 = parse_date(job2.get("end_date")).date() if parse_date(job2.get("end_date")) else datetime.date.today()
@@ -255,7 +256,7 @@ def common_school_ids(p1, p2):
         start_date1 = parse_date(school1.get("start_date")).date() if parse_date(school1.get("start_date")) else datetime.date(1900,1,1)
         end_date1 = parse_date(school1.get("end_date")).date() if parse_date(school1.get("end_date")) else datetime.date.today()
         for school2 in p2.get("schools",[]):
-            if not school2.get("college_id"): continue
+            if not school2.get("college_id") or not school2.get("college"): continue
             if not school2.get("start_date") and not school2.get("end_date"): continue
             start_date2 = parse_date(school2.get("start_date")).date() if parse_date(school2.get("start_date")) else datetime.date(1900,1,1)
             end_date2 = parse_date(school2.get("end_date")).date() if parse_date(school2.get("end_date")) else datetime.date.today()

@@ -136,7 +136,7 @@ class ProfileBuilderRequest(S3SavedRequest):
             self.profile["email_addresses"] = self.person.get("email_addresses")
             self.profile["profile_image_urls"] = self.person.get("images")
             self.profile["main_profile_image"] = self._get_main_profile_image()
-            self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if not x.endswith("@facebook.com")])
+            self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
             self.profile["referrers"] = self.person.get("referrers",[])
             self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
             self.profile["sources"] = self.person.get("sources",[])
