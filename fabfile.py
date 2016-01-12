@@ -30,6 +30,5 @@ def deploy(branch):
 def pull_from_git(branch):
     with cd("~/%(app)s"% env):
         run("git checkout {}".format(branch))
-        run("git fetch origin {}".format(branch))
-        run("git merge origin/{} --no-edit".format(branch))
+        run("git pull origin {}".format(branch))
 
