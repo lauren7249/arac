@@ -98,7 +98,7 @@ class Prospect(db.Model):
         if self.linkedin_headline:
             return self.linkedin_headline
         if self.company and self.job:
-            return "{} at {}".format(self.company, self.job)
+            return "{} at {}".format(self.job, self.company)
         if self.company:
             return "Works at {}".format(self.company)
         if self.job:

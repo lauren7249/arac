@@ -190,12 +190,14 @@ def get_or_none(item):
 def get_args(request):
     query = get_or_none(request.args.get("query"))
     filter = get_or_none(request.args.get("filter"))
-    rating = get_or_none(request.args.get("rating"))
+    rating = get_or_none(request.args.get("stars"))
     return query, filter, rating
 
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
+    # import pdb
+    # pdb.set_trace()
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))

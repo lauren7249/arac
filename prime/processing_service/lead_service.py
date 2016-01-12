@@ -117,6 +117,9 @@ class LeadService(Service):
         return False
 
     def _valid_lead(self, person):
+        n_connections = person.get().get("linkedin_data",{}).get("connections")
+        if n_connections and int(n_connections)<30:
+            return False
         salary = self._filter_salaries(person)
         location = self._filter_same_locations(person)
         same_person = self._is_same_person(person)        

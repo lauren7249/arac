@@ -761,19 +761,19 @@ table.contacts-table {
       width: 60px;
       height: 14px;
       &.one-star {
-        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/one-star.png");
+        background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
       }
       &.two-star {
-        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/two-stars.png");
+        background-image: url("https://s3.amazonaws.com/prime-images/two-stars.png");
       }
       &.three-star {
-        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/three-stars.png");
+        background-image: url("https://s3.amazonaws.com/prime-images/three-stars.png");
       }
       &.four-star {
-        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/four-stars.png");
+        background-image: url("https://s3.amazonaws.com/prime-images/four-stars.png");
       }      
       &.five-star {
-        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/five-stars.png");
+        background-image: url("https://s3.amazonaws.com/prime-images/five-stars.png");
       }      
     }
   }
