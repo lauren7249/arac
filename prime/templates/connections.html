@@ -51,7 +51,6 @@
       <tbody>
       {% if connections.count() > 0 %}
       {% for connection in connections %}
-      console.log(connection.headline)
       <tr data-row='{{ connection.id }}'>
         <td>
           <input class='connection-checkbox' data-connection-id='{{ connection.id }}' type="checkbox" />
