@@ -16,10 +16,16 @@ def reload_gunicorn():
     sudo("pkill -f uwsgi" % env)
     sudo("env/bin/uwsgi prime/production.ini")
 
+def restart_worker():
+    sudo("pkill -f python" % env)
+    with cd("~/%(app)s"% env):
+        run("nohup python worker.py &")
+
 def deploy(branch):
     print(colors.yellow("Deploying sources to %(host)s." % env))
     pull_from_git(branch)
     reload_gunicorn()
+    restart_worker()
 
 def pull_from_git(branch):
     with cd("~/%(app)s"% env):
