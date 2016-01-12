@@ -19,6 +19,14 @@ from prime.users.models import User
 
 logger = logging.getLogger(__name__)
 
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ))
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if not current_user.is_anonymous():
@@ -57,9 +65,11 @@ def signup():
                 db.session.commit()
                 login_user(user, True)
                 return redirect("/")
-        print "ERROR:{}".format(form.errors)
+        if form.errors:
+            flash(form)
+            return render_template('auth/signup.html', signup_form=form, code=code)
         flash("The link you used has expired. Please request another \
-                from your manager")
+                    from your manager")
         return redirect(url_for('auth.login'))
     else:
         code = request.args.get("code")
