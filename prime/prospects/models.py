@@ -110,6 +110,18 @@ class Prospect(db.Model):
         return "/static/img/person_image.png"
 
     @property
+    def headline(self):
+        if self.linkedin_headline:
+            return self.linkedin_headline
+        if self.company and self.job:
+            return "{} at {}".format(self.company, self.job)
+        if self.company:
+            return "Works at {}".format(self.company)
+        if self.job:
+            return self.job
+        return ""
+
+    @property
     def tags(self):
         jobs = list(set([c.company_name for c in self.jobs]))[:4]
         schools = list(set([s.school_name for s in self.schools]))[:4]
