@@ -110,7 +110,7 @@ class Prospect(db.Model):
             return self.linkedin_image_url
         return "/static/img/person_image.png"
 
-    @cached_property
+    @property
     def headline(self):
         if self.linkedin_headline:
             return self.linkedin_headline
