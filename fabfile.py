@@ -7,31 +7,23 @@ from fabric.contrib.project import *
 import os
 
 env.app = "prime"
-env.dest = "/home/james/%(app)s" % env
+env.dest = "~/%(app)s" % env
 env.hosts = "10.143.114.147"
 env.user = "james"
 env.use_ssh_config = True
 
 def reload_gunicorn():
-    sudo("kill -HUP `cat /tmp/uniqueio.pid`" % env)
+    sudo("pkill -f uwsgi" % env)
+    sudo("env/bin/uwsgi prime/production.ini")
 
-def deploy():
+def deploy(branch):
     print(colors.yellow("Deploying sources to %(host)s." % env))
-    pull_from_git()
-    cache_bust()
-    #migrate()
-    reload_supervisor()
+    pull_from_git(branch)
+    reload_gunicorn()
 
-def pull_from_git():
-    with cd("/home/james/%(app)s"% env):
-        run("git fetch origin master")
-        run("git merge origin/master --no-edit")
+def pull_from_git(branch):
+    with cd("~/%(app)s"% env):
+        run("git checkout {}".format(branch))
+        run("git fetch origin {}".format(branch))
+        run("git merge origin/{} --no-edit".format(branch))
 
-
-def reload_supervisor():
-    sudo("service supervisor restart")
-
-def migrate():
-    run(". /home/ubuntu/env/bin/activate")
-    with cd("/home/ubuntu/%(app)s" % env):
-        run("python manage.py migrate")
