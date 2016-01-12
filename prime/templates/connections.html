@@ -60,7 +60,7 @@
             <div class="col-2"><img src='{{ connection.image }}' /></div>
             <div class="col-6">
               <div class="name"> <span>{{ connection.name }}</span><span class="stars {{ connection.stars_display }}"></span></div>
-              <div class="job">{{ connection.headline }}</div>
+              <div class="job">{{ connection.linkedin_headline }}</div>
               <div class="tags">
                 {% for tag in connection.tags %}<span>{{ tag }}</span>{% endfor %}
               </div>
