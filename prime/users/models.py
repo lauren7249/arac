@@ -310,14 +310,17 @@ class ClientProspect(db.Model):
 
     @property
     def stars_display(self):
-        star_dict = {
-                1: 'one-star',
-                2: 'two-star',
-                3: 'three-star',
-                4: 'four-star',
-                5: 'five-star'
-                }
-        return star_dict[self.stars]
+        try:
+            star_dict = {
+                    1: 'one-star',
+                    2: 'two-star',
+                    3: 'three-star',
+                    4: 'four-star',
+                    5: 'five-star'
+                    }
+            return star_dict[self.stars]
+        except:
+            return "three-star"
 
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)

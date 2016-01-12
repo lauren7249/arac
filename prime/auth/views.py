@@ -50,18 +50,25 @@ def signup():
             code = form.code.data
             password = hashlib.md5(code).hexdigest()
             user = User.query.filter(User.onboarding_code == password).first()
-            user.onboarding_code = None
-            user.set_password(form.password.data)
-            db.session.add(user)
-            db.session.commit()
-            login_user(user, True)
-            return redirect("/")
+            if user:
+                user.onboarding_code = None
+                user.set_password(form.password.data)
+                db.session.add(user)
+                db.session.commit()
+                login_user(user, True)
+                return redirect("/")
+            else:
+                flash("The link you used has expired. Please request another \
+                        from your manager")
+                return redirect(url_for('auth.login'))
     else:
         code = request.args.get("code")
         password = hashlib.md5(code).hexdigest()
         user = User.query.filter(User.onboarding_code == password).first()
-    if not user:
-        return redirect(url_for('auth.login'))
+        if not user:
+            flash("The link you used has expired. Please request another \
+                    from your manager")
+            return redirect(url_for('auth.login'))
     return render_template('auth/signup.html', signup_form=form, code=code)
 
 

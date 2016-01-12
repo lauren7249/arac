@@ -47,5 +47,13 @@ uwsgi:
 	python worker.py &
 	uwsgi --ini production.ini
 
+.PHONY: install_live_db
+install_live_db:
+	${PG_BINDIR}/dropdb --if-exists ${PGDATABASE}
+	${PG_BINDIR}/createdb ${PGDATABASE}
+	pg_dump --dbname=postgresql://arachnid:devious8ob8@babel/arachnid > mydb.dump
+	psql -f mydb.dump
+
+
 .PHONY: run
 run: is-ready uwsgi

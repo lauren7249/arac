@@ -741,3 +741,9 @@ table.contacts-table .contact-buttons .button {
 .name span.stars.three-star {
   background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/three-stars.png");
 }
+.name span.stars.four-star {
+  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/four-stars.png");
+}
+.name span.stars.five-star {
+  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/five-stars.png");
+}
