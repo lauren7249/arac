@@ -295,7 +295,7 @@ class ClientProspect(db.Model):
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"),
             index=True)
     prospect = relationship("Prospect", \
-            foreign_keys="ClientProspect.prospect_id")
+            foreign_keys="ClientProspect.prospect_id", lazy='joined')
     #processed means skipped, needs name change
     processed = db.Column(Boolean, default=False)
     good = db.Column(Boolean, default=False)

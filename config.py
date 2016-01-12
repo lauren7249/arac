@@ -41,6 +41,7 @@ class DevelopmentConfig(Config):
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
     BASE_URL = 'http://localhost:5000'
+    SQLALCHEMY_ECHO = True
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'

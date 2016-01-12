@@ -31,6 +31,7 @@
 <hr/>
 <div class="section" id='connections-section'>
   <div class="wrap" id='connections'>
+    <div class='loading'><img src='https://s3.amazonaws.com/snowpak/img/loader.gif' /></div>
     <table class="contacts-table">
       <thead>
         <th>
@@ -49,48 +50,47 @@
         </th>
       </thead>
       <tbody>
-      {% if connections.count() > 0 %}
       {% for connection in connections %}
-      <tr data-row='{{ connection.id }}'>
+      <tr data-row='{{ connection.prospect.id }}'>
         <td>
-          <input class='connection-checkbox' data-connection-id='{{ connection.id }}' type="checkbox" />
+          <input class='connection-checkbox' data-connection-id='{{ connection.prospect.id }}' type="checkbox" />
         </td>
         <td>
           <div class="contact-info">
-            <div class="col-2"><img src='{{ connection.image }}' /></div>
+            <div class="col-2"><img src='{{ connection.prospect.image }}' /></div>
             <div class="col-6">
-              <div class="name"> <span>{{ connection.name }}</span><span class="stars {{ connection.stars_display }}"></span></div>
-              <div class="job">{{ connection.headline }}</div>
+              <div class="name"> <span>{{ connection.prospect.name }}</span><span class="stars {{ connection.prospect.stars_display }}"></span></div>
+              <div class="job">{{ connection.prospect.headline }}</div>
               <div class="tags">
-                {% for tag in connection.tags %}<span>{{ tag }}</span>{% endfor %}
+                {% for tag in connection.prospect.tags %}<span>{{ tag }}</span>{% endfor %}
               </div>
             </div>
             <div class="col-4">
               <div class="contact-links">
                 <a href="#" data-tooltip="25 Financial Services Contacts" class="financial"></a>
-                {% if connection.facebook %}
-                <a href="{{ connection.facebook }}" class="facebook" data-tooltip="{{ connection.facebook }}"></a>
+                {% if connection.prospect.facebook %}
+                <a href="{{ connection.prospect.facebook }}" class="facebook" data-tooltip="{{ connection.prospect.facebook }}"></a>
                 {% endif %}
-                {% if connection.linkedin %}
-                <a href="{{ connection.linkedin }}" class="linkedin" data-tooltip="{{ connection.linkedin }}"></a>
+                {% if connection.prospect.linkedin %}
+                <a href="{{ connection.prospect.linkedin }}" class="linkedin" data-tooltip="{{ connection.prospect.linkedin }}"></a>
                 {% endif %}
-                {% if connection.twitter %}
-                <a href="{{ connection.twitter }}" class="twitter" data-tooltip="{{ connection.twitter }}"></a>
+                {% if connection.prospect.twitter %}
+                <a href="{{ connection.prospect.twitter }}" class="twitter" data-tooltip="{{ connection.prospect.twitter }}"></a>
                 {% endif %}
-                {% if connection.pinterest %}
+                {% if connection.prospect.pinterest %}
                 <a href="#" class="pinterest"></a>
                 {% endif %}
-                {% if connection.email_addresses %}
-                <a href="#" class="email" data-tooltip="{{ connection.emails }}"></a>
+                {% if connection.prospect.email_addresses %}
+                <a href="#" class="email" data-tooltip="{{ connection.prospect.emails }}"></a>
                 {% endif %}
-                {% if connection.phone %}
-                <a href="#" class="phone" data-tooltip="{{ connection.phone }}"></a>
+                {% if connection.prospect.phone %}
+                <a href="#" class="phone" data-tooltip="{{ connection.prospect.phone }}"></a>
                 {% endif %}
-                {% if connection.linkedin_location %}
+                {% if connection.prospect.linkedin_location %}
                 <a href="#" class="location"></a>
                 {% endif %}
-                {% if connection.amazon %}
-                <a href="#" class="amazon" data-tooltip="{{ connection.amazon }}"></a>
+                {% if connection.prospect.amazon %}
+                <a href="#" class="amazon" data-tooltip="{{ connection.prospect.amazon }}"></a>
                 {% endif %}
               </div>
             </div>
@@ -99,28 +99,26 @@
         <td class="contact-buttons">
           <div class="wrap">
             <div class="col-6">
-              <button data-add='{{ connection.id }}' class="button teal">Add</button>
+              <button data-add='{{ connection.prospect.id }}' class="button teal">Add</button>
             </div>
             <div class="col-6">
-              <button data-skip='{{ connection.id }}' class="button grey">Skip</button>
+              <button data-skip='{{ connection.prospect.id }}' class="button grey">Skip</button>
             </div>
           </div>
         </td>
       </tr>
       {% endfor %}
-      {% else %}
-      <tr>
-        <td colspan='3'>
-            <div class="col-12">
-              <div class='padding-20'>
-                <div class="name"> <span>There Are currently no prospects we can show you. Please contact jeff@advisorconnect.co if this seems incorrect.</span></div>
-              </div>
-            </div>
-          </td>
-      </tr>
-      {% endif %}
       </tbody>
     </table>
+    <div class='pagination'>
+      {% for _page in range(1, pagination.pages + 1) %}
+      {% if page == _page %}
+      <a class='active' data-page='{{ _page }}'>{{ _page }}</a>
+      {% else %}
+      <a data-page='{{ _page }}'>{{ _page }}</a>
+      {% endif %}
+      {% endfor %}
+    </div>
   </div>
 </div>
 <!-- Footer-->
@@ -140,25 +138,69 @@ $(function() {
    var $filter = $("[name='market']");
    var $stars = $("[name='stars']");
    var $query = $("[name='search-box']");
+   var $page = 1;
    $("[name='search-box']").keyup(function() {
-     search()
+     delay(function(){
+       showLoader()
+       search()
+    }, 1000 );
    });
 
-   $("[name='stars']").change(function() {
-     search()
-   });
+  function bindStars() {
+     $("[name='stars']").change(function() {
+       showLoader()
+       search()
+     });
+   }
 
-   $("[name='market']").change(function() {
-     search()
-   });
+   function bindMarket() {
+     $("[name='market']").change(function() {
+       showLoader()
+       search()
+     });
+   }
+
+   function bindPagination() {
+     $("[data-page]").click(function() {
+       showLoader()
+       $page = $(this).data('page');
+       search()
+     });
+   }
+
+   function bindPageFunctions() {
+     addConnection();
+     skipConnection();
+     addAll();
+     skipAll();
+     selectAll();
+     bindStars()
+     bindMarket()
+     bindPagination()
+   }
+
+    var delay = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+    })();
+ 
+
+   function showLoader() {
+     $(".loading").show();
+   }
+
+   function hideLoader() {
+     $(".loading").fadeOut();
+   }
 
   function search() {
-     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&filter=" + encodeURIComponent($filter.val()) + "&stars=" + encodeURIComponent($stars.val()) + " #connections", function() {
-       addConnection();
-       skipConnection();
-       addAll();
-       skipAll();
-       selectAll();
+     $('html, body').animate({scrollTop: "221px"});
+     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&filter=" + encodeURIComponent($filter.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&p=" + $page + " #connections", function() {
+         bindPageFunctions();
+       hideLoader();
      });
   }
 
@@ -224,11 +266,7 @@ $(function() {
     });
   }
 
-   addConnection();
-   skipConnection();
-   addAll();
-   skipAll();
-   selectAll();
+  bindPageFunctions()
  });
 </script>
 {% endblock %}

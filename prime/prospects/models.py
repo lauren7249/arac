@@ -88,24 +88,6 @@ class Prospect(db.Model):
     age = db.Column(Float)
 
     @property
-    def stars_display(self):
-        try:
-            from prime.users.models import ClientProspect
-            client_prospect = ClientProspect.query.filter(
-                    ClientProspect.prospect==self
-                    ).first()
-            star_dict = {
-                    1: 'one-star',
-                    2: 'two-star',
-                    3: 'three-star',
-                    4: 'four-star',
-                    5: 'five-star'
-                    }
-            return star_dict[client_prospect.stars]
-        except:
-            return "three-star"
-
-    @property
     def image(self):
         if self.main_profile_image:
             return self.main_profile_image

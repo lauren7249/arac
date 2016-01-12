@@ -198,18 +198,26 @@ def get_args(request):
 def connections():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
+    page = int(request.args.get("p", 1))
     agent = current_user
-    connections = agent.prospects.filter(ClientProspect.extended==False, \
+    connections = ClientProspect.query\
+            .options(joinedload('prospect'))\
+            .options(joinedload('prospect').joinedload('jobs'))\
+            .options(joinedload('prospect').joinedload('schools'))\
+            .filter(ClientProspect.extended==False, \
             ClientProspect.processed==False,
-            ClientProspect.good==False
+            ClientProspect.user==agent,
+            ClientProspect.good==False,
             ).order_by(ClientProspect.lead_score.desc())
     query, filter, rating = get_args(request)
     search = SearchResults(connections, query=query, filter=filter,
             rating=rating)
-    connections = search.results()
+    connections = search.results().paginate(page, 25, False)
     return render_template("connections.html",
             agent=agent,
-            connections=connections,
+            page=page,
+            connections=connections.items,
+            pagination=connections,
             active="connections")
 
 @csrf.exempt
@@ -217,18 +225,26 @@ def connections():
 def extended_connections():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
+    page = int(request.args.get("p", 1))
     agent = current_user
-    connections = agent.prospects.filter(ClientProspect.extended==True,
+    connections = ClientProspect.query\
+            .options(joinedload('prospect'))\
+            .options(joinedload('prospect').joinedload('jobs'))\
+            .options(joinedload('prospect').joinedload('schools'))\
+            .filter(ClientProspect.extended==True, \
             ClientProspect.processed==False,
-            ClientProspect.good==False
+            ClientProspect.good==False,
+            ClientProspect.user==agent,
             ).order_by(ClientProspect.lead_score.desc())
     query, filter, rating = get_args(request)
     search = SearchResults(connections, query=query, filter=filter,
             rating=rating)
-    connections = search.results()
+    connections = search.results().paginate(page, 25, False)
     return render_template("connections.html",
             agent=agent,
-            connections=connections,
+            page=page,
+            connections=connections.items,
+            pagination=connections,
             active="extended")
 
 @csrf.exempt
