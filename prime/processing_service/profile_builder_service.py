@@ -166,12 +166,12 @@ class ProfileBuilderRequest(S3SavedRequest):
             0)))
         self.profile["linkedin_url"] = data.get("source_url")
         self.profile["linkedin_id"] = data.get("linkedin_id")
-        self.profile["linkedin_name"] = data.get('full_name')
+        self.profile["linkedin_name"] = data.get('full_name',"")
         self.profile["linkedin_location_raw"] = data.get("location")
         self.profile["linkedin_industry_raw"] = data.get("industry")
         self.profile["linkedin_image_url"] = data.get("image")
         self.profile["linkedin_connections"] = connections
-        self.profile["linkedin_headline"] = data.get("headline")
+        self.profile["linkedin_headline"] = data.get("headline","")
         self.profile["linkedin_json"] = new_data
         #important that this is not named the name as the model fields because results service will throw an error
         self.profile["schools_json"] = data.get("schools")
