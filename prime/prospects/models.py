@@ -77,7 +77,7 @@ class Prospect(db.Model):
     foursquare = db.Column(String(1024))
     github = db.Column(String(1024))
     #for filtering and network summary: TODO: ADD IN
-    industry_category = db.Column(String(100))
+    industry_category = db.Column(String(100), index=True)
     industry_icon = db.Column(String(200))
     us_state = db.Column(String(200))
 
