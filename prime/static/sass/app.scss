@@ -769,6 +769,12 @@ table.contacts-table {
       &.three-star {
         background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/three-stars.png");
       }
+      &.four-star {
+        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/four-stars.png");
+      }      
+      &.five-star {
+        background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/five-stars.png");
+      }      
     }
   }
 }
