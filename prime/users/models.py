@@ -225,6 +225,7 @@ class User(db.Model, UserMixin):
                 gender[client_prospect.prospect.gender] += 1
             else: 
                 self.logger.warn("{} has gender=None (prospect id={})".format(client_prospect.prospect.name, client_prospect.prospect_id))
+                
             industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             if client_prospect.prospect and client_prospect.prospect.us_state:
                 locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1
