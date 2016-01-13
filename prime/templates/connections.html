@@ -267,8 +267,10 @@ $(function() {
     $("[data-add]").click(function() {
         var id = $(this).data("add");
         var params = {id: id}
+        //var n = agent.p200_count;
         $.post("/add-connections", params, function() {
           $("[data-row=" + id + "]").slideUp();
+          window.location.reload(true);
         });
     });
   }
@@ -291,10 +293,11 @@ $(function() {
         var ids = ids.join()
         var params = {id:ids, multi:true}
         $.post("/add-connections", params, function() {
-          var saved = ids.split(",")
+          var saved = ids.split(",");
           for (var j=0;j<saved.length;j++) {
             $("[data-row='" + saved[j] + "']").slideUp();
           }
+          window.location.reload(true);
         });
     });
   }

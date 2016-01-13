@@ -36,8 +36,8 @@
     <script type="text/javascript" src="//platform.linkedin.com/in.js">
         api_key:   77kimruenyqspn
         authorize: true
-        onLoad: onLinkedInLoad
     </script>
+    
   </head>
   <body>
   <header>
@@ -49,7 +49,7 @@
         {% if current_user.is_authenticated() %}
         <div class="nav-right text-right">
           {% if not current_user.is_manager and current_user.p200_completed %}
-          <span><div class="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
+          <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
           {% endif %}
           <span><div id='settings'><a class="user">{{ current_user.name }}</a>
               <div class='autocomplete'>
