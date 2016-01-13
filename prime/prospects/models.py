@@ -107,13 +107,19 @@ class Prospect(db.Model):
 
     @property
     def tags(self):
-        jobs = list(set([c.company_name for c in self.jobs if c.company_name]))[:4]
-        schools = list(set([s.school_name for s in self.schools]))[:4]
+        jobs = []
+        schools = []
+        if self.jobs:
+            jobs = list(set([c.company_name for c in self.jobs if c.company_name]))[:4]
+        if self.schools:
+            schools = list(set([s.school_name for s in self.schools]))[:4]
         return jobs + schools
 
     @property
     def emails(self):
-        return ", ".join([str(e) for e in self.email_addresses])
+        if not self.mailto:
+            return ""
+        return self.mailto.split(":")[0]
 
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
