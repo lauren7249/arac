@@ -11,7 +11,7 @@ def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jamesjohn
     mail.add_to(to)
     if ccs:
         for cc in ccs:
-            mail.add_cc(cc)
+            mail.add_bcc(cc)
     mail.set_subject(subject)
     mail.set_html(body)
     mail.set_from('contacts@advisorconnect.co')
