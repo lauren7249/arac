@@ -144,7 +144,7 @@ def upload():
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
-    if not current_user.p200_completed:
+    if not isinstance(current_user, User) or not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     agent = current_user
     return render_template("dashboard.html", agent=agent, active = "dashboard")
