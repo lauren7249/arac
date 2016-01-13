@@ -132,7 +132,6 @@ class User(db.Model, UserMixin):
     def has_prospects(self):
         return self.client_prospects and len(self.client_prospects) > 0
 
-    @property
     def statistics(self, refresh=False):
         """
         Adding in cache functionality to rebuild if older than 2 days
@@ -144,11 +143,11 @@ class User(db.Model, UserMixin):
 
     @property
     def primary_network_size(self):
-        return self.statistics.get("network_size", 0)
+        return self.statistics().get("network_size", 0)
 
     @property
     def extended_network_size(self):
-        return self.statistics.get("count_extended", 0)
+        return self.statistics().get("count_extended", 0)
 
     @property
     def total_network_size(self):
@@ -157,53 +156,51 @@ class User(db.Model, UserMixin):
     @property
     def industries(self):
         results = []
-        for industry, count in self.statistics.get("industries").iteritems():
-            from prime.processing_service.constants import CATEGORY_ICONS, \
-            INDUSTRY_CATEGORIES
-            industry_category = INDUSTRY_CATEGORIES.get(industry)
+        for industry_category, count in self.statistics().get("industries").iteritems():
+            from prime.processing_service.constants import CATEGORY_ICONS
             industry_icon = CATEGORY_ICONS.get(industry_category)
-            if industry:
-                results.append((industry, count,industry_icon, ))
+            if industry_category and industry_icon:
+                results.append((industry_category, count,industry_icon, ))
         return sorted(results, key = lambda tup:tup[1], reverse=True)[:10]
 
     @property
     def states(self):
         states = []
-        for state, count in self.statistics.get("locations").iteritems():
+        for state, count in self.statistics().get("locations").iteritems():
             states.append((state, count,))
         return states
 
     @property
     def average_age(self):
         try:
-            return int(self.statistics.get("average_age"))
+            return int(self.statistics().get("average_age"))
         except:
             return None
 
     @property
     def female_percentage(self):
         try:
-            return int(self.statistics.get("female_percentage"))
+            return int(self.statistics().get("female_percentage"))
         except:
             return "N/A"
 
     @property
     def male_percentage(self):
         try:
-            return int(self.statistics.get("male_percentage"))
+            return int(self.statistics().get("male_percentage"))
         except:
             return "N/A"
 
     @property
     def college_percentage(self):
         try:
-            return int(self.statistics.get("college_percentage"))
+            return int(self.statistics().get("college_percentage"))
         except:
             return "N/A"
 
     @property
     def average_income_score(self):
-        return self.statistics.get("wealth_score")
+        return self.statistics().get("wealth_score")
 
     def build_statistics(self):
         """
@@ -220,6 +217,9 @@ class User(db.Model, UserMixin):
         extended_count = 0
         first_degree_count = 0
         for client_prospect in self.client_prospects:
+            if not client_prospect.stars:
+                logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
+                continue
             if client_prospect.extended:
                 extended_count+=1
                 continue
@@ -229,8 +229,10 @@ class User(db.Model, UserMixin):
                 gender[client_prospect.prospect.gender] += 1
             else: 
                 logger.warn("{} has gender=None (prospect id={})".format(uu(client_prospect.prospect.name), client_prospect.prospect_id))
-                
-            industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
+            if client_prospect.prospect.industry_category: 
+                industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
+            else:
+                logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))
             if client_prospect.prospect and client_prospect.prospect.us_state:
                 locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1
             for school in client_prospect.common_schools:
