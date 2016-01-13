@@ -1,10 +1,11 @@
 import os
+import hashlib
 import sys
 from collections import Counter
 import datetime
 import logging
 import json
-from flask import current_app
+from flask import current_app, render_template
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
 from sqlalchemy import CheckConstraint
@@ -25,10 +26,12 @@ from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime.processing_service.helper import uu
 from prime import db, login_manager
+from prime.utils import random_string
+from prime.utils.email import sendgrid_email
 
 from prime.customers.models import Customer
 
-reload(sys) 
+reload(sys)
 sys.setdefaultencoding('utf-8')
 
 logger = logging.getLogger(__name__)
@@ -111,8 +114,29 @@ class User(db.Model, UserMixin):
 
     @property
     def generate_reset_token(self):
-        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], 3600)
-        return s.dumps({'reset': self.user_id})
+        code = random_string(10).encode('utf-8')
+        password = hashlib.md5(code).hexdigest()
+        self.onboarding_code = password
+        db.session.add(self)
+        db.session.commit()
+        return code
+
+    def send_reset_password(self):
+        code = self.generate_reset_token
+        body = render_template("emails/reset.html",
+                base_url=current_app.config.get("BASE_URL"), code=code)
+        subject = "Advisorconnect Password Reset"
+        sendgrid_email(self.email, subject, body)
+        return True
+
+    def invite(self, manager_name):
+        code = self.generate_reset_token
+        body = render_template("emails/invite.html", invited_by=manager_name,
+                base_url=current_app.config.get("BASE_URL"), code=code)
+        subject = "Your Advisorconnect Account is Ready!"
+        sendgrid_email(self.email, subject, body)
+        return True
+
 
     @staticmethod
     def reset_password(token, new_password):
@@ -227,9 +251,9 @@ class User(db.Model, UserMixin):
             college_degree[client_prospect.prospect.college_grad] += 1
             if client_prospect.prospect.gender:
                 gender[client_prospect.prospect.gender] += 1
-            else: 
+            else:
                 logger.warn("{} has gender=None (prospect id={})".format(uu(client_prospect.prospect.name), client_prospect.prospect_id))
-            if client_prospect.prospect.industry_category: 
+            if client_prospect.prospect.industry_category:
                 industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             else:
                 logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))

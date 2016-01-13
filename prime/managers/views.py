@@ -60,23 +60,26 @@ def manager_invite_agent():
             error_message = "This agent already exists in our system. Please \
                     contact jeff@adivsorconnect.co if this seems incorrect to you"
         else:
-            code = random_string(10).encode('utf-8')
-            password = hashlib.md5(code).hexdigest()
-            user = User(first_name, last_name, to_email, password)
-            user.onboarding_code = password
+            user = User(first_name, last_name, to_email, '')
             session.add(user)
             session.commit()
             manager = current_user.manager_profile[0]
             manager.users.append(user)
             session.add(manager)
             session.commit()
-            body = render_template("emails/invite.html", invited_by=current_user.name,
-                    base_url=current_app.config.get("BASE_URL"), code=code)
-            subject = "Your Advisorconnect Account is Ready!"
-            sendgrid_email(to_email, subject, body)
+            user.invite(current_user.name)
             success = True
     return render_template('manager/invite.html', active="invite",
             error_message=error_message, success=success)
+
+@csrf.exempt
+@manager.route('/invite/again', methods=['GET', 'POST'])
+def manager_reinvite_agent():
+    if request.method == 'POST':
+        user_id = int(request.form.get('user_id'))
+        user = User.query.filter(User.user_id == user_id).first()
+        user.invite(current_user.first_name)
+    return jsonify({"sucess": True})
 
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
 def agent(agent_id):

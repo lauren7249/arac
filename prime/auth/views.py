@@ -13,7 +13,7 @@ from flask.ext.login import login_user, logout_user, current_user, fresh_login_r
 from . import auth
 from prime import db, csrf
 from prime.customers.models import Customer
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, ForgotForm
 from prime.users.models import User
 
 
@@ -50,6 +50,17 @@ def login():
         form.password.data = ''
     return render_template('auth/login.html', form=form, valid=valid)
 
+@auth.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    form = ForgotForm()
+    if form.is_submitted():
+        if form.validate():
+            user = User.query.filter_by(email=form.email.data.lower()).first()
+            user.send_reset_password()
+            flash("Password reset sent to your email. Please check spam if you do\
+                    not see it")
+    return render_template('auth/forgot.html', form=form)
+
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignUpForm()
@@ -66,7 +77,7 @@ def signup():
                 login_user(user, True)
                 return redirect("/")
         if form.errors:
-            flash(form)
+            flash_errors(form)
             return render_template('auth/signup.html', signup_form=form, code=form.code.data)
         flash("The link you used has expired. Please request another \
                     from your manager")

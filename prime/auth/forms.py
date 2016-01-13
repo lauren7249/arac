@@ -38,3 +38,14 @@ class SignUpForm(Form):
         if not Form.validate(self):
             return False
         return True
+
+class ForgotForm(Form):
+    email = StringField('Email', validators=[InputRequired(), Email()])
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        return True

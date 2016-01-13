@@ -22,17 +22,11 @@
           {%endif%}
           {{ form.csrf_token }}
           <fieldset>
-            <legend>Enter your credentials below</legend>
+            <legend>Enter your Email To Reset Password</legend>
             <div class="form-group">
               <label for="inputEmail" class="col-lg-2 control-label">Email</label>
               <div class="col-lg-10">
                 <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="inputPassword" class="col-lg-2 control-label">Password</label>
-              <div class="col-lg-10">
-                <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
               </div>
             </div>
             <div class="form-group">
@@ -41,8 +35,7 @@
               </div>
             </div>
           </fieldset>
-          <br />
-          <a href='{{ url_for('.forgot') }}'>Forgot Password</a>
+          <a href='{{ url_for('.login') }}'>Login</a>
         </form>
       </div>
     </div>
