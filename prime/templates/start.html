@@ -1,32 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}    
-<script>
-      $(function() {
-        $.get("./geolocations.txt", function(data) {
-            var items = data.split('"');
-            $( "#geolocation" ).autocomplete({
-              source: items
-            });            
-        });        
-      });
-    </script>
-    <script>
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '1608721912712330',
-          xfbml      : true,
-          version    : 'v2.4'
-        });        
-      };
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "https://connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk'));
+<script type="text/javascript" src="//platform.linkedin.com/in.js">
+    api_key:   77kimruenyqspn
+    authorize: true
+    onLoad: onLinkedInLoad
+</script>
 
-    </script>
+
     <script type="text/javascript">
         
         // Setup an event listener to make an API call once auth is complete
@@ -80,25 +60,8 @@
     <div class='signup' id="signup">
       <div class='logo'>
         <img src='{{ static_url() }}img/AC_logo.png' />
-      </div>
-      <div id="enter_export_id" hidden>
-        <p>Copy and paste the confirmation code into the box to proceed to the next step</p>
-        <input type='text' id="export_id"/>
-        <button id="submit" class='button' type="Submit">Submit</button>
-      </div>       
-      <div id="enter_email" >
-        <h2 hidden>Welcome</h2>
-        <p >Please sign in through LinkedIn to continue.</p>
-        <p hidden>Enter the email address where you would like to receive your P200.</p>
-        <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
-        <input hidden type='email' id="email_address" />
-        <p hidden>Enter your target region</p>
-        <div hidden class="ui-widget">
-          <input hidden id="geolocation"/>
-        </div>
-        <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
-      </div>       
-
+      </div>  
+     
       <div id="upload_area" hidden>
         <h2 id="owner_name"></h2>
         <img id="owner_img" />
@@ -197,42 +160,6 @@
 
     $(function() {
 
-      $("#export_id").keyup(function(event){
-          if(event.keyCode == 13){
-              $("#submit").click();
-          }
-      });        
-      $("#enter_email").keyup(function(event){
-          if(event.keyCode == 13){
-              $("#geolocation").focus();
-          }
-      });         
-      $("#geolocation").keyup(function(event){
-          if(event.keyCode == 13){
-              $("#enter").click();
-          }
-      });      
-      $("#submit").click(function() {
-        var export_id_string = document.getElementById("export_id").value;
-        $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
-          function(data) {
-            try {
-              var email_str = data.email;
-              email_address = email_str.split("<")[1].split(">")[0];
-              email_name = email_str.split("<")[0];
-              document.getElementById("owner_name").innerHTML = email_name;   
-              document.getElementById("owner_email").innerHTML = email_address;   
-              document.getElementById("owner_geolocation").innerHTML = geolocation; 
-              $("div#upload_area").show();        
-            } 
-            catch (err) {
-              console.log("Err");
-              alert("Invalid code");
-            }
-
-        })
-        .error(function() { alert("Invalid code"); });               
-      });
       $("#enter").click(function() {
         email_address = document.getElementById("email_address").value;
         geolocation = document.getElementById("geolocation").value;
