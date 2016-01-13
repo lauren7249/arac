@@ -1,5 +1,9 @@
 @import url(https://fonts.googleapis.com/css?family=Poppins:400,500,600,700);
 @import url(normalize.css);
+a {
+  color: #16263D;
+}
+
 header, footer {
   background: white;
 }
@@ -372,6 +376,9 @@ hr {
 .tags {
   margin-top: 10px;
   font-size: 12px;
+}
+.tags a {
+  color: #16263D;
 }
 .tags span {
   display: inline-block;

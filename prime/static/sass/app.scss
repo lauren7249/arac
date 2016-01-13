@@ -24,7 +24,9 @@ $market-color-7: #DCECC9;
 
 $sans: 'Poppins', sans-serif;
 
-
+a {
+  color: $black;
+}
 
 // Header & Footer ==================================
 header, footer {
@@ -431,6 +433,9 @@ hr {
 .tags {
   margin-top: 10px;
   font-size: 12px;
+  a {
+    color: $black;
+  }
   span {
     display: inline-block;
     font-weight: 600;

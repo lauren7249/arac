@@ -107,7 +107,7 @@ class Prospect(db.Model):
 
     @property
     def tags(self):
-        jobs = list(set([c.company_name for c in self.jobs]))[:4]
+        jobs = list(set([c.company_name for c in self.jobs if c.company_name]))[:4]
         schools = list(set([s.school_name for s in self.schools]))[:4]
         return jobs + schools
 
@@ -140,6 +140,7 @@ class Job(db.Model):
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
     company_name = db.Column(String(1024))
+    #company_url = db.Column(String(1024))
     title = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
@@ -160,6 +161,7 @@ class Education(db.Model):
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
     school_name = db.Column(String(1024))
+    #school_url = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
     degree = db.Column(String(1024))

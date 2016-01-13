@@ -39,7 +39,7 @@
           <div class="potential-markets">
             {% if agent.industries|length > 0 %}
             {% for industry in agent.industries %}
-            <div class="market-{{ loop.index }}"> <span>{{ industry[0] }}</span><b>{{ industry[1] }}</b></div>
+            <div class="market-{{ loop.index }}"> <a href="/connections?industry={{industry[0]}}"><span>{{ industry[0] }}</span><b>{{ industry[1] }}</b></a></div>
             {% endfor %}
             {% else %}
             {% endif %}
@@ -109,7 +109,7 @@ function randColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)]
 }
 {% for industry in agent.industries %}
-industries.push({label: "{{ industry[0] }}", fillColor:"" + randColor(colors), value: {{ industry[1] }}});
+industries.push({label: "{{ industry[0] }}".replace('&amp;', '&'), fillColor:"" + randColor(colors), value: {{ industry[1] }}});
 {% endfor %}
 
 {% for state in agent.states %}

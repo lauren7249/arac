@@ -14,7 +14,7 @@
             <option value='2'>Two Stars</option>
             <option value='1'>One Star</option>
         </select></span><span>
-          <select name='market'>
+          <select name='market' id='market'>
             <option value=''>Any Market</option>
             {% for industry in agent.industries %}
             <option value='{{ industry[0] }}'>{{ industry[0] }}</option>
@@ -24,7 +24,7 @@
     </div>
     <div class="col-4">
       <div class="search">
-        <input type="search" name='search-box' placeholder="Search Contacts"/>
+        <input type="search" name='search-box' id='search-box' placeholder="Search Contacts"/>
         <button id="search-button"></button>
       </div>
     </div>
@@ -65,7 +65,21 @@
               <div class="job">{{ connection.prospect.headline }}</div>
               <div class="tags">
                 {% for referrer in connection.referrers %}
-                  <a href="/connections?query={{referrer['referrer_name']}}"  class="location">{{referrer['referrer_name']}}</a> ({{referrer['referrer_connection']}}) 
+                  {% if referrer['referrer_connection'].startswith('Worked') %}
+                    Worked with 
+                  {% else %}
+                    {{referrer['referrer_connection'].split(" together ")[0]}} with 
+                  {% endif %}
+                  <a href="/connections?query={{referrer['referrer_name']}}" class="location">
+                  <span>
+                    {{referrer['referrer_name']}}
+                  </span> 
+                  </a>
+                   {% if referrer['referrer_connection'].startswith('Worked') %}
+                    at {{referrer['referrer_connection'].split("Worked at ")[-1].replace(" together "," ")}}
+                    {% else %}
+                    {{referrer['referrer_connection'].split(" ")[-1]}}  
+                    {% endif %}
                 {% endfor %}
               </div>              
               <div class="tags">
@@ -79,6 +93,8 @@
                 {% endif %}
                 {% if connection.prospect.linkedin %}
                 <a href="{{ connection.prospect.linkedin }}" class="linkedin" data-tooltip="{{ connection.prospect.linkedin }}"></a>
+                {% else %}
+                <a href="{{ connection.prospect.linkedin_url }}" class="linkedin" data-tooltip="{{ connection.prospect.linkedin_url }}"></a>
                 {% endif %}
                 {% if connection.prospect.twitter %}
                 <a href="{{ connection.prospect.twitter }}" class="twitter" data-tooltip="{{ connection.prospect.twitter }}"></a>
@@ -110,7 +126,7 @@
                 {% if connection.prospect.flickr %}
                 <a href="{{ connection.prospect.flickr }}" class="flickr" data-tooltip="{{ connection.prospect.flickr }}"></a>
                 {% endif %}                                                                                
-                {% if connection.prospect.mailto %}
+                {% if connection.prospect.emails %}
                 <a href="{{connection.prospect.mailto}}" class="email" data-tooltip="{{ connection.prospect.emails }}"></a>
                 {% endif %}
                 {% if connection.prospect.phone %}
@@ -167,6 +183,21 @@ $(function() {
    var $stars = $("[name='stars']");
    var $query = $("[name='search-box']");
    var $page = 1;
+
+   if ($industry.val()=='' && window.location.search.indexOf("industry=")>0) {
+      var industry_name = window.location.search.split("industry=")[window.location.search.split("industry=").length - 1];
+      document.getElementById("market").value = decodeURIComponent(industry_name);
+      showLoader()
+      search()      
+   }
+
+   if ($query.val()=='' && window.location.search.indexOf("query=")>0) {
+      var query_name = window.location.search.split("query=")[window.location.search.split("query=").length - 1];
+      document.getElementById("search-box").value = decodeURIComponent(query_name);
+   } else {
+      document.getElementById("search-box").value = '';
+   }
+
    $("[name='search-box']").keyup(function() {
      delay(function(){
        showLoader()
