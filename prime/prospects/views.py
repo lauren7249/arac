@@ -87,7 +87,7 @@ def start():
 def pending():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
-    contact_count = request.args.get("contacts")
+    contact_count = request.args.get("contacts", 0)
     return render_template('pending.html', contact_count=contact_count)
 
 @prospects.route("/terms")
