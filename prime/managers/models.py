@@ -24,8 +24,8 @@ from sqlalchemy.engine.url import URL
 
 from prime import db, login_manager
 from prime.prospects.models import Prospect
-from prime.users.models import User
 from prime.customers.models import Customer
+from prime.users.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,7 @@ _manager_users = db.Table('manager_users',
 
 
 class ManagerProfile(db.Model, UserMixin):
+
     __tablename__ = 'managers'
 
     manager_id = db.Column(postgresql.INTEGER, primary_key=True)

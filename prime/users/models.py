@@ -24,7 +24,7 @@ from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 
 from prime import db, login_manager
-from prime.prospects.models import Prospect
+
 from prime.customers.models import Customer
 
 logger = logging.getLogger(__name__)
@@ -224,7 +224,7 @@ class User(db.Model, UserMixin):
             if client_prospect.prospect.gender:
                 gender[client_prospect.prospect.gender] += 1
             else: 
-                self.logger.warn("{} has gender=None (prospect id={})".format(client_prospect.prospect.name, client_prospect.prospect_id))
+                logger.warn("{} has gender=None (prospect id={})".format(client_prospect.prospect.name, client_prospect.prospect_id))
                 
             industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             if client_prospect.prospect and client_prospect.prospect.us_state:

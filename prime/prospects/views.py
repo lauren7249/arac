@@ -17,8 +17,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
-from prime.users.models import User, ClientProspect
-from prime.managers.models import ManagerProfile
+from prime.users.models import ClientProspect
 from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -98,6 +97,7 @@ def terms():
 @csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
 def upload():
+    from prime.managers.models import ManagerProfile
     unique_emails = set()
     if request.method == 'POST':
         first_name = request.json.get("firstName",)
