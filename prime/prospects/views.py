@@ -23,7 +23,7 @@ from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast, extract, or_, func
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, subqueryload, outerjoin
 from sqlalchemy.orm import aliased
 
 from flask.ext.rq import job
@@ -152,32 +152,29 @@ def dashboard():
 
 class SearchResults(object):
 
-    def __init__(self, sql_query, query=None, rating=None, filter=None, *args, **kwargs):
+    def __init__(self, sql_query, query=None, stars=None, industry=None, *args, **kwargs):
         self.sql_query = sql_query
         self.query = query
-        self.rating = rating
-        self.filter = filter
+        self.stars = stars
+        self.industry = industry
 
-    def _rating(self):
+    def _stars(self):
         return self.sql_query.filter(ClientProspect.stars ==
                 int(self.stars))
 
-    def _filter(self):
-        return self.sql_query.filter(Prospect.industry_category ==
-                unquote_plus(self.filter))
+    def _industry(self):
+        return self.sql_query.join(ClientProspect.prospect).filter(Prospect.industry_category==unquote_plus(self.industry))
 
     def _search(self):
-        return self.sql_query.filter(or_(
-                Prospect.linkedin_name.ilike("%{}%".format(self.query)),
-                    ))
+        return self.sql_query.join(ClientProspect.prospect).filter(Prospect.name.ilike("%{}%".format(self.query)))
 
     def results(self):
         if self.query:
-            self.sql_query = self._search()
-        if self.rating:
-            self.sql_query = self._rating()
-        if self.filter:
-            self.sql_query = self._filter()
+           self.sql_query = self._search()
+        if self.stars:
+           self.sql_query = self._stars()
+        if self.industry:
+            self.sql_query = self._industry()
         return self.sql_query
 
 def get_or_none(item):
@@ -189,15 +186,13 @@ def get_or_none(item):
 
 def get_args(request):
     query = get_or_none(request.args.get("query"))
-    filter = get_or_none(request.args.get("filter"))
-    rating = get_or_none(request.args.get("stars"))
-    return query, filter, rating
+    industry = get_or_none(request.args.get("industry"))
+    stars = get_or_none(request.args.get("stars"))
+    return query, industry, stars
 
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
-    # import pdb
-    # pdb.set_trace()
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
@@ -211,9 +206,9 @@ def connections():
             ClientProspect.user==agent,
             ClientProspect.good==False,
             ).order_by(ClientProspect.lead_score.desc())
-    query, filter, rating = get_args(request)
-    search = SearchResults(connections, query=query, filter=filter,
-            rating=rating)
+    query, industry, stars = get_args(request)
+    search = SearchResults(connections, query=query, industry=industry,
+            stars=stars)   
     connections = search.results().paginate(page, 25, False)
     return render_template("connections.html",
             agent=agent,
@@ -238,9 +233,9 @@ def extended_connections():
             ClientProspect.good==False,
             ClientProspect.user==agent,
             ).order_by(ClientProspect.lead_score.desc())
-    query, filter, rating = get_args(request)
-    search = SearchResults(connections, query=query, filter=filter,
-            rating=rating)
+    query, industry, stars = get_args(request)
+    search = SearchResults(connections, query=query, industry=industry,
+            stars=stars)
     connections = search.results().paginate(page, 25, False)
     return render_template("connections.html",
             agent=agent,

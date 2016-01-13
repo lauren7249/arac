@@ -453,31 +453,52 @@ hr {
     background-size: 100%;
     background-repeat: no-repeat;
     &.financial {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/financial-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);
     }
     &.facebook {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/facebook-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);
     }
     &.linkedin {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/linkedin-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);
     }
     &.twitter {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/twitter-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);
     }
     &.phone {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/phone-blue.png)
+      background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png)
     }
     &.pinterest {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/pinterest-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);
     }
+    &.soundcloud {
+      background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);
+    }    
+    &.slideshare {
+      background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);
+    }    
+    &.plus {
+      background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);
+    }               
+    &.angel {
+      background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);
+    }     
+    &.foursquare {
+      background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);
+    }       
+    &.github {
+      background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);
+    }          
+    &.flickr {
+      background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);
+    }                             
     &.email {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/email-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);
     }
     &.amazon {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/amazon-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);
     }
     &.location {
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/icons/blue/location-blue.png);
+      background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);
     }
   }
 }

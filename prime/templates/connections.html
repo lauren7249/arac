@@ -64,6 +64,11 @@
               <div class="name"> <span>{{ connection.prospect.name }}</span><span class="stars {{ connection.stars_display }}"></span></div>
               <div class="job">{{ connection.prospect.headline }}</div>
               <div class="tags">
+                {% for referrer in connection.referrers %}
+                  <a href="/connections?query={{referrer['referrer_name']}}"  class="location">{{referrer['referrer_name']}}</a> ({{referrer['referrer_connection']}}) 
+                {% endfor %}
+              </div>              
+              <div class="tags">
                 {% for tag in connection.prospect.tags %}<span>{{ tag }}</span>{% endfor %}
               </div>
             </div>
@@ -158,7 +163,7 @@
 </footer>
 <script type='text/javascript'>
 $(function() {
-   var $filter = $("[name='market']");
+   var $industry = $("[name='market']");
    var $stars = $("[name='stars']");
    var $query = $("[name='search-box']");
    var $page = 1;
@@ -221,7 +226,7 @@ $(function() {
 
   function search() {
      $('html, body').animate({scrollTop: "221px"});
-     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&filter=" + encodeURIComponent($filter.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&p=" + $page + " #connections", function() {
+     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&p=" + $page + " #connections", function() {
          bindPageFunctions();
        hideLoader();
      });

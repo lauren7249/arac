@@ -308,6 +308,18 @@ class ClientProspect(db.Model):
     stars = db.Column(Integer)
     common_schools = db.Column(JSONB, default=[])
 
+    @property 
+    def relationship(self):
+        tags = ""
+        for referrer in self.referrers:
+            connection = referrer.get("referrer_connection")
+            name = referrer.get("referrer_name")
+            href = "/connections?query={}".format(name)
+            tag = '<a href="{}" class="location"  data-tooltip="{}">{}</a>'.format(href, href, name)
+            #connection = connection.replace(" together ", )
+            tags+=tag
+        return tags
+
     @property
     def stars_display(self):
         try:
