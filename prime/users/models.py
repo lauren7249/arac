@@ -158,8 +158,9 @@ class User(db.Model, UserMixin):
             INDUSTRY_CATEGORIES
             industry_category = INDUSTRY_CATEGORIES.get(industry)
             industry_icon = CATEGORY_ICONS.get(industry_category)
-            results.append((industry, count,industry_icon, ))
-        return sorted(results, key = lambda tup:tup[1])
+            if industry:
+                results.append((industry, count,industry_icon, ))
+        return sorted(results, key = lambda tup:tup[1], reverse=True)[:10]
 
     @property
     def states(self):
@@ -307,18 +308,6 @@ class ClientProspect(db.Model):
     lead_score = db.Column(Integer)
     stars = db.Column(Integer)
     common_schools = db.Column(JSONB, default=[])
-
-    @property 
-    def relationship(self):
-        tags = ""
-        for referrer in self.referrers:
-            connection = referrer.get("referrer_connection")
-            name = referrer.get("referrer_name")
-            href = "/connections?query={}".format(name)
-            tag = '<a href="{}" class="location"  data-tooltip="{}">{}</a>'.format(href, href, name)
-            #connection = connection.replace(" together ", )
-            tags+=tag
-        return tags
 
     @property
     def stars_display(self):
