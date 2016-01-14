@@ -87,8 +87,7 @@ def start():
 def pending():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
-    contact_count = request.args.get("contacts", 0)
-    return render_template('pending.html', contact_count=contact_count)
+    return render_template('pending.html', contact_count=current_user.contacts_uploaded)
 
 @prospects.route("/terms")
 def terms():
@@ -142,7 +141,7 @@ def upload():
         user_request = UserRequest(current_user.email)
         user_request._make_request(contacts_array)
         conn = get_conn()
-        current_user.contacts_uploaded = True
+        current_user.contacts_uploaded = len(unique_emails)
         session.add(current_user)
         session.commit()
         random.shuffle(contacts_array)
