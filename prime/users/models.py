@@ -52,6 +52,7 @@ class User(db.Model, UserMixin):
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
     linkedin_location = db.Column(String(1024))
+    linkedin_industry = db.Column(String(1024))
     image_url = db.Column(String(1024))
     linkedin_email = db.Column(String(1024))
     created = db.Column(DateTime, default=datetime.datetime.today())
@@ -60,6 +61,9 @@ class User(db.Model, UserMixin):
             backref=db.backref('prospects'), lazy="dynamic")
     client_prospects = db.relationship('ClientProspect', backref=db.backref('client_prospects'))
     onboarding_code = db.Column(String(40))
+
+    account_created = db.Column(postgresql.BOOLEAN, default=False)
+    contacts_uploaded = db.Column(postgresql.BOOLEAN, default=False)
     hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
     p200_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)

@@ -65,13 +65,13 @@ def forgot():
 def signup():
     form = SignUpForm()
     if form.is_submitted():
+        code = form.code.data
+        onboarding_code = hashlib.md5(code).hexdigest()
+        user = User.query.filter(User.onboarding_code == onboarding_code).first()            
         if form.validate():
-            code = form.code.data
-            password = hashlib.md5(code).hexdigest()
-            user = User.query.filter(User.onboarding_code == password).first()
             if user:
-                user.onboarding_code = None
                 user.set_password(form.password.data)
+                user.account_created = True
                 db.session.add(user)
                 db.session.commit()
                 login_user(user, True)
@@ -84,11 +84,13 @@ def signup():
         return redirect(url_for('auth.login'))
     else:
         code = request.args.get("code")
-        password = hashlib.md5(code).hexdigest()
-        user = User.query.filter(User.onboarding_code == password).first()
-        return render_template('auth/signup.html', signup_form=form, code=code)
+        onboarding_code = hashlib.md5(code).hexdigest()
+        user = User.query.filter(User.onboarding_code == onboarding_code).first()            
+        if user and user.account_created:
+            return redirect(url_for('auth.login'))        
+        else:
+            return render_template('auth/signup.html', signup_form=form, code=code)
     return redirect(url_for('auth.login'))
-
 
 @auth.route('/logout')
 def logout():

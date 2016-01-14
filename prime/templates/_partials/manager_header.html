@@ -1,16 +1,57 @@
-<div class="subheader">
+
+{% block content %}  
+<div class="subheader" id="subheader">
   <div class="wrap">
     <div class="col-4">
       <h2>Manager Dashboard</h2>
     </div>
+
     <div class="col-8">
       <div class="subnav">
-        <ul>
-          <li><a href="/managers/dashboard" class="{% if active == "selected" %}selected{% endif %}">Selected Tab</a></li>
-          <li><a href="/managers/invite" class="{% if active == "invite" %}selected{% endif %}">Request Hiring Screen</a></li>
+        <ul id="active_cell">
+          {% if active != "selected" %}
+            <li><a href="/managers/dashboard" class="selected">Dashboard</a></li>
+          {% endif %}    
+          {% if active != "agent_page" %}
+            <li data-tooltip="Invite a prospective agent to complete a network summary by uploading their contacts"><a href="/managers/invite" class="selected">Request Hiring Screen</a></li>
+          {% endif %}       
+          {% if active == "agent_page" and agent is not none and agent.p200_completed != true and agent.p200_started != true %} <!--  -->
+            <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}' class="selected">Request P200</button></li>
+          {% endif %}   
+
         </ul>
       </div>
     </div>
   </div>
 </div>
+<script src="/static/js/jquery.min.js"></script>
+<script type='text/javascript'>
+ 
+var csrftoken = "{{ csrf_token() }}"
+$(function() {
 
+    $("[id$=_p200_button]").click(function() {
+        console.log("clik")
+        var user_id = $(this).data("p200-id");
+        var name = $(this).name;
+        if (user_id != undefined && user_id != null && user_id != '') {
+          $.post("/managers/request_p200", {user_id:user_id}, function(data){
+              if (data.name != undefined && data.name !=null && data.name != '') {
+                var container = document.getElementById(user_id + "_p200_cell");
+                if (container == undefined || container == null) {
+                  container = document.getElementById("active_cell");
+                }
+                var content = container.innerHTML;
+                container.innerHTML= content;
+                $("#subheader").append("<div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div>")              
+              }
+
+            });          
+        }
+
+      });
+
+
+});
+</script>
+{% endblock %}

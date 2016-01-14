@@ -11,7 +11,8 @@
           <th>Total Network</th>
           <th>Avg Income Score</th>
           <th>Avg Age</th>
-          <th class="completed">Completed</th>
+          <th class="completed">Hiring Screen</th>
+          <th class="completed">P200</th>
         </thead>
         <tbody>
         <tr>
@@ -24,21 +25,35 @@
         {% for agent in agents %}
         <tr>
           <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}<span class='email'>{{ agent.email }}</span></span></td>
-          <td>{% if agent.has_prospects %}{{ agent.primary_network_size }}{% else %}N/A{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ agent.extended_network_size }}{% else %}N/A{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ agent.total_network_size }}{% else %}N/A{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ agent.average_income_score }}{% else %}N/A{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ agent.average_age }}{% else %}N/A{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ '{0:,}'.format(agent.primary_network_size | int) }}{% else %}-{% endif %}</td>
+          <td>{% if agent.has_prospects %} {{ '{0:,}'.format(agent.extended_network_size | int) }}{% else %}-{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ '{0:,}'.format(agent.total_network_size | int) }}{% else %}-{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ agent.average_income_score }}{% else %}-{% endif %}</td>
+          <td>{% if agent.has_prospects %}{{ agent.average_age }}{% else %}-{% endif %}</td>
           <td data-td='{{ agent.user_id }}' class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">
-            {% if agent.status == 'p200_completed' %}
-            {% elif agent.status == 'p200_started' %}
-            <span class='pending'>P200 Pending</span>
-            {% elif agent.status == 'hiring_screen_completed' %}
-            <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
-            <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>View Hiring Screen</button></a>
+            {% if agent.hiring_screen_completed %}
+              <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+<!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
+              <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
+            {% elif agent.contacts_uploaded %}
+              <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
             {% else %}
-            <span class='pending'>Pending</span>
+              {% if agent.account_created %}
+                <span class='pending' data-tooltip='Account created, no contacts uploaded yet'>Pending</span>   
+              {% else %}
+                <span class='pending' data-tooltip='Invite sent, response pending'>Requested</span>
+              {% endif %}      
             {% endif %}
+          </td>
+          <td data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell' data-tooltip="{% if agent.p200_completed %}Completed (only visible to agent){% else %} Not yet available{% endif %}" class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">
+            {% if agent.p200_completed %}
+            {% elif agent.p200_started %}
+              <span class='pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>    
+            {% elif agent.hiring_screen_completed  %}               <!-- -->
+              <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>    
+
+            {% endif %}
+<!--             <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>     -->
           </td>
         </tr>
         {% endfor %}
@@ -47,19 +62,5 @@
       </table>
   </div>
 </div>
-<script type='text/javascript'>
-var csrftoken = "{{ csrf_token() }}"
-$(function() {
 
-    $("[data-p200-id]").click(function() {
-        var user_id = $(this).data("p200-id")
-        $.post("/managers/request_p200", {user_id:user_id}, function(data){
-            $('["data-td="' + user_id + '"]').html("<span class='pending'>P200 Pending</span>")
-            alert("P200 Started");
-          });
-      });
-
-
-});
-</script>
 {% endblock %}

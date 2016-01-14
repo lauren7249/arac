@@ -95,22 +95,38 @@ def terms():
     return render_template('terms.html')
 
 @csrf.exempt
+@prospects.route("/save_linkedin_data", methods=['GET', 'POST'])
+def save_linkedin_data():
+    if request.method == 'POST':
+        first_name = request.json.get("firstName",)
+        last_name = request.json.get("lastName")
+        email = request.json.get("emailAddress","").lower()
+        location = request.json.get("location",{}).get("name")
+        url = request.json.get('publicProfileUrl',"").lower()
+        image_url = request.json.get("pictureUrl")
+        industry = request.json.get("industry")
+        current_user.image_url = image_url
+        current_user.linkedin_url = url
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.linkedin_email = email
+        current_user.linkedin_location = location
+        current_user.linkedin_industry = industry
+        session.add(current_user)
+        session.commit()
+    return jsonify(request.json)
+
+@csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
 def upload():
     from prime.managers.models import ManagerProfile
     unique_emails = set()
     if request.method == 'POST':
-        first_name = request.json.get("firstName",)
-        last_name = request.json.get("lastName")
-        email = request.json.get("user_email","").lower()
-        location = request.json.get("geolocation")
-        url = request.json.get("public_url","").lower()
-        image_url = request.json.get("image_url")
         manager = ManagerProfile.query.filter(\
                 ManagerProfile.users.contains(current_user)).first()
         to_email = manager.user.email
-        client_data = {"first_name":first_name,"last_name":last_name,\
-                "email":current_user.email,"location":location,"url":url,\
+        client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
+                "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
                 "to_email":to_email}
         contacts_array = request.json.get("contacts_array",[])
         for record in contacts_array:
@@ -126,20 +142,18 @@ def upload():
         user_request = UserRequest(current_user.email)
         user_request._make_request(contacts_array)
         conn = get_conn()
-        current_user.image_url = image_url
-        current_user.linkedin_url = url
-        current_user.first_name = first_name
-        current_user.last_name = last_name
-        current_user.linkedin_email = email
-        current_user.linkedin_location = location
+        current_user.contacts_uploaded = True
         session.add(current_user)
         session.commit()
-        q = Queue(connection=conn)
         random.shuffle(contacts_array)
         f = open('data/bigtext.json','w')
         f.write(json.dumps(contacts_array))
         f.close()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
+        try:
+            q = Queue(connection=conn)
+            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
+        except:
+            print "not uploaded"
     return jsonify({"contacts": len(list(unique_emails))})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])

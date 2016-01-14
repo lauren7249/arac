@@ -1,5 +1,10 @@
 <!doctype html>
 <html xmlns:fb="http://ogp.me/ns/fb#">
+  <script type="text/javascript" src="//platform.linkedin.com/in.js">
+      api_key:   77kimruenyqspn
+      authorize: true
+      onLoad: onLinkedInLoad
+  </script>
   <head>
     <title>AdvisorConnect</title>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
@@ -33,20 +38,21 @@
     <script src="/static/js/react-with-addons-0.12.2.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
   </head>
   <body>
   <header>
     <div class="wrap">
-      <div class="col-6">
+<!--       <div class="col-6">
         <div class="header-logo"></div>
-      </div>
+      </div> -->
       <div class="col-6">
         {% if current_user.is_authenticated() %}
         <div class="nav-right text-right">
           {% if not current_user.is_manager and current_user.p200_completed %}
           <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
           {% endif %}
-          <span><div id='settings'><a class="user">{{ current_user.name }}</a>
+          <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
               <div class='autocomplete'>
                 <ul>
                   <li><a href='/auth/logout'>Logout</a></li>
@@ -54,7 +60,7 @@
               </div>
             </div>
           </span>
-          <span style="background-image:url({{ current_user.image }})" class="face"></span></div>
+          <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div>
         {% endif %}
       </div>
     </div>
@@ -68,6 +74,20 @@
       </ul>
     {% endif %}
   {% endwith %}
+    <div class='overlay'>
+      <div class='email modal'>
+        <h3>Select Email Provider</h3>
+        <ol>
+          <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
+          <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
+          <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
+      </div>
+      <div class='waiting modal'>
+        <div class='logo'>
+          <img src='{{ static_url() }}img/spinner_192.gif' />
+        </div>
+      </div>    
+    </div>      
     {% block content %}{% endblock %}
     </body>
 </html>

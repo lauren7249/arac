@@ -1,12 +1,5 @@
 {% extends 'base.html' %}
 {% block content %}    
-<script type="text/javascript" src="//platform.linkedin.com/in.js">
-    api_key:   77kimruenyqspn
-    authorize: true
-    onLoad: onLinkedInLoad
-</script>
-
-
     <script type="text/javascript">
         
         // Setup an event listener to make an API call once auth is complete
@@ -27,7 +20,21 @@
             document.getElementById("owner_img").src = data.pictureUrl;
             document.getElementById("owner_name").innerHTML = "Welcome, " + firstName;
             $("div#enter_email").hide();
-            $("div#upload_area").show();            
+            $("div#upload_area").show();     
+            $.ajax({
+                type: 'POST',
+                url: '/save_linkedin_data',
+                crossDomain: true,
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                success: function(responseData, textStatus, jqXHR) {
+                  document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
+                  document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;
+                },
+                error: function (responseData, textStatus, errorThrown) {
+                }
+            });                    
         }
 
         // Handle an error response from the API call
@@ -41,27 +48,24 @@
         }
 
     </script>    
-  <div class='overlay'>
-    <div class='email modal'>
-      <h3>Select Email Provider</h3>
-      <ol>
-        <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
-        <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
-        <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
-    </div>
-    <div class='waiting modal'>
-      <div class='logo'>
-        <img src='{{ static_url() }}img/spinner_192.gif' />
-      </div>
-    </div>    
-  </div>
 
   <div class='wrap'>
     <div class='signup' id="signup">
       <div class='logo'>
         <img src='{{ static_url() }}img/AC_logo.png' />
       </div>  
-     
+      <div id="enter_email" >
+        <h2 hidden>Welcome</h2>
+        <p >Please sign in through LinkedIn to continue.</p>
+        <p hidden>Enter the email address where you would like to receive your P200.</p>
+        <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
+        <input hidden type='email' id="email_address" />
+        <p hidden>Enter your target region</p>
+        <div hidden class="ui-widget">
+          <input hidden id="geolocation"/>
+        </div>
+        <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
+      </div>          
       <div id="upload_area" hidden>
         <h2 id="owner_name"></h2>
         <img id="owner_img" />
