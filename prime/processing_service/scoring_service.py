@@ -13,7 +13,6 @@ from constants import GLOBAL_HEADERS
 from helper import get_specific_url
 import multiprocessing
 
-HIRED = False
 
 def wrapper(person):
     try:
@@ -37,8 +36,6 @@ class ScoringService(Service):
         self.data = data
         self.output = []
         self.wrapper = wrapper
-        global HIRED
-        HIRED = self.client_data.get("hired")
         self.hired = self.client_data.get("hired")
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -66,8 +63,7 @@ class ScoringService(Service):
             self.output = self.pool.map(self.wrapper, self.data)
             self.pool.close()
             self.pool.join()
-            if self.hired:  
-                self.output = self.compute_stars()
+            self.output = self.compute_stars()
         except:
             self.logerror()
         self.logend()
@@ -79,8 +75,7 @@ class ScoringService(Service):
             for person in self.data:
                 person = self.wrapper(person)
                 self.output.append(person)
-            if self.hired:  
-                self.output = self.compute_stars()
+            self.output = self.compute_stars()
         except:
             self.logerror()
         self.logend()

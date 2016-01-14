@@ -39,7 +39,15 @@
           <div class="potential-markets">
             {% if agent.industries|length > 0 %}
             {% for industry in agent.industries %}
-            <div class="market-{{ loop.index }}"> <a href="/connections?industry={{industry[0]}}"><span>{{ industry[0] }}</span><b>{{ industry[1] }}</b></a></div>
+              <div class="market-{{ loop.index }}">
+                {% if current_user.is_manager %}
+                  <a>
+                {% else %}
+                  <a href="/connections?industry={{industry[0]}}">
+                {% endif %}
+                  <span>{{ industry[0] }}</span><b>{{ industry[1] }}</b>
+                </a>
+              </div>
             {% endfor %}
             {% else %}
             {% endif %}
