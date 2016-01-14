@@ -77,6 +77,8 @@ def start():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
     #User already has prospects, lets send them to the dashboard
+    if current_user.unique_contacts_uploaded>0:
+        return redirect(url_for('prospects.pending')))
     if current_user.has_prospects:
         return redirect(url_for('prospects.dashboard'))
     if current_user.is_manager:
