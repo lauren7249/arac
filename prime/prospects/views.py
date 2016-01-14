@@ -160,11 +160,15 @@ def upload():
 def dashboard():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))    
-    if not current_user.p200_completed:
+    if current_user.p200_completed:
+        agent = current_user
+        return render_template("dashboard.html", agent=agent, active = "dashboard")
+    #should we show a non-hired agent their network?
+    # if current_user.hiring_screen_completed:
+    #     return render_template("dashboard.html", agent=agent, active = "dashboard")
+    if current_user.contacts_uploaded:
         return redirect(url_for('prospects.pending'))
-    agent = current_user
-    return render_template("dashboard.html", agent=agent, active = "dashboard")
-
+    return redirect(url_for('prospects.start'))
 
 class SearchResults(object):
 
