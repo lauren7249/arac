@@ -63,7 +63,7 @@ class User(db.Model, UserMixin):
     onboarding_code = db.Column(String(40))
 
     account_created = db.Column(postgresql.BOOLEAN, default=False)
-    contacts_uploaded = db.Column(postgresql.Integer, default=0)
+    contacts_uploaded = db.Column(Integer, default=0)
     hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
     p200_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)
