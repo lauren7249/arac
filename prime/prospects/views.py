@@ -87,7 +87,7 @@ def start():
 def pending():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
-    return render_template('pending.html', contact_count=current_user.contacts_uploaded)
+    return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
 
 @prospects.route("/terms")
 def terms():
@@ -141,7 +141,7 @@ def upload():
         user_request = UserRequest(current_user.email)
         user_request._make_request(contacts_array)
         conn = get_conn()
-        current_user.contacts_uploaded = len(unique_emails)
+        current_user.unique_contacts_uploaded = len(unique_emails)
         session.add(current_user)
         session.commit()
         random.shuffle(contacts_array)
@@ -165,7 +165,7 @@ def dashboard():
     #should we show a non-hired agent their network?
     # if current_user.hiring_screen_completed:
     #     return render_template("dashboard.html", agent=agent, active = "dashboard")
-    if current_user.contacts_uploaded:
+    if current_user.unique_contacts_uploaded > 0:
         return redirect(url_for('prospects.pending'))
     return redirect(url_for('prospects.start'))
 

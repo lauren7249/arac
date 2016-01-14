@@ -35,7 +35,7 @@
               <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
 <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
               <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
-            {% elif agent.contacts_uploaded > 0 %}
+            {% elif agent.unique_contacts_uploaded > 0 %}
               <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
             {% else %}
               {% if agent.account_created %}
