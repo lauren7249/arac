@@ -109,7 +109,8 @@ class ProcessingService(Service):
                 subject = "{}'s Hiring Screen is ready!".format(name)
                 to_email = self.client_data.get("to_email")
                 tmpl = env.get_template('emails/network_summary_done.html')
-            body = tmpl.render(url=self.web_url, name=name)
+            user = self._get_user()
+            body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
             sendgrid_email(to_email, subject, body)
             return self.output
         except:
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     data = data[:19]
     #user = User("James","Johnson","jamesjohnson11@gmail.com", "password")
     client_data = { "first_name":"James","last_name":"Johnson", "email":"jamesjohnson11@gmail.com",
-                    "location":"New York, New York","url":"http://www.linkedin.com/in/jamesjohnsona", "hired":True}
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/jamesjohnsona", "hired":False, "to_email":"laurentracytalbot@gmail.com"}
     logger.info("Input: {}".format(data))
     processing_service = ProcessingService(
             client_data = client_data,

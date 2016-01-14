@@ -98,6 +98,8 @@ def terms():
 @csrf.exempt
 @prospects.route("/save_linkedin_data", methods=['GET', 'POST'])
 def save_linkedin_data():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     if request.method == 'POST':
         first_name = request.json.get("firstName",)
         last_name = request.json.get("lastName")
@@ -120,6 +122,8 @@ def save_linkedin_data():
 @csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
 def upload():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     from prime.managers.models import ManagerProfile
     unique_emails = set()
     if request.method == 'POST':
@@ -214,6 +218,8 @@ def get_args(request):
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
@@ -242,6 +248,8 @@ def connections():
 @csrf.exempt
 @prospects.route("/extended/connections", methods=['GET', 'POST'])
 def extended_connections():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
@@ -270,6 +278,8 @@ def extended_connections():
 @csrf.exempt
 @prospects.route("/add-connections", methods=['GET', 'POST'])
 def add_connections():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     user = current_user
     if request.method == 'POST':
         if request.form.get("multi"):
@@ -294,6 +304,8 @@ def add_connections():
 @csrf.exempt
 @prospects.route("/skip-connections", methods=['GET', 'POST'])
 def skip_connections():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     user = current_user
     if request.method == 'POST':
         if request.form.get("multi"):

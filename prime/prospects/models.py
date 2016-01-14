@@ -9,7 +9,6 @@ from prime import db
 import dateutil.parser
 from prime.processing_service.helper import uu
 from sqlalchemy import and_, not_
-from cached_property import cached_property
 
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()

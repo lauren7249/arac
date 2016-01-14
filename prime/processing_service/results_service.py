@@ -13,24 +13,14 @@ from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
 from prime.processing_service.helper import parse_date, uu
-from prime import create_app
-from flask.ext.sqlalchemy import SQLAlchemy
 from prime.users.models import ClientProspect
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime.users.models import User
-try:
-    app = create_app(os.getenv('AC_CONFIG', 'development'))
-    db = SQLAlchemy(app)
-    session = db.session
-except:
-    from prime import db
-    session = db.session
 
 class ResultService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
         self.client_data = client_data
-        self.session = session
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -149,10 +139,6 @@ class ResultService(Service):
         self.session.add(new_job)
         self.session.flush()
         #self.logger.info("Job added: {}".format(uu(job.get("company"))))
-
-    def _get_user(self):
-        user = session.query(User).filter_by(email=self.client_data.get("email")).first()
-        return user
 
     def multiprocess(self):
         return self.process()

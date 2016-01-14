@@ -46,6 +46,8 @@ def manager_home():
 
 @manager.route('/invite', methods=['GET', 'POST'])
 def manager_invite_agent():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))    
     error_message = None
     success = None
     if not current_user.is_manager:
@@ -75,6 +77,8 @@ def manager_invite_agent():
 @csrf.exempt
 @manager.route('/invite/again', methods=['GET', 'POST'])
 def manager_reinvite_agent():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))    
     if request.method == 'POST':
         user_id = int(request.form.get('user_id'))
         user = User.query.filter(User.user_id == user_id).first()
@@ -83,12 +87,19 @@ def manager_reinvite_agent():
 
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
 def agent(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))    
     agent = User.query.get(agent_id)
+    manager = ManagerProfile.query.filter(ManagerProfile.users.contains(agent)).first()
+    if current_user.user_id != manager.user_id:
+        return "You are not authorized to view this content."
     return render_template("dashboard.html", agent=agent, active = "agent_page")
 
 @csrf.exempt
 @manager.route("/request_p200", methods=['GET', 'POST'])
 def request_p200():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))       
     if request.method == 'POST':
         try:
             user_id = int(request.form.get('user_id'))

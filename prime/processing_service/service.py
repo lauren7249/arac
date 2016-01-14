@@ -1,5 +1,6 @@
 import hashlib
 import sys
+import os
 import traceback
 from prime.utils.email import sendgrid_email
 import logging
@@ -14,6 +15,16 @@ import dateutil
 from pipl_request import PiplRequest
 from person_request import PersonRequest
 from saved_request import S3SavedRequest
+from prime.users.models import User 
+from prime import create_app
+from flask.ext.sqlalchemy import SQLAlchemy
+try:
+    app = create_app(os.getenv('AC_CONFIG', 'development'))
+    db = SQLAlchemy(app)
+    session = db.session
+except:
+    from prime import db
+    session = db.session
 
 reload(sys) 
 sys.setdefaultencoding('utf-8')
@@ -22,6 +33,13 @@ class Service(object):
 
     def __init__(self):
         self.pool_size = 10
+        self.session = session
+
+    def _get_user(self):
+        if self.client_data:
+            user = self.session.query(User).filter_by(email=self.client_data.get("email","")).first()
+            return user
+        return None
 
     def _dedupe_profiles(self, profiles):
         if not profiles:
