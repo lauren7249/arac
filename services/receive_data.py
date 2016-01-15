@@ -52,7 +52,7 @@ class add:
                 by_email.add(email_address)      
         thr = threading.Thread(target=email_about_contacts, args=(user_email,client_first_name,len(by_email)))
         thr.start()        
-        return json.dumps(contacts_array)
+        return json.dumps(by_email)
 
 class clearbit_webhook:
     def POST(self):
