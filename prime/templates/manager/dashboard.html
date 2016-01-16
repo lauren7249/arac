@@ -59,7 +59,7 @@
               <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>    
             {% elif agent.hiring_screen_completed  %}               <!-- -->
               <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>    
-              <span style="visibility:hidden" class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>                 
+              <span style="display:none;" class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>                 
             {% endif %}
           </td>
         </tr>
