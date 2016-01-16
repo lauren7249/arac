@@ -1,10 +1,10 @@
 import os
 import hashlib
 import sys
+import json
 from collections import Counter
 import datetime
 import logging
-import json
 from flask import current_app, render_template
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -173,7 +173,9 @@ class User(db.Model, UserMixin):
         """
         if refresh or not self.json.get("statistics"):
             stats = self.build_statistics()
-            self.json['statistics'] = stats
+            _json = self.json
+            _json['statistics'] = stats
+            self.json = _json
             session.add(self)
             session.commit()
         return self.json.get("statistics", {})
