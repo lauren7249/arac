@@ -80,6 +80,11 @@ def after_contacts_uploaded(user_email, contacts_array):
     except:
         from prime import db
         session = db.session
+    from prime.users.models import User
+    from prime.processing_service.saved_request import UserRequest
+    from prime.processing_service.processing_service import ProcessingService
+    from jinja2 import FileSystemLoader
+    from jinja2.environment import Environment    
     current_user = session.query(User).filter_by(email=user_email).first()
     manager = current_user.manager
     to_email = manager.user.email

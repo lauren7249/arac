@@ -145,7 +145,7 @@ class User(db.Model, UserMixin):
     def manager(self):
         from prime.managers.models import ManagerProfile
         if self.manager_id:
-            return ManagerProfile.query.get(self.manager_id)
+            return session.query(ManagerProfile).get(self.manager_id)
         return None
 
     @staticmethod
