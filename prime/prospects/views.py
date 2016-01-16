@@ -81,13 +81,13 @@ def queue_processing_service(client_data, contacts_array):
 def start():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
+    if current_user.p200_completed:
+        return redirect(url_for('prospects.dashboard'))        
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
         return redirect(url_for('prospects.pending'))
-    if current_user.has_prospects:
-        return redirect(url_for('prospects.dashboard'))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
     return render_template('start.html')
 
 @prospects.route("/pending", methods=['GET'])
