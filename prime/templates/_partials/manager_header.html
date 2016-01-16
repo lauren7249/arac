@@ -43,11 +43,11 @@ $(function() {
                 }
                 var content = container.innerHTML;
                 container.innerHTML= content;
-                document.body.innerHTML += "<div class='overlay'><div class='message modal'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div></div>/div>"
+                document.body.innerHTML += "<div class='overlay'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div>/div>"
                 $(".overlay").fadeIn();
-                $(".message").show();        
-                $(".overlay").fadeOut();
-                $(".message").hide();                      
+                $(".success").show();        
+                // $(".overlay").fadeOut();
+                // $(".message").hide();                      
               }
 
             });          
