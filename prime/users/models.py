@@ -25,17 +25,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
 from prime.processing_service.helper import uu
-from prime import login_manager
-import os
-from prime import create_app, db
-from flask.ext.sqlalchemy import SQLAlchemy    
-try:
-    app = create_app(os.getenv('AC_CONFIG', 'development'))
-    db = SQLAlchemy(app)
-    session = db.session
-except:
-    from prime import db
-    session = db.session
+from prime import db, login_manager
 from prime.utils import random_string
 from prime.utils.email import sendgrid_email
 from prime.customers.models import Customer

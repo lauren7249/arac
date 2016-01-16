@@ -25,6 +25,10 @@ from sqlalchemy import select, cast, extract, or_, func
 from sqlalchemy.orm import joinedload, subqueryload, outerjoin
 from sqlalchemy.orm import aliased
 from flask.ext.rq import job
+from jinja2.environment import Environment
+from jinja2 import FileSystemLoader
+
+from prime.utils.email import sendgrid_email
 
 ################
 ##  HELPERS   ##
@@ -68,38 +72,6 @@ def queue_processing_service(client_data, contacts_array):
     service = ProcessingService(client_data, contacts_array)
     service.process()
     return True
-
-def after_contacts_uploaded(user_email, contacts_array):
-    import os
-    from prime import create_app, db
-    from flask.ext.sqlalchemy import SQLAlchemy    
-    try:
-        app = create_app(os.getenv('AC_CONFIG', 'development'))
-        db = SQLAlchemy(app)
-        session = db.session
-    except:
-        from prime import db
-        session = db.session
-    from prime.users.models import User
-    from prime.processing_service.saved_request import UserRequest
-    from prime.processing_service.processing_service import ProcessingService
-    from jinja2 import FileSystemLoader
-    from jinja2.environment import Environment    
-    current_user = session.query(User).filter_by(email=user_email).first()
-    manager = current_user.manager
-    to_email = manager.user.email
-    client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
-            "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
-            "to_email":to_email}
-    user_request = UserRequest(user_email)
-    user_request._make_request(contacts_array)  
-    env = Environment()
-    env.loader = FileSystemLoader("prime/templates")                
-    tmpl = env.get_template('emails/contacts_uploaded.html')
-    body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=current_user.email)
-    sendgrid_email(to_email, "{} {} imported contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name), body)      
-    service = ProcessingService(client_data, contacts_array)
-    service.process()
 
 ################
 ##    VIEWS   ##
@@ -181,9 +153,22 @@ def upload():
         n_contacts = len(by_email)
         current_user.unique_contacts_uploaded = n_contacts
         session.add(current_user)
-        session.commit()        
+        session.commit()    
+        manager = current_user.manager
+        to_email = manager.user.email
+        client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
+                "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
+                "to_email":to_email}
+        from prime.processing_service.saved_request import UserRequest
+        user_request = UserRequest(user_email)
+        user_request._make_request(contacts_array)  
+        env = Environment()
+        env.loader = FileSystemLoader("prime/templates")                
+        tmpl = env.get_template('emails/contacts_uploaded.html')
+        body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=current_user.email)
+        sendgrid_email(to_email, "{} {} imported contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name), body)              
         q = get_q()
-        q.enqueue(after_contacts_uploaded, user_email, contacts_array, timeout=140400)    
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)    
     return jsonify({"contacts": n_contacts})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
