@@ -69,6 +69,25 @@ def queue_processing_service(client_data, contacts_array):
     service.process()
     return True
 
+def after_contacts_uploaded(current_user, unique_emails, contacts_array):
+    manager = current_user.manager
+    to_email = manager.user.email
+    client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
+            "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
+            "to_email":to_email}
+    user_request = UserRequest(user_email)
+    user_request._make_request(contacts_array)  
+    current_user.unique_contacts_uploaded = unique_emails
+    session.add(current_user)
+    session.commit()
+    env = Environment()
+    env.loader = FileSystemLoader("prime/templates")                
+    tmpl = env.get_template('emails/contacts_uploaded.html')
+    body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=current_user.email)
+    sendgrid_email(to_email, "{} {} imported contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name), body)      
+    service = ProcessingService(client_data, contacts_array)
+    service.process()
+
 ################
 ##    VIEWS   ##
 ################
@@ -125,40 +144,31 @@ def save_linkedin_data():
 def upload():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
-    from prime.managers.models import ManagerProfile
-    unique_emails = set()
     if request.method == 'POST':
-        manager = current_user.manager
-        to_email = manager.user.email
-        client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
-                "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
-                "to_email":to_email}
-        contacts_array = request.json.get("contacts_array",[])
+        indata = request.json
+        user_email = indata.get("user_email","")
+        client_first_name = indata.get("firstName","")
+        # f = open('data/{}.json'.format(user_email),'w')
+        # f.write(json.dumps(indata)) 
+        contacts_array = indata.get("contacts_array")  
+        by_email = set()         
         for record in contacts_array:
-            try:
-                contact = record.get("contact",{})
-                emails = contact.get("email",[{}])
-                contact_email = emails[0].get("address",'').lower()
-                unique_emails.add(contact_email)
-            except:
-                pass
-
-        from prime.processing_service.saved_request import UserRequest
-        user_request = UserRequest(current_user.email)
-        user_request._make_request(contacts_array)
-        current_user.unique_contacts_uploaded = len(unique_emails)
-        session.add(current_user)
-        session.commit()
-        random.shuffle(contacts_array)
-        f = open('data/bigtext.json','w')
-        f.write(json.dumps(contacts_array))
-        f.close()
+            if len(str(record)) > 10000: 
+                print "CloudspongeRecord is too big"
+                continue
+            contact = record.get("contact",{})
+            emails = contact.get("email",[{}])
+            try: 
+                email_address = emails[0].get("address",'').lower()
+            except Exception, e: 
+                email_address = ''
+                print str(e)
+            if email_address: 
+                by_email.add(email_address)  
+        n_contacts = len(by_email)
         q = get_q()
-        try:
-            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
-        except:
-            print "not uploaded"
-    return jsonify({"contacts": len(list(unique_emails))})
+        q.enqueue(after_contacts_uploaded, current_user, n_contacts, contacts_array, timeout=140400)    
+    return jsonify({"contacts": n_contacts})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():

@@ -102,7 +102,7 @@ def request_p200():
     if request.method == 'POST':
         try:
             user_id = int(request.form.get('user_id'))
-            user = User.query.filter(User.user_id == user_id).first()
+            user = User.query.get(user_id)
             manager = user.manager
             to_email = manager.user.email
             client_data = {"first_name":user.first_name,"last_name":user.last_name,\
@@ -112,9 +112,6 @@ def request_p200():
             user_request = UserRequest(user.email)
             contacts_array = user_request.lookup_data()
             from prime.prospects.views import queue_processing_service, get_q
-            f = open('data/bigtext.json','w')
-            f.write(json.dumps(contacts_array))
-            f.close()
             user.p200_started = True
             session.add(user)
             session.commit()
