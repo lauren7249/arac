@@ -37,12 +37,6 @@ $(function() {
         if (user_id != undefined && user_id != null && user_id != '') {
           $.post("/managers/request_p200", {user_id:user_id}, function(data){
               if (data.name != undefined && data.name !=null && data.name != '') {
-                // var container = document.getElementById(user_id + "_p200_cell");
-                // if (container == undefined || container == null) {
-                //   container = document.getElementById("active_cell");
-                // }
-                // var content = container.innerHTML;
-                // container.innerHTML= content;
                 document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
                 document.getElementById("success").showModal();    
                 document.getElementById(user_id + "_p200_button").style.display = "none";     
