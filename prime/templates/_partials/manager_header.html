@@ -44,7 +44,7 @@ $(function() {
                 var content = container.innerHTML;
                 container.innerHTML= content;
                 document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
-                document.getElementById("success").showModal();                    
+                document.getElementById("success").show();                    
               }
 
             });          
@@ -53,9 +53,6 @@ $(function() {
       });
 });
 
-document.body.click(function(){
-  document.getElementById("success").close();   
-})
 
 </script>
 {% endblock %}
