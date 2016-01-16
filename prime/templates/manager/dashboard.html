@@ -25,7 +25,7 @@
         {% for agent in agents %}
         <tr>
           <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}<span class='email'>{{ agent.email }}</span></span></td>
-          {% if agent.has_prospects %}
+          {% if agent.hiring_screen_completed %}
             <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
             <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
             <td>{{ '{0:,}'.format(agent.total_network_size | int) }}</td>
