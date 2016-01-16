@@ -255,7 +255,7 @@ class User(db.Model, UserMixin):
         first_degree_count = 0
         for client_prospect in self.client_prospects:
             if not client_prospect.stars:
-                #logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
+                logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
                 continue
             if client_prospect.extended:
                 extended_count+=1
@@ -267,11 +267,11 @@ class User(db.Model, UserMixin):
             if client_prospect.prospect.gender:
                 gender[client_prospect.prospect.gender] += 1
             else:
-                #logger.warn("{} has gender=None (prospect id={})".format(uu(client_prospect.prospect.name), client_prospect.prospect_id))
+                logger.warn("{} has gender=None (prospect id={})".format(uu(client_prospect.prospect.name), client_prospect.prospect_id))
             if client_prospect.prospect.industry_category:
                 industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             else:
-                #logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))
+                logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))
             if client_prospect.prospect and client_prospect.prospect.us_state:
                 locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1
             for school in client_prospect.common_schools:
