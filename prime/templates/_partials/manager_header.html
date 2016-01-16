@@ -12,7 +12,7 @@
           {% if active != "selected" %}
             <li><a href="/managers/dashboard" class="selected">Dashboard</a></li>
           {% endif %}    
-          {% if active != "agent_page" %}
+          {% if active != "agent_page" and active != "invite" %}
             <li data-tooltip="Invite a prospective agent to complete a network summary by uploading their contacts"><a href="/managers/invite" class="selected">Request Hiring Screen</a></li>
           {% endif %}       
           {% if active == "agent_page" and agent is not none and agent.p200_completed != true and agent.p200_started != true %} <!--  -->
