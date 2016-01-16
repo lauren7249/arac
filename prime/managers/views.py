@@ -108,19 +108,19 @@ def request_p200():
             client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                     "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
                     "to_email":to_email, "hired": True}
-            from prime.processing_service.saved_request import UserRequest
-            user_request = UserRequest(user.email)
-            contacts_array = user_request.lookup_data()
-            from prime.prospects.views import queue_processing_service, get_q
-            user.p200_started = True
-            session.add(user)
-            session.commit()
-            q = get_q()
-            try:       
-                q.enqueue(queue_processing_service, client_data, contacts_array,
-                        timeout=140400)
-            except:
-                pass
+            # from prime.processing_service.saved_request import UserRequest
+            # user_request = UserRequest(user.email)
+            # contacts_array = user_request.lookup_data()
+            # from prime.prospects.views import queue_processing_service, get_q
+            # user.p200_started = True
+            # session.add(user)
+            # session.commit()
+            # q = get_q()
+            # try:       
+            #     q.enqueue(queue_processing_service, client_data, contacts_array,
+            #             timeout=140400)
+            # except:
+            #     pass
             return jsonify({"name": "{} {}".format(user.first_name, user.last_name) })
         except Exception, e:
             print str(e)
