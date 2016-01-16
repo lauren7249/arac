@@ -111,16 +111,15 @@ def request_p200():
             from prime.processing_service.saved_request import UserRequest
             user_request = UserRequest(user.email)
             contacts_array = user_request.lookup_data()
-            from prime.prospects.views import queue_processing_service, get_conn
+            from prime.prospects.views import queue_processing_service, get_q
             f = open('data/bigtext.json','w')
             f.write(json.dumps(contacts_array))
             f.close()
             user.p200_started = True
             session.add(user)
             session.commit()
-            try:
-                conn = get_conn()
-                q = Queue(connection=conn)            
+            q = get_q()
+            try:       
                 q.enqueue(queue_processing_service, client_data, contacts_array,
                         timeout=140400)
             except:

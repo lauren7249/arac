@@ -25,11 +25,19 @@
         {% for agent in agents %}
         <tr>
           <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}<span class='email'>{{ agent.email }}</span></span></td>
-          <td>{% if agent.has_prospects %}{{ '{0:,}'.format(agent.primary_network_size | int) }}{% else %}-{% endif %}</td>
-          <td>{% if agent.has_prospects %} {{ '{0:,}'.format(agent.extended_network_size | int) }}{% else %}-{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ '{0:,}'.format(agent.total_network_size | int) }}{% else %}-{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ agent.average_income_score }}{% else %}-{% endif %}</td>
-          <td>{% if agent.has_prospects %}{{ agent.average_age }}{% else %}-{% endif %}</td>
+          {% if agent.has_prospects %}
+            <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.total_network_size | int) }}</td>
+            <td>{{ agent.average_income_score }}</td>
+            <td>{{ agent.average_age }}</td>
+          {% else %}
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>        
+          {% endif %}
           <td data-td='{{ agent.user_id }}' class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">
             {% if agent.hiring_screen_completed %}
               <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            

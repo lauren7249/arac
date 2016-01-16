@@ -4,7 +4,6 @@ from collections import Counter
 
 from rq import Queue
 from redis import Redis
-from rq import Queue
 import re
 import random
 import requests
@@ -19,7 +18,7 @@ from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime.users.models import ClientProspect
 from prime import db, csrf
-
+from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast, extract, or_, func
 from sqlalchemy.orm import joinedload, subqueryload, outerjoin
@@ -59,8 +58,10 @@ def uu(str):
 ##   TASKS    ##
 ################
 
-def get_conn():
-    return Redis()
+def get_q():
+    conn = Redis(REDIS_URL, 6379)
+    q = Queue('high',connection=conn)
+    return q
 
 def queue_processing_service(client_data, contacts_array):
     from prime.processing_service.processing_service import ProcessingService
@@ -145,7 +146,6 @@ def upload():
         from prime.processing_service.saved_request import UserRequest
         user_request = UserRequest(current_user.email)
         user_request._make_request(contacts_array)
-        conn = get_conn()
         current_user.unique_contacts_uploaded = len(unique_emails)
         session.add(current_user)
         session.commit()
@@ -153,8 +153,8 @@ def upload():
         f = open('data/bigtext.json','w')
         f.write(json.dumps(contacts_array))
         f.close()
+        q = get_q()
         try:
-            q = Queue(connection=conn)
             q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
         except:
             print "not uploaded"

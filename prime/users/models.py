@@ -172,6 +172,8 @@ class User(db.Model, UserMixin):
         if refresh or not self.json.get("statistics"):
             stats = self.build_statistics()
             self.json['statistics'] = stats
+            db.session.add(self)
+            db.session.commit()
         return self.json.get("statistics", {})
 
     @property
