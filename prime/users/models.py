@@ -70,7 +70,7 @@ class User(db.Model, UserMixin):
     hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
     p200_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)
-    json = db.Column(JSONB, default={})
+    _statistics = db.Column(JSONB, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -171,13 +171,10 @@ class User(db.Model, UserMixin):
         """
         Adding in cache functionality to rebuild if older than 2 days
         """
-        if self.json and not refresh:
-            stats = self.json.get("statistics")
-            return stats
+        if self._statistics and not refresh:
+            return self._statistics
         stats = self.build_statistics()
-        _json = self.json
-        _json['statistics'] = stats
-        self.json = _json
+        self._statistics = stats
         session.add(self)
         session.commit()
         return stats
