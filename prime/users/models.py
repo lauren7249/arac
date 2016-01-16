@@ -171,14 +171,16 @@ class User(db.Model, UserMixin):
         """
         Adding in cache functionality to rebuild if older than 2 days
         """
-        if refresh or not self.json.get("statistics"):
-            stats = self.build_statistics()
-            _json = self.json
-            _json['statistics'] = stats
-            self.json = _json
-            session.add(self)
-            session.commit()
-        return self.json.get("statistics", {})
+        if self.json and not refresh:
+            stats = self.json.get("statistics")
+            return stats
+        stats = self.build_statistics()
+        _json = self.json
+        _json['statistics'] = stats
+        self.json = _json
+        session.add(self)
+        session.commit()
+        return stats
 
     @property
     def primary_network_size(self):
