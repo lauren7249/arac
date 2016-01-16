@@ -16,7 +16,7 @@ from flask.ext.login import current_user
 
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
-from prime.users.models import ClientProspect
+from prime.users.models import ClientProspect, User
 from prime import db, csrf
 from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -69,7 +69,7 @@ def queue_processing_service(client_data, contacts_array):
     service.process()
     return True
 
-def after_contacts_uploaded(user_email, unique_emails, contacts_array):
+def after_contacts_uploaded(user_email, contacts_array):
     current_user = User.query.filter_by(email=user_email).first()
     manager = current_user.manager
     to_email = manager.user.email
@@ -78,9 +78,6 @@ def after_contacts_uploaded(user_email, unique_emails, contacts_array):
             "to_email":to_email}
     user_request = UserRequest(user_email)
     user_request._make_request(contacts_array)  
-    current_user.unique_contacts_uploaded = unique_emails
-    session.add(current_user)
-    session.commit()
     env = Environment()
     env.loader = FileSystemLoader("prime/templates")                
     tmpl = env.get_template('emails/contacts_uploaded.html')
@@ -167,8 +164,11 @@ def upload():
             if email_address: 
                 by_email.add(email_address)  
         n_contacts = len(by_email)
+        current_user.unique_contacts_uploaded = n_contacts
+        session.add(current_user)
+        session.commit()        
         q = get_q()
-        q.enqueue(after_contacts_uploaded, user_email, n_contacts, contacts_array, timeout=140400)    
+        q.enqueue(after_contacts_uploaded, user_email, contacts_array, timeout=140400)    
     return jsonify({"contacts": n_contacts})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
