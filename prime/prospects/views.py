@@ -69,7 +69,8 @@ def queue_processing_service(client_data, contacts_array):
     service.process()
     return True
 
-def after_contacts_uploaded(current_user, unique_emails, contacts_array):
+def after_contacts_uploaded(user_email, unique_emails, contacts_array):
+    current_user = User.query.filter_by(email=user_email).first()
     manager = current_user.manager
     to_email = manager.user.email
     client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
@@ -167,7 +168,7 @@ def upload():
                 by_email.add(email_address)  
         n_contacts = len(by_email)
         q = get_q()
-        q.enqueue(after_contacts_uploaded, current_user, n_contacts, contacts_array, timeout=140400)    
+        q.enqueue(after_contacts_uploaded, user_email, n_contacts, contacts_array, timeout=140400)    
     return jsonify({"contacts": n_contacts})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
