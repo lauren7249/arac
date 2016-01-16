@@ -30,6 +30,7 @@ from prime.utils import random_string
 from prime.utils.email import sendgrid_email
 from prime.customers.models import Customer
 
+session = db.session
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -120,8 +121,8 @@ class User(db.Model, UserMixin):
         code = random_string(10).encode('utf-8')
         password = hashlib.md5(code).hexdigest()
         self.onboarding_code = password
-        db.session.add(self)
-        db.session.commit()
+        session.add(self)
+        session.commit()
         return code
 
     def send_reset_password(self):
@@ -158,7 +159,8 @@ class User(db.Model, UserMixin):
         if u is None:
             return None
         u.password = new_password
-        db.session.add(u)
+        session.add(u)
+        session.commit()
         return u
 
     @property
@@ -172,8 +174,8 @@ class User(db.Model, UserMixin):
         if refresh or not self.json.get("statistics"):
             stats = self.build_statistics()
             self.json['statistics'] = stats
-            db.session.add(self)
-            db.session.commit()
+            session.add(self)
+            session.commit()
         return self.json.get("statistics", {})
 
     @property
