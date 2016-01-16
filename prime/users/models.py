@@ -260,8 +260,10 @@ class User(db.Model, UserMixin):
             if client_prospect.extended:
                 extended_count+=1
                 continue
-            wealth_score.append(client_prospect.prospect.wealthscore)
-            average_age.append(client_prospect.prospect.age)
+            if client_prospect.prospect.wealthscore:
+                wealth_score.append(client_prospect.prospect.wealthscore)
+            if client_prospect.prospect.age:
+                average_age.append(client_prospect.prospect.age)
             first_degree_count+=1
             college_degree[client_prospect.prospect.college_grad] += 1
             if client_prospect.prospect.gender:
