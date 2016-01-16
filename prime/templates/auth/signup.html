@@ -7,8 +7,10 @@
 <!--         <div class='logo'>
           <img src='{{ static_url() }}img/NewYorkLife.png' />
         </div> -->
-        <h1>Welcome to AdvisorConnect!  </h1>
-        <p>Spend less time searching and more time closing. </p>
+        {%if reset != 'yes' %}
+          <h1>Welcome to AdvisorConnect!  </h1>
+          <p>Spend less time searching and more time closing. </p>
+        {%endif%}
       </div>
       <div class='row col-md-7'>
         <form class="form-horizontal" action='' method='POST'>
@@ -24,7 +26,7 @@
           {{ signup_form.csrf_token }}
           <input type='hidden' name='code' value='{{ code }}' />
           <fieldset>
-            <legend>Enter a password</legend>
+            <legend>Enter a {%if reset == 'yes' %}new {%endif%}password</legend>
             <div class="form-group">
               <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
               <div class="col-lg-10">
@@ -35,9 +37,11 @@
               <label for="inputPassword" class="col-lg-2 control-label">Confirm Password:</label>
               <div class="col-lg-10">
                 <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Confirm Password">
-                <span class="checkbox">
-                  <label>I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a></label>
-                </span>
+                {%if reset != 'yes' %}
+                  <span class="checkbox">
+                    <label>I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a></label>
+                  </span>
+                {%endif%}
               </div>
             </div>
             <div class="form-group">
