@@ -249,27 +249,29 @@ class User(db.Model, UserMixin):
         locations = {}
         gender = {"female":0,"male":0,"unknown":0}
         college_degree = {True:0,False:0,None:0}
-        wealth_score = [prospect.wealthscore for prospect in self.prospects if prospect.wealthscore ]
-        average_age = [prospect.age for prospect in self.prospects if prospect.age]
+        wealth_score = []
+        average_age = []
         extended_count = 0
         first_degree_count = 0
         for client_prospect in self.client_prospects:
             if not client_prospect.stars:
-                logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
+                #logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
                 continue
             if client_prospect.extended:
                 extended_count+=1
                 continue
+            wealth_score.append(client_prospect.prospect.wealth_score)
+            average_age.append(client_prospect.prospect.age)
             first_degree_count+=1
             college_degree[client_prospect.prospect.college_grad] += 1
             if client_prospect.prospect.gender:
                 gender[client_prospect.prospect.gender] += 1
             else:
-                logger.warn("{} has gender=None (prospect id={})".format(uu(client_prospect.prospect.name), client_prospect.prospect_id))
+                #logger.warn("{} has gender=None (prospect id={})".format(uu(client_prospect.prospect.name), client_prospect.prospect_id))
             if client_prospect.prospect.industry_category:
                 industries[client_prospect.prospect.industry_category] = industries.get(client_prospect.prospect.industry_category, 0) + 1
             else:
-                logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))
+                #logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))
             if client_prospect.prospect and client_prospect.prospect.us_state:
                 locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1
             for school in client_prospect.common_schools:
