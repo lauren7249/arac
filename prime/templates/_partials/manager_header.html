@@ -45,7 +45,8 @@ $(function() {
                 // container.innerHTML= content;
                 document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
                 document.getElementById("success").showModal();    
-                document.getElementById(user_id + "_p200_button").style.visibility = "hidden";       
+                document.getElementById(user_id + "_p200_button").style.visibility = "hidden";     
+                document.getElementById(user_id + "_p200_pending").style.visibility = "visible";   
               }
 
             });          

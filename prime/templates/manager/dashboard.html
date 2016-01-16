@@ -56,9 +56,10 @@
           <td data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell' data-tooltip="{% if agent.p200_completed %}Completed (only visible to agent){% elif not agent.hiring_screen_completed %} Not yet available{% endif %}" class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">
             {% if agent.p200_completed %}
             {% elif agent.p200_started %}
-              <span class='pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>    
+              <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>    
             {% elif agent.hiring_screen_completed  %}               <!-- -->
               <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>    
+              <span hidden class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>                 
             {% endif %}
           </td>
         </tr>
