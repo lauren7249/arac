@@ -121,8 +121,6 @@ def request_p200():
                         timeout=140400)
             except:
                 pass
-            agents = manager.users.all()
-            agent_count = manager.users.count()
             return jsonify({"name": "{} {}".format(user.first_name, user.last_name) })
         except Exception, e:
             print str(e)
