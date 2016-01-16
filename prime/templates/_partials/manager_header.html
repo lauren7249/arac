@@ -45,8 +45,8 @@ $(function() {
                 container.innerHTML= content;
                 document.body.innerHTML += "<dialog id='success'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div></dialog>"
                 document.getElementById("success").showModal(); 
-                document.body.click(function() {
-                  document.getElementById("success").close(); 
+                $("#success").click(function() {
+                  $("#success").close(); 
                 })
                 // $(".overlay").fadeOut();
                 // $(".message").hide();                      
