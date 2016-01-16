@@ -5,7 +5,7 @@ from flask.ext.migrate import MigrateCommand, Migrate
 from flask.ext.script import Manager, Shell
 
 from prime import create_app, db
-
+from prime.prospects.views import get_q
 
 app = create_app(os.getenv('AC_CONFIG', 'default'))
 app.debug=True
@@ -54,8 +54,7 @@ if __name__ == '__main__':
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
                 "to_email":email, "hired": True}
-        conn = Redis()
-        q = Queue(connection=conn)
+        q = get_q()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
 
     @manager.command

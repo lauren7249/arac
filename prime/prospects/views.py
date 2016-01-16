@@ -70,7 +70,7 @@ def queue_processing_service(client_data, contacts_array):
     return True
 
 def after_contacts_uploaded(user_email, contacts_array):
-    current_user = User.query.filter_by(email=user_email).first()
+    current_user = session.query(User).filter_by(email=user_email).first()
     manager = current_user.manager
     to_email = manager.user.email
     client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
