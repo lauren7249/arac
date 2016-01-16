@@ -59,7 +59,7 @@ def uu(str):
 ################
 
 def get_q():
-    conn = Redis(REDIS_URL, 6379)
+    conn = Redis.from_url(url=REDIS_URL, db=0)
     q = Queue('high',connection=conn)
     return q
 
