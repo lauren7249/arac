@@ -8,14 +8,17 @@ from redis import Redis
 
 from flask import redirect, request, url_for, flash, render_template, session \
 as flask_session
-from flask.ext.login import login_user, logout_user, current_user, fresh_login_required
+from flask.ext.login import login_user, logout_user, current_user
 
 from . import auth
 from prime import db, csrf
 from prime.customers.models import Customer
 from .forms import SignUpForm, LoginForm, ForgotForm
 from prime.users.models import User
+from jinja2.environment import Environment
+from jinja2 import FileSystemLoader
 
+from prime.utils.email import sendgrid_email
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +32,16 @@ def flash_errors(form):
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    if not current_user.is_anonymous():
-        return redirect(url_for('prospects.start'))
+    if current_user.is_authenticated():
+        if current_user.is_manager:
+            return redirect(url_for('managers.manager_home'))
+        else:
+            return redirect(url_for('prospects.start'))
     form = LoginForm()
     valid = True
     if form.is_submitted():
+        # import pdb
+        # pdb.set_trace()        
         if form.validate():
             user = User.query.filter_by(email=form.email.data.lower()).first()
             if user is not None and user.check_password(form.password.data):
@@ -75,6 +83,11 @@ def signup():
                 db.session.add(user)
                 db.session.commit()
                 login_user(user, True)
+                env = Environment()
+                env.loader = FileSystemLoader("prime/templates")                
+                tmpl = env.get_template('emails/account_created.html')
+                body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=user.email)
+                sendgrid_email(user.manager.user.email, "{} {} created an AdvisorConnect account".format(user.first_name, user.last_name), body)           
                 return redirect("/")
         if form.errors:
             flash_errors(form)

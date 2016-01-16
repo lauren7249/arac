@@ -1,0 +1,9 @@
+{% extends 'email.html' %}
+{% block content %}
+<h1>{{ first_name }} {{ last_name }} imported contacts into AdvisorConnect</h1>
+<p>{{ first_name }} {{ last_name }} ({{ email }}) finished importing contacts. {{ first_name }}'s Network Summary has kicked off, and we will notify you when the Hiring Screen is available for you to view.</p>
+<br/>
+<p>Thanks!</p>
+<p>Jeff Tompkins</p>
+<p>Founder @ Advisorconnect</p>
+{% endblock %}

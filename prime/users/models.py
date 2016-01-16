@@ -28,7 +28,6 @@ from prime.processing_service.helper import uu
 from prime import db, login_manager
 from prime.utils import random_string
 from prime.utils.email import sendgrid_email
-
 from prime.customers.models import Customer
 
 reload(sys)
@@ -48,6 +47,8 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
     customer = relationship('Customer', foreign_keys='User.customer_id')
+
+    manager_id = db.Column(Integer, index=True)
 
     linkedin_id = db.Column(String(1024))
     linkedin_url = db.Column(String(1024))
@@ -104,15 +105,12 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self._password_hash, password)
 
-    def is_authenticated(self):
-        return True
-
     def is_active(self):
         return True
 
     @property
     def is_manager(self):
-        return len(self.manager_profile) > 0
+        return (self.manager_id is None)
 
     def get_id(self):
         return unicode(self.user_id)
@@ -142,6 +140,12 @@ class User(db.Model, UserMixin):
         sendgrid_email(self.email, subject, body)
         return True
 
+    @property 
+    def manager(self):
+        from prime.managers.models import ManagerProfile
+        if self.manager_id:
+            return ManagerProfile.query.get(self.manager_id)
+        return None
 
     @staticmethod
     def reset_password(token, new_password):

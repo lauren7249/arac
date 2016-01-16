@@ -127,8 +127,7 @@ def upload():
     from prime.managers.models import ManagerProfile
     unique_emails = set()
     if request.method == 'POST':
-        manager = ManagerProfile.query.filter(\
-                ManagerProfile.users.contains(current_user)).first()
+        manager = current_user.manager
         to_email = manager.user.email
         client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                 "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\

@@ -1,7 +1,6 @@
 from flask import Flask
 import hashlib
 import random
-import sendgrid
 import datetime
 import requests
 import json
@@ -18,7 +17,6 @@ from . import manager
 from prime.prospects.models import Prospect, Job, Education
 from prime.managers.models import ManagerProfile
 from prime.users.models import User, ClientProspect
-from prime.utils.email import sendgrid_email
 from prime.utils import random_string
 from prime import db, csrf
 
@@ -62,10 +60,11 @@ def manager_invite_agent():
             error_message = "This agent already exists in our system. Please \
                     contact jeff@adivsorconnect.co if this seems incorrect to you"
         else:
+            manager = current_user.manager_profile[0]
             user = User(first_name, last_name, to_email, '')
+            user.manager_id = manager.manager_id
             session.add(user)
             session.commit()
-            manager = current_user.manager_profile[0]
             manager.users.append(user)
             session.add(manager)
             session.commit()
@@ -90,7 +89,7 @@ def agent(agent_id):
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))    
     agent = User.query.get(agent_id)
-    manager = ManagerProfile.query.filter(ManagerProfile.users.contains(agent)).first()
+    manager = agent.manager
     if current_user.user_id != manager.user_id:
         return "You are not authorized to view this content."
     return render_template("dashboard.html", agent=agent, active = "agent_page")
@@ -104,8 +103,7 @@ def request_p200():
         try:
             user_id = int(request.form.get('user_id'))
             user = User.query.filter(User.user_id == user_id).first()
-            manager = ManagerProfile.query.filter(\
-                    ManagerProfile.users.contains(user)).first()
+            manager = user.manager
             to_email = manager.user.email
             client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                     "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\

@@ -48,19 +48,19 @@
       </div> -->
       <div class="col-6">
         {% if current_user.is_authenticated() %}
-        <div class="nav-right text-right">
-          {% if not current_user.is_manager and current_user.p200_completed %}
-          <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
-          {% endif %}
-          <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
-              <div class='autocomplete'>
-                <ul>
-                  <li><a href='/auth/logout'>Logout</a></li>
-                </ul>
+          <div class="nav-right text-right">
+            {% if not current_user.is_manager and current_user.p200_completed %}
+              <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
+            {% endif %}
+            <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
+                <div class='autocomplete'>
+                  <ul>
+                    <li><a href='/auth/logout'>Logout</a></li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </span>
-          <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div>
+            </span>
+            <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div>
         {% endif %}
       </div>
     </div>
