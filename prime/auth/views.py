@@ -51,6 +51,8 @@ def login():
                 #dashboard
                 if user.is_manager:
                     return redirect(url_for('managers.manager_home'))
+                if user.p200_completed:
+                    return redirect(url_for('prospects.dashboard'))
                 return redirect(url_for('prospects.start'))
 
         valid = False
