@@ -43,7 +43,7 @@ $(function() {
                 }
                 var content = container.innerHTML;
                 container.innerHTML= content;
-                document.body.innerHTML += "<dialog id='success' onclick='$(this).remove()'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div></dialog>"
+                document.body.innerHTML += "<dialog id='success' onclick='$(this).close(); $(this).remove();'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div></dialog>"
                 document.getElementById("success").showModal(); 
                 // $(".overlay").fadeOut();
                 // $(".message").hide();                      
@@ -54,8 +54,6 @@ $(function() {
 
       });
 });
-// function byeDialog(){
-//   document.getElementById("remove").remove();
-// }
+
 </script>
 {% endblock %}
