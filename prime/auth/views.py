@@ -82,16 +82,17 @@ def signup():
         user = User.query.filter(User.onboarding_code == onboarding_code).first()            
         if form.validate():
             if user:
+                if not user.account_created:
+                    env = Environment()
+                    env.loader = FileSystemLoader("prime/templates")                
+                    tmpl = env.get_template('emails/account_created.html')
+                    body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=user.email)
+                    sendgrid_email(user.manager.user.email, "{} {} created an AdvisorConnect account".format(user.first_name, user.last_name), body)
+                    user.account_created = True        
                 user.set_password(form.password.data)
-                user.account_created = True
                 db.session.add(user)
                 db.session.commit()
-                login_user(user, True)
-                env = Environment()
-                env.loader = FileSystemLoader("prime/templates")                
-                tmpl = env.get_template('emails/account_created.html')
-                body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=user.email)
-                sendgrid_email(user.manager.user.email, "{} {} created an AdvisorConnect account".format(user.first_name, user.last_name), body)           
+                login_user(user, True)         
                 return redirect("/")
         if form.errors:
             flash_errors(form)
