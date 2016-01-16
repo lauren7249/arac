@@ -43,8 +43,11 @@ $(function() {
                 }
                 var content = container.innerHTML;
                 container.innerHTML= content;
-                element = document.createElement("<dialog id='success'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div></dialog>")
-                element.showModal(); 
+                document.body.innerHTML += "<dialog id='success'><div class='success'><span><b>Success!</b> " + data.name + "'s P200 has been requested and should be available within 24 hours.</span></div></dialog>"
+                document.getElementById("success").showModal(); 
+                document.body.click(function() {
+                  document.getElementById("success").close(); 
+                })
                 // $(".overlay").fadeOut();
                 // $(".message").hide();                      
               }
