@@ -90,8 +90,7 @@ class ProcessingService(Service):
         return True
 
     def process(self):
-        self.logger.info('Starting Process: %s', self.client_data)
-        self.output = []
+        self.logstart()
         if not self._validate_data():
             self.logerror()
             return []
@@ -103,7 +102,7 @@ class ProcessingService(Service):
                 self.session.commit()                
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
-                if self.output is not None:
+                if self.output:
                     service = self.services[key](
                             self.client_data,
                             self.output)
@@ -132,6 +131,7 @@ class ProcessingService(Service):
             if user:
                 body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
                 sendgrid_email(to_email, subject, body)
+            self.logend()
             return self.output
         except:
             self.logerror()
