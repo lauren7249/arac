@@ -46,6 +46,7 @@ class ProcessingService(Service):
         self.web_url = config[os.getenv('AC_CONFIG', 'default')].BASE_URL
         self.client_data = client_data
         self.data = data
+        self.output = []
         user_request = UserRequest(client_data.get("email"),type='hiring-screen-data')
         self.saved_data = user_request.lookup_data()            
         if self.saved_data:     
