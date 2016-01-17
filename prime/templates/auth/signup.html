@@ -11,6 +11,10 @@
           <h1>Welcome to AdvisorConnect!  </h1>
           <p>Spend less time searching and more time closing. </p>
         {%endif%}
+        <br>
+        <h1>{{ user.first_name }} {{user.last_name}}</h1>
+        <p>{{ user.email }}</p>
+        <br>
       </div>
       <div class='row col-md-7'>
         <form class="form-horizontal" action='' method='POST'>
@@ -56,9 +60,11 @@
       <div class='clear'></div>
     </div>
     <br />
-    <div class="alert alert-dismissable alert-success col-lg-7 centered">
-      Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
-    </div>
+    {%if reset != 'yes' %}
+      <div class="alert alert-dismissable alert-success col-lg-7 centered">
+        Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
+      </div>
+    {%endif%}
     <br/>
     <div class='clear'></div>
   </div>

@@ -57,9 +57,9 @@ class S3SavedRequest(object):
 
 class UserRequest(S3SavedRequest):
 
-    def __init__(self, email):
+    def __init__(self, email, type='p200-'):
         super(UserRequest, self).__init__()
-        self.url = "p200-{}".format(email)
+        self.url = "{}{}".format(type,email)
 
     def _make_request(self, data, content_type = 'text/html'):
         try:
@@ -77,10 +77,13 @@ class UserRequest(S3SavedRequest):
             self.key = hashlib.md5(self.url).hexdigest()
         except Exception, e:
             self.key = hashlib.md5(uu(self.url)).hexdigest()
-        self.boto_key = Key(self.bucket)
-        self.boto_key.key = self.key
-        self.logger.info('Make Request: %s', 'Get From S3')
-        html = self.boto_key.get_contents_as_string()
-        entity = json.loads(html.decode("utf-8-sig"))
-        return entity
+        try:
+            self.boto_key = Key(self.bucket)
+            self.boto_key.key = self.key
+            self.logger.info('Make Request: %s', 'Get From S3')
+            html = self.boto_key.get_contents_as_string()
+            entity = json.loads(html.decode("utf-8-sig"))
+            return entity
+        except:
+            return {}
 

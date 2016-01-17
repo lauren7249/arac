@@ -30,8 +30,10 @@ from social_profiles_service import SocialProfilesService
 from scoring_service import ScoringService
 from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
+from prime.processing_service.saved_request import UserRequest
 SAVE_OUTPUTS = False
 
+#DO NOT REORDER THESE
 FIRST_DEGREE_NETWORK = [CloudSpongeService, PersonService, LeadService]
 FOR_NETWORK_SUMMARY = [AgeService, GenderService, CollegeDegreeService]
 EXTENDED_NETWORK = [ExtendedProfilesService, ExtendedLeadService]
@@ -41,18 +43,26 @@ WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
-        #DO NOT REORDER THESE
         self.web_url = config[os.getenv('AC_CONFIG', 'default')].BASE_URL
+        self.client_data = client_data
+        self.data = data
+        user_request = UserRequest(client_data.get("email"),type='hiring-screen-data')
+        self.saved_data = user_request.lookup_data()            
+        if self.saved_data:     
+            self.data = self.saved_data       
         if client_data.get("hired"):
-            CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK + CONTACT_INFO + WRAP_UP
+            if self.saved_data:
+                CLASS_LIST = CONTACT_INFO + WRAP_UP
+            else:
+                CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK + CONTACT_INFO + WRAP_UP
         else:
-            CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
-
+            if self.saved_data:
+                CLASS_LIST = WRAP_UP
+            else:
+                CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
         SERVICES = OrderedDict()
         for CLASS in CLASS_LIST:
             SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS
-        self.client_data = client_data
-        self.data = data
         self.services = SERVICES
         self.completed_services = {}
         logging.basicConfig(level=logging.INFO)
@@ -61,6 +71,8 @@ class ProcessingService(Service):
         super(ProcessingService, self).__init__(*args, **kwargs)
 
     def _validate_data(self):
+        if self.saved_data:
+            return True
         validated_data = []
         required_client_keys = ["email","location","url","first_name","last_name"]
         for key in required_client_keys:
@@ -79,21 +91,28 @@ class ProcessingService(Service):
     def process(self):
         self.logger.info('Starting Process: %s', self.client_data)
         self.output = None
+        if not self._validate_data():
+            self.logerror()
+            return []
         try:
-            if self._validate_data():
-                self.logger.info('Data Valid')
-                for key, _ in self.services.iteritems():
-                    if self.output is not None:
-                        service = self.services[key](
-                                self.client_data,
-                                self.output)
-                    else:
-                        service = self.services[key](
-                                self.client_data,
-                                self.data)
-                    self.output = service.multiprocess()
-                    if SAVE_OUTPUTS:
-                        save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
+            user = self._get_user()
+            if user:
+                user.p200_started = True
+                session.add(user)
+                session.commit()                
+            self.logger.info('Data Valid')
+            for key, _ in self.services.iteritems():
+                if self.output is not None:
+                    service = self.services[key](
+                            self.client_data,
+                            self.output)
+                else:
+                    service = self.services[key](
+                            self.client_data,
+                            self.data)
+                self.output = service.multiprocess()
+                if SAVE_OUTPUTS:
+                    save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
             env = Environment()
@@ -108,10 +127,10 @@ class ProcessingService(Service):
                     self.client_data.get("last_name"))
                 subject = "{}'s Hiring Screen is ready!".format(name)
                 to_email = self.client_data.get("to_email")
-                tmpl = env.get_template('emails/network_summary_done.html')
-            user = self._get_user()
-            body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
-            sendgrid_email(to_email, subject, body)
+                tmpl = env.get_template('emails/network_summary_done.html')        
+            if user:
+                body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
+                sendgrid_email(to_email, subject, body)
             return self.output
         except:
             self.logerror()

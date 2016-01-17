@@ -75,6 +75,8 @@ def forgot():
 
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if current_user.is_authenticated:
+        logout_user()
     form = SignUpForm()
     if form.is_submitted():
         code = form.code.data
@@ -104,10 +106,12 @@ def signup():
         code = request.args.get("code")
         reset = request.args.get("reset")
         onboarding_code = hashlib.md5(code).hexdigest()
-        user = User.query.filter(User.onboarding_code == onboarding_code).first()            
-        if user and user.account_created and reset != 'yes':
+        user = User.query.filter(User.onboarding_code == onboarding_code).first()       
+        if not user:
+            return "You must be invited to use AdvisorConnect."     
+        if user.account_created and reset != 'yes':
             return redirect(url_for('auth.login'))        
-        return render_template('auth/signup.html', signup_form=form, code=code, reset=reset)
+        return render_template('auth/signup.html', signup_form=form, code=code, reset=reset, user=user)
     return redirect(url_for('auth.login'))
 
 @auth.route('/logout')

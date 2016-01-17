@@ -7,6 +7,7 @@ from requests import HTTPError
 from boto.s3.key import Key
 
 from lead_service import LeadService
+from prime.processing_service.saved_request import UserRequest
 
 class ExtendedLeadService(LeadService):
     """
@@ -37,6 +38,8 @@ class ExtendedLeadService(LeadService):
                     self.output.append(person)
                 else:
                     self.bad_leads.append(person)
+            user_request = UserRequest(self.client_data.get("email"),type='hiring-screen-data')
+            user_request._make_request(self.output)                     
         except:
             self.logerror()
         self.logend()

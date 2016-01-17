@@ -43,7 +43,7 @@ class ProfileBuilderService(Service):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         person = PersonRequest()._get_profile_by_any_url(self.client_data.get("url"))
-        schools = person.get("schools",[])
+        schools = person.get("schools") if person.get("schools") else []
         AGENT_SCHOOLS = set([school.get("college") for school in schools])
 
 class ProfileBuilderRequest(S3SavedRequest):
@@ -137,15 +137,15 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["glassdoor_salary"] = self.person.get("glassdoor_salary")
         self.profile["dob_min_year"] = self.person.get("dob_min")
         self.profile["dob_max_year"] = self.person.get("dob_max")
+        self.profile["referrers"] = self.person.get("referrers",[])
+        self.profile["extended"] = self.person.get("extended")
         if self.hired:
             self.profile["email_addresses"] = self.person.get("email_addresses")
             self.profile["profile_image_urls"] = self.person.get("images")
             self.profile["main_profile_image"] = self._get_main_profile_image()
             self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
-            self.profile["referrers"] = self.person.get("referrers",[])
             self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
             self.profile["sources"] = self.person.get("sources",[])
-        self.profile["extended"] = self.person.get("extended")
         return self.profile
 
     def _get_linkedin_fields(self):

@@ -8,7 +8,7 @@ from prime import create_app, db
 from prime.prospects.views import get_q
 
 app = create_app(os.getenv('AC_CONFIG', 'default'))
-app.debug=True
+#app.debug=True
 
 migrate = Migrate(app, db)
 if __name__ == '__main__':
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         from redis import Redis
         from rq import Queue
         user = User.query.filter_by(email=email).first()
-        user_request = UserRequest(user.email)
+        user_request = UserRequest(email)
         contacts_array = user_request.lookup_data()
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\

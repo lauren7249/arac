@@ -34,6 +34,7 @@ class Service(object):
     def __init__(self):
         self.pool_size = 10
         self.session = session
+        self.output = []
 
     def _get_user(self):
         if self.client_data:
