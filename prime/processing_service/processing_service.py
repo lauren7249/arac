@@ -91,7 +91,7 @@ class ProcessingService(Service):
 
     def process(self):
         self.logger.info('Starting Process: %s', self.client_data)
-        self.output = None
+        self.output = []
         if not self._validate_data():
             self.logerror()
             return []
@@ -99,8 +99,8 @@ class ProcessingService(Service):
             user = self._get_user()
             if user:
                 user.p200_started = True
-                session.add(user)
-                session.commit()                
+                self.session.add(user)
+                self.session.commit()                
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
                 if self.output is not None:
