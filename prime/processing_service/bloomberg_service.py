@@ -46,6 +46,7 @@ class BloombergPhoneService(Service):
         self.data = data
         self.wrapper = wrapper
         self.output = []
+        self.pool_size=20
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)

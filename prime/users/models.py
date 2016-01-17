@@ -171,7 +171,7 @@ class User(db.Model, UserMixin):
         """
         Adding in cache functionality to rebuild if older than 2 days
         """
-        if self._statistics and not refresh:
+        if not refresh and self._statistics and self._statistics.get("network_size"):
             return self._statistics
         stats = self.build_statistics()
         self._statistics = stats

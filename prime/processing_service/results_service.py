@@ -167,8 +167,6 @@ class ResultService(Service):
                 #If the agent is hired in the data then we know the p200 has been fully
                 #run and we can mark that as true also. Otherwise just the
                 #hiring screen has been completed
-                self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
-                self.logger.info(unicode(json.dumps(user.statistics(), ensure_ascii=False)))
                 user.hiring_screen_completed = True
                 if self.client_data.get("hired"):
                     user.p200_completed = True

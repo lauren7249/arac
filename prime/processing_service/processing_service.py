@@ -131,6 +131,8 @@ class ProcessingService(Service):
             if user:
                 body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
                 sendgrid_email(to_email, subject, body)
+                self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
+                self.logger.info(unicode(json.dumps(user.statistics(), ensure_ascii=False)))                
             self.logend()
             return self.output
         except:
