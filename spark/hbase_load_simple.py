@@ -6,7 +6,8 @@ from foldbykey import *
 
 class HBaseLoader(object):
 
-    def __init__(self, period):
+    def __init__(self, period, sc):
+        self.sc = sc
         self.AWS_KEY = "AKIAIZZBJ527CKPNY6YQ"
         self.AWS_SECRET = "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"
         self.AWS_BUCKET = "ac-crawlera"
@@ -15,7 +16,7 @@ class HBaseLoader(object):
         self.keys = self.S3_BUCKET.list("linkedin/people/" + self.PERIOD + "/")
         self.keypaths = ["s3a://" + self.AWS_KEY + ":" + self.AWS_SECRET + "@" + self.AWS_BUCKET + "/" + key.name for key in self.keys]
         self.filenames = ",".join(self.keypaths)
-        self.data = sc.textFile(self.filenames)
+        self.data = self.sc.textFile(self.filenames)
         self.keyConv_read = "org.apache.spark.examples.pythonconverters.ImmutableBytesWritableToStringConverter"
         self.valueConv_read = "org.apache.spark.examples.pythonconverters.HBaseResultToStringConverter"                     
         self.keyConv_write = "org.apache.spark.examples.pythonconverters.StringToImmutableBytesWritableConverter"
@@ -61,11 +62,11 @@ class HBaseLoader(object):
 
     def get_xwalk_rdd(self):
         #read in from hbase - seems much slower than rdd loaded from S3
-        rdd = sc.newAPIHadoopRDD(self.table_input_format, self.key_class, self.table_output_class, conf={"hbase.mapreduce.inputtable": "url_xwalk"},keyConverter=self.keyConv_read,valueConverter=self.valueConv_read)
+        rdd = self.sc.newAPIHadoopRDD(self.table_input_format, self.key_class, self.table_output_class, conf={"hbase.mapreduce.inputtable": "url_xwalk"},keyConverter=self.keyConv_read,valueConverter=self.valueConv_read)
         return rdd
 
 if __name__=="__main__":
-    hb = HBaseLoader("2015_12") 
+    hb = HBaseLoader("2015_12", sc) 
     hb.load_people_table()   
     connection = happybase.Connection('172.17.0.2')
     data_table = connection.table('people')      
