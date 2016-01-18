@@ -10,7 +10,7 @@ def load_people(line):
     _key = linkedin_data.get("_key")[2:]
     linkedin_id = linkedin_data.get("linkedin_id")
     if _key:
-        data_column = [(_key, [_key,"linkedin",   "linkedin_data",       linkedin_data])]
+        data_column = [(_key, [_key,"linkedin",   "linkedin_data",       line])]
         if linkedin_id:
             return data_column + [(_key, [_key,"linkedin",   "linkedin_id",       linkedin_id])] 
                 #key           #key again   #col.family   #col.name    #col.value
@@ -47,7 +47,7 @@ def load_by_name(rec):
     name = rec[0]
     keys = rec[1][0]
     positions = rec[1][1]
-    return [(name, [name, "matches","keys",keys]), (name, [name, "matches","positions",positions])]
+    return [(name, [name, "matches","keys",json.dumps(keys)]), (name, [name, "matches","positions",json.dumps(positions)])]
 
 def parse_names(line):
     linkedin_data = json.loads(line)
@@ -74,7 +74,7 @@ def load_graph(rec):
     arr = rec[1]
     urls = [e for e in arr if not e.isdigit()]
     linkedin_ids = [e for e in arr if e.isdigit()]
-    return [(linkedin_id, [linkedin_id,"extended","urls",urls]), (linkedin_id, [linkedin_id,"extended","linkedin_ids",linkedin_ids])]
+    return [(linkedin_id, [linkedin_id,"extended","urls",json.dumps(urls)]), (linkedin_id, [linkedin_id,"extended","linkedin_ids",json.dumps(linkedin_ids)])]
 
 #flatmap
 def map_also_viewed(line):
