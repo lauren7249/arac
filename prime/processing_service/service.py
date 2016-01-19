@@ -18,6 +18,13 @@ from saved_request import S3SavedRequest
 from prime.users.models import User 
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
+try:
+    app = create_app(os.getenv('AC_CONFIG', 'development'))
+    db = SQLAlchemy(app)
+    session = db.session
+except:
+    from prime import db
+    session = db.session
 
 reload(sys) 
 sys.setdefaultencoding('utf-8')
@@ -25,14 +32,8 @@ sys.setdefaultencoding('utf-8')
 class Service(object):
 
     def __init__(self):
-        try:
-            app = create_app(os.getenv('AC_CONFIG', 'development'))
-            db = SQLAlchemy(app)
-            self.session = db.session
-        except:
-            from prime import db
-            self.session = db.session        
         self.pool_size = 10
+        self.session = session
         self.output = []
 
     def _get_user(self):
