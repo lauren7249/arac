@@ -42,7 +42,7 @@ if __name__ == '__main__':
         session.commit()
 
     @manager.command
-    def rerun_contacts(email):
+    def rerun_contacts(email, hired):
         from prime.users.models import db, User
         from prime.prospects.views import queue_processing_service
         from prime.processing_service.saved_request import UserRequest
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         contacts_array = user_request.lookup_data()
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
-                "to_email":email, "hired": True}
+                "to_email":email, "hired": hired}
         q = get_q()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
 
