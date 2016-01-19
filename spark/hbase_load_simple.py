@@ -54,7 +54,7 @@ class HBaseLoader(object):
 
     def load_by_name(self):     
         self.conf["hbase.mapred.outputtable"]="linkedin_names"  
-        datamap = self.data.flatMap(parse_names).foldByKey(([],[]),name_fold).flatMap(load_names)
+        datamap = self.data.flatMap(parse_names).foldByKey(([],[]),name_fold).flatMap(load_by_name)
         datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
     # def load_by_dob(self):     
