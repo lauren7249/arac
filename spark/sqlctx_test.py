@@ -33,5 +33,5 @@ class PeopleFetcher(object):
 
         # def query(self, name, dob_year):
 
-if __name__="__main__":
+if __name__=="__main__":
     fetcher = PeopleFetcher("2015_12", sc, sqlCtx, obs=1000)
