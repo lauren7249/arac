@@ -32,6 +32,8 @@ from prime import create_app, login_manager
 from flask.ext.sqlalchemy import SQLAlchemy
 from prime import db
 
+session = db.session
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -40,7 +42,7 @@ logger = logging.getLogger(__name__)
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
-    self.session = db.session
+    
     user_id = db.Column(postgresql.INTEGER, primary_key=True)
 
     first_name = db.Column(String(100), nullable=False)
