@@ -2,6 +2,8 @@ from pyspark.sql.functions import array_contains
 from helpers.linkedin_helpers import get_dob_year_range
 from prime.utils.crawlera import reformat_crawlera
 import happybase
+import boto
+from boto.s3.key import Key
 
 class PeopleFetcher(object):
 
@@ -30,3 +32,6 @@ class PeopleFetcher(object):
         #def get_person(self, linkedin_id=None, url=None):
 
         # def query(self, name, dob_year):
+
+if __name__="__main__":
+    fetcher = PeopleFetcher("2015_12", sc, sqlCtx, obs=1000)
