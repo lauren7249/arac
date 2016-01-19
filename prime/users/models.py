@@ -32,8 +32,6 @@ from prime import create_app, login_manager
 from flask.ext.sqlalchemy import SQLAlchemy
 from prime import db
 
-session = db.session
-
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -125,8 +123,8 @@ class User(db.Model, UserMixin):
         code = random_string(10).encode('utf-8')
         password = hashlib.md5(code).hexdigest()
         self.onboarding_code = password
-        session.add(self)
-        session.commit()
+        db.session.add(self)
+        db.session.commit()
         return code
 
     def send_reset_password(self):
@@ -149,7 +147,7 @@ class User(db.Model, UserMixin):
     def manager(self):
         from prime.managers.models import ManagerProfile
         if self.manager_id:
-            return session.query(ManagerProfile).get(self.manager_id)
+            return db.session.query(ManagerProfile).get(self.manager_id)
         return None
 
     @staticmethod
@@ -163,8 +161,8 @@ class User(db.Model, UserMixin):
         if u is None:
             return None
         u.password = new_password
-        session.add(u)
-        session.commit()
+        db.session.add(u)
+        db.session.commit()
         return u
 
     @property
@@ -179,8 +177,8 @@ class User(db.Model, UserMixin):
             return self._statistics
         stats = self.build_statistics()
         self._statistics = stats
-        session.add(self)
-        session.commit()
+        db.session.add(self)
+        db.session.commit()
         return stats
 
     @property
