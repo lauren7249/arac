@@ -1,13 +1,11 @@
 import re
 import json
 
-def reformat_crawlera(json):
-    if not json or not json.keys():
-        return {}
-    for key in json.keys():
-        if json[key] is None: json.pop(key)
+def reformat_schools(educations):
     schools = []
-    for education in json.get("education",[]):
+    if not educations:
+        return schools
+    for education in educations:
         school = {}
         if education.get("degrees"):
             school["degree"] = ", ".join(education.get("degrees"))
@@ -27,8 +25,13 @@ def reformat_crawlera(json):
         school["major"] = education.get("major")
         school["degree_type"] = education.get("degree")
         schools.append(school)
+    return schools
+
+def reformat_jobs(jobs):
     experiences = []
-    for job in json.get("experience",[]):
+    if not jobs:
+        return experiences
+    for job in jobs:
         experience = {}
         experience["description"] = job.get("description")
         experience["end_date"] = job.get("end")
@@ -42,7 +45,16 @@ def reformat_crawlera(json):
         experience["start_date"] = job.get("start")
         experience["duration"] = job.get("duration")
         experience["location"] = job.get("location")
-        experiences.append(experience)
+        experiences.append(experience)    
+    return experiences
+
+def reformat_crawlera(json):
+    if not json or not json.keys():
+        return {}
+    for key in json.keys():
+        if json[key] is None: json.pop(key)
+    schools = reformat_schools(json.get("education",[]))
+    experiences = reformat_jobs(json.get("experience",[]))
     groups = []
     for group in json.get("groups",[]):
         if group.get("profile_url") and group.get("profile_url").split("=")[-1].isdigit():
