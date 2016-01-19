@@ -9,6 +9,7 @@ class PeopleFetcher(object):
 
     def __init__(self, period, sc, sqlCtx, obs=None):
         self.sc = sc
+        self.sqlCtx = sqlCtx
         self.AWS_KEY = "AKIAIZZBJ527CKPNY6YQ"
         self.AWS_SECRET = "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"
         self.AWS_BUCKET = "ac-crawlera"
