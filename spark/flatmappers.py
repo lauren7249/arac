@@ -1,8 +1,10 @@
 import json
-from prime.processing_service.helper import name_match
-from prime.utils.crawlera import reformat_crawlera
 import re
 import numpy
+from helpers.stringhelpers import uu
+from prime.processing_service.helper import name_match
+from prime.utils.crawlera import reformat_crawlera
+
 '''
 flatmap functions return a list of key, value pairs. this list gets flattened to an rdd of key, value pairs when flatmap is called
 '''
@@ -71,7 +73,11 @@ def parse_names(line):
     output = []
     for position in xrange(0, len(name_words)):
         name_part = name_words[position]
-        if name_part.strip()=='': 
+        if name_part.strip()=='' or len(name_part)>1000: 
+            if name_part: 
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                print uu(name_part)
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             continue
         row = (name_part, ([_key], [position]))
         output.append(row)
