@@ -88,11 +88,11 @@
         </div>
       </div>    
     </div>     
-    <dialog id='success' style="display:none;" onclick="close()"><div class='success'><span  id="p200_success_message"><b>Success!</b></span></div></dialog> 
+    <dialog id='success' style="display:none;"><div class='success'><span  id="p200_success_message"><b>Success!</b></span></div></dialog> 
     {% block content %}{% endblock %}
     </body>
     <script type='text/javascript'>
-      document.body.onclick = function(){
+      document.getElementById("success").onclick = function(){
         document.getElementById("success").style.display = "none";   
         document.getElementById("success").close();    
       }
