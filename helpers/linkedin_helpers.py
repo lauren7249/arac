@@ -164,6 +164,8 @@ def get_school_milestones(schools):
     first_grad_year = None
     first_weird_school_year = None
     first_weird_grad_year = None
+    if not schools:
+        return {}
     for school in schools:
         start_date = parse_date(school.get("start_date"))
         end_date = parse_date(school.get("end_date"))
@@ -184,6 +186,8 @@ def get_school_milestones(schools):
             "first_weird_grad_year": first_weird_grad_year}
 
 def get_work_milestones(jobs):
+    if not jobs:
+        return {}
     first_year_experience = None
     first_quitting_year = None
     for job in jobs:

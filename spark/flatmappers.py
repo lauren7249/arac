@@ -43,6 +43,12 @@ def load_linkedin_id_xwalk(line):
              #key  #key again   #col.family   #col.name    #col.value
     return data_column
 
+def load_by_dob(rec):
+    dob = rec[0]
+    keys = rec[1][0]
+    confidences = rec[1][1]
+    return [(name, [name, "matches","keys",json.dumps(keys)]), (name, [name, "matches","confidences",json.dumps(confidences)])]
+
 def load_by_name(rec):
     name = rec[0]
     keys = rec[1][0]

@@ -51,19 +51,21 @@ class HBaseLoader(object):
         self.xwalk = self.get_xwalk_rdd()
         datamap = self.data.flatMap(map_also_viewed).leftOuterJoin(self.xwalk).flatMap(create_edges).foldByKey([],append).flatMap(load_graph)
         datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
-        return datamap
 
-    # def load_by_name(self):     
-    #     self.conf["hbase.mapred.outputtable"]="linkedin_names"  
-    #     datamap = self.data.flatMap(parse_names).foldByKey(([],[]),name_fold).flatMap(load_names)
+    def load_by_name(self):     
+        self.conf["hbase.mapred.outputtable"]="linkedin_names"  
+        datamap = self.data.flatMap(parse_names).foldByKey(([],[]),name_fold).flatMap(load_names)
+        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+
+    # def load_by_dob(self):     
+    #     self.conf["hbase.mapred.outputtable"]="linkedin_dob"  
+    #     datamap = self.data.flatMap(get_dob).foldByKey([],append).flatMap(load_by_dob)
     #     datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
-    #     return datamap
 
-
-    def get_xwalk_rdd(self):
-        #read in from hbase - seems much slower than rdd loaded from S3
-        rdd = self.sc.newAPIHadoopRDD(self.table_input_format, self.key_class, self.table_output_class, conf={"hbase.mapreduce.inputtable": "url_xwalk"},keyConverter=self.keyConv_read,valueConverter=self.valueConv_read)
-        return rdd
+    # def get_xwalk_rdd(self):
+    #     #read in from hbase - seems much slower than rdd loaded from S3
+    #     rdd = self.sc.newAPIHadoopRDD(self.table_input_format, self.key_class, self.table_output_class, conf={"hbase.mapreduce.inputtable": "url_xwalk"},keyConverter=self.keyConv_read,valueConverter=self.valueConv_read)
+    #     return rdd
 
 if __name__=="__main__":
     hb = HBaseLoader("2015_12", sc) 

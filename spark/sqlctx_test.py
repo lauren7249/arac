@@ -1,7 +1,11 @@
 from pyspark.sql.functions import array_contains
 from helpers.linkedin_helpers import get_dob_year_range
 import happybase
-from prime.utils.crawlera import reformat_schools, reformat_jobs
+from prime.utils.crawlera import reformat_schools, reformat_jobs, reformat_crawlera
+
+def dob_year_range(row):
+    linkedin_data = reformat_crawlera(row.asDict(recursive=True))
+    return get_dob_year_range(linkedin_data.get("schools",[]), linkedin_data.get("experiences",[]))
 class PeopleFetcher(object):
 
     def __init__(self, period, sc, sqlCtx, obs=None, file_pattern='.jl'):
@@ -14,9 +18,10 @@ class PeopleFetcher(object):
         self.AWS_BUCKET = "ac-crawlera"
         self.PERIOD = period
         self.people_rdd = self.sqlCtx.read.json("s3n://" + self.AWS_BUCKET + "/linkedin/people/" + self.PERIOD + "/*" + file_pattern)
-        self.people_rdd.registerTempTable("people")
-        self.sqlCtx.registerFunction("get_dob_year_range",lambda (education, experience): get_dob_year_range(reformat_schools(education), reformat_jobs(experience)))
-        # self.people_dataFrame = self.sqlCtx.sql("""select *, get_dob_year_range(education, experience) as dob_year_range, dob_year_range[0] as dob_year_min, dob_year_range[1] as dob_year_max from people """).drop("dob_year_range")
+        # self.people_rdd = self.people_rdd.fillna({})
+        # self.people_rdd.registerTempTable("people")
+        # self.sqlCtx.registerFunction("get_dob_year_range",lambda x: dob_year_range(x))
+        # self.people_dataFrame = self.sqlCtx.sql("""select *, get_dob_year_range(*) as dob_year_range, dob_year_range[0] as dob_year_min, dob_year_range[1] as dob_year_max from people """).drop("dob_year_range")
         # if obs:
         #     self.people_dataFrame = self.people_dataFrame.limit(obs)
         # self.people_dataFrame.cache()
