@@ -1,6 +1,8 @@
 import json
 from prime.processing_service.helper import name_match
+from prime.utils.crawlera import reformat_crawlera
 import re
+import numpy
 '''
 flatmap functions return a list of key, value pairs. this list gets flattened to an rdd of key, value pairs when flatmap is called
 '''
@@ -46,8 +48,11 @@ def load_linkedin_id_xwalk(line):
 def load_by_dob(rec):
     dob = rec[0]
     keys = rec[1][0]
-    confidences = rec[1][1]
-    return [(name, [name, "matches","keys",json.dumps(keys)]), (name, [name, "matches","confidences",json.dumps(confidences)])]
+    ranges = rec[1][1]
+    midpoint_distances = rec[1][2]
+    return [(dob, [dob, "matches","keys",json.dumps(keys)]), 
+            (dob, [dob, "matches","ranges",json.dumps(ranges)]),
+            (dob, [dob, "matches","midpoint_distances",json.dumps(midpoint_distances)])]
 
 def load_by_name(rec):
     name = rec[0]
@@ -70,6 +75,25 @@ def parse_names(line):
         output.append(row)
     return output
 
+def get_dob(line):
+    linkedin_data = json.loads(line)
+    _key = linkedin_data.get("_key")[2:]
+    linkedin_data = reformat_crawlera(linkedin_data)
+    educations = linkedin_data.get("schools",[])
+    experiences = linkedin_data.get("experiences",[])
+    dob_year_range = get_dob_year_range(educations, experiences)    
+    if not max(dob_year_range): 
+        return []
+    dob_year_min = dob_year_range[0]
+    dob_year_max = dob_year_range[1]
+    dob_year_mid = numpy.mean(dob_year_range)
+    output = []
+    for dob_year in xrange(dob_year_min, dob_year_max+1):
+        _range = dob_year_max - dob_year_min
+        midpoint_distance = dob_year - dob_year_mid
+        row = (dob_year, ([_key], [_range], [midpoint_distance]))
+        output.append(row)
+    return output
 
 '''
 this section needs to be changed to take into account the fact that there will no longer be linkedin ids
