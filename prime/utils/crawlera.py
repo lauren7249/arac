@@ -7,6 +7,12 @@ def reformat_schools(educations):
         return schools
     for education in educations:
         school = {}
+        #for spark
+        if not isinstance(education, dict):
+            try:
+                education = education.asDict(recursive=True)
+            except:
+                continue
         if education.get("degrees"):
             school["degree"] = ", ".join(education.get("degrees"))
         elif education.get("degree") and education.get("major"):
@@ -32,6 +38,12 @@ def reformat_jobs(jobs):
     if not jobs:
         return experiences
     for job in jobs:
+        #for spark
+        if not isinstance(job, dict):
+            try:
+                job = job.asDict(recursive=True)
+            except:
+                continue        
         experience = {}
         experience["description"] = job.get("description")
         experience["end_date"] = job.get("end")

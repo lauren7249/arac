@@ -122,7 +122,7 @@ def match_common_school_names(p1, p2, intersect_threshold=3):
     return matching
 
 def get_dob_year_range(educations, experiences):
-    school_milestones = school_milestones(educations)
+    school_milestones = get_school_milestones(educations)
     first_school_year = school_milestones.get("first_school_year")
     first_grad_year = school_milestones.get("first_grad_year")
     if first_school_year:
@@ -134,7 +134,7 @@ def get_dob_year_range(educations, experiences):
     if dob_year_min: 
         dob_year_range = (dob_year_min, dob_year_max)
         return dob_year_range
-    work_milestones = work_milestones(experiences)
+    work_milestones = get_work_milestones(experiences)
     first_year_experience = work_milestones.get("first_year_experience")
     first_quitting_year = work_milestones.get("first_quitting_year")
     if first_year_experience:
@@ -159,7 +159,7 @@ def get_dob_year_range(educations, experiences):
     dob_year_range = (dob_year_min, dob_year_max)
     return dob_year_range
 
-def school_milestones(schools):
+def get_school_milestones(schools):
     first_school_year = None
     first_grad_year = None
     first_weird_school_year = None
@@ -183,7 +183,7 @@ def school_milestones(schools):
             "first_weird_school_year":first_weird_school_year,
             "first_weird_grad_year": first_weird_grad_year}
 
-def work_milestones(jobs):
+def get_work_milestones(jobs):
     first_year_experience = None
     first_quitting_year = None
     for job in jobs:
