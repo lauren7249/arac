@@ -30,13 +30,6 @@ from prime.utils.email import sendgrid_email
 from prime.customers.models import Customer
 from prime import create_app, login_manager
 from flask.ext.sqlalchemy import SQLAlchemy
-try:
-    app = create_app(os.getenv('AC_CONFIG', 'development'))
-    db = SQLAlchemy(app)
-    session = db.session
-except:
-    from prime import db
-    session = db.session
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -46,6 +39,13 @@ logger = logging.getLogger(__name__)
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
+    try:
+        app = create_app(os.getenv('AC_CONFIG', 'development'))
+        db = SQLAlchemy(app)
+        session = db.session
+    except:
+        from prime import db
+    self.session = db.session
     user_id = db.Column(postgresql.INTEGER, primary_key=True)
 
     first_name = db.Column(String(100), nullable=False)
