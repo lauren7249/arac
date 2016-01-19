@@ -38,6 +38,7 @@ $(function() {
           $.post("/managers/request_p200", {user_id:user_id}, function(data){
               if (data.name != undefined && data.name !=null && data.name != '') {
                 document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
+                document.getElementById("success").style.display = "inline";   
                 document.getElementById("success").showModal();    
                 document.getElementById(user_id + "_p200_button").style.display = "none";     
                 document.getElementById(user_id + "_p200_pending").style.display = "inline";   
