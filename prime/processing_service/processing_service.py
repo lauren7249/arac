@@ -96,7 +96,7 @@ class ProcessingService(Service):
             return []
         try:
             user = self._get_user()
-            if user:
+            if user and self.client_data.get("hired"):
                 user.p200_started = True
                 self.session.add(user)
                 self.session.commit()                
