@@ -71,6 +71,8 @@ def parse_names(line):
     output = []
     for position in xrange(0, len(name_words)):
         name_part = name_words[position]
+        if name_part.strip()=='': 
+            continue
         row = (name_part, ([_key], [position]))
         output.append(row)
     return output

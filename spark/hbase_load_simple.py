@@ -30,6 +30,7 @@ class HBaseLoader(object):
                     "mapreduce.job.output.key.class": self.key_class,  
                      "mapreduce.job.output.value.class": self.value_class}
 
+    #30 minutes?
     def load_people_table(self):          
         #does not overwrite existing table; acts as an update -- 36 minutes
         self.conf["hbase.mapred.outputtable"]="people"  
@@ -60,6 +61,11 @@ class HBaseLoader(object):
     def load_by_dob(self):     
         self.conf["hbase.mapred.outputtable"]="linkedin_dob"  
         datamap = self.data.flatMap(get_dob).foldByKey(([],[],[]),dob_fold).flatMap(load_by_dob)
+        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+
+    def load_by_zip(self):     
+        self.conf["hbase.mapred.outputtable"]="linkedin_zip"  
+        datamap = self.data.flatMap(get_location).foldByKey([],append).flatMap(geocode).flatMap(load_by_zip)
         datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
     # def get_xwalk_rdd(self):
