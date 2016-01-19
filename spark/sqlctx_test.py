@@ -17,7 +17,7 @@ class PeopleFetcher(object):
         self.keys = self.S3_BUCKET.list("linkedin/people/" + self.PERIOD + "/")
         self.keypaths = ["s3a://" + self.AWS_KEY + ":" + self.AWS_SECRET + "@" + self.AWS_BUCKET + "/" + key.name for key in self.keys]
         self.filenames = ",".join(self.keypaths)
-        self.people_rdd = self.sc.jsonFile(self.filenames)
+        self.people_rdd = self.sqlCtx.jsonFile(self.filenames)
         self.people_rdd.registerTempTable("people")
         self.sqlCtx.registerFunction("get_dob_year_range",get_dob_year_range)
         self.people_dataFrame = self.sqlCtx.sql("""select *, get_dob_year_range(education, experience) as dob_year_range, dob_year_range[0] as dob_year_min, dob_year_range[1] as dob_year_max from people """).drop("dob_year_range")
