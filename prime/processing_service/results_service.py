@@ -149,7 +149,7 @@ class ResultService(Service):
             user = self._get_user()
             if user is None:
                 self.logger.error("No user found for %s", self.client_data.get("email"))
-                return None
+                return []
             for profile in self.data:
                 prospect = self._create_or_update_prospect(profile)
                 if not prospect:
