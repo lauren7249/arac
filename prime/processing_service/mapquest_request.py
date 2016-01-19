@@ -55,7 +55,7 @@ class MapQuestRequest(S3SavedRequest):
                 geocode = self._geocode_from_scraps()
             return geocode
         except Exception, e:
-            self.logger.error("Location Error: %s", str(e))
+            self.logger.warn("Location Parsing Issue: %s", str(e))
             return None
 
     def _get_json_locations(self):
