@@ -25,7 +25,7 @@ from sqlalchemy.orm import aliased
 from flask.ext.rq import job
 from jinja2.environment import Environment
 from jinja2 import FileSystemLoader
-
+from prime.users.models import ClientProspect
 from prime.utils.email import sendgrid_email
 
 ################
@@ -184,7 +184,7 @@ def dashboard():
     return redirect(url_for('prospects.start'))
 
 class SearchResults(object):
-    from prime.users.models import ClientProspect
+    
     def __init__(self, sql_query, query=None, stars=None, industry=None, *args, **kwargs):
         self.sql_query = sql_query
         self.query = query
@@ -226,7 +226,6 @@ def get_args(request):
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
-    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
@@ -257,7 +256,6 @@ def connections():
 @csrf.exempt
 @prospects.route("/extended/connections", methods=['GET', 'POST'])
 def extended_connections():
-    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
@@ -288,7 +286,6 @@ def extended_connections():
 @csrf.exempt
 @prospects.route("/add-connections", methods=['GET', 'POST'])
 def add_connections():
-    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     user = current_user
@@ -315,7 +312,6 @@ def add_connections():
 @csrf.exempt
 @prospects.route("/skip-connections", methods=['GET', 'POST'])
 def skip_connections():
-    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     user = current_user
