@@ -98,10 +98,10 @@ def signup():
                 return redirect("/")
         if form.errors:
             flash_errors(form)
-            return render_template('auth/signup.html', signup_form=form, code=form.code.data)
+            return redirect(url_for('auth.signup'))
         flash("The link you used has expired. Please request another \
                     from your manager")
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.signup'))
     else:
         code = request.args.get("code")
         reset = request.args.get("reset")

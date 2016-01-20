@@ -15,7 +15,6 @@ from rq import Queue
 
 from . import manager
 from prime.prospects.models import Prospect, Job, Education
-from prime.managers.models import ManagerProfile
 from prime.users.models import User, ClientProspect
 from prime.utils import random_string
 from prime import db, csrf

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-
+import json
 from flask.ext.migrate import MigrateCommand, Migrate
 from flask.ext.script import Manager, Shell
 
@@ -30,14 +30,19 @@ if __name__ == '__main__':
         session.commit()
 
     @manager.command
-    def add_manager(first_name, last_name, email, password):
+    def add_manager(first_name, last_name, email, password, json_data):
         from prime.users.models import db, User
         from prime.managers.models import ManagerProfile
         session = db.session
         u2 = User(first_name, last_name, email, password)
         session.add(u2)
+        json_data = json.loads(json_data)
         mp = ManagerProfile()
         mp.user = u2
+        mp.name_suffix = json_data.get("name_suffix")
+        mp.certifications = json_data.get("certifications")
+        mp.address = json_data.get("address")
+        mp.phone = json_data.get("phone")
         session.add(mp)
         session.commit()
 

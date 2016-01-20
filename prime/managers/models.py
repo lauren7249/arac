@@ -1,7 +1,7 @@
 import os
 import datetime
 import logging
-
+import re
 from flask import current_app
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -51,9 +51,32 @@ class ManagerProfile(db.Model, UserMixin):
     users = db.relationship(User, secondary=_manager_users,
             backref=db.backref('users'), lazy='dynamic')
 
-    created = db.Column(Date)
-    json = db.Column(JSON, default={})
+    name_suffix = db.Column(String(500))
+    certifications = db.Column(String(500))
+    address = db.Column(String(1000))
+    phone = db.Column(String(30))
+    created = db.Column(Date, default=datetime.datetime.today())
+    
 
+    @property 
+    def title(self):
+        title = self.user.first_name + " " + self.user.last_name
+        if self.name_suffix:
+            title += ', ' + self.name_suffix
+        if self.certifications:
+            title += ', ' + self.certifications
+        return title
+
+    @property 
+    def html_signature(self):
+        signature = self.title
+        if self.address:
+            signature += '<br>' + self.address.replace("\n","<br>")
+        if self.phone:
+            signature += '<br>' + self.phone
+        if self.user.email:
+            signature += '<br>' + self.user.email
+        return signature
 
     def get_id(self):
         return unicode(self.manager_id)
