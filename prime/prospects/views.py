@@ -232,16 +232,12 @@ def connections():
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
     agent = current_user
-    connections = ClientProspect.query\
-            .options(joinedload('prospect'))\
-            .options(joinedload('prospect').joinedload('jobs'))\
-            .options(joinedload('prospect').joinedload('schools'))\
-            .filter(ClientProspect.extended==False, \
+    connections = ClientProspect.query.filter(ClientProspect.extended==False, \
             ClientProspect.processed==False,
             ClientProspect.user==agent,
             ClientProspect.good==False,
             ClientProspect.stars>0,
-            ).order_by(ClientProspect.lead_score.desc())
+            ).join(Prospect).order_by(Prospect.name)
     query, industry, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry,
             stars=stars)   
@@ -262,16 +258,12 @@ def extended_connections():
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
     agent = current_user
-    connections = ClientProspect.query\
-            .options(joinedload('prospect'))\
-            .options(joinedload('prospect').joinedload('jobs'))\
-            .options(joinedload('prospect').joinedload('schools'))\
-            .filter(ClientProspect.extended==True, \
+    connections = ClientProspect.query.filter(ClientProspect.extended==True, \
             ClientProspect.processed==False,
             ClientProspect.good==False,
             ClientProspect.user==agent,
             ClientProspect.stars>0,
-            ).order_by(ClientProspect.lead_score.desc())
+            ).join(Prospect).order_by(Prospect.name)
     query, industry, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry,
             stars=stars)
