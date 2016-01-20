@@ -101,7 +101,7 @@ def signup():
             login_user(user, True)         
             return redirect("/")
         #form did not validate
-        if form.errors:
+        if form.errors and request.method == 'POST':
             flash_errors(form)
         return render_template('auth/signup.html', signup_form=form, code=code, reset=reset, user=user)
     #displaying the form
