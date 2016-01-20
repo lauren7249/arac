@@ -30,7 +30,8 @@ class SignUpForm(Form):
     password2 = PasswordField('Confirm password', validators=[InputRequired()])
 
     code = HiddenField("code")
-
+    reset = HiddenField("reset")
+    
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
 
