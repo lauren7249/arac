@@ -263,6 +263,8 @@ class User(db.Model, UserMixin):
             if client_prospect.extended:
                 extended_count+=1
                 continue
+            if not client_prospect.prospect:
+                continue
             if client_prospect.prospect.wealthscore:
                 wealth_score.append(client_prospect.prospect.wealthscore)
             if client_prospect.prospect.age:
