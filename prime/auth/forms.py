@@ -1,9 +1,10 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, HiddenField
 from wtforms.validators import Length, Email, InputRequired, EqualTo
+from prime.users.models import User
 
 class LoginForm(Form):
-    from prime.users.models import User
+
     email = StringField('Email', validators=[InputRequired(), Email()])
     password = PasswordField('Password', validators=[InputRequired()])
 
