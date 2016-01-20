@@ -159,7 +159,7 @@ class ResultService(Service):
                     self.logger.error("no client prospect")
                     continue
                 print prospect.us_state
-                self.output.append(client_prospect.to_json())
+                #self.output.append(client_prospect.to_json())
             if user:
                 #If the agent is hired in the data then we know the p200 has been fully
                 #run and we can mark that as true also. Otherwise just the

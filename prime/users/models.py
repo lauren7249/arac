@@ -392,5 +392,6 @@ class ClientProspect(db.Model):
             except Exception, e:
                 print str(e)
                 pass
-        out.update(self.prospect.to_json())
+        if self.prospect:
+            out.update(self.prospect.to_json())
         return out
