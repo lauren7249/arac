@@ -58,7 +58,7 @@ if __name__ == '__main__':
         contacts_array = user_request.lookup_data()
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
-                "to_email":email, "hired": (hired == "True")}
+                "to_email":user.manager.user.email, "hired": (hired == "True")}
         q = get_q()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
 
