@@ -39,6 +39,7 @@ class ResultService(Service):
         client_prospect.common_schools = profile.get("common_schools")
         client_prospect.updated = datetime.datetime.today()
         self.session.add(client_prospect)
+        self.session.commit()
         self.logger.info("client prospect updated")
         return client_prospect
 
@@ -55,6 +56,7 @@ class ResultService(Service):
                 setattr(prospect, key, value)
         prospect.updated = datetime.datetime.today()
         self.session.add(prospect)
+        self.session.commit()
         self.logger.info("Prospect updated")
         return prospect
 
@@ -94,8 +96,7 @@ class ResultService(Service):
                 **extra
                 )
         self.session.add(new_education)
-        self.session.flush()
-        #self.logger.info("Education added: {}".format(uu(college.get("college"))))
+        self.session.commit()
 
     def _create_or_update_jobs(self, new_prospect, profile):
         jobs = profile.get("jobs_json",[])
@@ -134,8 +135,7 @@ class ResultService(Service):
             **extra
         )
         self.session.add(new_job)
-        self.session.flush()
-        #self.logger.info("Job added: {}".format(uu(job.get("company"))))
+        self.session.commit()
 
     def multiprocess(self):
         return self.process()
@@ -158,9 +158,8 @@ class ResultService(Service):
                 if not client_prospect:
                     self.logger.error("no client prospect")
                     continue
-                self.session.commit()
                 print prospect.us_state
-                #self.output.append(client_prospect.to_json())
+                self.output.append(client_prospect.to_json())
             if user:
                 #If the agent is hired in the data then we know the p200 has been fully
                 #run and we can mark that as true also. Otherwise just the
@@ -169,6 +168,7 @@ class ResultService(Service):
                 if self.client_data.get("hired"):
                     user.p200_completed = True
                 self.session.add(user)
+                self.session.commit()
             else:
                 self.logger.error("NO USER!")
             self.session.commit()
