@@ -22,7 +22,13 @@ try:
     app = create_app(os.getenv('AC_CONFIG', 'development'))
     db = SQLAlchemy(app)
     session = db.session
-except:
+except Exception, e:
+    exc_info = sys.exc_info()
+    traceback.print_exception(*exc_info)
+    exception_str = traceback.format_exception(*exc_info)
+    if not exception_str: exception_str=[""]    
+    print "ERROR: " + str(e)
+    print "ERROR: " + "".join(exception_str)
     from prime import db
     session = db.session
 
@@ -35,6 +41,9 @@ class Service(object):
         self.pool_size = 10
         self.session = session
         self.output = []
+        logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
 
     def _get_user(self):
         if self.client_data:

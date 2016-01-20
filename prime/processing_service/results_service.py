@@ -39,7 +39,6 @@ class ResultService(Service):
         client_prospect.common_schools = profile.get("common_schools")
         client_prospect.updated = datetime.datetime.today()
         self.session.add(client_prospect)
-        self.session.commit()
         self.logger.info("client prospect updated")
         return client_prospect
 
@@ -56,7 +55,6 @@ class ResultService(Service):
                 setattr(prospect, key, value)
         prospect.updated = datetime.datetime.today()
         self.session.add(prospect)
-        self.session.commit()
         self.logger.info("Prospect updated")
         return prospect
 
@@ -122,7 +120,6 @@ class ResultService(Service):
 
         for job in new_jobs:
             self._insert_job(new_prospect, job)
-        self.session.commit()
         return True
 
     def _insert_job(self, new_prospect, job):
@@ -171,9 +168,9 @@ class ResultService(Service):
                 if self.client_data.get("hired"):
                     user.p200_completed = True
                 self.session.add(user)
-                self.session.commit()
             else:
                 self.logger.error("NO USER!")
+            self.session.commit()
         except:
             self.logerror()
         self.logend()

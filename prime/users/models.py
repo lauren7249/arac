@@ -2,6 +2,7 @@ import os
 import hashlib
 import sys
 import json
+import traceback
 from collections import Counter
 import datetime
 import logging
@@ -28,18 +29,17 @@ from prime.processing_service.helper import uu
 from prime.utils import random_string
 from prime.utils.email import sendgrid_email
 from prime.customers.models import Customer
-from prime import create_app, login_manager
+from prime import login_manager, db
 from flask.ext.sqlalchemy import SQLAlchemy
-from prime import db
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 logger = logging.getLogger(__name__)
 
+
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
-
     
     user_id = db.Column(postgresql.INTEGER, primary_key=True)
 

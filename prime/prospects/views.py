@@ -14,10 +14,8 @@ from urllib import unquote_plus
 from flask import render_template, request, redirect, url_for, flash, \
 session as flask_session, jsonify
 from flask.ext.login import current_user
-
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
-from prime.users.models import ClientProspect, User
 from prime import db, csrf
 from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -186,7 +184,7 @@ def dashboard():
     return redirect(url_for('prospects.start'))
 
 class SearchResults(object):
-
+    from prime.users.models import ClientProspect
     def __init__(self, sql_query, query=None, stars=None, industry=None, *args, **kwargs):
         self.sql_query = sql_query
         self.query = query
@@ -228,6 +226,7 @@ def get_args(request):
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
+    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
@@ -258,6 +257,7 @@ def connections():
 @csrf.exempt
 @prospects.route("/extended/connections", methods=['GET', 'POST'])
 def extended_connections():
+    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
@@ -288,6 +288,7 @@ def extended_connections():
 @csrf.exempt
 @prospects.route("/add-connections", methods=['GET', 'POST'])
 def add_connections():
+    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     user = current_user
@@ -314,6 +315,7 @@ def add_connections():
 @csrf.exempt
 @prospects.route("/skip-connections", methods=['GET', 'POST'])
 def skip_connections():
+    from prime.users.models import ClientProspect
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))       
     user = current_user

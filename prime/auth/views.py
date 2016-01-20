@@ -14,7 +14,6 @@ from . import auth
 from prime import db, csrf
 from prime.customers.models import Customer
 from .forms import SignUpForm, LoginForm, ForgotForm
-from prime.users.models import User
 from jinja2.environment import Environment
 from jinja2 import FileSystemLoader
 
@@ -32,6 +31,7 @@ def flash_errors(form):
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    from prime.users.models import User
     if current_user.is_authenticated():
         if current_user.is_manager:
             return redirect(url_for('managers.manager_home'))
@@ -64,6 +64,7 @@ def login():
 
 @auth.route('/forgot', methods=['GET', 'POST'])
 def forgot():
+    from prime.users.models import User
     form = ForgotForm()
     if form.is_submitted():
         if form.validate():
@@ -75,6 +76,7 @@ def forgot():
 
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
+    from prime.users.models import User
     if current_user.is_authenticated:
         logout_user()
     form = SignUpForm()

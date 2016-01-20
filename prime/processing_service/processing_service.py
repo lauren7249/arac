@@ -43,6 +43,7 @@ WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
+        super(ProcessingService, self).__init__(*args, **kwargs)
         self.web_url = config[os.getenv('AC_CONFIG', 'default')].BASE_URL
         self.client_data = client_data
         self.data = data
@@ -50,6 +51,7 @@ class ProcessingService(Service):
         user_request = UserRequest(client_data.get("email"),type='hiring-screen-data')
         self.saved_data = user_request.lookup_data()            
         if self.saved_data:     
+            self.logger.info("Using saved data")
             self.data = self.saved_data       
         if client_data.get("hired"):
             if self.saved_data:
@@ -69,7 +71,7 @@ class ProcessingService(Service):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.start = time.time()
-        super(ProcessingService, self).__init__(*args, **kwargs)
+        
 
     def _validate_data(self):
         if self.saved_data:
@@ -149,13 +151,15 @@ def save_output(output, user_email, service):
 
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
-    data = json.loads(_file.read().decode("utf-8-sig"))
+    # data = json.loads(_file.read().decode("utf-8-sig"))
     #shuffle(data)
-    data = data[:19]
+    
     #user = User("James","Johnson","jamesjohnson11@gmail.com", "password")
-    client_data = { "first_name":"James","last_name":"Johnson", "email":"jamesjohnson11@gmail.com",
-                    "location":"New York, New York","url":"http://www.linkedin.com/in/jamesjohnsona", "hired":False, "to_email":"laurentracytalbot@gmail.com"}
-    logger.info("Input: {}".format(data))
+    client_data = { "first_name":"Julia","last_name":"Karl", "email":"juliakarl2@gmail.com",
+                    "location":"New York, New York","url":"http://www.linkedin.com/in/jukarl", "hired":False, "to_email":"jimmy@advisorconnect.co"}
+    # logger.info("Input: {}".format(data))
+    # data = data[:19]
+    data = []
     processing_service = ProcessingService(
             client_data = client_data,
             data=data)
