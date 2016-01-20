@@ -241,7 +241,7 @@ def connections():
             ClientProspect.user==agent,
             ClientProspect.good==False,
             ClientProspect.stars>0,
-            ).order_by(ClientProspect.lead_score.desc())
+            ).order_by(ClientProspect.prospect.name)
     query, industry, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry,
             stars=stars)   
@@ -271,7 +271,7 @@ def extended_connections():
             ClientProspect.good==False,
             ClientProspect.user==agent,
             ClientProspect.stars>0,
-            ).order_by(ClientProspect.lead_score.desc())
+            ).order_by(ClientProspect.prospect.name)
     query, industry, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry,
             stars=stars)

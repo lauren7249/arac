@@ -96,7 +96,7 @@ class ResultService(Service):
                 **extra
                 )
         self.session.add(new_education)
-        self.session.commit()
+        self.session.flush()
 
     def _create_or_update_jobs(self, new_prospect, profile):
         jobs = profile.get("jobs_json",[])
@@ -121,6 +121,7 @@ class ResultService(Service):
 
         for job in new_jobs:
             self._insert_job(new_prospect, job)
+        self.session.commit()
         return True
 
     def _insert_job(self, new_prospect, job):
@@ -171,7 +172,6 @@ class ResultService(Service):
                 self.session.commit()
             else:
                 self.logger.error("NO USER!")
-            self.session.commit()
         except:
             self.logerror()
         self.logend()
