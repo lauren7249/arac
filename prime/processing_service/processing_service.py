@@ -119,9 +119,6 @@ class ProcessingService(Service):
             self.logger.info('Total Run Time: %s', end - self.start)
             env = Environment()
             env.loader = FileSystemLoader("prime/templates")
-            user = self._get_user()  
-            if user:
-                self.logger.info(unicode(json.dumps(user.statistics(), ensure_ascii=False)))   
             if self.client_data.get("hired"):
                 subject = "Your P200 List is ready!"
                 to_email = self.client_data.get("email")

@@ -169,9 +169,7 @@ class ResultService(Service):
                 if self.client_data.get("hired"):
                     user.p200_completed = True
                 self.session.add(user)
-                self.session.commit()
-                #fails with db instace error
-                #self.logger.info(unicode(json.dumps(user.statistics(), ensure_ascii=False)))   
+                self.session.commit()   
             else:
                 self.logger.error("NO USER!")
         except:
