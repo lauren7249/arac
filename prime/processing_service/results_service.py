@@ -170,6 +170,7 @@ class ResultService(Service):
                     user.p200_completed = True
                 self.session.add(user)
                 self.session.commit()
+                self.logger.info(unicode(json.dumps(user.statistics(), ensure_ascii=False)))   
             else:
                 self.logger.error("NO USER!")
         except:

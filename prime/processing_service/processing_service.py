@@ -119,6 +119,7 @@ class ProcessingService(Service):
             self.logger.info('Total Run Time: %s', end - self.start)
             env = Environment()
             env.loader = FileSystemLoader("prime/templates")
+            user = self._get_user()  
             if user:
                 self.logger.info(unicode(json.dumps(user.statistics(), ensure_ascii=False)))   
             if self.client_data.get("hired"):
@@ -132,7 +133,6 @@ class ProcessingService(Service):
                 subject = "{}'s Hiring Screen is ready!".format(name)
                 to_email = self.client_data.get("to_email")
                 tmpl = env.get_template('emails/network_summary_done.html')      
-            user = self._get_user()  
             if user:
                 body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
                 sendgrid_email(to_email, subject, body)
