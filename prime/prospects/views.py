@@ -196,10 +196,10 @@ class SearchResults(object):
                 int(self.stars))
 
     def _industry(self):
-        return self.sql_query.join(ClientProspect.prospect).filter(Prospect.industry_category==unquote_plus(self.industry))
+        return self.sql_query.filter(Prospect.industry_category==unquote_plus(self.industry))
 
     def _search(self):
-        return self.sql_query.join(ClientProspect.prospect).filter(Prospect.name.ilike("%{}%".format(self.query)))
+        return self.sql_query.filter(Prospect.name.ilike("%{}%".format(self.query)))
 
     def results(self):
         if self.query:
