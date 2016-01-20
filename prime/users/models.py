@@ -264,6 +264,7 @@ class User(db.Model, UserMixin):
                 extended_count+=1
                 continue
             if not client_prospect.prospect:
+                logger.warn("clientprospect=None (clientprospect id={})".format(client_prospect.id))
                 continue
             if client_prospect.prospect.wealthscore:
                 wealth_score.append(client_prospect.prospect.wealthscore)
