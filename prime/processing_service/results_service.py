@@ -158,6 +158,7 @@ class ResultService(Service):
                 if not client_prospect:
                     self.logger.error("no client prospect")
                     continue
+                self.session.commit()
                 print prospect.us_state
                 #self.output.append(client_prospect.to_json())
             if user:
