@@ -105,9 +105,8 @@ def signup():
     else:
         code = request.args.get("code")
         reset = request.args.get("reset")
-        if not code or not reset:
-            flash("The page expired. Please try again")
-            return redirect(url_for('auth.login'))            
+        if not code:
+            return "The page expired. Please use the back button and try again."     
         onboarding_code = hashlib.md5(code).hexdigest()
         user = User.query.filter(User.onboarding_code == onboarding_code).first()       
         if not user:
