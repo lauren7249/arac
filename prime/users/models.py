@@ -346,12 +346,12 @@ class ClientProspect(db.Model):
     id = db.Column(postgresql.INTEGER, primary_key=True)
 
     user_id = db.Column(Integer, ForeignKey("users.user_id"),
-            index=True)
+            index=True, nullable=False)
     user = relationship('User', \
             foreign_keys='ClientProspect.user_id')
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"),
-            index=True)
+            index=True, nullable=False)
     prospect = relationship("Prospect", \
             foreign_keys="ClientProspect.prospect_id", lazy='joined')
     #processed means skipped, needs name change
