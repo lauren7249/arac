@@ -135,7 +135,7 @@ class User(db.Model, UserMixin):
         sendgrid_email(self.email, subject, body)
         return True
 
-    def invite(self, manager_name):
+    def invite(self):
         code = self.generate_reset_token
         body = render_template("emails/invite.html", manager=self.manager, agent=self,
                 base_url=current_app.config.get("BASE_URL"), code=code)

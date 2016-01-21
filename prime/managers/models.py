@@ -68,14 +68,22 @@ class ManagerProfile(db.Model, UserMixin):
         return title
 
     @property 
+    def address_1(self):
+        return self.address.split("\\n")[0]
+
+    @property 
+    def address_2(self):
+        return self.address.split("\\n")[-1]
+
+    @property 
     def html_signature(self):
-        signature = self.title
+        signature = "<p>" + self.title + "</p>"
         if self.address:
-            signature += '<br>' + self.address.replace("\n","<br>")
+            signature += '<p>' + self.address.replace("\\n","</p><p>") + "</p>"
         if self.phone:
-            signature += '<br>' + self.phone
+            signature += '<p>' + self.phone + "</p>"
         if self.user.email:
-            signature += '<br>' + self.user.email
+            signature += '<p>' + self.user.email + "</p>"
         return signature
 
     def get_id(self):

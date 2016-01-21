@@ -67,7 +67,7 @@ def manager_invite_agent():
             manager.users.append(user)
             session.add(manager)
             session.commit()
-            user.invite(current_user.name)
+            user.invite()
             success = True
     return render_template('manager/invite.html', active="invite",
             error_message=error_message, success=success)
@@ -80,7 +80,7 @@ def manager_reinvite_agent():
     if request.method == 'POST':
         user_id = int(request.form.get('user_id'))
         user = User.query.filter(User.user_id == user_id).first()
-        user.invite(current_user.first_name)
+        user.invite()
     return jsonify({"sucess": True})
 
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
