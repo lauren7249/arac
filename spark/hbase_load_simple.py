@@ -48,10 +48,11 @@ class HBaseLoader(object):
         datamap = self.data.flatMap(load_url_xwalk)
         datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
-        #one-time deal since linkeidn id is becoming obsolete
-        self.conf["hbase.mapred.outputtable"]="linkedin_id_xwalk"  
-        datamap = self.data.flatMap(load_linkedin_id_xwalk)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+        if self.PERIOD == "2015_12":
+            #one-time deal since linkeidn id is becoming obsolete
+            self.conf["hbase.mapred.outputtable"]="linkedin_id_xwalk"  
+            datamap = self.data.flatMap(load_linkedin_id_xwalk)
+            datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
     #still in dev
     def load_extended(self):     
