@@ -15,7 +15,7 @@ class PeopleFetcher(object):
         self.AWS_SECRET = "OCagmcIXQYdmcIYZ3Uafmg1RZo9goNOb83DrRJ8u"
         self.sc._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId",self.AWS_KEY)
         self.sc._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", self.AWS_SECRET)
-        self.AWS_BUCKET = "ac-crawlera"
+        self.AWS_BUCKET = "crawlera-linkedin-profiles"
         self.PERIOD = period
         self.people_rdd = self.sqlCtx.read.json("s3n://" + self.AWS_BUCKET + "/linkedin/people/" + self.PERIOD + "/*" + file_pattern)
         # self.people_rdd = self.people_rdd.fillna({})
