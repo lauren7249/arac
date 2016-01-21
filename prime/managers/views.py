@@ -35,7 +35,7 @@ def manager_home():
         return redirect(url_for('auth.login'))
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
-    manager = current_user.manager
+    manager = current_user.manager_profile
     agents = manager.users.all()
     agent_count = manager.users.count()
     return render_template('manager/dashboard.html', agents=agents,
@@ -59,7 +59,7 @@ def manager_invite_agent():
             error_message = "This agent already exists in our system. Please \
                     contact jeff@adivsorconnect.co if this seems incorrect to you"
         else:
-            manager = current_user.manager_profile[0]
+            manager = current_user.manager_profile
             user = User(first_name, last_name, to_email, '')
             user.manager_id = manager.manager_id
             session.add(user)

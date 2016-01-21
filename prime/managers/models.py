@@ -45,8 +45,7 @@ class ManagerProfile(db.Model, UserMixin):
     manager_id = db.Column(postgresql.INTEGER, primary_key=True)
 
     user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True, unique=True)
-    user = relationship('User', foreign_keys='ManagerProfile.user_id',
-            backref='manager_profile')
+    user = relationship('User', foreign_keys='ManagerProfile.user_id')
 
     users = db.relationship(User, secondary=_manager_users,
             backref=db.backref('users'), lazy='dynamic')
