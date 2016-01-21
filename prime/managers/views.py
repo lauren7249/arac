@@ -35,7 +35,7 @@ def manager_home():
         return redirect(url_for('auth.login'))
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
-    manager = current_user.manager_profile[0]
+    manager = current_user.manager
     agents = manager.users.all()
     agent_count = manager.users.count()
     return render_template('manager/dashboard.html', agents=agents,
