@@ -1,21 +1,19 @@
 import time
 from prime.utils.email import sendgrid_email
+
 def watch(fn):
     fp = open(fn, 'r')
     stacktrace = []
     inerror = False
     while True:
         new = fp.readline()
-        # Once all lines are read this just returns ''
-        # until the file changes and a new line appears
-
         if new:
             if "Traceback" in new:
                 inerror = True
             if inerror:
                 stacktrace.append(new)
             if "Error" in new:
-                yield "".join(stacktrace)
+                yield "\n".join(stacktrace)
                 stacktrace = []
                 inerror = False
 
