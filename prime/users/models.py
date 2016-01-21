@@ -117,8 +117,9 @@ class User(db.Model, UserMixin):
 
     @property 
     def manager_profile(self):
+        from prime.managers.models import ManagerProfile
         return ManagerProfile.query.filter_by(user_id=self.user_id).first()
-        
+
     def get_id(self):
         return unicode(self.user_id)
 
