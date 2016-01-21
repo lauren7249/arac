@@ -5,7 +5,7 @@ from collections import Counter
 from rq import Queue
 from redis import Redis
 import re
-
+import os
 import random
 import requests
 import datetime
@@ -61,7 +61,10 @@ def uu(str):
 ################
 
 def get_q():
-    conn = Redis.from_url(url=REDIS_URL, db=0)
+    if os.getenv('AC_CONFIG', 'default') == 'beta':
+        conn = Redis.from_url(url=REDIS_URL, db=0)
+    else:
+        conn = Redis.from_url(url='redis://localhost', db=0)
     q = Queue('high',connection=conn)
     return q
 

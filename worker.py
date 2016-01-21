@@ -22,7 +22,10 @@ def do_work():
     should redis not be immediately available
     """
     try:
-        conn = Redis.from_url(url=REDIS_URL, db=0)
+        if os.getenv('AC_CONFIG', 'default') == 'beta':
+            conn = Redis.from_url(url=REDIS_URL, db=0)
+        else:
+            conn = Redis.from_url(url='redis://localhost', db=0)
 
         with Connection(conn):
             worker = Worker(map(Queue, listen))

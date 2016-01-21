@@ -137,10 +137,10 @@ class User(db.Model, UserMixin):
 
     def invite(self, manager_name):
         code = self.generate_reset_token
-        body = render_template("emails/invite.html", invited_by=manager_name,
+        body = render_template("emails/invite.html", manager=self.manager, agent=self,
                 base_url=current_app.config.get("BASE_URL"), code=code)
-        subject = "Your Advisorconnect Account is Ready!"
-        sendgrid_email(self.email, subject, body)
+        subject = "Invitation from New York Life"
+        sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
         return True
 
     @property 
