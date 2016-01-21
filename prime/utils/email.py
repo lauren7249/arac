@@ -1,11 +1,6 @@
-from flask import current_app
-import re
-import requests
-import boto
-import os
 import sendgrid
 
-def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jamesjohnson11@gmail.com'], from_email='contacts@advisorconnect.co'):
+def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jamesjohnson11@gmail.com'], from_email='support@advisorconnect.co'):
     sg = sendgrid.SendGridClient('lauren7249', '1250downllc')
     mail = sendgrid.Mail()
     mail.add_to(to)

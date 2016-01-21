@@ -8,7 +8,7 @@ def dob_year_range(row):
     return get_dob_year_range(linkedin_data.get("schools",[]), linkedin_data.get("experiences",[]))
 class PeopleFetcher(object):
 
-    def __init__(self, period, sc, sqlCtx, obs=None, file_pattern='.jl'):
+    def __init__(self, period, sc, sqlCtx, obs=None, file_pattern='.gz'):
         self.sc = sc
         self.sqlCtx = sqlCtx
         self.AWS_KEY = "AKIAIZZBJ527CKPNY6YQ"

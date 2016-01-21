@@ -113,7 +113,7 @@ class User(db.Model, UserMixin):
 
     @property
     def is_manager(self):
-        return (self.manager_id is None)
+        return (self.manager_id is None and len(self.manager_profile)>0)
 
     def get_id(self):
         return unicode(self.user_id)

@@ -54,27 +54,27 @@ class HBaseLoader(object):
             datamap = self.data.flatMap(load_linkedin_id_xwalk)
             datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
-    #still in dev
-    def load_extended(self):     
-        self.conf["hbase.mapred.outputtable"]="people"  
-        self.xwalk = self.get_xwalk_rdd()
-        datamap = self.data.flatMap(map_also_viewed).leftOuterJoin(self.xwalk).flatMap(create_edges).foldByKey([],append).flatMap(load_graph)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+    # #still in dev -- probably will just use sql functionality
+    # def load_extended(self):     
+    #     self.conf["hbase.mapred.outputtable"]="people"  
+    #     self.xwalk = self.get_xwalk_rdd()
+    #     datamap = self.data.flatMap(map_also_viewed).leftOuterJoin(self.xwalk).flatMap(create_edges).foldByKey([],append).flatMap(load_graph)
+    #     datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+        #didnt work because the values were too big
+    # def load_by_name(self):     
+    #     self.conf["hbase.mapred.outputtable"]="linkedin_names"  
+    #     datamap = self.data.flatMap(parse_names).foldByKey(([],[]),name_fold).flatMap(load_by_name)
+    #     datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
-    def load_by_name(self):     
-        self.conf["hbase.mapred.outputtable"]="linkedin_names"  
-        datamap = self.data.flatMap(parse_names).foldByKey(([],[]),name_fold).flatMap(load_by_name)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+    # def load_by_dob(self):     
+    #     self.conf["hbase.mapred.outputtable"]="linkedin_dob"  
+    #     datamap = self.data.flatMap(get_dob).foldByKey(([],[],[]),dob_fold).flatMap(load_by_dob)
+    #     datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
-    def load_by_dob(self):     
-        self.conf["hbase.mapred.outputtable"]="linkedin_dob"  
-        datamap = self.data.flatMap(get_dob).foldByKey(([],[],[]),dob_fold).flatMap(load_by_dob)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
-
-    def load_by_zip(self):     
-        self.conf["hbase.mapred.outputtable"]="linkedin_zip"  
-        datamap = self.data.flatMap(get_location).foldByKey([],append).flatMap(geocode).flatMap(load_by_zip)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+    # def load_by_zip(self):     
+    #     self.conf["hbase.mapred.outputtable"]="linkedin_zip"  
+    #     datamap = self.data.flatMap(get_location).foldByKey([],append).flatMap(geocode).flatMap(load_by_zip)
+    #     datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
     # def get_xwalk_rdd(self):
     #     #read in from hbase - seems much slower than rdd loaded from S3
