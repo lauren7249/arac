@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url(https://fonts.googleapis.com/css?family=Poppins:400,500,600,700);
 @import url(normalize.css);
 .circle-check, table.manager-dashboard .completed.yes, .wizard ol li.complete:before, .file-upload .upload-box.complete i.icon-upload, .connect-email .connected:before {
@@ -324,6 +325,9 @@ select {
   border: 1px solid #DADFE1;
   border-radius: 4px;
   height: 40px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
   appearance: none;
   padding: 0 40px 0 10px;
 }
@@ -400,93 +404,6 @@ hr {
 }
 .card tr:last-child td, .wizard tr:last-child td, .onboard-body tr:last-child td, .onboard-footer tr:last-child td, .note tr:last-child td {
   border: none !important;
-}
-
-.name {
-  font-weight: bold;
-  font-size: 24px;
-  color: #16263D;
-}
-
-.job {
-  font-size: 16px;
-  color: #787B80;
-}
-
-.tags {
-  margin-top: 10px;
-  font-size: 12px;
-}
-.tags a {
-  color: #16263D;
-}
-.tags span {
-  display: inline-block;
-  font-weight: 600;
-  border-bottom: 1px solid;
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-.contact-links a {
-  display: inline-block;
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  color: #27B4F4;
-  border: 1px solid;
-  border-radius: 3px;
-  background-position: 0 0;
-  background-size: 100%;
-  background-repeat: no-repeat;
-}
-.contact-links a.financial {
-  background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);
-}
-.contact-links a.facebook {
-  background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);
-}
-.contact-links a.linkedin {
-  background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);
-}
-.contact-links a.twitter {
-  background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);
-}
-.contact-links a.phone {
-  background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png);
-}
-.contact-links a.pinterest {
-  background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);
-}
-.contact-links a.soundcloud {
-  background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);
-}
-.contact-links a.slideshare {
-  background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);
-}
-.contact-links a.plus {
-  background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);
-}
-.contact-links a.angel {
-  background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);
-}
-.contact-links a.foursquare {
-  background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);
-}
-.contact-links a.github {
-  background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);
-}
-.contact-links a.flickr {
-  background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);
-}
-.contact-links a.email {
-  background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);
-}
-.contact-links a.amazon {
-  background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);
-}
-.contact-links a.location {
-  background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);
 }
 
 .wrap, .onboard-header {
@@ -735,6 +652,24 @@ table.manager-dashboard .pending {
 .filters span {
   margin-right: 10px;
 }
+.filters .sort-abc {
+  cursor: pointer;
+}
+.filters .sort-abc.active {
+  color: #27B4F4;
+}
+.filters .sort-abc.sort-up:after {
+  content: "↑";
+}
+.filters .sort-abc.sort-down:after {
+  content: "↓";
+}
+.filters .sort-abc:after {
+  content: "↑";
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 75%;
+}
 
 .search {
   position: relative;
@@ -794,58 +729,144 @@ table.contacts-table .contact-buttons .button {
   display: table;
   width: 100%;
 }
-.contact-info img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-.contact-info [class*="col-"] {
+.contact-info .pic {
   display: table-cell;
-  vertical-align: middle;
-  float: none;
-  padding: 0;
+  vertical-align: top;
+  padding-right: 20px;
 }
-.contact-info [class*="col-"]:first-child {
-  width: 18%;
-  padding-right: 2%;
+.contact-info .pic img {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
 }
-.contact-info [class*="col-"]:nth-child(2) {
-  width: 50%;
+.contact-info .main-info {
+  display: table-cell;
 }
-.contact-info [class*="col-"]:nth-child(3) {
-  width: 30%;
+.contact-info .name {
+  font-weight: 600;
+  font-size: 22px;
 }
-
-.name {
-  font-weight: bold;
-  font-size: 24px;
-}
-.name span {
+.contact-info .name span {
   display: inline;
 }
-.name span.stars {
+.contact-info .name span.stars {
   display: inline-block;
   margin-left: 10px;
   background-position: 0 0;
   background-size: 100%;
   background-repeat: no-repeat;
-  width: 60px;
+  width: 95px;
   height: 14px;
 }
-.name span.stars.one-star {
+.contact-info .name span.stars.one-star {
   background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
 }
-.name span.stars.two-star {
+.contact-info .name span.stars.two-star {
   background-image: url("https://s3.amazonaws.com/prime-images/two-stars.png");
 }
-.name span.stars.three-star {
+.contact-info .name span.stars.three-star {
   background-image: url("https://s3.amazonaws.com/prime-images/three-stars.png");
 }
-.name span.stars.four-star {
+.contact-info .name span.stars.four-star {
   background-image: url("https://s3.amazonaws.com/prime-images/four-stars.png");
 }
-.name span.stars.five-star {
+.contact-info .name span.stars.five-star {
   background-image: url("https://s3.amazonaws.com/prime-images/five-stars.png");
+}
+.contact-info .job {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+.contact-info .location {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.tags {
+  margin-top: 10px;
+  font-size: 12px;
+}
+.tags a {
+  color: #16263D;
+  cursor: pointer;
+}
+.tags span {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  padding: 0 4px;
+  border-radius: 2px;
+  background-color: #dff4fd;
+}
+.tags span:hover {
+  background-color: #afe3fb;
+}
+
+.contact-links {
+  margin: 10px 0;
+}
+.contact-links a {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  color: #27B4F4;
+  border: 1px solid;
+  border-radius: 3px;
+  background-position: 0 0;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+.contact-links a.financial {
+  background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);
+}
+.contact-links a.facebook {
+  background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);
+}
+.contact-links a.linkedin {
+  background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);
+}
+.contact-links a.twitter {
+  background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);
+}
+.contact-links a.phone {
+  background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png);
+}
+.contact-links a.pinterest {
+  background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);
+}
+.contact-links a.soundcloud {
+  background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);
+}
+.contact-links a.slideshare {
+  background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);
+}
+.contact-links a.plus {
+  background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);
+}
+.contact-links a.angel {
+  background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);
+}
+.contact-links a.foursquare {
+  background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);
+}
+.contact-links a.github {
+  background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);
+}
+.contact-links a.flickr {
+  background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);
+}
+.contact-links a.email {
+  background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);
+}
+.contact-links a.amazon {
+  background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);
+}
+.contact-links a.location {
+  background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);
 }
 
 div.pagination {
