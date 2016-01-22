@@ -182,6 +182,26 @@ class User(db.Model, UserMixin):
         return stats
 
     @property
+    def linkedin(self):
+        return self.statistics().get("linkedin", 0)
+
+    @property
+    def facebook(self):
+        return self.statistics().get("facebook", 0)
+
+    @property
+    def twitter(self):
+        return self.statistics().get("twitter", 0)
+
+    @property
+    def pinterest(self):
+        return self.statistics().get("pinterest", 0)
+
+    @property
+    def amazon(self):
+        return self.statistics().get("amazon", 0)
+
+    @property
     def primary_network_size(self):
         return self.statistics().get("network_size", 0)
 
@@ -256,6 +276,11 @@ class User(db.Model, UserMixin):
         average_age = []
         extended_count = 0
         first_degree_count = 0
+        facebook = 0
+        linkedin = 0
+        twitter = 0
+        amazon = 0
+        pinterest = 0
         for client_prospect in self.client_prospects:
             if not client_prospect.stars:
                 logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
@@ -270,6 +295,11 @@ class User(db.Model, UserMixin):
                 wealth_score.append(client_prospect.prospect.wealthscore)
             if client_prospect.prospect.age:
                 average_age.append(client_prospect.prospect.age)
+            if client_prospect.prospect.facebook: facebook+=1
+            if client_prospect.prospect.linkedin_url or client_prospect.prospect.linkedin: linkedin+=1
+            if client_prospect.prospect.amazon: amazon+=1
+            if client_prospect.prospect.twitter: twitter+=1
+            if client_prospect.prospect.pinterest: pinterest+=1                
             first_degree_count+=1
             college_degree[client_prospect.prospect.college_grad] += 1
             if client_prospect.prospect.gender:
@@ -321,7 +351,12 @@ class User(db.Model, UserMixin):
                 "locations": locations,
                 "college_percentage": college_percentage,
                 "average_age": average_age,
-                "wealth_score": wealth_score}
+                "wealth_score": wealth_score,
+                "linkedin": linkedin,
+                "facebook": facebook,
+                "twitter": twitter,
+                "pinterest": pinterest,
+                "amazon": amazon}
         return data
 
     @property
