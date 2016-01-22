@@ -318,8 +318,8 @@
                                     response_string = response_string + "from " + contacts_owner.email[0].address;
                                   }
 
-                                  $(".contact-count").find("small").html(contacts_array.length + " Total Contacts Added")
-                                  $(".final-contact-count").html(contacts_array.length)
+                                  $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
+                                  $(".final-contact-count").html(contacts_array.length.toLocaleString())
                                   $(".contact-count").show();
 
                                   if(divid == "div#linkedin_area") {
@@ -327,7 +327,7 @@
                                     $("#step-3").slideDown();     
                                   } else {
                                     $(divid).find("button").hide()
-                                    $(divid).find(".connected").html(contacts.length + ' Total Contacts Added').attr('style', 'visibility:visible;')
+                                    $(divid).find(".connected").html(contacts.length.toLocaleString() + ' Total Contacts Added').attr('style', 'visibility:visible;')
                                   }
                                   $(".waiting").hide();
                                   $(".overlay").fadeOut();

@@ -172,7 +172,7 @@ def upload():
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-        sendgrid_email(to_email, "{} {} imported contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name), body)
+        sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, n_contacts), body)
         q = get_q()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": n_contacts})
