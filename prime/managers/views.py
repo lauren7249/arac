@@ -64,9 +64,9 @@ def manager_invite_agent():
             user.manager_id = manager.manager_id
             session.add(user)
             session.commit()
-            manager.users.append(user)
-            session.add(manager)
-            session.commit()
+            # manager.users.append(user)
+            # session.add(manager)
+            # session.commit()
             user.invite()
             success = True
     return render_template('manager/invite.html', active="invite",
@@ -120,7 +120,7 @@ def request_p200():
             return jsonify({"name": "{} {}".format(user.first_name, user.last_name) })
         except Exception, e:
             print str(e)
-            
+
 @manager.route("/test_email", methods=['GET'])
 def test_email():
     return render_template("emails/invite.html", invited_by=current_user.name,

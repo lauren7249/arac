@@ -48,8 +48,8 @@ class ManagerProfile(db.Model, UserMixin):
     user = relationship('User', foreign_keys='ManagerProfile.user_id',
             backref='manager_profile')
 
-    users = db.relationship(User, secondary=_manager_users,
-            backref=db.backref('users'), lazy='dynamic')
+    # users = db.relationship(User, secondary=_manager_users,
+    #         backref=db.backref('users'), lazy='dynamic')
 
     name_suffix = db.Column(String(500))
     certifications = db.Column(String(500))
@@ -57,6 +57,10 @@ class ManagerProfile(db.Model, UserMixin):
     phone = db.Column(String(30))
     created = db.Column(Date, default=datetime.datetime.today())
     
+
+    @property 
+    def users(self):
+        return User.query.filter_by(manager_id=self.manager_id)
 
     @property 
     def title(self):
