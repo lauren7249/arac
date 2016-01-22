@@ -64,9 +64,9 @@ def manager_invite_agent():
             user.manager_id = manager.manager_id
             session.add(user)
             session.commit()
-            # manager.users.append(user)
-            # session.add(manager)
-            # session.commit()
+            manager.users.append(user)
+            session.add(manager)
+            session.commit()
             user.invite()
             success = True
     return render_template('manager/invite.html', active="invite",
