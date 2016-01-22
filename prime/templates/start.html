@@ -4,23 +4,26 @@
         
         // Setup an event listener to make an API call once auth is complete
         function onLinkedInLoad() {
-            IN.Event.on(IN, "auth", getProfileData);
+          $("#li_button").click(function() {
+            IN.User.authorize(getProfileData);
+          });
         }
 
         // Handle the successful return from the API call
         function onSuccess(data) {
-            console.log(data);
+            //console.log(data);
             geolocation = data.location.name;
             public_url = data.publicProfileUrl;
             email_address = data.emailAddress;
             firstName = data.firstName;
             lastName = data.lastName;
-            document.getElementById("owner_email").innerHTML = email_address;
-            document.getElementById("owner_geolocation").innerHTML = geolocation;
-            document.getElementById("owner_img").src = data.pictureUrl;
-            document.getElementById("owner_name").innerHTML = "Welcome, " + firstName;
-            $("div#enter_email").hide();
-            $("div#upload_area").show();     
+            $("#owner_email").html(email_address);
+            $("#owner_geolocation").html(geolocation);
+            $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
+            $("#owner_name").html("Welcome, " + firstName);
+            $("#step-1").hide();
+            $(".onboard-header").show();
+            $("#step-2").slideDown();     
             $.ajax({
                 type: 'POST',
                 url: '/save_linkedin_data',
@@ -48,46 +51,215 @@
         }
 
     </script>    
+    <div class="section grey onboarding">
+      <div class="wrap">
+        <div class="onboard-header">
+          <div id="owner_img" style="" class="face"></div>
+          <h1 id="owner_name"></h1>
+          <p hidden id="owner_email"></p>
+          <p hidden id="owner_geolocation"></p>
+          <div class="contact-count"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/contact-card.svg"/><small>1,529 Total Contacts Added</small></div>
+        </div>
+        <!-- Onboard Step 1-->
+        <div class="onboard" id="step-1">
+          <div class="wizard">
+            <ol>
+              <li> 
+                <label>Step One</label>
+                <p>Signin Via LinkedIn</p>
+              </li>
+              <li class="idle">
+                <label>Step One</label>
+                <p>Add LinkedIn Contacts</p>
+              </li>
+              <li class="idle">
+                <label>Step One</label>
+                <p>Add Email Contacts</p>
+              </li>
+              <li class="idle">
+                <label>Step One</label>
+                <p>Finish & Upload</p>
+              </li>
+            </ol>
+          </div>
+          <div class="onboard-body">
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Welcome to AdvisorConnect!</h2>
+                  <p>Let’s get started by connecting your LinkedIn profile. This will allow us to include your LinkedIn information in AdvisorConnect.</p>
+                </div>
+              </div>
+              <div class="col-5">
+                <div class="onboard-signin">
+                  <div id="li_button" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
+                  <div class="text-center"><small>
 
-  <div class='wrap'>
-    <div class='signup' id="signup">
-      <div class='logo'>
-        <img src='{{ static_url() }}img/AC_logo.png' />
-      </div>  
-      <div id="enter_email" >
-        <h2 hidden>Welcome</h2>
-        <p >Please sign in through LinkedIn to continue.</p>
-        <p hidden>Enter the email address where you would like to receive your P200.</p>
-        <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
-        <input hidden type='email' id="email_address" />
-        <p hidden>Enter your target region</p>
-        <div hidden class="ui-widget">
-          <input hidden id="geolocation"/>
+                      Don’t have LinkedIn? <a href="javascript:alert('This is not currently supported.');">Click Here</a></small></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
-      </div>          
-      <div id="upload_area" hidden>
-        <h2 id="owner_name"></h2>
-        <img id="owner_img" />
-        <p>Upload contacts from LinkedIn, and as many of your email accounts as possible.</p>
-        <p hidden id="owner_email"></p>
-        <p hidden id="owner_geolocation"></p>
-        <h2 hidden>Upload contacts</h2>
-        <div id="linkedin_area">
-          <button class='button teal' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
+        <!-- Onboard Step 2-->
+        <div class="onboard" id="step-2">
+          <div class="wizard">
+            <ol>
+              <li class="complete"> 
+                <label>Step One</label>
+                <p>Signin Via LinkedIn</p>
+              </li>
+              <li> 
+                <label>Step One</label>
+                <p>Add LinkedIn Contacts</p>
+              </li>
+              <li class="idle"> 
+                <label>Step One</label>
+                <p>Add Email Contacts</p>
+              </li>
+              <li class="idle"> 
+                <label>Step One</label>
+                <p>Finish & Upload</p>
+              </li>
+            </ol>
+          </div>
+          <div class="onboard-body">
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Now, let's build your network.</h2>
+                  <p>1. Click on the "Get LinkedIn Contacts" button.</p><small>This will take you to the linkedin upload form (as seen below)</small><img src="{{ static_url() }}img/cloudsponge.png"/>
+                  <hr/>
+                  <p>2. Next, click on the "Get Contacts" button.</p><small>This will take you to the LinkedIn Security Verification (as seen below) where you will need to enter the required text and click "Continue".</small><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-linkedin-security.png"/>
+                  <hr/>
+                  <p>3. Then, upload CSV file</p><small>CHROME USERS:</small><small>Drag your contacts file from the bottom left corner of your browser window (as shown below) onto the "upload" box on the linkedin upload form.</small><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-linkedin-chrome.png"/><small>OTHER BROWSERS:</small><small>Drag the linkedin csv download from your downloads folder</small>
+                  <hr/>
+                  <p>4. Close Other Windows</p><small>Close the linkedin page and linkedin upload form and navigate back here.</small>
+                </div>
+              </div>
+              <div class="col-5">
+                <div class="get-contacts">
+                  <button id='ln' class="button linkedin fluid large"> <i class="icon-linkedin"></i><span>Get LinkedIn Contacts</span></button>
+                </div>
+                <div class="file-upload">
+                  <!--
+                  <p class="text-center">Upload your .csv file here</p>
+                  <div class="upload-box"><i class="icon-upload"></i>
+                    <p>Drag & Drop</p>
+                    <p>Your .csv file here or browse</p>
+                  </div>
+                  <div class="upload-box complete"><i class="icon-upload"></i>
+                    <p>Drag & Drop</p>
+                    <p>Your .csv file here or browse</p>
+                  </div>
+                  -->
+                </div>
+                  <!--
+                <div class="upload-instructions">
+                  <p>
+
+                  Can't find your LinkedIn contacts file?  <a href="#">Click here </a>and navigate to your Downloads folder and look for a file named <b>"linkedin_connections_export_microsoft_outlook.csv". </b>
+                  </p>
+                  <p>If you still can't find your file click here to download your contacts again or skip this step.</p>
+                </div>
+                  -->
+              </div>
+            </div>
+          </div>
+          <div class="onboard-footer">
+            <button data-next='2' class="button dark-blue">Next</button>
+          </div>
         </div>
-        <div id="email_area">
-          <button class='button teal' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
+        <!-- Onboard Step 3-->
+        <div class="onboard"  id="step-3">
+          <div class="wizard">
+            <ol>
+              <li class="complete"> 
+                <label>Step One</label>
+                <p>Signin Via LinkedIn</p>
+              </li>
+              <li class="complete">
+                <label>Step One</label>
+                <p>Add LinkedIn Contacts</p>
+              </li>
+              <li> 
+                <label>Step One</label>
+                <p>Add Email Contacts</p>
+              </li>
+              <li class="idle"> 
+                <label>Step One</label>
+                <p>Finish & Upload</p>
+              </li>
+            </ol>
+          </div>
+          <div class="onboard-body">
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Now, let's add your email contacts.</h2>
+                  <p>You can add contacts from more than one account.  Remember that the more accounts you connect, the more valuable this tool will be to your marketing and prospecting efforts.</p><small>None of your personal messages or your contacts’ personal information (including contact information) will be shared with New York Life.               </small>
+                </div>
+              </div>
+              <div class="col-5">
+                <div id='gmail-area' class="connect-email"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
+                  <button id='gmail' type="Submit" class="button teal">Connect Gmail</button>
+                  <div class='connected'></div>
+                </div>
+                <div id='yahoo-area' class="connect-email"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
+                  <button id='yahoo' type="Submit" class="button teal">Connect Yahoo! Mail</button>
+                  <div class='connected'></div>
+                </div>
+                <div id='windows-area' class="connect-email"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
+                  <button id='windowslive' type="Submit" class="button teal">Connect Windows Live</button>
+                  <div class='connected'></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="onboard-footer"><small>
+
+              Can’t add your email contacts? <a href="#">Click here.</a></small>
+            <button  data-next='3' class="button dark-blue">Next</button>
+          </div>
         </div>
-        <div hidden id="csv_area">
-          <button class='button teal' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
+        <!-- Onboard Step 4-->
+        <div class="onboard" id="step-4">
+          <div class="wizard">
+            <ol>
+              <li class="complete"> 
+                <label>Step One</label>
+                <p>Signin Via LinkedIn</p>
+              </li>
+              <li class="complete">
+                <label>Step One</label>
+                <p>Add LinkedIn Contacts</p>
+              </li>
+              <li class="complete"> 
+                <label>Step One</label>
+                <p>Add Email Contacts</p>
+              </li>
+              <li>
+                <label>Step One</label>
+                <p>Finish & Upload</p>
+              </li>
+            </ol>
+          </div>
+          <div class="onboard-body">
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Congratulations!</h2>
+                  <p>You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</p>
+                </div>
+              </div>
+              <div class="col-5" id='thanks'>
+                <div id='next' class="button large fluid dark-blue">Finish</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <br/>
-        <br/>
-        <a ><button id="next" type="Submit" class='button'>Finish &amp; Upload &raquo;</button></a>
       </div>
     </div>
-  </div>
   <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
   <script type='text/javascript' >
 
@@ -145,10 +317,20 @@
                                   if (contacts_owner) {
                                     response_string = response_string + "from " + contacts_owner.email[0].address;
                                   }
-                                
-                                  $(divid).append("<i class='fa fa-check-circle' id='" + response_element_id + "' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i><br>");    
-                                  $(".waiting").hide();   
-                                  $(".overlay").fadeOut();                                                                 
+
+                                  $(".contact-count").find("small").html(contacts_array.length + " Total Contacts Added")
+                                  $(".final-contact-count").html(contacts_array.length)
+                                  $(".contact-count").show();
+
+                                  if(divid == "div#linkedin_area") {
+                                    $("#step-2").hide();
+                                    $("#step-3").slideDown();     
+                                  } else {
+                                    $(divid).find("button").hide()
+                                    $(divid).find(".connected").html(contacts.length + ' Total Contacts Added').attr('style', 'visibility:visible;')
+                                  }
+                                  $(".waiting").hide();
+                                  $(".overlay").fadeOut();
                                 }
                                 else {
                                   $(".waiting").hide();   
@@ -198,40 +380,6 @@
         var len = do_import('addressbook','div#mac_area',win);
       });
 
-      $("#em").click(function() {
-        $(".overlay").fadeIn();
-        $(".email").slideDown();
-      });
-
-      $("#gmail").click(function(e) {
-        cloudsponge_status = 'NONE';   
-        e.preventDefault();
-        var win = window.open('');        
-        var len = do_import('Gmail','div#email_area',win);
-        $(".email").hide();
-        // if (len>0) {$("#gmail").hide();}
-        $(".overlay").fadeOut();
-      });
-
-      $("#yahoo").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        cloudsponge_status = 'NONE';   
-        var len =do_import('Yahoo','div#email_area',win);
-        $(".email").hide();
-        // if (len>0) { $("#yahoo").hide();}
-        $(".overlay").fadeOut();
-      });
-
-      $("#windowslive").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        cloudsponge_status = 'NONE';   
-        var len = do_import('WindowsLive','div#email_area',win);
-        $(".email").hide();
-        // if (len>0) {$("#windowslive").hide();}
-        $(".overlay").fadeOut();
-      });
 
       $("#ln").click(function(e) {
         e.preventDefault();
@@ -247,6 +395,13 @@
         // $(".overlay").fadeIn();
         var len = do_import('CSV','div#csv_area',win);
         // if (len>0) {$("#csv").hide();}
+      });
+
+      $("[data-next]").click(function() {
+        var id = $(this).data('next');
+        var next_id = id + 1;
+        $("#step-" + id).hide()
+        $("#step-" + next_id).slideDown()
       });
 
       $("#next").click(function() {
@@ -267,7 +422,10 @@
               dataType: 'json',
               contentType: 'application/json; charset=utf-8',
               success: function(responseData, textStatus, jqXHR) {
-                window.location.href = "/pending?contacts=" + responseData.contacts;
+                $("#thanks").append("<h2>Thanks!</h2><p>We will be emailing you when the results are ready. Thank you!</p>")
+                $("#next").hide()
+                $(".waiting").hide();   
+                $(".overlay").fadeOut();     
               },
               error: function (responseData, textStatus, errorThrown) {
                   debugger;
@@ -289,6 +447,40 @@
             $(this).hide();
           }
       });
+
+      bindEmailButtons()
     });
+
+  function bindEmailButtons() {
+      $("button#gmail").click(function(e) {
+        cloudsponge_status = 'NONE';   
+        e.preventDefault();
+        var win = window.open('');        
+        var len = do_import('Gmail','#gmail-area',win);
+        $(".email").hide();
+        // if (len>0) {$("#gmail").hide();}
+        $(".overlay").fadeOut();
+      });
+
+      $("button#yahoo").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len =do_import('Yahoo','#yahoo-area',win);
+        $(".email").hide();
+        // if (len>0) { $("#yahoo").hide();}
+        $(".overlay").fadeOut();
+      });
+
+      $("button#windowslive").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len = do_import('WindowsLive','#windows-area',win);
+        $(".email").hide();
+        // if (len>0) {$("#windowslive").hide();}
+        $(".overlay").fadeOut();
+      });
+  }
   </script>
   {% endblock %}

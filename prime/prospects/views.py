@@ -83,9 +83,9 @@ def start():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     if current_user.p200_completed:
-        return redirect(url_for('prospects.dashboard'))        
+        return redirect(url_for('prospects.dashboard'))
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
         return redirect(url_for('prospects.pending'))
@@ -105,7 +105,7 @@ def terms():
 @prospects.route("/save_linkedin_data", methods=['GET', 'POST'])
 def save_linkedin_data():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     if request.method == 'POST':
         first_name = request.json.get("firstName",)
         last_name = request.json.get("lastName")
@@ -129,32 +129,32 @@ def save_linkedin_data():
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
 def upload():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     if request.method == 'POST':
         indata = request.json
         user_email = indata.get("user_email","")
         client_first_name = indata.get("firstName","")
         # f = open('data/{}.json'.format(user_email),'w')
-        # f.write(json.dumps(indata)) 
-        contacts_array = indata.get("contacts_array")  
-        by_email = set()         
+        # f.write(json.dumps(indata))
+        contacts_array = indata.get("contacts_array")
+        by_email = set()
         for record in contacts_array:
-            if len(str(record)) > 10000: 
+            if len(str(record)) > 10000:
                 print "CloudspongeRecord is too big"
                 continue
             contact = record.get("contact",{})
             emails = contact.get("email",[{}])
-            try: 
+            try:
                 email_address = emails[0].get("address",'').lower()
-            except Exception, e: 
+            except Exception, e:
                 email_address = ''
                 print str(e)
-            if email_address: 
-                by_email.add(email_address)  
+            if email_address:
+                by_email.add(email_address)
         n_contacts = len(by_email)
         current_user.unique_contacts_uploaded = n_contacts
         session.add(current_user)
-        session.commit()    
+        session.commit()
         manager = current_user.manager
         to_email = manager.user.email
         client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
@@ -162,20 +162,20 @@ def upload():
                 "to_email":to_email}
         from prime.processing_service.saved_request import UserRequest
         user_request = UserRequest(user_email)
-        user_request._make_request(contacts_array)  
+        user_request._make_request(contacts_array)
         env = Environment()
-        env.loader = FileSystemLoader("prime/templates")                
+        env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-        sendgrid_email(to_email, "{} {} imported contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name), body)              
+        sendgrid_email(to_email, "{} {} imported contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name), body)
         q = get_q()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)    
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": n_contacts})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
     if not current_user.is_authenticated():
-        return redirect(url_for("auth.login"))    
+        return redirect(url_for("auth.login"))
     if current_user.p200_completed:
         agent = current_user
         return render_template("dashboard.html", agent=agent, active = "dashboard")
@@ -187,7 +187,7 @@ def dashboard():
     return redirect(url_for('prospects.start'))
 
 class SearchResults(object):
-    
+
     def __init__(self, sql_query, query=None, stars=None, industry=None, *args, **kwargs):
         self.sql_query = sql_query
         self.query = query
@@ -230,7 +230,7 @@ def get_args(request):
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
@@ -243,7 +243,7 @@ def connections():
             ).join(Prospect).order_by(Prospect.name)
     query, industry, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry,
-            stars=stars)   
+            stars=stars)
     connections = search.results().paginate(page, 25, False)
     return render_template("connections.html",
             agent=agent,
@@ -256,7 +256,7 @@ def connections():
 @prospects.route("/extended/connections", methods=['GET', 'POST'])
 def extended_connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
@@ -282,7 +282,7 @@ def extended_connections():
 @prospects.route("/add-connections", methods=['GET', 'POST'])
 def add_connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     user = current_user
     if request.method == 'POST':
         if request.form.get("multi"):
@@ -308,7 +308,7 @@ def add_connections():
 @prospects.route("/skip-connections", methods=['GET', 'POST'])
 def skip_connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     user = current_user
     if request.method == 'POST':
         if request.form.get("multi"):

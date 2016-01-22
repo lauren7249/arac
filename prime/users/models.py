@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
-    
+
     user_id = db.Column(postgresql.INTEGER, primary_key=True)
 
     first_name = db.Column(String(100), nullable=False)
@@ -113,7 +113,7 @@ class User(db.Model, UserMixin):
 
     @property
     def is_manager(self):
-        return (self.manager_id is None)
+        return (len(self.manager_profile)>0)
 
     def get_id(self):
         return unicode(self.user_id)
@@ -143,7 +143,7 @@ class User(db.Model, UserMixin):
         sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
         return True
 
-    @property 
+    @property
     def manager(self):
         from prime.managers.models import ManagerProfile
         if self.manager_id:

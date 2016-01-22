@@ -42,8 +42,6 @@ def login():
     form = LoginForm()
     valid = True
     if form.is_submitted():
-        # import pdb
-        # pdb.set_trace()        
         if form.validate():
             user = User.query.filter_by(email=form.email.data.lower()).first()
             if user is not None and user.check_password(form.password.data):
@@ -84,21 +82,21 @@ def signup():
         code = form.code.data
         reset = form.reset.data
         onboarding_code = hashlib.md5(code).hexdigest()
-        user = User.query.filter(User.onboarding_code == onboarding_code).first()   
+        user = User.query.filter(User.onboarding_code == onboarding_code).first()
         if not user:
-            return "This signup code is invalid. Please request another invite."     
+            return "This signup code is invalid. Please request another invite."
         if form.validate():
             if not user.account_created and not user.is_manager:
                 env = Environment()
-                env.loader = FileSystemLoader("prime/templates")                
+                env.loader = FileSystemLoader("prime/templates")
                 tmpl = env.get_template('emails/account_created.html')
                 body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=user.email)
                 sendgrid_email(user.manager.user.email, "{} {} created an AdvisorConnect account".format(user.first_name, user.last_name), body)
-            user.account_created = True        
+            user.account_created = True
             user.set_password(form.password.data)
             db.session.add(user)
             db.session.commit()
-            login_user(user, True)         
+            login_user(user, True)
             return redirect("/")
         #form did not validate
         if form.errors and request.method == 'POST':
@@ -108,13 +106,13 @@ def signup():
     code = request.args.get("code")
     reset = request.args.get("reset")
     if not code:
-        return "The page expired. Please use the back button and try again."     
+        return "The page expired. Please use the back button and try again."
     onboarding_code = hashlib.md5(code).hexdigest()
-    user = User.query.filter(User.onboarding_code == onboarding_code).first()       
+    user = User.query.filter(User.onboarding_code == onboarding_code).first()
     if not user:
-        return "This signup code is invalid. It may have expired. Please request another invite."   
+        return "This signup code is invalid. It may have expired. Please request another invite."
     if user.account_created and reset != 'yes':
-        return redirect(url_for('auth.login'))        
+        return redirect(url_for('auth.login'))
     return render_template('auth/signup.html', signup_form=form, code=code, reset=reset, user=user)
 
 @auth.route('/logout')
