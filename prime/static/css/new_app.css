@@ -356,6 +356,10 @@ a {
   text-align: right;
 }
 
+.text-teal {
+  color: #02C2B9;
+}
+
 hr {
   border-color: transparent;
   border-top: 1px solid #DADFE1;
@@ -498,7 +502,7 @@ hr {
 }
 
 .section {
-  padding: 40px 0;
+  padding: 10px 0;
 }
 
 .wrap {
@@ -591,6 +595,39 @@ hr {
   padding: 50px;
 }
 
+.contacts-uploaded .card-header {
+  display: table;
+  width: 100%;
+}
+.contacts-uploaded .card-header * {
+  padding-left: 30px;
+  padding-right: 30px;
+  display: table-cell;
+}
+.contacts-uploaded .card-header h4 {
+  width: 50%;
+}
+.contacts-uploaded .card-header span {
+  width: 25%;
+}
+.contacts-uploaded table td:first-child {
+  width: 50%;
+}
+.contacts-uploaded table td:first-child * {
+  vertical-align: middle;
+}
+.contacts-uploaded table td:first-child img {
+  margin-right: 10px;
+}
+.contacts-uploaded table td:nth-child(2)
+.contacts-uploaded table td:nth-child(3) {
+  width: 25%;
+}
+.contacts-uploaded table tr.not-uploaded * {
+  font-weight: normal !important;
+  color: #BFBFBF !important;
+}
+
 table.manager-dashboard th {
   font-size: 14px;
 }
@@ -651,7 +688,7 @@ table.manager-dashboard .pending {
 }
 
 .potential-markets [class^='market-'] {
-  font-size: 28px;
+  font-size: 24px;
   margin-right: 10px;
   margin-bottom: 20px;
   border-bottom: 2px solid;
@@ -662,6 +699,7 @@ table.manager-dashboard .pending {
   display: inline-block;
   background-color: #27B4F4;
   color: white;
+  margin-left: 5px;
   font-size: 12px;
   height: 22px;
   line-height: 24px;

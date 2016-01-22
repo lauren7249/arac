@@ -415,6 +415,9 @@ a {
 .text-right {
   text-align: right;
 }
+.text-teal {
+  color: $teal;
+}
 
 hr {
   border-color: transparent;
@@ -564,7 +567,7 @@ hr {
 }
 
 .section {
-  padding: 40px 0;
+  padding: 10px 0;
 }
 
 .wrap {
@@ -609,6 +612,47 @@ $padcount: 5;
 
 
 // Pages ==================================
+
+.contacts-uploaded {
+  .card-header {
+    display: table;
+    width: 100%;
+    * {
+      padding-left: 30px;
+      padding-right: 30px;
+      display: table-cell;
+    }
+    h4 {
+      width: 50%;
+    }
+    span {
+      width: 25%;
+    }
+  }
+  table {
+    td {
+      &:first-child {
+        width: 50%;
+        * {
+          vertical-align: middle;
+        }
+        img {
+          margin-right: 10px;
+        }
+      }
+      &:nth-child(2)
+      &:nth-child(3) {
+        width: 25%;
+      }
+    }
+    tr.not-uploaded * {
+      font-weight: normal !important;
+      color: $lightgrey !important;
+    }
+  }
+}
+
+
 table.manager-dashboard {
   th {
     font-size: 14px;
@@ -684,7 +728,7 @@ table.manager-dashboard {
 
 .potential-markets {
   [class^='market-'] {
-    font-size: 28px;
+    font-size: 24px;
     margin-right: 10px;
     margin-bottom: 20px;
     border-bottom: 2px solid;
@@ -694,6 +738,7 @@ table.manager-dashboard {
       display: inline-block;
       background-color: $blue;
       color: white;
+      margin-left: 5px;
       font-size: 12px;
       height: 22px;
       line-height: 24px;
