@@ -56,11 +56,6 @@ class ManagerProfile(db.Model, UserMixin):
     address = db.Column(String(1000))
     phone = db.Column(String(30))
     created = db.Column(Date, default=datetime.datetime.today())
-    
-
-    # @property 
-    # def users(self):
-    #     return User.query.filter_by(manager_id=self.manager_id)
 
     @property 
     def title(self):
