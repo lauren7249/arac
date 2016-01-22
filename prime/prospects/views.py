@@ -133,8 +133,8 @@ def upload():
         return redirect(url_for('auth.login'))
     if request.method == 'POST':
         indata = request.json
-        user_email = indata.get("user_email","")
-        client_first_name = indata.get("firstName","")
+        #user_email = indata.get("user_email","")
+        #client_first_name = indata.get("firstName","")
         # f = open('data/{}.json'.format(user_email),'w')
         # f.write(json.dumps(indata))
         contacts_array = indata.get("contacts_array")
@@ -166,8 +166,10 @@ def upload():
                 "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
                 "to_email":to_email}
         from prime.processing_service.saved_request import UserRequest
-        user_request = UserRequest(user_email)
+        user_request = UserRequest(current_user.email)
         user_request._make_request(contacts_array)
+        print user_request.boto_key.key
+        print user_request.boto_key.exists()
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
