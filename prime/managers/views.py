@@ -35,7 +35,7 @@ def manager_home():
         return redirect(url_for('auth.login'))
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
-    manager = current_user.manager_profile
+    manager = current_user.manager_profile[0]
     agents = manager.users.all()
     agent_count = manager.users.count()
     return render_template('manager/dashboard.html', agents=agents,
@@ -59,7 +59,7 @@ def manager_invite_agent():
             error_message = "This agent already exists in our system. Please \
                     contact jeff@adivsorconnect.co if this seems incorrect to you"
         else:
-            manager = current_user.manager_profile
+            manager = current_user.manager_profile[0]
             user = User(first_name, last_name, to_email, '')
             user.manager_id = manager.manager_id
             session.add(user)
@@ -120,7 +120,7 @@ def request_p200():
             return jsonify({"name": "{} {}".format(user.first_name, user.last_name) })
         except Exception, e:
             print str(e)
-
+            
 @manager.route("/test_email", methods=['GET'])
 def test_email():
     return render_template("emails/invite.html", invited_by=current_user.name,

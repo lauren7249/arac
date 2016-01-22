@@ -115,11 +115,6 @@ class User(db.Model, UserMixin):
     def is_manager(self):
         return (self.manager_id is None)
 
-    @property 
-    def manager_profile(self):
-        from prime.managers.models import ManagerProfile
-        return ManagerProfile.query.filter_by(user_id=self.user_id).first()
-
     def get_id(self):
         return unicode(self.user_id)
 
