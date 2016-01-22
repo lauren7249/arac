@@ -16,7 +16,7 @@ session as flask_session, jsonify
 from flask.ext.login import current_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
-from prime import db, csrf
+from prime import db, csrf, whoisthis
 from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast, extract, or_, func
@@ -78,6 +78,7 @@ def queue_processing_service(client_data, contacts_array):
 ##    VIEWS   ##
 ################
 
+#@whoisthis
 @prospects.route("/", methods=['GET', 'POST'])
 def start():
     if not current_user.is_authenticated():
@@ -156,7 +157,11 @@ def upload():
         session.add(current_user)
         session.commit()
         manager = current_user.manager
-        to_email = manager.user.email
+        if not manager:
+            print "Error: no manager for current_user {}".format(current_user.user_id)
+            to_email = "missing_manager@advisorconnect.co"
+        else:
+            to_email = manager.user.email
         client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                 "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
                 "to_email":to_email}

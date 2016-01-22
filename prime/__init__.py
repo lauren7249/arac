@@ -1,3 +1,6 @@
+import sys
+reload(sys) 
+sys.setdefaultencoding('utf-8')
 import logging
 from logging.handlers import SysLogHandler
 
@@ -12,7 +15,6 @@ from flask_wtf.csrf import CsrfProtect
 from webassets import Bundle
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
-
 
 from config import config
 
@@ -76,4 +78,12 @@ def add_template_globals(app):
     @app.template_global()
     def static_url():
         return app.config.get('STATIC_URL')
+
+def whoisthis(func):
+    def tellme(*args, **kwargs):
+        print func
+        print current_user
+        print request
+        return func(*args, **kwargs)
+    return tellme
 

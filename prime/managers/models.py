@@ -56,7 +56,6 @@ class ManagerProfile(db.Model, UserMixin):
     address = db.Column(String(1000))
     phone = db.Column(String(30))
     created = db.Column(Date, default=datetime.datetime.today())
-    
 
     @property 
     def title(self):
