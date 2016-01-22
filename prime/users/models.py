@@ -62,6 +62,10 @@ class User(db.Model, UserMixin):
     created = db.Column(DateTime, default=datetime.datetime.today())
 
     unique_contacts_uploaded = db.Column(Integer, default=0)
+    contacts_from_linkedin = db.Column(Integer, default=0)
+    contacts_from_gmail = db.Column(Integer, default=0)
+    contacts_from_yahoo = db.Column(Integer, default=0)
+    contacts_from_windowslive = db.Column(Integer, default=0)
 
     prospects = db.relationship('Prospect', secondary="client_prospect",
             backref=db.backref('prospects'), lazy="dynamic")
@@ -400,6 +404,7 @@ class ClientProspect(db.Model):
     lead_score = db.Column(Integer)
     stars = db.Column(Integer)
     common_schools = db.Column(JSONB, default=[])
+    sources = db.Column(JSONB, default=[])
 
     @property
     def stars_display(self):

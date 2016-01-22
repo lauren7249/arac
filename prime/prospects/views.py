@@ -154,6 +154,10 @@ def upload():
                 by_email.add(email_address)
         n_contacts = len(by_email)
         current_user.unique_contacts_uploaded = n_contacts
+        current_user.contacts_from_linkedin = n_linkedin
+        current_user.contacts_from_gmail = n_gmail
+        current_user.contacts_from_yahoo = n_yahoo
+        current_user.contacts_from_windowslive = n_windowslive
         session.add(current_user)
         session.commit()
         manager = current_user.manager
