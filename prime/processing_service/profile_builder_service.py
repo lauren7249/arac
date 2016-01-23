@@ -139,13 +139,13 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["dob_max_year"] = self.person.get("dob_max")
         self.profile["referrers"] = self.person.get("referrers",[])
         self.profile["extended"] = self.person.get("extended")
+        self.profile["sources"] = self.person.get("sources",[])
         if self.hired:
             self.profile["email_addresses"] = self.person.get("email_addresses")
             self.profile["profile_image_urls"] = self.person.get("images")
             self.profile["main_profile_image"] = self._get_main_profile_image()
             self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
             self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
-            self.profile["sources"] = self.person.get("sources",[])
         return self.profile
 
     def _get_linkedin_fields(self):

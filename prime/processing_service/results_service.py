@@ -37,6 +37,7 @@ class ResultService(Service):
         client_prospect.lead_score = profile.get("lead_score")
         client_prospect.stars = profile.get("stars")
         client_prospect.common_schools = profile.get("common_schools")
+        client_prospect.sources = profile.get("sources")
         client_prospect.updated = datetime.datetime.today()
         self.session.add(client_prospect)
         self.session.commit()

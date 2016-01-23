@@ -66,6 +66,7 @@ class User(db.Model, UserMixin):
     contacts_from_gmail = db.Column(Integer, default=0)
     contacts_from_yahoo = db.Column(Integer, default=0)
     contacts_from_windowslive = db.Column(Integer, default=0)
+    account_sources = db.Column(JSONB, default={})
 
     prospects = db.relationship('Prospect', secondary="client_prospect",
             backref=db.backref('prospects'), lazy="dynamic")
@@ -174,9 +175,6 @@ class User(db.Model, UserMixin):
         return self.client_prospects and len(self.client_prospects) > 0
 
     def statistics(self, refresh=False):
-        """
-        Adding in cache functionality to rebuild if older than 2 days
-        """
         if not refresh and self._statistics and self._statistics.get("network_size"):
             return self._statistics
         stats = self.build_statistics()
@@ -184,6 +182,23 @@ class User(db.Model, UserMixin):
         db.session.add(self)
         db.session.commit()
         return stats
+
+    @property
+    def from_linkedin(self):
+        return self.statistics().get("from_linkedin", 0)
+
+    @property
+    def from_gmail(self):
+        return self.statistics().get("from_gmail", 0)
+
+    @property
+    def from_yahoo(self):
+        return self.statistics().get("from_yahoo", 0)
+
+    @property
+    def from_windowslive(self):
+        return self.statistics().get("from_windowslive", 0)
+
 
     @property
     def linkedin(self):
@@ -285,6 +300,11 @@ class User(db.Model, UserMixin):
         twitter = 0
         amazon = 0
         pinterest = 0
+        from_linkedin = 0
+        from_gmail = 0
+        from_yahoo = 0
+        from_windowslive = 0
+        account_sources = self.account_sources
         for client_prospect in self.client_prospects:
             if not client_prospect.stars:
                 logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
@@ -292,6 +312,16 @@ class User(db.Model, UserMixin):
             if client_prospect.extended:
                 extended_count+=1
                 continue
+            for source in client_prospect.sources:
+                source = account_sources.get(source)
+                if source=='linkedin':
+                    from_linkedin+=1
+                elif source=='gmail':
+                    from_gmail+=1
+                elif source=='yahoo':
+                    from_yahoo+=1    
+                elif source =='windowslive':
+                    from_windowslive+=1                                   
             if not client_prospect.prospect:
                 logger.warn("clientprospect=None (clientprospect id={})".format(client_prospect.id))
                 continue
@@ -360,7 +390,11 @@ class User(db.Model, UserMixin):
                 "facebook": facebook,
                 "twitter": twitter,
                 "pinterest": pinterest,
-                "amazon": amazon}
+                "amazon": amazon,
+                "from_linkedin": from_linkedin,
+                "from_gmail": from_gmail,
+                "from_yahoo": from_yahoo,
+                "from_windowslive": from_windowslive}
         return data
 
     @property

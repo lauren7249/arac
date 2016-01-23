@@ -53,9 +53,44 @@ if __name__ == '__main__':
         from prime.processing_service.saved_request import UserRequest
         from redis import Redis
         from rq import Queue
+        session = db.session
         user = User.query.filter_by(email=email).first()
         user_request = UserRequest(email)
         contacts_array = user_request.lookup_data()
+        n_linkedin = 0
+        n_gmail = 0
+        n_yahoo = 0
+        n_windowslive = 0
+        n_contacts = 0
+        account_sources = {}
+        for record in contacts_array:
+            n_contacts+=1
+            owner = record.get("contacts_owner")              
+            if owner:
+                account_email = owner.get("email",[{}])[0].get("address","").lower()   
+            else: 
+                account_email = 'linkedin'                    
+            service = record.get("service","").lower()
+            account_sources[account_email] = service
+            if service=='linkedin':
+                n_linkedin+=1
+            elif service=='gmail':
+                n_gmail+=1
+            elif service=='yahoo':
+                n_yahoo+=1
+            elif service=='windowslive':
+                n_windowslive+=1                
+        user.unique_contacts_uploaded = n_contacts
+        user.contacts_from_linkedin = n_linkedin
+        user.contacts_from_gmail = n_gmail
+        user.contacts_from_yahoo = n_yahoo
+        user.contacts_from_windowslive = n_windowslive
+        user.account_sources = account_sources
+        user._statistics = None
+        for client_prospect in user.client_prospects:
+            session.delete(client_prospect)
+        session.add(user)
+        session.commit()        
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
                 "to_email":user.manager.user.email, "hired": (hired == "True")}

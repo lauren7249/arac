@@ -133,16 +133,32 @@ def upload():
         return redirect(url_for('auth.login'))
     if request.method == 'POST':
         indata = request.json
-        #user_email = indata.get("user_email","")
-        #client_first_name = indata.get("firstName","")
-        # f = open('data/{}.json'.format(user_email),'w')
-        # f.write(json.dumps(indata))
         contacts_array = indata.get("contacts_array")
         by_email = set()
+        n_linkedin = 0
+        n_gmail = 0
+        n_yahoo = 0
+        n_windowslive = 0
+        account_sources = {}
         for record in contacts_array:
             if len(str(record)) > 10000:
                 print "CloudspongeRecord is too big"
                 continue
+            owner = record.get("contacts_owner")              
+            if owner:
+                account_email = owner.get("email",[{}])[0].get("address","").lower()   
+            else: 
+                account_email = None                    
+            service = record.get("service","").lower()
+            account_sources[account_email] = service
+            if service=='linkedin':
+                n_linkedin+=1
+            elif service=='gmail':
+                n_gmail+=1
+            elif service=='yahoo':
+                n_yahoo+=1
+            elif service=='windowslive':
+                n_windowslive+=1                
             contact = record.get("contact",{})
             emails = contact.get("email",[{}])
             try:
@@ -158,6 +174,7 @@ def upload():
         current_user.contacts_from_gmail = n_gmail
         current_user.contacts_from_yahoo = n_yahoo
         current_user.contacts_from_windowslive = n_windowslive
+        current_user.account_sources = account_sources
         session.add(current_user)
         session.commit()
         manager = current_user.manager
