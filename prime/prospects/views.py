@@ -1,7 +1,7 @@
 import logging
 from flask import Flask
 from collections import Counter
-
+import socket
 from rq import Queue
 from redis import Redis
 import re
@@ -61,8 +61,7 @@ def uu(str):
 ################
 
 def get_q():
-    print os.getenv('AC_CONFIG', 'default')
-    if os.getenv('AC_CONFIG', 'default') == 'beta':
+    if socket.gethostname() == 'docker':
         conn = Redis.from_url(url=REDIS_URL, db=0)
     else:
         conn = Redis.from_url(url='redis://localhost', db=0)
