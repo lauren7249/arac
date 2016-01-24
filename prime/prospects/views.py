@@ -61,6 +61,7 @@ def uu(str):
 ################
 
 def get_q():
+    print os.getenv('AC_CONFIG', 'default')
     if os.getenv('AC_CONFIG', 'default') == 'beta':
         conn = Redis.from_url(url=REDIS_URL, db=0)
     else:
@@ -148,7 +149,7 @@ def upload():
             if owner:
                 account_email = owner.get("email",[{}])[0].get("address","").lower()   
             else: 
-                account_email = None                    
+                account_email = "linkedin"                    
             service = record.get("service","").lower()
             account_sources[account_email] = service
             if service=='linkedin':
@@ -197,6 +198,7 @@ def upload():
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
         sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, n_contacts), body)
         q = get_q()
+        print q.connection
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": n_contacts})
 
