@@ -148,7 +148,7 @@ def upload():
             if owner:
                 account_email = owner.get("email",[{}])[0].get("address","").lower()   
             else: 
-                account_email = None                    
+                account_email = "linkedin"                    
             service = record.get("service","").lower()
             account_sources[account_email] = service
             if service=='linkedin':
