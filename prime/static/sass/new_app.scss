@@ -908,22 +908,6 @@ div.pagination {
   position: relative;
 }
 
-div.loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  z-index: 1000;
-
-  img {
-    display: block;
-    margin: 50px auto;
-  }
-}
-
 
 // Onboarding ==================================
 
@@ -1110,13 +1094,19 @@ div.loading {
 
 .connect-email {
   margin-bottom: 2rem;
-  * {
+  img {
     margin-right: 1rem;
     display: inline-block;
     vertical-align: middle;
   }
+  span {
+    display: inline-block;
+    vertical-align: middle;
+  }
   .connected {
-    visibility: hidden;
+    // visibility: hidden;
+    display: none;
+    margin-bottom: 1rem;
     &:before {
       display: inline-block;
       content: "";
@@ -1151,4 +1141,44 @@ div.loading {
 
 .grey {
   background:#EEEEEE;
+}
+
+
+
+
+// Loading & Spinners ==================================
+
+$spinner: 100px;
+
+div.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  z-index: 1000;
+  img {
+    display: block;
+    margin: 50px auto;
+  }
+}
+
+.waiting.modal {
+  width: $spinner;
+  height: $spinner;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: 50%;
+  bottom: 50%;
+  margin-top: -($spinner / 2);
+  margin-left: -($spinner / 2);
+  border-radius: 4px;
+  img {
+    width: 100%;
+    height: auto;
+    padding: 20px;
+  }
 }
