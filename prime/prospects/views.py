@@ -61,6 +61,7 @@ def uu(str):
 ################
 
 def get_q():
+    print os.getenv('AC_CONFIG', 'default')
     if os.getenv('AC_CONFIG', 'default') == 'beta':
         conn = Redis.from_url(url=REDIS_URL, db=0)
     else:
