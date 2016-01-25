@@ -35,11 +35,15 @@ $(function() {
         var user_id = $(this).data("p200-id");
         var name = $(this).name;
         if (user_id != undefined && user_id != null && user_id != '') {
-          document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
           document.getElementById("success").style.display = "inline";   
-          document.getElementById("success").showModal();              
+          document.getElementById("success").showModal();   
+          document.getElementById("p200_success_message").style.display = "none";         
+          document.getElementById("spinner").style.display = "inline";           
           $.post("/managers/request_p200", {user_id:user_id}, function(data){
               if (data.name != undefined && data.name !=null && data.name != '') {
+                document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
+                document.getElementById("spinner").style.display = "none";    
+                document.getElementById("p200_success_message").style.display = "inline";     
                 document.getElementById(user_id + "_p200_button").style.display = "none";     
                 document.getElementById(user_id + "_p200_pending").style.display = "inline";   
               }
