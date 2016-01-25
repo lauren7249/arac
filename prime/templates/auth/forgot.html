@@ -1,45 +1,34 @@
 {% extends 'base.html' %}
+{% block header %}{% endblock %}
 {% block content %}
-<div class='wrap'>
-  <div class='signup'>
-    <div class='row'>
-<!--       <div class='logo'>
-        <img src='{{ static_url() }}img/NewYorkLife.png' />
-      </div> -->
-      <br/>
-    </div>
-    <div class='well col-lg-7 center'>
-      <div class='row'>
-        <form class="form-horizontal" method='POST'>
-          {% if form.errors %}
-          <div class='alert alert-dismissable alert-danger'>
-            {% for error in form.errors.items() %}
-            <div>
-              <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
-            </div>
-            {% endfor %}
-          </div>
-          {%endif%}
-          {{ form.csrf_token }}
-          <fieldset>
-            <legend>Enter your Email To Reset Password</legend>
-            <div class="form-group">
-              <label for="inputEmail" class="col-lg-2 control-label">Email</label>
-              <div class="col-lg-10">
-                <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
-              </div>
-            </div>
-            <div class="form-group">
-              <div class="col-lg-10 col-lg-offset-2">
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            </div>
-          </fieldset>
-          <a href='{{ url_for('.login') }}'>Login</a>
-        </form>
+<div class='signup'>
+  <form class="card" method='POST'>
+    {% if form.errors %}
+    <div class='error'>
+      {% for error in form.errors.items() %}
+      <div>
+        <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
       </div>
+      {% endfor %}
     </div>
-    <div class='clear'></div>
-  </div>
+    {%endif%}
+
+    {% if form.success %}
+    <div class='success'>
+      <span><b>Success!</b> The invite has been sent.</span>
+    </div>
+    {% endif %}
+
+    {{ form.csrf_token }}
+    <h2>Enter your Email To Reset Password</h2>
+    <div class="form-group">
+      <label for="inputEmail">Email</label>
+      <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
+    </div>
+    <button type="submit" class="button teal">Submit</button>
+  </form>
+  <h5>
+    <a href='{{ url_for('.login') }}'>Login</a>
+  </h5>
 </div>
 {% endblock %}

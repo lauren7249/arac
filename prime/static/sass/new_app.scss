@@ -13,6 +13,8 @@ $blue: #27B4F4;
 $teal: #02C2B9;
 $darkblue: #3A539B;
 $purple: #9F81EB;
+$error: #EB143E;
+$success: #6CCC48;
 
 $market-color-1: #10164B;
 $market-color-2: #1B2B7F;
@@ -31,6 +33,13 @@ $sans: 'Poppins', sans-serif;
   background-repeat: no-repeat;
   background-position: 50% 50%;
   background-size: 100%;
+}
+
+%centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 a {
@@ -394,6 +403,68 @@ select {
     outline: none;
   }
 }
+
+%input {
+  border: 1px solid $border;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
+  padding: 0 10px;
+  border-radius: 2px;
+  &:active, &:focus {
+    outline: none;
+    border-color: $black;
+  }
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  @extend %input;
+}
+
+form {
+  &.card {
+    padding: 30px;
+  }
+}
+
+.form-group {
+  margin: 20px 0;
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1rem;
+    margin-bottom: 5px;
+  }
+  input {
+
+  }
+}
+
+%error-success {
+  color: white;
+  padding: 10px;
+  // text-align: center;
+  display: block;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  span {
+    display: block;
+  }
+}
+
+.error {
+  @extend %error-success;
+  background-color: $error;
+}
+.success {
+  @extend %error-success;
+  background-color: $success;
+}
+
 
 
 
@@ -1139,11 +1210,6 @@ div.pagination {
   }
 }
 
-.grey {
-  background:#EEEEEE;
-}
-
-
 
 
 // Loading & Spinners ==================================
@@ -1181,4 +1247,23 @@ div.loading {
     height: auto;
     padding: 20px;
   }
+}
+
+
+
+// Auth, Invite, Signup Pages ==================================
+
+.signup {
+  width: 50%;
+  max-width: 800px;
+  min-width: 400px;
+  @extend %centered;
+}
+
+.accept-terms {
+  margin-left: 10px;
+}
+
+.flashed-messages {
+  margin: 40px auto;
 }

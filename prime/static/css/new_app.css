@@ -8,6 +8,13 @@
   background-size: 100%;
 }
 
+.signup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 a {
   color: #16263D;
 }
@@ -336,6 +343,60 @@ select:hover {
 }
 select:active, select:focus {
   outline: none;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  border: 1px solid #DADFE1;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
+  padding: 0 10px;
+  border-radius: 2px;
+}
+input[type="text"]:active,
+input[type="password"]:active,
+input[type="email"]:active, input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+  outline: none;
+  border-color: #16263D;
+}
+
+form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
+  padding: 30px;
+}
+
+.form-group {
+  margin: 20px 0;
+}
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .1rem;
+  margin-bottom: 5px;
+}
+
+.error, .success {
+  color: white;
+  padding: 10px;
+  display: block;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+.error span, .success span {
+  display: block;
+}
+
+.error {
+  background-color: #EB143E;
+}
+
+.success {
+  background-color: #6CCC48;
 }
 
 * {
@@ -1098,10 +1159,6 @@ div.pagination a.active {
   margin-bottom: 2rem;
 }
 
-.grey {
-  background: #EEEEEE;
-}
-
 div.loading {
   position: absolute;
   top: 0;
@@ -1133,4 +1190,18 @@ div.loading img {
   width: 100%;
   height: auto;
   padding: 20px;
+}
+
+.signup {
+  width: 50%;
+  max-width: 800px;
+  min-width: 400px;
+}
+
+.accept-terms {
+  margin-left: 10px;
+}
+
+.flashed-messages {
+  margin: 40px auto;
 }

@@ -41,6 +41,8 @@
 
   </head>
   <body>
+  
+  {% block header %}
   <header>
     <div class="wrap">
 <!--       <div class="col-6">
@@ -65,13 +67,17 @@
       </div>
     </div>
   </header>
+  {% endblock %}
+
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <ul class=flashes>
+    <div class="wrap flashed-messages">
       {% for message in messages %}
-        <li>{{ message }}</li>
+      <div class='success'>
+        <span>{{ message }}</span>
+      </div>
       {% endfor %}
-      </ul>
+    </div>
     {% endif %}
   {% endwith %}
     <div class='overlay'>
