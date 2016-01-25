@@ -264,10 +264,10 @@ FILTER_DICT = {
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login')) 
-    if current_user.hiring_screen_completed:
-        return redirect(url_for('prospects.dashboard'))              
+        return redirect(url_for('auth.login'))            
     if not current_user.p200_completed:
+        if current_user.hiring_screen_completed:
+            return redirect(url_for('prospects.dashboard'))           
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
     order = request.args.get("order", "a-z")
