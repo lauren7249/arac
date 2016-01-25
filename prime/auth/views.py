@@ -66,10 +66,13 @@ def forgot():
     form = ForgotForm()
     if form.is_submitted():
         if form.validate():
-            user = User.query.filter_by(email=form.email.data.lower()).first()
-            user.send_reset_password()
-            flash("Password reset sent to your email. Please check spam if you do\
-                    not see it")
+            user = User.query.filter_by(email=form.email.data.lower().strip()).first()
+            if not user:
+                flash("No account exists with that email address. Please email support@advisorconnect.co if this seems incorrect to you.")   
+            else:             
+                user.send_reset_password()
+                flash("Password reset sent to your email. Please check spam if you do\
+                        not see it")
     return render_template('auth/forgot.html', form=form)
 
 @auth.route('/signup', methods=['GET', 'POST'])

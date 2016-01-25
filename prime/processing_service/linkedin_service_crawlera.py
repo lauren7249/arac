@@ -22,8 +22,8 @@ def wrapper(person):
         if linkedin_url:
             data = PersonRequest()._get_profile_by_any_url(linkedin_url)
             return data
-        if person.get("job_title") and person.get("companies") and person.get('first_name') and person.get("last_name"):
-            print "no linkedin url found for {} {} {} {}".format(person.get("first_name"),person.get("last_name"),person.get("job_title"),person.get("companies")[0])
+        if "linkedin" in person.get("sources"):
+            print "no linkedin url found for {} {} {} {}".format(person.get("first_name"),person.get("last_name"),person.get("job_title"),person.get("companies"))
         return {}
     except Exception, e:
         print __name__ + str(e)
