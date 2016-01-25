@@ -106,8 +106,7 @@ class User(db.Model, UserMixin):
 
     @property
     def p200_count(self):
-        return 200 - int(self.prospects.filter(\
-                ClientProspect.good==True).count())
+        return max(200 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)
 
     def set_password(self, password):
         self._password_hash = generate_password_hash(password)

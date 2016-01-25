@@ -100,12 +100,37 @@ def agent_p200(agent_id):
         return redirect(url_for('auth.login'))
     page = int(request.args.get("p", 1))
     agent = User.query.get(agent_id)
+    manager = agent.manager
+    if current_user.user_id != manager.user_id:
+        return "You are not authorized to view this content."    
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
             ClientProspect.user==agent,
             ).join(Prospect).order_by(Prospect.name)
     connections = connections.paginate(page, 25, False)
     return render_template("p200.html",
+            agent=agent,
+            page=page,
+            connections=connections.items,
+            pagination=connections,
+            active="p200")
+
+@csrf.exempt
+@manager.route("/pdf/<int:agent_id>", methods=['GET', 'POST'])
+def pdf(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    page = int(request.args.get("p", 1))
+    agent = User.query.get(agent_id)
+    manager = agent.manager
+    if current_user.user_id != manager.user_id:
+        return "You are not authorized to view this content."    
+    connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).order_by(Prospect.name)
+    connections = connections.paginate(page, 200, False)
+    return render_template("pdf.html",
             agent=agent,
             page=page,
             connections=connections.items,
@@ -143,8 +168,12 @@ def request_p200():
 @manager.route("/approve/<int:agent_id>", methods=['GET', 'POST'])
 def approve_p200(agent_id):
     if not current_user.is_authenticated():
-        return jsonify({"error": "You must be authenticated"})
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager():
+        return "You are not authorized to view this content." 
     agent = User.query.get(agent_id)
+    if agent.manager_id != current_user.manager_profile[0].manager_id:
+        return "You are not authorized to view this content." 
     agent.p200_manager_approved()
     agent.p200_approved = True
     session.add(agent)

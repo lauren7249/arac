@@ -8,8 +8,10 @@
         <ul>
           <li><a href="/dashboard" class="{% if active == "dashboard" %}selected{% endif %}">Network Summary</a></li>
           {%if agent.p200_completed %}
-            <li><a href="/connections" class="{% if active == "connections" %}selected{% endif %}">Build My Project 200</a></li>
-            <li><a href="/p200" class="{% if active == "p200" %}selected{% endif %}">View My Project 200</a></li>
+            {%if not agent.p200_approved %}
+              <li><a href="/connections" class="{% if active == "connections" %}selected{% endif %}">Build Project 200</a></li>
+            {%endif%}
+            <li><a href="/p200" class="{% if active == "p200" %}selected{% endif %}">View Project 200</a></li>
           {%endif%}
           <!-- <li><a href="/dashboard" class="{% if active == "dashboard" %}selected{% endif %}">Your Network</a></li> -->
           <!-- <li><a href="/extended/connections" class="{% if active == "extended" %}selected{% endif %}">Extended</a></li> -->

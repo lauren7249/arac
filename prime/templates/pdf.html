@@ -2,7 +2,9 @@
 {% block content %}
 {% with header="Project 200" %}
 {% endwith %}
-
+<script type='text/javascript'>
+  window.onload = function() { window.print(); }
+</script>
 <div class="section" id='connections-section'>
   <div class="wrap" id='connections'>
     {% include "_partials/connections_table.html" %}

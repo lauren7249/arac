@@ -87,7 +87,13 @@ def start():
         return redirect(url_for("auth.login"))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    if current_user.p200_completed or current_user.hiring_screen_completed:
+    if current_user.p200_approved:
+        return redirect(url_for('prospects.p200'))        
+    if current_user.p200_submitted_to_manager:
+        return redirect(url_for('prospects.p200'))
+    if current_user.p200_completed:
+        return redirect(url_for('prospects.connections'))        
+    if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
@@ -98,9 +104,20 @@ def start():
 def pending():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    if current_user.p200_approved:
+        return redirect(url_for('prospects.p200'))        
+    if current_user.p200_submitted_to_manager:
+        return redirect(url_for('prospects.p200'))
+    if current_user.p200_completed:
+        return redirect(url_for('prospects.connections'))        
     if current_user.hiring_screen_completed:
-        return redirect(url_for("prospects.dashboard"))
-    return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
+        return redirect(url_for('prospects.dashboard'))
+    #User already has prospects, lets send them to the dashboard
+    if current_user.unique_contacts_uploaded>0:
+        return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
+    return render_template('start.html')
 
 @prospects.route("/terms")
 def terms():
@@ -111,6 +128,8 @@ def terms():
 def save_linkedin_data():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
     if request.method == 'POST':
         first_name = request.json.get("firstName",)
         last_name = request.json.get("lastName")
@@ -135,6 +154,8 @@ def save_linkedin_data():
 def upload():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
     if request.method == 'POST':
         indata = request.json
         contacts_array = indata.get("contacts_array")
@@ -209,7 +230,7 @@ def upload():
 def dashboard():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
-    if current_user.p200_completed or current_user.hiring_screen_completed:
+    if current_user.hiring_screen_completed:
         agent = current_user
         return render_template("dashboard.html", agent=agent, active = "dashboard")
     if current_user.unique_contacts_uploaded > 0:
@@ -265,7 +286,11 @@ FILTER_DICT = {
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))
+        return redirect(url_for("auth.login"))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    if current_user.p200_approved:
+        return redirect(url_for('prospects.p200'))              
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
@@ -297,7 +322,11 @@ def connections():
 def p200():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
     if not current_user.p200_completed:
+        if current_user.hiring_screen_completed:
+            return redirect(url_for('prospects.dashboard'))
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
     agent = current_user
@@ -318,56 +347,64 @@ def p200():
 def add_connections():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
+    if request.method != 'POST':
+        return redirect(url_for('prospects.dashboard'))
     user = current_user
-    if request.method == 'POST':
-        if request.form.get("multi"):
-            connection_ids = [int(i) for i in request.form.get("id").split(",")]
-            cp = ClientProspect.query.filter(ClientProspect.user==user,
-                    ClientProspect.prospect_id.in_(connection_ids))
-            for c in cp:
-                c.good = True
-                session.add(c)
-                session.commit()
-                if user.p200_count <= 0:
-                    return redirect(url_for("prospects.p200"))                
-        else:
-            connection_id = request.form.get("id")
-            prospect = Prospect.query.get(int(connection_id))
-            cp = ClientProspect.query.filter(ClientProspect.user==user,\
-                    ClientProspect.prospect==prospect).first()
-            cp.good = True
-            session.add(cp)
+    p200_count = user.p200_count
+    if request.form.get("multi"):
+        connection_ids = [int(i) for i in request.form.get("id").split(",")]
+        cp = ClientProspect.query.filter(ClientProspect.user==user,
+                ClientProspect.prospect_id.in_(connection_ids))
+        for c in cp:
+            c.good = True
+            session.add(c)
             session.commit()
-            if user.p200_count <= 0:
-                return redirect(url_for("prospects.p200"))               
-        return jsonify({"success":True})
-    return jsonify({"success":False})
+            p200_count-=1
+            if p200_count <= 0:
+                return redirect(url_for("prospects.p200"))                
+    else:
+        connection_id = request.form.get("id")
+        prospect = Prospect.query.get(int(connection_id))
+        cp = ClientProspect.query.filter(ClientProspect.user==user,\
+                ClientProspect.prospect==prospect).first()
+        cp.good = True
+        session.add(cp)
+        session.commit()
+        p200_count-=1
+        if p200_count <= 0:
+            return redirect(url_for("prospects.p200"))               
+    return jsonify({"success":True})
 
 @csrf.exempt
 @prospects.route("/skip-connections", methods=['GET', 'POST'])
 def skip_connections():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
+    if request.method != 'POST':
+        return redirect(url_for('prospects.dashboard'))        
     user = current_user
-    if request.method == 'POST':
-        if request.form.get("multi"):
-            connection_ids = [int(i) for i in request.form.get("id").split(",")]
-            cp = ClientProspect.query.filter(ClientProspect.user==user,
-                    ClientProspect.prospect_id.in_(connection_ids))
-            for c in cp:
-                c.processed = True
-                session.add(c)
-            session.commit()
-        else:
-            connection_id = request.form.get("id")
-            prospect = Prospect.query.get(int(connection_id))
-            cp = ClientProspect.query.filter(ClientProspect.user==user,\
-                    ClientProspect.prospect==prospect).first()
-            cp.processed = True
-            session.add(cp)
-            session.commit()
-        return jsonify({"success":True})
-    return jsonify({"success":False})
+    if request.form.get("multi"):
+        connection_ids = [int(i) for i in request.form.get("id").split(",")]
+        cp = ClientProspect.query.filter(ClientProspect.user==user,
+                ClientProspect.prospect_id.in_(connection_ids))
+        for c in cp:
+            c.processed = True
+            session.add(c)
+        session.commit()
+    else:
+        connection_id = request.form.get("id")
+        prospect = Prospect.query.get(int(connection_id))
+        cp = ClientProspect.query.filter(ClientProspect.user==user,\
+                ClientProspect.prospect==prospect).first()
+        cp.processed = True
+        session.add(cp)
+        session.commit()
+    return jsonify({"success":True})
+
 
 def get_emails_from_connection(emails):
     if not emails:
@@ -385,7 +422,9 @@ def get_emails_from_connection(emails):
 @prospects.route("/submit_p200_to_manager", methods=['GET', 'POST'])
 def submit_p200_to_manager():
     if not current_user.is_authenticated():
-        return jsonify({"error": "You must be authenticated"})
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
     agent = current_user
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
@@ -406,6 +445,8 @@ def submit_p200_to_manager():
 def export():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))        
     agent = current_user
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
@@ -436,12 +477,14 @@ def export():
 
 
 @csrf.exempt
-@prospects.route("/pdf/<int:agent_id>", methods=['GET', 'POST'])
-def pdf(agent_id):
+@prospects.route("/pdf", methods=['GET', 'POST'])
+def pdf():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home")) 
+    agent = current_user
     page = int(request.args.get("p", 1))
-    agent = User.query.get(agent_id)
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
             ClientProspect.user==agent,
