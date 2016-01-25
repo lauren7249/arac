@@ -89,7 +89,7 @@ def signup():
         if not user:
             return "This signup code is invalid. Please request another invite."
         if form.validate():
-            if not user.account_created and not user.is_manager:
+            if not user.account_created and not user.is_manager and reset != 'yes':
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 tmpl = env.get_template('emails/account_created.html')
