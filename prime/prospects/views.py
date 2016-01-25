@@ -326,7 +326,9 @@ def add_connections():
             for c in cp:
                 c.good = True
                 session.add(c)
-            session.commit()
+                session.commit()
+                if user.p200_count <= 0:
+                    return redirect(url_for("prospects.p200"))                
         else:
             connection_id = request.form.get("id")
             prospect = Prospect.query.get(int(connection_id))
@@ -335,6 +337,8 @@ def add_connections():
             cp.good = True
             session.add(cp)
             session.commit()
+            if user.p200_count <= 0:
+                return redirect(url_for("prospects.p200"))               
         return jsonify({"success":True})
     return jsonify({"success":False})
 
