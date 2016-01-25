@@ -150,7 +150,7 @@ class User(db.Model, UserMixin):
         return True
 
     def submit_to_manager(self):
-        body = render_template("emails/p200_submitted.html", agent_id=self.user_id,
+        body = render_template("emails/p200_submitted.html", agent=self,
                 base_url=current_app.config.get("BASE_URL"))
         subject = "{} submitted a P200 for approval".format(self.name)
         sendgrid_email(self.manager.user.email, subject, body,
