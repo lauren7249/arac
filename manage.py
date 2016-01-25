@@ -47,6 +47,19 @@ if __name__ == '__main__':
         session.commit()
 
     @manager.command
+    def add_user(first_name, last_name, email, password, location, url, manager_id):
+        from prime.users.models import db, User
+        session = db.session
+        u = User.query.filter_by(email=email).first()
+        if not u:
+            u = User(first_name, last_name, email, password)
+        u.manager_id = int(manager_id)
+        u.linkedin_location = location
+        u.linkedin_url = url
+        session.add(u)
+        session.commit()
+
+    @manager.command
     def rerun_contacts(email, hired):
         from prime.users.models import db, User
         from prime.prospects.views import queue_processing_service

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
 from prime import config
-
+from prime.managers.models import ManagerProfile
 from service import Service
 from cloudsponge_service import CloudSpongeService
 from person_service import PersonService
@@ -49,7 +49,9 @@ class ProcessingService(Service):
         self.data = data
         self.output = []
         user_request = UserRequest(client_data.get("email"),type='hiring-screen-data')
-        self.saved_data = user_request.lookup_data()            
+        self.saved_data = user_request.lookup_data() 
+        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
+            self.saved_data = None    
         if self.saved_data:     
             self.logger.info("Using saved data")
             self.data = self.saved_data       
@@ -124,7 +126,8 @@ class ProcessingService(Service):
                     subject = "Your P200 List is ready!"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
-                    body = tmpl.render(manager=user.manager, agent=user,base_url=self.web_url)
+                    manager = self.session.query(ManagerProfile).get(user.manager_id)
+                    body = tmpl.render(manager=manager, agent=user,base_url=self.web_url)
                     sendgrid_email(to_email, subject, body) 
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \

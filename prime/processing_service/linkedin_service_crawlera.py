@@ -3,6 +3,7 @@ import logging
 import time
 import sys
 import os
+import sys
 import boto
 from boto.s3.key import Key
 import json
@@ -12,6 +13,8 @@ import multiprocessing
 from service import Service
 from saved_request import S3SavedRequest
 from person_request import PersonRequest
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 def wrapper(person):
     try:
@@ -19,6 +22,8 @@ def wrapper(person):
         if linkedin_url:
             data = PersonRequest()._get_profile_by_any_url(linkedin_url)
             return data
+        if person.get("job_title") and person.get("companies") and person.get('first_name') and person.get("last_name"):
+            print "no linkedin url found for {} {} {} {}".format(person.get("first_name"),person.get("last_name"),person.get("job_title"),person.get("companies")[0])
         return {}
     except Exception, e:
         print __name__ + str(e)
@@ -39,9 +44,6 @@ class LinkedinService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        
-    def _get_linkedin_url(self, person):
-        return person.values()[0].get("linkedin_urls")
 
     def multiprocess(self):
         return self.process()

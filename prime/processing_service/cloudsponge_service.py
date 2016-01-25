@@ -86,10 +86,14 @@ class CloudSpongeService(Service):
                     self.logger.warn("Not a real person %s", contact_email)
                 else:
                     job_title = contact.get("job_title")
-                    companies = contact.get("companies")   
+                    companies = contact.get("companies")
+                    first_name = contact.get("first_name")
+                    last_name = contact.get("last_name")                          
                     self.logger.info("Person Email: %s, Job: %s, Companies: %s, Sources: %s", contact_email, job_title, companies, str(len(sources)))
                     self.unique_emails[contact_email] = {"job_title": job_title,
                                                     "companies": companies,
+                                                    "first_name": first_name,
+                                                    "last_name": last_name,
                                                     "sources": sources}             
             self.session.commit()           
             for key, value in self.unique_emails.iteritems():

@@ -26,7 +26,7 @@ def person_wrapper(person):
 class ClearbitPersonService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
-    Output is going to be social accounts and Linkedin IDs via PIPL
+    Output is going to be social accounts and Linkedin IDs via clearbit
     rate limit is 600/minute
     """
 
@@ -53,13 +53,10 @@ class ClearbitPersonService(Service):
             output_data[i][output_data[i].keys()[0]]["images"] = images
             output_data[i][output_data[i].keys()[0]]["sources"] = sources
             output_data[i][output_data[i].keys()[0]]["job_title"] = original_person.get("job_title")
-            output_data[i][output_data[i].keys()[0]]["company"] = original_person.get("company")
+            output_data[i][output_data[i].keys()[0]]["companies"] = original_person.get("companies")
+            output_data[i][output_data[i].keys()[0]]["first_name"] = original_person.get("first_name")
+            output_data[i][output_data[i].keys()[0]]["last_name"] = original_person.get("last_name")
         return output_data
-
-    def _exclude_person(self, person):
-        if len(person.values()) > 0 and person.values()[0].get("linkedin_urls"):
-            return True
-        return False
 
     def process(self):
         self.logstart()

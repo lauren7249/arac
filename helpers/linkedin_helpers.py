@@ -122,6 +122,8 @@ def match_common_school_names(p1, p2, intersect_threshold=3):
     return matching
 
 def get_dob_year_range(educations, experiences):
+    dob_year_min = None
+    dob_year_max = None    
     school_milestones = get_school_milestones(educations)
     first_school_year = school_milestones.get("first_school_year")
     first_grad_year = school_milestones.get("first_grad_year")

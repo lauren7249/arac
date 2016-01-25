@@ -258,6 +258,8 @@ def get_args(request):
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
+    if current_user.is_manager:
+        logout_user()    
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if not current_user.p200_completed:

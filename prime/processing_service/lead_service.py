@@ -50,6 +50,16 @@ class LeadService(Service):
             if miles_apart < self.location_threshhold:
                 self.logger.info("Same Location")
                 return True
+            if self.client_data.get("email") == 'jrocchi@ft.newyorklife.com':
+                for location in self.other_locations:
+                    latlng = location.get("latlng")
+                    geopoint = GeoPoint(latlng[0],latlng[1])                    
+                    miles_apart = geopoint.distance_to(lead_geopoint)
+                    self.logger.info("Location: %s Miles Apart: %s",
+                            person.get("location_coordinates",{}).get("locality"), miles_apart)
+                    if miles_apart < self.location_threshhold:
+                        self.logger.info("Same Location")
+                        return True             
         else:
             self.logger.info("No Location")
         return False
@@ -84,6 +94,10 @@ class LeadService(Service):
 
     def _get_qualifying_info(self):
         self.location = MapQuestRequest(self.client_data.get("location")).process()   
+        if self.client_data.get("email") == 'jrocchi@ft.newyorklife.com':
+            self.other_locations = []
+            for location in ["New York, New York","Boston, MA","Hartford, Connecticut"]:
+                self.other_locations.append(MapQuestRequest(location).process())
         data = self.data         
         service = GeoCodingService(self.client_data, data)
         data = service.multiprocess() 
