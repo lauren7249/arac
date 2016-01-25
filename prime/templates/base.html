@@ -48,7 +48,7 @@
       </div> -->
       <div class="col-6">
         {% if current_user.is_authenticated() %}
-          <div class="nav-right text-right">
+        <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right">
             {% if not current_user.is_manager and current_user.p200_completed %}
               <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
             {% endif %}

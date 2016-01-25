@@ -1,4 +1,6 @@
 import logging
+import StringIO
+import csv
 from flask import Flask
 from collections import Counter
 
@@ -12,7 +14,7 @@ import datetime
 import json
 from urllib import unquote_plus
 from flask import render_template, request, redirect, url_for, flash, \
-session as flask_session, jsonify
+session as flask_session, jsonify, make_response
 from flask.ext.login import current_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
@@ -144,11 +146,11 @@ def upload():
             if len(str(record)) > 10000:
                 print "CloudspongeRecord is too big"
                 continue
-            owner = record.get("contacts_owner")              
+            owner = record.get("contacts_owner")
             if owner:
-                account_email = owner.get("email",[{}])[0].get("address","").lower()   
-            else: 
-                account_email = None                    
+                account_email = owner.get("email",[{}])[0].get("address","").lower()
+            else:
+                account_email = None
             service = record.get("service","").lower()
             account_sources[account_email] = service
             if service=='linkedin':
@@ -158,7 +160,7 @@ def upload():
             elif service=='yahoo':
                 n_yahoo+=1
             elif service=='windowslive':
-                n_windowslive+=1                
+                n_windowslive+=1
             contact = record.get("contact",{})
             emails = contact.get("email",[{}])
             try:
@@ -254,6 +256,11 @@ def get_args(request):
     stars = get_or_none(request.args.get("stars"))
     return query, industry, stars
 
+FILTER_DICT = {
+        'a-z': func.lower(Prospect.name),
+        'z-a': func.lower(Prospect.name).desc()
+        }
+
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
@@ -262,13 +269,16 @@ def connections():
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
+    order = request.args.get("order", "a-z")
     agent = current_user
-    connections = ClientProspect.query.filter(ClientProspect.extended==False, \
+    connections = ClientProspect.query.filter(
             ClientProspect.processed==False,
             ClientProspect.user==agent,
             ClientProspect.good==False,
             ClientProspect.stars>0,
-            ).join(Prospect).order_by(Prospect.name)
+            ).join(Prospect).order_by(FILTER_DICT[order])
+    if connections.filter(ClientProspect.extended==False).count() > 1:
+        connections = connections.filter(ClientProspect.extended == False)
     query, industry, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry,
             stars=stars)
@@ -281,30 +291,25 @@ def connections():
             active="connections")
 
 @csrf.exempt
-@prospects.route("/extended/connections", methods=['GET', 'POST'])
-def extended_connections():
+@prospects.route("/p200", methods=['GET', 'POST'])
+def p200():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
     agent = current_user
-    connections = ClientProspect.query.filter(ClientProspect.extended==True, \
-            ClientProspect.processed==False,
-            ClientProspect.good==False,
+    connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
             ClientProspect.user==agent,
-            ClientProspect.stars>0,
             ).join(Prospect).order_by(Prospect.name)
-    query, industry, stars = get_args(request)
-    search = SearchResults(connections, query=query, industry=industry,
-            stars=stars)
-    connections = search.results().paginate(page, 25, False)
-    return render_template("connections.html",
+    connections = connections.paginate(page, 25, False)
+    return render_template("p200.html",
             agent=agent,
             page=page,
             connections=connections.items,
             pagination=connections,
-            active="extended")
+            active="p200")
 
 @csrf.exempt
 @prospects.route("/add-connections", methods=['GET', 'POST'])
@@ -357,4 +362,49 @@ def skip_connections():
             session.commit()
         return jsonify({"success":True})
     return jsonify({"success":False})
+
+def get_emails_from_connection(emails):
+    if not emails:
+        return None, None, None
+    if len(emails) == 0:
+        return None, None, None
+    if len(emails) == 1:
+        return emails[0], None, None
+    if len(emails) == 2:
+        return emails[0], emails[1], None
+    return emails[0], emails[1], emails[2]
+
+
+
+@prospects.route("/export", methods=['GET'])
+def export():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    agent = current_user
+    connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).order_by(Prospect.name)
+
+    string_io = StringIO.StringIO()
+    writer = csv.writer(string_io)
+    headers = ["Name", "Occupation", "Email1", "Email2", "Email3", "Business Phone",
+            "Location", "State", "Facebook", "Linkedin", "Gender",
+            "Age","Colleges", "Industry", "Name Of Business"]
+    writer.writerow(headers)
+    for connection in connections:
+        email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
+        row = [connection.prospect.name, connection.prospect.job,\
+                email1, email2, email3, connection.prospect.phone,\
+                connection.prospect.linkedin_location_raw,\
+                connection.prospect.us_state, connection.prospect.facebook,\
+                connection.prospect.linkedin_url,connection.prospect.gender,\
+                connection.prospect.age, connection.prospect.school_names,\
+                connection.prospect.linkedin_industry_raw,\
+                connection.prospect.company]
+        writer.writerow(row)
+    output = make_response(string_io.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
 

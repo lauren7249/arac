@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+{% with header="Project 200" %}
+{% include "_partials/agent_header.html" %}
+{% endwith %}
+<!-- Contacts Table-->
+<div class="section">
+  <div class="wrap">
+    <div class="col-12">
+      <div class="search">
+        <button class='button teal'>Submit For Approval</button>
+        <a href='/export'><button class='button grey'>Export to MOD</button></a>
+        <button id='export' class='button dark-blue'>Export as PDF</button>
+        <button class='button teal'>View Skipped Connections</button>
+      </div>
+    </div>
+  </div>
+</div>
+<hr/>
+<div class="section" id='connections-section'>
+  <div class="wrap" id='connections'>
+    {% include "_partials/connections_table.html" %}
+  </div>
+</div>
+<!-- Footer-->
+<footer>
+  <div class="wrap">
+    <div class="col-6">
+      <div class="copyright">&copy; 2016 AdvisorConnect</div>
+      <div class="footer-links"><span><a href="#">Help</a></span><span><a href="#">FAQs</a></span><span><a href="#">Contact</a></span><span><a href="#">About</a></span></div>
+    </div>
+<!--     <div class="col-6 text-right">
+      <div class="footer-logo"></div>
+    </div> -->
+  </div>
+</footer>
+<script type='text/javascript'>
+
+$(function() {
+ });
+</script>
+{% endblock %}
