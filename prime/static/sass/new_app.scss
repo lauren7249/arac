@@ -28,7 +28,7 @@ $linkedin: #0076B7;
 
 $sans: 'Poppins', sans-serif;
 
-.circle-check {
+%circle-check {
   background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -40,6 +40,13 @@ $sans: 'Poppins', sans-serif;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+%caps {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .1rem;
+  font-weight: 600;
 }
 
 a {
@@ -172,10 +179,17 @@ footer {
 .subheader {
   background: $blue;
   margin-bottom: 40px;
-  padding: 20px;
+  padding: 40px;
   color: white;
+  .back-link {
+    @extend %caps;
+  }
+  h2 {
+    margin: 0;
+  }
   .subnav {    
     ul {
+      margin: 0;
       list-style: none;
       text-align: right;
       li {
@@ -433,10 +447,7 @@ form {
 .form-group {
   margin: 20px 0;
   label {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .1rem;
+    @extend %caps;
     margin-bottom: 5px;
   }
   input {
@@ -666,7 +677,7 @@ table.manager-dashboard {
   .completed {
     text-align: center;
     &.yes {
-      @extend .circle-check;
+      @extend %circle-check;
       background-size: auto;
     }
   }
@@ -678,18 +689,29 @@ table.manager-dashboard {
 }
 
 
-.contact-header-card {
-  background: white;
-  box-shadow: 0px 4px 8px 5px rgba(0,0,0,0.04);
-  border-radius: 2px;
-  .contact-info {
-    .face {
-      border-radius: 2px 0 0 2px;
-/*    width: 140px;
-      height: 140px;
-      margin-right: 40px; */
-    }  
-  }  
+.agent-header {
+  padding: 10px;
+  display: table;
+  width: 100%;
+  .pic ,
+  .agent-info,
+  .contact-links {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .pic {
+    width: 80px;
+    padding-right: 20px;
+  }
+  .name {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 20px;
+  }
+  .contact-links {
+    text-align: right;
+    // display: inline-block;
+  }
 }
 
 .network-breakdown, .qualified-contacts {
@@ -1060,7 +1082,7 @@ div.pagination {
       &.complete {
         &:before {
           background-color: transparent;
-          @extend .circle-check;
+          @extend %circle-check;
           content: " ";
         }
       }
@@ -1152,7 +1174,7 @@ div.pagination {
       color: $teal;
       border: 2px solid;
       i.icon-upload {
-        @extend .circle-check;
+        @extend %circle-check;
       }
     }
   } 
@@ -1185,7 +1207,7 @@ div.pagination {
       height: 2rem;
       vertical-align: middle;
       margin-right: .5rem;
-      @extend .circle-check;
+      @extend %circle-check;
     }
     color: $grey;
     font-size: .8rem;

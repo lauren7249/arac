@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
-{% include "_partials/manager_header.html" with context %}
+<!-- {% include "_partials/manager_header.html" with context %} -->
+
+<div class="subheader" id="subheader">
+  <div class="wrap">
+    <a class="back-link" href="/managers/dashboard">← Back to Dashboard</a>
+    <h2>Request Hiring Screen</h2>
+  </div>
+</div>
+
 <div class="section">
   <div class="wrap"> 
     {% if error_message %}

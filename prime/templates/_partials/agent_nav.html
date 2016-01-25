@@ -1,25 +1,45 @@
 <div class="section">
-  <div class="wrap contact-header-card">
-    <table>
-      <tr>
-        <td>
-          <div class="col-2"><img src="{{ agent.image }}"/></div>
-          <div class="col-6">
-            <div class="name"> <span>{{ agent.name }}</span>{% if agent.ranking %}<span class="stars three-star"></span>{% endif %}</div>
-            {% if agent.headline %}
-            <div class="job">Infrastructure Consultant, Accenture</div>
-            {% endif %}
-            {% if agent.keywords %}
-            <div class="tags"><span>Cornell University</span><span>Accenture</span><span>Rowing</span><span>Sailing</span><span>Marketing</span></div>
-            {% endif %}
-          </div>
-          <div class="col-4">
-            {% if agent.social_accounts %}
-            <div class="contact-links"><a href="#" data-tooltip="25 Financial Services Contacts" class="financial"></a><a href="#" class="facebook"></a><a href="#" class="linkedin"></a><a href="#" class="twitter"></a><a href="#" class="pinterest"></a><a href="#" class="email"></a><a href="#" class="phone"></a><a href="#" class="location"></a><a href="#" class="amazon"></a></div>
-            {% endif %}
-          </div>
-        </td>
-      </tr>
-    </table>
+  <div class="wrap agent-header card">
+    <!-- <div class="col-2"><img src="{{ agent.image }}"/></div> -->
+      <div class="pic">
+        <img src="{{ agent.image }}"/>
+      </div>
+      <div class="agent-info">
+        <div class="name">
+          <span>{{ agent.name }}</span>
+          <!-- {% if agent.ranking %}
+            <span class="stars three-star"></span>
+          {% endif %} -->
+        </div>
+      </div>
+      <div class="contact-links">
+        <a href="#" class="facebook"></a>
+        <a href="#" class="linkedin"></a>
+        <a href="#" class="twitter"></a>
+        <a href="#" class="pinterest"></a>
+        <a href="#" class="email"></a>
+        <a href="#" class="phone"></a>
+        <a href="#" class="location"></a>
+        <a href="#" class="amazon"></a>
+      </div>
+      <!-- {% if agent.headline %}
+        <div class="job">Infrastructure Consultant, Accenture</div>
+      {% endif %} -->
+      <!-- {% if agent.keywords %}
+        <div class="tags">
+          <span>Cornell University</span>
+          <span>Accenture</span>
+          <span>Rowing</span>
+          <span>Sailing</span>
+          <span>Marketing</span>
+        </div>
+      {% endif %} -->
+    
+    
+      <!--
+      {% if agent.social_accounts %}
+      {% endif %} 
+      -->
+    
   </div>
 </div>
