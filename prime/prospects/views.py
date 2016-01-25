@@ -13,7 +13,7 @@ import json
 from urllib import unquote_plus
 from flask import render_template, request, redirect, url_for, flash, \
 session as flask_session, jsonify
-from flask.ext.login import current_user
+from flask.ext.login import current_user,  logout_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime import db, csrf, whoisthis
