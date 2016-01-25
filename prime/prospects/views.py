@@ -18,6 +18,7 @@ from flask.ext.login import current_user,  logout_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime import db, csrf, whoisthis
+from prime.users.models import User
 from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast, extract, or_, func
@@ -264,10 +265,10 @@ FILTER_DICT = {
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))            
+        return redirect(url_for('auth.login'))
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
-            return redirect(url_for('prospects.dashboard'))           
+            return redirect(url_for('prospects.dashboard'))
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
     order = request.args.get("order", "a-z")
@@ -380,6 +381,7 @@ def get_emails_from_connection(emails):
     return emails[0], emails[1], emails[2]
 
 
+@csrf.exempt
 @prospects.route("/submit_p200_to_manager", methods=['GET', 'POST'])
 def submit_p200_to_manager():
     if not current_user.is_authenticated():
@@ -432,3 +434,22 @@ def export():
     output.headers["Content-type"] = "text/csv"
     return output
 
+
+@csrf.exempt
+@prospects.route("/pdf/<int:agent_id>", methods=['GET', 'POST'])
+def pdf(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    page = int(request.args.get("p", 1))
+    agent = User.query.get(agent_id)
+    connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).order_by(Prospect.name)
+    connections = connections.paginate(page, 200, False)
+    return render_template("pdf.html",
+            agent=agent,
+            page=page,
+            connections=connections.items,
+            pagination=connections,
+            active="p200")
