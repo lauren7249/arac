@@ -204,21 +204,22 @@
                 <div id='gmail-area' class="connect-email">
                   <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
                   <span>
-                    <div class='connected'></div>
+                    <div class='connected_area'></div>
                     <button id='gmail' type="Submit" class="button teal">Connect Gmail</button>
+                    
                   </span>
                 </div>
                 <div id='yahoo-area' class="connect-email">
                   <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
                   <span>
-                    <div class='connected'></div>
+                    <div class='connected_area'></div>
                     <button id='yahoo' type="Submit" class="button teal">Connect Yahoo! Mail</button>
                   </span>
                 </div>
                 <div id='windows-area' class="connect-email">
                   <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
                   <span>
-                    <div class='connected'></div>
+                    <div class='connected_area'></div>
                     <button id='windowslive' type="Submit" class="button teal">Connect Windows Live</button>
                   </span>
                 </div>
@@ -259,6 +260,7 @@
                 <div class="note">
                   <h2>Congratulations!</h2>
                   <p>You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</p>
+                  <p>We will email you when your Network Summary is complete.</p>
                 </div>
               </div>
               <div class="col-5" id='thanks'>
@@ -336,7 +338,7 @@
                                     $("#step-3").slideDown();     
                                   } else {
                                     // $(divid).find("button").hide()
-                                    $(divid).find(".connected").html(contacts.length.toLocaleString() + ' Total Contacts Added').attr('style', 'display:block;')
+                                    $(divid).find(".connected_area").append("<div class='connected' style='display:block;'>" + contacts.length.toLocaleString() + ' Total Contacts Added</div>')
                                   }
                                   $(".waiting").hide();
                                   $(".overlay").fadeOut();
@@ -411,42 +413,13 @@
         var next_id = id + 1;
         $("#step-" + id).hide()
         $("#step-" + next_id).slideDown()
+        if (next_id==4) {
+          upload()
+        }
       });
 
       $("#next").click(function() {
-        if (contacts_array.length > 0) {
-          $(".overlay").fadeIn();
-          $(".waiting").show();   
-          var csrf_token = $("[_csrf_token]").val()
-          if (test) {
-            contacts_array = contacts_array.slice(0, 20)
-          }
-
-          var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, lastName:lastName, public_url:public_url, user_email:email_address, contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
-          $.ajax({
-              type: 'POST',
-              url: '/upload_cloudsponge',
-              crossDomain: true,
-              data: JSON.stringify(outData),
-              dataType: 'json',
-              contentType: 'application/json; charset=utf-8',
-              success: function(responseData, textStatus, jqXHR) {
-                $("#thanks").append("<h2>Thanks!</h2><p>We will be emailing you when the results are ready. Thank you!</p>")
-                $("#next").hide()
-                $(".waiting").hide();   
-                $(".overlay").fadeOut();     
-              },
-              error: function (responseData, textStatus, errorThrown) {
-                  debugger;
-                  $(".waiting").hide();   
-                  $(".overlay").fadeOut();                
-                  alert('upload failed.');
-              }
-          });   
-        } else {
-          alert('No contacts added!');
-        }     
-        //$("#csv").hide();
+        upload()
       });
 
       $(".overlay").click(function(e) {
@@ -460,6 +433,42 @@
       bindEmailButtons()
     });
 
+  function upload() {
+    if (contacts_array.length > 0) {
+      $("#next").hide()
+      $(".overlay").fadeIn();
+      $(".waiting").show();   
+      var csrf_token = $("[_csrf_token]").val()
+      if (test) {
+        contacts_array = contacts_array.slice(0, 20)
+      }
+
+      var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, lastName:lastName, public_url:public_url, user_email:email_address, contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
+      $.ajax({
+          type: 'POST',
+          url: '/upload_cloudsponge',
+          crossDomain: true,
+          data: JSON.stringify(outData),
+          dataType: 'json',
+          contentType: 'application/json; charset=utf-8',
+          success: function(responseData, textStatus, jqXHR) {
+            //$("#thanks").append("<h2>Thanks!</h2><p>We will be emailing you when the results are ready. Thank you!</p>")
+            
+            $(".waiting").hide();   
+            $(".overlay").fadeOut();     
+          },
+          error: function (responseData, textStatus, errorThrown) {
+              debugger;
+              $(".waiting").hide();   
+              $(".overlay").fadeOut();                
+              alert('upload failed.');
+          }
+      });   
+    } else {
+      alert('No contacts added!');
+    }     
+    //$("#csv").hide();    
+  }
   function bindEmailButtons() {
       $("button#gmail").click(function(e) {
         cloudsponge_status = 'NONE';   

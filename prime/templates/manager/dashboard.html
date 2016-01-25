@@ -38,7 +38,7 @@
             <td>-</td>
             <td>-</td>        
           {% endif %}
-          <td data-td='{{ agent.user_id }}' class="completed {% if agent.p200_completed %}yes{% else %}{% endif %}">
+          <td data-td='{{ agent.user_id }}'>
             {% if agent.hiring_screen_completed %}
               <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
 <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
