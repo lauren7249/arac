@@ -378,6 +378,25 @@ def get_emails_from_connection(emails):
     return emails[0], emails[1], emails[2]
 
 
+@prospects.route("/submit_p200_to_manager", methods=['GET', 'POST'])
+def submit_p200_to_manager():
+    if not current_user.is_authenticated():
+        return jsonify({"error": "You must be authenticated"})
+    agent = current_user
+    connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).order_by(Prospect.name)
+    if connections.count() < 50:
+        return jsonify({"error": "You must have at least 50 connections"})
+    agent.submit_to_manager()
+    agent.p200_submitted_to_manager = True
+    session.add(agent)
+    session.commit()
+    return jsonify({"success": True})
+
+
+
 
 @prospects.route("/export", methods=['GET'])
 def export():

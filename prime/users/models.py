@@ -77,6 +77,8 @@ class User(db.Model, UserMixin):
     hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
     p200_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)
+    p200_submitted_to_manager = db.Column(postgresql.BOOLEAN, default=False)
+    p200_approved = db.Column(postgresql.BOOLEAN, default=False)
     _statistics = db.Column(JSONB, default={})
 
     def __init__(self, first_name, last_name, email, password, **kwargs):
@@ -146,6 +148,22 @@ class User(db.Model, UserMixin):
                 base_url=current_app.config.get("BASE_URL"), code=code)
         subject = "Invitation from New York Life"
         sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
+        return True
+
+    def submit_to_manager(self):
+        body = render_template("emails/submit_to_manager.html", manager=self.manager, agent=self,
+                base_url=current_app.config.get("BASE_URL"))
+        subject = "{} submitted their p200 for approval".format(self.name)
+        sendgrid_email(self.manager.user.email, subject, body,
+                from_email="jeff@advisorconnect.co")
+        return True
+
+    def p200_manager_approved(self):
+        body = render_template("emails/p200_manager_approved.html", manager=self.manager, agent=self,
+                base_url=current_app.config.get("BASE_URL"))
+        subject = "Your P200 is Ready to Export"
+        sendgrid_email(self.email, subject, body,
+                from_email="jeff@advisorconnect.co")
         return True
 
     @property
@@ -319,9 +337,9 @@ class User(db.Model, UserMixin):
                 elif source=='gmail':
                     from_gmail+=1
                 elif source=='yahoo':
-                    from_yahoo+=1    
+                    from_yahoo+=1
                 elif source =='windowslive':
-                    from_windowslive+=1                                   
+                    from_windowslive+=1
             if not client_prospect.prospect:
                 logger.warn("clientprospect=None (clientprospect id={})".format(client_prospect.id))
                 continue
@@ -333,7 +351,7 @@ class User(db.Model, UserMixin):
             if client_prospect.prospect.linkedin_url or client_prospect.prospect.linkedin: linkedin+=1
             if client_prospect.prospect.amazon: amazon+=1
             if client_prospect.prospect.twitter: twitter+=1
-            if client_prospect.prospect.pinterest: pinterest+=1                
+            if client_prospect.prospect.pinterest: pinterest+=1
             first_degree_count+=1
             college_degree[client_prospect.prospect.college_grad] += 1
             if client_prospect.prospect.gender:

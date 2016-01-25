@@ -44,7 +44,7 @@ def manager_home():
 @manager.route('/invite', methods=['GET', 'POST'])
 def manager_invite_agent():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))    
+        return redirect(url_for('auth.login'))
     error_message = None
     success = None
     if not current_user.is_manager:
@@ -76,7 +76,7 @@ def manager_invite_agent():
 @manager.route('/invite/again', methods=['GET', 'POST'])
 def manager_reinvite_agent():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))    
+        return redirect(url_for('auth.login'))
     if request.method == 'POST':
         user_id = int(request.form.get('user_id'))
         user = User.query.filter(User.user_id == user_id).first()
@@ -86,7 +86,7 @@ def manager_reinvite_agent():
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
 def agent(agent_id):
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))    
+        return redirect(url_for('auth.login'))
     agent = User.query.get(agent_id)
     manager = agent.manager
     if current_user.user_id != manager.user_id:
@@ -94,10 +94,29 @@ def agent(agent_id):
     return render_template("dashboard.html", agent=agent, active = "agent_page")
 
 @csrf.exempt
+@manager.route("/p200/<int:agent_id>", methods=['GET', 'POST'])
+def agent_p200(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    page = int(request.args.get("p", 1))
+    agent = User.query.get(agent_id)
+    connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).order_by(Prospect.name)
+    connections = connections.paginate(page, 25, False)
+    return render_template("p200.html",
+            agent=agent,
+            page=page,
+            connections=connections.items,
+            pagination=connections,
+            active="p200")
+
+@csrf.exempt
 @manager.route("/request_p200", methods=['GET', 'POST'])
 def request_p200():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login'))
     if request.method == 'POST':
         try:
             user_id = int(request.form.get('user_id'))
@@ -114,12 +133,23 @@ def request_p200():
             user.p200_started = True
             session.add(user)
             session.commit()
-            q = get_q()   
+            q = get_q()
             q.enqueue(queue_processing_service, client_data, contacts_array,
                         timeout=140400)
             return jsonify({"name": "{} {}".format(user.first_name, user.last_name) })
         except Exception, e:
             print str(e)
+
+@manager.route("/approve/<int:agent_id>", methods=['GET', 'POST'])
+def approve_p200(agent_id):
+    if not current_user.is_authenticated():
+        return jsonify({"error": "You must be authenticated"})
+    agent = User.query.get(agent_id)
+    agent.p200_manager_approved()
+    agent.p200_approved = True
+    session.add(agent)
+    session.commit()
+    return redirect(url_for('.agent_p200', agent_id=agent_id))
 
 @manager.route("/test_email", methods=['GET'])
 def test_email():
