@@ -171,7 +171,7 @@ def request_p200():
 def approve_p200(agent_id):
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
-    if not current_user.is_manager():
+    if not current_user.is_manager:
         return "You are not authorized to view this content." 
     agent = User.query.get(agent_id)
     if agent.manager_id != current_user.manager_profile[0].manager_id:
