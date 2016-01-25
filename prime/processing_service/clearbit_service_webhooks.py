@@ -15,6 +15,9 @@ from clearbit_request_webhooks import ClearbitRequest
 
 def person_wrapper(person):
     email = person.keys()[0]
+    data = person.values()[0]
+    if data.get("linkedin_urls"):
+        return {email:data}   
     try:
         request = ClearbitRequest(email)
         data = request.get_person()

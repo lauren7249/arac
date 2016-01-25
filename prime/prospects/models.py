@@ -115,6 +115,13 @@ class Prospect(db.Model):
         return jobs + schools
 
     @property
+    def school_names(self):
+        schools = []
+        if self.schools:
+            schools = list(set([s.school_name for s in self.schools]))
+        return schools
+
+    @property
     def emails(self):
         if not self.mailto:
             return ""
