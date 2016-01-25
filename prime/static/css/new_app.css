@@ -233,6 +233,13 @@ table th {
 .button.dark-blue:hover {
   background: #415dae;
 }
+.button.white {
+  background: white;
+  color: #16263D;
+}
+.button.white:hover {
+  background: white;
+}
 .button.grey {
   background: #BFBFBF;
 }
@@ -240,7 +247,8 @@ table th {
   background: #cccccc;
 }
 .button.small {
-  height: auto;
+  height: 40px;
+  line-height: 40px;
   font-size: 12px;
 }
 .button.linkedin {
@@ -374,10 +382,6 @@ input[type="password"]:focus,
 input[type="email"]:focus {
   outline: none;
   border-color: #16263D;
-}
-
-form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
-  padding: 30px;
 }
 
 .form-group {
@@ -972,6 +976,12 @@ div.pagination a.active {
   position: relative;
 }
 
+.p200-actions .button {
+  display: block;
+  float: left;
+  margin-right: 10px;
+}
+
 .onboard-header {
   padding: 30px 0 0;
   display: none;
@@ -1215,6 +1225,9 @@ div.loading img {
   width: 50%;
   max-width: 800px;
   min-width: 400px;
+}
+.signup .card, .signup .wizard, .signup .onboard-body, .signup .onboard-footer, .signup .note {
+  padding: 30px;
 }
 
 .accept-terms {

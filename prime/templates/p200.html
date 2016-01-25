@@ -3,26 +3,21 @@
 {% with header="Project 200" %}
 {% include "_partials/agent_header.html" %}
 {% endwith %}
-<!-- Contacts Table-->
+
 <div class="section">
-  <div class="wrap">
-    <div class="col-12">
-      <div class="search">
-        <button class='button teal'>Submit For Approval</button>
-        <a href='/export'><button class='button grey'>Export to MOD</button></a>
-        <button id='export' class='button dark-blue'>Export as PDF</button>
-        <button class='button teal'>View Skipped Connections</button>
-      </div>
-    </div>
+  <div class="wrap p200-actions">       
+    <button class='button dark-blue'>Submit For Approval</button>
+    <a class='button white' href='/export'>Export to MOD</a>
+    <button class='button white' id='export'>Export as PDF</button>
+    <button class='button white'>View Skipped Connections</button>
   </div>
 </div>
-<hr/>
 <div class="section" id='connections-section'>
   <div class="wrap" id='connections'>
     {% include "_partials/connections_table.html" %}
   </div>
 </div>
-<!-- Footer-->
+
 <footer>
   <div class="wrap">
     <div class="col-6">

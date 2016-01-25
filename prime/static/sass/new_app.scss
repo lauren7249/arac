@@ -285,6 +285,13 @@ table {
       background: lighten($darkblue, 5%);  
     }
   }
+  &.white {
+    background: white;
+    color: $black;
+    &:hover {
+      background: white;  
+    }
+  }
   &.grey {
     background: $lightgrey;
     &:hover {
@@ -292,7 +299,8 @@ table {
     }
   }
   &.small {
-    height: auto;
+    height: 40px;
+    line-height: 40px;
     font-size: 12px;
   }
   &.linkedin {
@@ -436,12 +444,6 @@ input[type="text"],
 input[type="password"],
 input[type="email"] {
   @extend %input;
-}
-
-form {
-  &.card {
-    padding: 30px;
-  }
 }
 
 .form-group {
@@ -1001,6 +1003,16 @@ div.pagination {
   position: relative;
 }
 
+// p200 Page ==================================
+
+.p200-actions {
+  .button {
+    display: block;
+    float: left;
+    margin-right: 10px;
+  }
+}
+
 
 // Onboarding ==================================
 
@@ -1280,6 +1292,9 @@ div.loading {
   max-width: 800px;
   min-width: 400px;
   @extend %centered;
+  .card {
+    padding: 30px;
+  }
 }
 
 .accept-terms {
