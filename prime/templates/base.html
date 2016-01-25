@@ -86,7 +86,14 @@
         <img src='/static/img/spinner_192.gif' />
       </div>    
     </div>     
-    <dialog id='success' style="display:none;"><div class='success'><img id="spinner" style="display:none;" src='/static/img/spinner_192.gif' /><span  id="p200_success_message" style="display:none;" ><b>Success!</b></span></div></dialog> 
+    <dialog id='success' style="display:none;">
+      <img id="spinner" style="display:none;" src='/static/img/spinner_192.gif' />
+      <div class='success'>
+        <span  id="p200_success_message" style="display:none;" >
+          <b>Success!</b>
+        </span>
+      </div>
+    </dialog> 
     {% block content %}{% endblock %}
     </body>
     <script type='text/javascript'>
