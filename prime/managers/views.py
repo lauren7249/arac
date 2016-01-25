@@ -102,7 +102,9 @@ def agent_p200(agent_id):
     agent = User.query.get(agent_id)
     manager = agent.manager
     if current_user.user_id != manager.user_id:
-        return "You are not authorized to view this content."    
+        return "You are not authorized to view this content."   
+    if not agent.p200_submitted_to_manager:
+        return "This agent has not yet submitted a p200 for you to view." 
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
             ClientProspect.user==agent,
