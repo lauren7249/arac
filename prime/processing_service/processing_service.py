@@ -123,7 +123,7 @@ class ProcessingService(Service):
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 if self.client_data.get("hired"):
-                    subject = "Your P200 List is ready!"
+                    subject = "Congratulations from New York Life"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
                     manager = self.session.query(ManagerProfile).get(user.manager_id)
@@ -132,11 +132,16 @@ class ProcessingService(Service):
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
                         self.client_data.get("last_name"))
-                    subject = "{}'s Hiring Screen is ready!".format(name)
+                    subject = "{}'s Network Summary is ready".format(name)
                     to_email = self.client_data.get("to_email")
                     tmpl = env.get_template('emails/network_summary_done.html')  
                     body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)  
                     sendgrid_email(to_email, subject, body) 
+                    subject = "Your Network Summary is ready to view"
+                    to_email = self.client_data.get("email")
+                    tmpl = env.get_template('emails/network_summary_done_agent.html')  
+                    body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)  
+                    sendgrid_email(to_email, subject, body)                     
             else:
                 self.logger.error("no user")
             self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))             

@@ -13,9 +13,8 @@ import requests
 import datetime
 import json
 from urllib import unquote_plus
-from flask import render_template, request, redirect, url_for, flash, \
-session as flask_session, jsonify, make_response
-from flask.ext.login import current_user
+from flask import render_template, request, redirect, url_for, flash, session as flask_session, jsonify, make_response
+from flask.ext.login import current_user,  logout_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime import db, csrf, whoisthis
@@ -265,10 +264,8 @@ FILTER_DICT = {
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
-    if current_user.is_manager:
-        logout_user()
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login'))       
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
