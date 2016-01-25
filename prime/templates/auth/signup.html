@@ -1,72 +1,50 @@
 {% extends 'base.html' %}
+{% block header %}{% endblock %}
 {% block content %}
-<div class='wrap'>
   <div class='signup'>
-    <div class='well col-lg-9 center'>
-      <div class='row col-md-5'>
-<!--         <div class='logo'>
-          <img src='{{ static_url() }}img/NewYorkLife.png' />
-        </div> -->
-        {%if reset != 'yes' %}
-          <h1>Welcome to AdvisorConnect!  </h1>
-          <p>Spend less time searching and more time closing. </p>
-        {%endif%}
-        <br>
-        <h1>{{ user.first_name }} {{user.last_name}}</h1>
-        <p>{{ user.email }}</p>
-        <br>
-      </div>
-      <div class='row col-md-7'>
-        <form class="form-horizontal" action='' method='POST'>
-          {% if signup_form.errors %}
-          <div class='alert alert-dismissable alert-danger'>
-            {% for error in signup_form.errors.items() %}
-            <div>
-              <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
-            </div>
-            {% endfor %}
-          </div>
-          {%endif%}
-          {{ signup_form.csrf_token }}
-          <input type='hidden' name='code' value='{{ code }}' />
-          <fieldset>
-            <legend>Enter a {%if reset == 'yes' %}new {%endif%}password</legend>
-            <div class="form-group">
-              <label for="inputPassword" class="col-lg-2 control-label">Password:</label>
-              <div class="col-lg-10">
-                <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="inputPassword" class="col-lg-2 control-label">Confirm Password:</label>
-              <div class="col-lg-10">
-                <input type="password" name='password2' class="form-control" id="inputPassword" placeholder="Confirm Password">
-                {%if reset != 'yes' %}
-                  <span class="checkbox">
-                    <label>I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a></label>
-                  </span>
-                {%endif%}
-              </div>
-            </div>
-            <div class="form-group">
-              <div class="col-lg-10 col-lg-offset-2">
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            </div>
-          </fieldset>
-        </form>
-        <div class='clear'></div>
-      </div>
-      <div class='clear'></div>
-    </div>
-    <br />
     {%if reset != 'yes' %}
-      <div class="alert alert-dismissable alert-success col-lg-7 centered">
-        Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
-      </div>
+      <h1>Welcome, {{ user.first_name }}!</h1>
     {%endif%}
-    <br/>
-    <div class='clear'></div>
+    <p>Your username is {{ user.email }}</p>
+      
+    <form class="card" action='' method='POST'>
+      
+      {% if signup_form.errors %}
+      <div class='error'>
+        {% for error in signup_form.errors.items() %}
+        <div>
+          <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
+        </div>
+        {% endfor %}
+      </div>
+      {%endif%}
+
+      {{ signup_form.csrf_token }}
+      <input type='hidden' name='code' value='{{ code }}' />
+        <h2>
+          {%if reset == 'yes' %}Enter a new password{%endif%}
+          {%if reset != 'yes' %}Create a password for your account{%endif%}
+          </h2>
+        <div class="form-group">
+          <label for="inputPassword">Password:</label>
+          <input type="password" name='password' id="inputPassword" placeholder="Password">          
+        </div>
+        <div class="form-group">
+          <label for="inputPassword">Confirm Password:</label>          
+          <input type="password" name='password2' id="inputPassword" placeholder="Confirm Password">
+        </div>
+      <button type="submit" class="button teal">Submit</button>
+      {%if reset != 'yes' %}
+      <span class="accept-terms">
+        I accept AdvisorConnect's <a href='/terms'>Terms and Conditions</a>
+      </span>
+      {%endif%}
+    </form>
+
+    {%if reset != 'yes' %}
+      <h5>
+        Already Have an account? <a href="{{ url_for("auth.login") }}" class="alert-link">Log In Here</a>.
+      </h5>
+    {%endif%}
   </div>
-</div>
 {% endblock %}

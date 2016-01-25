@@ -51,7 +51,7 @@
         }
 
     </script>    
-    <div class="section grey onboarding">
+    <div class="section onboarding">
       <div class="wrap">
         <div class="onboard-header">
           <div id="owner_img" style="" class="face"></div>
@@ -69,15 +69,15 @@
                 <p>Signin Via LinkedIn</p>
               </li>
               <li class="idle">
-                <label>Step One</label>
+                <label>Step Two</label>
                 <p>Add LinkedIn Contacts</p>
               </li>
               <li class="idle">
-                <label>Step One</label>
+                <label>Step Three</label>
                 <p>Add Email Contacts</p>
               </li>
               <li class="idle">
-                <label>Step One</label>
+                <label>Step Four</label>
                 <p>Finish & Upload</p>
               </li>
             </ol>
@@ -201,17 +201,26 @@
                 </div>
               </div>
               <div class="col-5">
-                <div id='gmail-area' class="connect-email"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
-                  <button id='gmail' type="Submit" class="button teal">Connect Gmail</button>
-                  <div class='connected'></div>
+                <div id='gmail-area' class="connect-email">
+                  <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
+                  <span>
+                    <div class='connected'></div>
+                    <button id='gmail' type="Submit" class="button teal">Connect Gmail</button>
+                  </span>
                 </div>
-                <div id='yahoo-area' class="connect-email"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
-                  <button id='yahoo' type="Submit" class="button teal">Connect Yahoo! Mail</button>
-                  <div class='connected'></div>
+                <div id='yahoo-area' class="connect-email">
+                  <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
+                  <span>
+                    <div class='connected'></div>
+                    <button id='yahoo' type="Submit" class="button teal">Connect Yahoo! Mail</button>
+                  </span>
                 </div>
-                <div id='windows-area' class="connect-email"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
-                  <button id='windowslive' type="Submit" class="button teal">Connect Windows Live</button>
-                  <div class='connected'></div>
+                <div id='windows-area' class="connect-email">
+                  <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
+                  <span>
+                    <div class='connected'></div>
+                    <button id='windowslive' type="Submit" class="button teal">Connect Windows Live</button>
+                  </span>
                 </div>
               </div>
             </div>
@@ -326,8 +335,8 @@
                                     $("#step-2").hide();
                                     $("#step-3").slideDown();     
                                   } else {
-                                    $(divid).find("button").hide()
-                                    $(divid).find(".connected").html(contacts.length.toLocaleString() + ' Total Contacts Added').attr('style', 'visibility:visible;')
+                                    // $(divid).find("button").hide()
+                                    $(divid).find(".connected").html(contacts.length.toLocaleString() + ' Total Contacts Added').attr('style', 'display:block;')
                                   }
                                   $(".waiting").hide();
                                   $(".overlay").fadeOut();

@@ -3,7 +3,7 @@ import StringIO
 import csv
 from flask import Flask
 from collections import Counter
-
+import socket
 from rq import Queue
 from redis import Redis
 import re
@@ -63,7 +63,7 @@ def uu(str):
 ################
 
 def get_q():
-    if os.getenv('AC_CONFIG', 'default') == 'beta':
+    if socket.gethostname() == 'docker':
         conn = Redis.from_url(url=REDIS_URL, db=0)
     else:
         conn = Redis.from_url(url='redis://localhost', db=0)
@@ -150,7 +150,7 @@ def upload():
             if owner:
                 account_email = owner.get("email",[{}])[0].get("address","").lower()
             else:
-                account_email = None
+                account_email = "linkedin"
             service = record.get("service","").lower()
             account_sources[account_email] = service
             if service=='linkedin':
@@ -199,6 +199,7 @@ def upload():
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
         sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, n_contacts), body)
         q = get_q()
+        print q.connection
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": n_contacts})
 
@@ -264,6 +265,8 @@ FILTER_DICT = {
 @csrf.exempt
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
+    if current_user.is_manager:
+        logout_user()
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if not current_user.p200_completed:

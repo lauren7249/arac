@@ -66,10 +66,13 @@ def forgot():
     form = ForgotForm()
     if form.is_submitted():
         if form.validate():
-            user = User.query.filter_by(email=form.email.data.lower()).first()
-            user.send_reset_password()
-            flash("Password reset sent to your email. Please check spam if you do\
-                    not see it")
+            user = User.query.filter_by(email=form.email.data.lower().strip()).first()
+            if not user:
+                flash("No account exists with that email address. Please email support@advisorconnect.co if this seems incorrect to you.")   
+            else:             
+                user.send_reset_password()
+                flash("Password reset sent to your email. Please check spam if you do\
+                        not see it")
     return render_template('auth/forgot.html', form=form)
 
 @auth.route('/signup', methods=['GET', 'POST'])
@@ -86,7 +89,7 @@ def signup():
         if not user:
             return "This signup code is invalid. Please request another invite."
         if form.validate():
-            if not user.account_created and not user.is_manager:
+            if not user.account_created and not user.is_manager and reset != 'yes':
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 tmpl = env.get_template('emails/account_created.html')

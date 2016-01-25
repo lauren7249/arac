@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 from prime.utils.email import sendgrid_email
 from prime import config
-
+from prime.managers.models import ManagerProfile
 from service import Service
 from cloudsponge_service import CloudSpongeService
 from person_service import PersonService
@@ -49,7 +49,9 @@ class ProcessingService(Service):
         self.data = data
         self.output = []
         user_request = UserRequest(client_data.get("email"),type='hiring-screen-data')
-        self.saved_data = user_request.lookup_data()            
+        self.saved_data = user_request.lookup_data() 
+        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
+            self.saved_data = None    
         if self.saved_data:     
             self.logger.info("Using saved data")
             self.data = self.saved_data       
@@ -117,23 +119,27 @@ class ProcessingService(Service):
                     save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
-            env = Environment()
-            env.loader = FileSystemLoader("prime/templates")
-            if self.client_data.get("hired"):
-                subject = "Your P200 List is ready!"
-                to_email = self.client_data.get("email")
-                tmpl = env.get_template('emails/p200_done.html')
-                name = self.client_data.get("first_name")
+            if user: 
+                env = Environment()
+                env.loader = FileSystemLoader("prime/templates")
+                if self.client_data.get("hired"):
+                    subject = "Your P200 List is ready!"
+                    to_email = self.client_data.get("email")
+                    tmpl = env.get_template('emails/p200_done.html')
+                    manager = self.session.query(ManagerProfile).get(user.manager_id)
+                    body = tmpl.render(manager=manager, agent=user,base_url=self.web_url)
+                    sendgrid_email(to_email, subject, body) 
+                else:
+                    name = "{} {}".format(self.client_data.get("first_name"), \
+                        self.client_data.get("last_name"))
+                    subject = "{}'s Hiring Screen is ready!".format(name)
+                    to_email = self.client_data.get("to_email")
+                    tmpl = env.get_template('emails/network_summary_done.html')  
+                    body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)  
+                    sendgrid_email(to_email, subject, body) 
             else:
-                name = "{} {}".format(self.client_data.get("first_name"), \
-                    self.client_data.get("last_name"))
-                subject = "{}'s Hiring Screen is ready!".format(name)
-                manager_email = self.client_data.get("to_email")
-                tmpl = env.get_template('emails/network_summary_done.html')      
-            if user:
-                body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)
-                sendgrid_email(manager_email, subject, body)
-                self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))             
+                self.logger.error("no user")
+            self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))             
             self.logend()
             return self.output
         except:

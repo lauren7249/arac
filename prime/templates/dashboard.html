@@ -54,6 +54,36 @@
           </div>
         </div>
       </div>
+      <br>      
+      <div class="card contacts-uploaded">
+        <div class="card-header">
+          <h4>Contacts Uploaded</h4>
+          <span class="text-right">Total</span>
+          <span class="text-right text-teal">Qualified</span>
+        </div>
+        <table>
+          <tr>
+            <td><img src="/static/img/linkedin-40.png"> <b>LinkedIn</b></td>
+            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_linkedin | int) }}</td>
+            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_linkedin | int) }}</td>
+          </tr>
+          <tr>
+            <td><img src="/static/img/gmail-40.png"> <b>Gmail</b></td>
+            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_gmail | int) }}</td>
+            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_gmail | int) }}</td>
+          </tr>
+          <tr class="not-uploaded">
+            <td><img src="/static/img/yahoo-mail-40.png"> <b>Yahoo! Mail</b></td>
+            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_yahoo | int) }}</td>
+            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo | int) }}</td>
+          </tr>
+          <tr class="not-uploaded">
+            <td><img src="/static/img/windows-live-40.png"> <b>Windows Live</b></td>
+            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_windowslive | int) }}</td>
+            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_windowslive | int) }}</td>
+          </tr>
+        </table>
+      </div>
     </div>
     <div class="col-6">
       <div class="card">
@@ -126,7 +156,7 @@
     </div>
   </div>
 </div>  
-<div class="section">
+<!-- <div class="section">
   <div class="wrap">
     <div class="col-6">
       <div class="card contacts-uploaded">
@@ -162,7 +192,7 @@
     </div>
     <div class="col-6"></div>
   </div>
-</div>
+</div> -->
 <!-- Footer-->
 <footer>
   <div class="wrap">
