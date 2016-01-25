@@ -86,7 +86,7 @@ def start():
         return redirect(url_for("auth.login"))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    if current_user.p200_completed:
+    if current_user.p200_completed or current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
@@ -97,6 +97,8 @@ def start():
 def pending():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
+    if current_user.hiring_screen_completed:
+        return redirect(url_for("prospects.dashboard"))
     return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
 
 @prospects.route("/terms")
@@ -196,7 +198,7 @@ def upload():
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-        sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, n_contacts), body)
+        sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(n_contacts)), body)
         q = get_q()
         print q.connection
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
@@ -206,12 +208,9 @@ def upload():
 def dashboard():
     if not current_user.is_authenticated():
         return redirect(url_for("auth.login"))
-    if current_user.p200_completed:
+    if current_user.p200_completed or current_user.hiring_screen_completed:
         agent = current_user
         return render_template("dashboard.html", agent=agent, active = "dashboard")
-    #should we show a non-hired agent their network?
-    # if current_user.hiring_screen_completed:
-    #     return render_template("dashboard.html", agent=agent, active = "dashboard")
     if current_user.unique_contacts_uploaded > 0:
         return redirect(url_for('prospects.pending'))
     return redirect(url_for('prospects.start'))
@@ -265,7 +264,9 @@ FILTER_DICT = {
 @prospects.route("/connections", methods=['GET', 'POST'])
 def connections():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))       
+        return redirect(url_for('auth.login')) 
+    if current_user.hiring_screen_completed:
+        return redirect(url_for('prospects.dashboard'))              
     if not current_user.p200_completed:
         return redirect(url_for('prospects.pending'))
     page = int(request.args.get("p", 1))
