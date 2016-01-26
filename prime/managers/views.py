@@ -124,6 +124,8 @@ def pdf(agent_id):
         return redirect(url_for('auth.login'))
     page = int(request.args.get("p", 1))
     agent = User.query.get(agent_id)
+    if not agent:
+        return "Invalid link"
     manager = agent.manager
     if current_user.user_id != manager.user_id:
         return "You are not authorized to view this content."    
