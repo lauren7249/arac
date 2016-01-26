@@ -17,10 +17,9 @@
             {%if agent.p200_submitted_to_manager or not current_user.is_manager %}
               <li><a href="{% if not current_user.is_manager %}/p200{%else%}/managers/p200/{{ agent.user_id }}{%endif%}" class="{% if active == 'p200' %}selected{% endif %}">View Project 200</a></li>
             {%endif%}
-            {% if active == "dashboard" and agent is not none and agent.p200_completed != true and agent.p200_started != true and not current_user.is_manager %} 
-              <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}' class="selected">Request P200</button></li>
-            {% endif %}   
-          {% endif %}             
+          {% elif not agent.p200_completed and not agent.p200_started and not current_user.is_manager %} 
+            <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}'>Request P200</button></li>
+          {% endif %}                       
         </ul>
       </div>
     </div>
