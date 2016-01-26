@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if current_user.is_manager %}
-  {% include "_partials/manager_header.html" %}
-{% else %}
-  {% include "_partials/agent_header.html" %}
-{% endif %}
+
+{% include "_partials/agent_header.html" %}
+
 {% include "_partials/agent_nav.html" %}
 <!-- Contact Dashboard-->
 <div class="section">

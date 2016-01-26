@@ -91,7 +91,7 @@ def agent(agent_id):
     manager = agent.manager
     if current_user.user_id != manager.user_id:
         return "You are not authorized to view this content."
-    return render_template("dashboard.html", agent=agent, active = "agent_page")
+    return render_template("dashboard.html", agent=agent, active = "dashboard")
 
 @csrf.exempt
 @manager.route("/p200/<int:agent_id>", methods=['GET', 'POST'])
