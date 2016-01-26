@@ -3,7 +3,11 @@
   {% include "_partials/manager_header.html" with context %}
 
   <script type='text/javascript'>
-    window.onload = function() { selectCurrent(); }
+
+    window.onload = function() { 
+      selectCurrent(); 
+    }
+    
     function selectCurrent(){
       document.getElementById("prospective-agents").style.display = "none";   
       document.getElementById("current-agents").style.display = "table";         
@@ -20,26 +24,26 @@
   <div class="manager-team-metrics wrap">
     <div class="col-3">
       <div class="metric-block">
-        <h2>298</h2>
+        <h2 id="invitations_sent">{{ manager.invitations_sent }}</h2>
         <div class="caps">Invitations Sent</div>
       </div>
     </div>
     <div class="col-3">
       <div class="metric-block">
-        <h2>298</h2>
+        <h2 id="prescreens_completed">{{ manager.prescreens_completed }}</h2>
         <div class="caps">Pre-Screens Completed</div>
       </div>
     </div>
     <div class="col-3">
       <div class="metric-block">
-        <h2>298</h2>
-        <div class="caps">P200s Completed</div>
+        <h2 id="candidates_hired">{{ manager.candidates_hired }}</h2>
+        <div class="caps">Candidates Hired</div>
       </div>
-    </div>
+    </div>    
     <div class="col-3">
       <div class="metric-block">
-        <h2>298</h2>
-        <div class="caps">Candidates Hired</div>
+        <h2 id="p200s_completed">{{ manager.p200s_completed }}</h2>
+        <div class="caps">P200s Completed</div>
       </div>
     </div>
   </div>

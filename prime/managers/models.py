@@ -58,6 +58,22 @@ class ManagerProfile(db.Model, UserMixin):
     created = db.Column(Date, default=datetime.datetime.today())
 
     @property 
+    def invitations_sent(self):
+        return int(self.users.count())
+
+    @property 
+    def prescreens_completed(self):
+        return int(self.users.filter(User.hiring_screen_completed==True).count())
+
+    @property 
+    def candidates_hired(self):
+        return int(self.users.filter(User.p200_started==True).count())
+
+    @property 
+    def p200s_completed(self):
+        return int(self.users.filter(User.p200_submitted_to_manager==True).count())
+
+    @property 
     def title(self):
         title = self.user.first_name + " " + self.user.last_name
         if self.name_suffix:

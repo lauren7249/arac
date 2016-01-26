@@ -38,7 +38,7 @@ def manager_home():
     manager = current_user.manager_profile[0]
     agents = manager.users.all()
     agent_count = manager.users.count()
-    return render_template('manager/dashboard.html', agents=agents,
+    return render_template('manager/dashboard.html', agents=agents, manager=manager,
             agent_count=int(agent_count), active="selected", agent_type='prospective')
 
 @manager.route('/invite', methods=['GET', 'POST'])
