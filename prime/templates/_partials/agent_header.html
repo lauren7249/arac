@@ -19,7 +19,8 @@
             {%endif%}
             {% if active == "dashboard" and agent is not none and agent.p200_completed != true and agent.p200_started != true and not current_user.is_manager %} 
               <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}' class="selected">Request P200</button></li>
-            {% endif %}             
+            {% endif %}   
+          {% endif %}             
         </ul>
       </div>
     </div>
