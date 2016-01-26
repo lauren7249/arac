@@ -88,6 +88,10 @@ class User(db.Model, UserMixin):
         self.email = email.lower()
         self.set_password(password)
 
+    @property 
+    def hired(self):
+        return self.p200_started or self.p200_completed or self.p200_submitted_to_manager or self.p200_approved        
+        
     @property
     def status(self):
         if self.p200_completed:

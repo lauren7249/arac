@@ -1,14 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if current_user.is_manager %}
-<div class="subheader" id="subheader">
-  <div class="wrap">
-    <a class="back-link" href="/managers/dashboard">← Back to Dashboard</a>
-    <h2>Network Summary</h2>
-  </div>
-</div>
+  {% include "_partials/manager_header.html" %}
 {% else %}
-{% include "_partials/agent_header.html" %}
+  {% include "_partials/agent_header.html" %}
 {% endif %}
 {% include "_partials/agent_nav.html" %}
 <!-- Contact Dashboard-->
@@ -27,7 +22,7 @@
       <div class="qualified-contacts">
         <h1 class="text-center">Qualified Contacts</h1>
         <canvas style='width: 500px;' width="500px" height="300px" id='connections'></canvas>
-        <h4>Your Connections</h4>
+        <h4>First Degree Connections</h4>
         <h4>Total Connections</h4>
       </div>
     </div>

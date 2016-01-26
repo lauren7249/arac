@@ -59,3 +59,6 @@ def get_firstname(str):
     if firstname in ["ms","mr","miss","mrs","dr", "rev", "reverend","professor","prof","md"] and len(str.split(" "))>1: firstname =  str.split(" ")[1]
     return firstname
 
+def resolve_email(email):
+    email = email.split("@")[0].replace('.','') + "@" + email.split("@")[-1]
+    return re.sub('\+[^@]+(?=@)','', email)

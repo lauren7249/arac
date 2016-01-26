@@ -6,7 +6,7 @@ import boto
 import dateutil
 import datetime
 from boto.s3.key import Key
-from helper import uu
+from helper import uu, resolve_email
 from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
 
 
@@ -59,6 +59,7 @@ class UserRequest(S3SavedRequest):
 
     def __init__(self, email, type='p200-'):
         super(UserRequest, self).__init__()
+        email = resolve_email(email)
         self.url = "{}{}".format(type,email)
 
     def _make_request(self, data, content_type = 'text/html'):

@@ -2,7 +2,7 @@ import re
 import logging
 from difflib import SequenceMatcher
 from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS
-from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_firstname
+from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_firstname, resolve_email
 from helpers.datehelpers import parse_date, date_overlap
 from helpers.data_helpers import flatten, merge_by_key, most_common, parse_out, get_center
 from helpers.linkedin_helpers import common_institutions

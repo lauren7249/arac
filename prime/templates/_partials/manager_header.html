@@ -1,16 +1,13 @@
 {% block content %}
 <div class="subheader" id="subheader">
   <div class="wrap">
-    <div class="col-4">      
-      <h2>Manager Dashboard</h2>
-    </div>
-
-    <div class="col-8">
-      <div class="subnav">
-        <ul id="active_cell">
-          {% if active != "selected" %}
-            <li><a href="/managers/dashboard" class="selected">Dashboard</a></li>
-          {% endif %}    
+    {% if active != "selected" %}
+      <a class="back-link" href="/managers/dashboard">← Back to Dashboard</a>
+      <h2>Network Summary</h2>
+    {% endif %}      
+    <div class="col-8">        
+      <div class="subnav">     
+        <ul id="active_cell">   
           {% if active != "agent_page" and active != "invite" %}
             <li data-tooltip="Invite a prospective agent to complete a network summary by uploading their contacts"><a href="/managers/invite">Request Hiring Screen</a></li>
           {% endif %}       

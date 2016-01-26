@@ -12,16 +12,18 @@
           {% endif %} -->
         </div>
       </div>
-      <div class="contact-links">
-        <a href="#" class="facebook"></a>
-        <a href="#" class="linkedin"></a>
-        <a href="#" class="twitter"></a>
-        <a href="#" class="pinterest"></a>
-        <a href="#" class="email"></a>
-        <a href="#" class="phone"></a>
-        <a href="#" class="location"></a>
-        <a href="#" class="amazon"></a>
-      </div>
+      {%if current_user.user_id != agent.user_id %}
+        <div class="contact-links">
+          <a href="#" class="facebook"></a>
+          <a href="#" class="linkedin"></a>
+          <a href="#" class="twitter"></a>
+          <a href="#" class="pinterest"></a>
+          <a href="#" class="email"></a>
+          <a href="#" class="phone"></a>
+          <a href="#" class="location"></a>
+          <a href="#" class="amazon"></a>
+        </div>
+      {%endif%}
       <!-- {% if agent.headline %}
         <div class="job">Infrastructure Consultant, Accenture</div>
       {% endif %} -->

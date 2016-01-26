@@ -2,6 +2,21 @@
 {% block content %}
   {% include "_partials/manager_header.html" with context %}
 
+  <script type='text/javascript'>
+    window.onload = function() { selectCurrent(); }
+    function selectCurrent(){
+      document.getElementById("prospective-agents").style.display = "none";   
+      document.getElementById("current-agents").style.display = "table";         
+      $("#prosp").removeClass("active");
+      $("#curr").addClass("active");
+    }
+    function selectProspective(){
+      document.getElementById("current-agents").style.display = "none";      
+      document.getElementById("prospective-agents").style.display = "table";      
+      $("#curr").removeClass("active"); 
+      $("#prosp").addClass("active");            
+    }
+  </script>
   <div class="manager-team-metrics wrap">
     <div class="col-3">
       <div class="metric-block">
@@ -33,94 +48,104 @@
     <div class="wrap"> 
       
       <div class="tabset">
-        <li class="active" href="#prospective-agents">Prospective Agents</li>
-        <li href="#current-agents">Current Agents</li>
+        <li id='prosp' onclick='selectProspective()'>Prospective Agents</li>
+        <li id='curr' onclick='selectCurrent()'>Current Agents</li>
       </div>
 
-      <table id="prospective-agents" class="manager-dashboard">
+      <table id="prospective-agents" class="manager-dashboard" style="max-height:100%; max-width:100%;">
         <thead>
-          <th>Agent</th>
+          <th>Candidate</th>
           <th>Primary Network</th>
           <th>Extended Network</th>
-          <th class="completed">Pre-Screen Completed</th>
+          <th class="completed">Pre-Screen</th>
         </thead>
         <tbody>
-          <tr>
-            <td class="agent"><span style="background-image:url()" class="face"></span><span> agent.name <span class='email'> agent.email</span></span></td>
-            <td>64</td>
-            <td>720</td>
-            <td class="completed yes"></td>
-          </tr>
+          {% for agent in agents %}
+            {%if not agent.hired %}
+              <tr>
+                <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+                  <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+                </td>
+                {% if agent.hiring_screen_completed %}
+                  <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
+                  <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+                {%else%}
+                  <td>-</td>
+                  <td>-</td>                
+                {%endif%}
+                <td data-td='{{ agent.user_id }}'>
+                  {% if agent.hiring_screen_completed %}
+                    <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+      <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
+                    <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
+                  {% elif agent.unique_contacts_uploaded > 0 %}
+                    <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
+                  {% else %}
+                    {% if agent.account_created %}
+                      <span class='pending' data-tooltip='Account created, no contacts uploaded yet'>Pending</span>   
+                    {% else %}
+                      <span class='pending' data-tooltip='Invite sent, response pending'>Requested</span>
+                    {% endif %}      
+                  {% endif %}
+                </td>              
+              </tr>
+            {%endif%}
+          {% endfor %}
         </tbody>
       </table>
 
-      <br><br>
-      
-      <table id="prospective-agents" class="manager-dashboard">
+      <table id="current-agents" class="manager-dashboard" style="max-height:100%; max-width:100%;">
         <thead>
           <th>Agent</th>
           <th>Primary Network</th>
           <th>Extended Network</th>
           <th>Avg Income Score</th>
-          <th>Avg Age</th>
-          <th class="completed">Hiring Screen</th>
+          <th>Avg Age</th>            
+          <th class="completed">Pre-Screen</th>
           <th class="completed">P200</th>
         </thead>
         <tbody>
-        <tr>
-        </tr>
-        {% if agent_count < 1 %}
-        <tr>
-          <td colspan='7'><h4>Add some agents to get started!</h4></td>
-        </tr>
-        {% else %}
-        {% for agent in agents %}
-        <tr>
-          <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}<span class='email'>{{ agent.email }}</span></span></td>
-          {% if agent.hiring_screen_completed %}
-            <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
-            <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
-            <td>{{ agent.average_income_score }}</td>
-            <td>{{ agent.average_age }}</td>
-          {% else %}
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>        
-          {% endif %}
-          <td data-td='{{ agent.user_id }}'>
-            {% if agent.hiring_screen_completed %}
-              <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-<!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
-              <a target='_blank' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
-            {% elif agent.unique_contacts_uploaded > 0 %}
-              <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
-            {% else %}
-              {% if agent.account_created %}
-                <span class='pending' data-tooltip='Account created, no contacts uploaded yet'>Pending</span>   
-              {% else %}
-                <span class='pending' data-tooltip='Invite sent, response pending'>Requested</span>
-              {% endif %}      
-            {% endif %}
-          </td>
-          <td data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
-            {%if agent.p200_submitted_to_manager %}
-              <a target='_blank' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
-            {% elif agent.p200_completed %}
-              <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='Network connections available, pending agent P200 submission.'>Pending</span> 
-            {% elif agent.p200_started %}
-              <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
-            {% elif agent.hiring_screen_completed  %}               <!-- -->
-              <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>    
-              <span style="display:none;" class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>                 
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-        {% endif %}
+          {% for agent in agents %}
+            {%if agent.hired %}
+              <tr>
+                <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+                  <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+                </td>
+                <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
+                <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+                <td>{{ agent.average_income_score }}</td>
+                <td>{{ agent.average_age }}</td>                  
+                <td data-td='{{ agent.user_id }}'>
+                  {% if agent.hiring_screen_completed %}
+                    <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+                  {% elif agent.unique_contacts_uploaded > 0 %}
+                    <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
+                  {% else %}
+                    {% if agent.account_created %}
+                      <span class='pending' data-tooltip='Account created, no contacts uploaded yet'>Pending</span>   
+                    {% else %}
+                      <span class='pending' data-tooltip='Invite sent, response pending'>Requested</span>
+                    {% endif %}      
+                  {% endif %}
+                </td>  
+                <td data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
+                  {%if agent.p200_submitted_to_manager %}
+                    <a target='_self' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
+                  {% elif agent.p200_completed %}
+                    <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='Network connections available, pending agent P200 submission.'>Pending</span> 
+                  {% elif agent.p200_started %}
+                    <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
+                  {% elif agent.hiring_screen_completed  %}               <!-- -->
+                    <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>    
+                    <span style="display:none;" class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>                 
+                  {% endif %}
+                </td>                              
+              </tr>
+            {%endif%}
+          {% endfor %}
         </tbody>
       </table>
+    </div>
   </div>
-</div>
 
 {% endblock %}
