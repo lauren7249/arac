@@ -354,7 +354,12 @@ def add_connections():
     user = current_user
     p200_count = user.p200_count
     if request.form.get("multi"):
-        connection_ids = [int(i) for i in request.form.get("id").split(",")]
+        ids = request.form.get("id").split(",")
+        connection_ids = []
+        for id in ids:
+            if id.isdigit() and id != '':
+                connection_ids.append(int(id))
+        connection_ids = 
         cp = ClientProspect.query.filter(ClientProspect.user==user,
                 ClientProspect.prospect_id.in_(connection_ids))
         for c in cp:
