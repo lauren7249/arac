@@ -460,20 +460,27 @@ def export():
 
     string_io = StringIO.StringIO()
     writer = csv.writer(string_io)
-    headers = ["Name", "Occupation", "Email1", "Email2", "Email3", "Business Phone",
-            "Location", "State", "Facebook", "Linkedin", "Gender",
-            "Age","Colleges", "Industry", "Name Of Business"]
+    headers = ["Prefix", "First Name", "Salutation (Preferred name, nickname)",
+            "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
+            "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
+            "Name of Business", "Business Phone", "Fax Number"]
     writer.writerow(headers)
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
-        row = [connection.prospect.name, connection.prospect.job,\
-                email1, email2, email3, connection.prospect.phone,\
-                connection.prospect.linkedin_location_raw,\
-                connection.prospect.us_state, connection.prospect.facebook,\
-                connection.prospect.linkedin_url,connection.prospect.gender,\
-                connection.prospect.age, connection.prospect.school_names,\
-                connection.prospect.linkedin_industry_raw,\
-                connection.prospect.company]
+        name = connection.prospect.name
+        try:
+            first_name, last_name = name.split(" ")
+        except:
+            try:
+                first_name = name.split(" ")[0]
+                last_name = " ".join(name.split(" ")[1:])
+            except:
+                first_name = name
+                last_name = None
+        row = ["", first_name, "", last_name, "", email1,
+            "", "", connection.prospect.linkedin_industry_raw,
+            connection.prospect.us_state, "", "", "",
+            connection.prospect.company, connection.prospect.phone, ""]
         writer.writerow(row)
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
