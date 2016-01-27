@@ -184,9 +184,9 @@
             <div class="col-5">
               <div class="onboard-signin">
                 <div id="li_button" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
-                <div class="text-center"><small>
-
-                    Don’t have LinkedIn? <a href="javascript:alert('This is not currently supported.');">Click Here</a></small></div>
+                <div class="text-center">
+                  <small>Don’t have LinkedIn? <a href="javascript:alert('This is not currently supported.');">Click Here</a></small>
+                </div>
               </div>
             </div>
           </div>
@@ -219,15 +219,15 @@
             <div class="wrap">
               <div class="col-6">
                 <div class="note">
-                  <h2>Now, let's export your LinkedIn network</h2>
-                  <p>Click the export button and follow the instructions in the popup window.</p>
-                  <h4>Like this:</h4>
-                  <img src="/static/img/linkedin-walkthrough.gif">
+                  <h2>Now, let's add your LinkedIn connections.</h2>
+                  <p>Click the "Export LinkedIn Contacts" button to the right and follow the instructions in the LinkedIn popup window.</p>
+<!--                   <h4>Like this:</h4>
+                  <img src="/static/img/linkedin-walkthrough-download.gif"> -->
                 </div>
               </div>
               <div class="col-5">
                  <div class="get-contacts">
-                  <button id="export_linkedin" onclick="download_linkedin();" class="button linkedin fluid large"> <i class="icon-linkedin"></i><span>Export LinkedIn Contacts</span></button>
+                  <button id="export_linkedin" onclick="download_linkedin();" class="button linkedin fluid large"> <span>Export LinkedIn Contacts</span></button>
                 </div>
               </div>              
                 
@@ -238,16 +238,20 @@
             <div class="wrap">
               <div class="col-6">
                 <div class="note">
-                  <h2>Great, now upload your network.</h2>
-                  <p>Click the yellow upload bar and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i></p>                
-                  
+                  <h2>Great!  Now upload your LinkedIn connections.</h2>
+                  <p>Click the yellow upload bar, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i></p>
+<!--                   <h4>Like this:</h4>     
+                  <img src="/static/img/linkedin-walkthrough-upload.gif">    -->       
                 </div>
               </div>
               <div style='overflow: hidden;max-width:50%;max-height:30%'>
-                  <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no"></iframe>
-                   
-              </div>                           
+                  <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no">
+                  </iframe>
                   
+              </div>       
+<!--               <div class="text-center">                    
+                <a href="#"><small>I can't find my LinkedIn connections file</small></a>    
+              </div> -->
             </div>
 
           </div>  
@@ -312,9 +316,8 @@
             </div>
           </div>
         </div>
-        <div class="onboard-footer"><small>
-
-            Can’t add your email contacts? <a href="#">Click here.</a></small>
+        <div class="onboard-footer">
+            <small>Can’t add your email contacts? <a href="#">Click here.</a></small>
           <button  data-next='3' class="button dark-blue">Finish</button>
         </div>
       </div>
