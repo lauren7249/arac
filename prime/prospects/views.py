@@ -88,11 +88,11 @@ def start():
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
     if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))        
+        return redirect(url_for('prospects.p200'))
     if current_user.p200_submitted_to_manager:
         return redirect(url_for('prospects.p200'))
     if current_user.p200_completed:
-        return redirect(url_for('prospects.connections'))        
+        return redirect(url_for('prospects.connections'))
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
     #User already has prospects, lets send them to the dashboard
@@ -107,11 +107,11 @@ def pending():
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
     if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))        
+        return redirect(url_for('prospects.p200'))
     if current_user.p200_submitted_to_manager:
         return redirect(url_for('prospects.p200'))
     if current_user.p200_completed:
-        return redirect(url_for('prospects.connections'))        
+        return redirect(url_for('prospects.connections'))
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
     #User already has prospects, lets send them to the dashboard
@@ -129,7 +129,7 @@ def save_linkedin_data():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     if request.method == 'POST':
         first_name = request.json.get("firstName",)
         last_name = request.json.get("lastName")
@@ -155,7 +155,7 @@ def upload():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     if request.method == 'POST':
         indata = request.json
         contacts_array = indata.get("contacts_array")
@@ -290,7 +290,7 @@ def connections():
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
     if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))              
+        return redirect(url_for('prospects.p200'))
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
@@ -323,7 +323,7 @@ def p200():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
@@ -348,7 +348,7 @@ def add_connections():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     if request.method != 'POST':
         return redirect(url_for('prospects.dashboard'))
     user = current_user
@@ -367,7 +367,7 @@ def add_connections():
             session.commit()
             p200_count-=1
             if p200_count <= 0:
-                return redirect(url_for("prospects.p200"))                
+                return redirect(url_for("prospects.p200"))
     else:
         connection_id = request.form.get("id")
         prospect = Prospect.query.get(int(connection_id))
@@ -378,7 +378,7 @@ def add_connections():
         session.commit()
         p200_count-=1
         if p200_count <= 0:
-            return redirect(url_for("prospects.p200"))               
+            return redirect(url_for("prospects.p200"))
     return jsonify({"success":True})
 
 @csrf.exempt
@@ -387,9 +387,9 @@ def skip_connections():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     if request.method != 'POST':
-        return redirect(url_for('prospects.dashboard'))        
+        return redirect(url_for('prospects.dashboard'))
     user = current_user
     if request.form.get("multi"):
         connection_ids = [int(i) for i in request.form.get("id").split(",")]
@@ -428,7 +428,7 @@ def submit_p200_to_manager():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     agent = current_user
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
@@ -445,12 +445,13 @@ def submit_p200_to_manager():
 
 
 
+
 @prospects.route("/export", methods=['GET'])
 def export():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))        
+        return redirect(url_for("managers.manager_home"))
     agent = current_user
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
@@ -459,25 +460,33 @@ def export():
 
     string_io = StringIO.StringIO()
     writer = csv.writer(string_io)
-    headers = ["Name", "Occupation", "Email1", "Email2", "Email3", "Business Phone",
-            "Location", "State", "Facebook", "Linkedin", "Gender",
-            "Age","Colleges", "Industry", "Name Of Business"]
+    headers = ["Prefix", "First Name", "Salutation (Preferred name, nickname)",
+            "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
+            "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
+            "Name of Business", "Business Phone", "Fax Number"]
     writer.writerow(headers)
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
-        row = [connection.prospect.name, connection.prospect.job,\
-                email1, email2, email3, connection.prospect.phone,\
-                connection.prospect.linkedin_location_raw,\
-                connection.prospect.us_state, connection.prospect.facebook,\
-                connection.prospect.linkedin_url,connection.prospect.gender,\
-                connection.prospect.age, connection.prospect.school_names,\
-                connection.prospect.linkedin_industry_raw,\
-                connection.prospect.company]
+        name = connection.prospect.name
+        try:
+            first_name, last_name = name.split(" ")
+        except:
+            try:
+                first_name = name.split(" ")[0]
+                last_name = " ".join(name.split(" ")[1:])
+            except:
+                first_name = name
+                last_name = None
+        row = ["", first_name, "", last_name, "", email1,
+            "", "", connection.prospect.linkedin_industry_raw,
+            connection.prospect.us_state, "", "", "",
+            connection.prospect.company, connection.prospect.phone, ""]
         writer.writerow(row)
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
     output.headers["Content-type"] = "text/csv"
     return output
+
 
 
 @csrf.exempt
@@ -486,7 +495,7 @@ def pdf():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home")) 
+        return redirect(url_for("managers.manager_home"))
     agent = current_user
     page = int(request.args.get("p", 1))
     connections = ClientProspect.query.filter(
