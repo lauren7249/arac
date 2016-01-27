@@ -1,7 +1,7 @@
 @charset "UTF-8";
 @import url(https://fonts.googleapis.com/css?family=Poppins:400,500,600,700);
 @import url(normalize.css);
-.manager-dashboard .completed.yes, .wizard ol li.complete:before, .file-upload .upload-box.complete i.icon-upload, .connect-email .connected:before {
+.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before {
   background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -398,6 +398,10 @@ input[type="password"]:focus,
 input[type="email"]:focus {
   outline: none;
   border-color: #16263D;
+}
+
+form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
+  padding: 30px;
 }
 
 .form-group {
@@ -1151,15 +1155,36 @@ div.pagination a.active {
 .file-upload {
   margin-top: 2rem;
 }
-.file-upload .upload-box {
+.file-upload iframe#upload_button {
+  width: 100%;
+}
+.file-upload body.center {
+  position: inherit;
+  height: auto;
+  padding: 0;
+}
+.file-upload body.center .source-logo, .file-upload body.center .upload-inst, .file-upload body.center #warning-message, .file-upload body.center p {
+  display: none !important;
+}
+.file-upload .fileinputs {
+  position: relative;
+  background-color: white;
   text-align: center;
+  font-size: normal;
   padding: 2rem;
   margin: 4rem 0;
   color: #787B80;
   border: 2px dashed #DADFE1;
   border-radius: 8px;
 }
-.file-upload .upload-box i.icon-upload {
+.file-upload .fileinputs #fileinput-message {
+  font-weight: bold;
+  color: #02C2B9;
+}
+.file-upload .fileinputs #fileinput-message:before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   content: "";
   display: block;
   background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
@@ -1170,12 +1195,20 @@ div.pagination a.active {
   height: 4rem;
   margin: 0 auto 1rem;
 }
-.file-upload .upload-box p {
-  margin: 0;
+.file-upload .fileinputs input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  border: none;
+  border-width: 0;
+  cursor: pointer !important;
+  z-index: 9999;
+  opacity: 0;
 }
-.file-upload .upload-box.complete {
-  color: #02C2B9;
-  border: 2px solid;
+.file-upload .fileinputs [role="button"], .file-upload .fileinputs button, .file-upload .fileinputs input[type=file]::-webkit-file-upload-button {
+  cursor: pointer;
 }
 
 .upload-instructions {
@@ -1259,6 +1292,10 @@ div.loading img {
   width: 100%;
   height: auto;
   padding: 20px;
+}
+
+dialog {
+  border: none;
 }
 
 .signup {

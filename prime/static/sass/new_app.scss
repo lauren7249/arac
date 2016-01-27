@@ -472,6 +472,12 @@ input[type="email"] {
   @extend %input;
 }
 
+form {
+  &.card {
+    padding: 30px;
+  }  
+}
+
 .form-group {
   margin: 20px 0;
   label {
@@ -1215,35 +1221,98 @@ div.pagination {
 
 .file-upload {
   margin-top: 2rem;
-  .upload-box {
+
+  iframe#upload_button {
+    width: 100%; 
+  }
+  
+  // override cloudpsonge upload styles
+  body.center {
+    position: inherit;
+    height: auto;
+    padding: 0;
+    .source-logo, .upload-inst, #warning-message, p {
+      display: none !important;
+    }
+  }
+  
+  .fileinputs {
+    position: relative;
+    background-color: white;
     text-align: center;
+    font-size: normal;
     padding: 2rem;
     margin: 4rem 0;
     color: $grey;
     border: 2px dashed $border;
-    border-radius: 8px;
-    i.icon-upload {
-      content: "";
-      display: block;
-      background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
-      background-size: 100%;
-      background-position: 50% 50%;
-      background-repeat: no-repeat;
-      width: 4rem;
-      height: 4rem;
-      margin: 0 auto 1rem;      
-    }
-    p {
-      margin: 0;
-    }
-    &.complete {
+    border-radius: 8px;      
+    #fileinput-message {
+      font-weight: bold;
       color: $teal;
-      border: 2px solid;
-      i.icon-upload {
-        @extend %circle-check;
+      &:before {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        content: "";
+        display: block;
+        background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+        background-size: 100%;
+        background-position: 50% 50%;
+        background-repeat: no-repeat;
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;      
       }
     }
-  } 
+    input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      right: 0;
+      border: none;
+      border-width: 0;
+      cursor: pointer !important;
+      z-index: 9999;
+      opacity: 0;
+    }
+    [role="button"], button, input[type=file]::-webkit-file-upload-button {
+      cursor: pointer;
+    }
+  }
+  
+
+
+
+  // .upload-box {
+  //   // text-align: center;
+  //   // padding: 2rem;
+  //   // margin: 4rem 0;
+  //   // color: $grey;
+  //   // border: 2px dashed $border;
+  //   // border-radius: 8px;
+  //   // i.icon-upload {
+  //   //   content: "";
+  //   //   display: block;
+  //   //   background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+  //   //   background-size: 100%;
+  //   //   background-position: 50% 50%;
+  //   //   background-repeat: no-repeat;
+  //   //   width: 4rem;
+  //   //   height: 4rem;
+  //   //   margin: 0 auto 1rem;      
+  //   // }
+  //   // p {
+  //   //   margin: 0;
+  //   // }
+  //   &.complete {
+  //     color: $teal;
+  //     border: 2px solid;
+  //     i.icon-upload {
+  //       @extend %circle-check;
+  //     }
+  //   }
+  // } 
 }
 
 .upload-instructions {
@@ -1335,6 +1404,10 @@ div.loading {
     height: auto;
     padding: 20px;
   }
+}
+
+dialog {
+  border: none; 
 }
 
 
