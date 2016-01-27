@@ -359,7 +359,6 @@ def add_connections():
         for id in ids:
             if id.isdigit() and id != '':
                 connection_ids.append(int(id))
-        connection_ids =
         cp = ClientProspect.query.filter(ClientProspect.user==user,
                 ClientProspect.prospect_id.in_(connection_ids))
         for c in cp:
