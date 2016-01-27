@@ -22,6 +22,7 @@
         $("#step-1").hide();
         $(".onboard-header").show();
         $("#linkedin-upload").hide();   
+        document.getElementById("linkedin-upload-drag").setAttribute('style', "display:none");
         $("#step-2").slideDown();     
         $.ajax({
             type: 'POST',
@@ -64,6 +65,11 @@
       $("#linkedin-download").hide();
       $("#linkedin-upload").slideDown();  
       setupUpload();
+    }      
+
+    function switch_uploader() {  
+      $("#linkedin-upload").hide();  
+      document.getElementById("linkedin-upload-drag").setAttribute('style', "display:block");
     }      
 
     function setupUpload(){
@@ -222,15 +228,18 @@
                   <h2>Now, let's add your LinkedIn connections.</h2>
                   <p>Click the "Export LinkedIn Contacts" button to the right and follow the instructions in the LinkedIn popup window.</p>
 <!--                   <h4>Like this:</h4>
-                  <img src="/static/img/linkedin-walkthrough-download.gif"> -->
+                   -->
                 </div>
               </div>
               <div class="col-5">
                  <div class="get-contacts">
                   <button id="export_linkedin" onclick="download_linkedin();" class="button linkedin fluid large"> <span>Export LinkedIn Contacts</span></button>
+                  
                 </div>
+                <br/>
+                <img src="/static/img/linkedin-walkthrough-download.gif" style="max-width:100%;">
               </div>              
-                
+              
             </div>
           </div>
           <div  id="linkedin-upload">
@@ -240,22 +249,42 @@
                 <div class="note">
                   <h2>Great!  Now upload your LinkedIn connections.</h2>
                   <p>Click the yellow upload bar, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i></p>
-<!--                   <h4>Like this:</h4>     
-                  <img src="/static/img/linkedin-walkthrough-upload.gif">    -->       
+<!--                   <h4>Like this:</h4>     -->                       
+                </div>
+                <div class="text-center">    
+                  <br/>            
+<!--                   <small>Can’t find the file? <button id="cant_find_file" onclick="switch_uploader();" >Click here.</button></small>   -->
+                </div>                 
+              </div>
+              <div style='overflow: hidden;max-width:50%;max-height:30%'>
+                  <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no">
+                  </iframe>
+                  <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">   
+              </div>       
+              
+            </div>
+
+          </div>  
+          <div  id="linkedin-upload-drag">
+
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Try a different way to upload your LinkedIn connections.</h2>
+                  <p>Drag and drop the file to the upload bar.</p>
+<!--                   <h4>Like this:</h4>    -->  
+                   
                 </div>
               </div>
               <div style='overflow: hidden;max-width:50%;max-height:30%'>
                   <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no">
                   </iframe>
-                  
+                  <img src="/static/img/linkedin-walkthrough-drag.gif" style="max-width:100%;">         
               </div>       
-<!--               <div class="text-center">                    
-                <a href="#"><small>I can't find my LinkedIn connections file</small></a>    
-              </div> -->
+
             </div>
 
           </div>  
-
         </div>    
         <div style="display:none;" class="onboard-footer"><small>
           <button id="hack_next" data-next='2' style='border:0;' class="button dark-blue">Next</button>  
@@ -295,7 +324,7 @@
             </div>
             <div class="col-5">
               <div id='gmail-area' class="connect-email">
-                <img id='gmail' href="#" type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
+                <img id='gmail' type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
                 <span>
                   <div class='connected_area'></div>
                   
