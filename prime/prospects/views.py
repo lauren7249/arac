@@ -353,7 +353,7 @@ def add_connections():
         return redirect(url_for('prospects.dashboard'))
     user = current_user
     p200_count = user.p200_count
-    if request.form.get("multi"):
+    if request.form.get("multi") and request.form.get("id"):
         ids = request.form.get("id").split(",")
         connection_ids = []
         for id in ids:

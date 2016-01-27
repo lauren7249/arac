@@ -1,281 +1,362 @@
 {% extends 'base.html' %}
 {% block content %}    
-    <script type="text/javascript">
+  <script type="text/javascript">
+    function onLinkedInLoad() {
+      $("#li_button").click(function() {
+        IN.User.authorize(getProfileData);
+      });
+    }
+
+    // Handle the successful return from the API call
+    function onSuccess(data) {
+        //console.log(data);
+        geolocation = data.location.name;
+        public_url = data.publicProfileUrl;
+        email_address = data.emailAddress;
+        firstName = data.firstName;
+        lastName = data.lastName;
+        $("#owner_email").html(email_address);
+        $("#owner_geolocation").html(geolocation);
+        $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
+        $("#owner_name").html("Welcome, " + firstName);
+        $("#step-1").hide();
+        $(".onboard-header").show();
+        $("#linkedin-upload").hide();   
+        $("#step-2").slideDown();     
+        $.ajax({
+            type: 'POST',
+            url: '/save_linkedin_data',
+            crossDomain: true,
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(responseData, textStatus, jqXHR) {
+              document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
+              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;                 
+            },
+            error: function (responseData, textStatus, errorThrown) {
+            }
+        });                    
+    }
+
+    // Handle an error response from the API call
+    function onError(error) {
+        console.log(error);
+    }
+
+    // Use the API call wrapper to request the member's basic profile data
+    function getProfileData() {
+        IN.API.Raw("people/~:(id,num-connections,picture-url,location,industry,public-profile-url,email-address,first-name,last-name)").result(onSuccess).error(onError);
+    }  
+
+    var domain_key='VB652MMUEG24H4JF3SGL';
+    var domain_password='GSrAxStb9Zk5EOmD';    
+    var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
+    var cloudsponge_base_url = 'http://api.cloudsponge.com/'    ;
+    var contacts_array = [];
+    var cloudsponge_status = '';
+    var test = (window.location.href.indexOf("testing") > -1) ? true : false;
+    var downloadWindow = null;
+
+    function download_linkedin() {
+      var link = "http://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook";
+      downloadWindow = window.open(link, "", "width=600, height=600");    
+      $("#linkedin-download").hide();
+      $("#linkedin-upload").slideDown();  
+      setupUpload();
+    }      
+
+    function setupUpload(){
+      var iframe = document.getElementById("upload_button");
+      $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=linkedin&' + cloudsponge_params + '&callback=?', function(data) {
+        var cloudsponge_url = data.url;
+        iframe.src = cloudsponge_url + "#upload-div";     
+        var import_id = data.import_id;
+        var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';  
+        var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+        checkEvents(tempeventsurl, tempcontactsurl);
         
-        // Setup an event listener to make an API call once auth is complete
-        function onLinkedInLoad() {
-          $("#li_button").click(function() {
-            IN.User.authorize(getProfileData);
-          });
-        }
+      });      
+    }
+    function checkEvents(tempeventsurl, tempcontactsurl) {
+      var timeout = setInterval(function(){
+        $.getJSON(tempeventsurl, function(data) {
+          events = data.events;
+          for (i = 0; i < events.length; i++) { 
+            cloudsponge_status = events[i].status;
+            console.log(cloudsponge_status);
+            if (cloudsponge_status == 'COMPLETED') {
+              $(".overlay").fadeIn();
+              $(".waiting").show();                              
+              clearInterval(timeout); 
+              return getContacts(tempeventsurl, tempcontactsurl);                                                     
+            } 
+            else if (cloudsponge_status =="ERROR") {
+              alert("Error: please try again.")
+              clearInterval(timeout); 
+              return;
+            }
+          } 
+          
+        });   
+      }, 1000);  
+    }
 
-        // Handle the successful return from the API call
-        function onSuccess(data) {
-            //console.log(data);
-            geolocation = data.location.name;
-            public_url = data.publicProfileUrl;
-            email_address = data.emailAddress;
-            firstName = data.firstName;
-            lastName = data.lastName;
-            $("#owner_email").html(email_address);
-            $("#owner_geolocation").html(geolocation);
-            $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
-            $("#owner_name").html("Welcome, " + firstName);
-            $("#step-1").hide();
-            $(".onboard-header").show();
-            $("#step-2").slideDown();     
-            $.ajax({
-                type: 'POST',
-                url: '/save_linkedin_data',
-                crossDomain: true,
-                data: JSON.stringify(data),
-                dataType: 'json',
-                contentType: 'application/json; charset=utf-8',
-                success: function(responseData, textStatus, jqXHR) {
-                  document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
-                  document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;
-                },
-                error: function (responseData, textStatus, errorThrown) {
-                }
-            });                    
-        }
+    function getContacts(tempeventsurl, tempcontactsurl) {  
+      console.log("getting contacts");
+      var timeout = setInterval(function(){
+        $.getJSON(tempcontactsurl, function(data) {
+          contacts = data.contacts;
+          contacts_owner = data.contacts_owner;
+          if (contacts !=undefined && contacts.length) {
+            console.log(contacts.length);
+            for (i = 0; i < contacts.length; i++) { 
+              var contact = contacts[i];
+              contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:"LinkedIn"});
+         
+            }
+            $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
+            $(".final-contact-count").html(contacts_array.length.toLocaleString())
+            $(".contact-count").show();
+            $("#hack_next").click(); 
+            $(".waiting").hide();
+            $(".overlay").fadeOut();       
+            contacts = [];
+            clearInterval(timeout);
+            downloadWindow.close();
+          } 
+          else {              
+            $(".waiting").hide();
+            $(".overlay").fadeOut();                                          
+            alert('Invalid input');
+            clearInterval(timeout);
+            setupUpload();
+          }          
+        });
+      }, 2000);
+                   
+    }    
 
-        // Handle an error response from the API call
-        function onError(error) {
-            console.log(error);
-        }
+    function is_window(obj) {
+      return obj.constructor.toString()=='function Window() { [native code] }';
+    }
 
-        // Use the API call wrapper to request the member's basic profile data
-        function getProfileData() {
-            IN.API.Raw("people/~:(id,num-connections,picture-url,location,industry,public-profile-url,email-address,first-name,last-name)").result(onSuccess).error(onError);
-        }
-
-    </script>    
-    <div class="section onboarding">
-      <div class="wrap">
-        <div class="onboard-header">
-          <div id="owner_img" style="" class="face"></div>
-          <h1 id="owner_name"></h1>
-          <p hidden id="owner_email"></p>
-          <p hidden id="owner_geolocation"></p>
-          <div class="contact-count"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/contact-card.svg"/><small>1,529 Total Contacts Added</small></div>
+  </script>
+  <div class="section onboarding">
+    <div class="wrap">
+      <div class="onboard-header">
+        <div id="owner_img" style="" class="face"></div>
+        <h1 id="owner_name"></h1>
+        <p hidden id="owner_email"></p>
+        <p hidden id="owner_geolocation"></p>
+        <div class="contact-count"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/contact-card.svg"/><small>1,529 Total Contacts Added</small></div>
+      </div>
+      <!-- Onboard Step 1-->
+      <div class="onboard" id="step-1">
+        <div class="wizard">
+          <ol>
+            <li> 
+              <label>Step One</label>
+              <p>Signin Via LinkedIn</p>
+            </li>
+            <li class="idle">
+              <label>Step Two</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>
+            <li class="idle">
+              <label>Step Three</label>
+              <p>Add Email Contacts</p>
+            </li>
+            <li class="idle">
+              <label>Step Four</label>
+              <p>Finish</p>
+            </li>
+          </ol>
         </div>
-        <!-- Onboard Step 1-->
-        <div class="onboard" id="step-1">
-          <div class="wizard">
-            <ol>
-              <li> 
-                <label>Step One</label>
-                <p>Signin Via LinkedIn</p>
-              </li>
-              <li class="idle">
-                <label>Step Two</label>
-                <p>Add LinkedIn Contacts</p>
-              </li>
-              <li class="idle">
-                <label>Step Three</label>
-                <p>Add Email Contacts</p>
-              </li>
-              <li class="idle">
-                <label>Step Four</label>
-                <p>Finish & Upload</p>
-              </li>
-            </ol>
-          </div>
-          <div class="onboard-body">
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Welcome to AdvisorConnect!</h2>
-                  <p>Let’s get started by connecting your LinkedIn account. This will allow us to include your LinkedIn profile information in AdvisorConnect.</p>
-                </div>
-              </div>
-              <div class="col-5">
-                <div class="onboard-signin">
-                  <div id="li_button" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
-                  <div class="text-center"><small>
-
-                      Don’t have LinkedIn? <a href="javascript:alert('This is not currently supported.');">Click Here</a></small></div>
-                </div>
+        <div class="onboard-body">
+          <div class="wrap">
+            <div class="col-6">
+              <div class="note">
+                <h2>Welcome to AdvisorConnect!</h2>
+                <p>Let’s get started by connecting your LinkedIn account. This will allow us to include your LinkedIn profile information in AdvisorConnect.</p>
               </div>
             </div>
-          </div>
-        </div>
-        <!-- Onboard Step 2-->
-        <div class="onboard" id="step-2">
-          <div class="wizard">
-            <ol>
-              <li class="complete"> 
-                <label>Step One</label>
-                <p>Signin Via LinkedIn</p>
-              </li>
-              <li> 
-                <label>Step Two</label>
-                <p>Add LinkedIn Contacts</p>
-              </li>
-              <li class="idle"> 
-                <label>Step Three</label>
-                <p>Add Email Contacts</p>
-              </li>
-              <li class="idle"> 
-                <label>Step Four</label>
-                <p>Finish & Upload</p>
-              </li>
-            </ol>
-          </div>
-          <div class="onboard-body">
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Now, let's build your network.</h2>
-                  <p>Follow the instructions on the right.</p>
-                  <hr/>
-                </div>
-              </div>
-              <div class="col-5">
-                <div class="get-contacts">
-                  <button id='ln' class="button linkedin fluid large"> <i class="icon-linkedin"></i><span>Get LinkedIn Contacts</span></button>
-                </div>
-                <iframe style='width: 100%;border:0;' src="https://api.cloudsponge.com/csv/2BL33RJ"><iframe>
-                <div class="file-upload">
-                  <!--
-                  <p class="text-center">Upload your .csv file here</p>
-                  <div class="upload-box"><i class="icon-upload"></i>
-                    <p>Drag & Drop</p>
-                    <p>Your .csv file here or browse</p>
-                  </div>
-                  <div class="upload-box complete"><i class="icon-upload"></i>
-                    <p>Drag & Drop</p>
-                    <p>Your .csv file here or browse</p>
-                  </div>
-                  -->
-                </div>
-                  <!--
-                <div class="upload-instructions">
-                  <p>
+            <div class="col-5">
+              <div class="onboard-signin">
+                <div id="li_button" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
+                <div class="text-center"><small>
 
-                  Can't find your LinkedIn contacts file?  <a href="#">Click here </a>and navigate to your Downloads folder and look for a file named <b>"linkedin_connections_export_microsoft_outlook.csv". </b>
-                  </p>
-                  <p>If you still can't find your file click here to download your contacts again or skip this step.</p>
-                </div>
-                  -->
-              </div>
-            </div>
-          </div>
-          <div class="onboard-footer">
-            <button data-next='2' class="button dark-blue">Next</button>
-          </div>
-        </div>
-        <!-- Onboard Step 3-->
-        <div class="onboard"  id="step-3">
-          <div class="wizard">
-            <ol>
-              <li class="complete"> 
-                <label>Step One</label>
-                <p>Signin Via LinkedIn</p>
-              </li>
-              <li class="complete">
-                <label>Step Two</label>
-                <p>Add LinkedIn Contacts</p>
-              </li>
-              <li> 
-                <label>Step Three</label>
-                <p>Add Email Contacts</p>
-              </li>
-              <li class="idle"> 
-                <label>Step Four</label>
-                <p>Finish & Upload</p>
-              </li>
-            </ol>
-          </div>
-          <div class="onboard-body">
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Now, let's add your email contacts.</h2>
-                  <p>You can add contacts from more than one account.  Remember that the more accounts you connect, the more valuable this tool will be to your marketing and prospecting efforts.</p><small>None of your personal messages or your contacts’ personal information (including contact information) will be shared with New York Life.               </small>
-                </div>
-              </div>
-              <div class="col-5">
-                <div id='gmail-area' class="connect-email">
-                  <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
-                  <span>
-                    <div class='connected_area'></div>
-                    <button id='gmail' type="Submit" class="button teal">Connect Gmail</button>
-                    
-                  </span>
-                </div>
-                <div id='yahoo-area' class="connect-email">
-                  <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
-                  <span>
-                    <div class='connected_area'></div>
-                    <button id='yahoo' type="Submit" class="button teal">Connect Yahoo! Mail</button>
-                  </span>
-                </div>
-                <div id='windows-area' class="connect-email">
-                  <img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
-                  <span>
-                    <div class='connected_area'></div>
-                    <button id='windowslive' type="Submit" class="button teal">Connect Windows Live</button>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="onboard-footer"><small>
-
-              Can’t add your email contacts? <a href="#">Click here.</a></small>
-            <button  data-next='3' class="button dark-blue">Next</button>
-          </div>
-        </div>
-        <!-- Onboard Step 4-->
-        <div class="onboard" id="step-4">
-          <div class="wizard">
-            <ol>
-              <li class="complete"> 
-                <label>Step One</label>
-                <p>Signin Via LinkedIn</p>
-              </li>
-              <li class="complete">
-                <label>Step Two</label>
-                <p>Add LinkedIn Contacts</p>
-              </li>
-              <li class="complete"> 
-                <label>Step Three</label>
-                <p>Add Email Contacts</p>
-              </li>
-              <li>
-                <label>Step Four</label>
-                <p>Finish & Upload</p>
-              </li>
-            </ol>
-          </div>
-          <div class="onboard-body">
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Congratulations!</h2>
-                  <p>You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</p>
-                  <p>We will email you when your Network Summary is complete.</p>
-                </div>
-              </div>
-              <div class="col-5" id='thanks'>
-                <div id='next' class="button large fluid dark-blue">Finish</div>
+                    Don’t have LinkedIn? <a href="javascript:alert('This is not currently supported.');">Click Here</a></small></div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- Onboard Step 2-->
+      <div class="onboard" id="step-2">
+        <div class="wizard">
+          <ol>
+            <li class="complete"> 
+              <label>Step One</label>
+              <p>Signin Via LinkedIn</p>
+            </li>
+            <li> 
+              <label>Step Two</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>
+            <li class="idle"> 
+              <label>Step Three</label>
+              <p>Add Email Contacts</p>
+            </li>
+            <li class="idle"> 
+              <label>Step Four</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+          <div id="linkedin-download">
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Now, let's export your LinkedIn network</h2>
+                  <p>Click the export button and follow the instructions in the popup window.</p>  
+                </div>
+              </div>
+              <div class="col-5">
+                 <div class="get-contacts">
+                  <button id="export_linkedin" onclick="download_linkedin();" class="button linkedin fluid large"> <i class="icon-linkedin"></i><span>Export LinkedIn Contacts</span></button>
+                </div>
+              </div>              
+                
+            </div>
+          </div>
+          <div  id="linkedin-upload">
+
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Great, now upload your network.</h2>
+                  <p>Click the yellow upload bar and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i></p>                
+                  
+                </div>
+              </div>
+              <div style='overflow: hidden;max-width:50%;max-height:30%'>
+                  <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no"></iframe>
+                   
+              </div>                           
+                  
+            </div>
+
+          </div>  
+
+        </div>    
+        <div style="display:none;" class="onboard-footer"><small>
+          <button id="hack_next" data-next='2' style='border:0;' class="button dark-blue">Next</button>  
+        </div>                    
+      </div>
+      <!-- Onboard Step 3-->
+      <div class="onboard" id="step-3">
+        <div class="wizard">
+          <ol>
+            <li class="complete"> 
+              <label>Step One</label>
+              <p>Signin Via LinkedIn</p>
+            </li>
+            <li class="complete">
+              <label>Step Two</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>
+            <li> 
+              <label>Step Three</label>
+              <p>Add Email Contacts</p>
+            </li>
+            <li class="idle"> 
+              <label>Step Four</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+          <div class="wrap">
+            <div class="col-6">
+              <div class="note">
+                <h2>Now, let's add your email contacts.</h2>
+                <p>Add email contacts by clicking the icon for your email provider.</p>
+                <p>You can add contacts from more than one account. Remember that the more accounts you connect, the more valuable this tool will be to your marketing and prospecting efforts.</p>
+                <small>None of your personal messages or your contacts’ personal information (including contact information) will be shared with New York Life.       </small>
+              </div>
+            </div>
+            <div class="col-5">
+              <div id='gmail-area' class="connect-email">
+                <img id='gmail' href="#" type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                  
+                </span>
+              </div>
+              <div id='yahoo-area' class="connect-email">
+                <img id='yahoo' type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                </span>
+              </div>
+              <div id='windows-area' class="connect-email">
+                <img id='windowslive' type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="onboard-footer"><small>
+
+            Can’t add your email contacts? <a href="#">Click here.</a></small>
+          <button  data-next='3' class="button dark-blue">Finish</button>
+        </div>
+      </div>
+      <!-- Onboard Step 4-->
+      <div class="onboard" id="step-4">
+        <div class="wizard">
+          <ol>
+            <li class="complete"> 
+              <label>Step One</label>
+              <p>Signin Via LinkedIn</p>
+            </li>
+            <li class="complete">
+              <label>Step Two</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>
+            <li class="complete"> 
+              <label>Step Three</label>
+              <p>Add Email Contacts</p>
+            </li>
+            <li>
+              <label>Step Four</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+          <div class="wrap">
+            <div class="col-6">
+              <div class="note">
+                <h2>Congratulations!</h2>
+                <p>You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</p>
+                <p>We will email you when your Network Summary is complete.</p>
+              </div>
+            </div>
+            <div class="col-5">
+            </div>            
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
   <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
   <script type='text/javascript' >
 
-    var domain_key='VB652MMUEG24H4JF3SGL';
-    var domain_password='GSrAxStb9Zk5EOmD';    
-    var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
-    var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
-    var contacts_array = [];
-    var test = (window.location.href.indexOf("testing") > -1) ? true : false;
 
     function do_import(service, divid, win) {     
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
@@ -285,125 +366,89 @@
           var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           console.log(tempcontactsurl);
-          win.location = cloudsponge_url;
-          //var win = window.open(cloudsponge_url);
-          var timer = setInterval(function() {   
+          if (is_window(win)) {
+            win.location = cloudsponge_url;
+            var timer = setInterval(function() {   
               if(win.closed) {
-                  console.log("window closed");
-                  $(".overlay").fadeIn();
-                  $(".waiting").show();                
-                  clearInterval(timer); 
-                  $.getJSON(tempeventsurl, function(data){
-                    events = data.events;
+                clearInterval(timer);              
+                handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service);
 
-                    for (i = 0; i < events.length; i++) { 
-                        cloudsponge_status = events[i].status;
-                        if (cloudsponge_status == 'COMPLETED') {
-                          var timer2 = setInterval(function() {  
-                            $.getJSON(tempcontactsurl, function() {
-                            })
-                            .success(function(data) {
-                              clearInterval(timer2); 
-                              contacts = data.contacts;
-                              if (contacts !=undefined && contacts.length) { 
-                                contacts_owner = data.contacts_owner;
-                                
-                                if (contacts_owner) {
-                                  response_element_id = contacts_owner.email[0].address + "_response";
-                                } else {
-                                  response_element_id = service + "_response"
-                                }
-                                status_field = document.getElementById(response_element_id);
-                                if (status_field == null || status_field == undefined) {
-                                  for (i = 0; i < contacts.length; i++) { 
-                                      var contact = contacts[i];
-                                      contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
-                               
-                                  }
-                                  var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
-                                  if (contacts_owner) {
-                                    response_string = response_string + "from " + contacts_owner.email[0].address;
-                                  }
-
-                                  $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
-                                  $(".final-contact-count").html(contacts_array.length.toLocaleString())
-                                  $(".contact-count").show();
-
-                                  if(divid == "div#linkedin_area") {
-                                    $("#step-2").hide();
-                                    $("#step-3").slideDown();     
-                                  } else {
-                                    // $(divid).find("button").hide()
-                                    $(divid).find(".connected_area").append("<div class='connected' style='display:block;'>" + contacts.length.toLocaleString() + ' Total Contacts Added</div>')
-                                  }
-                                  $(".waiting").hide();
-                                  $(".overlay").fadeOut();
-                                }
-                                else {
-                                  $(".waiting").hide();   
-                                  $(".overlay").fadeOut();     
-                                  alert("You already added your contacts from this account.")                                  
-                                }
-                                contacts = [];
-                                return;
-                              } 
-                              else {
-                                $(".waiting").hide();   
-                                $(".overlay").fadeOut();                                
-                                alert('Invalid input');
-                              }                             
-                            });                          
-                          }, 1000); 
-                          break;
-                        } else if (cloudsponge_status =="ERROR") {
-                            $(".waiting").hide();   
-                            $(".overlay").fadeOut();      
-                            break;                       
-                        }
-                    }     
-                  }); 
               }  
-          }, 500);             
+            }, 500);              
+          }
+           
         });      
     }
 
+    function handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service) {
+      console.log(tempeventsurl);
+      $.getJSON(tempeventsurl, function(data){
+        events = data.events;
+
+        for (i = 0; i < events.length; i++) { 
+          cloudsponge_status = events[i].status;
+          console.log(cloudsponge_status);
+          if (cloudsponge_status == 'COMPLETED') {
+            $(".overlay").fadeIn();
+            $(".waiting").show();   
+            var timer2 = setInterval(function() {  
+              $.getJSON(tempcontactsurl, function() {
+              })
+              .success(function(data) {
+                clearInterval(timer2); 
+                contacts = data.contacts;
+                if (contacts !=undefined && contacts.length) { 
+                  contacts_owner = data.contacts_owner;
+                  response_element_id = contacts_owner.email[0].address + "_response";
+
+                  status_field = document.getElementById(response_element_id);
+                  if (status_field == null || status_field == undefined) {
+                    for (i = 0; i < contacts.length; i++) { 
+                        var contact = contacts[i];
+                        contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
+                 
+                    }
+                    var response_string = contacts.length.toLocaleString();
+
+                    response_string = response_string + " from " + contacts_owner.email[0].address;
+                    $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
+                    $(".final-contact-count").html(contacts_array.length.toLocaleString())
+                    $(".contact-count").show();
+
+                    $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + " style='display:block;'>" + response_string + '</div>')
+                    $(".waiting").hide();
+                    $(".overlay").fadeOut();
+                    return true;
+                  }
+                  else {
+                    $(".waiting").hide();   
+                    $(".overlay").fadeOut();     
+                    return true;                               
+                  }
+                  contacts = [];
+                  return true;
+                } 
+                else {
+                  $(".waiting").hide();   
+                  $(".overlay").fadeOut();                                
+                  alert('Invalid input');
+                  return true;
+                }                             
+              });                          
+            }, 1000); 
+            break;
+          } 
+          else if (cloudsponge_status =="ERROR") {
+            $(".waiting").hide();   
+            $(".overlay").fadeOut();     
+            break;    
+            return true;                   
+          }
+        }   
+      });       
+    }
+
     $(function() {
-
-      $("#enter").click(function() {
-        email_address = document.getElementById("email_address").value;
-        geolocation = document.getElementById("geolocation").value;
-        if (email_address != "" && geolocation != "") {
-          document.getElementById("owner_email").innerHTML = email_address;
-          document.getElementById("owner_geolocation").innerHTML = geolocation;
-          $("div#enter_email").hide();
-          $("div#upload_area").show();
-        }
-      });
-
-      $("#vcard").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        cloudsponge_status = 'NONE';   
-        var len = do_import('addressbook','div#mac_area',win);
-      });
-
-
-      $("#ln").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');
-        // $(".overlay").fadeIn();
-        var len = do_import('LinkedIn','div#linkedin_area',win);
-        //TODO hide linkedin button
-      });
-
-      $("#csv").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        // $(".overlay").fadeIn();
-        var len = do_import('CSV','div#csv_area',win);
-        // if (len>0) {$("#csv").hide();}
-      });
-
       $("[data-next]").click(function() {
         var id = $(this).data('next');
         var next_id = id + 1;
@@ -418,55 +463,48 @@
         upload()
       });
 
-      $(".overlay").click(function(e) {
-        if (e.target.className == "overlay") {
-            $(".linkedin").hide();
-            $(".email").hide();
-            $(this).hide();
-          }
-      });
-
       bindEmailButtons()
     });
 
-  function upload() {
-    if (contacts_array.length > 0) {
-      $("#next").hide()
-      $(".overlay").fadeIn();
-      $(".waiting").show();   
-      var csrf_token = $("[_csrf_token]").val()
-      if (test) {
-        contacts_array = contacts_array.slice(0, 20)
-      }
+    function upload() {
+      if (contacts_array.length > 0) {
+        $("#next").hide()
+        $(".overlay").fadeIn();
+        $(".waiting").show();   
+        var csrf_token = $("[_csrf_token]").val()
+        if (test) {
+          contacts_array = contacts_array.slice(0, 20)
+        }
 
-      var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, lastName:lastName, public_url:public_url, user_email:email_address, contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
-      $.ajax({
-          type: 'POST',
-          url: '/upload_cloudsponge',
-          crossDomain: true,
-          data: JSON.stringify(outData),
-          dataType: 'json',
-          contentType: 'application/json; charset=utf-8',
-          success: function(responseData, textStatus, jqXHR) {
-            //$("#thanks").append("<h2>Thanks!</h2><p>We will be emailing you when the results are ready. Thank you!</p>")
-            
-            $(".waiting").hide();   
-            $(".overlay").fadeOut();     
-          },
-          error: function (responseData, textStatus, errorThrown) {
-              debugger;
+        var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, lastName:lastName, public_url:public_url, user_email:email_address, contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
+        $.ajax({
+            type: 'POST',
+            url: '/upload_cloudsponge',
+            crossDomain: true,
+            data: JSON.stringify(outData),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(responseData, textStatus, jqXHR) {
+              //$("#thanks").append("<h2>Thanks!</h2><p>We will be emailing you when the results are ready. Thank you!</p>")
+              
               $(".waiting").hide();   
-              $(".overlay").fadeOut();                
-              alert('upload failed.');
-          }
-      });   
-    } else {
-      alert('No contacts added!');
-    }     
-    //$("#csv").hide();    
-  }
-  function bindEmailButtons() {
-      $("button#gmail").click(function(e) {
+              $(".overlay").fadeOut();     
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                debugger;
+                $(".waiting").hide();   
+                $(".overlay").fadeOut();                
+                alert('upload failed.');
+            }
+        });   
+      } else {
+        alert('No contacts added!');
+      }     
+      //$("#csv").hide();    
+    }
+    function bindEmailButtons() {
+  
+      $("img#gmail").click(function(e) {
         cloudsponge_status = 'NONE';   
         e.preventDefault();
         var win = window.open('');        
@@ -476,7 +514,7 @@
         $(".overlay").fadeOut();
       });
 
-      $("button#yahoo").click(function(e) {
+      $("img#yahoo").click(function(e) {
         e.preventDefault();
         var win = window.open('');        
         cloudsponge_status = 'NONE';   
@@ -486,7 +524,7 @@
         $(".overlay").fadeOut();
       });
 
-      $("button#windowslive").click(function(e) {
+      $("img#windowslive").click(function(e) {
         e.preventDefault();
         var win = window.open('');        
         cloudsponge_status = 'NONE';   
@@ -495,6 +533,7 @@
         // if (len>0) {$("#windowslive").hide();}
         $(".overlay").fadeOut();
       });
-  }
-  </script>
-  {% endblock %}
+    }  
+  </script>  
+
+{% endblock %}

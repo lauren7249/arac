@@ -11,6 +11,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link href="/static/js/responsive.min.css" rel="stylesheet" />
     {% assets "css_all" %}
       <link rel='stylesheet' href="{{ ASSET_URL }}">
     {% endassets %}
@@ -20,7 +21,7 @@
     <meta name='title' content='' />
     <meta name='description' content='' />
     <meta name='keywords' content='' />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Google Site Verification -->
     <meta name='google-site-verification' content="" />
 
@@ -39,6 +40,7 @@
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
+    <script src="/static/js/responsive.min.js"></script>    
   </head>
   <body>
   
@@ -80,16 +82,9 @@
     </div>
     {% endif %}
   {% endwith %}
-    <div class='overlay'>
-      <div class='email modal'>
-        <h3>Select Email Provider</h3>
-        <ol>
-          <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
-          <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
-          <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
-      </div>
-      <div class='waiting modal'>        
-        <img src='/static/img/spinner_192.gif' />
+    <div class='overlay' style="max-height:100%; max-width:100%;">
+      <div class='waiting modal' style="max-height:100%; max-width:100%;">        
+        <img src='/static/img/spinner_192.gif' style="max-height:100%; max-width:100%;"/>
       </div>    
     </div>     
     <dialog id='success' style="display:none;">
@@ -100,6 +95,7 @@
         </span>
       </div>
     </dialog> 
+
     {% block content %}{% endblock %}
     </body>
     <script type='text/javascript'>

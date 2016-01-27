@@ -76,7 +76,7 @@ class Service(object):
         exception_str = traceback.format_exception(*exc_info)
         if not exception_str: exception_str=[""]
         self.logger.error('Error in process {}: {}'.format(self.__class__.__name__,exception_str))
-        sendgrid_email('lauren@advisorconnect.co','failed p200',"{}'s p200 failed during {} at {} outputs, with error {}".format(self.client_data.get("email"), self.__class__.__name__, str(len(self.output)), "\n".join(exception_str)), ccs=['jamesjohnson11@gmail.com'])          
+        sendgrid_email('processing_script_error@advisorconnect.co','failed p200',"{}'s p200 failed during {} at {} outputs, with error {}".format(self.client_data.get("email"), self.__class__.__name__, str(len(self.output)), "\n".join(exception_str)), ccs=['jamesjohnson11@gmail.com'])          
             
     def multiprocess(self):
         self.logstart()
