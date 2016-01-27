@@ -34,7 +34,7 @@
 </table>
 <div class='pagination'>
   {% for _page in range(1, pagination.pages + 1) %}
-  {% if page == _page %}
+  {% if 1 == _page %}
   <a class='active' data-page='{{ _page }}'>{{ _page }}</a>
   {% else %}
   <a data-page='{{ _page }}'>{{ _page }}</a>

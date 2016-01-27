@@ -160,6 +160,8 @@ $(function() {
      $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&order=" + $order + "&p=" + $page + " #connections", function() {
          isSearching = false;
          bindPageFunctions();
+         $("[data-page]").removeClass("active")
+         $("[data-page='" + $page + "']").addClass("active")
          hideLoader();
      });
   }

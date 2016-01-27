@@ -50,6 +50,40 @@
 <script type='text/javascript'>
 
 $(function() {
+   var $page = 1;
+   var isSearching = false;
+
+   function bindPagination() {
+     $("[data-page]").click(function() {
+       showLoader()
+       $page = $(this).data('page');
+       search()
+     });
+   }
+
+   function hideLoader() {
+     $(".loading").fadeOut();
+   }
+
+   function showLoader() {
+     $(".loading").show();
+   }
+
+  function search() {
+     if (isSearching) {
+       return false;
+     }
+     isSearching = true;
+     $('html, body').animate({scrollTop: "221px"});
+     $("#connections-section").load(window.location.pathname + "?p=" + $page + " #connections", function() {
+         isSearching = false;
+         bindPagination();
+         hideLoader();
+         $("[data-page]").removeClass("active")
+         $("[data-page='" + $page + "']").addClass("active")
+     });
+  }
+
   $("button#submit").click(function() {
     $.post("/submit_p200_to_manager", function(data) {
       if (data.error) {
@@ -60,6 +94,9 @@ $(function() {
       }
     });
   });
+
+  bindPagination();
  });
 </script>
 {% endblock %}
+
