@@ -307,7 +307,7 @@ input[type="checkbox"] {
   margin-bottom: 5px;
   margin-left: -80px;
   padding: 7px;
-  width: 160px;
+  width: 400px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -1013,7 +1013,7 @@ div.pagination a {
   color: #3084CE;
 }
 div.pagination a.active {
-  background: #eee;
+  background: #fff;
 }
 
 #connections {
