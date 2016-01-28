@@ -40,6 +40,11 @@
         });                    
     }
 
+    function skip_linkedin() {
+        $("#step-1").hide();
+        $("#step-3").slideDown();           
+    }
+    
     // Handle an error response from the API call
     function onError(error) {
         console.log(error);
@@ -191,7 +196,7 @@
               <div class="onboard-signin">
                 <div id="li_button" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
                 <div class="text-center">
-                  <small>Don’t have LinkedIn? <a href="javascript:alert('This is not currently supported.');">Click Here</a></small>
+                  <small>Don’t have LinkedIn? <a href="javascript:skip_linkedin();">Click Here</a></small>
                 </div>
               </div>
             </div>
