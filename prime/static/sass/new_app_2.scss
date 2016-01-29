@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:400,500,600,700);
+@import url(/static/css/poppins.css);
 @import url(normalize.css);
 @import "compass/css3";
 
@@ -54,7 +54,7 @@ $sans: 'Poppins', sans-serif;
 }
 
 %circle-check {
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
+  background-image: url("/static/img/circle-check.svg");
   @extend %bg-img;
 }
 
@@ -74,15 +74,22 @@ a {
 }
 
 // Header & Footer ==================================
+header, footer {
+  background: white;
+}
+
+
+.logo-lockup {
+  width: 175px;
+  height: 60px;
+  @extend %bg-img;
+}
 
 header {
-  background: white;
   padding: 20px 0;
   .header-logo {
-    @extend %bg-img;
-    width: 178px;
-    height: 60px;
-    background-image: url("/static/img/logo-lockup.png");
+    @extend .logo-lockup;
+    background-image: url("/static/img/header-logo.svg");
   }
   .nav-right {
     padding-top: 10px;
@@ -161,11 +168,9 @@ header {
 }
 
 footer {
-  .wrap {
-    border-top: 2px solid $border;
-    margin-top: 40px;
-    padding: 40px 0;
-  }
+  border-top: 1px solid $border;
+  margin-top: 40px;
+  padding: 40px 0;
   .copyright {
     font-size: 12px;
     margin-bottom: 20px;
@@ -181,6 +186,11 @@ footer {
       color: $grey;
       font-weight: bold;
     }
+  }
+  .footer-logo {
+    float: right;
+    @extend .logo-lockup;
+    background-image: url("/static/img/footer-logo.svg");
   }
 }
 
@@ -445,7 +455,7 @@ input[type="checkbox"] {
 
 select {
   background-color: white;
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/select-arrow.svg");
+  background-image: url("/static/img/select-arrow.svg");
   background-repeat: no-repeat;
   background-position: 96% 50%;
   overflow: hidden;
@@ -904,7 +914,7 @@ $padcount: 5;
     height: 40px;
     border-radius: 0 4px 4px 0;
     background: none;
-    background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/search.png");
+    background-image: url("/static/img/search.png");
     background-repeat: no-repeat;
     background-position: 45% 50%;
     background-size: 18px;
@@ -967,19 +977,19 @@ table.contacts-table {
         height: 14px;
         @extend %bg-img;
         &.one-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
+          background-image: url("/static/img/one-star.png");
         }
         &.two-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/two-stars.png");
+          background-image: url("/static/img/two-stars.png");
         }
         &.three-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/three-stars.png");
+          background-image: url("/static/img/three-stars.png");
         }
         &.four-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/four-stars.png");
+          background-image: url("/static/img/four-stars.png");
         }      
         &.five-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/five-stars.png");
+          background-image: url("/static/img/five-stars.png");
         }      
       }
     }
@@ -1232,28 +1242,23 @@ div.pagination {
 }
 
 .connect-email {
-  margin-bottom: 20px;
-  padding: 20px;    
-  display: block;
-  border: 1px solid $border;
+  margin-bottom: 2rem;
   img {
-    width: 60px;
-    margin-right: 20px;
+    margin-right: 1rem;
+    max-width: 20%;
+    max-height: 20%;
     display: inline-block;
     vertical-align: middle;
   }
-  .button {
+  span {
     display: inline-block;
     vertical-align: middle;
-  }
-  .connected_area {
-    display: block;
-    margin: 20px 0 0;
   }
   .connected {
-    margin: 10px 0 0;
+    display: none;
+    margin-bottom: .5rem;
     color: $grey;
-    font-size: 12px;
+    font-size: .8rem;
     &:before {
       display: inline-block;
       content: "";
@@ -1273,7 +1278,7 @@ div.pagination {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-linkedin.svg);
+  background-image: url(/static/img/onboarding/icon-linkedin.svg);
   @extend %bg-img;
 }
 
@@ -1304,7 +1309,7 @@ form.dropzone {
     width: 80px;
     height: 80px;
     margin-left: -40px;
-    background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+    background-image: url(/static/img/icon-upload.svg);
     @extend %bg-img;
   }
   .dz-default.dz-message {

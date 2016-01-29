@@ -8,6 +8,8 @@ from rq import Queue
 from redis import Redis
 import re
 import os
+import io
+import csv
 import random
 import requests
 import datetime
@@ -148,6 +150,29 @@ def save_linkedin_data():
         session.add(current_user)
         session.commit()
     return jsonify(request.json)
+
+@csrf.exempt
+@prospects.route("/upload_csv", methods=['POST'])
+def upload_csv():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    f = request.files['file']
+    if not f:
+        return "No file"
+    s =f.stream.read()
+    print s.split("\n")
+    return jsonify({"data":len(s)})
+    # stream = io.StringIO(unicode(f.stream.read()), newline=None)
+    # csv_input = csv.reader(stream)
+    # n = 0
+    # print(csv_input)
+    # for row in csv_input:
+    #     n+=1
+    # return n
+
+
 
 @csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])

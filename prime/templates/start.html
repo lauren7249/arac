@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}    
+  <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
   <script type="text/javascript" src="//platform.linkedin.com/in.js">
       api_key:   77kimruenyqspn
       authorize: true
@@ -83,14 +84,14 @@
               $(".overlay").fadeOut();
               $("#linkedin-download").hide();
               console.log("setting this")
-              document.getElementById("upload_instruction").innerHTML = 'Click the blue upload area, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i>';
+              // document.getElementById("upload_instruction").innerHTML = 'Click the blue upload area, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i>';
               $("#linkedin-upload").slideDown();  
               setupUpload();              
           }
           $(".overlay").click(function(){
               $(".overlay").fadeOut();
               $("#linkedin-download").hide();
-              document.getElementById("upload_instruction").innerHTML = 'Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.';
+              // document.getElementById("upload_instruction").innerHTML = 'Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.';
               $("#linkedin-upload").slideDown();  
               setupUpload();   
               downloadWindow.focus();                    
@@ -129,16 +130,16 @@
     }
 
     function setupUpload(){
-      var iframe = document.getElementById("upload_button");
-      $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=linkedin&' + cloudsponge_params + '&callback=?', function(data) {
-        var cloudsponge_url = data.url;
-        iframe.src = cloudsponge_url + "#upload-div";     
-        var import_id = data.import_id;
-        var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';  
-        var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
-        checkEvents(tempeventsurl, tempcontactsurl);
+      // var iframe = document.getElementById("upload_button");
+      // $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=linkedin&' + cloudsponge_params + '&callback=?', function(data) {
+      //   var cloudsponge_url = data.url;
+      //   iframe.src = cloudsponge_url + "#upload-div";     
+      //   var import_id = data.import_id;
+      //   var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';  
+      //   var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+      //   checkEvents(tempeventsurl, tempcontactsurl);
         
-      });      
+      // });      
     }
     function checkEvents(tempeventsurl, tempcontactsurl) {
       var timeout = setInterval(function(){
@@ -210,7 +211,7 @@
         <h1 id="owner_name"></h1>
         <p hidden id="owner_email"></p>
         <p hidden id="owner_geolocation"></p>
-        <div class="contact-count"><img src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/contact-card.svg"/><small>1,529 Total Contacts Added</small></div>
+        <div class="contact-count"><img src="/static/img/contact-card.svg"/><small>1,529 Total Contacts Added</small></div>
       </div>
       <!-- Onboard Step 1-->
       <div class="onboard" id="step-1">
@@ -239,12 +240,12 @@
             <div class="col-6">
               <div class="note">
                 <h2>Welcome to AdvisorConnect!</h2>
-                <p>Let’s get started by connecting your LinkedIn account. This will allow us to include your LinkedIn profile information in AdvisorConnect.</p>
+                <p>Click on the Sign In with LinkedIn button to the right. If you are not already signed in to LinkedIn, you will see a popup window where you will need to enter your LinkedIn username and password.</p>
               </div>
             </div>
             <div class="col-5">
               <div class="onboard-signin">
-                <div id="li_button" data-tooltip="Click here to sign in to LinkedIn" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
+                <div id="li_button" data-tooltip="Click here to sign in to LinkedIn" type="in/Login" class="button linkedin large fluid"><span>Sign In With LinkedIn</span></div>
 <!--                 <div class="text-center">
                   <small>Don’t have LinkedIn? <a href="javascript:skip_linkedin();">Click Here</a></small>
                 </div> -->
@@ -340,8 +341,18 @@
             <div class="wrap">
               <div class="col-6">
                 <div class="note">
-                  <h2>Now, let's download your LinkedIn connections.</h2>
-                  <p>Click the button, opening LinkedIn's "contact export" screen within your account. The page that pops up is where you download the file containing your LinkedIn contacts.</p>
+                  <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
+                  <ol>
+                    <li>
+                      When you click on the button to the right you will see a LinkedIn popup window where you will be asked to enter a Security Verification code. Enter the code and click Continue.
+                    </li>
+                    <li>
+                      You will then be taken to the Export LinkedIn Connections Page. Click Export. Note: you do not need to change the export settings.
+                    </li>
+                    <li>
+                      Click back on this window in your browser and drag and drop the <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.
+                    </li>
+                  </ol>
                 </div>
               </div>
               <div class="col-5">
@@ -359,25 +370,25 @@
             <div class="wrap">
               <div class="col-6">
                 <div class="note">
-                  <h2>Great!  Now upload your LinkedIn connections.</h2>
-                  <p id="upload_instruction"></p>                    
+                  <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
+                  <ol>
+                    <li>
+                      When you click on the button to the right you will see a LinkedIn popup window where you will be asked to enter a Security Verification code. Enter the code and click Continue.
+                    </li>
+                    <li>
+                      You will then be taken to the Export LinkedIn Connections Page. Click Export. Note: you do not need to change the export settings.
+                    </li>
+                    <li>
+                      Click back on this window in your browser and drag and drop the <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.
+                    </li>
+                  </ol>
                 </div>
                 <div class="text-center">    
                   <br/>            
                 </div>                 
               </div>
               <div class="col-5">
-              <!-- Dropzone.JS -->
-                <form action="/file-upload-url" class="dropzone" id="linkedInImport"></form>
-                <script>
-                  Dropzone.options.linkedInImport = {
-                    dictDefaultMessage: "Drag & Drop",
-                    acceptedFiles: ".csv",
-                    uploadMultiple: false,
-                    paramName: "file", // The name that will be used to transfer the file
-                  };
-                </script>
-              <!-- /Dropzone.JS -->
+                <form action="/upload_csv" class="dropzone" id="linkedInImport"></form>
               </div>
             </div>
 
@@ -427,7 +438,7 @@
       </div>
     </div>
   </div>
-  <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+  
   <script type='text/javascript' >
 
 
@@ -581,6 +592,7 @@
         });   
  
     }
+   
     function bindEmailButtons() {
   
       $("#gmail-area").click(function(e) {
