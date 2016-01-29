@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
-{% block header %}{% endblock %}
+{% block header %}
+
+{% endblock %}
 {% block content %}
+
   <div class='signup'>
     {%if reset != 'yes' %}
       <h1>Welcome, {{ user.first_name }}!</h1>
@@ -8,7 +11,10 @@
     <p>Your username is {{ user.email }}</p>
       
     <form class="card" action='' method='POST'>
-      
+      <header>
+
+          <div class="header-logo"></div>
+      </header>         
       {% if signup_form.errors %}
       <div class='error'>
         {% for error in signup_form.errors.items() %}

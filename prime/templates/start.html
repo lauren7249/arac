@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}    
+  <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
   <script type="text/javascript" src="//platform.linkedin.com/in.js">
       api_key:   77kimruenyqspn
       authorize: true
@@ -129,16 +130,16 @@
     }
 
     function setupUpload(){
-      var iframe = document.getElementById("upload_button");
-      $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=linkedin&' + cloudsponge_params + '&callback=?', function(data) {
-        var cloudsponge_url = data.url;
-        iframe.src = cloudsponge_url + "#upload-div";     
-        var import_id = data.import_id;
-        var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';  
-        var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
-        checkEvents(tempeventsurl, tempcontactsurl);
+      // var iframe = document.getElementById("upload_button");
+      // $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=linkedin&' + cloudsponge_params + '&callback=?', function(data) {
+      //   var cloudsponge_url = data.url;
+      //   iframe.src = cloudsponge_url + "#upload-div";     
+      //   var import_id = data.import_id;
+      //   var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';  
+      //   var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+      //   checkEvents(tempeventsurl, tempcontactsurl);
         
-      });      
+      // });      
     }
     function checkEvents(tempeventsurl, tempcontactsurl) {
       var timeout = setInterval(function(){
@@ -372,17 +373,7 @@
                 </div>                 
               </div>
               <div class="col-5">
-              <!-- Dropzone.JS -->
-                <form action="/file-upload-url" class="dropzone" id="linkedInImport"></form>
-                <script>
-                  Dropzone.options.linkedInImport = {
-                    dictDefaultMessage: "Drag & Drop",
-                    acceptedFiles: ".csv",
-                    uploadMultiple: false,
-                    paramName: "file", // The name that will be used to transfer the file
-                  };
-                </script>
-              <!-- /Dropzone.JS -->
+                <form action="/upload_csv" class="dropzone" id="linkedInImport"></form>
               </div>
             </div>
 
@@ -432,7 +423,7 @@
       </div>
     </div>
   </div>
-  <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+  
   <script type='text/javascript' >
 
 
@@ -586,6 +577,7 @@
         });   
  
     }
+   
     function bindEmailButtons() {
   
       $("img#gmail").click(function(e) {
