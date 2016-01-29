@@ -1,5 +1,7 @@
 import time
 from prime.utils.email import sendgrid_email
+import requests
+import subprocess
 
 def watch(fn):
     fp = open(fn, 'r')
@@ -19,6 +21,12 @@ def watch(fn):
 
         else:
             time.sleep(0.5)
+            response = requests.get("http://prime.advisorconnect.co")
+            if response.status_code == 500:
+                subprocess.call("~/prime/restart_app.sh", shell=True)
+                yield "App restarted due to 500 status_code"
+            elif response.status_code != 200:
+                yield "App gave {} status_code".format(response.status_code)
 
 fn = 'true'
 for hit_sentence in watch(fn):
