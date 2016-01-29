@@ -28,6 +28,8 @@ $linkedin: #0076B7;
 
 $sans: 'Poppins', sans-serif;
 
+
+
 %circle-check {
   background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
   background-repeat: no-repeat;
@@ -1276,43 +1278,6 @@ div.pagination {
       cursor: pointer;
     }
   }
-  
-
-
-
-  // .upload-box {
-  //   // text-align: center;
-  //   // padding: 2rem;
-  //   // margin: 4rem 0;
-  //   // color: $grey;
-  //   // border: 2px dashed $border;
-  //   // border-radius: 8px;
-  //   // i.icon-upload {
-  //   //   content: "";
-  //   //   display: block;
-  //   //   background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
-  //   //   background-size: 100%;
-  //   //   background-position: 50% 50%;
-  //   //   background-repeat: no-repeat;
-  //   //   width: 4rem;
-  //   //   height: 4rem;
-  //   //   margin: 0 auto 1rem;      
-  //   // }
-  //   // p {
-  //   //   margin: 0;
-  //   // }
-  //   &.complete {
-  //     color: $teal;
-  //     border: 2px solid;
-  //     i.icon-upload {
-  //       @extend %circle-check;
-  //     }
-  //   }
-  // } 
-}
-
-.disableWin{
-     pointer-events: none;
 }
 
 .upload-instructions {
@@ -1370,30 +1335,53 @@ div.pagination {
   }
 }
 
+$frameZoom: 5.5;
 
 .frame
 {
     overflow: hidden; 
     width: 100%; 
     height: 100%;   
-    max-width: 100%; 
-    max-height: 100%;    
-    position: relative; left: -20px; top: -80px;
+    position: relative; left: -60px; top: -430px; bottom: -200px;
     border:0; 
     display:block; 
     vertical-align:middle;
     -ms-zoom: 1;
-    -ms-transform: scale(1, 1.5);
-    -moz-transform: scale(1, 1.5);
-    -o-transform: scale(1, 1.5);
-    -webkit-transform: scale(1, 1.5);
-    transform: scale(1, 1.5);
+    -ms-transform: scale(1, $frameZoom);
+    -moz-transform: scale(1, $frameZoom);
+    -o-transform: scale(1, $frameZoom);
+    -webkit-transform: scale(1, $frameZoom);
+    transform: scale(1, $frameZoom);
 
     -ms-transform-origin: 0 0;
     -moz-transform-origin: 0 0;
     -o-transform-origin: 0 0;
     -webkit-transform-origin: 0 0;
     transform-origin: 0 0;
+}
+
+$gifZoom: .69;
+.sample {
+  position:absolute;
+  top:40%;
+  left:50%;
+  height:70%;
+  width:60%;     
+  background-size: contain;   
+  pointer-events:none;          /* THIS IS THE TRICK YOU SEEK */
+  background:url('/static/img/drag-drop-upload-1.gif') no-repeat 0 0;
+  -ms-zoom: $gifZoom;
+  -ms-transform: scale($gifZoom);
+  -moz-transform: scale($gifZoom);
+  -o-transform: scale($gifZoom);
+  -webkit-transform: scale($gifZoom);
+  transform: scale($gifZoom);
+
+  -ms-transform-origin: 0 0;
+  -moz-transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  transform-origin: 0 0;  
 }
 
 // Loading & Spinners ==================================

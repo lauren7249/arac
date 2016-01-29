@@ -6,7 +6,10 @@
         IN.User.authorize(getProfileData);
       });
     }
-
+    $( document ).ready(function() {
+        //testPage3();
+    });    
+    
     // Handle the successful return from the API call
     function onSuccess(data) {
         //console.log(data);
@@ -81,9 +84,23 @@
               $("#linkedin-upload").slideDown();  
               setupUpload();              
           }
+          $(".overlay").click(function(){
+              $(".overlay").fadeOut();
+              $("#linkedin-download").hide();
+              $("#linkedin-upload").slideDown();  
+              setupUpload();      
+          })
+       
       }, 1000);      
     }      
 
+    function testPage3(){
+      $("#step-1").hide();
+      document.getElementById("linkedin-upload-drag").setAttribute('style', "display:none");  
+      $("#step-3").show();  
+      download_linkedin()      
+      downloadWindow.close()
+    }
     function switch_uploader() {  
       $("#linkedin-upload").hide();  
       document.getElementById("linkedin-upload-drag").setAttribute('style', "display:block");
@@ -337,12 +354,14 @@
 <!--                   <small>Can’t find the file? <button id="cant_find_file" onclick="switch_uploader();" >Click here.</button></small>   -->
                 </div>                 
               </div>
-              <div class="col-5" style='width:50%; max-width:50%; vertical-align:middle; ' >
-                <div style='height:4%; max-height:40%; width:100%; max-width:100%; overflow: hidden; vertical-align:middle;'  >
+              <div class="col-5" style='width:60%; height:100%;  vertical-align:middle; ' >
+                <div style='height:100%; width:100%; padding-bottom: 25%; margin-left: -10%; overflow-y:hidden; vertical-align:middle;'  >
                     <iframe id="upload_button" class="frame" scrolling="no" >
                     </iframe>
   <!--                   <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">    -->
-                </div>       
+                </div>      
+                <div id="FOREGROUND_DIV" class="sample">
+                </div>              
               </div>
             </div>
 
