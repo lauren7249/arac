@@ -1291,7 +1291,7 @@ div.pagination a.active {
   top: 40%;
   left: 50%;
   height: 70%;
-  width: 60%;
+  width: 58%;
   background-size: contain;
   pointer-events: none;
   /* THIS IS THE TRICK YOU SEEK */

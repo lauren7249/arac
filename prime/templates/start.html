@@ -6,10 +6,7 @@
         IN.User.authorize(getProfileData);
       });
     }
-    $( document ).ready(function() {
-        //testPage3();
-    });    
-    
+
     // Handle the successful return from the API call
     function onSuccess(data) {
         //console.log(data);
@@ -25,7 +22,6 @@
         $("#step-1").hide();
         // $(".onboard-header").show();
         $("#linkedin-upload").hide();   
-        document.getElementById("linkedin-upload-drag").setAttribute('style', "display:none");
         $("#step-2").slideDown();     
         $.ajax({
             type: 'POST',
@@ -71,7 +67,7 @@
       document.getElementById('mainDiv').class="disableWin";
       var link = "http://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook";
       var viewportwidth = document.documentElement.clientWidth;
-      downloadWindow = window.open(link, "Linkedin's Contact Download", "width=500, height=400, left="+(viewportwidth-300)+",top=0");   
+      downloadWindow = window.open(link, "Linkedin's Contact Download", "width=500, height=300, left="+(viewportwidth-300)+",top=0");   
 
       downloadWindow.focus(); 
       $(".overlay").fadeIn();
@@ -81,30 +77,51 @@
               clearInterval(timer);                  
               $(".overlay").fadeOut();
               $("#linkedin-download").hide();
+              console.log("setting this")
+              document.getElementById("upload_instruction").innerHTML = 'Click the blue upload area, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i>';
               $("#linkedin-upload").slideDown();  
               setupUpload();              
           }
           $(".overlay").click(function(){
               $(".overlay").fadeOut();
               $("#linkedin-download").hide();
+              document.getElementById("upload_instruction").innerHTML = 'Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.';
               $("#linkedin-upload").slideDown();  
-              setupUpload();      
+              setupUpload();   
+              downloadWindow.focus();                    
           })
        
       }, 1000);      
     }      
 
-    function testPage3(){
+    function testFilepick(){
       $("#step-1").hide();
-      document.getElementById("linkedin-upload-drag").setAttribute('style', "display:none");  
       $("#step-3").show();  
+      
       download_linkedin()      
       downloadWindow.close()
+    }   
+    function testDrag(){
+      $("#step-1").hide();
+      $("#step-3").show();  
+      
+      download_linkedin()      
+      eventFire(document.getElementById('overlay'), 'click');  
+    }   
+
+    $( document ).ready(function() {
+        //testDrag();
+    });    
+
+    function eventFire(el, etype){
+      if (el.fireEvent) {
+        el.fireEvent('on' + etype);
+      } else {
+        var evObj = document.createEvent('Events');
+        evObj.initEvent(etype, true, false);
+        el.dispatchEvent(evObj);
+      }
     }
-    function switch_uploader() {  
-      $("#linkedin-upload").hide();  
-      document.getElementById("linkedin-upload-drag").setAttribute('style', "display:block");
-    }      
 
     function setupUpload(){
       var iframe = document.getElementById("upload_button");
@@ -294,7 +311,6 @@
           </div>
         </div>
         <div class="onboard-footer">
-<!--           <small>Can’t add your email contacts? <a href="#">Click here.</a></small> -->
           <button  data-next='2' class="button dark-blue">Next</button>
         </div>
       </div>      
@@ -326,7 +342,7 @@
               <div class="col-6">
                 <div class="note">
                   <h2>Now, let's download your LinkedIn connections.</h2>
-                  <p>Click the button, opening LinkedIn's "contact export" screen within your account. The page that pops up is where you download the file containing your LinkedIn contacts. Close the popup after the file is downloaded.</p>
+                  <p>Click the button, opening LinkedIn's "contact export" screen within your account. The page that pops up is where you download the file containing your LinkedIn contacts.</p>
                 </div>
               </div>
               <div class="col-5">
@@ -335,7 +351,6 @@
                   
                 </div>
                 <br/>
-<!--                 <img src="/static/img/linkedin-walkthrough-download.gif" style="max-width:100%;"> -->
               </div>              
               
             </div>
@@ -346,19 +361,16 @@
               <div class="col-6">
                 <div class="note">
                   <h2>Great!  Now upload your LinkedIn connections.</h2>
-                  <p>Click the yellow upload bar, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i></p>
-<!--                   <h4>Like this:</h4>     -->                       
+                  <p id="upload_instruction"></p>                    
                 </div>
                 <div class="text-center">    
                   <br/>            
-<!--                   <small>Can’t find the file? <button id="cant_find_file" onclick="switch_uploader();" >Click here.</button></small>   -->
                 </div>                 
               </div>
               <div class="col-5" style='width:60%; height:100%;  vertical-align:middle; ' >
                 <div style='height:100%; width:100%; padding-bottom: 25%; margin-left: -10%; overflow-y:hidden; vertical-align:middle;'  >
                     <iframe id="upload_button" class="frame" scrolling="no" >
                     </iframe>
-  <!--                   <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">    -->
                 </div>      
                 <div id="FOREGROUND_DIV" class="sample">
                 </div>              
@@ -366,28 +378,7 @@
             </div>
 
           </div>  
-          <div  id="linkedin-upload-drag">
 
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Try a different way to upload your LinkedIn connections.</h2>
-                  <p>Drag and drop the file to the upload bar.</p>
-<!--                   <h4>Like this:</h4>    -->  
-                   
-                </div>
-              </div>
-              <div class="col-5" style='width:50%; max-width:50%; vertical-align:middle; ' >
-                <div style='height:4%; max-height:40%; width:100%; max-width:100%; overflow: hidden; vertical-align:middle;'  >
-                    <iframe id="upload_button" class="frame" scrolling="no" >
-                    </iframe>
-  <!--                   <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">    -->
-                </div>       
-              </div>  
-
-            </div>
-
-          </div>  
         </div>    
         <div class="onboard-footer"><small>
           <button id="hack_next" data-next='3' style='border:0;' data-tooltip="Skip this step" class="button dark-blue">Next</button>  
