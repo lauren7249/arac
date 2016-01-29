@@ -285,31 +285,26 @@
                 <small>None of your personal messages or your contacts’ personal information (including contact information) will be shared with New York Life.       </small>
               </div>
             </div>
-            <div style="display: inline-block; padding-left:5%">
+            <div class="col-6">
               <div id='gmail-area' class="connect-email" data-tooltip="Click here to sign in to Gmail and add contacts from your email accounts. You can connect more than one Gmail account by clicking this button more than once." >
                 <img id='gmail' type="Submit" src="/static/img/gmail-40.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                  
-                </span>
+                <div class="button teal small">Add Gmail Account</div>
+                <div class='connected_area'></div>                  
               </div>
               <div id='yahoo-area' data-tooltip="Click here to sign in to Yahoo and add contacts from your email accounts. You can connect more than one Yahoo account by clicking this button more than once." class="connect-email">
                 <img id='yahoo' type="Submit" src="/static/img/yahoo-mail-40.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                </span>
+                <div class="button teal small">Add Yahoo! Account</div>
+                <div class='connected_area'></div>
               </div>
               <div id='windows-area' data-tooltip="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once." class="connect-email">
                 <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                </span>
+                <div class="button teal small">Add Windows Live Account</div>
+                <div class='connected_area'></div>
               </div>
               <div id='aol-area' data-tooltip="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once." class="connect-email">
                 <img id='aol'  type="Submit" src="/static/img/aol-40.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                </span>
+                <div class="button teal small">Add AOL Account</div>
+                <div class='connected_area'></div>
               </div>              
             </div>
           </div>
@@ -493,7 +488,7 @@
                     $(".final-contact-count").html(contacts_array.length.toLocaleString())
                     $(".contact-count").show();
 
-                    $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + " style='display:inline-block;'>" + response_string + '</div>')
+                    $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
                     $(".waiting").hide();
                     $(".overlay").fadeOut();
                     return true;
@@ -588,7 +583,7 @@
     }
     function bindEmailButtons() {
   
-      $("img#gmail").click(function(e) {
+      $("#gmail-area").click(function(e) {
         cloudsponge_status = 'NONE';   
         e.preventDefault();
         var win = window.open('');        
