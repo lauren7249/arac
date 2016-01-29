@@ -121,6 +121,10 @@ def pending():
         return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
     return render_template('start.html')
 
+@prospects.route("/faq")
+def faq():
+    return render_template('faq.html')
+
 @prospects.route("/terms")
 def terms():
     return render_template('terms.html')

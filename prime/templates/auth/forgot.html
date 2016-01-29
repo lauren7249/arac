@@ -3,6 +3,9 @@
 {% block content %}
 <div class='signup'>
   <form class="card" method='POST'>
+    <header>
+      <div class="header-logo"></div>
+    </header>
     {% if form.errors %}
     <div class='error'>
       {% for error in form.errors.items() %}

@@ -25,7 +25,7 @@
 }
 
 .manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before {
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
+  background-image: url("/static/img/circle-check.svg");
 }
 
 .caps, .subheader .back-link, .tabset li, .form-group label {
@@ -368,7 +368,7 @@ input[type="checkbox"] {
 
 select {
   background-color: white;
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/select-arrow.svg");
+  background-image: url("/static/img/select-arrow.svg");
   background-repeat: no-repeat;
   background-position: 96% 50%;
   overflow: hidden;
@@ -838,7 +838,7 @@ hr {
   height: 40px;
   border-radius: 0 4px 4px 0;
   background: none;
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/search.png");
+  background-image: url("/static/img/search.png");
   background-repeat: no-repeat;
   background-position: 45% 50%;
   background-size: 18px;
@@ -895,19 +895,19 @@ table.contacts-table .contact-buttons .button {
   height: 14px;
 }
 .contact-info .name span.stars.one-star {
-  background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
+  background-image: url("/static/img/one-star.png");
 }
 .contact-info .name span.stars.two-star {
-  background-image: url("https://s3.amazonaws.com/prime-images/two-stars.png");
+  background-image: url("/static/img/two-stars.png");
 }
 .contact-info .name span.stars.three-star {
-  background-image: url("https://s3.amazonaws.com/prime-images/three-stars.png");
+  background-image: url("/static/img/three-stars.png");
 }
 .contact-info .name span.stars.four-star {
-  background-image: url("https://s3.amazonaws.com/prime-images/four-stars.png");
+  background-image: url("/static/img/four-stars.png");
 }
 .contact-info .name span.stars.five-star {
-  background-image: url("https://s3.amazonaws.com/prime-images/five-stars.png");
+  background-image: url("/static/img/five-stars.png");
 }
 .contact-info .job {
   font-size: 16px;
@@ -954,52 +954,52 @@ table.contacts-table .contact-buttons .button {
   border-radius: 3px;
 }
 .contact-links a.financial {
-  background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);
+  background-image: url(/static/img/social/financial-blue.png);
 }
 .contact-links a.facebook {
-  background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);
+  background-image: url(/static/img/social/facebook-blue.png);
 }
 .contact-links a.linkedin {
-  background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);
+  background-image: url(/static/img/social/linkedin-blue.png);
 }
 .contact-links a.twitter {
-  background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);
+  background-image: url(/static/img/social/twitter-blue.png);
 }
 .contact-links a.phone {
-  background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png);
+  background-image: url(/static/img/social/phone-blue.png);
 }
 .contact-links a.pinterest {
-  background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);
+  background-image: url(/static/img/social/pinterest-blue.png);
 }
 .contact-links a.soundcloud {
-  background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);
+  background-image: url(/static/img/social/soundcloud-blue.png);
 }
 .contact-links a.slideshare {
-  background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);
+  background-image: url(/static/img/social/slideshare-blue.png);
 }
 .contact-links a.plus {
-  background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);
+  background-image: url(/static/img/social/google-plus-blue.png);
 }
 .contact-links a.angel {
-  background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);
+  background-image: url(/static/img/social/angellist-blue.png);
 }
 .contact-links a.foursquare {
-  background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);
+  background-image: url(/static/img/social/foursquare-blue.png);
 }
 .contact-links a.github {
-  background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);
+  background-image: url(/static/img/social/github-blue.png);
 }
 .contact-links a.flickr {
-  background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);
+  background-image: url(/static/img/social/flickr-blue.png);
 }
 .contact-links a.email {
-  background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);
+  background-image: url(/static/img/social/email-blue.png);
 }
 .contact-links a.amazon {
-  background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);
+  background-image: url(/static/img/social/amazon-blue.png);
 }
 .contact-links a.location {
-  background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);
+  background-image: url(/static/img/social/location-blue.png);
 }
 
 div.pagination {
@@ -1175,10 +1175,9 @@ div.pagination a.active {
 }
 .connect-email .connected_area {
   display: block;
-  margin: 20px 0 0;
 }
 .connect-email .connected {
-  margin: 10px 0 0;
+  margin: 20px 0 0;
   color: #787B80;
   font-size: 12px;
 }
@@ -1198,7 +1197,7 @@ div.pagination a.active {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-linkedin.svg);
+  background-image: url(/static/img/onboarding/icon-linkedin.svg);
 }
 
 .onboard-signin {
@@ -1229,7 +1228,7 @@ form.dropzone:before {
   width: 80px;
   height: 80px;
   margin-left: -40px;
-  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+  background-image: url(/static/img/onboarding/icon-upload.svg);
 }
 form.dropzone .dz-default.dz-message {
   text-align: center;
@@ -1286,15 +1285,15 @@ div.loading img {
 }
 
 .waiting.modal {
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
   position: absolute;
   top: 50%;
   left: 50%;
   right: 50%;
   bottom: 50%;
-  margin-top: -150px;
-  margin-left: -150px;
+  margin-top: -100px;
+  margin-left: -100px;
   border-radius: 4px;
 }
 .waiting.modal img {

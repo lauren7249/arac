@@ -54,7 +54,7 @@ $sans: 'Poppins', sans-serif;
 }
 
 %circle-check {
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
+  background-image: url("/static/img/circle-check.svg");
   @extend %bg-img;
 }
 
@@ -445,7 +445,7 @@ input[type="checkbox"] {
 
 select {
   background-color: white;
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/select-arrow.svg");
+  background-image: url("/static/img/select-arrow.svg");
   background-repeat: no-repeat;
   background-position: 96% 50%;
   overflow: hidden;
@@ -904,7 +904,7 @@ $padcount: 5;
     height: 40px;
     border-radius: 0 4px 4px 0;
     background: none;
-    background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/search.png");
+    background-image: url("/static/img/search.png");
     background-repeat: no-repeat;
     background-position: 45% 50%;
     background-size: 18px;
@@ -967,19 +967,19 @@ table.contacts-table {
         height: 14px;
         @extend %bg-img;
         &.one-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
+          background-image: url("/static/img/one-star.png");
         }
         &.two-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/two-stars.png");
+          background-image: url("/static/img/two-stars.png");
         }
         &.three-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/three-stars.png");
+          background-image: url("/static/img/three-stars.png");
         }
         &.four-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/four-stars.png");
+          background-image: url("/static/img/four-stars.png");
         }      
         &.five-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/five-stars.png");
+          background-image: url("/static/img/five-stars.png");
         }      
       }
     }
@@ -1030,22 +1030,22 @@ table.contacts-table {
     border: 1px solid;
     border-radius: 3px;
     @extend %bg-img;
-    &.financial {background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);}
-    &.facebook {background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);}
-    &.linkedin {background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);}
-    &.twitter {background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);}
-    &.phone {background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png)}
-    &.pinterest {background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);}
-    &.soundcloud {background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);}    
-    &.slideshare {background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);}    
-    &.plus {background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);}               
-    &.angel {background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);}     
-    &.foursquare {background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);}       
-    &.github {background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);}          
-    &.flickr {background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);}                             
-    &.email {background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);}
-    &.amazon {background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);}
-    &.location {background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);}
+    &.financial {background-image: url(/static/img/social/financial-blue.png);}
+    &.facebook {background-image: url(/static/img/social/facebook-blue.png);}
+    &.linkedin {background-image: url(/static/img/social/linkedin-blue.png);}
+    &.twitter {background-image: url(/static/img/social/twitter-blue.png);}
+    &.phone {background-image: url(/static/img/social/phone-blue.png)}
+    &.pinterest {background-image: url(/static/img/social/pinterest-blue.png);}
+    &.soundcloud {background-image: url(/static/img/social/soundcloud-blue.png);}    
+    &.slideshare {background-image: url(/static/img/social/slideshare-blue.png);}    
+    &.plus {background-image: url(/static/img/social/google-plus-blue.png);}               
+    &.angel {background-image: url(/static/img/social/angellist-blue.png);}     
+    &.foursquare {background-image: url(/static/img/social/foursquare-blue.png);}       
+    &.github {background-image: url(/static/img/social/github-blue.png);}          
+    &.flickr {background-image: url(/static/img/social/flickr-blue.png);}                             
+    &.email {background-image: url(/static/img/social/email-blue.png);}
+    &.amazon {background-image: url(/static/img/social/amazon-blue.png);}
+    &.location {background-image: url(/static/img/social/location-blue.png);}
   }
 }
 
@@ -1248,10 +1248,9 @@ div.pagination {
   }
   .connected_area {
     display: block;
-    margin: 20px 0 0;
   }
   .connected {
-    margin: 10px 0 0;
+    margin: 20px 0 0;
     color: $grey;
     font-size: 12px;
     &:before {
@@ -1273,7 +1272,7 @@ div.pagination {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-linkedin.svg);
+  background-image: url(/static/img/onboarding/icon-linkedin.svg);
   @extend %bg-img;
 }
 
@@ -1304,7 +1303,7 @@ form.dropzone {
     width: 80px;
     height: 80px;
     margin-left: -40px;
-    background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+    background-image: url(/static/img/onboarding/icon-upload.svg);
     @extend %bg-img;
   }
   .dz-default.dz-message {
@@ -1375,68 +1374,9 @@ form.dropzone {
 }
 
 
-
-
-// $frameZoom: 5.5;
-// $gifZoom: .69;
-
-// .iframe-wrap {
-//   height: 100%; 
-//   width: 100%; 
-//   // padding-bottom: 25%; 
-//   // margin-left: -10%;
-//   overflow: hidden; 
-//   vertical-align: middle;
-// }
-// .iframe-box {
-//   overflow: hidden; 
-//   width: 100%; 
-//   height: 100%;   
-//   position: relative; left: -60px; top: -430px; bottom: -200px;
-//   border:0; 
-//   display:block; 
-//   vertical-align:middle;
-//   -ms-zoom: 1;
-//   -ms-transform: scale(1, $frameZoom);
-//   -moz-transform: scale(1, $frameZoom);
-//   -o-transform: scale(1, $frameZoom);
-//   -webkit-transform: scale(1, $frameZoom);
-//   transform: scale(1, $frameZoom);
-
-//   -ms-transform-origin: 0 0;
-//   -moz-transform-origin: 0 0;
-//   -o-transform-origin: 0 0;
-//   -webkit-transform-origin: 0 0;
-//   transform-origin: 0 0;
-// }
-
-
-// .iframe-upload {
-//   position: absolute;
-//   top: 40%;
-//   left: 50%;
-//   height: 70%;
-//   width: 58%;     
-//   background-size: contain;   
-//   pointer-events: none;          /* THIS IS THE TRICK YOU SEEK */
-//   background: url('/static/img/drag-drop-upload-1.gif') no-repeat 0 0;
-//   -ms-zoom: $gifZoom;
-//   -ms-transform: scale($gifZoom);
-//   -moz-transform: scale($gifZoom);
-//   -o-transform: scale($gifZoom);
-//   -webkit-transform: scale($gifZoom);
-//   transform: scale($gifZoom);
-
-//   -ms-transform-origin: 0 0;
-//   -moz-transform-origin: 0 0;
-//   -o-transform-origin: 0 0;
-//   -webkit-transform-origin: 0 0;
-//   transform-origin: 0 0;  
-// }
-
 // Loading & Spinners ==================================
 
-$spinner: 300px;
+$spinner: 200px;
 
 div.loading {
   position: absolute;
