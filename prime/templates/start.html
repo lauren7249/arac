@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}    
+  <script type="text/javascript" src="//platform.linkedin.com/in.js">
+      api_key:   77kimruenyqspn
+      authorize: true
+      onLoad: onLinkedInLoad
+  </script>
   <script type="text/javascript">
     function onLinkedInLoad() {
       $("#li_button").click(function() {
