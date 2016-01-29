@@ -22,9 +22,13 @@
       {{ signup_form.csrf_token }}
       <input type='hidden' name='code' value='{{ code }}' />
         <h2>
-          {%if reset == 'yes' %}Enter a new password{%endif%}
-          {%if reset != 'yes' %}Create a password for your account{%endif%}
+          {%if reset == 'yes' %}
+            Enter a new password
+          {%else%}
+            Create a password for your account
+          {%endif%}
           </h2>
+          <p>It must be at least 8 characters</p>
         <div class="form-group">
           <label for="inputPassword">Password:</label>
           <input type="password" name='password' id="inputPassword" placeholder="Password">          

@@ -36,7 +36,7 @@ def manager_home():
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
     manager = current_user.manager_profile[0]
-    agents = manager.users.all()
+    agents = manager.users.order_by(User.first_name, User.last_name, User.email).all()
     agent_count = manager.users.count()
     return render_template('manager/dashboard.html', agents=agents, manager=manager,
             agent_count=int(agent_count), active="selected", agent_type='prospective')
