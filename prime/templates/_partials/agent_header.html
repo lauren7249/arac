@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="col-4">
       {% if current_user.is_manager %}
-        <a class="back-link" href="/managers/dashboard">← Back to Dashboard</a>
+        <a class="back-link" href="/managers/dashboard">Back to Dashboard</a>
       {% endif %}
       <h2>{% if header %}{{ header }}{% else %}Network Summary{% endif %}</h2>
     </div>

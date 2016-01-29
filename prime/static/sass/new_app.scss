@@ -30,18 +30,29 @@ $sans: 'Poppins', sans-serif;
 
 
 
-%circle-check {
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  background-size: 100%;
-}
 
 %centered {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+     -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+%bg-img {
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  -webkit-background-size: 100%;
+     -moz-background-size: 100%;
+      -ms-background-size: 100%;
+          background-size: 100%;
+}
+
+%circle-check {
+  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
+  @extend %bg-img;
 }
 
 %caps {
@@ -68,9 +79,7 @@ header, footer {
 .logo-lockup {
   width: 175px;
   height: 60px;
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 100%;
+  @extend %bg-img;
 }
 
 header {
@@ -189,6 +198,15 @@ footer {
   color: white;
   .back-link {
     @extend %caps;
+    &:before {
+      content: "";      
+      background-image: url("/static/img/back.svg");
+      height: 10px;
+      width: 10px;
+      margin-right: 10px;
+      display: inline-block;
+      @extend %bg-img;
+    }
   }
   h2 {
     margin: 0;
@@ -442,9 +460,9 @@ select {
   border-radius: 4px;
   height: 40px;
   -webkit-appearance: none;
-  -moz-appearance: none;
-  -ms-appearance: none;
-  appearance: none;
+     -moz-appearance: none;
+      -ms-appearance: none;
+          appearance: none;
   padding: 0 40px 0 10px;
   &:hover {
     border-color: darken($border, 10%);
@@ -667,6 +685,9 @@ $padcount: 5;
     td {
       &:first-child {
         width: 50%;
+        img {
+          max-width: 40px;
+        }
         * {
           vertical-align: middle;
         }
@@ -948,12 +969,10 @@ table.contacts-table {
       display: inline;
       &.stars {
         display: inline-block;
-        margin-left: 10px;
-        background-position: 0 0;
-        background-size: 100%;
-        background-repeat: no-repeat;
+        margin-left: 10px;        
         width: 95px;
         height: 14px;
+        @extend %bg-img;
         &.one-star {
           background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
         }
@@ -1017,9 +1036,7 @@ table.contacts-table {
     color: $blue;
     border: 1px solid;
     border-radius: 3px;
-    background-position: 0 0;
-    background-size: 100%;
-    background-repeat: no-repeat;
+    @extend %bg-img;
     &.financial {background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);}
     &.facebook {background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);}
     &.linkedin {background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);}
@@ -1133,12 +1150,12 @@ div.pagination {
         background: $purple;
         color: white;
         position: absolute;
-        top: .5rem;
+        top: 0;
         left: 0;
-        width: 2rem;
-        height: 2rem;
-        line-height: 2.15rem;
-        font-size: .75rem;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 16px;
         text-align: center;
         border-radius: 100%;
       }
@@ -1253,13 +1270,11 @@ div.pagination {
         left: 50%;
         content: "";
         display: block;
-        background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
-        background-size: 100%;
-        background-position: 50% 50%;
-        background-repeat: no-repeat;
         width: 4rem;
         height: 4rem;
-        margin: 0 auto 1rem;      
+        margin: 0 auto 1rem;
+        background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+        @extend %bg-img;
       }
     }
     input[type="file"] {
@@ -1323,9 +1338,7 @@ div.pagination {
   height: 1rem;
   margin-right: 1rem;
   background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-linkedin.svg);
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  background-size: cover;
+  @extend %bg-img;
 }
 
 .onboard-signin {
