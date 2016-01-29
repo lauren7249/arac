@@ -12,6 +12,9 @@ from boto.s3.key import Key
 from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
+from prime.processing_service.person_request import PersonRequest
+from prime.processing_service.social_profiles_service import SocialProfilesRequest
+from prime.processing_service.profile_builder_service import ProfileBuilderRequest
 from prime.processing_service.helper import parse_date, uu
 from prime.users.models import ClientProspect
 from prime.prospects.models import Prospect, Job, Education, get_or_create
@@ -142,13 +145,28 @@ class ResultService(Service):
     def multiprocess(self):
         return self.process()
 
+    def get_agent_prospect(self):
+        email = self.client_data.get("email")
+        url = self.client_data.get("url")
+        profile = PersonRequest()._get_profile_by_any_url(url)
+        person = {"email_addresses":[email], "linkedin_data":profile}
+        person = SocialProfilesRequest(person).process()
+        request = ProfileBuilderRequest(person, True)
+        profile = request.process()
+        profile = request._get_job_fields(profile, person)
+        prospect = self._create_or_update_prospect(profile)
+        self._create_or_update_schools(prospect, profile)
+        self._create_or_update_jobs(prospect, profile)
+        return prospect
+
     def process(self):
         self.logstart()
         try:
             user = self._get_user()
-            if user is None:
+            if not user:
                 self.logger.error("No user found for %s", self.client_data.get("email"))
                 return []
+            
             for profile in self.data:
                 prospect = self._create_or_update_prospect(profile)
                 if not prospect:
@@ -162,17 +180,18 @@ class ResultService(Service):
                     continue
                 print prospect.us_state
                 self.output.append(client_prospect.to_json())
-            if user:
-                #If the agent is hired in the data then we know the p200 has been fully
-                #run and we can mark that as true also. Otherwise just the
-                #hiring screen has been completed
-                user.hiring_screen_completed = True
-                if self.client_data.get("hired"):
-                    user.p200_completed = True
-                self.session.add(user)
-                self.session.commit()   
-            else:
-                self.logger.error("NO USER!")
+
+            agent_prospect = self.get_agent_prospect()
+            user.prospect_id = agent_prospect.id
+
+            #If the agent is hired in the data then we know the p200 has been fully
+            #run and we can mark that as true also. Otherwise just the
+            #hiring screen has been completed
+            user.hiring_screen_completed = True
+            if self.client_data.get("hired"):
+                user.p200_completed = True
+            self.session.add(user)
+            self.session.commit()   
         except:
             self.logerror()
         self.logend()

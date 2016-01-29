@@ -307,7 +307,7 @@ input[type="checkbox"] {
   margin-bottom: 5px;
   margin-left: -80px;
   padding: 7px;
-  width: 400px;
+  white-space: pre-line;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;

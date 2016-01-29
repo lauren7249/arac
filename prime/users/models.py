@@ -81,6 +81,10 @@ class User(db.Model, UserMixin):
     p200_approved = db.Column(postgresql.BOOLEAN, default=False)
     _statistics = db.Column(JSONB, default={})
 
+    prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
+    prospect = relationship("Prospect", \
+            foreign_keys="User.prospect_id", lazy='joined')
+
     def __init__(self, first_name, last_name, email, password, **kwargs):
         super(User, self).__init__(**kwargs)
         self.first_name = first_name.title()
