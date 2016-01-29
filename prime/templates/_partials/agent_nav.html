@@ -1,15 +1,11 @@
 <div class="section">
   <div class="wrap agent-header card">
-    <!-- <div class="col-2"><img src="{{ agent.image }}"/></div> -->
       <div class="pic">
         <img src="{{ agent.image }}"/>
       </div>
       <div class="agent-info">
         <div class="name">
           <span>{{ agent.name }}</span>
-          <!-- {% if agent.ranking %}
-            <span class="stars three-star"></span>
-          {% endif %} -->
         </div>
       </div>
       {%if current_user.user_id != agent.user_id and agent.prospect %}
@@ -60,24 +56,6 @@
           {% endif %}
         </div>
       {%endif%}
-      <!-- {% if agent.headline %}
-        <div class="job">Infrastructure Consultant, Accenture</div>
-      {% endif %} -->
-      <!-- {% if agent.keywords %}
-        <div class="tags">
-          <span>Cornell University</span>
-          <span>Accenture</span>
-          <span>Rowing</span>
-          <span>Sailing</span>
-          <span>Marketing</span>
-        </div>
-      {% endif %} -->
-    
-    
-      <!--
-      {% if agent.social_accounts %}
-      {% endif %} 
-      -->
-    
+
   </div>
 </div>

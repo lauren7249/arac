@@ -20,7 +20,7 @@
         $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
         $("#owner_name").html("Welcome, " + firstName);
         $("#step-1").hide();
-        $(".onboard-header").show();
+        // $(".onboard-header").show();
         $("#linkedin-upload").hide();   
         document.getElementById("linkedin-upload-drag").setAttribute('style', "display:none");
         $("#step-2").slideDown();     
@@ -65,11 +65,23 @@
     var downloadWindow = null;
 
     function download_linkedin() {
+      document.getElementById('mainDiv').class="disableWin";
       var link = "http://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook";
-      downloadWindow = window.open(link, "", "width=600, height=600");    
-      $("#linkedin-download").hide();
-      $("#linkedin-upload").slideDown();  
-      setupUpload();
+      var viewportwidth = document.documentElement.clientWidth;
+      downloadWindow = window.open(link, "Linkedin's Contact Download", "width=500, height=400, left="+(viewportwidth-300)+",top=0");   
+
+      downloadWindow.focus(); 
+      $(".overlay").fadeIn();
+      $(".waiting").hide();  
+      var timer = setInterval(function() {
+          if(downloadWindow.closed) {
+              clearInterval(timer);                  
+              $(".overlay").fadeOut();
+              $("#linkedin-download").hide();
+              $("#linkedin-upload").slideDown();  
+              setupUpload();              
+          }
+      }, 1000);      
     }      
 
     function switch_uploader() {  
@@ -153,7 +165,7 @@
     }
 
   </script>
-  <div class="section onboarding">
+  <div class="section onboarding" id="mainDiv">
     <div class="wrap">
       <div class="onboard-header">
         <div id="owner_img" style="" class="face"></div>
@@ -172,12 +184,12 @@
             </li>
             <li class="idle">
               <label>Step Two</label>
-              <p>Add LinkedIn Contacts</p>
+              <p>Add Email Contacts</p>
             </li>
             <li class="idle">
               <label>Step Three</label>
-              <p>Add Email Contacts</p>
-            </li>
+              <p>Add LinkedIn Contacts</p>
+            </li>            
             <li class="idle">
               <label>Step Four</label>
               <p>Finish</p>
@@ -194,10 +206,10 @@
             </div>
             <div class="col-5">
               <div class="onboard-signin">
-                <div id="li_button" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
-                <div class="text-center">
+                <div id="li_button" data-tooltip="Click here to sign in to LinkedIn" type="in/Login" class="button linkedin large fluid"> <i class="icon-linkedin"></i><span>Sign In With LinkedIn</span></div>
+<!--                 <div class="text-center">
                   <small>Don’t have LinkedIn? <a href="javascript:skip_linkedin();">Click Here</a></small>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -211,14 +223,80 @@
               <label>Step One</label>
               <p>Signin Via LinkedIn</p>
             </li>
-            <li> 
+            <li >
               <label>Step Two</label>
-              <p>Add LinkedIn Contacts</p>
-            </li>
-            <li class="idle"> 
-              <label>Step Three</label>
               <p>Add Email Contacts</p>
             </li>
+            <li class="idle">
+              <label>Step Three</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>   
+            <li class="idle"> 
+              <label>Step Four</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+          <div class="wrap">
+            <div class="col-6">
+              <div class="note">
+                <h2>Add contacts from your various email accounts.</h2>
+                <p>Click the icon(s) for your email provider(s).</p>
+                <p>You can repeat this step until you have chosen all of your email accounts. The more accounts you connect, the easier your prospecting efforts will be.</p>
+                <small>None of your personal messages or your contacts’ personal information (including contact information) will be shared with New York Life.       </small>
+              </div>
+            </div>
+            <div style="display: inline-block; padding-left:5%">
+              <div id='gmail-area' class="connect-email" data-tooltip="Click here to sign in to Gmail and add contacts from your email accounts. You can connect more than one Gmail account by clicking this button more than once." >
+                <img id='gmail' type="Submit" src="/static/img/gmail-40.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                  
+                </span>
+              </div>
+              <div id='yahoo-area' data-tooltip="Click here to sign in to Yahoo and add contacts from your email accounts. You can connect more than one Yahoo account by clicking this button more than once." class="connect-email">
+                <img id='yahoo' type="Submit" src="/static/img/yahoo-mail-40.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                </span>
+              </div>
+              <div id='windows-area' data-tooltip="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once." class="connect-email">
+                <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                </span>
+              </div>
+              <div id='aol-area' data-tooltip="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once." class="connect-email">
+                <img id='aol'  type="Submit" src="/static/img/aol-40.png"/>
+                <span>
+                  <div class='connected_area'></div>
+                </span>
+              </div>              
+            </div>
+          </div>
+        </div>
+        <div class="onboard-footer">
+<!--           <small>Can’t add your email contacts? <a href="#">Click here.</a></small> -->
+          <button  data-next='2' class="button dark-blue">Next</button>
+        </div>
+      </div>      
+      <!-- Onboard Step 3-->
+      <div class="onboard" id="step-3">
+        <div class="wizard">
+          <ol>
+            <li class="complete"> 
+              <label>Step One</label>
+              <p>Signin Via LinkedIn</p>
+            </li>
+            <li class="complete">
+              <label>Step Two</label>
+              <p>Add Email Contacts</p>
+            </li>
+            <li>
+              <label>Step Three</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>   
             <li class="idle"> 
               <label>Step Four</label>
               <p>Finish</p>
@@ -230,19 +308,17 @@
             <div class="wrap">
               <div class="col-6">
                 <div class="note">
-                  <h2>Now, let's add your LinkedIn connections.</h2>
-                  <p>Click the "Export LinkedIn Contacts" button to the right and follow the instructions in the LinkedIn popup window.</p>
-<!--                   <h4>Like this:</h4>
-                   -->
+                  <h2>Now, let's download your LinkedIn connections.</h2>
+                  <p>Click the button, opening LinkedIn's "contact export" screen within your account. The page that pops up is where you download the file containing your LinkedIn contacts. Close the popup after the file is downloaded.</p>
                 </div>
               </div>
               <div class="col-5">
                  <div class="get-contacts">
-                  <button id="export_linkedin" onclick="download_linkedin();" class="button linkedin fluid large"> <span>Export LinkedIn Contacts</span></button>
+                  <button id="export_linkedin" data-tooltip="LinkedIn allows you to download a file with all your contacts" onclick="download_linkedin();" class="button linkedin fluid large"> <span>Take me to LinkedIn's Download Page</span></button>
                   
                 </div>
                 <br/>
-                <img src="/static/img/linkedin-walkthrough-download.gif" style="max-width:100%;">
+<!--                 <img src="/static/img/linkedin-walkthrough-download.gif" style="max-width:100%;"> -->
               </div>              
               
             </div>
@@ -261,12 +337,13 @@
 <!--                   <small>Can’t find the file? <button id="cant_find_file" onclick="switch_uploader();" >Click here.</button></small>   -->
                 </div>                 
               </div>
-              <div style='overflow: hidden;max-width:50%;max-height:30%'>
-                  <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no">
-                  </iframe>
-                  <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">   
-              </div>       
-              
+              <div class="col-5" style='width:50%; max-width:50%; vertical-align:middle; ' >
+                <div style='height:4%; max-height:40%; width:100%; max-width:100%; overflow: hidden; vertical-align:middle;'  >
+                    <iframe id="upload_button" class="frame" scrolling="no" >
+                    </iframe>
+  <!--                   <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">    -->
+                </div>       
+              </div>
             </div>
 
           </div>  
@@ -281,80 +358,23 @@
                    
                 </div>
               </div>
-              <div style='overflow: hidden;max-width:50%;max-height:30%'>
-                  <iframe id="upload_button" style='width: 100%; max-height:50%; border:0; overflow: hidden; margin-top:-70px;margin-left:-20px; display:block ;' scrolling="no">
-                  </iframe>
-                  <img src="/static/img/linkedin-walkthrough-drag.gif" style="max-width:100%;">         
-              </div>       
+              <div class="col-5" style='width:50%; max-width:50%; vertical-align:middle; ' >
+                <div style='height:4%; max-height:40%; width:100%; max-width:100%; overflow: hidden; vertical-align:middle;'  >
+                    <iframe id="upload_button" class="frame" scrolling="no" >
+                    </iframe>
+  <!--                   <img src="/static/img/linkedin-walkthrough-filepick.gif" style="max-width:100%;">    -->
+                </div>       
+              </div>  
 
             </div>
 
           </div>  
         </div>    
         <div class="onboard-footer"><small>
-          <button id="hack_next" data-next='2' style='border:0;' class="button dark-blue">Next</button>  
+          <button id="hack_next" data-next='3' style='border:0;' data-tooltip="Skip this step" class="button dark-blue">Next</button>  
         </div>                    
       </div>
-      <!-- Onboard Step 3-->
-      <div class="onboard" id="step-3">
-        <div class="wizard">
-          <ol>
-            <li class="complete"> 
-              <label>Step One</label>
-              <p>Signin Via LinkedIn</p>
-            </li>
-            <li class="complete">
-              <label>Step Two</label>
-              <p>Add LinkedIn Contacts</p>
-            </li>
-            <li> 
-              <label>Step Three</label>
-              <p>Add Email Contacts</p>
-            </li>
-            <li class="idle"> 
-              <label>Step Four</label>
-              <p>Finish</p>
-            </li>
-          </ol>
-        </div>
-        <div class="onboard-body">
-          <div class="wrap">
-            <div class="col-6">
-              <div class="note">
-                <h2>Now, let's add your email contacts.</h2>
-                <p>Add email contacts by clicking the icon for your email provider.</p>
-                <p>You can add contacts from more than one account. Remember that the more accounts you connect, the more valuable this tool will be to your marketing and prospecting efforts.</p>
-                <small>None of your personal messages or your contacts’ personal information (including contact information) will be shared with New York Life.       </small>
-              </div>
-            </div>
-            <div class="col-5">
-              <div id='gmail-area' class="connect-email">
-                <img id='gmail' type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-gmail.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                  
-                </span>
-              </div>
-              <div id='yahoo-area' class="connect-email">
-                <img id='yahoo' type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-yahoo.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                </span>
-              </div>
-              <div id='windows-area' class="connect-email">
-                <img id='windowslive' type="Submit" src="https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/onboard-windows.png"/>
-                <span>
-                  <div class='connected_area'></div>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="onboard-footer">
-          <small>Can’t add your email contacts? <a href="#">Click here.</a></small>
-          <button  data-next='3' class="button dark-blue">Finish</button>
-        </div>
-      </div>
+
       <!-- Onboard Step 4-->
       <div class="onboard" id="step-4">
         <div class="wizard">
@@ -365,12 +385,12 @@
             </li>
             <li class="complete">
               <label>Step Two</label>
-              <p>Add LinkedIn Contacts</p>
-            </li>
-            <li class="complete"> 
-              <label>Step Three</label>
               <p>Add Email Contacts</p>
             </li>
+            <li class="complete">
+              <label>Step Three</label>
+              <p>Add LinkedIn Contacts</p>
+            </li>   
             <li>
               <label>Step Four</label>
               <p>Finish</p>
@@ -454,7 +474,7 @@
                     $(".final-contact-count").html(contacts_array.length.toLocaleString())
                     $(".contact-count").show();
 
-                    $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + " style='display:block;'>" + response_string + '</div>')
+                    $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + " style='display:inline-block;'>" + response_string + '</div>')
                     $(".waiting").hide();
                     $(".overlay").fadeOut();
                     return true;
@@ -491,22 +511,29 @@
       $("[data-next]").click(function() {
         var id = $(this).data('next');
         var next_id = id + 1;
-        $("#step-" + id).hide()
-        $("#step-" + next_id).slideDown()
+
         if (next_id==4) {
-          upload()
+          if (contacts_array.length>0) {
+            upload()
+            $("#step-" + id).hide()
+            $("#step-" + next_id).slideDown()            
+          } else {
+            alert("No contacts uploaded")
+          }
+          
+        } 
+        else {
+          $("#step-" + id).hide()
+          $("#step-" + next_id).slideDown()          
         }
       });
 
-      $("#next").click(function() {
-        upload()
-      });
 
       bindEmailButtons()
     });
 
     function upload() {
-      if (contacts_array.length > 0) {
+
         $("#next").hide()
         $(".overlay").fadeIn();
         $(".waiting").show();   
@@ -536,10 +563,7 @@
                 alert('upload failed.');
             }
         });   
-      } else {
-        alert('No contacts added!');
-      }     
-      //$("#csv").hide();    
+ 
     }
     function bindEmailButtons() {
   
@@ -572,6 +596,17 @@
         // if (len>0) {$("#windowslive").hide();}
         $(".overlay").fadeOut();
       });
+
+      $("img#aol").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len = do_import('aol','#aol-area',win);
+        $(".email").hide();
+        // if (len>0) {$("#windowslive").hide();}
+        $(".overlay").fadeOut();
+      });   
+
     }  
   </script>  
 
