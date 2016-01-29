@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:400,500,600,700);
+@import url(/static/css/poppins.css);
 @import url(normalize.css);
 @import "compass/css3";
 
@@ -54,7 +54,7 @@ $sans: 'Poppins', sans-serif;
 }
 
 %circle-check {
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/circle-check.svg");
+  background-image: url("/static/img/circle-check.svg");
   @extend %bg-img;
 }
 
@@ -89,7 +89,7 @@ header {
   padding: 20px 0;
   .header-logo {
     @extend .logo-lockup;
-    background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/header-logo.svg");
+    background-image: url("/static/img/header-logo.svg");
   }
   .nav-right {
     padding-top: 10px;
@@ -190,7 +190,7 @@ footer {
   .footer-logo {
     float: right;
     @extend .logo-lockup;
-    background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/footer-logo.svg");
+    background-image: url("/static/img/footer-logo.svg");
   }
 }
 
@@ -455,7 +455,7 @@ input[type="checkbox"] {
 
 select {
   background-color: white;
-  background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/select-arrow.svg");
+  background-image: url("/static/img/select-arrow.svg");
   background-repeat: no-repeat;
   background-position: 96% 50%;
   overflow: hidden;
@@ -914,7 +914,7 @@ $padcount: 5;
     height: 40px;
     border-radius: 0 4px 4px 0;
     background: none;
-    background-image: url("https://s3-us-west-2.amazonaws.com/advisorconnect/images/search.png");
+    background-image: url("/static/img/search.png");
     background-repeat: no-repeat;
     background-position: 45% 50%;
     background-size: 18px;
@@ -977,19 +977,19 @@ table.contacts-table {
         height: 14px;
         @extend %bg-img;
         &.one-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/one-star.png");
+          background-image: url("/static/img/one-star.png");
         }
         &.two-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/two-stars.png");
+          background-image: url("/static/img/two-stars.png");
         }
         &.three-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/three-stars.png");
+          background-image: url("/static/img/three-stars.png");
         }
         &.four-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/four-stars.png");
+          background-image: url("/static/img/four-stars.png");
         }      
         &.five-star {
-          background-image: url("https://s3.amazonaws.com/prime-images/five-stars.png");
+          background-image: url("/static/img/five-stars.png");
         }      
       }
     }
@@ -1278,7 +1278,7 @@ div.pagination {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-linkedin.svg);
+  background-image: url(/static/img/onboarding/icon-linkedin.svg);
   @extend %bg-img;
 }
 
@@ -1309,7 +1309,7 @@ form.dropzone {
     width: 80px;
     height: 80px;
     margin-left: -40px;
-    background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+    background-image: url(/static/img/icon-upload.svg);
     @extend %bg-img;
   }
   .dz-default.dz-message {
