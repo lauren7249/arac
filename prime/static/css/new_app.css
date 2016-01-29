@@ -11,7 +11,7 @@
   transform: translate(-50%, -50%);
 }
 
-.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before, .logo-lockup, header .header-logo, footer .footer-logo, .subheader .back-link:before, .contact-info .name span.stars, .contact-links a, .file-upload .fileinputs #fileinput-message:before, .icon-linkedin {
+.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before, .logo-lockup, header .header-logo, footer .footer-logo, .subheader .back-link:before, .contact-info .name span.stars, .contact-links a, .icon-linkedin, form.dropzone:before {
   background-repeat: no-repeat;
   background-position: 50% 50%;
   -webkit-background-size: 100%;
@@ -425,22 +425,22 @@ form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
   margin-bottom: 5px;
 }
 
-.error, .success {
+.error, form.dropzone .dz-preview .dz-error-message, .success, form.dropzone .dz-preview .dz-success-message {
   color: white;
   padding: 10px;
   display: block;
   margin-bottom: 20px;
   border-radius: 4px;
 }
-.error span, .success span {
+.error span, form.dropzone .dz-preview .dz-error-message span, .success span, form.dropzone .dz-preview .dz-success-message span {
   display: block;
 }
 
-.error {
+.error, form.dropzone .dz-preview .dz-error-message {
   background-color: #EB143E;
 }
 
-.success {
+.success, form.dropzone .dz-preview .dz-success-message {
   background-color: #6CCC48;
 }
 
@@ -1163,64 +1163,6 @@ div.pagination a.active {
   margin-top: 2rem;
 }
 
-.file-upload {
-  margin-top: 2rem;
-}
-.file-upload body.center {
-  position: inherit;
-  height: auto;
-  padding: 0;
-}
-.file-upload body.center .source-logo, .file-upload body.center .upload-inst, .file-upload body.center #warning-message, .file-upload body.center p {
-  display: none !important;
-}
-.file-upload .fileinputs {
-  position: relative;
-  background-color: white;
-  text-align: center;
-  font-size: normal;
-  padding: 2rem;
-  margin: 4rem 0;
-  color: #787B80;
-  border: 2px dashed #DADFE1;
-  border-radius: 8px;
-}
-.file-upload .fileinputs #fileinput-message {
-  font-weight: bold;
-  color: #02C2B9;
-}
-.file-upload .fileinputs #fileinput-message:before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  content: "";
-  display: block;
-  width: 4rem;
-  height: 4rem;
-  margin: 0 auto 1rem;
-  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
-}
-.file-upload .fileinputs input[type="file"] {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  right: 0;
-  border: none;
-  border-width: 0;
-  cursor: pointer !important;
-  z-index: 9999;
-  opacity: 0;
-}
-.file-upload .fileinputs [role="button"], .file-upload .fileinputs button, .file-upload .fileinputs input[type=file]::-webkit-file-upload-button {
-  cursor: pointer;
-}
-
-.upload-instructions {
-  font-size: 13px;
-  color: #787B80;
-}
-
 .connect-email {
   margin-bottom: 2rem;
 }
@@ -1267,51 +1209,66 @@ div.pagination a.active {
   margin-bottom: 2rem;
 }
 
-.frame {
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
+form.dropzone {
   position: relative;
-  left: -60px;
-  top: -430px;
-  bottom: -200px;
-  border: 0;
-  display: block;
-  vertical-align: middle;
-  -ms-zoom: 1;
-  -ms-transform: scale(1, 5.5);
-  -moz-transform: scale(1, 5.5);
-  -o-transform: scale(1, 5.5);
-  -webkit-transform: scale(1, 5.5);
-  transform: scale(1, 5.5);
-  -ms-transform-origin: 0 0;
-  -moz-transform-origin: 0 0;
-  -o-transform-origin: 0 0;
-  -webkit-transform-origin: 0 0;
-  transform-origin: 0 0;
+  background-color: white;
+  text-align: center;
+  font-size: normal;
+  padding: 100px 20px 20px;
+  margin: 0;
+  color: #787B80;
+  border: 2px dashed #DADFE1;
+  border-radius: 8px;
+  cursor: pointer;
 }
-
-.sample {
+form.dropzone:before {
   position: absolute;
-  top: 40%;
+  top: 10px;
   left: 50%;
-  height: 70%;
-  width: 58%;
-  background-size: contain;
-  pointer-events: none;
-  /* THIS IS THE TRICK YOU SEEK */
-  background: url("/static/img/drag-drop-upload-1.gif") no-repeat 0 0;
-  -ms-zoom: 0.69;
-  -ms-transform: scale(0.69);
-  -moz-transform: scale(0.69);
-  -o-transform: scale(0.69);
-  -webkit-transform: scale(0.69);
-  transform: scale(0.69);
-  -ms-transform-origin: 0 0;
-  -moz-transform-origin: 0 0;
-  -o-transform-origin: 0 0;
-  -webkit-transform-origin: 0 0;
-  transform-origin: 0 0;
+  content: "";
+  display: block;
+  width: 80px;
+  height: 80px;
+  margin-left: -40px;
+  background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+}
+form.dropzone .dz-default.dz-message {
+  text-align: center;
+}
+form.dropzone .dz-default.dz-message span {
+  font-weight: bold;
+  color: #02C2B9;
+}
+form.dropzone .dz-default.dz-message span:after {
+  display: block;
+  content: "Your .csv file here or browse";
+  text-align: center;
+}
+form.dropzone .dz-preview {
+  border-top: 1px solid #DADFE1;
+  margin-top: 20px;
+  padding-top: 20px;
+}
+form.dropzone .dz-preview .dz-details {
+  margin-bottom: 10px;
+}
+form.dropzone .dz-preview .dz-details .dz-filename * {
+  font-family: monospace;
+}
+form.dropzone .dz-image,
+form.dropzone .dz-success-mark,
+form.dropzone .dz-error-mark,
+form.dropzone .dz-size {
+  display: none;
+}
+form.dropzone.dz-drag-hover {
+  border: 2px solid #DADFE1;
+}
+form.dropzone.dz-error {
+  border-color: #EB143E;
+}
+form.dropzone.dz-success {
+  border-color: #6CCC48;
 }
 
 div.loading {

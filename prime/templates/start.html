@@ -367,13 +367,18 @@
                   <br/>            
                 </div>                 
               </div>
-              <div class="col-5" style='width:60%; height:100%;  vertical-align:middle; ' >
-                <div style='height:100%; width:100%; padding-bottom: 25%; margin-left: -10%; overflow-y:hidden; vertical-align:middle;'  >
-                    <iframe id="upload_button" class="frame" scrolling="no" >
-                    </iframe>
-                </div>      
-                <div id="FOREGROUND_DIV" class="sample">
-                </div>              
+              <div class="col-5">
+              <!-- Dropzone.JS -->
+                <form action="/file-upload-url" class="dropzone" id="linkedInImport"></form>
+                <script>
+                  Dropzone.options.linkedInImport = {
+                    dictDefaultMessage: "Drag & Drop",
+                    acceptedFiles: ".csv",
+                    uploadMultiple: false,
+                    paramName: "file", // The name that will be used to transfer the file
+                  };
+                </script>
+              <!-- /Dropzone.JS -->
               </div>
             </div>
 

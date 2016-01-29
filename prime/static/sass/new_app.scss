@@ -1238,68 +1238,6 @@ div.pagination {
   margin-top: 2rem;
 }
 
-.file-upload {
-  margin-top: 2rem;
-  
-  // override cloudpsonge upload styles
-  body.center {
-    position: inherit;
-    height: auto;
-    padding: 0;
-    .source-logo, .upload-inst, #warning-message, p {
-      display: none !important;
-    }
-  }
-  
-  .fileinputs {
-    position: relative;
-    background-color: white;
-    text-align: center;
-    font-size: normal;
-    padding: 2rem;
-    margin: 4rem 0;
-    color: $grey;
-    border: 2px dashed $border;
-    border-radius: 8px;      
-    #fileinput-message {
-      font-weight: bold;
-      color: $teal;
-      &:before {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        content: "";
-        display: block;
-        width: 4rem;
-        height: 4rem;
-        margin: 0 auto 1rem;
-        background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
-        @extend %bg-img;
-      }
-    }
-    input[type="file"] {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      right: 0;
-      border: none;
-      border-width: 0;
-      cursor: pointer !important;
-      z-index: 9999;
-      opacity: 0;
-    }
-    [role="button"], button, input[type=file]::-webkit-file-upload-button {
-      cursor: pointer;
-    }
-  }
-}
-
-.upload-instructions {
-  font-size: 13px;
-  color: $grey;
-}
-
 .connect-email {
   margin-bottom: 2rem;
   img {
@@ -1316,6 +1254,8 @@ div.pagination {
   .connected {
     display: none;
     margin-bottom: .5rem;
+    color: $grey;
+    font-size: .8rem;
     &:before {
       display: inline-block;
       content: "";
@@ -1327,8 +1267,6 @@ div.pagination {
       margin-right: .5rem;
       @extend %circle-check;
     }
-    color: $grey;
-    font-size: .8rem;
   }
 }
 
@@ -1348,54 +1286,155 @@ div.pagination {
   }
 }
 
-$frameZoom: 5.5;
+form.dropzone {
+  position: relative;
+  background-color: white;
+  text-align: center;
+  font-size: normal;
+  padding: 100px 20px 20px;
+  margin: 0;
+  color: $grey;
+  border: 2px dashed $border;
+  border-radius: 8px;
+  cursor: pointer;
+  &:before {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    content: "";
+    display: block;
+    width: 80px;
+    height: 80px;
+    margin-left: -40px;
+    background-image: url(https://s3-us-west-2.amazonaws.com/advisorconnect/images/onboarding/icon-upload.svg);
+    @extend %bg-img;
+  }
+  .dz-default.dz-message {
+    text-align: center;
+    span {
+      font-weight: bold;
+      color: $teal;
+      &:after {
+        display: block;
+        content: "Your .csv file here or browse";
+        text-align: center;
+      }
+    }
+  }
+  
+  .dz-preview { // Upload Preview
+    border-top: 1px solid $border;
+    margin-top: 20px;
+    padding-top: 20px;
+    .dz-details {
+      margin-bottom: 10px;
+      .dz-filename * {
+        font-family: monospace;
+      }
+    }
+    &.dz-file-preview {} 
+    &.dz-error {}
+    &.dz-complete {}
+    
+    .dz-progress { // Progress Bar
+      span.dz-upload {
 
-.frame
-{
-    overflow: hidden; 
-    width: 100%; 
-    height: 100%;   
-    position: relative; left: -60px; top: -430px; bottom: -200px;
-    border:0; 
-    display:block; 
-    vertical-align:middle;
-    -ms-zoom: 1;
-    -ms-transform: scale(1, $frameZoom);
-    -moz-transform: scale(1, $frameZoom);
-    -o-transform: scale(1, $frameZoom);
-    -webkit-transform: scale(1, $frameZoom);
-    transform: scale(1, $frameZoom);
+      }
+    }
+    .dz-error-message {
+      @extend .error;
+    }
+    .dz-success-message {
+      @extend .success;
+    }
+  }
+  
+  .dz-image, 
+  .dz-success-mark,
+  .dz-error-mark,
+  .dz-size {
+    display: none;
+  }
+  
+  &.dz-drag-hover { // Drag Hover
+    border: 2px solid $border;
+  }
 
-    -ms-transform-origin: 0 0;
-    -moz-transform-origin: 0 0;
-    -o-transform-origin: 0 0;
-    -webkit-transform-origin: 0 0;
-    transform-origin: 0 0;
+  
+  &.dz-started { // Upload Started
+
+  }
+
+  &.dz-error {
+    border-color: $error;
+  }
+
+  &.dz-success {
+    border-color: $success;
+  }
+  
+
 }
 
-$gifZoom: .69;
-.sample {
-  position:absolute;
-  top:40%;
-  left:50%;
-  height:70%;
-  width:58%;     
-  background-size: contain;   
-  pointer-events:none;          /* THIS IS THE TRICK YOU SEEK */
-  background:url('/static/img/drag-drop-upload-1.gif') no-repeat 0 0;
-  -ms-zoom: $gifZoom;
-  -ms-transform: scale($gifZoom);
-  -moz-transform: scale($gifZoom);
-  -o-transform: scale($gifZoom);
-  -webkit-transform: scale($gifZoom);
-  transform: scale($gifZoom);
 
-  -ms-transform-origin: 0 0;
-  -moz-transform-origin: 0 0;
-  -o-transform-origin: 0 0;
-  -webkit-transform-origin: 0 0;
-  transform-origin: 0 0;  
-}
+
+
+// $frameZoom: 5.5;
+// $gifZoom: .69;
+
+// .iframe-wrap {
+//   height: 100%; 
+//   width: 100%; 
+//   // padding-bottom: 25%; 
+//   // margin-left: -10%;
+//   overflow: hidden; 
+//   vertical-align: middle;
+// }
+// .iframe-box {
+//   overflow: hidden; 
+//   width: 100%; 
+//   height: 100%;   
+//   position: relative; left: -60px; top: -430px; bottom: -200px;
+//   border:0; 
+//   display:block; 
+//   vertical-align:middle;
+//   -ms-zoom: 1;
+//   -ms-transform: scale(1, $frameZoom);
+//   -moz-transform: scale(1, $frameZoom);
+//   -o-transform: scale(1, $frameZoom);
+//   -webkit-transform: scale(1, $frameZoom);
+//   transform: scale(1, $frameZoom);
+
+//   -ms-transform-origin: 0 0;
+//   -moz-transform-origin: 0 0;
+//   -o-transform-origin: 0 0;
+//   -webkit-transform-origin: 0 0;
+//   transform-origin: 0 0;
+// }
+
+
+// .iframe-upload {
+//   position: absolute;
+//   top: 40%;
+//   left: 50%;
+//   height: 70%;
+//   width: 58%;     
+//   background-size: contain;   
+//   pointer-events: none;          /* THIS IS THE TRICK YOU SEEK */
+//   background: url('/static/img/drag-drop-upload-1.gif') no-repeat 0 0;
+//   -ms-zoom: $gifZoom;
+//   -ms-transform: scale($gifZoom);
+//   -moz-transform: scale($gifZoom);
+//   -o-transform: scale($gifZoom);
+//   -webkit-transform: scale($gifZoom);
+//   transform: scale($gifZoom);
+
+//   -ms-transform-origin: 0 0;
+//   -moz-transform-origin: 0 0;
+//   -o-transform-origin: 0 0;
+//   -webkit-transform-origin: 0 0;
+//   transform-origin: 0 0;  
+// }
 
 // Loading & Spinners ==================================
 
