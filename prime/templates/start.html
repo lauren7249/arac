@@ -149,9 +149,8 @@
               return getContacts(tempeventsurl, tempcontactsurl);                                                     
             } 
             else if (cloudsponge_status =="ERROR") {
-              alert("Error: please try again.")
               clearInterval(timeout); 
-              return;
+              setupUpload();   
             }
           } 
           
@@ -381,7 +380,7 @@
 
         </div>    
         <div class="onboard-footer"><small>
-          <button id="hack_next" data-next='3' style='border:0;' data-tooltip="Skip this step" class="button dark-blue">Next</button>  
+          <button id="hack_next" onclick="attemptFinish();" style='border:0;' data-tooltip="Skip this step" class="button dark-blue">Next</button>  
         </div>                    
       </div>
 
@@ -500,7 +499,6 @@
                 else {
                   $(".waiting").hide();   
                   $(".overlay").fadeOut();                                
-                  //alert('Invalid input');
                   return true;
                 }                             
               });                          
@@ -517,28 +515,31 @@
       });       
     }
 
+    function attemptFinish() {
+      if (contacts_array.length>0) {
+        upload()
+        $("#step-3").hide()
+        $("#step-4").slideDown()            
+      } else {
+        showSuccess("You haven't added any contacts yet, but you can always come back later to complete your signup.");
+      }      
+    }
+    // $("#hack_next").click(function(){
+    //   attemptFinish(); 
+    // })    
     $(function() {
       $("[data-next]").click(function() {
         var id = $(this).data('next');
         var next_id = id + 1;
 
         if (next_id==4) {
-          if (contacts_array.length>0) {
-            upload()
-            $("#step-" + id).hide()
-            $("#step-" + next_id).slideDown()            
-          } else {
-            alert("No contacts uploaded")
-          }
-          
+          attemptFinish();       
         } 
         else {
           $("#step-" + id).hide()
           $("#step-" + next_id).slideDown()          
         }
       });
-
-
       bindEmailButtons()
     });
 
@@ -583,7 +584,6 @@
         var win = window.open('');        
         var len = do_import('Gmail','#gmail-area',win);
         $(".email").hide();
-        // if (len>0) {$("#gmail").hide();}
         $(".overlay").fadeOut();
       });
 
@@ -593,7 +593,6 @@
         cloudsponge_status = 'NONE';   
         var len =do_import('Yahoo','#yahoo-area',win);
         $(".email").hide();
-        // if (len>0) { $("#yahoo").hide();}
         $(".overlay").fadeOut();
       });
 
@@ -603,7 +602,6 @@
         cloudsponge_status = 'NONE';   
         var len = do_import('WindowsLive','#windows-area',win);
         $(".email").hide();
-        // if (len>0) {$("#windowslive").hide();}
         $(".overlay").fadeOut();
       });
 
@@ -613,7 +611,6 @@
         cloudsponge_status = 'NONE';   
         var len = do_import('aol','#aol-area',win);
         $(".email").hide();
-        // if (len>0) {$("#windowslive").hide();}
         $(".overlay").fadeOut();
       });   
 

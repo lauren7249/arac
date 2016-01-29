@@ -44,9 +44,9 @@
   {% block header %}
   <header>
     <div class="wrap">
-<!--       <div class="col-6">
+      <div class="col-6">
         <div class="header-logo"></div>
-      </div> -->
+      </div>
       <div class="col-6">
         {% if current_user.is_authenticated() %}
         <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right">
@@ -100,6 +100,12 @@
         document.getElementById("success").style.display = "none";   
         document.getElementById("success").close();    
       }
+
+      function showSuccess(message) {
+        document.getElementById("p200_success_message").innerHTML =  message;
+        document.getElementById("spinner").style.display = "none";    
+        document.getElementById("p200_success_message").style.display = "inline";         
+      }
       var csrftoken = "{{ csrf_token() }}"
       $(function() {
 
@@ -114,9 +120,7 @@
                 document.getElementById("success").showModal();       
                 $.post("/managers/request_p200", {user_id:user_id}, function(data){
                     if (data.name != undefined && data.name !=null && data.name != '') {
-                      document.getElementById("p200_success_message").innerHTML =  data.name + "'s P200 has been requested and should be available within 24 hours."
-                      document.getElementById("spinner").style.display = "none";    
-                      document.getElementById("p200_success_message").style.display = "inline";     
+                      showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");
                       document.getElementById(user_id + "_p200_button").style.display = "none";     
                       document.getElementById(user_id + "_p200_pending").style.display = "inline";   
                     }
