@@ -453,16 +453,16 @@
           var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           console.log(tempcontactsurl);
-          if (is_window(win)) {
-            win.location = cloudsponge_url;
-            var timer = setInterval(function() {   
-              if(win.closed) {
-                clearInterval(timer);              
-                handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service);
 
-              }  
-            }, 500);              
-          }
+          win.location = cloudsponge_url;
+          var timer = setInterval(function() {   
+            if(win.closed) {
+              clearInterval(timer);              
+              handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service);
+
+            }  
+          }, 500);              
+
            
         });      
     }
