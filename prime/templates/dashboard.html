@@ -38,7 +38,7 @@
             {% if agent.industries|length > 0 %}
             {% for industry in agent.industries %}
               <div class="market-{{ loop.index }}">
-                {% if current_user.is_manager %}
+                {% if current_user.is_manager or current_user.p200_approved %}
                   <a>
                 {% else %}
                   <a href="/connections?industry={{industry[0]}}">
