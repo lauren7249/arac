@@ -142,7 +142,18 @@
     }   
 
     $( document ).ready(function() {
-        //testDrag();
+      var ua = navigator.userAgent.toLowerCase();
+     
+      console.log(ua);
+      if (/chrome/.test(ua)) {
+        console.log("is chrome");
+        $("#after_download_instruction").text('After your file downloads, close the tab and come back to this page.');
+        
+      }
+      else if (!/opera/.test(ua) && /msie/.test(ua)) {
+        $("#after_download_instruction").text('After your file downloads, click Save download when prompted by your browser, then click "Open Folder" and come back to this page.');
+      }
+        
     });    
 
     function eventFire(el, etype){
@@ -373,7 +384,7 @@
                     <li id="step1" style="font-weight: bolder">
                       {%if newWindow == 'false' %}
 
-                        Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. Once your contacts have downloaded close the tab and come back to this page.<button id="export_linkedin" data-tooltip="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="button linkedin fluid small"> <span>Go to LinkedIn</span></button>
+                        Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-tooltip="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="button linkedin fluid small"> <span>Go to LinkedIn</span></button>
                         <p data-tooltip="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p>
                       {%else%}
                         Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." To do so, enter the characters shown in the picture and click Continue. <button id="export_linkedin" data-tooltip="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="button linkedin fluid small"> <span>Go to LinkedIn</span></button><small>The popup will then automatically redirect to the "Export LinkedIn Connections" page. <i>Note: you do not need to change any settings.</i></small>
