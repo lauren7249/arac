@@ -100,7 +100,7 @@ def start():
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
         return redirect(url_for('prospects.pending'))
-    return render_template('start.html', agent=current_user)
+    return render_template('start.html', agent=current_user, newWindow='false')
 
 @prospects.route("/pending", methods=['GET'])
 def pending():
@@ -119,7 +119,7 @@ def pending():
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
         return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
-    return render_template('start.html', agent=current_user)
+    return render_template('start.html', agent=current_user, newWindow='false')
 
 @prospects.route("/faq")
 def faq():
