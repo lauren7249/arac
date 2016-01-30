@@ -190,6 +190,7 @@ def upload():
     if request.method == 'POST':
         indata = request.json
         contacts_array = indata.get("contacts_array")
+        location = indata.get("geolocation")
         by_email = set()
         n_linkedin = 0
         n_gmail = 0
@@ -231,6 +232,7 @@ def upload():
         current_user.contacts_from_yahoo = n_yahoo
         current_user.contacts_from_windowslive = n_windowslive
         current_user.account_sources = account_sources
+        current_user.linkedin_location = location
         session.add(current_user)
         session.commit()
         manager = current_user.manager

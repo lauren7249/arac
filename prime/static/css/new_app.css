@@ -1218,6 +1218,20 @@ form.dropzone {
   border: 2px dashed #DADFE1;
   border-radius: 8px;
   cursor: pointer;
+  /* simple css-based tooltip */
+}
+form.dropzone .tooltip {
+  background-color: #000;
+  border: 1px solid #fff;
+  padding: 10px 15px;
+  width: 200px;
+  display: none;
+  color: #fff;
+  text-align: left;
+  font-size: 12px;
+  /* outline radius for mozilla/firefox only */
+  -moz-box-shadow: 0 0 10px #000;
+  -webkit-box-shadow: 0 0 10px #000;
 }
 form.dropzone:before {
   position: absolute;
