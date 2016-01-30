@@ -51,6 +51,7 @@
     }
 
     function skip_linkedin() {
+        $("#step-1").hide(); 
         attemptFinish(); 
         $("#owner_email").html("{{ agent.email }}");
         $("#owner_geolocation").html("{{ agent.manager.address }}");
