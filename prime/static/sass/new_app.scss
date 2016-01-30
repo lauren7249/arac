@@ -1295,7 +1295,7 @@ form.dropzone {
   text-align: center;
   font-size: normal;
   padding: 100px 20px 20px;
-  margin: 0;
+  margin-top: 200px;
   color: $grey;
   border: 2px dashed $border;
   border-radius: 8px;
@@ -1317,9 +1317,15 @@ form.dropzone {
     span {
       font-weight: bold;
       color: $teal;
+      content: "";
+      &:before {
+        display: block;
+        content: "";
+        text-align: center;
+      }      
       &:after {
         display: block;
-        content: "Your .csv file here or browse";
+        content: "";
         text-align: center;
       }
     }

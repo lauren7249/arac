@@ -12,7 +12,7 @@
         IN.User.authorize(getProfileData);
       });
     }
-
+    
     // Handle the successful return from the API call
     function onSuccess(data) {
         //console.log(data);
@@ -25,9 +25,7 @@
         $("#owner_geolocation").html(geolocation);
         $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
         $("#owner_name").html("Welcome, " + firstName);
-        $("#step-1").hide();
-        // $(".onboard-header").show();
-        $("#linkedin-upload").hide();   
+        $("#step-1").hide(); 
         $("#step-2").slideDown();     
         $.ajax({
             type: 'POST',
@@ -78,21 +76,29 @@
       downloadWindow.focus(); 
       $(".overlay").fadeIn();
       $(".waiting").hide();  
+      document.getElementById("step1").style = "font-weight: lighter"
+      document.getElementById("step2").style =  "font-weight: bolder"
+      $('html, body').animate({
+            scrollTop: $("li#step2").offset().top + 'px'
+      }, 'fast');
       var timer = setInterval(function() {
           if(downloadWindow.closed) {
               clearInterval(timer);                  
               $(".overlay").fadeOut();
-              $("#linkedin-download").hide();
-              console.log("setting this")
-              // document.getElementById("upload_instruction").innerHTML = 'Click the blue upload area, go to your Downloads folder and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i>';
-              $("#linkedin-upload").slideDown();  
+              document.getElementById("step2").style = "font-weight: lighter"
+              document.getElementById("step3").style =  "font-weight: bolder"
+              $('html, body').animate({
+                    scrollTop: $("li#step3").offset().top + 'px'
+              }, 'fast');              
               setupUpload();              
           }
           $(".overlay").click(function(){
-              $(".overlay").fadeOut();
-              $("#linkedin-download").hide();
-              // document.getElementById("upload_instruction").innerHTML = 'Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.';
-              $("#linkedin-upload").slideDown();  
+              $(".overlay").fadeOut(); 
+              document.getElementById("step2").style = "font-weight: lighter"
+              document.getElementById("step3").style =  "font-weight: bolder"
+              $('html, body').animate({
+                    scrollTop: $("li#step3").offset().top + 'px'
+              }, 'fast');                 
               setupUpload();   
               downloadWindow.focus();                    
           })
@@ -164,6 +170,81 @@
       }, 1000);  
     }
 
+    $(function(){
+      Dropzone.options.linkedInImport = {
+        maxFilesize: 10,
+        addRemoveLinks: true,
+        dictResponseError: 'Server not Configured',
+        acceptedFiles: ".csv",
+        previewsContainer: document.getElementById("previewsContainer"),
+        init:function(){
+          var self = this;
+          // config
+          self.options.addRemoveLinks = true;
+          self.options.dictRemoveFile = "Delete";
+
+          //New file added
+          self.on("addedfile", function (file) {
+            filename = file.name;
+            var match = /linkedin_connections_export_microsoft_outlook.+\.csv/.test(filename);
+            if (! match) {
+              $(".overlay").fadeOut();
+              $(".waiting").hide();      
+              alert(filename + " seems like the wrong file. We are looking for linkedin_connections_export_microsoft_outlook.csv");
+            } else {
+              if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }   
+            }
+          });
+          // Send file starts
+          self.on("sending", function (file) {
+            console.log('upload started', file);
+            $(".overlay").fadeIn();
+            $(".waiting").show();            
+          });
+          
+          // File upload Progress
+          self.on("totaluploadprogress", function (progress) {
+            console.log("progress ", progress);
+
+          });
+
+          self.on("complete", function (file) {
+            console.log("complete");           
+          });
+          self.on("success", function (file, data) {
+            console.log("complete", data);    
+            var count = data.count;
+            contacts = data.contacts;
+            contacts_owner = data.contacts_owner;
+            if (contacts !=undefined && contacts.length) {
+              console.log(contacts.length);
+              for (i = 0; i < contacts.length; i++) { 
+                var contact = contacts[i];
+                contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:"LinkedIn"});
+           
+              }
+              $(".contact-count").find("small").html(count.toLocaleString() + " Total Contacts Added")
+              $(".final-contact-count").html(count.toLocaleString())
+              $(".contact-count").show();
+              $("#hack_next").click();               
+            }
+            else {                                                   
+              alert('Invalid input');
+            }  
+            $(".waiting").hide();
+            $(".overlay").fadeOut();                            
+          });      
+
+          self.on("error", function (file, errorMessage) {
+            console.log(errorMessage);
+            $(".overlay").fadeOut();
+            $(".waiting").hide();           
+            alert("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.")
+          });
+
+        }
+      };
+    })
     function getContacts(tempeventsurl, tempcontactsurl) {  
       console.log("getting contacts");
       var timeout = setInterval(function(){
@@ -315,6 +396,7 @@
             </div>
           </div>
         </div>
+        <div class="dropzone-previews" id="previewsContainer" style="display:none"></div>
         <div class="onboard-footer">
           <button  data-next='2' class="button dark-blue">Next</button>
         </div>
@@ -342,34 +424,7 @@
           </ol>
         </div>
         <div class="onboard-body">
-          <div id="linkedin-download">
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
-                  <ol>
-                    <li>
-                      When you click on the button to the right you will see a LinkedIn popup window where you will be asked to enter a Security Verification code. Enter the code and click Continue.
-                    </li>
-                    <li>
-                      You will then be taken to the Export LinkedIn Connections Page. Click Export. Note: you do not need to change the export settings.
-                    </li>
-                    <li>
-                      Click back on this window in your browser and drag and drop the <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.
-                    </li>
-                  </ol>
-                </div>
-              </div>
-              <div class="col-5">
-                 <div class="get-contacts">
-                  <button id="export_linkedin" data-tooltip="LinkedIn allows you to download a file with all your contacts" onclick="download_linkedin();" class="button linkedin fluid large"> <span>Take me to LinkedIn's Download Page</span></button>
-                  
-                </div>
-                <br/>
-              </div>              
-              
-            </div>
-          </div>
+
           <div  id="linkedin-upload">
 
             <div class="wrap">
@@ -377,23 +432,27 @@
                 <div class="note">
                   <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
                   <ol>
-                    <li>
-                      When you click on the button to the right you will see a LinkedIn popup window where you will be asked to enter a Security Verification code. Enter the code and click Continue.
+                    <li id="step1" style="font-weight: bolder">
+                      Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." To do so, enter the characters shown in the picture and click Continue. <button id="export_linkedin" data-tooltip="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="button linkedin fluid small"> <span>Click Here to Launch the Popup</span></button><small>The popup will then automatically redirect to the "Export LinkedIn Connections" page. <i>Note: you do not need to change any settings.</i></small>
                     </li>
-                    <li>
-                      You will then be taken to the Export LinkedIn Connections Page. Click Export. Note: you do not need to change the export settings.
+                    <br/>
+                    <li  id="step2" >
+                      Return to the current window, and click the screen to reactivate it.
                     </li>
-                    <li>
-                      Click back on this window in your browser and drag and drop the <i>linkedin_connections_export_microsoft_outlook.csv</i> to the upload area.
+                    <br/>
+                    <li  id="step3">
+                      Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i> into the Upload Area on the right. <small>Alternatively, click on the Upload Area and select the file from your Downloads folder.</small>
                     </li>
                   </ol>
                 </div>
                 <div class="text-center">    
                   <br/>            
                 </div>                 
-              </div>
+              </div>              
               <div class="col-5">
-                <form action="/upload_csv" class="dropzone" id="linkedInImport"></form>
+                <div class="get-contacts"  >
+                  <form action="/upload_csv" method="post" class="dropzone" id="linkedInImport"></form>
+                </div>
               </div>
             </div>
 
@@ -401,7 +460,7 @@
 
         </div>    
         <div class="onboard-footer"><small>
-          <button id="hack_next" onclick="attemptFinish();" style='border:0;' data-tooltip="Skip this step" class="button dark-blue">Next</button>  
+          <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
         </div>                    
       </div>
 
@@ -542,12 +601,12 @@
         $("#step-3").hide()
         $("#step-4").slideDown()            
       } else {
-        showSuccess("You haven't added any contacts yet, but you can always come back later to complete your signup.");
+        var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
+        showSuccess(message);
+        alert(message);
       }      
     }
-    // $("#hack_next").click(function(){
-    //   attemptFinish(); 
-    // })    
+  
     $(function() {
       $("[data-next]").click(function() {
         var id = $(this).data('next');
@@ -637,6 +696,7 @@
       });   
 
     }  
+
   </script>  
 
 {% endblock %}

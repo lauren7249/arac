@@ -154,6 +154,7 @@ def save_linkedin_data():
 @csrf.exempt
 @prospects.route("/upload_csv", methods=['POST'])
 def upload_csv():
+    import pandas
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
@@ -161,17 +162,18 @@ def upload_csv():
     f = request.files['file']
     if not f:
         return "No file"
-    s =f.stream.read()
-    print s.split("\n")
-    return jsonify({"data":len(s)})
-    # stream = io.StringIO(unicode(f.stream.read()), newline=None)
-    # csv_input = csv.reader(stream)
-    # n = 0
-    # print(csv_input)
-    # for row in csv_input:
-    #     n+=1
-    # return n
-
+    s = pandas.read_csv(f.stream)
+    s.fillna("", inplace=True)
+    data = []
+    for index, row in s.iterrows():
+        contact = {}
+        contact["first_name"] = row["First Name"].decode('latin-1')
+        contact["last_name"] = row["First Name"].decode('latin-1')
+        contact["companies"] = [row["Company"].decode('latin-1')]
+        contact["email"] = [{"address": row["E-mail Address"].decode('latin-1')}]
+        contact["job_title"] = row["Job Title"].decode('latin-1')
+        data.append(contact)
+    return jsonify({"count":len(s),"contacts":data, "contacts_owner":None})
 
 
 @csrf.exempt

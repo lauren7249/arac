@@ -1219,7 +1219,7 @@ form.dropzone {
   text-align: center;
   font-size: normal;
   padding: 100px 20px 20px;
-  margin: 0;
+  margin-top: 200px;
   color: #787B80;
   border: 2px dashed #DADFE1;
   border-radius: 8px;
@@ -1242,10 +1242,16 @@ form.dropzone .dz-default.dz-message {
 form.dropzone .dz-default.dz-message span {
   font-weight: bold;
   color: #02C2B9;
+  content: "";
+}
+form.dropzone .dz-default.dz-message span:before {
+  display: block;
+  content: "";
+  text-align: center;
 }
 form.dropzone .dz-default.dz-message span:after {
   display: block;
-  content: "Your .csv file here or browse";
+  content: "";
   text-align: center;
 }
 form.dropzone .dz-preview {
