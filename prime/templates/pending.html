@@ -3,9 +3,9 @@
 
 <div class='signup' id="signup">
   <div class="card">
-    <div class='logo'>
-      <img src='{{ static_url() }}img/AC_logo.png' />
-    </div>
+    <header>
+      <div class="header-logo"></div>
+    </header>
     <h2>Thanks for connecting your contacts, {{ current_user.first_name }}</h2>
     <p>We found {{ '{0:,}'.format(contact_count | int) }} unique prospects in your network.</p>
     {% if contact_count == 0 %}
@@ -17,3 +17,4 @@
 </div>
 
 {% endblock %}
+{% block footer %}{% endblock %}

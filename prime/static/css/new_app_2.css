@@ -15,7 +15,7 @@
   transform: translate(-50%, -50%);
 }
 
-.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before, .logo-lockup, header .header-logo, footer .footer-logo, .subheader .back-link:before, .contact-info .name span.stars, .contact-links a, .icon-linkedin, form.dropzone:before {
+.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before, header .header-logo, .subheader .back-link:before, .contact-info .name span.stars, .contact-links a, .icon-linkedin, form.dropzone:before {
   background-repeat: no-repeat;
   background-position: 50% 50%;
   -webkit-background-size: 100%;
@@ -39,20 +39,14 @@ a {
   color: #16263D;
 }
 
-header, footer {
-  background: white;
-}
-
-.logo-lockup, header .header-logo, footer .footer-logo {
-  width: 175px;
-  height: 60px;
-}
-
 header {
+  background: white;
   padding: 20px 0;
 }
 header .header-logo {
-  background-image: url("/static/img/header-logo.svg");
+  width: 178px;
+  height: 60px;
+  background-image: url("/static/img/logo-lockup.png");
 }
 header .nav-right {
   padding-top: 10px;
@@ -122,8 +116,8 @@ header a.user .face {
   vertical-align: middle;
 }
 
-footer {
-  border-top: 1px solid #DADFE1;
+footer .wrap {
+  border-top: 2px solid #DADFE1;
   margin-top: 40px;
   padding: 40px 0;
 }
@@ -142,10 +136,6 @@ footer .footer-links span {
 footer .footer-links a {
   color: #787B80;
   font-weight: bold;
-}
-footer .footer-logo {
-  float: right;
-  background-image: url("/static/img/footer-logo.svg");
 }
 
 .subheader {
@@ -964,52 +954,52 @@ table.contacts-table .contact-buttons .button {
   border-radius: 3px;
 }
 .contact-links a.financial {
-  background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);
+  background-image: url(/static/img/social/financial-blue.png);
 }
 .contact-links a.facebook {
-  background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);
+  background-image: url(/static/img/social/facebook-blue.png);
 }
 .contact-links a.linkedin {
-  background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);
+  background-image: url(/static/img/social/linkedin-blue.png);
 }
 .contact-links a.twitter {
-  background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);
+  background-image: url(/static/img/social/twitter-blue.png);
 }
 .contact-links a.phone {
-  background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png);
+  background-image: url(/static/img/social/phone-blue.png);
 }
 .contact-links a.pinterest {
-  background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);
+  background-image: url(/static/img/social/pinterest-blue.png);
 }
 .contact-links a.soundcloud {
-  background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);
+  background-image: url(/static/img/social/soundcloud-blue.png);
 }
 .contact-links a.slideshare {
-  background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);
+  background-image: url(/static/img/social/slideshare-blue.png);
 }
 .contact-links a.plus {
-  background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);
+  background-image: url(/static/img/social/google-plus-blue.png);
 }
 .contact-links a.angel {
-  background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);
+  background-image: url(/static/img/social/angellist-blue.png);
 }
 .contact-links a.foursquare {
-  background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);
+  background-image: url(/static/img/social/foursquare-blue.png);
 }
 .contact-links a.github {
-  background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);
+  background-image: url(/static/img/social/github-blue.png);
 }
 .contact-links a.flickr {
-  background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);
+  background-image: url(/static/img/social/flickr-blue.png);
 }
 .contact-links a.email {
-  background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);
+  background-image: url(/static/img/social/email-blue.png);
 }
 .contact-links a.amazon {
-  background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);
+  background-image: url(/static/img/social/amazon-blue.png);
 }
 .contact-links a.location {
-  background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);
+  background-image: url(/static/img/social/location-blue.png);
 }
 
 div.pagination {
@@ -1234,7 +1224,7 @@ form.dropzone:before {
   width: 80px;
   height: 80px;
   margin-left: -40px;
-  background-image: url(/static/img/icon-upload.svg);
+  background-image: url(/static/img/onboarding/icon-upload.svg);
 }
 form.dropzone .dz-default.dz-message {
   text-align: center;

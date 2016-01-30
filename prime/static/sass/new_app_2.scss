@@ -74,22 +74,15 @@ a {
 }
 
 // Header & Footer ==================================
-header, footer {
-  background: white;
-}
-
-
-.logo-lockup {
-  width: 175px;
-  height: 60px;
-  @extend %bg-img;
-}
 
 header {
+  background: white;
   padding: 20px 0;
   .header-logo {
-    @extend .logo-lockup;
-    background-image: url("/static/img/header-logo.svg");
+    @extend %bg-img;
+    width: 178px;
+    height: 60px;
+    background-image: url("/static/img/logo-lockup.png");
   }
   .nav-right {
     padding-top: 10px;
@@ -168,9 +161,11 @@ header {
 }
 
 footer {
-  border-top: 1px solid $border;
-  margin-top: 40px;
-  padding: 40px 0;
+  .wrap {
+    border-top: 2px solid $border;
+    margin-top: 40px;
+    padding: 40px 0;
+  }
   .copyright {
     font-size: 12px;
     margin-bottom: 20px;
@@ -186,11 +181,6 @@ footer {
       color: $grey;
       font-weight: bold;
     }
-  }
-  .footer-logo {
-    float: right;
-    @extend .logo-lockup;
-    background-image: url("/static/img/footer-logo.svg");
   }
 }
 
@@ -1040,22 +1030,22 @@ table.contacts-table {
     border: 1px solid;
     border-radius: 3px;
     @extend %bg-img;
-    &.financial {background-image: url(https://s3.amazonaws.com/prime-images/financial-blue.png);}
-    &.facebook {background-image: url(https://s3.amazonaws.com/prime-images/facebook-blue.png);}
-    &.linkedin {background-image: url(https://s3.amazonaws.com/prime-images/linkedin-blue.png);}
-    &.twitter {background-image: url(https://s3.amazonaws.com/prime-images/twitter-blue.png);}
-    &.phone {background-image: url(https://s3.amazonaws.com/prime-images/phone-blue.png)}
-    &.pinterest {background-image: url(https://s3.amazonaws.com/prime-images/pinterest-blue.png);}
-    &.soundcloud {background-image: url(https://s3.amazonaws.com/prime-images/soundcloud-blue.png);}    
-    &.slideshare {background-image: url(https://s3.amazonaws.com/prime-images/slideshare-blue.png);}    
-    &.plus {background-image: url(https://s3.amazonaws.com/prime-images/google-plus-blue.png);}               
-    &.angel {background-image: url(https://s3.amazonaws.com/prime-images/angellist-blue.png);}     
-    &.foursquare {background-image: url(https://s3.amazonaws.com/prime-images/foursquare-blue.png);}       
-    &.github {background-image: url(https://s3.amazonaws.com/prime-images/github-blue.png);}          
-    &.flickr {background-image: url(https://s3.amazonaws.com/prime-images/flickr-blue.png);}                             
-    &.email {background-image: url(https://s3.amazonaws.com/prime-images/email-blue.png);}
-    &.amazon {background-image: url(https://s3.amazonaws.com/prime-images/amazon-blue.png);}
-    &.location {background-image: url(https://s3.amazonaws.com/prime-images/location-blue.png);}
+    &.financial {background-image: url(/static/img/social/financial-blue.png);}
+    &.facebook {background-image: url(/static/img/social/facebook-blue.png);}
+    &.linkedin {background-image: url(/static/img/social/linkedin-blue.png);}
+    &.twitter {background-image: url(/static/img/social/twitter-blue.png);}
+    &.phone {background-image: url(/static/img/social/phone-blue.png)}
+    &.pinterest {background-image: url(/static/img/social/pinterest-blue.png);}
+    &.soundcloud {background-image: url(/static/img/social/soundcloud-blue.png);}    
+    &.slideshare {background-image: url(/static/img/social/slideshare-blue.png);}    
+    &.plus {background-image: url(/static/img/social/google-plus-blue.png);}               
+    &.angel {background-image: url(/static/img/social/angellist-blue.png);}     
+    &.foursquare {background-image: url(/static/img/social/foursquare-blue.png);}       
+    &.github {background-image: url(/static/img/social/github-blue.png);}          
+    &.flickr {background-image: url(/static/img/social/flickr-blue.png);}                             
+    &.email {background-image: url(/static/img/social/email-blue.png);}
+    &.amazon {background-image: url(/static/img/social/amazon-blue.png);}
+    &.location {background-image: url(/static/img/social/location-blue.png);}
   }
 }
 
@@ -1309,7 +1299,7 @@ form.dropzone {
     width: 80px;
     height: 80px;
     margin-left: -40px;
-    background-image: url(/static/img/icon-upload.svg);
+    background-image: url(/static/img/onboarding/icon-upload.svg);
     @extend %bg-img;
   }
   .dz-default.dz-message {
@@ -1379,65 +1369,6 @@ form.dropzone {
 
 }
 
-
-
-
-// $frameZoom: 5.5;
-// $gifZoom: .69;
-
-// .iframe-wrap {
-//   height: 100%; 
-//   width: 100%; 
-//   // padding-bottom: 25%; 
-//   // margin-left: -10%;
-//   overflow: hidden; 
-//   vertical-align: middle;
-// }
-// .iframe-box {
-//   overflow: hidden; 
-//   width: 100%; 
-//   height: 100%;   
-//   position: relative; left: -60px; top: -430px; bottom: -200px;
-//   border:0; 
-//   display:block; 
-//   vertical-align:middle;
-//   -ms-zoom: 1;
-//   -ms-transform: scale(1, $frameZoom);
-//   -moz-transform: scale(1, $frameZoom);
-//   -o-transform: scale(1, $frameZoom);
-//   -webkit-transform: scale(1, $frameZoom);
-//   transform: scale(1, $frameZoom);
-
-//   -ms-transform-origin: 0 0;
-//   -moz-transform-origin: 0 0;
-//   -o-transform-origin: 0 0;
-//   -webkit-transform-origin: 0 0;
-//   transform-origin: 0 0;
-// }
-
-
-// .iframe-upload {
-//   position: absolute;
-//   top: 40%;
-//   left: 50%;
-//   height: 70%;
-//   width: 58%;     
-//   background-size: contain;   
-//   pointer-events: none;          /* THIS IS THE TRICK YOU SEEK */
-//   background: url('/static/img/drag-drop-upload-1.gif') no-repeat 0 0;
-//   -ms-zoom: $gifZoom;
-//   -ms-transform: scale($gifZoom);
-//   -moz-transform: scale($gifZoom);
-//   -o-transform: scale($gifZoom);
-//   -webkit-transform: scale($gifZoom);
-//   transform: scale($gifZoom);
-
-//   -ms-transform-origin: 0 0;
-//   -moz-transform-origin: 0 0;
-//   -o-transform-origin: 0 0;
-//   -webkit-transform-origin: 0 0;
-//   transform-origin: 0 0;  
-// }
 
 // Loading & Spinners ==================================
 

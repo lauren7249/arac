@@ -4,8 +4,6 @@
   <head>
     <title>AdvisorConnect</title>
     <link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">
-    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-    <link href='/static/css/lato.css' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/static/css/jquery-ui.css">
     {% assets "css_all" %}
       <link rel='stylesheet' href="{{ ASSET_URL }}">
@@ -89,6 +87,19 @@
     </dialog> 
 
     {% block content %}{% endblock %}
+    
+    {% block footer %}    
+    <footer>
+      <div class="wrap">        
+        <div class="copyright">&copy; 2016 AdvisorConnect</div>
+        <div class="footer-links">
+          <span><a href="/faq">FAQs</a></span>
+          <span><a href="/terms">Terms</a></span>
+          <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
+        </div>        
+      </div>
+    </footer>
+    {% endblock %}
     </body>
 
     

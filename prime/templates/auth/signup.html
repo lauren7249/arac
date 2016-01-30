@@ -12,9 +12,8 @@
       
     <form class="card" action='' method='POST'>
       <header>
-
-          <div class="header-logo"></div>
-      </header>         
+        <div class="header-logo"></div>
+      </header>
       {% if signup_form.errors %}
       <div class='error'>
         {% for error in signup_form.errors.items() %}
@@ -58,3 +57,4 @@
     {%endif%}
   </div>
 {% endblock %}
+{% block footer %}{% endblock %}
