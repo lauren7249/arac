@@ -3,7 +3,7 @@
 @import url(hint.css);
 @import "compass/css3";
 
-// Variables ==================================
+// Variables, Mixins, & Helpers ==================================
 $black: #16263D;
 $grey: #787B80;
 $background: #EEEEEE;
@@ -29,11 +29,19 @@ $linkedin: #0076B7;
 
 $sans: 'Poppins', sans-serif;
 
-
-.dropzone .dz-preview .dz-error-message {
-    display: none;
+@mixin border-radius($border-radius) {
+  -webkit-border-radius: $border-radius;
+     -moz-border-radius: $border-radius;
+      -ms-border-radius: $border-radius;
+          border-radius: $border-radius;
 }
 
+@mixin background-size($background-size) {
+  -webkit-background-size: $background-size;
+     -moz-background-size: $background-size;
+      -ms-background-size: $background-size;
+          background-size: $background-size;
+}
 
 %centered {
   position: absolute;
@@ -48,10 +56,7 @@ $sans: 'Poppins', sans-serif;
 %bg-img {
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  -webkit-background-size: 100%;
-     -moz-background-size: 100%;
-      -ms-background-size: 100%;
-          background-size: 100%;
+  @include background-size(100%);
 }
 
 %circle-check {
@@ -72,6 +77,10 @@ $sans: 'Poppins', sans-serif;
 
 a {
   color: $black;
+}
+
+.dropzone .dz-preview .dz-error-message {
+    display: none;
 }
 
 // Header & Footer ==================================
@@ -217,7 +226,7 @@ footer {
         a, button {
           border: 2px solid;
           background-color: transparent;
-          border-radius: 100px;
+          @include border-radius(100px);
           display: inline-block;
           height: 40px;
           line-height: 36px;
@@ -287,7 +296,7 @@ table {
   text-align: center;
   padding: 0 10px;
   color: white;
-  border-radius: 2px;
+  @include border-radius(2px);
   border: none;
   box-shadow: inset 0px -1px 0px 2px rgba(0,0,0,0.10);
   &:hover {
@@ -349,7 +358,7 @@ table {
 input[type="checkbox"] {
   background: white;
   border: 1px solid $border;
-  border-radius: 1px;
+  @include border-radius(1px);
 }
 
 
@@ -397,7 +406,7 @@ select {
   background-position: 96% 50%;
   overflow: hidden;
   border: 1px solid $border;
-  border-radius: 4px;
+  @include border-radius(4px);
   height: 40px;
   font-size: 13px;
   -webkit-appearance: none;
@@ -420,7 +429,7 @@ select {
   line-height: 40px;
   font-size: 14px;
   padding: 0 10px;
-  border-radius: 2px;
+  @include border-radius(2px);
   &:active, &:focus {
     outline: none;
     border-color: $black;
@@ -456,7 +465,7 @@ form {
   // text-align: center;
   display: block;
   margin-bottom: 20px;
-  border-radius: 4px;
+  @include border-radius(4px);
   span {
     display: block;
   }
@@ -510,8 +519,10 @@ hr {
   display: block;
   height: 40px;
   width: 40px;
-  background-size: cover;
-  border-radius: 4px;
+  background-repeat: no-repeat;
+  background-position: 50% 50%; 
+  @include background-size(125%);
+  @include border-radius(100px);
 }
 
 .card {
@@ -657,7 +668,7 @@ $padcount: 5;
     display: block;    
     padding: 20px 10px;
     background-color: white;
-    border-radius: 4px;
+    @include border-radius(4px);
     text-align: center;
     h2 {
       color: $teal;
@@ -701,7 +712,7 @@ $padcount: 5;
     text-align: center;
     &.yes {
       @extend %circle-check;
-      background-size: auto;
+      @include background-size(auto);
     }
   }
   .pending {
@@ -782,7 +793,7 @@ $padcount: 5;
       height: 22px;
       line-height: 24px;
       padding: 0 10px;
-      border-radius: 100px;
+      @include border-radius(100px);
     }
   }
   
@@ -840,7 +851,7 @@ $padcount: 5;
     height: 40px;
     line-height: 40px;
     border: 1px solid $border;
-    border-radius: 4px;
+    @include border-radius(4px);
     font-size: 13px;
     &:active, &:focus {
       border-color: darken($border, 10%);
@@ -852,15 +863,14 @@ $padcount: 5;
     top: 1px;
     right: 1px;
     border: none;
-    /* border-left: 1px solid $border; */
     width: 50px;
     height: 40px;
-    border-radius: 0 4px 4px 0;
+    @include border-radius(0 4px 4px 0);
     background: none;
     background-image: url("/static/img/search.png");
     background-repeat: no-repeat;
     background-position: 45% 50%;
-    background-size: 18px;
+    @include background-size(18px);
   }
 }
 
@@ -902,7 +912,7 @@ table.contacts-table {
     img {
       width: 50px;
       height: 50px;
-      border-radius: 4px;
+      @include border-radius(4px);
     }
   }
   .main-info {
@@ -959,14 +969,12 @@ table.contacts-table {
     cursor: pointer;
     display: inline-block;
     font-weight: 600;
-    // border-bottom: 1px dashed $border;
     margin-right: 5px;
     margin-bottom: 5px;
     padding: 0 4px;
-    border-radius: 2px;
     background-color: lighten($blue, 38%);
+    @include border-radius(2px);
     &:hover {
-      // border-bottom: 1px solid;
       background-color: lighten($blue, 28%);
     }
   }
@@ -981,7 +989,7 @@ table.contacts-table {
     margin-right: 10px;
     color: $blue;
     border: 1px solid;
-    border-radius: 3px;
+    @include border-radius(3px);
     @extend %bg-img;
     &.financial {background-image: url("/static/img/social/financial-blue.png");}
     &.facebook {background-image: url("/static/img/social/facebook-blue.png");}
@@ -1062,7 +1070,7 @@ div.pagination {
     display: inline-block;
     display: none;
     padding: 1rem;
-    border-radius: 4px;
+    @include border-radius(4px);
     * {
       display: inline-block;
       vertical-align: middle;
@@ -1103,7 +1111,7 @@ div.pagination {
         line-height: 40px;
         font-size: 16px;
         text-align: center;
-        border-radius: 100%;
+        @include border-radius(100%);
       }
       label {
         margin: 0;
@@ -1225,7 +1233,7 @@ div.pagination {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url("/static/img/onboarding/icon-linkedin.png");
+  background-image: url("/static/img/onboarding/linkedin-icon.png");
   @extend %bg-img;
 }
 
@@ -1241,22 +1249,22 @@ form.dropzone {
   background-color: white;
   text-align: center;
   font-size: normal;
-  padding: 100px 20px 20px;
+  padding: 140px 20px 60px;
   margin: 0;
   color: $grey;
   border: 2px dashed $border;
-  border-radius: 8px;
+  @include border-radius(8px);
   cursor: pointer;
   &:before {
     position: absolute;
-    top: 10px;
+    top: 30px;
     left: 50%;
     content: "";
     display: block;
-    width: 80px;
-    height: 80px;
-    margin-left: -40px;
-    background-image: url("/static/img/onboarding/icon-upload.png");
+    width: 100px;
+    height: 75px;
+    margin-left: -50px;
+    background-image: url("/static/img/onboarding/upload-icon.png");
     @extend %bg-img;
   }
   .dz-default.dz-message {
@@ -1264,10 +1272,15 @@ form.dropzone {
     span {
       font-weight: bold;
       color: $teal;
-      &:after {
-        display: block;
-        content: "Your .csv file here or browse";
+      &:before, &:after {
         text-align: center;
+        display: block;
+      }
+      &:before {
+        content: "Upload Area"
+      }      
+      &:after {
+        content: "Your .csv file here or browse";
       }
     }
   }
@@ -1356,7 +1369,7 @@ div.loading {
   bottom: 50%;
   margin-top: -($spinner / 2);
   margin-left: -($spinner / 2);
-  border-radius: 4px;
+  @include border-radius(4px);
   img {
     width: 100%;
     height: auto;

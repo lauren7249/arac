@@ -2,10 +2,6 @@
 @import url(/static/css/poppins.css);
 @import url(normalize.css);
 @import url(hint.css);
-.dropzone .dz-preview .dz-error-message {
-  display: none;
-}
-
 .signup {
   position: absolute;
   top: 50%;
@@ -38,6 +34,10 @@
 
 a {
   color: #16263D;
+}
+
+.dropzone .dz-preview .dz-error-message {
+  display: none;
 }
 
 header {
@@ -170,6 +170,9 @@ footer .footer-links a {
 .subheader .subnav ul li a, .subheader .subnav ul li button {
   border: 2px solid;
   background-color: transparent;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  -ms-border-radius: 100px;
   border-radius: 100px;
   display: inline-block;
   height: 40px;
@@ -224,6 +227,9 @@ table th {
   text-align: center;
   padding: 0 10px;
   color: white;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
   border-radius: 2px;
   border: none;
   box-shadow: inset 0px -1px 0px 2px rgba(0, 0, 0, 0.1);
@@ -279,6 +285,9 @@ table th {
 input[type="checkbox"] {
   background: white;
   border: 1px solid #DADFE1;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -ms-border-radius: 1px;
   border-radius: 1px;
 }
 
@@ -320,6 +329,9 @@ select {
   background-position: 96% 50%;
   overflow: hidden;
   border: 1px solid #DADFE1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
   height: 40px;
   font-size: 13px;
@@ -345,6 +357,9 @@ input[type="email"] {
   line-height: 40px;
   font-size: 14px;
   padding: 0 10px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
   border-radius: 2px;
 }
 input[type="text"]:active,
@@ -372,6 +387,9 @@ form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
   padding: 10px;
   display: block;
   margin-bottom: 20px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
 }
 .error span, form.dropzone .dz-preview .dz-error-message span, .success span, form.dropzone .dz-preview .dz-success-message span {
@@ -423,8 +441,16 @@ hr {
   display: block;
   height: 40px;
   width: 40px;
-  background-size: cover;
-  border-radius: 4px;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  -webkit-background-size: 125%;
+  -moz-background-size: 125%;
+  -ms-background-size: 125%;
+  background-size: 125%;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  -ms-border-radius: 100px;
+  border-radius: 100px;
 }
 
 .card, .wizard, .onboard-body, .onboard-footer, .note {
@@ -603,6 +629,9 @@ hr {
   display: block;
   padding: 20px 10px;
   background-color: white;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
   text-align: center;
 }
@@ -644,6 +673,9 @@ hr {
   text-align: center;
 }
 .manager-dashboard .completed.yes {
+  -webkit-background-size: auto;
+  -moz-background-size: auto;
+  -ms-background-size: auto;
   background-size: auto;
 }
 .manager-dashboard .pending {
@@ -716,6 +748,9 @@ hr {
   height: 22px;
   line-height: 24px;
   padding: 0 10px;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  -ms-border-radius: 100px;
   border-radius: 100px;
 }
 .potential-markets .market-1 {
@@ -778,6 +813,9 @@ hr {
   height: 40px;
   line-height: 40px;
   border: 1px solid #DADFE1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
   font-size: 13px;
 }
@@ -790,14 +828,19 @@ hr {
   top: 1px;
   right: 1px;
   border: none;
-  /* border-left: 1px solid $border; */
   width: 50px;
   height: 40px;
+  -webkit-border-radius: 0 4px 4px 0;
+  -moz-border-radius: 0 4px 4px 0;
+  -ms-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
   background: none;
   background-image: url("/static/img/search.png");
   background-repeat: no-repeat;
   background-position: 45% 50%;
+  -webkit-background-size: 18px;
+  -moz-background-size: 18px;
+  -ms-background-size: 18px;
   background-size: 18px;
 }
 
@@ -833,6 +876,9 @@ table.contacts-table .contact-buttons .button {
 .contact-info .pic img {
   width: 50px;
   height: 50px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
 }
 .contact-info .main-info {
@@ -891,8 +937,11 @@ table.contacts-table .contact-buttons .button {
   margin-right: 5px;
   margin-bottom: 5px;
   padding: 0 4px;
-  border-radius: 2px;
   background-color: #dff4fd;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  border-radius: 2px;
 }
 .tags span:hover {
   background-color: #afe3fb;
@@ -908,6 +957,9 @@ table.contacts-table .contact-buttons .button {
   margin-right: 10px;
   color: #27B4F4;
   border: 1px solid;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
   border-radius: 3px;
 }
 .contact-links a.financial {
@@ -1008,6 +1060,9 @@ div.pagination a.active {
   display: inline-block;
   display: none;
   padding: 1rem;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
 }
 .onboard-header .contact-count * {
@@ -1048,6 +1103,9 @@ div.pagination a.active {
   line-height: 40px;
   font-size: 16px;
   text-align: center;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
   border-radius: 100%;
 }
 .wizard ol li label {
@@ -1154,7 +1212,7 @@ div.pagination a.active {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url("/static/img/onboarding/icon-linkedin.png");
+  background-image: url("/static/img/onboarding/linkedin-icon.png");
 }
 
 .onboard-signin {
@@ -1169,23 +1227,26 @@ form.dropzone {
   background-color: white;
   text-align: center;
   font-size: normal;
-  padding: 100px 20px 20px;
+  padding: 140px 20px 60px;
   margin: 0;
   color: #787B80;
   border: 2px dashed #DADFE1;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
   border-radius: 8px;
   cursor: pointer;
 }
 form.dropzone:before {
   position: absolute;
-  top: 10px;
+  top: 30px;
   left: 50%;
   content: "";
   display: block;
-  width: 80px;
-  height: 80px;
-  margin-left: -40px;
-  background-image: url("/static/img/onboarding/icon-upload.png");
+  width: 100px;
+  height: 75px;
+  margin-left: -50px;
+  background-image: url("/static/img/onboarding/upload-icon.png");
 }
 form.dropzone .dz-default.dz-message {
   text-align: center;
@@ -1194,10 +1255,15 @@ form.dropzone .dz-default.dz-message span {
   font-weight: bold;
   color: #02C2B9;
 }
-form.dropzone .dz-default.dz-message span:after {
-  display: block;
-  content: "Your .csv file here or browse";
+form.dropzone .dz-default.dz-message span:before, form.dropzone .dz-default.dz-message span:after {
   text-align: center;
+  display: block;
+}
+form.dropzone .dz-default.dz-message span:before {
+  content: "Upload Area";
+}
+form.dropzone .dz-default.dz-message span:after {
+  content: "Your .csv file here or browse";
 }
 form.dropzone .dz-preview {
   border-top: 1px solid #DADFE1;
@@ -1251,6 +1317,9 @@ div.loading img {
   bottom: 50%;
   margin-top: -150px;
   margin-left: -150px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
 }
 .waiting.modal img {
@@ -1279,8 +1348,9 @@ div.overlay {
   width: 600px;
   background: #fff;
   display: none;
-  -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
   border-radius: 4px;
   border: 1px solid #000;
   margin: 20px auto;
