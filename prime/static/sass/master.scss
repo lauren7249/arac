@@ -694,6 +694,7 @@ $padcount: 5;
     font-weight: 600;
   }
   td.agent {
+    width: 300px;
     span {
       display: inline-block;
       vertical-align: middle;
@@ -701,8 +702,13 @@ $padcount: 5;
       font-weight: bold;
     }
     .email {
-      font-size: 10px;
       display: block;
+      font-size: 10px;
+      font-weight: 600;
+      display: block;
+      width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .face {
       margin-right: 10px;
@@ -1249,7 +1255,7 @@ form.dropzone {
   background-color: white;
   text-align: center;
   font-size: normal;
-  padding: 140px 20px 60px;
+  padding: 120px 20px 60px;
   margin: 0;
   color: $grey;
   border: 2px dashed $border;
@@ -1270,17 +1276,19 @@ form.dropzone {
   .dz-default.dz-message {
     text-align: center;
     span {
-      font-weight: bold;
+      font-size: 20px;
       color: $teal;
       &:before, &:after {
         text-align: center;
         display: block;
+        font-size: 15px;
+        margin: 10px 0;
       }
       &:before {
         content: "Upload Area"
       }      
       &:after {
-        content: "Your .csv file here or browse";
+        content: "Or click here to upload your file";
       }
     }
   }
