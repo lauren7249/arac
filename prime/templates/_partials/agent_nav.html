@@ -11,48 +11,48 @@
       {%if current_user.user_id != agent.user_id and agent.prospect %}
         <div class="contact-links">
           {% if agent.prospect.facebook %}
-            <a href="{{ agent.prospect.facebook }}"  target="_blank" class="facebook" data-tooltip="{{ agent.prospect.facebook }}"></a>
+            <a href="{{ agent.prospect.facebook }}"  target="_blank" class="facebook hint--top" data-hint="{{ agent.prospect.facebook }}"></a>
           {% endif %}
           {% if agent.prospect.linkedin %}
-            <a href="{{ agent.prospect.linkedin }}"  target="_blank" class="linkedin" data-tooltip="{{ agent.prospect.linkedin }}"></a>
+            <a href="{{ agent.prospect.linkedin }}"  target="_blank" class="linkedin hint--top" data-hint="{{ agent.prospect.linkedin }}"></a>
           {% else %}
-            <a href="{{ agent.prospect.linkedin_url }}"  target="_blank" class="linkedin" data-tooltip="{{ agent.prospect.linkedin_url }}"></a>
+            <a href="{{ agent.prospect.linkedin_url }}"  target="_blank" class="linkedin hint--top" data-hint="{{ agent.prospect.linkedin_url }}"></a>
           {% endif %}
           {% if agent.prospect.twitter %}
-            <a href="{{ agent.prospect.twitter }}"  target="_blank" class="twitter" data-tooltip="{{ agent.prospect.twitter }}"></a>
+            <a href="{{ agent.prospect.twitter }}"  target="_blank" class="twitter hint--top" data-hint="{{ agent.prospect.twitter }}"></a>
           {% endif %}
           {% if agent.prospect.pinterest %}
-            <a href="{{ agent.prospect.pinterest }}"  target="_blank" class="pinterest"  data-tooltip="{{ agent.prospect.pinterest }}"></a>
+            <a href="{{ agent.prospect.pinterest }}"  target="_blank" class="pinterest" hint--top  data-hint="{{ agent.prospect.pinterest }}"></a>
           {% endif %}
           {% if agent.prospect.amazon %}
-            <a href="{{ agent.prospect.amazon }}"  target="_blank" class="amazon" data-tooltip="{{ agent.prospect.amazon }}"></a>
+            <a href="{{ agent.prospect.amazon }}"  target="_blank" class="amazon hint--top" data-hint="{{ agent.prospect.amazon }}"></a>
           {% endif %}
           {% if agent.prospect.soundcloud %}
-            <a href="{{ agent.prospect.soundcloud }}"  target="_blank" class="soundcloud" data-tooltip="{{ agent.prospect.soundcloud }}"></a>
+            <a href="{{ agent.prospect.soundcloud }}"  target="_blank" class="soundcloud hint--top" data-hint="{{ agent.prospect.soundcloud }}"></a>
           {% endif %}         
           {% if agent.prospect.slideshare %}
-            <a href="{{ agent.prospect.slideshare }}"  target="_blank" class="slideshare" data-tooltip="{{ agent.prospect.slideshare }}"></a>
+            <a href="{{ agent.prospect.slideshare }}"  target="_blank" class="slideshare hint--top" data-hint="{{ agent.prospect.slideshare }}"></a>
           {% endif %}    
           {% if agent.prospect.plus %}
-            <a href="{{ agent.prospect.plus }}"  target="_blank" class="plus" data-tooltip="{{ agent.prospect.plus }}"></a>
+            <a href="{{ agent.prospect.plus }}"  target="_blank" class="plus hint--top" data-hint="{{ agent.prospect.plus }}"></a>
           {% endif %}          
           {% if agent.prospect.angel %}
-            <a href="{{ agent.prospect.angel }}"  target="_blank" class="angel" data-tooltip="{{ agent.prospect.angel }}"></a>
+            <a href="{{ agent.prospect.angel }}"  target="_blank" class="angel hint--top" data-hint="{{ agent.prospect.angel }}"></a>
           {% endif %}         
           {% if agent.prospect.foursquare %}
-            <a href="{{ agent.prospect.foursquare }}"  target="_blank" class="foursquare" data-tooltip="{{ agent.prospect.foursquare }}"></a>
+            <a href="{{ agent.prospect.foursquare }}"  target="_blank" class="foursquare hint--top" data-hint="{{ agent.prospect.foursquare }}"></a>
           {% endif %}      
           {% if agent.prospect.github %}
-            <a href="{{ agent.prospect.github }}"  target="_blank" class="github" data-tooltip="{{ agent.prospect.github }}"></a>
+            <a href="{{ agent.prospect.github }}"  target="_blank" class="github hint--top" data-hint="{{ agent.prospect.github }}"></a>
           {% endif %}       
           {% if agent.prospect.flickr %}
-            <a href="{{ agent.prospect.flickr }}"  target="_blank" class="flickr" data-tooltip="{{ agent.prospect.flickr }}"></a>
+            <a href="{{ agent.prospect.flickr }}"  target="_blank" class="flickr hint--top" data-hint="{{ agent.prospect.flickr }}"></a>
           {% endif %}                                                                                
           {% if agent.prospect.emails %}
-            <a href="{{agent.prospect.mailto}}" target="_blank" class="email" data-tooltip="{{ agent.prospect.emails }}"></a>
+            <a href="{{agent.prospect.mailto}}" target="_blank" class="email hint--top" data-hint="{{ agent.prospect.emails }}"></a>
           {% endif %}
           {% if agent.prospect.linkedin_location_raw %}
-            <a href="http://maps.google.com/?q={{ agent.prospect.linkedin_location_raw }}" data-tooltip="{{ agent.prospect.linkedin_location_raw }}" class="location" target="_blank" ></a>
+            <a href="http://maps.google.com/?q={{ agent.prospect.linkedin_location_raw }} hint--top" data-hint="{{ agent.prospect.linkedin_location_raw }}" class="location" target="_blank" ></a>
           {% endif %}
         </div>
       {%endif%}

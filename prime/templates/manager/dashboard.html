@@ -83,12 +83,12 @@
       <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
                     <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
                   {% elif agent.unique_contacts_uploaded > 0 %}
-                    <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
+                    <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>
                   {% else %}
                     {% if agent.account_created %}
-                      <span class='pending' data-tooltip='Account created, no contacts uploaded yet'>Pending</span>   
+                      <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
                     {% else %}
-                      <span class='pending' data-tooltip='Invite sent, response pending'>Requested</span>
+                      <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
                     {% endif %}      
                   {% endif %}
                 </td>              
@@ -123,12 +123,12 @@
                   {% if agent.hiring_screen_completed %}
                     <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
                   {% elif agent.unique_contacts_uploaded > 0 %}
-                    <span class='pending' data-tooltip='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
+                    <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
                   {% else %}
                     {% if agent.account_created %}
-                      <span class='pending' data-tooltip='Account created, no contacts uploaded yet'>Pending</span>   
+                      <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
                     {% else %}
-                      <span class='pending' data-tooltip='Invite sent, response pending'>Requested</span>
+                      <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
                     {% endif %}      
                   {% endif %}
                 </td>  
@@ -136,12 +136,12 @@
                   {%if agent.p200_submitted_to_manager %}
                     <a target='_self' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
                   {% elif agent.p200_completed %}
-                    <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='Network connections available, pending agent P200 submission.'>Pending</span> 
+                    <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections available, pending agent P200 submission.'>Pending</span> 
                   {% elif agent.p200_started %}
-                    <span class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
+                    <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
                   {% elif agent.hiring_screen_completed  %}               <!-- -->
-                    <button data-tooltip='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small'>Request</button>    
-                    <span style="display:none;" class='pending' id='{{ agent.user_id }}_p200_pending' data-tooltip='P200 is running and will be available within 24 hours.'>In Progress</span>                 
+                    <button data-hint='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small hint--top'>Request</button>    
+                    <span style="display:none;" class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='P200 is running and will be available within 24 hours.'>In Progress</span>                 
                   {% endif %}
                 </td>                              
               </tr>

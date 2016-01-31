@@ -18,7 +18,7 @@
               <li><a href="{% if not current_user.is_manager %}/p200{%else%}/managers/p200/{{ agent.user_id }}{%endif%}" class="{% if active == 'p200' %}selected{% endif %}">View Project 200</a></li>
             {%endif%}
           {% elif not agent.p200_completed and not agent.p200_started and current_user.is_manager %} 
-            <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}' class='selected'>Request P200</button></li>
+            <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}'>Request P200</button></li>
           {% endif %}                       
         </ul>
       </div>

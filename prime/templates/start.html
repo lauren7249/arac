@@ -247,7 +247,7 @@
     }
 
   </script>
-  <div class="section onboarding" id="mainDiv">
+  <div class="wrap section onboarding" id="mainDiv">
       <!-- Onboard Step 1-->
     <div class="onboard" id="step-1">
       <div class="wizard">
@@ -278,24 +278,24 @@
             </div>
           </div>
           <div class="col-6">
-            <div id='gmail-area' class="connect-email" data-tooltip="Click here to sign in to Gmail and add contacts from your email accounts. You can connect more than one Gmail account by clicking this button more than once." >
+            <div id='gmail-area' class="connect-email">
               <img id='gmail' type="Submit" src="/static/img/gmail-40.png"/>
-              <div class="button teal small">Add Gmail Account</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to Gmail and add contacts from your email accounts. You can connect more than one Gmail account by clicking this button more than once.">Add Gmail Account</div>
               <div class='connected_area'></div>                  
             </div>
-            <div id='yahoo-area' data-tooltip="Click here to sign in to Yahoo and add contacts from your email accounts. You can connect more than one Yahoo account by clicking this button more than once." class="connect-email">
+            <div id='yahoo-area' class="connect-email">
               <img id='yahoo' type="Submit" src="/static/img/yahoo-mail-40.png"/>
-              <div class="button teal small">Add Yahoo! Account</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to Yahoo and add contacts from your email accounts. You can connect more than one Yahoo account by clicking this button more than once.">Add Yahoo! Account</div>
               <div class='connected_area'></div>
             </div>
-            <div id='windowslive-area' data-tooltip="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once." class="connect-email">
+            <div id='windowslive-area' class="connect-email">
               <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
-              <div class="button teal small">Add Windows Live Account</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live Account</div>
               <div class='connected_area'></div>
             </div>
-            <div id='aol-area' data-tooltip="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once." class="connect-email">
+            <div id='aol-area' class="connect-email">
               <img id='aol'  type="Submit" src="/static/img/aol-40.png"/>
-              <div class="button teal small">Add AOL Account</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once.">Add AOL Account</div>
               <div class='connected_area'></div>
             </div>              
           </div>
@@ -344,7 +344,7 @@
             </div>
             <div class="col-5">
               <div class="onboard-signin">
-                <div id="li_button" data-tooltip="Click here to sign in to LinkedIn" type="in/Login" class="button linkedin large fluid"><span>Sign In With LinkedIn</span></div>
+                <div id="li_button" data-hint="Click here to sign in to LinkedIn" type="in/Login" class="hint--top button linkedin large fluid"><span>Sign In With LinkedIn</span></div>
                 <div class="text-center">
                   <small>Don’t have LinkedIn? <a href="javascript:skip_linkedin();">Click Here</a></small>
                 </div>
@@ -384,10 +384,10 @@
                     <li id="step1" style="font-weight: bolder">
                       {%if newWindow == 'false' %}
 
-                        Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-tooltip="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="button linkedin fluid small"> <span>Go to LinkedIn</span></button>
-                        <p data-tooltip="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p>
+                        Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button>
+                        <p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p>
                       {%else%}
-                        Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." To do so, enter the characters shown in the picture and click Continue. <button id="export_linkedin" data-tooltip="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="button linkedin fluid small"> <span>Go to LinkedIn</span></button><small>The popup will then automatically redirect to the "Export LinkedIn Connections" page. <i>Note: you do not need to change any settings.</i></small>
+                        Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." To do so, enter the characters shown in the picture and click Continue. <button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button><small>The popup will then automatically redirect to the "Export LinkedIn Connections" page. <i>Note: you do not need to change any settings.</i></small>
                       {%endif%}
                     </li>
                     <br/>
@@ -399,9 +399,9 @@
                   <br/>            
                 </div>                 
               </div>              
-              <div class="col-5">
+              <div class="col-6">
                 <div class="dropzone-previews" id="previewsContainer" style="display:none"></div>
-                <div class="get-contacts"  data-tooltip="Can't find the file? Click here and navigate to your Downloads folder and select the file linkedin_connections_export_microsoft_outlook.csv">
+                <div class="get-contacts hint--top" data-hint="Can't find the file? Click here and navigate to your Downloads folder and select the file linkedin_connections_export_microsoft_outlook.csv">
                   <form action="/upload_csv" method="post"  class="dropzone needsclick dz-clickable dz-started" id="linkedInImport"></form>
                 </div>
               </div>
@@ -434,16 +434,12 @@
           </ol>
         </div>
         <div class="onboard-body">
-          <div class="wrap">
-            <div class="col-6">
-              <div class="note">
-                <h2>Congratulations!</h2>
-                <p>You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</p>
-                <p>We will email you when your Network Summary is complete.</p>
-              </div>
+          <div class="wrap">            
+            <div class="note text-center">
+              <h1>Congratulations!</h1>
+              <h3 class="text-teal">You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</h3>
+              <p>We will email you when your Network Summary is complete.</p>
             </div>
-            <div class="col-5">
-            </div>            
           </div>
         </div>
       </div>

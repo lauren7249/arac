@@ -1,5 +1,6 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:400,500,600,700);
+@import url(/static/css/poppins.css);
 @import url(normalize.css);
+@import url(hint.min.css);
 @import "compass/css3";
 
 // Variables ==================================
@@ -183,7 +184,6 @@ footer {
     }
   }
 }
-
 .subheader {
   background: $blue;
   margin-bottom: 40px;
@@ -214,23 +214,9 @@ footer {
         padding: 0;
         display: inline-block;
         margin-left: 10px;
-        a {
+        a, button {
           border: 2px solid;
-          border-radius: 100px;
-          display: inline-block;
-          height: 40px;
-          line-height: 36px;
-          padding: 0 20px;
-          text-decoration: none;
-          color: white;
-          &.selected {
-            background-color: white;
-            border-color: white;
-            color: $black;
-          }
-        }
-        button {
-          border: 2px solid;
+          background-color: transparent;
           border-radius: 100px;
           display: inline-block;
           height: 40px;
@@ -369,59 +355,20 @@ input[type="checkbox"] {
 
 
 // Tooltips ==================================
-[data-tooltip] {
-  position: relative;
-  z-index: 2;
-  cursor: pointer;
-}
 
-[data-tooltip]:before,
-[data-tooltip]:after {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-[data-tooltip]:before {
-  position: absolute;
-  bottom: 150%;
-  left: 50%;
-  margin-bottom: 5px;
-  margin-left: -80px;
-  padding: 7px;
-  white-space: pre-line;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  background-color: $black;
-  background-color: rgba($black, 0.95);
-  color: white;
-  content: attr(data-tooltip);
-  text-align: center;
+[data-hint]:after {
+  background: $black;  
   font-size: 12px;
-  line-height: 1.2;
-  box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.10);
+  font-weight: normal;
+  line-height: 16px;
+  white-space: normal;
+  min-width: 100px;
+  text-transform: initial;
+  text-align: center;
 }
 
-[data-tooltip]:after {
-  position: absolute;
-  bottom: 150%;
-  left: 50%;
-  margin-left: -5px;
-  width: 0;
-  border-top: 5px solid $black;
-  border-top: 5px solid rgba($black, 0.95);
-  border-right: 5px solid transparent;
-  border-left: 5px solid transparent;
-  content: " ";
-  font-size: 0;
-  line-height: 0;
-}
-
-[data-tooltip]:hover:before,
-[data-tooltip]:hover:after {
-  visibility: visible;
-  opacity: 1;
+.hint--big:after {
+  width: 200px;
 }
 
 
@@ -452,6 +399,7 @@ select {
   border: 1px solid $border;
   border-radius: 4px;
   height: 40px;
+  font-size: 13px;
   -webkit-appearance: none;
      -moz-appearance: none;
       -ms-appearance: none;
@@ -617,7 +565,7 @@ hr {
 
 .wrap {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   @extend %clearfix;
 }
@@ -778,8 +726,12 @@ $padcount: 5;
     vertical-align: middle;
   }
   .pic {
-    width: 80px;
+    width: 100px;
     padding-right: 20px;
+    img {
+      width: 100px;
+      height: 100px;
+    }
   }
   .name {
     display: inline-block;
@@ -792,18 +744,18 @@ $padcount: 5;
   }
 }
 
-.network-breakdown, .qualified-contacts {
-   width: 100%;
+.network-breakdown, 
+.qualified-contacts {
+  width: 100%;
   display: inline-block;
   text-align: center;
-
+  margin: 20px 0 40px;
   canvas {
-    margin: 0 10px 0;
+    margin: 0 10px;
   }
-
   h4 {
-    width: 40%;
-    margin: 5px;
+    width: 200px;
+    margin: 0 10px;
     vertical-align: top;
     display: inline-block;
   }
@@ -889,6 +841,7 @@ $padcount: 5;
     line-height: 40px;
     border: 1px solid $border;
     border-radius: 4px;
+    font-size: 13px;
     &:active, &:focus {
       border-color: darken($border, 10%);
       outline: none;
@@ -1030,22 +983,22 @@ table.contacts-table {
     border: 1px solid;
     border-radius: 3px;
     @extend %bg-img;
-    &.financial {background-image: url(/static/img/social/financial-blue.png);}
-    &.facebook {background-image: url(/static/img/social/facebook-blue.png);}
-    &.linkedin {background-image: url(/static/img/social/linkedin-blue.png);}
-    &.twitter {background-image: url(/static/img/social/twitter-blue.png);}
-    &.phone {background-image: url(/static/img/social/phone-blue.png)}
-    &.pinterest {background-image: url(/static/img/social/pinterest-blue.png);}
-    &.soundcloud {background-image: url(/static/img/social/soundcloud-blue.png);}    
-    &.slideshare {background-image: url(/static/img/social/slideshare-blue.png);}    
-    &.plus {background-image: url(/static/img/social/google-plus-blue.png);}               
-    &.angel {background-image: url(/static/img/social/angellist-blue.png);}     
-    &.foursquare {background-image: url(/static/img/social/foursquare-blue.png);}       
-    &.github {background-image: url(/static/img/social/github-blue.png);}          
-    &.flickr {background-image: url(/static/img/social/flickr-blue.png);}                             
-    &.email {background-image: url(/static/img/social/email-blue.png);}
-    &.amazon {background-image: url(/static/img/social/amazon-blue.png);}
-    &.location {background-image: url(/static/img/social/location-blue.png);}
+    &.financial {background-image: url("/static/img/social/financial-blue.png");}
+    &.facebook {background-image: url("/static/img/social/facebook-blue.png");}
+    &.linkedin {background-image: url("/static/img/social/linkedin-blue.png");}
+    &.twitter {background-image: url("/static/img/social/twitter-blue.png");}
+    &.phone {background-image: url("/static/img/social/phone-blue.png")}
+    &.pinterest {background-image: url("/static/img/social/pinterest-blue.png");}
+    &.soundcloud {background-image: url("/static/img/social/soundcloud-blue.png");}    
+    &.slideshare {background-image: url("/static/img/social/slideshare-blue.png");}    
+    &.plus {background-image: url("/static/img/social/google-plus-blue.png");}               
+    &.angel {background-image: url("/static/img/social/angellist-blue.png");}     
+    &.foursquare {background-image: url("/static/img/social/foursquare-blue.png");}       
+    &.github {background-image: url("/static/img/social/github-blue.png");}          
+    &.flickr {background-image: url("/static/img/social/flickr-blue.png");}                             
+    &.email {background-image: url("/static/img/social/email-blue.png");}
+    &.amazon {background-image: url("/static/img/social/amazon-blue.png");}
+    &.location {background-image: url("/static/img/social/location-blue.png");}
   }
 }
 
@@ -1227,8 +1180,8 @@ div.pagination {
   }
 }
 
-.get-contacts {
-  margin-top: 2rem;
+.get-contacts {  
+  width: 100%;
 }
 
 .connect-email {
@@ -1272,7 +1225,7 @@ div.pagination {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url(/static/img/onboarding/icon-linkedin.svg);
+  background-image: url("/static/img/onboarding/icon-linkedin.svg");
   @extend %bg-img;
 }
 
@@ -1289,26 +1242,11 @@ form.dropzone {
   text-align: center;
   font-size: normal;
   padding: 100px 20px 20px;
-  margin-top: 200px;
+  margin: 0;
   color: $grey;
   border: 2px dashed $border;
   border-radius: 8px;
   cursor: pointer;
-/* simple css-based tooltip */
-  .tooltip {
-      background-color:#000;
-      border:1px solid #fff;
-      padding:10px 15px;
-      width:200px;
-      display:none;
-      color:#fff;
-      text-align:left;
-      font-size:12px;
-   
-      /* outline radius for mozilla/firefox only */
-      -moz-box-shadow:0 0 10px #000;
-      -webkit-box-shadow:0 0 10px #000;
-  }  
   &:before {
     position: absolute;
     top: 10px;
@@ -1318,7 +1256,7 @@ form.dropzone {
     width: 80px;
     height: 80px;
     margin-left: -40px;
-    background-image: url(/static/img/onboarding/icon-upload.svg);
+    background-image: url("/static/img/onboarding/icon-upload.svg");
     @extend %bg-img;
   }
   .dz-default.dz-message {
@@ -1326,15 +1264,9 @@ form.dropzone {
     span {
       font-weight: bold;
       color: $teal;
-      content: "";
-      &:before {
-        display: block;
-        content: "";
-        text-align: center;
-      }      
       &:after {
         display: block;
-        content: "";
+        content: "Your .csv file here or browse";
         text-align: center;
       }
     }
@@ -1397,7 +1329,7 @@ form.dropzone {
 
 // Loading & Spinners ==================================
 
-$spinner: 200px;
+$spinner: 300px;
 
 div.loading {
   position: absolute;
@@ -1434,6 +1366,52 @@ div.loading {
 
 dialog {
   border: none; 
+}
+
+div.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  display: none;
+}
+
+.modal {
+  background: #fff;
+  width: 600px;
+  background: #fff;
+  display: none;
+  @include border-radius(4px);
+  border: 1px solid #000;
+  margin: 20px auto;
+  position: relative;
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  ol {
+    li {
+      font-size: 25px;
+      font-weight: 100;
+      padding: 10px;
+      text-transform: uppercase;
+
+      a {
+        color: #222;
+        text-decoration: none;
+
+        i {
+          margin-right: 15px;
+          color: #0182C6;
+        }
+      }
+    }
+  }
 }
 
 

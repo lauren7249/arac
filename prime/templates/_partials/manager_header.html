@@ -9,7 +9,7 @@
       <div class="subnav">     
         <ul id="active_cell">   
           {% if active != "dashboard" and active != "invite" %}
-            <li data-tooltip="Invite a prospective agent to complete a network summary by uploading their contacts"><a href="/managers/invite">Request Hiring Screen</a></li>
+            <li class="hint--bottom" data-hint="Invite a prospective agent to complete a network summary by uploading their contacts"><a href="/managers/invite">Request Hiring Screen</a></li>
           {% endif %}       
           {% if active == "dashboard" and agent is not none and agent.p200_completed != true and agent.p200_started != true %} <!--  -->
             <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}' class="selected">Request P200</button></li>
