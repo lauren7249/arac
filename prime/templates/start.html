@@ -499,9 +499,7 @@
                         contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
                  
                     }
-                    var response_string = contacts.length.toLocaleString();
-
-                    response_string = response_string + " from " + contacts_owner.email[0].address;
+                    var response_string = "Added " + contacts.length.toLocaleString() + " contacts from " + contacts_owner.email[0].address;
                     $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
                     $(".final-contact-count").html(contacts_array.length.toLocaleString())
                     $(".contact-count").show();
