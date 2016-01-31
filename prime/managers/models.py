@@ -57,6 +57,7 @@ class ManagerProfile(db.Model, UserMixin):
     phone = db.Column(String(30))
     created = db.Column(Date, default=datetime.datetime.today())
 
+    
     @property 
     def invitations_sent(self):
         return int(self.users.count())
@@ -112,3 +113,8 @@ class ManagerProfile(db.Model, UserMixin):
         return 'Manager: {} {} ({})'.format(self.user.first_name,
                 self.user.last_name, self.user.user_id)
 
+    @property
+    def image(self):
+        if self.main_profile_image:
+            return self.main_profile_image
+        return "/static/img/shadow-avatar.png"
