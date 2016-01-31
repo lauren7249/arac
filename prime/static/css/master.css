@@ -1,7 +1,7 @@
 @charset "UTF-8";
 @import url(/static/css/poppins.css);
 @import url(normalize.css);
-@import url(hint.min.css);
+@import url(hint.css);
 .dropzone .dz-preview .dz-error-message {
   display: none;
 }
@@ -26,7 +26,7 @@
 }
 
 .manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before {
-  background-image: url("/static/img/circle-check.svg");
+  background-image: url("/static/img/circle-check.png");
 }
 
 .caps, .subheader .back-link, .tabset li, .form-group label {
@@ -147,7 +147,7 @@ footer .footer-links a {
 }
 .subheader .back-link:before {
   content: "";
-  background-image: url("/static/img/back.svg");
+  background-image: url("/static/img/back-arrow.png");
   height: 10px;
   width: 10px;
   margin-right: 10px;
@@ -315,7 +315,7 @@ input[type="checkbox"] {
 
 select {
   background-color: white;
-  background-image: url("/static/img/select-arrow.svg");
+  background-image: url("/static/img/select-arrow.png");
   background-repeat: no-repeat;
   background-position: 96% 50%;
   overflow: hidden;
@@ -1154,7 +1154,7 @@ div.pagination a.active {
   width: 1rem;
   height: 1rem;
   margin-right: 1rem;
-  background-image: url("/static/img/onboarding/icon-linkedin.svg");
+  background-image: url("/static/img/onboarding/icon-linkedin.png");
 }
 
 .onboard-signin {
@@ -1185,7 +1185,7 @@ form.dropzone:before {
   width: 80px;
   height: 80px;
   margin-left: -40px;
-  background-image: url("/static/img/onboarding/icon-upload.svg");
+  background-image: url("/static/img/onboarding/icon-upload.png");
 }
 form.dropzone .dz-default.dz-message {
   text-align: center;
