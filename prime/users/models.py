@@ -50,7 +50,6 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
     customer = relationship('Customer', foreign_keys='User.customer_id')
-
     manager_id = db.Column(Integer, index=True)
 
     linkedin_id = db.Column(String(1024))

@@ -15,34 +15,19 @@ if __name__ == '__main__':
     manager = Manager(app)
 
     @manager.command
-    def generate_fake():
-        from prime.users.models import db, User
-        from prime.managers.models import ManagerProfile
-        session = db.session
-        u = User('Test', 'Person', 'jamesjohnson11@gmail.com', '123123123')
-        session.add(u)
-        u2 = User('Test', 'Manager', 'laurentracytalbot@gmail.com', '123123123')
-        session.add(u2)
-        mp = ManagerProfile()
-        mp.user = u2
-        mp.users.append(u)
-        session.add(mp)
-        session.commit()
-
-    @manager.command
     def add_manager(first_name, last_name, email, password, json_data):
         from prime.users.models import db, User
         from prime.managers.models import ManagerProfile
-        session = db.session
-        u2 = User(first_name, last_name, email, password)
-        session.add(u2)
         json_data = json.loads(json_data)
-        mp = ManagerProfile()
-        mp.user = u2
-        mp.name_suffix = json_data.get("name_suffix")
-        mp.certifications = json_data.get("certifications")
         mp.address = json_data.get("address")
-        mp.phone = json_data.get("phone")
+        mp.name_suffix = json_data.get("name_suffix")
+        mp.certifications = json_data.get("certifications")      
+        mp.phone = json_data.get("phone")  
+        mp = ManagerProfile()        
+        session = db.session
+        user = User(first_name, last_name, email, password)
+        session.add(user)
+        mp.user = user
         session.add(mp)
         session.commit()
 

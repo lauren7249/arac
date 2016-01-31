@@ -53,9 +53,10 @@ class ManagerProfile(db.Model, UserMixin):
 
     name_suffix = db.Column(String(500))
     certifications = db.Column(String(500))
-    address = db.Column(String(1000))
+    address = db.Column(String(1000), nullable=False)
     phone = db.Column(String(30))
     created = db.Column(Date, default=datetime.datetime.today())
+
 
     @property 
     def invitations_sent(self):
