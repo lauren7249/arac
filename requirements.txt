@@ -85,3 +85,4 @@ webassets==0.11.1
 wsgiref==0.1.2
 nameko==2.2.0
 pdfkit==0.5.0
+cssmin
