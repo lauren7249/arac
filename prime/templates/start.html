@@ -94,7 +94,7 @@
       var timer = setInterval(function() {
           if(downloadWindow.closed) {
               clearInterval(timer);      
-              $("#step3").html("Click on the Upload Area to the right and select the file <i>linkedin_connections_export_microsoft_outlook.csv</i> from your Downloads folder.")            
+              $("#step3").html("Click on the Upload Area to the right and select the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from your Downloads folder.")            
               $(".overlay").fadeOut();
               //document.getElementById("step2").style = "font-weight: lighter"
               document.getElementById("step3").style =  "font-weight: bolder"
@@ -104,7 +104,7 @@
             $(document).click(function(){
                 $(document).off( "click")
                 clearInterval(timer);      
-                $("#step3").html("Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i> from the bottom of your browser window into the Upload Area on the right.")            
+                $("#step3").html("Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of your browser window into the Upload Area on the right.")            
                 $(".overlay").fadeOut();
                 //document.getElementById("step2").style = "font-weight: lighter"
                 document.getElementById("step3").style =  "font-weight: bolder"
@@ -391,7 +391,7 @@
                       {%endif%}
                     </li>
                     <br/>
-                    <li  id="step3">Drag and drop the file <i>linkedin_connections_export_microsoft_outlook.csv</i>. from the bottom of your browser window into the Upload Area on the right.
+                    <li  id="step3">Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of your browser window into the Upload Area on the right.
                     </li>
                   </ol>
                 </div>
