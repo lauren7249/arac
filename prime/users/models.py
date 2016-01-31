@@ -95,6 +95,12 @@ class User(db.Model, UserMixin):
     def hired(self):
         return self.p200_started or self.p200_completed or self.p200_submitted_to_manager or self.p200_approved        
         
+    @property 
+    def location(self):
+        if self.is_manager:
+            return self.manager_profile[0].address_2
+        return self.manager.address_2
+        
     @property
     def status(self):
         if self.p200_completed:

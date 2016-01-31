@@ -85,11 +85,11 @@ class ManagerProfile(db.Model, UserMixin):
 
     @property 
     def address_1(self):
-        return self.address.split("\\n")[0]
+        return self.address.split("\n")[0]
 
     @property 
     def address_2(self):
-        return self.address.split("\\n")[-1]
+        return self.address.split("\n")[-1]
 
     @property 
     def html_signature(self):

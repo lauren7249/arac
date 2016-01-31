@@ -32,15 +32,13 @@ if __name__ == '__main__':
         session.commit()
 
     @manager.command
-    def add_user(first_name, last_name, email, password, location, url, manager_id):
+    def add_user(first_name, last_name, email, password, manager_id):
         from prime.users.models import db, User
         session = db.session
         u = User.query.filter_by(email=email).first()
         if not u:
             u = User(first_name, last_name, email, password)
         u.manager_id = int(manager_id)
-        u.linkedin_location = location
-        u.linkedin_url = url
         session.add(u)
         session.commit()
 
@@ -90,7 +88,7 @@ if __name__ == '__main__':
         session.add(user)
         session.commit()        
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
-                "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
+                "email":user.email,"location":user.location,"url":user.linkedin_url,\
                 "to_email":user.manager.user.email, "hired": (hired == "True")}
         q = get_q()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)

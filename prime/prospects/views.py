@@ -232,7 +232,6 @@ def upload():
         current_user.contacts_from_yahoo = n_yahoo
         current_user.contacts_from_windowslive = n_windowslive
         current_user.account_sources = account_sources
-        current_user.linkedin_location = location
         session.add(current_user)
         session.commit()
         manager = current_user.manager
@@ -242,7 +241,7 @@ def upload():
         else:
             to_email = manager.user.email
         client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
-                "email":current_user.email,"location":current_user.linkedin_location,"url":current_user.linkedin_url,\
+                "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                 "to_email":to_email}
         from prime.processing_service.saved_request import UserRequest
         user_request = UserRequest(current_user.email)

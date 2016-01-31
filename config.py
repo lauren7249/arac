@@ -6,7 +6,7 @@ class Config(object):
     CSRF_SESSION_KEY = "iejfjenosvfse87r3729rfu8ej"
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
-    ASSETS_DEBUG = True
+    ASSETS_DEBUG = False
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
 
@@ -33,15 +33,15 @@ class BetaConfig(Config):
 
 
 class DevelopmentConfig(Config):
-    DEBUG = True
+    DEBUG = False
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/arachnid'
-    ASSETS_DEBUG = True
+    ASSETS_DEBUG = False
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
     BASE_URL = 'http://localhost:5000'
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
@@ -49,12 +49,12 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(Config):
-    DEBUG = True
-    TESTING = True
+    DEBUG = False
+    TESTING = False
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
     SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL','postgresql://localhost:5432/arachnid')
-    ASSETS_DEBUG = True
+    ASSETS_DEBUG = False
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
     BASE_URL = 'http://localhost:5000'

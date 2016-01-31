@@ -51,8 +51,8 @@
           {% if agent.prospect.emails %}
             <a href="{{agent.prospect.mailto}}" target="_blank" class="email hint--top" data-hint="{{ agent.prospect.emails }}"></a>
           {% endif %}
-          {% if agent.prospect.linkedin_location_raw %}
-            <a href="http://maps.google.com/?q={{ agent.prospect.linkedin_location_raw }} hint--top" data-hint="{{ agent.prospect.linkedin_location_raw }}" class="location" target="_blank" ></a>
+          {% if agent.location %}
+            <a href="http://classic.mapquest.com/?q={{ agent.location }} hint--top" data-hint="{{ agent.location }}" class="location" target="_blank" ></a>
           {% endif %}
         </div>
       {%endif%}

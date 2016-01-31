@@ -153,7 +153,7 @@ def request_p200():
             manager = user.manager
             to_email = manager.user.email
             client_data = {"first_name":user.first_name,"last_name":user.last_name,\
-                    "email":user.email,"location":user.linkedin_location,"url":user.linkedin_url,\
+                    "email":user.email,"location":user.location,"url":user.linkedin_url,\
                     "to_email":to_email, "hired": True}
             from prime.processing_service.saved_request import UserRequest
             user_request = UserRequest(user.email)

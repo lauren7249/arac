@@ -9,5 +9,5 @@ print os.getenv('AC_CONFIG', 'beta')
 
 if __name__ == "__main__":
     print "WORKING"
-    application.debug=True
+    #application.debug=True
     application.run()

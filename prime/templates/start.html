@@ -92,31 +92,30 @@
             scrollTop: $("li#step3").offset().top + 'px'
       }, 'fast');
       var timer = setInterval(function() {
-          if(downloadWindow.closed) {
-              clearInterval(timer);      
-              $("#step3").html("Click on the Upload Area to the right and select the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from your Downloads folder.")            
-              $(".overlay").fadeOut();
-              //document.getElementById("step2").style = "font-weight: lighter"
-              document.getElementById("step3").style =  "font-weight: bolder"
-              $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');                            
-          }
           if ("{{ newWindow }}" == 'false') {
             $(document).click(function(){
                 $(document).off( "click")
                 clearInterval(timer);      
-                $("#step3").html("Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of your browser window into the Upload Area on the right.")            
                 $(".overlay").fadeOut();
                 //document.getElementById("step2").style = "font-weight: lighter"
-                document.getElementById("step3").style =  "font-weight: bolder"
+                document.getElementById("step3").style =  "font-weight: normal"
                 $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');   
                 downloadWindow.close();                         
             });        
           } 
           else {
+            if(downloadWindow.closed) {
+                clearInterval(timer);      
+                $("#step3").html("Click on the Upload Area to the right and select the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from your Downloads folder.")            
+                $(".overlay").fadeOut();
+                //document.getElementById("step2").style = "font-weight: lighter"
+                document.getElementById("step3").style =  "font-weight: normal"
+                $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');                            
+            }            
             $(".overlay").click(function(){
                 $(".overlay").fadeOut(); 
                 //document.getElementById("step2").style = "font-weight: lighter"
-                document.getElementById("step3").style =  "font-weight: bolder"
+                document.getElementById("step3").style =  "font-weight: normal"
                 $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');                 
                 downloadWindow.focus();                    
             }) ;          
@@ -152,8 +151,7 @@
       }
       else if (!/opera/.test(ua) && /msie/.test(ua)) {
         $("#after_download_instruction").text('After your file downloads, click Save download when prompted by your browser, then click "Open Folder" and come back to this page.');
-      }
-        
+      }   
     });    
 
     function eventFire(el, etype){
@@ -381,17 +379,18 @@
                 <div class="note">
                   <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
                   <ol>
-                    <li id="step1" style="font-weight: bolder">
+                    <li id="step1">
                       {%if newWindow == 'false' %}
 
                         Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button>
-                        <p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p>
+                        <small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p></small>
                       {%else%}
                         Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." To do so, enter the characters shown in the picture and click Continue. <button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button><small>The popup will then automatically redirect to the "Export LinkedIn Connections" page. <i>Note: you do not need to change any settings.</i></small>
                       {%endif%}
                     </li>
                     <br/>
-                    <li  id="step3">Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of your browser window into the Upload Area on the right.
+                    <li  id="step3">
+                      Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of your browser window into the Upload Area on the right.<br/><small><p class="hint--top" data-hint="Click on the Upload Area to the right and navigate to your downloads file. Select the file.">Don't see the file?</p></small>
                     </li>
                   </ol>
                 </div>
