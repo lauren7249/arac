@@ -656,6 +656,9 @@ hr {
   font-size: 18px;
   font-weight: 600;
 }
+.manager-dashboard td.agent {
+  width: 300px;
+}
 .manager-dashboard td.agent span {
   display: inline-block;
   vertical-align: middle;
@@ -663,8 +666,13 @@ hr {
   font-weight: bold;
 }
 .manager-dashboard td.agent .email {
-  font-size: 10px;
   display: block;
+  font-size: 10px;
+  font-weight: 600;
+  display: block;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .manager-dashboard td.agent .face {
   margin-right: 10px;
@@ -1227,7 +1235,7 @@ form.dropzone {
   background-color: white;
   text-align: center;
   font-size: normal;
-  padding: 140px 20px 60px;
+  padding: 120px 20px 60px;
   margin: 0;
   color: #787B80;
   border: 2px dashed #DADFE1;
@@ -1252,18 +1260,20 @@ form.dropzone .dz-default.dz-message {
   text-align: center;
 }
 form.dropzone .dz-default.dz-message span {
-  font-weight: bold;
+  font-size: 20px;
   color: #02C2B9;
 }
 form.dropzone .dz-default.dz-message span:before, form.dropzone .dz-default.dz-message span:after {
   text-align: center;
   display: block;
+  font-size: 15px;
+  margin: 10px 0;
 }
 form.dropzone .dz-default.dz-message span:before {
   content: "Upload Area";
 }
 form.dropzone .dz-default.dz-message span:after {
-  content: "Your .csv file here or browse";
+  content: "Or click here to upload your file";
 }
 form.dropzone .dz-preview {
   border-top: 1px solid #DADFE1;
