@@ -90,7 +90,7 @@ class Prospect(db.Model):
     def image(self):
         if self.main_profile_image:
             return self.main_profile_image
-        return "/static/img/person_image.png"
+        return "/static/img/shadow-avatar.png"
 
     @property
     def headline(self):

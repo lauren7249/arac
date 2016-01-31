@@ -109,7 +109,7 @@ class User(db.Model, UserMixin):
     def image(self):
         if self.image_url:
             return self.image_url
-        return "/static/img/person_image.png"
+        return "/static/img/shadow-avatar.png"
 
     @property
     def p200_count(self):
