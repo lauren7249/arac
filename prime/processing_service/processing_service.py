@@ -119,8 +119,8 @@ class ProcessingService(Service):
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
             #richard simonetti
-            if self.user.manager_id ==445:
-                return
+            # if self.user.manager_id ==445:
+            #     return
             if self.user: 
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
