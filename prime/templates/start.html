@@ -16,7 +16,7 @@
     var domain_key='VB652MMUEG24H4JF3SGL';
     var domain_password='GSrAxStb9Zk5EOmD';    
     var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
-    var cloudsponge_base_url = 'http://api.cloudsponge.com/'    ;
+    var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     var contacts_array = [];
     var cloudsponge_status = '';
     var test = (window.location.href.indexOf("testing") > -1) ? true : false;
@@ -51,12 +51,12 @@
     }
 
     function skip_linkedin() {
-        attemptFinish(); 
         $("#owner_email").html("{{ agent.email }}");
         $("#owner_geolocation").html("{{ agent.manager.address }}");
         $("#owner_first_name").html("{{ agent.first_name }}");
         $("#owner_last_name").html("{{ agent.last_name }}");     
         public_url = null;
+        attemptFinish(); 
     }
     
     // Handle an error response from the API call
@@ -150,6 +150,12 @@
       else if ("{{ newWindow }}" == 'true') {
         $("#after_download_instruction").text('After your file downloads, come back to this page.');
       }
+      if ({{ agent.unique_contacts_uploaded | int }} > 0) {
+        var message = "Welcome back! You've uploaded {{ '{0:,}'.format(agent.unique_contacts_uploaded | int) }} unique contacts so far, and it's not too late to add more. You don't need to re-connect any accounts you've already connected, but it's OK if you do. We're keeping track of everything for you." ;
+        showSuccess(message);
+        console.log(message);
+      }
+      
     });    
 
     function eventFire(el, etype){
@@ -209,9 +215,9 @@
            
               }
               $(".contact-count").find("small").html(count.toLocaleString() + " Total Contacts Added")
-              $(".final-contact-count").html(contacts_array.length.toLocaleString())
+              //$(".final-contact-count").html(contacts_array.length.toLocaleString())
               $(".contact-count").show();
-              $("#hack_next").click();               
+              //$("#hack_next").click();               
             }
             else {                                                   
               alert('Invalid input');
@@ -232,6 +238,7 @@
     })  
 
   </script>
+
   <div class="wrap section onboarding" id="mainDiv">
       <!-- Onboard Step 1-->
     <div class="onboard" id="step-1">
@@ -425,6 +432,7 @@
               <h1>Congratulations!</h1>
               <h3 class="text-teal">You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</h3>
               <p>We will email you when your Network Summary is complete.</p>
+              <small>Still want to add more contacts? <a href="#">Go Back to Step 1</a></small>
             </div>
           </div>
         </div>
@@ -444,7 +452,7 @@
           var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           console.log(tempcontactsurl);
 
-          win.location = cloudsponge_url;
+          win.location.href = cloudsponge_url;
           var timer = setInterval(function() {   
             if(win.closed) {
               clearInterval(timer);              
@@ -487,7 +495,7 @@
                     }
                     var response_string = "Added " + contacts.length.toLocaleString() + " contacts from " + contacts_owner.email[0].address;
                     $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
-                    $(".final-contact-count").html(contacts_array.length.toLocaleString())
+                    //$(".final-contact-count").html(contacts_array.length.toLocaleString())
                     $(".contact-count").show();
 
                     $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
@@ -524,11 +532,7 @@
 
     function attemptFinish() {
       if (contacts_array.length>0) {
-        upload()
-        $("#step-1").hide(); 
-        $("#step-2").hide(); 
-        $("#step-3").hide()
-        $("#step-4").slideDown()            
+        upload()         
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
         showSuccess(message);
@@ -571,8 +575,14 @@
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
+              console.log(responseData);
               $(".waiting").hide();   
-              $(".overlay").fadeOut();     
+              $(".overlay").fadeOut();
+              $(".final-contact-count").html(responseData.contacts.toLocaleString()) 
+              $("#step-1").hide(); 
+              $("#step-2").hide(); 
+              $("#step-3").hide()
+              $("#step-4").slideDown()   
             },
             error: function (responseData, textStatus, errorThrown) {
                 debugger;
