@@ -21,7 +21,7 @@ def watch(fn):
 
         else:
             time.sleep(0.5)
-            response = requests.get("http://prime.advisorconnect.co")
+            response = requests.get("https://prime.advisorconnect.co")
             if response.status_code == 500:
                 subprocess.call("~/prime/restart_app.sh", shell=True)
                 yield "App restarted due to 500 status_code"

@@ -10,7 +10,7 @@ sudo pkill -f worker.py
 nohup python worker.py &
 sleep 1
 sudo ~/env/bin/uwsgi production.ini
-sleep 1
+sleep 2
 sudo nohup ~/env/bin/python track_errors.py & tail -f nohup.out 
 
 
