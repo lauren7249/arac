@@ -94,7 +94,7 @@ if __name__ == '__main__':
         for index, row in s.iterrows():
             contact = {}
             contact["email"] = [{"address": row[0].strip() + "@facebook.com"}]
-            data.append(contact)      
+            data.append({"contact":contact, "contacts_owner":None, "service":"facebook"})      
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.location,"url":user.linkedin_url, "hired": True}
         q = get_q()
