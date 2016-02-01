@@ -1,5 +1,5 @@
 import sys
-reload(sys) 
+reload(sys)
 sys.setdefaultencoding('utf-8')
 import logging
 from logging.handlers import SysLogHandler
@@ -15,6 +15,7 @@ from flask_wtf.csrf import CsrfProtect
 from webassets import Bundle
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
+from flask_sslify import SSLify
 
 from config import config
 
@@ -42,7 +43,8 @@ def create_app(config_name):
     init_admin(app)
     add_template_globals(app)
     RQ(app)
-
+    if config == 'beta':
+        SSLify(app)
     return app
 
 def init_admin(app):
@@ -52,7 +54,7 @@ def init_admin(app):
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/chosen.css', 'css/hint.css', 'css/poppins.css', 'css/master.css', 
+    css = Bundle('css/chosen.css', 'css/hint.css', 'css/poppins.css', 'css/master.css',
                  output='css/gen/main.%(version)s-min.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)
