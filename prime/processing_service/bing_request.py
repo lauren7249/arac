@@ -146,7 +146,7 @@ class BingRequest(S3SavedRequest):
                     break
                 except:
                     if html:
-                        self.logger.warn("Exception for bing request with the following response: {}".format(uu(html)))
+                        self.logger.warn("Exception for bing request {} with the following response: {}".format(self.querystring, uu(html)))
                     else:
                         self.logger.warn("bing -- no response")
                 if not self.next_querystring:
