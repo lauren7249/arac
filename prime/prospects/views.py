@@ -31,6 +31,7 @@ from jinja2.environment import Environment
 from jinja2 import FileSystemLoader
 from prime.users.models import ClientProspect
 from prime.utils.email import sendgrid_email
+from prime.utils.helpers import STATES
 
 ################
 ##  HELPERS   ##
@@ -498,11 +499,15 @@ def export():
     headers = ["Prefix", "First Name", "Salutation (Preferred name, nickname)",
             "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
             "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
-            "Name of Business", "Business Phone", "Fax Number"]
+            "Name of Business", "Fax Number"]
     writer.writerow(headers)
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
         name = connection.prospect.name
+        try:
+            state = STATES[connection.prospect.us_state]
+        except:
+            state = state
         try:
             first_name, last_name = name.split(" ")
         except:
@@ -514,8 +519,8 @@ def export():
                 last_name = None
         row = ["", first_name, "", last_name, "", email1,
             "", "", connection.prospect.linkedin_industry_raw,
-            connection.prospect.us_state, "", "", "",
-            connection.prospect.company, connection.prospect.phone, ""]
+            state, "", "", "",
+            connection.prospect.company, ""]
         writer.writerow(row)
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
