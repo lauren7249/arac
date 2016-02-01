@@ -20,7 +20,7 @@ from helper import filter_bing_results, uu
 class BingRequestMaker(S3SavedRequest):
 
     def __init__(self, name, type, extra_keywords=None, *args, **kwargs):
-        self.name = name if name else ""
+        self.name = name.replace('&','').replace(',','') if name else ""
         self.type = type
         self.extra_keywords = extra_keywords.replace('&','').replace(',','') if extra_keywords else None
         self.include_terms_in_title = None

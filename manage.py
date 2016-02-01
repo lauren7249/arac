@@ -53,15 +53,14 @@ if __name__ == '__main__':
         user = User.query.filter_by(email=email).first()
         user_request = UserRequest(email)
         contacts_array = user_request.lookup_data()
-        n_linkedin = 0
-        n_gmail = 0
-        n_yahoo = 0
-        n_windowslive = 0
-        n_aol = 0
-        n_contacts = 0
+        from_linkedin = set()
+        from_gmail = set()
+        from_yahoo = set()
+        from_windowslive = set()
+        from_aol = set()
+        from_all = set()
         account_sources = {}
         for record in contacts_array:
-            n_contacts+=1
             owner = record.get("contacts_owner")              
             if owner:
                 account_email = owner.get("email",[{}])[0].get("address","").lower()   
@@ -69,8 +68,17 @@ if __name__ == '__main__':
                 account_email = 'linkedin'                    
             service = record.get("service","").lower()
             account_sources[account_email] = service
+            contact = record.get("contact",{})
+            emails = contact.get("email",[{}])
+            try:
+                email_address = emails[0].get("address",'').lower()
+            except Exception, e:
+                email_address = ''
+                print emails
+            if not email_address:
+                continue     
             if service=='linkedin':
-                n_linkedin+=1
+                from_linkedin.add()
             elif service=='gmail':
                 n_gmail+=1
             elif service=='yahoo':
