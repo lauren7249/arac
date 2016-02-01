@@ -106,6 +106,8 @@
                 afterDownloadedClick();                         
             }                        
             $(".overlay").click(function(){
+              clearInterval(timer);    
+              $(".overlay").off( "click")
               afterDownloadedClick();
               downloadWindow.focus();         
             }) ;          
@@ -217,13 +219,12 @@
               $(".contact-count").find("small").html(count.toLocaleString() + " Total Contacts Added")
               //$(".final-contact-count").html(contacts_array.length.toLocaleString())
               $(".contact-count").show();
-              //$("#hack_next").click();               
+              attemptFinish(); 
+                         
             }
             else {                                                   
               alert('Invalid input');
-            }  
-            $(".waiting").hide();
-            $(".overlay").fadeOut();                            
+            }                          
           });      
 
           self.on("error", function (file, errorMessage) {
@@ -432,7 +433,7 @@
               <h1>Congratulations!</h1>
               <h3 class="text-teal">You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</h3>
               <p>We will email you when your Network Summary is complete.</p>
-              <small>Still want to add more contacts? <a href="#">Go Back to Step 1</a></small>
+              <small>Still want to add more contacts? <a href="/">Go Back to Step 1</a></small>
             </div>
           </div>
         </div>
@@ -536,7 +537,6 @@
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
         showSuccess(message);
-        alert(message);
       }      
     }
   
@@ -576,19 +576,18 @@
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
               console.log(responseData);
-              $(".waiting").hide();   
-              $(".overlay").fadeOut();
               $(".final-contact-count").html(responseData.contacts.toLocaleString()) 
               $("#step-1").hide(); 
               $("#step-2").hide(); 
               $("#step-3").hide()
               $("#step-4").slideDown()   
+              $(".waiting").hide();   
+              $(".overlay").fadeOut();              
             },
             error: function (responseData, textStatus, errorThrown) {
-                debugger;
                 $(".waiting").hide();   
                 $(".overlay").fadeOut();                
-                alert('upload failed.');
+                showSuccess('upload failed.');
             }
         });   
  
