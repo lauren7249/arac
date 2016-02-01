@@ -182,7 +182,8 @@ class ResultService(Service):
                 self.output.append(client_prospect.to_json())
 
             agent_prospect = self.get_agent_prospect()
-            user.prospect_id = agent_prospect.id
+            if agent_prospect:
+                user.prospect_id = agent_prospect.id
 
             #If the agent is hired in the data then we know the p200 has been fully
             #run and we can mark that as true also. Otherwise just the
