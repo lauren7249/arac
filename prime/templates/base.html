@@ -31,47 +31,48 @@
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/jquery-ui.js"></script>
     <script src="/static/js/dropzone.js"></script>
+
   </head>
   <body>
   
-  {% block header %}
-  <header>
-    <div class="wrap">
-      <div class="col-6">
-        <div class="header-logo"></div>
-      </div>
-      <div class="col-6">
-        {% if current_user.is_authenticated() %}
-        <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right" data-step="4" data-intro="You can add up to 200 of your best contacts but remember you need at least 50 to complete your Project 200.">
-            {% if not current_user.is_manager and current_user.p200_completed %}
-              <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
+    {% block header %}
+      <header>
+        <div class="wrap">
+          <div class="col-6">
+            <div class="header-logo"></div>
+          </div>
+          <div class="col-6">
+            {% if current_user.is_authenticated() %}
+            <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right" data-step="4" data-intro="You can add up to 200 of your best contacts but remember you need at least 50 to complete your Project 200.">
+                {% if not current_user.is_manager and current_user.p200_completed %}
+                  <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
+                {% endif %}
+                <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
+                    <div class='autocomplete'>
+                      <ul>
+                        <li><a href='/auth/logout'>Logout</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </span>
+                <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div>
             {% endif %}
-            <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
-                <div class='autocomplete'>
-                  <ul>
-                    <li><a href='/auth/logout'>Logout</a></li>
-                  </ul>
-                </div>
-              </div>
-            </span>
-            <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div>
-        {% endif %}
-      </div>
-    </div>
-  </header>
-  {% endblock %}
+          </div>
+        </div>
+      </header>
+    {% endblock %}
 
     {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div class="wrap flashed-messages">
-      {% for message in messages %}
-      <div class='success'>
-        <span>{{ message }}</span>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-  {% endwith %}
+      {% if messages %}
+        <div class="wrap flashed-messages">
+          {% for message in messages %}
+            <div class='success'>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
     <div class='overlay' style="max-height:100%; max-width:100%;" id="overlay">
       <div class='waiting modal' style="max-height:100%; max-width:100%;">        
         <img src='/static/img/spinner_192.gif' style="max-height:100%; max-width:100%;"/>
@@ -85,35 +86,18 @@
         </span>
       </div>
     </dialog> 
-
-    {% block content %}{% endblock %}
-    
-    {% block footer %}    
-    <footer>
-      <div class="wrap">        
-        <div class="copyright">&copy; 2016 AdvisorConnect</div>
-        <div class="footer-links">
-          <span><a href="/faq">FAQs</a></span>
-          <span><a href="/terms">Terms</a></span>
-          <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
-        </div>        
-      </div>
-    </footer>
-    {% endblock %}
-    </body>
-
-    
-
     <script type='text/javascript'>
-      document.getElementById("success").onclick = function(){
-        document.getElementById("success").style.display = "none";   
+      $("#success").click(function(){
+        $("#success").css("display","none");  
         document.getElementById("success").close();    
-      }
+      });
 
       function showSuccess(message) {
-        document.getElementById("p200_success_message").innerHTML =  message;
-        document.getElementById("spinner").style.display = "none";    
-        document.getElementById("p200_success_message").style.display = "inline";         
+        $("#p200_success_message").text(message);
+        $("#spinner").css("display","none");    
+        $("#p200_success_message").css("display","inline");      
+        $("#success").css("display","inline");      
+        document.getElementById("success").showModal();      
       }
       var csrftoken = "{{ csrf_token() }}"
       $(function() {
@@ -140,6 +124,22 @@
             });
       });
 
-    </script>
+    </script>   
+    {% block content %}{% endblock %}
+    
+    {% block footer %}    
+      <footer>
+        <div class="wrap">        
+          <div class="copyright">&copy; 2016 AdvisorConnect</div>
+          <div class="footer-links">
+            <span><a href="/faq">FAQs</a></span>
+            <span><a href="/terms">Terms</a></span>
+            <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
+          </div>        
+        </div>
+      </footer>
+    {% endblock %}
+  </body>
+
 </html>
 
