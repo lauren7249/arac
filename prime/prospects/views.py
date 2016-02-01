@@ -173,7 +173,7 @@ def upload_csv():
     for index, row in s.iterrows():
         contact = {}
         contact["first_name"] = row["First Name"].decode('latin-1')
-        contact["last_name"] = row["First Name"].decode('latin-1')
+        contact["last_name"] = row["Last Name"].decode('latin-1')
         contact["companies"] = [row["Company"].decode('latin-1')]
         contact["email"] = [{"address": row["E-mail Address"].decode('latin-1')}]
         contact["job_title"] = row["Job Title"].decode('latin-1')
