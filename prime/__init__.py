@@ -26,7 +26,6 @@ csrf = CsrfProtect()
 
 def create_app(config_name):
     app = Flask(__name__)
-    app = SSLify(app)
     app.config.from_object(config[config_name])
 
     log_format = ('%(asctime)s %(levelname)s: %(message)s '
@@ -44,7 +43,8 @@ def create_app(config_name):
     init_admin(app)
     add_template_globals(app)
     RQ(app)
-
+    if config == 'beta':
+        SSLify(app)
     return app
 
 def init_admin(app):
