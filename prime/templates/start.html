@@ -184,6 +184,7 @@
             if (! match) {
               $(".overlay").fadeOut();
               $(".waiting").hide();      
+              console.log(filename);
               alert(filename + " seems like the wrong file. We are looking for linkedin_connections_export_microsoft_outlook.csv");
             } else {
               if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }   
