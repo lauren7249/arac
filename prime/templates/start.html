@@ -240,10 +240,6 @@
       };
     })  
 
-    function is_window(obj) {
-      return obj.constructor.toString()=='function Window() { [native code] }';
-    }
-
   </script>
   <div class="wrap section onboarding" id="mainDiv">
       <!-- Onboard Step 1-->
@@ -385,7 +381,7 @@
                         Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button>
                         <small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p></small>
                       {%else%}
-                        Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." To do so, enter the characters shown in the picture and click Continue. <button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button><small>The popup will then automatically redirect to the "Export LinkedIn Connections" page. <i>Note: you do not need to change any settings.</i></small>
+                        Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." Enter the code and click Continue.<p id="after_download_instruction"></p> <button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button><small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of the popup's browser window.">Not sure your contacts downloaded?</p></small>
                       {%endif%}
                     </li>
                     <br/>
