@@ -61,26 +61,20 @@ class UserRequest(S3SavedRequest):
         super(UserRequest, self).__init__()
         email = resolve_email(email)
         self.url = "{}{}".format(type,email)
-
-    def _make_request(self, data, content_type = 'text/html'):
         try:
             self.key = hashlib.md5(self.url).hexdigest()
         except Exception, e:
             self.key = hashlib.md5(uu(self.url)).hexdigest()
         self.boto_key = Key(self.bucket)
         self.boto_key.key = self.key
+
+    def _make_request(self, data, content_type = 'text/html'):
         self.boto_key.content_type = content_type
         self.boto_key.set_contents_from_string(unicode(json.dumps(data, ensure_ascii=False)))
         return data
 
     def lookup_data(self):
         try:
-            self.key = hashlib.md5(self.url).hexdigest()
-        except Exception, e:
-            self.key = hashlib.md5(uu(self.url)).hexdigest()
-        try:
-            self.boto_key = Key(self.bucket)
-            self.boto_key.key = self.key
             self.logger.info('Make Request: %s', 'Get From S3')
             html = self.boto_key.get_contents_as_string()
             entity = json.loads(html.decode("utf-8-sig"))
