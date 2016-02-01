@@ -56,20 +56,21 @@ def manager_invite_agent():
         last_name = request.form.get("last_name")
         to_email = request.form.get("email").lower()
         agent = User.query.filter(User.email == to_email).first()
+        manager = current_user.manager_profile[0]
         if agent:
-            error_message = "This agent already exists in our system. Please \
-                    contact jeff@adivsorconnect.co if this seems incorrect to you"
+            user = agent
+            # error_message = "This agent already exists in our system. Please \
+            #         contact jeff@adivsorconnect.co if this seems incorrect to you"
         else:
-            manager = current_user.manager_profile[0]
             user = User(first_name, last_name, to_email, '')
-            user.manager_id = manager.manager_id
-            session.add(user)
-            session.commit()
-            manager.users.append(user)
-            session.add(manager)
-            session.commit()
-            user.invite()
-            success = True
+        user.manager_id = manager.manager_id
+        session.add(user)
+        session.commit()
+        manager.users.append(user)
+        session.add(manager)
+        session.commit()
+        user.invite()
+        success = True
     return render_template('manager/invite.html', active="invite",
             error_message=error_message, success=success)
 
