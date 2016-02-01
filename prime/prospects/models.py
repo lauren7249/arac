@@ -185,38 +185,3 @@ class Education(db.Model):
                 uu(self.prospect.linkedin_name)
                 )
 
-
-class CloudspongeRecord(db.Model):
-    __tablename__ = "cloudsponge_raw"
-    id = db.Column(Integer, primary_key=True)
-    user_email = db.Column(String(500), index=True) #the email address identityfing the user in linkedin
-    account_email = db.Column(String(500), index=True) #one of the email accounts the user authed in with
-    contact_email = db.Column(String(500), index=True) #the first email address for the user's contact
-    service = db.Column(String(500), index=True)
-    contact = db.Column(JSONB)
-
-    #nice to haves
-    user_firstname = db.Column(String(500))
-    user_lastname = db.Column(String(500))
-    user_url = db.Column(String(500))
-    user_location = db.Column(String(500))
-
-    @property
-    def get_job_title(self):
-        return self.contact.get("job_title")
-
-    @property
-    def get_company(self):
-        if self.contact.get("companies"):
-            return self.contact.get("companies")[0]
-        return None
-
-    @property
-    def get_emails(self):
-        all_emails = []
-        info = self.contact
-        emails = info.get("email",[{}])
-        for email in emails:
-            address = email.get("address").lower()
-            if address: all_emails.append(address)
-        return all_emails

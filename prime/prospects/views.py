@@ -118,8 +118,8 @@ def pending():
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
     #User already has prospects, lets send them to the dashboard
-    if current_user.unique_contacts_uploaded>0:
-        return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
+    # if current_user.unique_contacts_uploaded>0:
+    #     return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
     return render_template('start.html', agent=current_user, newWindow='true')
 
 @prospects.route("/faq")
@@ -191,54 +191,8 @@ def upload():
     if request.method == 'POST':
         indata = request.json
         contacts_array = indata.get("contacts_array")
-        location = indata.get("geolocation")
-        by_email = set()
-        n_linkedin = 0
-        n_gmail = 0
-        n_aol = 0
-        n_yahoo = 0
-        n_windowslive = 0
-        account_sources = {}
-        for record in contacts_array:
-            if len(str(record)) > 10000:
-                print "CloudspongeRecord is too big"
-                continue
-            owner = record.get("contacts_owner")
-            if owner:
-                account_email = owner.get("email",[{}])[0].get("address","").lower()
-            else:
-                account_email = "linkedin"
-            service = record.get("service","").lower()
-            account_sources[account_email] = service
-            if service=='linkedin':
-                n_linkedin+=1
-            elif service=='gmail':
-                n_gmail+=1
-            elif service=='yahoo':
-                n_yahoo+=1
-            elif service=='windowslive':
-                n_windowslive+=1
-            elif service=='aol':
-                n_aol+=1
-            contact = record.get("contact",{})
-            emails = contact.get("email",[{}])
-            try:
-                email_address = emails[0].get("address",'').lower()
-            except Exception, e:
-                email_address = ''
-                print emails
-            if email_address:
-                by_email.add(email_address)
-        n_contacts = len(by_email)
-        current_user.unique_contacts_uploaded = n_contacts
-        current_user.contacts_from_linkedin = n_linkedin
-        current_user.contacts_from_gmail = n_gmail
-        current_user.contacts_from_yahoo = n_yahoo
-        current_user.contacts_from_aol = n_aol
-        current_user.contacts_from_windowslive = n_windowslive
-        current_user.account_sources = account_sources
-        session.add(current_user)
-        session.commit()
+        contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array)
+        print len(contacts_array)
         manager = current_user.manager
         if not manager:
             print "Error: no manager for current_user {}".format(current_user.user_id)
@@ -248,20 +202,14 @@ def upload():
         client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                 "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                 "to_email":to_email}
-        from prime.processing_service.saved_request import UserRequest
-        user_request = UserRequest(current_user.email)
-        user_request._make_request(contacts_array)
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-        sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(n_contacts)), body)
+        sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(user.unique_contacts_uploaded)), body)
         q = get_q()
-
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
-        print "/n/n/n/n/n/n/n/n/n/n/n/n/n/n"
-        print client_data
-    return jsonify({"contacts": n_contacts})
+    return jsonify({"contacts": user.unique_contacts_uploaded})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():

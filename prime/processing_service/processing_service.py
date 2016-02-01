@@ -49,19 +49,22 @@ class ProcessingService(Service):
         self.saved_data = None
         self.output = []
         self.user = self._get_user()
+        self.saved_data = self.user.refresh_hiring_screen_data()
+        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
+            self.saved_data = None    
+        if self.saved_data:     
+            self.logger.info("Using saved data")
+            self.data = self.saved_data       
         if client_data.get("hired"):
-            self.saved_data = self.user.refresh_hiring_screen_data()
-            if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
-                self.saved_data = None    
-            if self.saved_data:     
-                self.logger.info("Using saved data")
-                self.data = self.saved_data                   
             if self.saved_data:
                 CLASS_LIST = CONTACT_INFO + WRAP_UP
             else:
                 CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK + CONTACT_INFO + WRAP_UP
         else:
-            CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
+            if self.saved_data:
+                CLASS_LIST = WRAP_UP
+            else:
+                CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
         SERVICES = OrderedDict()
         for CLASS in CLASS_LIST:
             SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS

@@ -4,17 +4,6 @@ from constants import EXCLUDED_EMAIL_WORDS
 import re
 import os
 import json
-from prime.prospects.models import CloudspongeRecord, get_or_create
-from prime import create_app
-from flask.ext.sqlalchemy import SQLAlchemy
-try:
-    app = create_app(os.getenv('AC_CONFIG', 'development'))
-    db = SQLAlchemy(app)
-    session = db.session
-except Exception, e:
-    print e.message
-    from prime import db
-    session = db.session
 
 class CloudSpongeService(Service):
 
@@ -31,7 +20,6 @@ class CloudSpongeService(Service):
         self.excluded_words = EXCLUDED_EMAIL_WORDS
         self.unique_emails = {}
         self.output = []
-        self.session = session
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -75,13 +63,6 @@ class CloudSpongeService(Service):
                         sources.append('linkedin')
                 elif account_email and account_email not in sources:
                     sources.append(account_email)
-                cs = get_or_create(self.session, CloudspongeRecord, user_email =self.client_data.get("email"), account_email=account_email, contact_email=contact_email, service=service)   
-                cs.contact = contact
-                cs.user_firstname = self.client_data.get("first_name")
-                cs.user_lastname = self.client_data.get("last_name")
-                cs.user_url = self.client_data.get("url")
-                cs.user_location = self.client_data.get("location") 
-                self.session.add(cs)
                 if not self.real_person(contact_email):
                     self.logger.warn("Not a real person %s", contact_email)
                 else:
@@ -94,8 +75,7 @@ class CloudSpongeService(Service):
                                                     "companies": companies,
                                                     "first_name": first_name,
                                                     "last_name": last_name,
-                                                    "sources": sources}             
-            self.session.commit()           
+                                                    "sources": sources}                      
             for key, value in self.unique_emails.iteritems():
                 self.output.append({key:value})
             self.logger.info('Emails Found: %s', len(self.unique_emails))

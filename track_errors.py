@@ -23,11 +23,11 @@ def watch(fn):
             time.sleep(0.5)
             response = requests.get("https://prime.advisorconnect.co")
             if response.status_code == 500:
-                subprocess.call("~/prime/restart_app.sh", shell=True)
-                yield "App restarted due to 500 status_code"
+                return "App restarted due to 500 status_code"
             elif response.status_code != 200:
                 yield "App gave {} status_code".format(response.status_code)
 
 fn = 'true'
 for hit_sentence in watch(fn):
     sendgrid_email("frontend_error@advisorconnect.co", "Front end error", hit_sentence)
+subprocess.call("~/prime/restart_app.sh", shell=True)

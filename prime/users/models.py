@@ -81,7 +81,7 @@ class User(db.Model, UserMixin):
     p200_approved = db.Column(postgresql.BOOLEAN, default=False)
     _statistics = db.Column(JSONB, default={})
 
-    intro_js_seen = db.Column(postgresql.BOOLEAN, default=False)
+    intro_js_seen = db.Column(postgresql.BOOLEAN, default=True)
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
     prospect = relationship("Prospect", \

@@ -25,13 +25,13 @@ class ClearbitRequest(S3SavedRequest):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _get_entity(self, query, type):
+    def _get_entity(self, type):
         self.logger.info('Make Request: %s', 'Query Clearbit')
         try:
             if type=="person":
-                entity = clearbit.Person.find(email=query, stream=False, webhook_id=self.query)
+                entity = clearbit.Person.find(email=self.query, stream=False, webhook_id=self.query)
             elif type=="company":
-                entity = clearbit.Company.find(domain=query, stream=False, webhook_id=self.query)
+                entity = clearbit.Company.find(domain=self.query, stream=False, webhook_id=self.query)
             else:
                 entity = None
         except HTTPError as e:
@@ -52,7 +52,7 @@ class ClearbitRequest(S3SavedRequest):
             entity = json.loads(html.decode("utf-8-sig"))
         else:
             while True:
-                entity = self._get_entity(self.query, type)
+                entity = self._get_entity(type)
                 if not entity:
                     entity = {}
                     break
