@@ -183,8 +183,7 @@
           self.on("sending", function (file) {
             console.log('upload started', file);
             $(".overlay").fadeIn();
-            $(".waiting").show();   
-            if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }            
+            $(".waiting").show();             
           });
           
           // File upload Progress
@@ -198,6 +197,7 @@
           });
           self.on("success", function (file, data) {
             console.log("success", data);    
+            if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }  
             var count = data.count;
             contacts = data.contacts;
             contacts_owner = data.contacts_owner;
