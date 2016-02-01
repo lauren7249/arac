@@ -223,7 +223,7 @@
                          
             }
             else {                                                   
-              alert('Invalid input');
+              showSuccess("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.");
             }                          
           });      
 
@@ -231,7 +231,7 @@
             console.log(errorMessage);
             $(".overlay").fadeOut();
             $(".waiting").hide();           
-            alert("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.")
+            showSuccess("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.")
           });
 
         }
