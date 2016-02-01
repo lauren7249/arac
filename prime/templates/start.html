@@ -181,7 +181,7 @@
           self.on("addedfile", function (file) {
             filename = file.name;
             var match = /linkedin_connections_export_microsoft_outlook.*\.csv/.test(filename);
-            if (! match) {
+            if (! match or true) {
               $(".overlay").fadeOut();
               $(".waiting").hide();      
               console.log(filename);
