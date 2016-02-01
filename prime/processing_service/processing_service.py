@@ -76,7 +76,7 @@ class ProcessingService(Service):
         if self.saved_data:
             return True
         validated_data = []
-        required_client_keys = ["email","location","url","first_name","last_name"]
+        required_client_keys = ["email","location","first_name","last_name"]
         for key in required_client_keys:
             if not self.client_data.get(key):
                 self.logger.error("Missing Key:{}".format(key))

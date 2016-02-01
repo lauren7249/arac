@@ -65,6 +65,7 @@ class PhoneService(Service):
             self.pool.join()
             self.service = ClearbitPhoneService(self.client_data, self.output)
             self.output = self.service.multiprocess()
+            elf.output = self.user.refresh_p200_data(self.output)  
         except:
             self.logerror()
         self.logend()
@@ -82,6 +83,7 @@ class PhoneService(Service):
                 self.output.append(person)
             self.service = ClearbitPhoneService(self.client_data, self.output)
             self.output = self.service.process()
+            self.output = self.user.refresh_p200_data(self.output)  
         except:
             self.logerror()
         self.logend()
