@@ -1,7 +1,7 @@
 #!/bin/bash
 export AC_CONFIG='beta'
 . ~/env/bin/activate
-pip install -r requirements.txt 
+#pip install -r requirements.txt 
 pkill -f track_errors.py
 fuser -k 80/tcp
 rm true
