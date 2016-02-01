@@ -29,7 +29,7 @@ class Config(object):
 
 class BetaConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@babel/arachnid'
-    BASE_URL = 'http://prime.advisorconnect.co'
+    BASE_URL = 'https://prime.advisorconnect.co'
 
 
 class DevelopmentConfig(Config):
@@ -45,7 +45,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com:5432/arachnid'
-    BASE_URL = 'http://prime.advisorconnect.co'
+    BASE_URL = 'https://prime.advisorconnect.co'
 
 
 class TestingConfig(Config):
