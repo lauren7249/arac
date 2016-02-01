@@ -17,8 +17,9 @@ class ExtendedLeadService(LeadService):
     def __init__(self, client_data, data, *args, **kwargs):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)        
+        self.logger = logging.getLogger(__name__)      
         super(ExtendedLeadService, self).__init__(client_data, data, *args, **kwargs)  
+        self.user = self._get_user()  
 
     def multiprocess(self):
         return self.process()
