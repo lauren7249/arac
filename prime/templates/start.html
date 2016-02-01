@@ -197,7 +197,7 @@
           });
           self.on("success", function (file, data) {
             console.log("success", data);    
-            if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }  
+            //if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }  
             var count = data.count;
             contacts = data.contacts;
             contacts_owner = data.contacts_owner;
