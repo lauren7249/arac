@@ -76,23 +76,24 @@ if __name__ == '__main__':
                 email_address = ''
                 print emails
             if not email_address:
-                continue     
+                continue   
+            from_all.add(email_address)  
             if service=='linkedin':
-                from_linkedin.add()
+                from_linkedin.add(email_address)
             elif service=='gmail':
-                n_gmail+=1
+                from_gmail.add(email_address)
             elif service=='yahoo':
-                n_yahoo+=1
+                from_yahoo.add(email_address)
             elif service=='windowslive':
-                n_windowslive+=1     
+                from_windowslive.add(email_address)
             elif service=='aol':
-                n_aol+=1           
-        user.unique_contacts_uploaded = n_contacts
-        user.contacts_from_linkedin = n_linkedin
-        user.contacts_from_gmail = n_gmail
-        user.contacts_from_yahoo = n_yahoo
-        user.contacts_from_windowslive = n_windowslive
-        user.contacts_from_aol = n_aol
+                from_aol.add(email_address)       
+        user.unique_contacts_uploaded = len(from_all)
+        user.contacts_from_linkedin = len(from_linkedin)
+        user.contacts_from_gmail = len(from_gmail)
+        user.contacts_from_yahoo = len(from_yahoo)
+        user.contacts_from_windowslive = len(from_windowslive)
+        user.contacts_from_aol = len(from_aol)
         user.account_sources = account_sources
         user._statistics = None
         for client_prospect in user.client_prospects:
