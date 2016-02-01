@@ -42,15 +42,18 @@ a {
 
 header {
   background: white;
-  padding: 20px 0;
+  height: 100px;
+  padding: 0;
 }
 header .header-logo {
+  margin-top: 20px;
   width: 178px;
   height: 60px;
   background-image: url("/static/img/logo-lockup.png");
 }
 header .nav-right {
-  padding-top: 10px;
+  height: 100px;
+  line-height: 100px;
   font-size: 12px;
   font-weight: 600;
 }
@@ -68,17 +71,19 @@ header #settings {
 header #settings div.autocomplete {
   display: none;
   position: absolute;
-  top: 18px;
+  top: 100px;
   right: -20px;
-  border: 1px solid #eee;
+  border: 1px solid #DADFE1;
   border-top: 0;
-  background: #fff;
-  width: 208px;
+  background: white;
+  height: auto;
+  line-height: 0;
+  width: 200px;
   z-index: 4;
-  padding: 15px;
 }
 header #settings div.autocomplete ul {
   list-style-type: none;
+  padding: 0;
   margin: 0;
 }
 header #settings div.autocomplete ul li {
@@ -90,6 +95,9 @@ header #settings div.autocomplete ul li a {
   color: #27B4F4;
   text-decoration: none;
   font-size: 12px;
+  height: 40px;
+  line-height: 40px;
+  padding: 10px;
 }
 header #settings:hover div.autocomplete {
   display: block;
@@ -1235,7 +1243,7 @@ form.dropzone {
   background-color: white;
   text-align: center;
   font-size: normal;
-  padding: 120px 20px 60px;
+  padding: 12g0px 20px 60px;
   margin: 0;
   color: #787B80;
   border: 2px dashed #DADFE1;
