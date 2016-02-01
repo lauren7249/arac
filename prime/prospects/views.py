@@ -194,6 +194,7 @@ def upload():
         by_email = set()
         n_linkedin = 0
         n_gmail = 0
+        n_aol = 0
         n_yahoo = 0
         n_windowslive = 0
         account_sources = {}
@@ -216,13 +217,15 @@ def upload():
                 n_yahoo+=1
             elif service=='windowslive':
                 n_windowslive+=1
+            elif service=='aol':
+                n_aol+=1
             contact = record.get("contact",{})
             emails = contact.get("email",[{}])
             try:
                 email_address = emails[0].get("address",'').lower()
             except Exception, e:
                 email_address = ''
-                print str(e)
+                print emails
             if email_address:
                 by_email.add(email_address)
         n_contacts = len(by_email)
@@ -230,6 +233,7 @@ def upload():
         current_user.contacts_from_linkedin = n_linkedin
         current_user.contacts_from_gmail = n_gmail
         current_user.contacts_from_yahoo = n_yahoo
+        current_user.contacts_from_aol = n_aol
         current_user.contacts_from_windowslive = n_windowslive
         current_user.account_sources = account_sources
         session.add(current_user)
@@ -246,16 +250,16 @@ def upload():
         from prime.processing_service.saved_request import UserRequest
         user_request = UserRequest(current_user.email)
         user_request._make_request(contacts_array)
-        print user_request.boto_key.key
-        print user_request.boto_key.exists()
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
         sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(n_contacts)), body)
         q = get_q()
-        print q.connection
+        
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
+        print "/n/n/n/n/n/n/n/n/n/n/n/n/n/n"
+        print client_data
     return jsonify({"contacts": n_contacts})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])

@@ -3,7 +3,7 @@ import os
 import json
 from flask.ext.migrate import MigrateCommand, Migrate
 from flask.ext.script import Manager, Shell
-
+import re
 from prime import create_app, db
 from prime.prospects.views import get_q
 
@@ -19,11 +19,11 @@ if __name__ == '__main__':
         from prime.users.models import db, User
         from prime.managers.models import ManagerProfile
         json_data = json.loads(json_data)
+        mp = ManagerProfile()       
         mp.address = json_data.get("address")
         mp.name_suffix = json_data.get("name_suffix")
         mp.certifications = json_data.get("certifications")      
         mp.phone = json_data.get("phone")  
-        mp = ManagerProfile()        
         session = db.session
         user = User(first_name, last_name, email, password)
         session.add(user)
@@ -57,6 +57,7 @@ if __name__ == '__main__':
         n_gmail = 0
         n_yahoo = 0
         n_windowslive = 0
+        n_aol = 0
         n_contacts = 0
         account_sources = {}
         for record in contacts_array:
@@ -75,12 +76,15 @@ if __name__ == '__main__':
             elif service=='yahoo':
                 n_yahoo+=1
             elif service=='windowslive':
-                n_windowslive+=1                
+                n_windowslive+=1     
+            elif service=='aol':
+                n_aol+=1           
         user.unique_contacts_uploaded = n_contacts
         user.contacts_from_linkedin = n_linkedin
         user.contacts_from_gmail = n_gmail
         user.contacts_from_yahoo = n_yahoo
         user.contacts_from_windowslive = n_windowslive
+        user.contacts_from_aol = n_aol
         user.account_sources = account_sources
         user._statistics = None
         for client_prospect in user.client_prospects:
@@ -103,6 +107,17 @@ if __name__ == '__main__':
             session.delete(p)
         session.delete(user)
         session.commit()
+
+
+    @manager.command
+    def delete_users(pattern):
+        from prime.users.models import db, User
+        users = User.query.all()
+        for user in users:
+            email = user.email
+            if re.search(pattern, email):
+                print email
+                delete_user(email)
 
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))

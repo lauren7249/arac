@@ -64,6 +64,7 @@ class User(db.Model, UserMixin):
     contacts_from_linkedin = db.Column(Integer, default=0)
     contacts_from_gmail = db.Column(Integer, default=0)
     contacts_from_yahoo = db.Column(Integer, default=0)
+    contacts_from_aol = db.Column(Integer, default=0)
     contacts_from_windowslive = db.Column(Integer, default=0)
     account_sources = db.Column(JSONB, default={})
 
@@ -229,6 +230,9 @@ class User(db.Model, UserMixin):
     def from_windowslive(self):
         return self.statistics().get("from_windowslive", 0)
 
+    @property
+    def from_aol(self):
+        return self.statistics().get("from_aol", 0)
 
     @property
     def linkedin(self):
@@ -334,6 +338,7 @@ class User(db.Model, UserMixin):
         from_gmail = 0
         from_yahoo = 0
         from_windowslive = 0
+        from_aol = 0
         account_sources = self.account_sources
         for client_prospect in self.client_prospects:
             if not client_prospect.stars:
@@ -352,6 +357,8 @@ class User(db.Model, UserMixin):
                     from_yahoo+=1
                 elif source =='windowslive':
                     from_windowslive+=1
+                elif source=='aol':
+                    from_aol+=1
             if not client_prospect.prospect:
                 logger.warn("clientprospect=None (clientprospect id={})".format(client_prospect.id))
                 continue
@@ -424,7 +431,8 @@ class User(db.Model, UserMixin):
                 "from_linkedin": from_linkedin,
                 "from_gmail": from_gmail,
                 "from_yahoo": from_yahoo,
-                "from_windowslive": from_windowslive}
+                "from_windowslive": from_windowslive,
+                "from_aol": from_aol}
         return data
 
     @property

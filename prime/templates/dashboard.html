@@ -38,7 +38,7 @@
             {% if agent.industries|length > 0 %}
             {% for industry in agent.industries %}
               <div class="market-{{ loop.index }}">
-                {% if current_user.is_manager or current_user.p200_approved %}
+                {% if current_user.is_manager or current_user.p200_approved or not current_user.p200_completed %}
                   <a>
                 {% else %}
                   <a href="/connections?industry={{industry[0]}}">
@@ -82,8 +82,8 @@
           </tr>
           <tr>
             <td><img src="/static/img/aol-40.png"> <b>Aol</b></td>
-            <td class="text-right">0</td>
-            <td class="text-right text-teal">0</td>
+            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_aol | int) }}</td>
+            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol | int) }}</td>
           </tr>
         </table>
       </div>

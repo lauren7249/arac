@@ -51,7 +51,6 @@
     }
 
     function skip_linkedin() {
-        $("#step-2").hide(); 
         attemptFinish(); 
         $("#owner_email").html("{{ agent.email }}");
         $("#owner_geolocation").html("{{ agent.manager.address }}");
@@ -539,6 +538,8 @@
     function attemptFinish() {
       if (contacts_array.length>0) {
         upload()
+        $("#step-1").hide(); 
+        $("#step-2").hide(); 
         $("#step-3").hide()
         $("#step-4").slideDown()            
       } else {
