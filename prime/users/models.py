@@ -20,7 +20,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import SchemaType, TypeDecorator, Enum
-
+from prime.processing_service.saved_request import UserRequest
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
@@ -93,6 +93,7 @@ class User(db.Model, UserMixin):
         self.last_name = last_name.title()
         self.email = email.lower()
         self.set_password(password)
+
 
     @property
     def hired(self):
@@ -180,6 +181,104 @@ class User(db.Model, UserMixin):
         sendgrid_email(self.email, subject, body,
                 from_email="jeff@advisorconnect.co")
         return True
+
+    def refresh_p200_data(self, new_data=[]):
+        user_request = UserRequest(self.email, type='actual-p200-data')
+        data = user_request.lookup_data()   
+        #it's been run once and we arent adding anything. 
+        by_linkedin_id = {}
+        for person in data + new_data:
+            linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
+            info = by_linkedin_id.get(linkedin_id,{})
+            sources = info.get("sources",[]) + person.get("sources",[])
+            social_accounts = info.get("social_accounts",[])  + person.get("social_accounts",[])
+            images = info.get("images",[])  + person.get("images",[])
+            email_addresses = info.get("email_addresses",[])  + person.get("email_addresses",[])
+            info["sources"] = list(set(sources))
+            info["social_accounts"] = list(set(social_accounts))
+            info["images"] = list(set(images))
+            info["email_addresses"] = list(set(email_addresses))      
+            by_linkedin_id[linkedin_id] = info    
+        if new_data:
+            user_request._make_request(new_data)                                          
+        return by_linkedin_id.values()
+
+    def refresh_hiring_screen_data(self, new_data=[]):
+        user_request = UserRequest(self.email, type='hiring-screen-data')
+        data = user_request.lookup_data()   
+        #it's been run once and we arent adding anything. 
+        by_linkedin_id = {}
+        for person in data + new_data:
+            linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
+            info = by_linkedin_id.get(linkedin_id,{})
+            sources = info.get("sources",[]) + person.get("sources",[])
+            social_accounts = info.get("social_accounts",[])  + person.get("social_accounts",[])
+            images = info.get("images",[])  + person.get("images",[])
+            email_addresses = info.get("email_addresses",[])  + person.get("email_addresses",[])
+            info["sources"] = list(set(sources))
+            info["social_accounts"] = list(set(social_accounts))
+            info["images"] = list(set(images))
+            info["email_addresses"] = list(set(email_addresses))      
+            by_linkedin_id[linkedin_id] = info    
+        if new_data:
+            user_request._make_request(new_data)                                          
+        return by_linkedin_id.values()
+
+    def refresh_contacts(self, new_contacts=[]):
+        user_request = UserRequest(self.email)
+        contacts_array = user_request.lookup_data()
+        from_linkedin = set()
+        from_gmail = set()
+        from_yahoo = set()
+        from_windowslive = set()
+        from_aol = set()
+        from_all = set()
+        account_sources = {}
+        by_source = {}
+        for record in contacts_array + new_contacts:
+            owner = record.get("contacts_owner")              
+            if owner:
+                account_email = owner.get("email",[{}])[0].get("address","").lower()   
+            else: 
+                account_email = 'linkedin'                    
+            service = record.get("service","").lower()
+            account_sources[account_email] = service
+            contact = record.get("contact",{})
+            emails = contact.get("email",[{}])
+            try:
+                email_address = emails[0].get("address",'').lower()
+            except Exception, e:
+                email_address = ''
+                #print contact
+            if not email_address:
+                continue   
+            by_source[email_address+service] = record
+            if service=='linkedin':
+                from_linkedin.add(email_address)
+            elif service=='gmail':
+                from_gmail.add(email_address)
+            elif service=='yahoo':
+                from_yahoo.add(email_address)
+            elif service=='windowslive':
+                from_windowslive.add(email_address)
+            elif service=='aol':
+                from_aol.add(email_address)  
+            else:
+                continue  
+            from_all.add(email_address)     
+        self.unique_contacts_uploaded = len(from_all)
+        self.contacts_from_linkedin = len(from_linkedin)
+        self.contacts_from_gmail = len(from_gmail)
+        self.contacts_from_yahoo = len(from_yahoo)
+        self.contacts_from_windowslive = len(from_windowslive)
+        self.contacts_from_aol = len(from_aol)
+        self.account_sources = account_sources
+        self._statistics = None
+        db.session.add(self)
+        db.session.commit()    
+        if new_contacts:
+            user_request._make_request(by_source.values())                      
+        return by_source.values(), self
 
     @property
     def manager(self):

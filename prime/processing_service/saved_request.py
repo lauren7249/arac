@@ -57,10 +57,11 @@ class S3SavedRequest(object):
 
 class UserRequest(S3SavedRequest):
 
-    def __init__(self, email, type='p200-'):
+    def __init__(self, email, type='p200-', number=0):
         super(UserRequest, self).__init__()
         email = resolve_email(email)
-        self.url = "{}{}".format(type,email)
+        roman = "".join(['1' for b in xrange(0, number)])
+        self.url = "{}{}{}".format(type,email,roman)
         try:
             self.key = hashlib.md5(self.url).hexdigest()
         except Exception, e:
@@ -80,5 +81,5 @@ class UserRequest(S3SavedRequest):
             entity = json.loads(html.decode("utf-8-sig"))
             return entity
         except:
-            return {}
+            return []
 

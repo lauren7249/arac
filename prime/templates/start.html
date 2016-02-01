@@ -283,7 +283,7 @@
             </div>
             <div id='windowslive-area' class="connect-email">
               <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
-              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live Account</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live (Hotmail, Outlook) Account</div>
               <div class='connected_area'></div>
             </div>
             <div id='aol-area' class="connect-email">
@@ -431,7 +431,7 @@
           <div class="wrap">            
             <div class="note text-center">
               <h1>Congratulations!</h1>
-              <h3 class="text-teal">You’ve successfully uploaded <span class='final-contact-count'></span> Contacts!</h3>
+              <h3 class="text-teal">You’ve successfully uploaded a total of <span class='final-contact-count'></span> Contacts!</h3>
               <p>We will email you when your Network Summary is complete.</p>
               <small>Still want to add more contacts? <a href="/">Go Back to Step 1</a></small>
             </div>
@@ -587,7 +587,7 @@
             error: function (responseData, textStatus, errorThrown) {
                 $(".waiting").hide();   
                 $(".overlay").fadeOut();                
-                showSuccess('upload failed.');
+                showSuccess("It appears there was an issue with the upload. An error report has been sent. We apologize for the inconvenience.");
             }
         });   
  

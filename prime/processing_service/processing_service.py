@@ -30,7 +30,6 @@ from social_profiles_service import SocialProfilesService
 from scoring_service import ScoringService
 from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
-from prime.processing_service.saved_request import UserRequest
 SAVE_OUTPUTS = False
 
 #DO NOT REORDER THESE
@@ -47,24 +46,22 @@ class ProcessingService(Service):
         self.web_url = config[os.getenv('AC_CONFIG', 'default')].BASE_URL
         self.client_data = client_data
         self.data = data
+        self.saved_data = None
         self.output = []
-        user_request = UserRequest(client_data.get("email"),type='hiring-screen-data')
-        self.saved_data = user_request.lookup_data() 
-        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
-            self.saved_data = None    
-        if self.saved_data:     
-            self.logger.info("Using saved data")
-            self.data = self.saved_data       
+        self.user = self._get_user()
         if client_data.get("hired"):
+            self.saved_data = self.user.refresh_hiring_screen_data()
+            if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
+                self.saved_data = None    
+            if self.saved_data:     
+                self.logger.info("Using saved data")
+                self.data = self.saved_data                   
             if self.saved_data:
                 CLASS_LIST = CONTACT_INFO + WRAP_UP
             else:
                 CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK + CONTACT_INFO + WRAP_UP
         else:
-            if self.saved_data:
-                CLASS_LIST = WRAP_UP
-            else:
-                CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
+            CLASS_LIST = FIRST_DEGREE_NETWORK + FOR_NETWORK_SUMMARY + EXTENDED_NETWORK +  WRAP_UP
         SERVICES = OrderedDict()
         for CLASS in CLASS_LIST:
             SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS
@@ -99,10 +96,9 @@ class ProcessingService(Service):
             self.logerror()
             return []
         try:
-            user = self._get_user()
-            if user and self.client_data.get("hired"):
-                user.p200_started = True
-                self.session.add(user)
+            if self.user and self.client_data.get("hired"):
+                self.user.p200_started = True
+                self.session.add(self.user)
                 self.session.commit()                
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
@@ -119,15 +115,18 @@ class ProcessingService(Service):
                     save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
-            if user: 
+            #richard simonetti
+            if self.user.manager_id ==445:
+                return
+            if self.user: 
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 if self.client_data.get("hired"):
                     subject = "Congratulations from New York Life"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
-                    manager = self.session.query(ManagerProfile).get(user.manager_id)
-                    body = tmpl.render(manager=manager, agent=user,base_url=self.web_url)
+                    manager = self.session.query(ManagerProfile).get(self.user.manager_id)
+                    body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url)
                     sendgrid_email(to_email, subject, body) 
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
@@ -135,12 +134,12 @@ class ProcessingService(Service):
                     subject = "{}'s Network Summary is ready".format(name)
                     to_email = self.client_data.get("to_email")
                     tmpl = env.get_template('emails/network_summary_done.html')  
-                    body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)  
+                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)  
                     sendgrid_email(to_email, subject, body) 
                     subject = "Your Network Summary is ready to view"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/network_summary_done_agent.html')  
-                    body = tmpl.render(url=self.web_url, name=name, agent_id=user.user_id)  
+                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)  
                     sendgrid_email(to_email, subject, body)                     
             else:
                 self.logger.error("no user")
@@ -169,7 +168,5 @@ if __name__ == '__main__':
     # logger.info("Input: {}".format(data))
     # data = data[:19]
     data = []
-    processing_service = ProcessingService(
-            client_data = client_data,
-            data=data)
+    processing_service = ProcessingService(client_data = client_data,data=data)
     processing_service.process()
