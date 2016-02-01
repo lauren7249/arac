@@ -85,7 +85,7 @@
               <a href="{{connection.prospect.mailto}}" target="_blank" class="email hint--top" data-hint="{{ connection.prospect.emails }}"></a>
             {% endif %}
             {% if connection.prospect.linkedin_location_raw %}
-              <a href="http://maps.google.com/?q={{ connection.prospect.linkedin_location_raw }}" data-hint="{{ connection.prospect.linkedin_location_raw }}" class="location hint--top" target="_blank" ></a>
+              <a href="http://classic.mapquest.com/?q={{ connection.prospect.linkedin_location_raw }}" data-hint="{{ connection.prospect.linkedin_location_raw }}" class="location hint--top" target="_blank" ></a>
             {% endif %}
             {% if connection.prospect.phone %}
               <a href="#" class="phone hint--top" data-hint="{{ connection.prospect.phone }}"></a>
