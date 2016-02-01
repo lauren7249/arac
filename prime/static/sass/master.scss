@@ -85,17 +85,21 @@ a {
 
 // Header & Footer ==================================
 
+$header-height: 100px;
 header {
   background: white;
-  padding: 20px 0;
+  height: $header-height;
+  padding: 0;
   .header-logo {
     @extend %bg-img;
+    margin-top: 20px;
     width: 178px;
     height: 60px;
     background-image: url("/static/img/logo-lockup.png");
   }
   .nav-right {
-    padding-top: 10px;
+    height: $header-height;
+    line-height: $header-height;
     font-size: 12px;
     font-weight: 600;
     span {
@@ -113,28 +117,30 @@ header {
     div.autocomplete {
       display: none;
       position: absolute;
-      top: 18px;
+      top: $header-height;
       right: -20px;
-      border: 1px solid #eee;
+      border: 1px solid $border;
       border-top: 0;
-      background: #fff;
-      width: 208px;
+      background: white;
+      height: auto;
+      line-height: 0;
+      width: 200px;
       z-index: 4;
-      padding: 15px;
-
       ul {
         list-style-type: none;
+        padding: 0;
         margin: 0;
-
         li {
           padding: 5px;
           text-transform: uppercase;
           text-align: right;
-
           a {
             color: $blue;
             text-decoration: none;
             font-size: 12px;
+            height: 40px;
+            line-height: 40px;
+            padding: 10px;
           }
         }
       }
@@ -1255,7 +1261,7 @@ form.dropzone {
   background-color: white;
   text-align: center;
   font-size: normal;
-  padding: 120px 20px 60px;
+  padding: 12g0px 20px 60px;
   margin: 0;
   color: $grey;
   border: 2px dashed $border;
