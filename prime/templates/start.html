@@ -283,7 +283,7 @@
             </div>
             <div id='windowslive-area' class="connect-email">
               <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
-              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live (Hotmail, Outlook) Account</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live Account</div>
               <div class='connected_area'></div>
             </div>
             <div id='aol-area' class="connect-email">
@@ -442,8 +442,7 @@
   </div>
   
   <script type='text/javascript' >
-
-
+    var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     function do_import(service, divid, win) {     
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
         function(data) {

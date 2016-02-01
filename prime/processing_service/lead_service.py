@@ -85,7 +85,7 @@ class LeadService(Service):
         if not self._filter_title(title):
             return False
         salary = max(person.get("glassdoor_salary", 0), person.get("indeed_salary", 0))
-        self.logger.info("Person: %s, Salary: %s, Title: %s", uu(linkedin_data.get("full_name")), salary, uu(title))
+        #self.logger.info("Person: %s, Salary: %s, Title: %s", uu(linkedin_data.get("full_name")), salary, uu(title))
         if salary == 0:
             return True
         if salary > self.salary_threshold:
@@ -115,7 +115,7 @@ class LeadService(Service):
             and name_match(person_name.split(" ")[1], self.client_data.get("last_name")):
             self.logger.info("%s is ME", uu(person_name))
             return True
-        self.logger.info("%s is NOT ME", uu(person_name))
+        #self.logger.info("%s is NOT ME", uu(person_name))
         return False
 
     #TODO: make this more robust
@@ -127,7 +127,7 @@ class LeadService(Service):
         if person_company.strip() in EXCLUDED_COMPANIES:
             self.logger.info("%s is a competitor", uu(person_company))
             return True
-        self.logger.info("%s is NOT a competitor", uu(person_company))
+        ##self.logger.info("%s is NOT a competitor", uu(person_company))
         return False
 
     def _valid_lead(self, person):
