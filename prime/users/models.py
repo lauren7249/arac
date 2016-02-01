@@ -211,6 +211,7 @@ class User(db.Model, UserMixin):
         for person in data + new_data:
             linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
             info = by_linkedin_id.get(linkedin_id,{})
+            info.update(person)
             sources = info.get("sources",[]) + person.get("sources",[])
             social_accounts = info.get("social_accounts",[])  + person.get("social_accounts",[])
             images = info.get("images",[])  + person.get("images",[])
@@ -221,7 +222,7 @@ class User(db.Model, UserMixin):
             info["email_addresses"] = list(set(email_addresses))      
             by_linkedin_id[linkedin_id] = info    
         if new_data:
-            user_request._make_request(new_data)                                          
+            user_request._make_request(by_linkedin_id.values())                                          
         return by_linkedin_id.values()
 
     def refresh_contacts(self, new_contacts=[]):

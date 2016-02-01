@@ -38,7 +38,7 @@ class ExtendedLeadService(LeadService):
                     self.output.append(person)
                 else:
                     self.bad_leads.append(person)
-            #self.output = self.user.refresh_hiring_screen_data(self.output)                  
+            self.user.refresh_hiring_screen_data(self.output)                  
         except:
             self.logerror()
         self.logend()

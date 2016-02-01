@@ -50,7 +50,7 @@ class ProcessingService(Service):
         self.output = []
         self.user = self._get_user()
         self.saved_data = self.user.refresh_hiring_screen_data()
-        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com":
+        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com" :
             self.saved_data = None    
         if self.saved_data:     
             self.logger.info("Using saved data")
