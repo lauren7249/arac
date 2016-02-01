@@ -179,16 +179,16 @@
 
           //New file added
           self.on("addedfile", function (file) {
-            filename = file.name;
-            var match = /linkedin_connections_export_microsoft_outlook.*\.csv/.test(filename);
-            if (! match || true) {
-              $(".overlay").fadeOut();
-              $(".waiting").hide();      
-              console.log(filename);
-              alert(filename + " seems like the wrong file. We are looking for linkedin_connections_export_microsoft_outlook.csv");
-            } else {
-              if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }   
-            }
+            // filename = file.name;
+            // var match = /linkedin_connections_export_microsoft_outlook.*\.csv/.test(filename);
+            // if (! match || true) {
+            //   $(".overlay").fadeOut();
+            //   $(".waiting").hide();      
+            //   console.log(filename);
+            //   alert(filename + " seems like the wrong file. We are looking for linkedin_connections_export_microsoft_outlook.csv");
+            // } else {
+            //   if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }   
+            // }
           });
           // Send file starts
           self.on("sending", function (file) {
