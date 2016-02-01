@@ -52,7 +52,7 @@ def init_admin(app):
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/chosen.css', 'css/master.css', 'css/hint.css', 'css/poppins.css', 
+    css = Bundle('css/chosen.css', 'css/hint.css', 'css/poppins.css', 'css/master.css', 
                  output='css/gen/main.%(version)s-min.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)
