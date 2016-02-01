@@ -890,8 +890,8 @@ table.contacts-table .contact-buttons .button {
   padding-right: 20px;
 }
 .contact-info .pic img {
-  width: 50px;
-  height: 50px;
+  width: 150px;
+  height: 150px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
