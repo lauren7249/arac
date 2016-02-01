@@ -225,7 +225,7 @@ $(function() {
   bindPageFunctions()
  });
 </script>
-{% if current_user.intro_js_seen %}
+{% if not current_user.intro_js_seen %}
 {% include "_partials/intro.html" %}
 {% endif %}
 {% endblock %}
