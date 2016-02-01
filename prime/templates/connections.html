@@ -4,7 +4,7 @@
 {% include "_partials/agent_header.html" %}
 {% endwith %}
 <!-- Contacts Table-->
-<div class="section">
+<div class="section" data-step="1" data-intro="Welcome back!  To help you build your Project 200, you can sort your contacts using the filters or you can search by name.">
   <div class="wrap">
     <div class="col-9">
       <div class="filters">
@@ -225,4 +225,7 @@ $(function() {
   bindPageFunctions()
  });
 </script>
+{% if current_user.intro_js_seen %}
+{% include "_partials/intro.html" %}
+{% endif %}
 {% endblock %}

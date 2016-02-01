@@ -256,7 +256,7 @@ def upload():
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
         sendgrid_email(to_email, "{} {} imported {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(n_contacts)), body)
         q = get_q()
-        
+
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
         print "/n/n/n/n/n/n/n/n/n/n/n/n/n/n"
         print client_data
@@ -543,3 +543,11 @@ def pdf():
             connections=connections.items,
             pagination=connections,
             active="p200")
+
+@csrf.exempt
+@prospects.route("/intro_seen", methods=['GET', 'POST'])
+def intro_seen():
+    current_user.intro_js_seen = True
+    session.add(current_user)
+    return jsonify({"success": True})
+
