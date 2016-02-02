@@ -7,7 +7,7 @@ sudo fuser -k 80/tcp
 sudo rm true
 sudo rm nohup.out
 sleep 1
-sudo ~/env/bin/uwsgi production.ini
+~/env/bin/uwsgi production.ini
 sudo pkill -f worker.py
 nohup python worker.py & 
 sleep 2
