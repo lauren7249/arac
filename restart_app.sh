@@ -1,6 +1,6 @@
 #!/bin/bash
 export AC_CONFIG='beta'
-. ~/env/bin/activate
+sudo . ~/env/bin/activate
 pip install -r requirements.txt 
 sudo pkill -f track_errors.py
 sudo fuser -k 80/tcp
