@@ -20,7 +20,7 @@ def watch(fn):
                 inerror = False
 
         else:
-            time.sleep(0.5)
+            time.sleep(1)
             response = requests.get("https://prime.advisorconnect.co")
             if response.status_code == 500:
                 yield "App restarted due to 500 status_code"
