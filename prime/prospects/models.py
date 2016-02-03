@@ -125,7 +125,7 @@ class Prospect(db.Model):
     def emails(self):
         if not self.mailto:
             return ""
-        return self.mailto.split(":")[-1].replace(", "," ")
+        return self.mailto.split(":")[-1].replace(","," ")
 
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
