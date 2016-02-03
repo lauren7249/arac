@@ -502,5 +502,6 @@ def pdf():
 def intro_seen():
     current_user.intro_js_seen = True
     session.add(current_user)
+    session.commit()
     return jsonify({"success": True})
 

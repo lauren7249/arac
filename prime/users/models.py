@@ -81,7 +81,7 @@ class User(db.Model, UserMixin):
     p200_approved = db.Column(postgresql.BOOLEAN, default=False)
     _statistics = db.Column(JSONB, default={})
 
-    intro_js_seen = db.Column(postgresql.BOOLEAN, default=True)
+    intro_js_seen = db.Column(postgresql.BOOLEAN, default=False)
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
     prospect = relationship("Prospect", \
@@ -185,7 +185,7 @@ class User(db.Model, UserMixin):
     def clear_data(self, remove_uploads=False):
         if remove_uploads:
             user_request = UserRequest(self.email)
-            user_request.boto_key.delete()        
+            user_request.boto_key.delete()
         user_request = UserRequest(self.email, type='actual-p200-data')
         user_request.boto_key.delete()
         user_request = UserRequest(self.email, type='hiring-screen-data')
@@ -193,8 +193,8 @@ class User(db.Model, UserMixin):
 
     def refresh_p200_data(self, new_data=[]):
         user_request = UserRequest(self.email, type='actual-p200-data')
-        data = user_request.lookup_data()   
-        #it's been run once and we arent adding anything. 
+        data = user_request.lookup_data()
+        #it's been run once and we arent adding anything.
         by_linkedin_id = {}
         for person in data + new_data:
             linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
@@ -207,16 +207,16 @@ class User(db.Model, UserMixin):
             info["sources"] = list(set(sources))
             info["social_accounts"] = list(set(social_accounts))
             info["images"] = list(set(images))
-            info["email_addresses"] = list(set(email_addresses))      
-            by_linkedin_id[linkedin_id] = info    
+            info["email_addresses"] = list(set(email_addresses))
+            by_linkedin_id[linkedin_id] = info
         if new_data:
-            user_request._make_request(new_data)                                          
+            user_request._make_request(new_data)
         return by_linkedin_id.values()
 
     def refresh_hiring_screen_data(self, new_data=[]):
         user_request = UserRequest(self.email, type='hiring-screen-data')
-        data = user_request.lookup_data()   
-        #it's been run once and we arent adding anything. 
+        data = user_request.lookup_data()
+        #it's been run once and we arent adding anything.
         by_linkedin_id = {}
         for person in data + new_data:
             linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
@@ -229,10 +229,10 @@ class User(db.Model, UserMixin):
             info["sources"] = list(set(sources))
             info["social_accounts"] = list(set(social_accounts))
             info["images"] = list(set(images))
-            info["email_addresses"] = list(set(email_addresses))      
-            by_linkedin_id[linkedin_id] = info    
+            info["email_addresses"] = list(set(email_addresses))
+            by_linkedin_id[linkedin_id] = info
         if new_data:
-            user_request._make_request(by_linkedin_id.values())                                          
+            user_request._make_request(by_linkedin_id.values())
         return by_linkedin_id.values()
 
     def refresh_contacts(self, new_contacts=[]):
@@ -247,11 +247,11 @@ class User(db.Model, UserMixin):
         account_sources = {}
         by_source = {}
         for record in contacts_array + new_contacts:
-            owner = record.get("contacts_owner")              
+            owner = record.get("contacts_owner")
             if owner:
-                account_email = owner.get("email",[{}])[0].get("address","").lower()   
-            else: 
-                account_email = 'linkedin'                    
+                account_email = owner.get("email",[{}])[0].get("address","").lower()
+            else:
+                account_email = 'linkedin'
             service = record.get("service","").lower()
             account_sources[account_email] = service
             contact = record.get("contact",{})
@@ -262,7 +262,7 @@ class User(db.Model, UserMixin):
                 email_address = ''
                 #print contact
             if not email_address:
-                continue   
+                continue
             by_source[email_address+service] = record
             if service=='linkedin':
                 from_linkedin.add(email_address)
@@ -273,10 +273,10 @@ class User(db.Model, UserMixin):
             elif service=='windowslive':
                 from_windowslive.add(email_address)
             elif service=='aol':
-                from_aol.add(email_address)  
+                from_aol.add(email_address)
             else:
-                continue  
-            from_all.add(email_address)     
+                continue
+            from_all.add(email_address)
         self.unique_contacts_uploaded = len(from_all)
         self.contacts_from_linkedin = len(from_linkedin)
         self.contacts_from_gmail = len(from_gmail)
@@ -286,9 +286,9 @@ class User(db.Model, UserMixin):
         self.account_sources = account_sources
         self._statistics = None
         db.session.add(self)
-        db.session.commit()    
+        db.session.commit()
         if new_contacts:
-            user_request._make_request(by_source.values())                      
+            user_request._make_request(by_source.values())
         return by_source.values(), self
 
     @property
