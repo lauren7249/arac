@@ -50,7 +50,7 @@ class ProcessingService(Service):
         self.output = []
         self.user = self._get_user()
         self.saved_data = self.user.refresh_hiring_screen_data()
-        if self.client_data.get("email") == "jrocchi@ft.newyorklife.com" :
+        if len(self.saved_data) < 100 :
             self.saved_data = None    
         if self.saved_data:     
             self.logger.info("Using saved data")
@@ -118,10 +118,7 @@ class ProcessingService(Service):
                     save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
-            #richard simonetti
-            # if self.user.manager_id ==445:
-            #     return
-            if self.user: 
+            if self.user and not self.client_data.get("suppress_emails"): 
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 if self.client_data.get("hired"):

@@ -55,14 +55,29 @@ def manager_invite_agent():
         first_name = request.form.get("first_name")
         last_name = request.form.get("last_name")
         to_email = request.form.get("email").lower()
-        agent = User.query.filter(User.email == to_email).first()
-        manager = current_user.manager_profile[0]
+        agent = session.query(User).filter(User.email == to_email).first()
         if agent:
+            if agent.is_manager:
+                error_message = "This person exists in our system as a manager, therefore you cannot invite them as an agent." 
+                return render_template('manager/invite.html', active="invite", error_message=error_message, success=False)
+            agent.clear_data()
+            agent.set_password('')
+            agent.account_created = False
+            agent.unique_contacts_uploaded = 0
+            agent.hiring_screen_completed = False
+            agent.p200_completed = False
+            agent.p200_started = False
+            agent.p200_submitted_to_manager = False
+            agent.p200_approved = False
+            agent._statistics = None
             user = agent
+            #session.delete(agent)
+            # session.commit()
             # error_message = "This agent already exists in our system. Please \
             #         contact jeff@adivsorconnect.co if this seems incorrect to you"
         else:
             user = User(first_name, last_name, to_email, '')
+        manager = current_user.manager_profile[0]
         user.manager_id = manager.manager_id
         session.add(user)
         session.commit()

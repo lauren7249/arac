@@ -10,10 +10,9 @@ from helper import uu, name_match
 from constants import NOT_REAL_JOB_WORDS, EXCLUDED_COMPANIES
 from service import Service
 from saved_request import S3SavedRequest
-from geocode_service import MapQuestRequest
 from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
-from geocode_service import GeoCodingService
+from geocode_service import GeoCodingService, MapQuestRequest
 from person_request import PersonRequest
 
 class LeadService(Service):
@@ -29,6 +28,7 @@ class LeadService(Service):
         self.data = data
         self.location = None
         self.jobs = []
+        self.other_locations = []
         self.schools = []
         self.salary_threshold = 35000
         self.location_threshhold = 50
@@ -41,25 +41,23 @@ class LeadService(Service):
     def _filter_same_locations(self, person):
         latlng = self.location.get("latlng")
         geopoint = GeoPoint(latlng[0],latlng[1])
-        lead_location = person.get("location_coordinates", {}).get("latlng")
+        location_data = person.get("location_coordinates",{})
+        lead_location =location_data.get("latlng")
         if lead_location:
             lead_geopoint = GeoPoint(lead_location[0], lead_location[1])
             miles_apart = geopoint.distance_to(lead_geopoint)
-            self.logger.info("Location: %s Miles Apart: %s",
-                    person.get("location_coordinates",{}).get("locality"), miles_apart)
+            self.logger.info("Location: {}, {} Miles Apart: {}".format(location_data.get("region"),location_data.get("locality"), miles_apart))
             if miles_apart < self.location_threshhold:
                 self.logger.info("Same Location")
                 return True
-            if self.client_data.get("email") == 'jrocchi@ft.newyorklife.com':
-                for location in self.other_locations:
-                    latlng = location.get("latlng")
-                    geopoint = GeoPoint(latlng[0],latlng[1])                    
-                    miles_apart = geopoint.distance_to(lead_geopoint)
-                    self.logger.info("Location: %s Miles Apart: %s",
-                            person.get("location_coordinates",{}).get("locality"), miles_apart)
-                    if miles_apart < self.location_threshhold:
-                        self.logger.info("Same Location")
-                        return True             
+            for location in self.other_locations:
+                latlng = location.get("latlng")
+                geopoint = GeoPoint(latlng[0],latlng[1])                    
+                miles_apart = geopoint.distance_to(lead_geopoint)
+                self.logger.info("Location: {}, {} Miles Apart: {}".format(location_data.get("region"),location_data.get("locality"), miles_apart))
+                if miles_apart < self.location_threshhold:
+                    self.logger.info("Same Location")
+                    return True             
         else:
             self.logger.info("No Location")
         return False
@@ -94,10 +92,8 @@ class LeadService(Service):
 
     def _get_qualifying_info(self):
         self.location = MapQuestRequest(self.client_data.get("location")).process()   
-        if self.client_data.get("email") == 'jrocchi@ft.newyorklife.com':
-            self.other_locations = []
-            for location in ["New York, New York","Boston, MA","Hartford, Connecticut"]:
-                self.other_locations.append(MapQuestRequest(location).process())
+        for location in self.client_data.get("other_locations",[]):
+            self.other_locations.append(MapQuestRequest(location).process())
         data = self.data         
         service = GeoCodingService(self.client_data, data)
         data = service.multiprocess() 

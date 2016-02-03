@@ -41,6 +41,10 @@ if __name__ == '__main__':
         u.manager_id = int(manager_id)
         session.add(u)
         session.commit()
+        manager = u.manager
+        manager.users.append(u)
+        session.add(manager)
+        session.commit()
 
     @manager.command
     def rerun_contacts(email, hired, flush):
@@ -50,14 +54,22 @@ if __name__ == '__main__':
         user = User.query.filter_by(email=email).first()
         contacts_array, user = user.refresh_contacts()
         print len(contacts_array)
+        if email == 'jrocchi@ft.newyorklife.com':
+            other_locations = ["New York, New York","Boston, MA","Hartford, Connecticut","Washington, DC"]
+        else:
+            other_locations = []
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.location,"url":user.linkedin_url,\
-                "to_email":user.manager.user.email, "hired": (hired == "True")}
+                "to_email":user.manager.user.email, "hired": (hired == "True"), 
+                "suppress_emails":True, "other_locations":other_locations}
+        print client_data
         q = get_q()
         q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)        
         if flush=='True':
             for client_prospect in user.client_prospects:
                 session.delete(client_prospect)
+            user._statistics = None
+            session.add(user)
             session.commit()        
 
     @manager.command

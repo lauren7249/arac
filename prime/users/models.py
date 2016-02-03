@@ -182,6 +182,15 @@ class User(db.Model, UserMixin):
                 from_email="jeff@advisorconnect.co")
         return True
 
+    def clear_data(self, remove_uploads=False):
+        if remove_uploads:
+            user_request = UserRequest(self.email)
+            user_request.boto_key.delete()        
+        user_request = UserRequest(self.email, type='actual-p200-data')
+        user_request.boto_key.delete()
+        user_request = UserRequest(self.email, type='hiring-screen-data')
+        user_request.boto_key.delete()
+
     def refresh_p200_data(self, new_data=[]):
         user_request = UserRequest(self.email, type='actual-p200-data')
         data = user_request.lookup_data()   
@@ -190,6 +199,7 @@ class User(db.Model, UserMixin):
         for person in data + new_data:
             linkedin_id = person.get("linkedin_data",{}).get("linkedin_id")
             info = by_linkedin_id.get(linkedin_id,{})
+            info.update(person)
             sources = info.get("sources",[]) + person.get("sources",[])
             social_accounts = info.get("social_accounts",[])  + person.get("social_accounts",[])
             images = info.get("images",[])  + person.get("images",[])

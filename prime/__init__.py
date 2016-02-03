@@ -14,7 +14,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
 from webassets import Bundle
 from flask.ext.admin import Admin
-from flask.ext.admin.contrib.sqla import ModelView
+# from flask.ext.admin.contrib.sqla import ModelView
 from flask_sslify import SSLify
 
 from config import config
@@ -40,17 +40,17 @@ def create_app(config_name):
     #mail.init_app(app)
     init_assets(app)
     register_blueprints(app)
-    init_admin(app)
+    #init_admin(app)
     add_template_globals(app)
     RQ(app)
     if config == 'beta':
         SSLify(app)
     return app
 
-def init_admin(app):
-    from .users.models import User
-    admin = Admin(app)
-    admin.add_view(ModelView(User, db.session))
+# def init_admin(app):
+#     from .users.models import User
+#     admin = Admin(app)
+#     admin.add_view(ModelView(User, db.session))
 
 def init_assets(app):
     assets_environment = Environment(app)
