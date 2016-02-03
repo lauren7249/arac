@@ -105,14 +105,10 @@ class ProcessingService(Service):
                 self.session.commit()                
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
-                if self.output:
-                    service = self.services[key](
-                            self.client_data,
-                            self.output)
+                if key == self.services.keys()[0]:
+                    service = self.services[key](self.client_data,self.data)
                 else:
-                    service = self.services[key](
-                            self.client_data,
-                            self.data)
+                    service = self.services[key](self.client_data,self.output)
                 self.output = service.multiprocess()
                 if SAVE_OUTPUTS:
                     save_output(self.output, self.client_data.get("email"), service.__class__.__name__)

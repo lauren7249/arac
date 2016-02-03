@@ -41,6 +41,9 @@ class ExtendedProfilesService(Service):
             associated_profiles = self.intermediate_output[i]
             person = self.data[i]
             person_profile = person.get("linkedin_data")
+            if not person_profile:
+                self.logger.error("No linkedin data for {}".format(str(person)))
+                continue
             linkedin_id = person_profile.get("linkedin_id")
             first_degree_linkedin_ids.add(linkedin_id)
             self.output.append(person)
