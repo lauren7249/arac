@@ -94,7 +94,6 @@ class User(db.Model, UserMixin):
         self.email = email.lower()
         self.set_password(password)
 
-
     @property
     def hired(self):
         return self.p200_started or self.p200_completed or self.p200_submitted_to_manager or self.p200_approved
@@ -426,6 +425,19 @@ class User(db.Model, UserMixin):
     @property
     def average_income_score(self):
         return self.statistics().get("wealth_score")
+
+    #creates edges by linkedin id -- for QA purposes
+    @property 
+    def extended_graph(self):
+        g = []
+        for client_prospect in self.client_prospects:
+            if not client_prospect.referrers:
+                continue
+            li_1 = client_prospect.prospect.linkedin_id
+            name_1 = client_prospect.prospect.name
+            for referrer in client_prospect.referrers:
+                g.append((referrer.get("referrer_url"), name_1))
+        return g
 
     def build_statistics(self):
         """
