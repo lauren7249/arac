@@ -44,6 +44,7 @@ class ClearbitPersonService(Service):
         self.logger = logging.getLogger(__name__)
         
     def _merge(self, original_data, output_data):
+        _linkedin_urls_found  = 0
         for i in xrange(0, len(original_data)):
             original_person = original_data[i].values()[0]
             output_person = output_data[i].values()[0]
@@ -51,14 +52,18 @@ class ClearbitPersonService(Service):
             sources = original_person.get("sources",[]) + output_person.get("sources",[])
             images = original_person.get("images",[]) + output_person.get("images",[])
             linkedin_urls = original_person.get("linkedin_urls") if original_person.get("linkedin_urls") else output_person.get("linkedin_urls")
+            if linkedin_urls:
+                _linkedin_urls_found+=1
             output_data[i][output_data[i].keys()[0]]["social_accounts"] = social_accounts
             output_data[i][output_data[i].keys()[0]]["linkedin_urls"] = linkedin_urls
             output_data[i][output_data[i].keys()[0]]["images"] = images
             output_data[i][output_data[i].keys()[0]]["sources"] = sources
-            output_data[i][output_data[i].keys()[0]]["job_title"] = original_person.get("job_title")
-            output_data[i][output_data[i].keys()[0]]["companies"] = original_person.get("companies")
-            output_data[i][output_data[i].keys()[0]]["first_name"] = original_person.get("first_name")
-            output_data[i][output_data[i].keys()[0]]["last_name"] = original_person.get("last_name")
+            #the one that has the job title is the linkedin record
+            output_data[i][output_data[i].keys()[0]]["job_title"] = original_person.get("job_title") if original_person.get("job_title") else output_person.get("job_title")
+            output_data[i][output_data[i].keys()[0]]["companies"] = original_person.get("companies") if original_person.get("job_title") else output_person.get("companies")
+            output_data[i][output_data[i].keys()[0]]["first_name"] = original_person.get("first_name") if original_person.get("job_title") else output_person.get("first_name")
+            output_data[i][output_data[i].keys()[0]]["last_name"] = original_person.get("last_name") if original_person.get("job_title") else output_person.get("last_name")      
+        self.logger.info("{} linkedin urls found".format(_linkedin_urls_found))      
         return output_data
 
     def process(self):

@@ -33,6 +33,8 @@ class LeadService(Service):
         self.salary_threshold = 35000
         self.location_threshhold = 50
         self.output = []
+        self.locals = 0
+        self.non_competitors = 0
         self.bad_leads = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -133,10 +135,16 @@ class LeadService(Service):
                 return False
         except:
             return False
-        salary = self._filter_salaries(person)
-        location = self._filter_same_locations(person)
-        same_person = self._is_same_person(person)        
+        same_person = self._is_same_person(person)   
+        location = self._filter_same_locations(person)    
+        if not location:
+            return False
+        self.locals+=1
         competitor = self._is_competitor(person)    
+        if competitor:
+            return False
+        self.non_competitors+=1
+        salary = self._filter_salaries(person)
         return salary and location and not same_person and not competitor
         
     def process(self):
@@ -148,6 +156,8 @@ class LeadService(Service):
                     self.output.append(person)
                 else:
                     self.bad_leads.append(person)
+            self.logger.info("{} people were local".format(self.locals))
+            self.logger.info("{} people were also not competitors".format(self.non_competitors))
         except:
             self.logerror()
         self.logend()
