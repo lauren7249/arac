@@ -7,6 +7,7 @@ from prime.processing_service.geocode_service import GeocodeRequest, GeoPoint, M
 import happybase
 from prime.processing_service.pipl_request import PiplRequest
 from prime.processing_service.social_profiles_service import SocialProfilesRequest
+from prime.processing_service.profile_builder_service import wrapper as profile_builder
 
 hb = HBaseLoader("2016_01",sc)
 data = hb.get_s3_data()
@@ -83,5 +84,9 @@ def enrich(linkedin_data):
 enriched = datamap.map(enrich)
 enriched.cache()
 enriched_output = enriched.collect()
+profiles = enriched.map(profile_builder)
+profiles.cache()
+profiles_output = profiles.collect()
+
 
 
