@@ -419,8 +419,9 @@ def submit_p200_to_manager():
             ClientProspect.good==True,
             ClientProspect.user==agent,
             ).join(Prospect).order_by(Prospect.name)
-    if connections.count() < 50:
-        return jsonify({"error": "You must have at least 50 connections"})
+    #TODO disabling 50 connection rule.
+    #if connections.count() < 50:
+    #    return jsonify({"error": "You must have at least 50 connections"})
     agent.submit_to_manager()
     agent.p200_submitted_to_manager = True
     session.add(agent)
