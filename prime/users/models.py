@@ -122,7 +122,7 @@ class User(db.Model, UserMixin):
 
     @property
     def p200_count(self):
-        return max(200 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)
+        return max(500 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)
 
     def set_password(self, password):
         self._password_hash = generate_password_hash(password)
@@ -427,7 +427,7 @@ class User(db.Model, UserMixin):
         return self.statistics().get("wealth_score")
 
     #creates edges by linkedin id -- for QA purposes
-    @property 
+    @property
     def extended_graph(self):
         g = []
         for client_prospect in self.client_prospects:
