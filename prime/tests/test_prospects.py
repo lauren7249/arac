@@ -187,7 +187,7 @@ class TestClearbitPersonService(unittest.TestCase):
             u'https://twitter.com/maccaw', u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5', 
             u'https://gravatar.com/maccman', u'https://facebook.com/amaccaw', u'https://angel.co/maccaw'])
         self.assertEqual(data1[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/in/alex-maccaw')
-        self.assertEqual(data1[1].get('laurentracytalbot@gmail.com').get("clearbit_fields",{}).get("gender"), 'female')
+        self.assertEqual(data1[1].get('laurentracytalbot@gmail.com').get("gender"), 'female')
         self.assertEqual(data1,data2)
 
 class TestClearbitPhoneService(unittest.TestCase):
