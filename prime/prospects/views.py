@@ -467,7 +467,7 @@ def export():
                 first_name = name
                 last_name = None
         row = ["", first_name, "", last_name, "", email1,
-            "", "", connection.prospect.linkedin_industry_raw,
+            "", "", connection.prospect.linkedin_location_raw,
             state, "", "", "",
             connection.prospect.company, ""]
         writer.writerow(row)
