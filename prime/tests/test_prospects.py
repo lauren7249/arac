@@ -37,7 +37,7 @@ class TestCloudspongeService(unittest.TestCase):
         self.service = CloudSpongeService(client_data, emails)
 
     def test_cloudsponge(self):
-        expected = [{'jamesjohnson11@gmail.com': {'sources':[],'companies': None,'job_title': None}}]
+        expected = [{'jamesjohnson11@gmail.com': {'sources':[],'first_name': None, 'last_name':None, 'companies': None,'job_title': None}}]
         data = self.service.process()
         self.assertEqual(data, expected)
 
@@ -65,8 +65,8 @@ class TestAgeService(unittest.TestCase):
 
     def test_age(self):
         data = self.service.process()
-        self.assertEqual(data[0].get("age"), 27.5)
-        self.assertEqual(data[1].get("age"), 25.5)
+        self.assertEqual(data[0].get("age"), 28.5)
+        self.assertEqual(data[1].get("age"), 26.5)
         self.assertEqual(data[0].get("dob_min"), 1986)
         data2 = self.service.multiprocess()
         self.assertEqual(data, data2)
@@ -241,7 +241,7 @@ class TestExtendedProfilesService(unittest.TestCase):
         service = ExtendedProfilesService(None, self.data)
         data2 = service.multiprocess()
         self.assertEqual(data, data2)
-        self.assertEqual(len(extended), 13)
+        self.assertEqual(len(extended), 14)
         
 class TestPhoneService(unittest.TestCase):
 
