@@ -4,6 +4,9 @@ from helpers.linkedin_helpers import get_dob_year_range
 from prime.utils.crawlera import reformat_crawlera
 import numpy, json
 from prime.processing_service.geocode_service import GeocodeRequest, GeoPoint, MapQuestRequest
+import happybase
+from prime.processing_service.pipl_request import PiplRequest
+from prime.processing_service.social_profiles_service import SocialProfilesRequest
 
 hb = HBaseLoader("2016_01",sc)
 data = hb.get_s3_data()
@@ -56,4 +59,29 @@ def for_jake(line):
 
 datamap = data.flatMap(for_jake)
 datamap.cache()
+#15 minutes!! - 7023 people
 output_data = datamap.collect()
+
+def enrich(linkedin_data):
+    url = linkedin_data.get("canonical_url")
+    if url:
+        connection = happybase.Connection('172.17.0.2')
+        data_table = connection.table('url_xwalk')      
+        row = data_table.row(url)
+        linkedin_id = row.get("keys:linkedin_id")
+        connection.close()
+        if linkedin_id:
+            linkedin_data["linkedin_id"] = linkedin_id
+        else:
+            pipl_data = PiplRequest(url, type="url").process()
+            linkedin_id = pipl_data.get("linkedin_id")
+            if linkedin_id: 
+                linkedin_data["linkedin_id"] = linkedin_id
+    person = {"linkedin_data":linkedin_data}
+    return SocialProfilesRequest(person).process()
+
+enriched = datamap.map(enrich)
+enriched.cache()
+enriched_output = enriched.collect()
+
+
