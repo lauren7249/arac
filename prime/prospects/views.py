@@ -419,8 +419,9 @@ def submit_p200_to_manager():
             ClientProspect.good==True,
             ClientProspect.user==agent,
             ).join(Prospect).order_by(Prospect.name)
-    if connections.count() < 50:
-        return jsonify({"error": "You must have at least 50 connections"})
+    #TODO disabling 50 connection rule.
+    #if connections.count() < 50:
+    #    return jsonify({"error": "You must have at least 50 connections"})
     agent.submit_to_manager()
     agent.p200_submitted_to_manager = True
     session.add(agent)
@@ -466,7 +467,7 @@ def export():
                 first_name = name
                 last_name = None
         row = ["", first_name, "", last_name, "", email1,
-            "", "", connection.prospect.linkedin_industry_raw,
+            "", "", connection.prospect.linkedin_location_raw,
             state, "", "", "",
             connection.prospect.company, ""]
         writer.writerow(row)
