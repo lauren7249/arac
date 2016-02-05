@@ -120,22 +120,22 @@
         </div>
       {% endif %}
     {%elif active == "pdf" %}
-    <div class="contact-info"> 
-      <div class="wrap">    
-        <div class="col-12"> 
-          <div class="main-info">         
-            {%if connection.prospect.phone %}
-              <div class="location">{{ connection.prospect.phone }}</div>  
-            {%endif%}
-            {%if connection.prospect.emails %}
-              <div class="tags">
-                {{ connection.prospect.emails }}
-              </div>  
-            {%endif%}            
+      <div class="contact-info"> 
+        <div class="wrap">    
+          <div class="col-12"> 
+            <div class="main-info">         
+              {%if connection.prospect.phone %}
+                <div class="location">{{ connection.prospect.phone }}</div>  
+              {%endif%}
+              {%if connection.prospect.emails %}
+                <div class="tags">
+                  {{ connection.prospect.emails }}
+                </div>  
+              {%endif%}            
+            </div>
           </div>
         </div>
       </div>
-    </div>
     {%endif%}
   </td>
 </tr>
