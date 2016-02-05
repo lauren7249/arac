@@ -462,7 +462,7 @@ def export():
         try:
             state = STATES[connection.prospect.us_state]
         except:
-            state = state
+            state = connection.prospect.us_state
         try:
             first_name, last_name = name.split(" ")
         except:
