@@ -496,7 +496,7 @@ def pdf():
             ClientProspect.good==True,
             ClientProspect.user==agent,
             ).join(Prospect).order_by(Prospect.name)
-    connections = connections.paginate(page, 200, False)
+    connections = connections.paginate(page, 20000, False)
     return render_template("pdf.html",
             agent=agent,
             page=page,
