@@ -57,7 +57,7 @@ class PiplRequest(S3SavedRequest):
         if self.pipl_version == 3:
             for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
                 if not record.get('@query_params_match') or \
-                        record.get('@query_person_match',0) < 0.9 or  \
+                        record.get('@query_person_match',1) < 0.9 or  \
                         not record.get("source") or \
                         not record.get("source").get("url") or \
                         record.get("source").get("@is_sponsored"):
@@ -76,7 +76,7 @@ class PiplRequest(S3SavedRequest):
             return images
         if self.pipl_version == 3:
             for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-                if not record.get('@query_params_match') or record.get('@query_person_match',0) < 0.9: continue
+                if not record.get('@query_params_match') or record.get('@query_person_match',1) < 0.9: continue
                 for image in record.get("images",[]):
                     url = image.get("url")
                     if url and url not in images and url.find("gravatar.com")==-1:
@@ -102,7 +102,7 @@ class PiplRequest(S3SavedRequest):
                     return linkedin_id
         else:
             for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-                if not record.get('@query_params_match') or record.get('@query_person_match',0) < 0.9: continue
+                if not record.get('@query_params_match') or record.get('@query_person_match',1) < 0.9: continue
                 if record.get("source",{}).get("domain") != "linkedin.com": continue
                 for user_id in record.get("user_ids",[]):
                     linkedin_id = user_id.get("content")
@@ -122,7 +122,7 @@ class PiplRequest(S3SavedRequest):
         emails = []
         if not pipl_json: return emails
         for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-            if not record.get('@query_params_match') or record.get('@query_person_match',0) < 0.9 or not record.get("emails"): continue
+            if not record.get('@query_params_match') or record.get('@query_person_match',1) < 0.9 or not record.get("emails"): continue
             for email in record.get("emails",[]):
                 url = email.get("address") 
                 domain = url.split("@")[-1]

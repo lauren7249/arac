@@ -73,7 +73,7 @@ def for_jake(line):
 
 datamap = data.flatMap(for_jake)
 datamap.cache()
-#15 minutes!! - 7023 people
+#15 minutes!! - 7000 people
 output_data = datamap.collect()
 
 from prime.processing_service.glassdoor_service import wrapper as glassdoor_calc
