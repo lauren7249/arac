@@ -12,6 +12,7 @@ from helper import get_domain
 from service import Service, S3SavedRequest
 from prime.processing_service.constants import pub_profile_re, CLEARBIT_KEY
 from clearbit_request_webhooks import ClearbitRequest
+from helpers.stringhelpers import domestic_area
 
 def person_wrapper(person):
     email = person.keys()[0]
@@ -93,13 +94,13 @@ class ClearbitPersonService(Service):
 
 def phone_wrapper(person, overwrite=False):
     try:
-        if (not overwrite and person.get("phone_number")) or (not person.get("company_website")):
+        if (not overwrite and domestic_area(person.get("phone_number"))) or (not person.get("company_website")):
             #logger.info('Skipping clearbit phone service. Phone: %s, website: %s', person.get("phone_number",""), person.get("company_website",""))
             return person
         website = person.get("company_website")
         request = ClearbitRequest(get_domain(website))
         company = request.get_company()
-        if company.get("phone_number"):
+        if domestic_area(company.get("phone_number")):
             person.update({"phone_number": company.get("phone_number")})
         return person
     except Exception, e:

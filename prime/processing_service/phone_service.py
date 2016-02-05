@@ -15,12 +15,13 @@ from bloomberg_service import BloombergPhoneService
 from clearbit_service_webhooks import ClearbitPhoneService
 from mapquest_request import MapQuestRequest
 from person_request import PersonRequest
+from helpers.stringhelpers import domestic_area
 
 def wrapper(person, favor_mapquest=False):
     try:
         if not person:
             return person
-        if person.get("phone_number") and not favor_mapquest:
+        if domestic_area(person.get("phone_number")) and not favor_mapquest:
             return person
         linkedin_data = person.get("linkedin_data",{})
         current_job = PersonRequest()._current_job(person)
