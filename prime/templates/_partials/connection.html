@@ -23,11 +23,19 @@
               {% else %}
               {{referrer['referrer_connection'].split(" together ")[0]}} with 
               {% endif %}
-              <a href="/connections?query={{referrer['referrer_name']}}" class="location">
-                <span>
-                  {{referrer['referrer_name']}}
-                </span> 
-              </a>
+              {%if current_user.is_manager %}
+                <a class="location">
+                  <span>
+                    {{referrer['referrer_name']}}
+                  </span> 
+                </a>              
+              {%else%}
+                <a href="/connections?query={{referrer['referrer_name']}}" class="location">
+                  <span>
+                    {{referrer['referrer_name']}}
+                  </span> 
+                </a>
+              {%endif%}
               {% if referrer['referrer_connection'].startswith('Worked') %}
               at {{referrer['referrer_connection'].split("Worked at ")[-1].replace(" together "," ")}}
               {% else %}
