@@ -11,7 +11,7 @@
         <ul>
           <li><a href="{% if not current_user.is_manager %}/dashboard{%else%}/managers/agent/{{ agent.user_id }}{%endif%}" class="{% if active == 'dashboard' %}selected{% endif %}">Network Summary</a></li>
           {%if agent.p200_completed %}
-            {%if not agent.p200_approved and not current_user.is_manager%}
+            {%if not agent.p200_approved and not current_user.is_manager and not agent.p200_submitted_to_manager %}
               <li><a href="/connections" class="{% if active == "connections" %}selected{% endif %}">Build Project 200</a></li>
             {%endif%}
             {%if agent.p200_submitted_to_manager or not current_user.is_manager %}
