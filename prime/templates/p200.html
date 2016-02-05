@@ -80,7 +80,8 @@ $(function() {
         alert("Error: " + data.error)
         return false;
       } else {
-        alert("Submitted!, you should be getting an email once it is approved")
+        alert("Submitted!, you should be getting an email once it is approved");
+        $("button#submit").hide();
       }
     });
   });
