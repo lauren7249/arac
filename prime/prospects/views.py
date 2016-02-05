@@ -224,11 +224,12 @@ def dashboard():
 
 class SearchResults(object):
 
-    def __init__(self, sql_query, query=None, stars=None, industry=None, *args, **kwargs):
+    def __init__(self, sql_query, query=None, stars=None, industry=None, state=None, *args, **kwargs):
         self.sql_query = sql_query
         self.query = query
         self.stars = stars
         self.industry = industry
+        self.state = state
 
     def _stars(self):
         return self.sql_query.filter(ClientProspect.stars ==
@@ -236,6 +237,9 @@ class SearchResults(object):
 
     def _industry(self):
         return self.sql_query.filter(Prospect.industry_category==unquote_plus(self.industry))
+
+    def _state(self):
+        return self.sql_query.filter(Prospect.us_state==unquote_plus(self.state))
 
     def _search(self):
         return self.sql_query.filter(Prospect.name.ilike("%{}%".format(self.query)))
@@ -247,6 +251,8 @@ class SearchResults(object):
            self.sql_query = self._stars()
         if self.industry:
             self.sql_query = self._industry()
+        if self.state:
+            self.sql_query = self._state()
         return self.sql_query
 
 def get_or_none(item):
@@ -260,7 +266,8 @@ def get_args(request):
     query = get_or_none(request.args.get("query"))
     industry = get_or_none(request.args.get("industry"))
     stars = get_or_none(request.args.get("stars"))
-    return query, industry, stars
+    state = get_or_none(request.args.get("state"))
+    return query, industry, state, stars
 
 FILTER_DICT = {
         'a-z': func.lower(Prospect.name),
@@ -291,9 +298,8 @@ def connections():
             ).join(Prospect).order_by(FILTER_DICT[order])
     if connections.filter(ClientProspect.extended==False).count() > 1:
         connections = connections.filter(ClientProspect.extended == False)
-    query, industry, stars = get_args(request)
-    search = SearchResults(connections, query=query, industry=industry,
-            stars=stars)
+    query, industry, state, stars = get_args(request)
+    search = SearchResults(connections, query=query, industry=industry, state=state, stars=stars)
     connections = search.results().paginate(page, 25, False)
     return render_template("connections.html",
             agent=agent,

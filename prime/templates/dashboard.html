@@ -54,37 +54,49 @@
       </div>
       <br>      
       <div class="card contacts-uploaded">
-        <div class="card-header">
-          <h4>Contacts Uploaded</h4>
-          <span class="text-right">Total</span>
-          <span class="text-right text-teal">Qualified</span>
-        </div>
-        <table>
-          <tr>
-            <td><img src="/static/img/linkedin-40.png"> <b>LinkedIn</b></td>
-            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_linkedin | int) }}</td>
-            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_linkedin | int) }}</td>
-          </tr>
-          <tr>
-            <td><img src="/static/img/gmail-40.png"> <b>Gmail</b></td>
-            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_gmail | int) }}</td>
-            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_gmail | int) }}</td>
-          </tr>
-          <tr>
-            <td><img src="/static/img/yahoo-mail-40.png"> <b>Yahoo! Mail</b></td>
-            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_yahoo | int) }}</td>
-            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo | int) }}</td>
-          </tr>
-          <tr>
-            <td><img src="/static/img/windows-live-40.png"> <b>Windows Live</b></td>
-            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_windowslive | int) }}</td>
-            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_windowslive | int) }}</td>
-          </tr>
-          <tr>
-            <td><img src="/static/img/aol-40.png"> <b>Aol</b></td>
-            <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_aol | int) }}</td>
-            <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol | int) }}</td>
-          </tr>
+        {%if agent.unique_contacts_uploaded %}
+          <div class="card-header">
+            <h4>Contacts Uploaded</h4>
+            <span class="text-right">Total</span>
+            <span class="text-right text-teal">Qualified</span>
+          </div>
+          <table>
+            {%if agent.contacts_from_linkedin %}
+              <tr>
+                <td><img src="/static/img/linkedin-40.png"> <b>LinkedIn</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_linkedin | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_linkedin | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_gmail %}
+              <tr>
+                <td><img src="/static/img/gmail-40.png"> <b>Gmail</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_gmail | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_gmail | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_yahoo %}
+              <tr>
+                <td><img src="/static/img/yahoo-mail-40.png"> <b>Yahoo! Mail</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_yahoo | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_windowslive %}
+              <tr>
+                <td><img src="/static/img/windows-live-40.png"> <b>Windows Live</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_windowslive | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_windowslive | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_aol %}
+              <tr>
+                <td><img src="/static/img/aol-40.png"> <b>Aol</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_aol | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol | int) }}</td>
+              </tr>
+            {%endif%}
+          {%endif%}
         </table>
       </div>
     </div>
@@ -201,12 +213,32 @@ $(function(){
         highlightStroke: "#8dd8f7",
         data: [{{ agent.primary_network_size }}, {{ agent.total_network_size }}]
         }]}
-    var chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {});
-    var chart = new Chart($state.get(0).getContext("2d")).Doughnut(states, {});
+    //Chart.defaults.global.responsive = true;
+    var industry_chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {});
+    var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, {});
+    $("#state").click(function(evt){
+      var activePoints = state_chart.getSegmentsAtEvent(evt);
+      if (activePoints.length>0){
+        var point = activePoints[0];
+        var label = point.label;
+        var url = "/connections?state=" + label;
+        window.location.href=url;
+      }
+    });
+    $("#industry").click(function(evt){
+      var activePoints = industry_chart.getSegmentsAtEvent(evt);
+      if (activePoints.length>0){
+        var point = activePoints[0];
+        var label = point.label;
+        console.log(label);
+        var url = "/connections?industry=" + label;
+        window.location.href=url;
+      }
+    });    
     var bar_options = {
       showScale: false
     }
-    var chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, bar_options);
+    var connections_chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, bar_options);
 
  });
 </script>

@@ -13,6 +13,7 @@ from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from helper import get_domain
 from person_request import PersonRequest
+from helpers.stringhelpers import domestic_area
 
 def wrapper(person):
     try:
@@ -77,7 +78,7 @@ class BloombergRequest(S3SavedRequest):
             phone = data.get("phone")
             website = data.get("website")
             #if we already know the website and it does not match, keep trying other bloomberg pages
-            if website and company_domain == get_domain(website) and phone: 
+            if website and company_domain == get_domain(website) and domestic_area(phone): 
                 return phone
         return None   
 

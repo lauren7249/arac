@@ -6,8 +6,6 @@ import numpy, json
 from prime.processing_service.geocode_service import GeocodeRequest, GeoPoint, MapQuestRequest
 import happybase
 from prime.processing_service.pipl_request import PiplRequest
-from prime.processing_service.social_profiles_service import SocialProfilesRequest
-from prime.processing_service.profile_builder_service import wrapper as profile_builder
 
 hb = HBaseLoader("2016_01",sc)
 data = hb.get_s3_data()
@@ -18,6 +16,9 @@ for location in local_locations_raw:
 
 def for_jake(line):
     linkedin_data = json.loads(line)
+    url = linkedin_data.get("canonical_url")
+    if not url:
+        return []
     same_school = False
     for school in linkedin_data.get("education",[]):
         if school.get("profile_url") == "http://www.linkedin.com/edu/school?id=18068":
@@ -55,7 +56,19 @@ def for_jake(line):
         miles_apart = geopoint.distance_to(lead_geopoint)
         if miles_apart < 75:
             print linkedin_data.get("location")
-            return [linkedin_data]   
+            connection = happybase.Connection('172.17.0.2')
+            data_table = connection.table('url_xwalk')      
+            row = data_table.row(url)
+            linkedin_id = row.get("keys:linkedin_id")
+            connection.close()
+            if linkedin_id:
+                linkedin_data["linkedin_id"] = linkedin_id
+            else:
+                pipl_data = PiplRequest(url, type="url").process()
+                linkedin_id = pipl_data.get("linkedin_id")
+                if linkedin_id: 
+                    linkedin_data["linkedin_id"] = linkedin_id            
+            return [{"linkedin_data":linkedin_data, "location_coordinates": lead_location}]   
     return []
 
 datamap = data.flatMap(for_jake)
@@ -63,30 +76,31 @@ datamap.cache()
 #15 minutes!! - 7023 people
 output_data = datamap.collect()
 
-def enrich(linkedin_data):
-    url = linkedin_data.get("canonical_url")
-    if url:
-        connection = happybase.Connection('172.17.0.2')
-        data_table = connection.table('url_xwalk')      
-        row = data_table.row(url)
-        linkedin_id = row.get("keys:linkedin_id")
-        connection.close()
-        if linkedin_id:
-            linkedin_data["linkedin_id"] = linkedin_id
-        else:
-            pipl_data = PiplRequest(url, type="url").process()
-            linkedin_id = pipl_data.get("linkedin_id")
-            if linkedin_id: 
-                linkedin_data["linkedin_id"] = linkedin_id
-    person = {"linkedin_data":linkedin_data}
-    return SocialProfilesRequest(person).process()
+from prime.processing_service.glassdoor_service import wrapper as glassdoor_calc
+from prime.processing_service.indeed_service import wrapper as indeed_calc
+from prime.processing_service.age_service import wrapper as age_calc
+from prime.processing_service.gender_service import wrapper as gender_calc
+from prime.processing_service.college_degree_service import wrapper as college_degree_calc
+from prime.processing_service.social_profiles_service import wrapper as social_profiles_calc
+from prime.processing_service.phone_service import wrapper as phone_calc
+from prime.processing_service.profile_builder_service import wrapper as profile_builder_calc
+from prime.processing_service.scoring_service import ScoringService, wrapper as scoring_calc
+from prime.processing_service.results_service import ResultService
 
-enriched = datamap.map(enrich)
+enriched = datamap.map(glassdoor_calc).map(indeed_calc).map(age_calc).map(gender_calc).map(college_degree_calc).map(social_profiles_calc).map(phone_calc).map(profile_builder_calc).map(scoring_calc)
 enriched.cache()
 enriched_output = enriched.collect()
-profiles = enriched.map(profile_builder)
-profiles.cache()
-profiles_output = profiles.collect()
+
+scoring_service = ScoringService({}, {})
+scoring_service.output = enriched_output
+scored_output = scoring_service.compute_stars()
+
+client_data = {'to_email': u'jeff@advisorconnect.co', 'suppress_emails': True, 'first_name': u'Jake', 'last_name': u'Rocchi', 'location': 'Washington, D.C.', 'url': 'https://www.linkedin.com/in/jacobrocchi', 'email': u'jake_rocchi@advisorconnect.co', 'hired': True}
+
+results_service = ResultService(client_data, scored_output)
+results_service.process()
+
+
 
 
 

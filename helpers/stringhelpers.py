@@ -62,3 +62,37 @@ def get_firstname(str):
 def resolve_email(email):
     email = email.split("@")[0].replace('.','') + "@" + email.split("@")[-1]
     return re.sub('\+[^@]+(?=@)','', email)
+
+def domestic_area(phone):
+    if not phone:
+        return None
+    phone = re.sub("[^0-9]+"," ",phone).strip()
+    if not phone:
+        return None
+    phone_chunks = phone.split(" ")
+    if len(phone_chunks) in [1, 2]:
+        if len(phone_chunks[0])==10:
+            area_code = phone_chunks[0][:3]
+        elif len(phone_chunks[0]) == 11 and phone_chunks[0][:1] == '1':
+            area_code = phone_chunks[0][1:4]
+        else:
+            return None
+    #first chunk is not an area code
+    elif len(phone_chunks[0]) != 3:
+        #not in america
+        if phone_chunks[0] != '1':
+            return None
+        if len(phone_chunks) < 4:
+            return None
+        area_code = phone_chunks[1]
+    #first chunk could be an area code
+    else:
+        if len(phone_chunks) < 3:
+            return None
+        area_code = phone_chunks[0]
+    if len(area_code) != 3:
+        return None
+    return area_code
+
+
+

@@ -10,14 +10,12 @@ from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS, US_ST
 from url_validator import UrlValidatorRequest
 from person_request import PersonRequest
 
-HIRED = False
 AGENT_SCHOOLS = set()
 
 def wrapper(person):
     profile = {}
     try:
-        global HIRED
-        request = ProfileBuilderRequest(person, HIRED)
+        request = ProfileBuilderRequest(person)
         profile = request.process()
         profile = request._get_job_fields(profile, person)
         profile = request._get_common_schools(profile, AGENT_SCHOOLS)
@@ -35,8 +33,6 @@ class ProfileBuilderService(Service):
         self.data = data
         self.client_data = client_data
         self.data = data
-        global HIRED
-        HIRED = self.client_data.get("hired")
         self.output = []
         self.wrapper = wrapper
         logging.getLogger(__name__)
@@ -52,11 +48,10 @@ class ProfileBuilderRequest(S3SavedRequest):
     Builds profile in the best output format for results service
     """
 
-    def __init__(self, person, hired):
+    def __init__(self, person):
         super(ProfileBuilderRequest, self).__init__()
         self.person = person
         self.profile = {}
-        self.hired = hired
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -140,12 +135,11 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["referrers"] = self.person.get("referrers",[])
         self.profile["extended"] = self.person.get("extended")
         self.profile["sources"] = self.person.get("sources",[])
-        if self.hired:
-            self.profile["email_addresses"] = self.person.get("email_addresses")
-            self.profile["profile_image_urls"] = self.person.get("images")
-            self.profile["main_profile_image"] = self._get_main_profile_image()
-            self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
-            self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
+        self.profile["email_addresses"] = self.person.get("email_addresses")
+        self.profile["profile_image_urls"] = self.person.get("images")
+        self.profile["main_profile_image"] = self._get_main_profile_image()
+        self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
+        self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
         return self.profile
 
     def _get_linkedin_fields(self):

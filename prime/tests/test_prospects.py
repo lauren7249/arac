@@ -140,12 +140,8 @@ class TestPiplService(unittest.TestCase):
     def test_pipl_from_email(self):
         self.service = PiplService(None, self.emails)
         data1 = self.service.multiprocess()
-        # self.service = PiplService(None, self.emails)
-        #TODO multiprocess broken
-        #data2 = self.service.multiprocess()
         self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0',
                 u'https://plus.google.com/106226923266702208073/about'])
-        #self.assertEqual(data1,data2)
 
     def test_pipl_from_username(self):
         request = PiplRequest("laurentracytalbot", type="facebook", level="social")
@@ -190,6 +186,14 @@ class TestClearbitPersonService(unittest.TestCase):
         self.assertEqual(data[1].get('laurentracytalbot@gmail.com').get("gender"), 'female')
         # self.assertEqual(data1,data2)
 
+#TODO:
+#SERVICE
+#PROFILEBUILDER
+#RESULTSERVICE
+#SOCIALPROFILES
+#SCORINGSERVICE
+#EXTENDEDLEADSERVICE
+#PERSONSERVICE
 class TestClearbitPhoneService(unittest.TestCase):
 
     def setUp(self):
@@ -419,7 +423,6 @@ class BingServiceLinkedinExtended(unittest.TestCase):
         self.service = BingRequestMaker("marissa mayer","linkedin_extended_network","Yahoo!, President & CEO")
 
     def test_linkedin_profile(self):
-        #TODO find someone who passes this test
         expected = "https://www.linkedin.com/in/megwhitman"
         data = self.service.process()
         assert(expected in data)

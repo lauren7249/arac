@@ -15,7 +15,7 @@
           <div class="main-info">                  
             <div class="name"> <span>{{ connection.prospect.name }}</span><span class="stars {{ connection.stars_display }}"></span></div>
             <div class="job">{{ connection.prospect.headline }}</div>
-            <div class="location">New York, NY</div>
+            <div class="location">{{ connection.prospect.linkedin_location_raw }}</div>
             <div class="tags">
               {% for referrer in connection.referrers %}
               {% if referrer['referrer_connection'].startswith('Worked') %}

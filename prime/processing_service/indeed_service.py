@@ -6,6 +6,7 @@ import lxml.html
 
 from service import Service, S3SavedRequest
 from person_request import PersonRequest
+
 def wrapper(person):
     try:
         linkedin_data = person.get("linkedin_data",{})

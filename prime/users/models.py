@@ -397,28 +397,28 @@ class User(db.Model, UserMixin):
     @property
     def average_age(self):
         try:
-            return int(self.statistics().get("average_age"))
+            return int(round(self.statistics().get("average_age")))
         except:
             return None
 
     @property
     def female_percentage(self):
         try:
-            return int(self.statistics().get("female_percentage"))
+            return int(round(self.statistics().get("female_percentage")))
         except:
             return "N/A"
 
     @property
     def male_percentage(self):
         try:
-            return int(self.statistics().get("male_percentage"))
+            return int(round(self.statistics().get("male_percentage")))
         except:
             return "N/A"
 
     @property
     def college_percentage(self):
         try:
-            return int(self.statistics().get("college_percentage"))
+            return int(round(self.statistics().get("college_percentage")))
         except:
             return "N/A"
 
