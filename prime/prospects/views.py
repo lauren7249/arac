@@ -502,7 +502,7 @@ def pdf():
             page=page,
             connections=connections.items,
             pagination=connections,
-            active="p200")
+            active="pdf")
 
 @csrf.exempt
 @prospects.route("/intro_seen", methods=['GET', 'POST'])

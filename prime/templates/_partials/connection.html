@@ -104,20 +104,39 @@
     </div>
   </td>
   <td class="contact-buttons">
-    {% if connection.good %}
-      <div style='display:none;' class="col-12">
-        <button data-remove='{{ connection.prospect.id }}' class="button teal">Remove</button>
-      </div>
-    {% else %}
-    <div class="wrap">
-      <div class="col-6">
-        <button data-add='{{ connection.prospect.id }}' class="button teal">Add</button>
-      </div>
-      <div class="col-6">
-        <button data-skip='{{ connection.prospect.id }}' class="button grey">Skip</button>
+    {%if active == "p200" %}
+      {% if connection.good %}
+        <div style='display:none;' class="col-12">
+          <button data-remove='{{ connection.prospect.id }}' class="button teal">Remove</button>
+        </div>
+      {% else %}
+        <div class="wrap">
+          <div class="col-6">
+            <button data-add='{{ connection.prospect.id }}' class="button teal">Add</button>
+          </div>
+          <div class="col-6">
+            <button data-skip='{{ connection.prospect.id }}' class="button grey">Skip</button>
+          </div>
+        </div>
+      {% endif %}
+    {%elif active == "pdf" %}
+    <div class="contact-info"> 
+      <div class="wrap">    
+        <div class="col-12"> 
+          <div class="main-info">         
+            {%if connection.prospect.phone %}
+              <div class="location">{{ connection.prospect.phone }}</div>  
+            {%endif%}
+            {%if connection.prospect.emails %}
+              <div class="tags">
+                {{ connection.prospect.emails }}
+              </div>  
+            {%endif%}            
+          </div>
+        </div>
       </div>
     </div>
-    {% endif %}
+    {%endif%}
   </td>
 </tr>
 

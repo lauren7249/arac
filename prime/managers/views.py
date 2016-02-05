@@ -156,7 +156,7 @@ def pdf(agent_id):
             page=page,
             connections=connections.items,
             pagination=connections,
-            active="p200")
+            active="pdf")
 
 @csrf.exempt
 @manager.route("/request_p200", methods=['GET', 'POST'])
