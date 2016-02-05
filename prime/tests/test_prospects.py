@@ -14,7 +14,7 @@ from prime.processing_service.glassdoor_service import GlassdoorService
 from prime.processing_service.indeed_service import IndeedService
 from prime.processing_service.bing_request import BingRequestMaker
 from prime.processing_service.lead_service import LeadService
-from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService 
+from prime.processing_service.bloomberg_service import BloombergRequest, BloombergPhoneService
 from prime.processing_service.phone_service import PhoneService
 from prime.processing_service.mapquest_request import MapQuestRequest
 from prime.processing_service.geocode_service import GeoCodingService
@@ -78,9 +78,9 @@ class TestLeadService(unittest.TestCase):
         linkedin_url = "http://www.linkedin.com/in/jamesjohnsona"
         client_data = {"email": email, "url":linkedin_url,"location":"New York, New York","first_name":"James", "last_name":"Johnson"}
         from fixtures.linkedin_fixture import expected
-        data = expected    
+        data = expected
         self.service = LeadService(client_data, data)
-        self.data = self.service.multiprocess()           
+        self.data = self.service.multiprocess()
     def test_lead(self):
         self.assertEqual(len(self.data), 1)
 
@@ -112,8 +112,8 @@ class TestUrlValidatorRequest(unittest.TestCase):
         self.assertEqual(req.process(), None)
         url = 'http://graph.facebook.com/662395164/picture?type=large'
         req = UrlValidatorRequest(url, is_image=True)
-        self.assertEqual(req.process(), 'https://public-profile-photos.s3.amazonaws.com/6231a637dc9c7dfc22577ecc11296f82')  
-              
+        self.assertEqual(req.process(), 'https://public-profile-photos.s3.amazonaws.com/6231a637dc9c7dfc22577ecc11296f82')
+
 class TestMapquestRequest(unittest.TestCase):
     def setUp(self):
         business_name = "emergence capital partners"
@@ -178,9 +178,9 @@ class TestClearbitPersonService(unittest.TestCase):
         # data1 = self.service.process()
         self.service = ClearbitPersonService(None, self.emails)
         data = self.service.multiprocess()
-        self.assertEqual(data[0].get('alex@alexmaccaw.com').get("social_accounts"), 
-            ['boo', u'https://github.com/maccman', u'https://aboutme.com/maccaw', 
-            u'https://twitter.com/maccaw', u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5', 
+        self.assertEqual(data[0].get('alex@alexmaccaw.com').get("social_accounts"),
+            ['boo', u'https://github.com/maccman', u'https://aboutme.com/maccaw',
+            u'https://twitter.com/maccaw', u'https://www.linkedin.com/pub/alex-maccaw/78/929/ab5',
             u'https://gravatar.com/maccman', u'https://facebook.com/amaccaw', u'https://angel.co/maccaw'])
         self.assertEqual(data[0].get('alex@alexmaccaw.com').get("linkedin_urls"), u'https://www.linkedin.com/in/alex-maccaw')
         self.assertEqual(data[1].get('laurentracytalbot@gmail.com').get("gender"), 'female')
@@ -202,11 +202,11 @@ class TestClearbitPhoneService(unittest.TestCase):
 
     def test_clearbit(self):
         expected_phone = '+1 425-882-8080'
-        self.service = ClearbitPhoneService(None, self.data)        
+        self.service = ClearbitPhoneService(None, self.data)
         data = self.service.multiprocess()
         phone = data[0].get("phone_number")
         self.assertEqual(phone, expected_phone)
-        # self.service = ClearbitPhoneService(None, self.data)        
+        # self.service = ClearbitPhoneService(None, self.data)
         # data2 = self.service.multiprocess()
         # self.assertEqual(data, data2)
 
@@ -246,7 +246,7 @@ class TestExtendedProfilesService(unittest.TestCase):
         # data = service.multiprocess()
         # self.assertEqual(data, data2)
         self.assertEqual(len(extended), 14)
-        
+
 class TestPhoneService(unittest.TestCase):
 
     def setUp(self):
@@ -319,7 +319,7 @@ class TestLinkedinService(unittest.TestCase):
                 {'linkedin_urls': u'http://www.linkedin.com/pub/julia-mailander/11/898/614',
                 'social_accounts': [u'http://www.gravatar.com/5cb9f218a2e29a21ab19b3a524b3506d',u'https://plus.google.com/103608304178303305879/about']}
                 }]
-        
+
 
     def test_linkedin(self):
         self.service = LinkedinService(None, self.data)
@@ -427,5 +427,6 @@ class BingServiceLinkedinExtended(unittest.TestCase):
         data = self.service.process()
         assert(expected in data)
 
-if __name__ == '__main__':
+def test_all():
     unittest.main()
+    pass
