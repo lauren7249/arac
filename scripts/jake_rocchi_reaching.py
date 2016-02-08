@@ -71,11 +71,6 @@ def for_jake(line):
             return [{"linkedin_data":linkedin_data, "location_coordinates": lead_location}]   
     return []
 
-datamap = data.flatMap(for_jake)
-datamap.cache()
-#15 minutes!! - 7000 people
-output_data = datamap.collect()
-
 from prime.processing_service.glassdoor_service import wrapper as glassdoor_calc
 from prime.processing_service.indeed_service import wrapper as indeed_calc
 from prime.processing_service.age_service import wrapper as age_calc
@@ -87,7 +82,8 @@ from prime.processing_service.profile_builder_service import wrapper as profile_
 from prime.processing_service.scoring_service import ScoringService, wrapper as scoring_calc
 from prime.processing_service.results_service import ResultService
 
-enriched = datamap.map(glassdoor_calc).map(indeed_calc).map(age_calc).map(gender_calc).map(college_degree_calc).map(social_profiles_calc).map(phone_calc).map(profile_builder_calc).map(scoring_calc)
+
+enriched = data.flatMap(for_jake).map(glassdoor_calc).map(indeed_calc).map(age_calc).map(gender_calc).map(college_degree_calc).map(social_profiles_calc).map(phone_calc).map(profile_builder_calc).map(scoring_calc)
 enriched.cache()
 enriched_output = enriched.collect()
 

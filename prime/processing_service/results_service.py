@@ -151,7 +151,7 @@ class ResultService(Service):
         profile = PersonRequest()._get_profile_by_any_url(url)
         person = {"email_addresses":[email], "linkedin_data":profile}
         person = SocialProfilesRequest(person).process()
-        request = ProfileBuilderRequest(person, True)
+        request = ProfileBuilderRequest(person)
         profile = request.process()
         profile = request._get_job_fields(profile, person)
         prospect = self._create_or_update_prospect(profile)
