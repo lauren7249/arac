@@ -23,7 +23,7 @@ from prime import db, csrf, whoisthis
 from prime.users.models import User
 from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy import select, cast, extract, or_, func
+from sqlalchemy import select, cast, extract, or_, and_, func
 from sqlalchemy.orm import joinedload, subqueryload, outerjoin
 from sqlalchemy.orm import aliased
 from flask.ext.rq import job
@@ -436,6 +436,77 @@ def submit_p200_to_manager():
 
 
 
+@prospects.route("/contacts_export", methods=['GET'])
+def contacts_export():
+    import xlsxwriter
+    import flask, urllib
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    agent = current_user
+    connections = ClientProspect.query.filter(
+            # ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).filter(or_(Prospect.phone != None,and_(Prospect.mailto != None, Prospect.mailto != "mailto:"))).order_by(Prospect.name)
+    resp = flask.Response("")
+    data = [["Name", "Location", "State", "Industry", "Business Phone", "Linkedin Profile","Email", "Subject", "Body","Email Addresses","Email Template"]]
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet("Contacts")    
+    i = 1
+    for connection in connections:
+        i+=1
+        name = connection.prospect.name
+        location = connection.prospect.linkedin_location_raw
+        state = connection.prospect.us_state
+        industry = connection.prospect.industry_category
+        linkedin_url = connection.prospect.linkedin_url
+        phone = connection.prospect.phone
+        mailto = connection.prospect.mailto
+        if mailto and mailto != "" and mailto != "mailto:":
+            first_name = name.split(" ")[0]
+            subject = "Hey " + first_name + "!"
+            if connection.prospect.company and len(connection.prospect.company.split(",")[0])<30:
+                cool_thing = "Saw you are making waves at " + connection.prospect.company.split(",")[0] + "--very cool!"
+            else:
+                cool_thing = "Saw you are doing " + industry + " now" + "--very cool!"
+
+            raw_body="Hey {},\n\n How is everything? I hope you are well. Let's get coffee and catch up?\n\nBest,\n{}".format(first_name, agent.name.split(" ")[0])
+            body = urllib.quote(raw_body.encode('utf8'))
+            _emails = mailto.split(":")[-1].split(",")
+            for email in _emails:
+                if '@gmail' in email:
+                    break
+            hyperlink = '=HYPERLINK("mailto:"&G{}&"?subject="&H{}&"&body="&I{},"Click to edit")'.format(i,i,i,i)
+            if len(body)>250:
+                print body
+        else:
+            email =None
+            subject = None
+            body=None
+            hyperlink =None
+            mailto=''
+        row = [name, location, state, industry, phone,linkedin_url, email,subject,body, mailto.split(":")[-1], hyperlink]
+        data.append(row)
+    for rownum in xrange(0, len(data)):
+        row = data[rownum]
+        for colnum in xrange(0, len(row)):
+            col = row[colnum]
+            if col and col.startswith("="):
+                worksheet.write_formula(rownum, colnum, col)
+            else:
+                worksheet.write(rownum, colnum, col)
+    worksheet.set_column('H:H', None, None, {'hidden': 1})
+    worksheet.set_column('I:I', None, None, {'hidden': 1})
+    worksheet.set_column('G:G', None, None, {'hidden': 1})
+    workbook.close()
+    output.seek(0)
+    return flask.Response(
+        output.read(),
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-disposition":
+                 "attachment; filename=contacts_export.xlsx"})
 
 @prospects.route("/export", methods=['GET'])
 def export():
