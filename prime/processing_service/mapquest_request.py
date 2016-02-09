@@ -28,7 +28,7 @@ class MapQuestRequest(S3SavedRequest):
 
     def __init__(self, query):
         super(MapQuestRequest, self).__init__()
-        self.url = "https://www.mapquest.com/?q={}".format(query)
+        self.url = "https://classic.mapquest.com/?q={}".format(query)
         self.query = query
         self.headers = GLOBAL_HEADERS
         self.unresolved_locations = []
@@ -233,20 +233,3 @@ class MapQuestRequest(S3SavedRequest):
             geocode = self._find_location_coordinates()
             return geocode
         return {}
-
-class TestMapquestRequest(unittest.TestCase):
-    def setUp(self):
-        business_name = "emergence capital partners"
-        location = "san francisco bay area"
-        self.location_service = MapQuestRequest(location)
-        self.business_service = MapQuestRequest(business_name)
-
-    def test_mapquest(self):
-        expected_phone = '(650) 573-3100'
-        expected_website = 'http://emcap.com'
-        latlng = self.location_service.process().get("latlng")
-        business = self.business_service.get_business(latlng=latlng)
-        phone = business.get("phone_number")
-        website = business.get("company_website")
-        self.assertEqual(phone, expected_phone)
-        self.assertEqual(website, expected_website)

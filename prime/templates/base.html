@@ -105,26 +105,63 @@
       var csrftoken = "{{ csrf_token() }}"
       $(function() {
 
-          $("[id$=_p200_button]").click(function() {
-              console.log("clik")
-              var user_id = $(this).data("p200-id");
-              var name = $(this).name;
-              if (user_id != undefined && user_id != null && user_id != '') {
-                document.getElementById("p200_success_message").style.display = "none";         
-                document.getElementById("spinner").style.display = "inline";                 
-                document.getElementById("success").style.display = "inline";   
-                document.getElementById("success").showModal();       
-                $.post("/managers/request_p200", {user_id:user_id}, function(data){
-                    if (data.name != undefined && data.name !=null && data.name != '') {
-                      showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");
-                      document.getElementById(user_id + "_p200_button").style.display = "none";     
-                      document.getElementById(user_id + "_p200_pending").style.display = "inline";   
-                    }
-
-                  });          
+        $("[id$=_p200_button]").click(function() {
+          console.log("clik")
+          var user_id = $(this).data("p200-id");
+          var name = $(this).name;
+          if (user_id != undefined && user_id != null && user_id != '') {
+            document.getElementById("p200_success_message").style.display = "none";         
+            document.getElementById("spinner").style.display = "inline";                 
+            document.getElementById("success").style.display = "inline";   
+            document.getElementById("success").showModal();       
+            $.post("/managers/request_p200", {user_id:user_id}, function(data){
+              if (data.name != undefined && data.name !=null && data.name != '') {
+                showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");
+                document.getElementById(user_id + "_p200_button").style.display = "none";     
+                document.getElementById(user_id + "_p200_pending").style.display = "inline";   
               }
 
-            });
+            });          
+          }
+
+        });
+      });
+
+      $(function() {
+         var $page = 1;
+         var isSearching = false;
+
+         function bindPagination() {
+           $("[data-page]").click(function() {
+             showLoader()
+             $page = $(this).data('page');
+             search()
+           });
+         }
+
+         function hideLoader() {
+           $(".loading").fadeOut();
+         }
+
+         function showLoader() {
+           $(".loading").show();
+         }
+
+        function search() {
+           if (isSearching) {
+             return false;
+           }
+           isSearching = true;
+           $('html, body').animate({scrollTop: "221px"});
+           $("#connections-section").load(window.location.pathname + "?p=" + $page + " #connections", function() {
+               isSearching = false;
+               bindPagination();
+               hideLoader();
+               $("[data-page]").removeClass("active")
+               $("[data-page='" + $page + "']").addClass("active")
+           });
+        }
+        bindPagination();
       });
 
     </script>   
