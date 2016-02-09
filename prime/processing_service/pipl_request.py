@@ -150,13 +150,15 @@ class PiplRequest(S3SavedRequest):
         self._build_url()
         if self.url is None:
             return {}
+        print self.url
         self.pipl_json = None
         tries = 0
         while self.pipl_json is None and tries<3:
             try:
                 html = self._make_request()
                 self.pipl_json = json.loads(html.decode("utf-8-sig"))
-            except:
+            except Exception, e:
+                print "Error: " + str(e)
                 time.sleep(1)
                 pass
             tries+=1

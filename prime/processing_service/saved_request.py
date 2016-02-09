@@ -8,7 +8,10 @@ import datetime
 from boto.s3.key import Key
 from helper import uu, resolve_email
 from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
+import sys
 
+reload(sys) 
+sys.setdefaultencoding('utf-8')
 
 class S3SavedRequest(object):
 
