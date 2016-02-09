@@ -56,4 +56,4 @@ install_live_db:
 
 
 .PHONY: run
-run: is-ready uwsgi
+run: is-ready uwsgi production.ini
