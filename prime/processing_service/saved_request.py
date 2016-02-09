@@ -31,7 +31,7 @@ class S3SavedRequest(object):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _make_request(self, content_type = 'text/html', bucket=None):
+    def _make_request(self, content_type = 'text/html', bucket=None, proxies=None):
         try:
             self.key = hashlib.md5(self.url).hexdigest()
         except Exception, e:
@@ -44,17 +44,18 @@ class S3SavedRequest(object):
         if self.boto_key.exists():
             self.logger.info("Getting from S3")
             html = self.boto_key.get_contents_as_string()
-        else:
-            try:
-                self.response = requests.get(self.url, headers=self.headers)
-                if self.response.status_code ==200:
-                    html = self.response.content
-                else:
-                    html = ''
-            except:
+            if html:
+                return html
+        try:
+            self.response = requests.get(self.url, headers=self.headers, proxies=proxies)
+            if self.response.status_code ==200:
+                html = self.response.content
+            else:
                 html = ''
-            self.boto_key.content_type = content_type
-            self.boto_key.set_contents_from_string(html)
+        except:
+            html = ''
+        self.boto_key.content_type = content_type
+        self.boto_key.set_contents_from_string(html)
         return html
 
 
