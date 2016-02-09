@@ -30,7 +30,7 @@ ALCHEMY_API_KEYS = ["b8d4b7af348984ce7113a4e9aeefdaaa7f906991","d0a43371f6ba8fa7
 CLEARBIT_KEY = 'f2512e10a605e3dcaff606205dbd3758'
 SCRAPING_API_KEY = "0ca62d4f6c0345ef80af1c4a9868da0f"
 bing_api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
-PIPL_SOCIAL_KEYS = ["ml2msz8le74d4nno7dyk0v7c"]
+PIPL_SOCIAL_KEYS = ["ml2msz8le74d4nno7dyk0v7c",'24xx1svc2722l72m5fhmu94w','6yuvscvato7o16zxk8y8mmcb','lvtgjr2zjoztsdqp4dovid92','1jjs6mju38n6wpjcndkzikx1']
 PIPL_PROFES_KEYS = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
 
 CODER_WORDS = ["engineer","hacker","developer","programmer","coder","cto","data scientist","software","computer"]
