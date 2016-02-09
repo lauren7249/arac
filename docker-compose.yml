@@ -1,13 +1,16 @@
 ---
-## Data volume container to support persistent data in redis.
-data:
-  image: busybox:latest
-  command: "/bin/true"
-  domainname: advisorconnect.co
-  volumes:
-    - /data
-    - /tmp
-    - /var/lib/postgresql/data
+### Data volume container to support persistent data in redis.
+#data:
+#  image: busybox:latest
+#  command: "/bin/true"
+#  domainname: advisorconnect.co
+#  volumes:
+#    - /data
+#    - /tmp
+#    - /var/lib/postgresql/data
+volumes:
+  data:
+    external: false
 
 # The Postgres container holding the latest version of postgres and
 # binds to the storage volume, pgdata where persistent data is kept.
@@ -18,9 +21,7 @@ db:
   ports:
     - "5432:5432"
   volumes:
-    - /var/run/postgresql
-  volumes_from:
-    - data
+    - data:/var/run/postgresql
   environment:
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: ""
@@ -33,29 +34,27 @@ redis:
   image: redis:latest
   volumes:
     - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
-  volumes_from:
-    - db
   ports:
     - "6379:6379"
   environment:
     LC_ALL: "en_US.utf8"
 
-nginx:
-  command: >
-          nginx -g "daemon off";
-  domainname: advisorconnect.co
-  hostname: "beta"
-  restart: always
-  build: ./misc/nginx/
-  links:
-    - prime:p200
-  ports:
-    - "80:80"
-    - "443:443"
-  volumes_from:
-    - prime
-  environment:
-    LC_ALL: "en_US.utf8"
+#nginx:
+#  command: >
+#          nginx -g "daemon off";
+#  domainname: advisorconnect.co
+#  hostname: "beta"
+#  restart: always
+#  build: ./misc/nginx/
+#  links:
+#    - prime:p200
+#  ports:
+#    - "80:80"
+#    - "443:443"
+#  volumes_from:
+#    - prime
+#  environment:
+#    LC_ALL: "en_US.utf8"
 
 
 # Prime is the main application, which up execution will run the make
@@ -68,8 +67,9 @@ prime:
   links:
     - db:babel
     - redis:redis
-  volumes_from:
-    - redis
+  ports:
+    - "80:80"
+    - "443:443"
 #  extra_hosts:
 #    - "babel:10.143.114.177"
   environment:

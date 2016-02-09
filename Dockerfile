@@ -7,6 +7,8 @@ RUN ["chown", "postgres:postgres", "-R", "/usr/src/app"]
 
 USER postgres
 
+EXPOSE
+
 ENTRYPOINT ["make"]
 CMD ["run"]
 
