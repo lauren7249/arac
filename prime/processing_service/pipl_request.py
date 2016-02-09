@@ -24,12 +24,8 @@ class PiplRequest(S3SavedRequest):
             self.pipl_key = PIPL_SOCIAL_KEYS[0]
         else:
             self.pipl_key = PIPL_PROFES_KEYS[0]
-        if self.type=="url":
-            self.pipl_url = pipl_url_v4
-            self.pipl_version = 4
-        else:
-            self.pipl_url = pipl_url_v3
-            self.pipl_version = 3
+        self.pipl_url = pipl_url_v4
+        self.pipl_version = 4
         self.api_url = "".join([self.pipl_url, self.pipl_key, self.json_format])
         self.query = query
         logging.getLogger(__name__)

@@ -40,9 +40,9 @@ class HBaseLoader(object):
     #30 minutes?
     def load_people_table(self):          
         #does not overwrite existing table; acts as an update -- 36 minutes
-        self.conf["hbase.mapred.outputtable"]="people"  
-        datamap = self.data.flatMap(load_people)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+        # self.conf["hbase.mapred.outputtable"]="people"  
+        # datamap = self.data.flatMap(load_people)
+        # datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
         self.conf["hbase.mapred.outputtable"]="url_xwalk"  
         datamap = self.data.flatMap(load_url_xwalk)
@@ -84,6 +84,7 @@ class HBaseLoader(object):
 if __name__=="__main__":
     hb = HBaseLoader("2015_12", sc) 
     hb.load_people_table()   
+    hb.get_s3_data()
     connection = happybase.Connection('172.17.0.2')
     data_table = connection.table('people')      
     data_table.row('11207608')
