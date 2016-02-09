@@ -16,6 +16,7 @@ from clearbit_service_webhooks import ClearbitRequest
 from url_validator import UrlValidatorRequest
 from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
+import timeout_decorator
 
 def wrapper(person):
     try:
@@ -60,6 +61,7 @@ class SocialProfilesRequest(S3SavedRequest):
         self.api_key = ALCHEMY_API_KEYS[0]
         self.alchemyapi = AlchemyAPI(self.api_key)
 
+    @timeout_decorator.timeout(5)
     def _get_extra_pipl_data(self):
         linkedin_id = self.person.get("linkedin_data",{}).get("linkedin_id")
         if linkedin_id:
@@ -152,7 +154,11 @@ class SocialProfilesRequest(S3SavedRequest):
         return good_links
 
     def process(self):
-        pipl_data = self._get_extra_pipl_data()
+        try:
+            pipl_data = self._get_extra_pipl_data()
+        except:
+            print "PIPL timed out in SocialProfilesService"
+            pipl_data = {}
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
         self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]) + [self.person.get("linkedin_data",{}).get("image")])
