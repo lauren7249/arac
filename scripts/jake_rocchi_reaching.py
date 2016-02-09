@@ -15,7 +15,10 @@ for location in local_locations_raw:
     local_locations.append(MapQuestRequest(location).process())
 
 def for_jake(line):
-    linkedin_data = json.loads(line)
+    try:
+        linkedin_data = json.loads(line)
+    except:
+        return []
     url = linkedin_data.get("canonical_url")
     if not url:
         return []
