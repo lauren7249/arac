@@ -34,6 +34,7 @@ class PiplService(Service):
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.pool_size = 20
         self.wrapper = wrapper_email
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)

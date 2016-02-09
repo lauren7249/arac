@@ -742,7 +742,7 @@ hr {
 .network-breakdown h4,
 .qualified-contacts h4 {
   width: 200px;
-  margin: 0 10px;
+  margin: auto;
   vertical-align: top;
   display: inline-block;
 }

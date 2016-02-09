@@ -9,19 +9,20 @@
   <div class="wrap card">
     <div class="col-6">
       <div class="network-breakdown">
-        <h2 class="text-center">Network Breakdown</h2>
+        <h2 class="text-center">Qualified First-Degree Network</h2>
         <canvas width="200px" height="240px" id='industry'></canvas>
         <canvas width="200px" height="240px" id='state'></canvas>
-        <h4>Qualified Contacts by Industry</h4>
-        <h4 class="hint--top" data-hint="Total contacts broken down by state.">Total Contacts By State</h4>
+        <h4 class="hint--top" data-hint="Qualified first-degree contacts broken down by industry.">Contacts by Industry</h4>
+        <h4 class="hint--top" data-hint="Qualified first-degree contacts broken down by state.">Contacts By State</h4>
       </div>
     </div>
     <div class="col-6">
       <div class="qualified-contacts">
-        <h2 class="text-center">Contacts Breakdown</h2>
+        <h2 class="text-center">Qualified Overall Network</h2>
         <canvas width="400px" height="240px" id='connections'></canvas>
-        <h4 class="hint--top" data-hint="Number of contacts in {{ agent.name }}'s addressable market.">Qualified Contacts</h4>
-        <h4 class="hint--top" data-hint="Total number of contacts in network.">Total Contacts</h4>
+        <h4 class="hint--top" data-hint="Number of contacts in {{ agent.name }}'s first-degree network." style='width: 130px;'>1st-Degree</h4>
+        <h4 class="hint--top" data-hint="Number of contacts in second-degree network." style='width: 130px;'>2nd-Degree</h4>
+        <h4 class="hint--top" data-hint="Number of first-degree plus second-degree network contacts." style='width: 130px;'>Total</h4>
       </div>
     </div>
   </div>
@@ -31,7 +32,7 @@
     <div class="col-7">
       <div class="card">
         <div class="card-header">
-          <h4>Potential Markets</h4>
+          <h4 class="hint--top" data-hint="Markets within qualified first-degree contacts.">Potential Markets</h4>
         </div>
         <div class="card-body">
           <div class="potential-markets">
@@ -57,7 +58,7 @@
         {%if agent.unique_contacts_uploaded %}
           <div class="card-header">
             <h4>Contacts Uploaded</h4>
-            <span class="text-right">Total</span>
+            <span class="text-right">Uploaded</span>
             <span class="text-right text-teal">Qualified</span>
           </div>
           <table>
@@ -103,7 +104,7 @@
     <div class="col-5">
       <div class="card">
         <div class="card-header">
-          <h4>Qualified Network Stats</h4>
+          <h4 class="hint--top" data-hint="Statistics for qualified first-degree contacts.">Network Statistics</h4>
         </div>
         <table class="network-stats">
           <tr>
@@ -203,16 +204,15 @@ $(function(){
     var $state = $("#state")
     var $connections = $("#connections")
     var connections = {
-        labels:["Your Connections", "Total"],
+        labels:["First-Degree", "Second-Degree", "Total"],
         datasets:[
-        {
-        label: "Your Connections",
-        fillColor: "#0079c2",
+        {fillColor: "#0079c2",
         strokeColor: "rgba(220,220,220,0.8)",
         highlightFill: "#8dd8f7",
         highlightStroke: "#8dd8f7",
-        data: [{{ agent.primary_network_size }}, {{ agent.total_network_size }}]
+        data: [{{ agent.primary_network_size }}, {{ agent.extended_network_size }}, {{ agent.total_network_size }}]
         }]}
+
     //Chart.defaults.global.responsive = true;
     var industry_chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {});
     var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, {});
