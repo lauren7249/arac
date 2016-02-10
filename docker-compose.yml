@@ -24,12 +24,10 @@ services:
     image: postgres:9.5
     domainname: advisorconnect.co
     ports:
-      - "5432:5432"
+      - "5433:5432"
     cpu_shares: 30
     volumes:
-      - data:/var/run/postgresql
       - pgdata:/var/lib/postgresql/data
-      - data:/tmp
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: ""
@@ -39,10 +37,9 @@ services:
     command: "redis-server /usr/local/etc/redis/redis.conf"
     domainname: advisorconnect.co
     restart: always
-    image: redis:latest
+    image: redis:3
     volumes:
       - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
-      - data:/tmp
       - data:/data
     ports:
       - "6379:6379"
@@ -81,7 +78,7 @@ services:
       - db
     cpu_shares: 33
     links:
-      - db:babel
+      - db:oracle
       - redis:redis
     ports:
       - "80:80"
@@ -91,12 +88,13 @@ services:
   #  extra_hosts:
   #    - "babel:10.143.114.177"
     environment:
+      PG_HOST: "oracle"
       PRIME_DB_USER: "arachnid"
       PRIME_DB_PASS: ""
       S3_BUCKET: "arachid-results"
       AC_CONFIG: "development"
       REDIS_URL: "redis://redis:6379"
-      DB_URL: "postgresql://arachnid@babel/arachnid"
+      DB_URL: "postgresql://arachnid@oracle:5433/arachnid"
       AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
       AWS_SECRET_ACCESS_KEY_PVLL: "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"
       LC_ALL: "en_US.utf8"

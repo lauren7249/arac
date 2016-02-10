@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 #@formatter:off
 #noinspection all
 #
@@ -13,6 +14,7 @@
 declare -r PG_BINDIR=$(pg_config --bindir)
 declare -r PYTHON=$(which python)
 declare -r UWSGI=$(which uwsgi)
+PATH="$PATH:$PG_BINDIR"
 
 # Postgres settings
 declare -x PG_LOCALE="${LC_ALL:-en_US.utf8}"
@@ -22,7 +24,7 @@ declare -x PG_DB="${PG_DB:-arachnid}"
 declare -x PG_HOST="${PG_HOST}"
 
 # List of databases command
-declare -r PG_LIST="${PG_BINDIR}/psql -h ${PG_HOST} -U ${PG_USER} -l"
+declare -r PG_LIST="${PG_BINDIR}/psql -h ${PG_HOST} -U ${PG_USER} -l "
 
 # Error messages and conditions
 declare -r -i E_MISSING_PARAM=75
@@ -60,7 +62,7 @@ test_run() {
 
 # Launch worker and background
 run_worker() {
-    bg $(${PYTHON} ./worker.py)
+    { coproc worker { $(${PYTHON} ./worker.py) ; }>&3; } 3>&1
     return 0;
 }
 
@@ -75,11 +77,21 @@ run_uwsgi() {
 first_setup_check() {
 
     # Return code is 0 only if database exists
-    local EXISTS=$(${PG_LIST} | grep "${PG_DB}" -q)
+    # In all other cases there is a null return code
 
-    # For any other return code, create the database
-    if [ "${EXISTS}" -neq 0 ]; then
-        create_db
+    $PG_LIST  # Debug statement / Sanity Check
+
+    local EXISTS_CMD="${PG_LIST} | grep "${PG_DB}" -q"
+
+    local CODE=`eval $PG_LIST`
+    echo "RETCODE: $CODE"
+
+    if [ -n "${CODE}" ]; then
+        echo "${PG_DB} Exists"
+        return 0;
+    else
+        echo "${PG_DB} does not yet exist.  Creating."
+        create_db;
     fi
     return 0;
 }
@@ -91,22 +103,29 @@ reset_db() {
 
 # Drop the database
 drop_db() {
-    $(${PG_BINDIR}/dropdb -h "${PG_HOST}" -U "${PG_USER}" -w --if-exists "${PG_DB}")
-    return 0;
+    local DROP_CMD="${PG_BINDIR}/dropdb -h ${PG_HOST} -U ${PG_USER} -w --if-exists ${PG_DB}"
+    local RC=$(eval ${DROP_CMD})
+    return $RC;
 }
 
 # Create the default app user and database
 # TODO: Handle failures
 create_db() {
-    { $(${PG_BINDIR}/createuser -h "${PG_HOST}" -U "${PG_USER}" -d -s -w "${PG_DB}"); } || true
-    { $(${PG_BINDIR}/createdb -h "${PG_HOST}" -l "${PG_LOCALE}" -w -U "${PG_USER}" "${PG_DB}"); } || true
-    $(${PYTHON} ./manage.py db upgrade)
-    return 0;
+    local CREATE_USR_CMD="${PG_BINDIR}/createuser -h ${PG_HOST} -U ${PG_USER} -d -s -w ${PG_DB}"
+    local CREATE_DB_CMD="${PG_BINDIR}/createdb -h ${PG_HOST} -l ${PG_LOCALE} -w -U ${PG_USER} ${PG_DB}"
+    local UPGRADE_DB_CMD="${PYTHON} ./manage.py db upgrade"
+
+    eval $CREATE_USR_CMD
+    eval $CREATE_DB_CMD
+    RC=$(eval $UPGRADE_DB_CMD)
+
+    return $RC;
 }
 
 # Block until the database is up and answering
 wait_until_is_ready() {
-    until $("${PG_BINDIR}/pg_isready -h ${PG_HOST} -U ${PG_USER}"); do
+    local IS_READY_TEST="${PG_BINDIR}/pg_isready -h ${PG_HOST} -U ${PG_USER} "
+    until $IS_READY_TEST; do
         sleep 5;
     done
     return $?;
@@ -120,7 +139,6 @@ wait_until_is_ready() {
 # Get a list of functions defined in the script and stuff
 # into an array
 FUNCS=( `compgen -A function` )
-
 
 
 # Parse what we've been passed
