@@ -10,6 +10,7 @@ from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS, US_ST
 from url_validator import UrlValidatorRequest
 from person_request import PersonRequest
 
+global AGENT_SCHOOLS
 AGENT_SCHOOLS = set()
 
 def wrapper(person):
@@ -18,6 +19,7 @@ def wrapper(person):
         request = ProfileBuilderRequest(person)
         profile = request.process()
         profile = request._get_job_fields(profile, person)
+        global AGENT_SCHOOLS
         profile = request._get_common_schools(profile, AGENT_SCHOOLS)
         return profile
     except Exception, e:
@@ -40,6 +42,7 @@ class ProfileBuilderService(Service):
         self.logger = logging.getLogger(__name__)
         person = PersonRequest()._get_profile_by_any_url(self.client_data.get("url"))
         schools = person.get("schools") if person.get("schools") else []
+        global AGENT_SCHOOLS
         AGENT_SCHOOLS = set([school.get("college") for school in schools])
 
 class ProfileBuilderRequest(S3SavedRequest):
