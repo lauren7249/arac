@@ -16,7 +16,6 @@ class PiplRequest(S3SavedRequest):
         self.type = type
         self.level = level
         self.json_format = "&pretty=true"
-        pipl_url_v3 = "https://api.pipl.com/search/v3/json/?key="
         pipl_url_v4 = "https://api.pipl.com/search/v4/?key="
         shuffle(PIPL_SOCIAL_KEYS)
         shuffle(PIPL_PROFES_KEYS)

@@ -99,15 +99,15 @@ def qualified(person):
     lead_service = LeadService(client_data, None)
     same_person = lead_service._is_same_person(person)   
     if same_person:
-        print "SAME PERSON " + str(person)
+        #print "SAME PERSON " + str(person)
         return []  
     competitor = lead_service._is_competitor(person)    
     if competitor:
-        print "COMPETITOR " + str(person)
+        #print "COMPETITOR " + str(person)
         return []
     salary = lead_service._filter_salaries(person)
     if not salary:
-        print "SALARY PROBLEM " + str(person)
+        #print "SALARY PROBLEM " + str(person)
         return []
     return [person]
 

@@ -61,7 +61,7 @@ class SocialProfilesRequest(S3SavedRequest):
         self.api_key = ALCHEMY_API_KEYS[0]
         self.alchemyapi = AlchemyAPI(self.api_key)
 
-    @timeout_decorator.timeout(5)
+    #@timeout_decorator.timeout(5)
     def _get_extra_pipl_data(self):
         linkedin_id = self.person.get("linkedin_data",{}).get("linkedin_id")
         if linkedin_id:
@@ -162,8 +162,8 @@ class SocialProfilesRequest(S3SavedRequest):
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
         self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]) + [self.person.get("linkedin_data",{}).get("image")])
-        self.phone_numbers = pipl_data.get("phones")
-        self.addresses = pipl_data.get("addresses")
+        self.phone_numbers = pipl_data.get("phones",[])
+        self.addresses = pipl_data.get("addresses",[])
         self.genders = []
         for email in self.emails:
             self._update_profile(email)                           
