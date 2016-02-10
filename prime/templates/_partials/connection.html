@@ -50,55 +50,7 @@
           </div>                
         </div>
         <div class="col-2">
-          <div class="contact-links">
-            {% if connection.prospect.facebook %}
-              <a href="{{ connection.prospect.facebook }}"  target="_blank" class="facebook hint--top" data-hint="{{ connection.prospect.facebook }}"></a>
-            {% endif %}
-            {% if connection.prospect.linkedin %}
-              <a href="{{ connection.prospect.linkedin }}"  target="_blank" class="linkedin hint--top" data-hint="{{ connection.prospect.linkedin }}"></a>
-            {% else %}
-              <a href="{{ connection.prospect.linkedin_url }}"  target="_blank" class="linkedin hint--top" data-hint="{{ connection.prospect.linkedin_url }}"></a>
-            {% endif %}
-            {% if connection.prospect.twitter %}
-              <a href="{{ connection.prospect.twitter }}"  target="_blank" class="twitter hint--top" data-hint="{{ connection.prospect.twitter }}"></a>
-            {% endif %}
-            {% if connection.prospect.pinterest %}
-              <a href="{{ connection.prospect.pinterest }}"  target="_blank" class="pinterest hint--top"  data-hint="{{ connection.prospect.pinterest }}"></a>
-            {% endif %}
-            {% if connection.prospect.amazon %}
-              <a href="{{ connection.prospect.amazon }}"  target="_blank" class="amazon hint--top" data-hint="{{ connection.prospect.amazon }}"></a>
-            {% endif %}
-            {% if connection.prospect.soundcloud %}
-              <a href="{{ connection.prospect.soundcloud }}"  target="_blank" class="soundcloud hint--top" data-hint="{{ connection.prospect.soundcloud }}"></a>
-            {% endif %}         
-            {% if connection.prospect.slideshare %}
-              <a href="{{ connection.prospect.slideshare }}"  target="_blank" class="slideshare hint--top" data-hint="{{ connection.prospect.slideshare }}"></a>
-            {% endif %}    
-            {% if connection.prospect.plus %}
-              <a href="{{ connection.prospect.plus }}"  target="_blank" class="plus hint--top" data-hint="{{ connection.prospect.plus }}"></a>
-            {% endif %}          
-            {% if connection.prospect.angel %}
-              <a href="{{ connection.prospect.angel }}"  target="_blank" class="angel hint--top" data-hint="{{ connection.prospect.angel }}"></a>
-            {% endif %}         
-            {% if connection.prospect.foursquare %}
-              <a href="{{ connection.prospect.foursquare }}"  target="_blank" class="foursquare hint--top" data-hint="{{ connection.prospect.foursquare }}"></a>
-            {% endif %}      
-            {% if connection.prospect.github %}
-              <a href="{{ connection.prospect.github }}"  target="_blank" class="github hint--top" data-hint="{{ connection.prospect.github }}"></a>
-            {% endif %}       
-            {% if connection.prospect.flickr %}
-              <a href="{{ connection.prospect.flickr }}"  target="_blank" class="flickr hint--top" data-hint="{{ connection.prospect.flickr }}"></a>
-            {% endif %}                                                                                
-            {% if connection.prospect.emails %}
-              <a href="{{connection.prospect.mailto}}" target="_blank" class="email hint--top" data-hint="{{ connection.prospect.emails }}"></a>
-            {% endif %}
-            {% if connection.prospect.linkedin_location_raw %}
-              <a href="http://classic.mapquest.com/?q={{ connection.prospect.linkedin_location_raw }}" data-hint="{{ connection.prospect.linkedin_location_raw }}" class="location hint--top" target="_blank" ></a>
-            {% endif %}
-            {% if connection.prospect.phone %}
-              <a href="#" class="phone hint--top" data-hint="{{ connection.prospect.phone }}"></a>
-            {% endif %}            
-          </div>
+          {% include "_partials/social.html" %}
         </div>
       </div>              
     </div>

@@ -162,6 +162,7 @@ class ProfileBuilderRequest(S3SavedRequest):
         connections = int(filter(lambda x: x.isdigit(), data.get("connections",
             0)))
         self.profile["linkedin_url"] = data.get("source_url")
+        self.profile["linkedin"] = data.get("source_url")
         self.profile["linkedin_id"] = data.get("linkedin_id")
         self.profile["linkedin_name"] = data.get('full_name',"")
         self.profile["linkedin_location_raw"] = data.get("location")
