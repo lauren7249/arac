@@ -154,11 +154,7 @@ class SocialProfilesRequest(S3SavedRequest):
         return good_links
 
     def process(self):
-        try:
-            pipl_data = self._get_extra_pipl_data()
-        except:
-            print "PIPL timed out in SocialProfilesService"
-            pipl_data = {}
+        pipl_data = self._get_extra_pipl_data()
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
         self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]) + [self.person.get("linkedin_data",{}).get("image")])
