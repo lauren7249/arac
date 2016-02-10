@@ -16,6 +16,8 @@ class PiplRequest(S3SavedRequest):
         self.type = type
         self.level = level
         self.json_format = "&pretty=true"
+        #self.proxies = {"https":"https://pp-suibscag:eenamuts@66.90.79.52:11332"}
+        self.proxies=None
         pipl_url_v4 = "https://api.pipl.com/search/v4/?key="
         shuffle(PIPL_SOCIAL_KEYS)
         shuffle(PIPL_PROFES_KEYS)
@@ -126,7 +128,7 @@ class PiplRequest(S3SavedRequest):
         tries = 0
         while self.pipl_json is None and tries<3:
             try:
-                html = self._make_request(proxies={"https":"https://pp-suibscag:eenamuts@66.90.79.52:11332"})
+                html = self._make_request(proxies=self.proxies)
                 self.pipl_json = json.loads(html.decode("utf-8-sig"))
             except Exception, e:
                 print "Error: " + str(e)
