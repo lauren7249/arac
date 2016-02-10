@@ -119,6 +119,7 @@ scoring_service = ScoringService({}, {})
 scoring_service.output = enriched_output
 scored_output = scoring_service.compute_stars()
 
+#delete the old ones first
 results_service = ResultService(client_data, scored_output)
 results_service.process()
 
