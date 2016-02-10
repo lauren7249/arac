@@ -2,10 +2,22 @@ from spark.hbase_load_simple import HBaseLoader
 from helpers.stringhelpers import name_match
 from helpers.linkedin_helpers import get_dob_year_range
 from prime.utils.crawlera import reformat_crawlera
-import numpy, json
+import numpy, json, re
 from prime.processing_service.geocode_service import GeocodeRequest, GeoPoint, MapQuestRequest
 import happybase
 from prime.processing_service.pipl_request import PiplRequest
+from prime.processing_service.lead_service import LeadService
+
+from prime.processing_service.glassdoor_service import wrapper as glassdoor_calc
+from prime.processing_service.indeed_service import wrapper as indeed_calc
+from prime.processing_service.age_service import wrapper as age_calc
+from prime.processing_service.gender_service import wrapper as gender_calc
+from prime.processing_service.college_degree_service import wrapper as college_degree_calc
+from prime.processing_service.social_profiles_service import wrapper as social_profiles_calc
+from prime.processing_service.phone_service import wrapper as phone_calc
+from prime.processing_service.profile_builder_service import wrapper as profile_builder_calc
+from prime.processing_service.scoring_service import ScoringService, wrapper as scoring_calc
+from prime.processing_service.results_service import ResultService
 
 hb = HBaseLoader("2016_01",sc)
 data = hb.get_s3_data()
@@ -13,6 +25,8 @@ local_locations_raw = ["New York, New York","Boston, MA","Hartford, Connecticut"
 local_locations = []
 for location in local_locations_raw:
     local_locations.append(MapQuestRequest(location).process())
+
+client_data = {'to_email': u'jeff@advisorconnect.co', 'suppress_emails': True, 'first_name': u'Jacob', 'last_name': u'Rocchi', 'location': 'Washington, D.C.', 'url': 'https://www.linkedin.com/in/jacobrocchi', 'email': u'jake_rocchi@advisorconnect.co', 'hired': True}
 
 def for_jake(line):
     try:
@@ -74,27 +88,36 @@ def for_jake(line):
             return [{"linkedin_data":linkedin_data, "location_coordinates": lead_location}]   
     return []
 
-from prime.processing_service.glassdoor_service import wrapper as glassdoor_calc
-from prime.processing_service.indeed_service import wrapper as indeed_calc
-from prime.processing_service.age_service import wrapper as age_calc
-from prime.processing_service.gender_service import wrapper as gender_calc
-from prime.processing_service.college_degree_service import wrapper as college_degree_calc
-from prime.processing_service.social_profiles_service import wrapper as social_profiles_calc
-from prime.processing_service.phone_service import wrapper as phone_calc
-from prime.processing_service.profile_builder_service import wrapper as profile_builder_calc
-from prime.processing_service.scoring_service import ScoringService, wrapper as scoring_calc
-from prime.processing_service.results_service import ResultService
+def qualified(person):
+    n_connections = person.get("linkedin_data",{}).get("connections","0")
+    try:
+        if n_connections and int(re.sub('[^0-9]','',n_connections))<30:
+            return []
+    except Exception, e:
+        print str(e)
+        return []
+    lead_service = LeadService(client_data, None)
+    same_person = lead_service._is_same_person(person)   
+    if same_person:
+        print "SAME PERSON " + str(person)
+        return []  
+    competitor = lead_service._is_competitor(person)    
+    if competitor:
+        print "COMPETITOR " + str(person)
+        return []
+    salary = lead_service._filter_salaries(person)
+    if not salary:
+        print "SALARY PROBLEM " + str(person)
+        return []
+    return [person]
 
-
-enriched = data.flatMap(for_jake).map(glassdoor_calc).map(indeed_calc).map(age_calc).map(gender_calc).map(college_degree_calc).map(social_profiles_calc).map(phone_calc).map(profile_builder_calc).map(scoring_calc)
+enriched = data.flatMap(for_jake).map(glassdoor_calc).map(indeed_calc).flatMap(qualified).map(age_calc).map(gender_calc).map(college_degree_calc).map(social_profiles_calc).map(phone_calc).map(profile_builder_calc).map(scoring_calc)
 enriched.cache()
 enriched_output = enriched.collect()
 
 scoring_service = ScoringService({}, {})
 scoring_service.output = enriched_output
 scored_output = scoring_service.compute_stars()
-
-client_data = {'to_email': u'jeff@advisorconnect.co', 'suppress_emails': True, 'first_name': u'Jake', 'last_name': u'Rocchi', 'location': 'Washington, D.C.', 'url': 'https://www.linkedin.com/in/jacobrocchi', 'email': u'jake_rocchi@advisorconnect.co', 'hired': True}
 
 results_service = ResultService(client_data, scored_output)
 results_service.process()

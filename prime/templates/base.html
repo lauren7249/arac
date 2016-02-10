@@ -128,24 +128,24 @@
       });
 
       $(function() {
-         var $page = 1;
-         var isSearching = false;
+        var $page = 1;
+        var isSearching = false;
 
-         function bindPagination() {
-           $("[data-page]").click(function() {
-             showLoader()
-             $page = $(this).data('page');
-             search()
-           });
-         }
+        function bindPagination() {
+         $("[data-page]").click(function() {
+           showLoader()
+           $page = $(this).data('page');
+           search()
+         });
+        }
 
-         function hideLoader() {
-           $(".loading").fadeOut();
-         }
+        function hideLoader() {
+          $(".loading").fadeOut();
+        }
 
-         function showLoader() {
-           $(".loading").show();
-         }
+        function showLoader() {
+          $(".loading").show();
+        }
 
         function search() {
            if (isSearching) {

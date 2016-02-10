@@ -162,6 +162,8 @@ class SocialProfilesRequest(S3SavedRequest):
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
         self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]) + [self.person.get("linkedin_data",{}).get("image")])
+        self.phone_numbers = pipl_data.get("phones")
+        self.addresses = pipl_data.get("addresses")
         self.genders = []
         for email in self.emails:
             self._update_profile(email)                           
@@ -169,5 +171,7 @@ class SocialProfilesRequest(S3SavedRequest):
         self.person["social_accounts"] = self._process_social_accounts(self.social_accounts)
         self.person["images"] = self._process_images(self.images)
         self.person["clearbit_genders"] = self.genders    
+        self.person["pipl_phone_numbers"] = self.phone_numbers
+        self.person["pipl_addresses"] = self.addresses
         return self.person    
 
