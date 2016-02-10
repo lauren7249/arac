@@ -10,30 +10,36 @@ from boto.s3.key import Key
 import multiprocessing
 from service import Service, S3SavedRequest
 from constants import GLOBAL_HEADERS
+from linkedin_company_service import LinkedinCompanyService
 from bloomberg_service import BloombergPhoneService
 from clearbit_service_webhooks import ClearbitPhoneService
 from mapquest_request import MapQuestRequest
 from person_request import PersonRequest
+from helpers.stringhelpers import domestic_area
 
 def wrapper(person, favor_mapquest=False):
-    if not person:
+    try:
+        if not person:
+            return person
+        if domestic_area(person.get("phone_number")) and not favor_mapquest:
+            return person
+        linkedin_data = person.get("linkedin_data",{})
+        current_job = PersonRequest()._current_job(person)
+        if not current_job or not current_job.get("company"):
+            return person
+        location = MapQuestRequest(linkedin_data.get("location")).process()
+        latlng = location.get("latlng") if location else None
+        business_service = MapQuestRequest(current_job.get("company"))
+        business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
+        person.update(business) 
         return person
-    if person.get("phone_number") and not favor_mapquest:
+    except Exception, e:
+        print __name__ + str(e)
         return person
-    linkedin_data = person.get("linkedin_data",{})
-    current_job = PersonRequest()._current_job(person)
-    if not current_job or not current_job.get("company"):
-        return person
-    location = MapQuestRequest(linkedin_data.get("location")).process()
-    latlng = location.get("latlng") if location else None
-    business_service = MapQuestRequest(current_job.get("company"))
-    business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
-    person.update(business) 
-    return person
-
+        
 class PhoneService(Service):
     """
-    Expected input is JSON with profile info
+    Expected input is JSON with linkedin profiles
     Output is going to be existig data enriched with phone numbers
     """
 
@@ -49,25 +55,37 @@ class PhoneService(Service):
         
     def multiprocess(self):
         self.logstart()
-        self.service = BloombergPhoneService(self.client_data, self.data)
-        self.data = self.service.multiprocess()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        self.service = ClearbitPhoneService(self.client_data, self.output)
-        self.output = self.service.multiprocess()
+        try:
+            self.service = LinkedinCompanyService(self.client_data, self.data)
+            self.data = self.service.multiprocess()        
+            self.service = BloombergPhoneService(self.client_data, self.data)
+            self.data = self.service.multiprocess()
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+            self.service = ClearbitPhoneService(self.client_data, self.output)
+            self.output = self.service.multiprocess()
+            #elf.output = self.user.refresh_p200_data(self.output)  
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
     def process(self, favor_mapquest=False):
         self.logstart()
-        self.service = BloombergPhoneService(self.client_data, self.data)
-        self.data = self.service.process()
-        for person in self.data:
-            person = wrapper(person, favor_mapquest=favor_mapquest)
-            self.output.append(person)
-        self.service = ClearbitPhoneService(self.client_data, self.output)
-        self.output = self.service.process()
+        try:
+            self.service = LinkedinCompanyService(self.client_data, self.data)
+            self.data = self.service.process()          
+            self.service = BloombergPhoneService(self.client_data, self.data)
+            self.data = self.service.process()
+            for person in self.data:
+                person = wrapper(person, favor_mapquest=favor_mapquest)
+                self.output.append(person)
+            self.service = ClearbitPhoneService(self.client_data, self.output)
+            self.output = self.service.process()
+            #self.output = self.user.refresh_p200_data(self.output)  
+        except:
+            self.logerror()
         self.logend()
         return self.output

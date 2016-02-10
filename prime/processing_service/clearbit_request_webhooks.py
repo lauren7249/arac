@@ -25,17 +25,17 @@ class ClearbitRequest(S3SavedRequest):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _get_entity(self, query, type):
+    def _get_entity(self, type):
         self.logger.info('Make Request: %s', 'Query Clearbit')
         try:
             if type=="person":
-                entity = clearbit.Person.find(email=query, stream=False, webhook_id=self.query)
+                entity = clearbit.Person.find(email=self.query, stream=False, webhook_id=self.query)
             elif type=="company":
-                entity = clearbit.Company.find(domain=query, stream=False, webhook_id=self.query)
+                entity = clearbit.Company.find(domain=self.query, stream=False, webhook_id=self.query)
             else:
                 entity = None
         except HTTPError as e:
-            self.logger.info('Clearbit Fail')        
+            self.logger.info('Clearbit Fail')
             return None
         return entity
 
@@ -43,28 +43,28 @@ class ClearbitRequest(S3SavedRequest):
         entity = {}
         if not self.query:
             return entity
-        self.key = hashlib.md5("clearbit" + type + self.query).hexdigest()
+        self.key = hashlib.md5("clearbit{}{}".format(type,self.query)).hexdigest()
         key = Key(self.bucket)
         key.key = self.key
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
             html = key.get_contents_as_string()
-            entity = json.loads(html)
+            entity = json.loads(html.decode("utf-8-sig"))
         else:
             while True:
-                entity = self._get_entity(self.query, type)
+                entity = self._get_entity(type)
                 if not entity:
                     entity = {}
-                    break     
-                entity = dict(entity)           
+                    break
+                entity = dict(entity)
                 if entity.get("pending",False):
                     self.logger.info('Clearbit Response PENDING')
-                    time.sleep(2)                
+                    time.sleep(2)
                 else:
                     break
             entity.pop('response', None)
             key.content_type = 'text/html'
-            key.set_contents_from_string(json.dumps(entity))
+            key.set_contents_from_string(unicode(json.dumps(entity, ensure_ascii=False)))
         entity.pop("id",None)
         entity.pop("fuzzy",None)
         return entity
@@ -78,22 +78,22 @@ class ClearbitRequest(S3SavedRequest):
             if isinstance(self.clearbit_json[key], dict) and self.clearbit_json[key].get('handle'):
                 handle = self.clearbit_json[key].pop("handle")
                 if key=='angellist':
-                    link = "https://angel.co/" + handle
+                    link = "https://angel.co/{}".format(handle)
                 elif key=='foursquare':
-                    link = "https://" + key + ".com/user/" + handle
+                    link = "https://{}.com/user/{}".format(key, handle)
                 elif key=='googleplus':
-                    link = "https://plus.google.com/" + handle
+                    link = "https://plus.google.com/{}".format(handle)
                 elif key=='twitter':
-                    link = "https://twitter.com/" + handle
+                    link = "https://twitter.com/{}".format(handle)
                 elif key=='facebook':
                     if handle.isdigit():
-                        link = "https://facebook.com/people/_/" + handle
+                        link = "https://facebook.com/people/_/{}".format(handle)
                     else:
-                        link = "https://facebook.com/" + handle
+                        link = "https://facebook.com/{}".format(handle)
                 elif key=='linkedin':
-                    link = "https://www." + key + ".com/" + handle
+                    link = "https://www.{}.com/{}".format(key, handle)
                 else:
-                    link = "https://" + key + ".com/" + handle
+                    link = "https://{}.com/{}".format(key, handle)
                 social_accounts.append(link)
         return social_accounts
 

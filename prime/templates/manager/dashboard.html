@@ -1,99 +1,155 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='invite-agent'>
-  <div class='invite-box'>
-    <h4>Enter in email address to invite agent</h4>
-    <input type='text' name='first_name' placeholder='John' />
-    <input type='text' name='last_name' placeholder='Smith' />
-    <input type='text' name='email' placeholder='John_Smith@newyorklife.com' />
-    <button id='send' class='button primary big'><i class='fa fa-paper-plane-o'></i> Send Invitation</button><button id='close' class='button danger big'><i class='fa fa-ban'></i> Cancel</button>
-  </div>
-</div>
-  <div class="subheader">
-    <div class="wrap">
-      <div class="col-4">
-        <h2>Manager Dashboard</h2>
+  {% include "_partials/manager_header.html" with context %}
+
+  <script type='text/javascript'>
+
+    window.onload = function() { 
+      selectCurrent(); 
+    }
+    
+    function selectCurrent(){
+      document.getElementById("prospective-agents").style.display = "none";   
+      document.getElementById("current-agents").style.display = "table";         
+      $("#prosp").removeClass("active");
+      $("#curr").addClass("active");
+    }
+    function selectProspective(){
+      document.getElementById("current-agents").style.display = "none";      
+      document.getElementById("prospective-agents").style.display = "table";      
+      $("#curr").removeClass("active"); 
+      $("#prosp").addClass("active");            
+    }
+  </script>
+  <div class="manager-team-metrics wrap">
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="invitations_sent">{{ manager.invitations_sent }}</h2>
+        <div class="caps">Invitations Sent</div>
       </div>
-      <div class="col-8">
-        <div class="subnav">
-          <ul>
-            <li><a href="#" class="selected">Selected Tab</a></li>
-            <li><a href="#">Request Hiring Screen</a></li>
-            <li><a href="#">Request P200</a></li>
-          </ul>
-        </div>
+    </div>
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="prescreens_completed">{{ manager.prescreens_completed }}</h2>
+        <div class="caps">Pre-Screens Completed</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="candidates_hired">{{ manager.candidates_hired }}</h2>
+        <div class="caps">Candidates Hired</div>
+      </div>
+    </div>    
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="p200s_completed">{{ manager.p200s_completed }}</h2>
+        <div class="caps">P200s Completed</div>
       </div>
     </div>
   </div>
+
   <div class="section">
     <div class="wrap"> 
-      <table class="manager-dashboard">
+      
+      <div class="tabset">
+        <li id='prosp' onclick='selectProspective()'>Prospective Agents</li>
+        <li id='curr' onclick='selectCurrent()'>Current Agents</li>
+      </div>
+
+      <table id="prospective-agents" class="manager-dashboard" style="max-height:100%; max-width:100%; display:none;">
+        <thead>
+          <th>Candidate</th>
+          <th>Primary Network</th>
+          <th>Extended Network</th>
+          <th class="completed">Pre-Screen</th>
+        </thead>
+        <tbody>
+          {% for agent in agents %}
+            {%if not agent.hired %}
+              <tr>
+                <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+                  <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+                </td>
+                {% if agent.hiring_screen_completed %}
+                  <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
+                  <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+                {%else%}
+                  <td>-</td>
+                  <td>-</td>                
+                {%endif%}
+                <td data-td='{{ agent.user_id }}'>
+                  {% if agent.hiring_screen_completed %}
+                    <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+      <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
+                    <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
+                  {% elif agent.unique_contacts_uploaded > 0 %}
+                    <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>
+                  {% else %}
+                    {% if agent.account_created %}
+                      <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
+                    {% else %}
+                      <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
+                    {% endif %}      
+                  {% endif %}
+                </td>              
+              </tr>
+            {%endif%}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table id="current-agents" class="manager-dashboard" style="max-height:100%; max-width:100%; display:none;">
         <thead>
           <th>Agent</th>
           <th>Primary Network</th>
           <th>Extended Network</th>
-          <th>Total Network</th>
           <th>Avg Income Score</th>
-          <th>Avg Age</th>
-          <th class="completed">Completed</th>
+          <th>Avg Age</th>            
+          <th class="completed">Pre-Screen</th>
+          <th class="completed">P200</th>
         </thead>
         <tbody>
-        <tr>
-        </tr>
-        {% if agent_count < 1 %}
-        <tr>
-          <td colspan='7'><h4>Add some agents to get started!</h4></td>
-        </tr>
-        {% else %}
-        {% for agent in agents %}
-        <tr>
-          <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span><span>{{ agent.name }}</span></td>
-          <td>64</td>
-          <td>720</td>
-          <td>784</td>
-          <td>48/100</td>
-          <td>34</td>
-          <td class="completed yes"></td>
-        </tr>
-        {% endfor %}
-        {% endif %}
+          {% for agent in agents %}
+            {%if agent.hired %}
+              <tr>
+                <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+                  <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+                </td>
+                <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
+                <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+                <td>{{ agent.average_income_score }}</td>
+                <td>{{ agent.average_age }}</td>                  
+                <td data-td='{{ agent.user_id }}'>
+                  {% if agent.hiring_screen_completed %}
+                    <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+                  {% elif agent.unique_contacts_uploaded > 0 %}
+                    <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
+                  {% else %}
+                    {% if agent.account_created %}
+                      <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
+                    {% else %}
+                      <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
+                    {% endif %}      
+                  {% endif %}
+                </td>  
+                <td data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
+                  {%if agent.p200_submitted_to_manager %}
+                    <a target='_self' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
+                  {% elif agent.p200_completed %}
+                    <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections available, pending agent P200 submission.'>Pending</span> 
+                  {% elif agent.p200_started %}
+                    <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
+                  {% elif agent.hiring_screen_completed  %}               <!-- -->
+                    <button data-hint='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small hint--top'>Request</button>    
+                    <span style="display:none;" class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='P200 is running and will be available within 24 hours.'>In Progress</span>                 
+                  {% endif %}
+                </td>                              
+              </tr>
+            {%endif%}
+          {% endfor %}
         </tbody>
       </table>
+    </div>
   </div>
-</div>
-<script type='text/javascript'>
-var csrftoken = "{{ csrf_token() }}"
-$(function() {
-    $("#send").click(function() {
-        var email = $("[name='email']").val();
-        var first_name = $("[name='first_name']").val();
-        var last_name = $("[name='last_name']").val();
-        if (email == '' || first_name == '' || last_name == '') {
-          alert("You must fill out all fields");
-          return false;
-        }
-        var data = {csrf_token:csrftoken, 
-                  first_name:first_name,
-                  last_name:last_name, 
-                  email:email}
-        $.post("/managers/invite", data, function(data) {
-          if (data.error) {
-            alert(data.error)
-          }
-          $(".invite-box").slideUp();
-          $(".invite-agent").fadeOut();
-      });
-    });
 
-    $("#close").click(function() {
-        $(".invite-box").slideUp();
-        $(".invite-agent").fadeOut();
-    });
-
-    $("#invite").click(function() {
-          $(".invite-agent").fadeIn();
-          $(".invite-box").slideDown();
-    });
-});
-</script>
 {% endblock %}

@@ -25,10 +25,6 @@ class UrlValidatorRequest(S3SavedRequest):
                 self.content_type = 'image/jpeg'
             s3conn = boto.connect_s3("AKIAIXDDAEVM2ECFIPTA", "4BqkeSHz5SbcAyM/cyTBCB1SwBrB9DDu0Ug/VZaQ")
             self.bucket= s3conn.get_bucket("public-profile-photos")
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-        
 
     def process(self):
         html = self._make_request(content_type =self.content_type , bucket=self.bucket)

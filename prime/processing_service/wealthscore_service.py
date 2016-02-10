@@ -52,7 +52,7 @@ class WealthScoreRequest(S3SavedRequest):
     def process(self):
         if not self.max_salary:
             return None
-        self.url = "http://www.shnugi.com/income-percentile-calculator/?min_age=18&max_age=100&income=" + str(self.max_salary)
+        self.url = "http://www.shnugi.com/income-percentile-calculator/?min_age=18&max_age=100&income={}".format(str(self.max_salary))
         html = self._make_request()
         try:
             percentile = re.search('(?<=ranks at: )[0-9]+(?=(\.|\%))',html).group(0)

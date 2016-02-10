@@ -51,7 +51,7 @@ class Prospect(db.Model):
 
     email_addresses = db.Column(JSONB)
     profile_image_urls = db.Column(JSONB)
-    
+
     #clean, normalized, curated profile fields for list UI/filtering
     company = db.Column(String(1024))
     company_website = db.Column(String(1024))
@@ -60,8 +60,8 @@ class Prospect(db.Model):
     name = db.Column(String(1024))
     main_profile_image = db.Column(String(1024))
     main_profile_url = db.Column(String(1024))
-    mailto = db.Column(String(1024)) 
-    phone = db.Column(String(100)) 
+    mailto = db.Column(String(1024))
+    phone = db.Column(String(100))
     #social profiles
     facebook = db.Column(String(1024))
     twitter = db.Column(String(1024))
@@ -74,16 +74,58 @@ class Prospect(db.Model):
     amazon = db.Column(String(1024))
     linkedin = db.Column(String(1024))
     foursquare = db.Column(String(1024))
-    github = db.Column(String(1024))    
+    github = db.Column(String(1024))
     #for filtering and network summary: TODO: ADD IN
-    industry_category = db.Column(String(100))
-    industry_icon = db.Column(String(200)) 
+    industry_category = db.Column(String(100), index=True)
+    industry_icon = db.Column(String(200))
+    us_state = db.Column(String(200))
 
     #fields for network summary only
     gender = db.Column(String(15))
     college_grad = db.Column(Boolean)
     wealthscore = db.Column(Integer)
     age = db.Column(Float)
+
+    @property
+    def image(self):
+        if self.main_profile_image:
+            return self.main_profile_image
+        return "/static/img/shadow-avatar.png"
+
+    @property
+    def headline(self):
+        if self.linkedin_headline:
+            return self.linkedin_headline
+        if self.company and self.job:
+            return "{} at {}".format(self.job, self.company)
+        if self.company:
+            return "Works at {}".format(self.company)
+        if self.job:
+            return self.job
+        return ""
+
+    @property
+    def tags(self):
+        jobs = []
+        schools = []
+        if self.jobs:
+            jobs = list(set([c.company_name for c in self.jobs if c.company_name]))[:4]
+        if self.schools:
+            schools = list(set([s.school_name for s in self.schools]))[:4]
+        return jobs + schools
+
+    @property
+    def school_names(self):
+        schools = []
+        if self.schools:
+            schools = list(set([s.school_name for s in self.schools]))
+        return schools
+
+    @property
+    def emails(self):
+        if not self.mailto:
+            return ""
+        return self.mailto.split(":")[-1].replace(","," ")
 
     def __repr__(self):
         return '<Prospect id={0} url={1}>'.format(self.id, uu(self.main_profile_url))
@@ -110,6 +152,7 @@ class Job(db.Model):
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Job.prospect_id')
     company_name = db.Column(String(1024))
+    #company_url = db.Column(String(1024))
     title = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
@@ -130,6 +173,7 @@ class Education(db.Model):
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"), index=True)
     prospect = relationship('Prospect', foreign_keys='Education.prospect_id')
     school_name = db.Column(String(1024))
+    #school_url = db.Column(String(1024))
     start_date = db.Column(Date)
     end_date = db.Column(Date)
     degree = db.Column(String(1024))
@@ -141,38 +185,3 @@ class Education(db.Model):
                 uu(self.prospect.linkedin_name)
                 )
 
-
-class CloudspongeRecord(db.Model):
-    __tablename__ = "cloudsponge_raw"
-    id = db.Column(Integer, primary_key=True)
-    user_email = db.Column(String(500), index=True) #the email address identityfing the user in linkedin
-    account_email = db.Column(String(500), index=True) #one of the email accounts the user authed in with
-    contact_email = db.Column(String(500), index=True) #the first email address for the user's contact
-    service = db.Column(String(500), index=True)
-    contact = db.Column(JSONB)
-
-    #nice to haves
-    user_firstname = db.Column(String(500))
-    user_lastname = db.Column(String(500))
-    user_url = db.Column(String(500))
-    user_location = db.Column(String(500))
-
-    @property
-    def get_job_title(self):
-        return self.contact.get("job_title")
-
-    @property
-    def get_company(self):
-        if self.contact.get("companies"):
-            return self.contact.get("companies")[0]
-        return None
-
-    @property
-    def get_emails(self):
-        all_emails = []
-        info = self.contact 
-        emails = info.get("email",[{}])
-        for email in emails:
-            address = email.get("address").lower()
-            if address: all_emails.append(address)
-        return all_emails   

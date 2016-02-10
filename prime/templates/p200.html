@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+{% with header="Project 200" %}
+{% include "_partials/agent_header.html" %}
+
+{% endwith %}
+
+<div class="section">
+  <div class="wrap">
+    <div class="col-12">
+      <div class="search">
+        {% if current_user.is_manager %}
+          {% if agent.p200_approved %}
+<!--             <h2>Approved P200</h2> -->
+            <a href='/managers/pdf/{{ agent.user_id }}'><button id='export' class='button dark-blue'>Export as PDF</button></a>
+          {% else %}
+            <a href='/managers/approve/{{ agent.user_id }}'><button class='button teal'>Approve This P200 For Export</button></a>
+          {% endif %}
+        {% else %}
+          {% if current_user.p200_submitted_to_manager and current_user.p200_approved %}
+            <a href='/export'><button class='button grey'>Export to MOD</button></a>
+            <a href='/contacts_export'><button class='button grey'>Export Contact Info</button></a>
+            <a href='pdf'><button id='export' class='button dark-blue'>Export as PDF</button></a>
+          {% endif %}
+          {% if not current_user.p200_submitted_to_manager and not current_user.p200_approved %}
+            <button id='submit' class='button teal'>Submit For Approval</button>
+          {% endif %}
+<!--           <button class='button teal'>View Skipped Connections</button> -->
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="section" id='connections-section'>
+  <div class="wrap" id='connections'>
+    {% include "_partials/connections_table.html" %}
+  </div>
+</div>
+
+
+<script type='text/javascript'>
+
+  $("button#submit").click(function() {
+    $.post("/submit_p200_to_manager", function(data) {
+      if (data.error) {
+        showSuccess("Error: " + data.error);
+        return false;
+      } else {
+        showSuccess("Your Project 200 has been submitted to your manager for approval. You will receive an alert when it is confirmed.");
+        $("button#submit").hide();
+      }
+    });
+  });
+
+</script>
+{% endblock %}
+

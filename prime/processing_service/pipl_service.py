@@ -1,7 +1,6 @@
 import json
 import logging
 import time
-import multiprocessing
 from random import shuffle
 from service import Service
 from pipl_request import PiplRequest
@@ -9,11 +8,15 @@ from pipl_request import PiplRequest
 def wrapper(person, type):
     key = person.keys()[0]
     info = person.values()[0]
-    request = PiplRequest(key, type=type, level="social")
-    data = request.process()
-    data.update(info)
-    return {key:data}
-
+    try:
+        request = PiplRequest(key, type=type, level="social")
+        data = request.process()
+        data.update(info)
+        return {key:data}
+    except Exception, e:
+        print __name__ + str(e)
+        return {key:data}
+        
 def wrapper_email(person):
     return wrapper(person, type="email")
 
@@ -31,6 +34,7 @@ class PiplService(Service):
         self.client_data = client_data
         self.data = data
         self.output = []
+        self.pool_size = 20
         self.wrapper = wrapper_email
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)

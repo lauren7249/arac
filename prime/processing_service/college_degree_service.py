@@ -14,10 +14,14 @@ from constants import GLOBAL_HEADERS
 from helper import parse_date
 
 def wrapper(person):
-    college_grad = CollegeDegreeRequest()._has_college_degree(person.get("linkedin_data",{}))
-    person["college_grad"] = college_grad    
-    return person
-
+    try:
+        college_grad = CollegeDegreeRequest()._has_college_degree(person.get("linkedin_data",{}))
+        person["college_grad"] = college_grad    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class CollegeDegreeService(Service):
     """
     Expected input is JSON with profile info

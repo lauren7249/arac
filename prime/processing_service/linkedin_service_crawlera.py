@@ -3,6 +3,7 @@ import logging
 import time
 import sys
 import os
+import sys
 import boto
 from boto.s3.key import Key
 import json
@@ -12,14 +13,23 @@ import multiprocessing
 from service import Service
 from saved_request import S3SavedRequest
 from person_request import PersonRequest
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 def wrapper(person):
-    linkedin_url = PersonRequest()._get_linkedin_url(person)
-    if linkedin_url:
-        data = PersonRequest()._get_profile_by_any_url(linkedin_url)
-        return data
-    return {}
-
+    try:
+        linkedin_url = PersonRequest()._get_linkedin_url(person)
+        if linkedin_url:
+            data = PersonRequest()._get_profile_by_any_url(linkedin_url)
+            return data
+        data = person.values()[0]
+        if "linkedin" in data.get("sources") and data.get("job_title"):
+            print "no linkedin url found for {} | {} | {} | {}".format(data.get("first_name"),data.get("last_name"),data.get("job_title"),data.get("companies"))
+        return {}
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class LinkedinService(Service):
     '''
     Gets linkedin data and collapses by linkedin_id, merging the email addresses, images, and social acounts for the person, 
@@ -35,9 +45,6 @@ class LinkedinService(Service):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        
-    def _get_linkedin_url(self, person):
-        return person.values()[0].get("linkedin_urls")
 
     def multiprocess(self):
         return self.process()
@@ -72,20 +79,26 @@ class LinkedinService(Service):
 
     def multiprocess(self):
         self.logstart()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.intermediate_output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        self.output = self._collapse() 
+        try:
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.intermediate_output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
+            self.output = self._collapse() 
+        except:
+            self.logerror()
         self.logend()
         return self.output.values()
 
     def process(self):
         self.logstart()
-        for person in self.data:
-            person = self.wrapper(person)
-            self.intermediate_output.append(person)
-        self.output = self._collapse() 
+        try:
+            for person in self.data:
+                person = self.wrapper(person)
+                self.intermediate_output.append(person)
+            self.output = self._collapse() 
+        except:
+            self.logerror()
         self.logend()
         return self.output.values()
 

@@ -6,7 +6,8 @@ import boto
 import json
 import lxml.html
 from boto.s3.key import Key
-
+import unittest
+from flask.ext.testing import TestCase, LiveServerTestCase
 from requests import session
 from service import Service, S3SavedRequest
 from helper import parse_out, most_common, get_center, domain_match, name_match
@@ -27,7 +28,7 @@ class MapQuestRequest(S3SavedRequest):
 
     def __init__(self, query):
         super(MapQuestRequest, self).__init__()
-        self.url = "https://www.mapquest.com/?q=" + query
+        self.url = "https://classic.mapquest.com/?q={}".format(query)
         self.query = query
         self.headers = GLOBAL_HEADERS
         self.unresolved_locations = []
@@ -55,7 +56,7 @@ class MapQuestRequest(S3SavedRequest):
                 geocode = self._geocode_from_scraps()
             return geocode
         except Exception, e:
-            self.logger.error("Location Error: %s", str(e))
+            self.logger.warn("Location Parsing Issue: %s", str(e))
             return None
 
     def _get_json_locations(self):

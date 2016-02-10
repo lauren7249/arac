@@ -20,7 +20,7 @@ from helper import filter_bing_results, uu
 class BingRequestMaker(S3SavedRequest):
 
     def __init__(self, name, type, extra_keywords=None, *args, **kwargs):
-        self.name = name
+        self.name = name.replace('&','').replace(',','') if name else ""
         self.type = type
         self.extra_keywords = extra_keywords.replace('&','').replace(',','') if extra_keywords else None
         self.include_terms_in_title = None
@@ -50,7 +50,7 @@ class BingRequestMaker(S3SavedRequest):
         elif self.type == "linkedin_profile":
             self.regex = profile_re
             self.include_terms_in_title = self.name
-            if len(self.extra_keywords):
+            if self.extra_keywords and len(self.extra_keywords):
                 inbody = '"' + self.extra_keywords + '"'
             else:
                 inbody = ''
@@ -139,14 +139,14 @@ class BingRequest(S3SavedRequest):
             for api_key in bing_api_keys:
                 try:
                     html = self._get_html(api_key)
-                    raw_results = json.loads(html)['d']
+                    raw_results = json.loads(html.decode("utf-8-sig"))['d']
                     self.results += raw_results.get("results",[])
                     self.next_querystring = raw_results.get("__next")
                     self.pages+=1
                     break
                 except:
                     if html:
-                        self.logger.warn("Exception for bing request with the following response: " + uu(html))
+                        self.logger.warn("Exception for bing request {} with the following response: {}".format(self.querystring, uu(html)))
                     else:
                         self.logger.warn("bing -- no response")
                 if not self.next_querystring:
@@ -164,15 +164,27 @@ class BingRequest(S3SavedRequest):
         if key.exists():
             self.logger.info('Make Request: %s', 'Get From S3')
             html = key.get_contents_as_string()
-        else:
+            #only return if we didnt save a stupid error response from stupid bing like we were doing in the last stupid version of this function.
             try:
-                response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
-                html = response.content
+                raw_results = json.loads(html.decode("utf-8-sig"))['d']
+                return html
             except:
-                html = None
-            if html:
+                pass
+        #guess that key didnt exist or the results were stupid
+        try:
+            response = requests.get(self.next_querystring + "&$format=json" , auth=(api_key, api_key))
+            html = response.content
+        except:
+            html = None
+        #at this point we have tried everything so better just leave it alone, return whatever crap we got and hope for the best.
+        if html:
+            try:
+                #only save if it's not an error response from stupid bing.
+                raw_results = json.loads(html.decode("utf-8-sig"))['d']            
                 key.content_type = 'text/html'
                 key.set_contents_from_string(html)
+            except:
+                pass
         return html
 
     def process(self):

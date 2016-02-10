@@ -21,12 +21,16 @@ from mapquest_request import MapQuestRequest
 GEOLOCATOR = Nominatim()
 
 def wrapper(person):
-    linkedin_data = person.get("linkedin_data",{})
-    location = GeocodeRequest(linkedin_data).process()
-    if location:
-        person["location_coordinates"] = location    
-    return person
-
+    try:
+        linkedin_data = person.get("linkedin_data",{})
+        location = GeocodeRequest(linkedin_data).process()
+        if location:
+            person["location_coordinates"] = location    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class GeoCodingService(Service):
 
     """
@@ -70,12 +74,12 @@ class GeocodeRequest(S3SavedRequest):
         if boto_key.exists():
             self.logger.info('GecodeRequest: %s', 'Using S3')
             html = boto_key.get_contents_as_string()
-            coords = json.loads(html)
+            coords = json.loads(html.decode("utf-8-sig"))
             return coords
         else:         
             self.logger.info('GecodeRequest: %s', 'Calculating')       
             coords = self._get_coords()
-            boto_key.set_contents_from_string(json.dumps(coords))
+            boto_key.set_contents_from_string(unicode(json.dumps(coords, ensure_ascii=False)))
         return coords        
 
     def _get_coords(self):
@@ -131,7 +135,7 @@ class OpenStreetMapsRequest(S3SavedRequest):
         if boto_key.exists():
             self.logger.info('OpenStreetMapsRequest: %s', 'Using S3')
             html = boto_key.get_contents_as_string()
-            coords = json.loads(html)
+            coords = json.loads(html.decode("utf-8-sig"))
             return coords
         else:         
             self.logger.info('OpenStreetMapsRequest: %s', 'Querying openstreetmaps')       
@@ -148,7 +152,7 @@ class OpenStreetMapsRequest(S3SavedRequest):
                     coords = {"latlng":(location.latitude, location.longitude), "locality":locality, "country":country}
             except:
                 coords = {}
-            boto_key.set_contents_from_string(json.dumps(coords))
+            boto_key.set_contents_from_string(unicode(json.dumps(coords, ensure_ascii=False)))
         return coords
 
     def process(self):
