@@ -104,7 +104,7 @@ class PiplRequest(S3SavedRequest):
             phone = record.get("display")       
             if phone and phone not in phones:
                 phones.append(phone)
-        return phone  
+        return phones
 
     def _addresses(self, pipl_json):
         addresses = []
