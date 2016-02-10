@@ -21,6 +21,7 @@ declare -x PG_USER="${DB_USER:-postgres}"
 declare -x PG_PASS="${DB_PASS}"
 declare -x PG_DB="${PG_DB:-arachnid}"
 declare -x PG_HOST="${PG_HOST}"
+declare -x PG_DUMP_FILE="${PG_DUMP_FILE:-mydb.dump}"
 
 # List of databases command
 declare -r PG_LIST="${PG_BINDIR}/psql -h ${PG_HOST} -U ${PG_USER} -l "
@@ -43,7 +44,7 @@ dev_run() {
     wait_until_is_ready
     first_setup_check
     drop_db
-    create_db
+    create_dev_db
     run_worker
     run_uwsgi
     return $?;
@@ -118,13 +119,15 @@ drop_db() {
 
 # Create the default app user and database
 # TODO: Handle failures
-create_db() {
+create_dev_db() {
     local CREATE_USR_CMD="${PG_BINDIR}/createuser -h ${PG_HOST} -U ${PG_USER} -d -s -w ${PG_DB}"
     local CREATE_DB_CMD="${PG_BINDIR}/createdb -h ${PG_HOST} -l ${PG_LOCALE} -w -U ${PG_USER} ${PG_DB}"
-    local UPGRADE_DB_CMD="${PYTHON} ./manage.py db upgrade"
+    local LOAD_DB_CMD="${PG_BINDIR}/psql ${PG_DB} -h ${PG_HOST} -l ${PG_LOCALE} -w -U ${PG_USER} -f ${PG_DUMP_FILE}"
+    local UPGRADE_DB_CMD="${PG_BINDIR} ./manage.py db upgrade"
 
     $CREATE_USR_CMD
     $CREATE_DB_CMD
+    $LOAD_DB_CMD
     $UPGRADE_DB_CMD
 
     return $?;

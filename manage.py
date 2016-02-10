@@ -7,7 +7,7 @@ import re
 from prime import create_app, db
 from prime.prospects.views import get_q
 
-app = create_app(os.getenv('AC_CONFIG', 'default'))
+app = create_app(os.getenv('AC_CONFIG', 'development'))
 #app.debug=True
 
 migrate = Migrate(app, db)
@@ -19,11 +19,11 @@ if __name__ == '__main__':
         from prime.users.models import db, User
         from prime.managers.models import ManagerProfile
         json_data = json.loads(json_data)
-        mp = ManagerProfile()       
+        mp = ManagerProfile()
         mp.address = json_data.get("address")
         mp.name_suffix = json_data.get("name_suffix")
-        mp.certifications = json_data.get("certifications")      
-        mp.phone = json_data.get("phone")  
+        mp.certifications = json_data.get("certifications")
+        mp.phone = json_data.get("phone")
         session = db.session
         user = User(first_name, last_name, email, password)
         session.add(user)
@@ -60,17 +60,17 @@ if __name__ == '__main__':
             other_locations = []
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.location,"url":user.linkedin_url,\
-                "to_email":user.manager.user.email, "hired": (hired == "True"), 
+                "to_email":user.manager.user.email, "hired": (hired == "True"),
                 "suppress_emails":True, "other_locations":other_locations}
         print client_data
         q = get_q()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)        
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
         if flush=='True':
             for client_prospect in user.client_prospects:
                 session.delete(client_prospect)
             user._statistics = None
             session.add(user)
-            session.commit()        
+            session.commit()
 
     @manager.command
     def delete_user(email):
@@ -106,11 +106,11 @@ if __name__ == '__main__':
         for index, row in s.iterrows():
             contact = {}
             contact["email"] = [{"address": row[0].strip() + "@facebook.com"}]
-            data.append({"contact":contact, "contacts_owner":None, "service":"facebook"})      
+            data.append({"contact":contact, "contacts_owner":None, "service":"facebook"})
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.location,"url":user.linkedin_url, "hired": True}
         q = get_q()
-        q.enqueue(queue_processing_service, client_data, data, timeout=14400)            
+        q.enqueue(queue_processing_service, client_data, data, timeout=14400)
 
 
 
