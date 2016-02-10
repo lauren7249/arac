@@ -36,6 +36,7 @@ def wrapper(person, favor_mapquest=False):
             for phone_number in person.get("pipl_phone_numbers",[]):
                 if domestic_area(phone_number):
                     person["phone_number"] = phone_number
+                    self.logger.info("GOT PHONE FROM PIPL {}".format(phone_number))
                     break
         return person
     except Exception, e:
