@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-
+#@formatter:off
+#noinspection all
 #
 # Entrypoint to P200 Application
 #
@@ -9,17 +10,15 @@
 #
 
 # Executables
-# @formatter:off
 declare -r PG_BINDIR=$(pg_config --bindir)
 declare -r PYTHON=$(which python)
 declare -r UWSGI=$(which uwsgi)
-# @formatter:on
 
 # Postgres settings
-declare -x PG_LOCALE="${LC_ALL:-'en_US.utf8'}"
-declare -x PG_USER="${DB_USER:-'postgres'}"
+declare -x PG_LOCALE="${LC_ALL:-en_US.utf8}"
+declare -x PG_USER="${DB_USER:-postgres}"
 declare -x PG_PASS="${DB_PASS}"
-declare -x PG_DB="${PG_DB:-'arachnid'}"
+declare -x PG_DB="${PG_DB:-arachnid}"
 declare -x PG_HOST="${PG_HOST}"
 
 # List of databases command
@@ -30,14 +29,13 @@ declare -r -i E_MISSING_PARAM=75
 declare -r -i E_OPTERROR=85
 declare -r -i NO_ARGS=0
 
-# @formatter:off
-# Ensure parameter was passed
-if [ $# -eq "$NO_ARGS" ] # Script invoked with no command-line args?
-then
-    echo "Usage: $(basename $0) options (prod_run dev_run test_run )"
-    exit "${E_OPTERROR}";
-fi
-# @formatter:on
+# List of functions
+declare -a FUNCS
+
+# Bounding box for errors
+declare LINE
+declare -r -i LENGTH=50
+printf -v LINE '%*s' "$LENGTH"
 
 # Run in development mode
 dev_run() {
@@ -48,13 +46,21 @@ dev_run() {
     return $?;
 }
 
+# Run production
+# TODO Define
 prod_run() {
     :
 }
 
+# Run test scripts
+test_run() {
+    $(${PYTHON} ./manage.py test)
+    return $?;
+}
+
 # Launch worker and background
 run_worker() {
-    $(${PYTHON} ./worker.py &)
+    bg $(${PYTHON} ./worker.py)
     return 0;
 }
 
@@ -78,6 +84,7 @@ first_setup_check() {
     return 0;
 }
 
+# TODO Define
 reset_db() {
     :
 }
@@ -99,18 +106,40 @@ create_db() {
 
 # Block until the database is up and answering
 wait_until_is_ready() {
-    until $(${PG_BINDIR}/pg_isready -h "${PG_HOST}" -U "${PG_USER}"); do
+    until $("${PG_BINDIR}/pg_isready -h ${PG_HOST} -U ${PG_USER}"); do
         sleep 5;
     done
     return $?;
 }
 
-# Run test scripts
-test_run() {
-    $(${PYTHON} ./manage.py test)
-    return $?;
-}
 
+#
 # Entrypoint into script
+#
+
+# Get a list of functions defined in the script and stuff
+# into an array
+FUNCS=( `compgen -A function` )
+
+
+
+# Parse what we've been passed
+
+# Scan the function name array and compare to the
+# first command line parameter.  If there's a match,
+# call that function name
+if [[ " ${FUNCS[@]} " =~ " $1 " ]]
+then
+    $1;
+else
+    # Else, echo a usage statement with a list of the
+    # function names as valid command options
+    echo -e "${LINE// /⁈ }\n"
+
+    echo -e "Usage: $(basename "$0") one of: (${FUNCS[@]} )\n"
+
+    echo -e "${LINE// /⁈ }"
+    exit "${E_OPTERROR}";
+fi
 
 exit $?
