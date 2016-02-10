@@ -15,6 +15,7 @@ from indeed_service import IndeedService
 from geocode_service import GeoCodingService, MapQuestRequest
 from person_request import PersonRequest
 
+
 class LeadService(Service):
     """
     Expected input is JSON 

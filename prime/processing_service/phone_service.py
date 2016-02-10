@@ -32,6 +32,11 @@ def wrapper(person, favor_mapquest=False):
         business_service = MapQuestRequest(current_job.get("company"))
         business = business_service.get_business(latlng=latlng, website=person.get("company_website"))
         person.update(business) 
+        if not domestic_area(person.get("phone_number")):
+            for phone_number in person.get("pipl_phone_numbers"):
+                if domestic_area(phone_number):
+                    person["phone_number"] = phone_number
+                    break
         return person
     except Exception, e:
         print __name__ + str(e)
