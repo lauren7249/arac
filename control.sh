@@ -8,7 +8,6 @@
 # Copyright 2016, AdvisorConnect, Inc.
 # Author: Michael Bishop <michael@advisorconnect.co>
 #
-#
 
 # Executables
 declare -r PG_BINDIR=$(pg_config --bindir)
@@ -43,6 +42,8 @@ printf -v LINE '%*s' "$LENGTH"
 dev_run() {
     wait_until_is_ready
     first_setup_check
+    drop_db
+    create_db
     run_worker
     run_uwsgi
     return $?;
@@ -60,20 +61,26 @@ test_run() {
     return $?;
 }
 
-# Launch worker and background
+# Launch worker in the background
 run_worker() {
-    { coproc worker { $(${PYTHON} ./worker.py) ; }>&3; } 3>&1
+    local WORKER_CMD="${PYTHON} ./worker.py"
+    { coproc worker { $WORKER_CMD ; }>&3; } 3>&1
     return 0;
 }
 
+# Start the UWSGI container in foreground
+# and block
 run_uwsgi() {
-    $(${UWSGI} --ini production.ini)
+    local UWSGI_CMD="${UWSGI} --ini production.ini"
+    $UWSGI_CMD
+    wait
     return $?;
 }
 
 # Check if the database exists and creates if not
 # found.
-# TODO: This should be a more rigorous check
+# FIXME: The bash comparison operator is not working
+# as expected.
 first_setup_check() {
 
     # Return code is 0 only if database exists
@@ -88,10 +95,11 @@ first_setup_check() {
 
     if [ -n "${CODE}" ]; then
         echo "${PG_DB} Exists"
+#        create_db
         return 0;
     else
-        echo "${PG_DB} does not yet exist.  Creating."
-        create_db;
+        echo "${PG_DB} does not yet exist.  Creating.";
+#        create_db;
     fi
     return 0;
 }
@@ -104,8 +112,8 @@ reset_db() {
 # Drop the database
 drop_db() {
     local DROP_CMD="${PG_BINDIR}/dropdb -h ${PG_HOST} -U ${PG_USER} -w --if-exists ${PG_DB}"
-    local RC=$(eval ${DROP_CMD})
-    return $RC;
+    $DROP_CMD
+    return $?;
 }
 
 # Create the default app user and database
@@ -115,16 +123,17 @@ create_db() {
     local CREATE_DB_CMD="${PG_BINDIR}/createdb -h ${PG_HOST} -l ${PG_LOCALE} -w -U ${PG_USER} ${PG_DB}"
     local UPGRADE_DB_CMD="${PYTHON} ./manage.py db upgrade"
 
-    eval $CREATE_USR_CMD
-    eval $CREATE_DB_CMD
-    RC=$(eval $UPGRADE_DB_CMD)
+    $CREATE_USR_CMD
+    $CREATE_DB_CMD
+    $UPGRADE_DB_CMD
 
-    return $RC;
+    return $?;
 }
 
 # Block until the database is up and answering
 wait_until_is_ready() {
     local IS_READY_TEST="${PG_BINDIR}/pg_isready -h ${PG_HOST} -U ${PG_USER} "
+
     until $IS_READY_TEST; do
         sleep 5;
     done
@@ -140,6 +149,7 @@ wait_until_is_ready() {
 # into an array
 FUNCS=( `compgen -A function` )
 
+# TODO Ensure all required environment variables exist.
 
 # Parse what we've been passed
 

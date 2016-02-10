@@ -1,20 +1,9 @@
 ---
-### Data volume container to support persistent data in redis.
-#data:
-#  image: busybox:latest
-#  command: "/bin/true"
-#  domainname: advisorconnect.co
-#  volumes:
-#    - /data
-#    - /tmp
-#    - /var/lib/postgresql/data
 version: '2'
 
 volumes:
-  data:
-    external: false
-  pgdata:
-    external: false
+  data: {}
+  pgdata: {}
 
 services:
   # The Postgres container holding the latest version of postgres and
@@ -23,8 +12,6 @@ services:
     restart: always
     image: postgres:9.5
     domainname: advisorconnect.co
-    ports:
-      - "5433:5432"
     cpu_shares: 30
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -83,8 +70,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - data:/tmp
   #  extra_hosts:
   #    - "babel:10.143.114.177"
     environment:
@@ -94,7 +79,7 @@ services:
       S3_BUCKET: "arachid-results"
       AC_CONFIG: "development"
       REDIS_URL: "redis://redis:6379"
-      DB_URL: "postgresql://arachnid@oracle:5433/arachnid"
+      DB_URL: "postgresql://arachnid@oracle:5432/arachnid"
       AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
       AWS_SECRET_ACCESS_KEY_PVLL: "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"
       LC_ALL: "en_US.utf8"

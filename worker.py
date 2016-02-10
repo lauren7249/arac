@@ -25,7 +25,7 @@ def do_work():
 
     # FIXME: This cannot live in a 4th and counting configuration
     # file.
-    REDIS_URL = os.getenv('AC_REDIS_URL', 'redis://localhost')
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost')
 
     try:
         if os.getenv('AC_CONFIG', 'default') == 'beta':
