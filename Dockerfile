@@ -10,8 +10,8 @@ USER postgres
 EXPOSE 80
 EXPOSE 443
 
-ENTRYPOINT ["make"]
-CMD ["run"]
+ENTRYPOINT ["./control.sh"]
+CMD ["dev_run"]
 
 USER root
 

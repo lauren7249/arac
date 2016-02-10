@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+exit 99
 MACHINE=`hostname -s`
 
 docker-machine --debug create  --driver softlayer  --softlayer-api-key 3cee267a0b93e8bd1fb764c3074213602741f0b16642a86f0ced2b76835b0eec \
