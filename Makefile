@@ -4,6 +4,7 @@ PG_BINDIR  := $(shell pg_config --bindir)
 PRIME_DB_USER := $(shell echo $PRIME_DB_USER)
 PRIME_DB_PASS := $(shell echo $PRIMIE_DB_PASS)
 pg         := ${PG_BINDIR}/psql -h babel -U arachnid -d ${PGDATABASE}
+DB_LIST := $(shell ${PG_BINDIR}/psql -h babel -U postgres -l)
 
 
 .PHONY: is-ready
@@ -12,8 +13,8 @@ is-ready:
 
 .PHONY: create-db
 create-db:
-	${PG_BINDIR}/createuser -d -s -U postgres -w arachnid  || true
-	${PG_BINDIR}/createdb -l en_US.utf8 -w -U postgres ${PGDATABASE}
+	${PG_BINDIR}/createuser -h babel -d -s -U postgres -w arachnid  || true
+	${PG_BINDIR}/createdb -h babel -l en_US.utf8 -w -U postgres ${PGDATABASE}
 	./manage.py db upgrade
 
 .PHONY: generate-fake
@@ -22,7 +23,13 @@ generate-fake:
 
 .PHONY: drop-db
 drop-db:
-	${PG_BINDIR}/dropdb -U postgres -w --if-exists ${PGDATABASE}
+	${PG_BINDIR}/dropdb -h babel -U postgres -w --if-exists ${PGDATABASE}
+
+.PHONY: is-ready first-setup-check
+first-setup-check:
+@echo First Setup Check
+is_setup := $(${PG_LIST} | grep arachnid -q)
+(${is_setup}="0",,reset)
 
 .PHONY: reset
 reset: is-ready drop-db create-db
@@ -56,4 +63,4 @@ install_live_db:
 
 
 .PHONY: run
-run: is-ready uwsgi production.ini
+run: first-setup-check uwsgi
