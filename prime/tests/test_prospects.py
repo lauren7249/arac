@@ -140,32 +140,18 @@ class TestPiplService(unittest.TestCase):
     def test_pipl_from_email(self):
         self.service = PiplService(None, self.emails)
         data1 = self.service.multiprocess()
-        self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0',
-                u'https://plus.google.com/106226923266702208073/about'])
+        self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), 
+            [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0', u'https://plus.google.com/106226923266702208073/about', u'http://www.linkedin.com/in/jamesjohnsona', u'http://jamesjohnsona.tumblr.com', u'http://www.corporaterenew.com'])
 
     def test_pipl_from_username(self):
         request = PiplRequest("laurentracytalbot", type="facebook", level="social")
         data = request.process()
-        self.assertEqual(data, {'images': [u'http://media.licdn.com/mpr/mpr/shrink_500_500/p/1/005/047/070/33fa685.jpg',
-               u'http://graph.facebook.com/213344/picture?type=large',
-               u'https://lh6.googleusercontent.com/-6z3fhsO9SQU/AAAAAAAAAAI/AAAAAAAAAAA/g2ihihLkzXM/photo.jpg'],
-              'linkedin_id': u'75874081',
-              'linkedin_urls': u'http://www.linkedin.com/pub/lauren-talbot/21/4b0/741',
-              'social_accounts': [u'http://www.linkedin.com/pub/lauren-talbot/21/4b0/741',
-               u'http://facebook.com/people/_/213344',
-               u'https://plus.google.com/114331116808631299757/about']})
+        self.assertEqual(data, {'images': [u'http://media.licdn.com/mpr/mpr/p/2/000/0b0/183/2d8a71a.jpg', u'http://graph.facebook.com/213344/picture?type=large', u'http://lh4.googleusercontent.com/-6z3fhsO9SQU/AAAAAAAAAAI/AAAAAAAAAAA/g2ihihLkzXM/photo.jpg'], 'linkedin_id': u'75874081', 'linkedin_urls': u'http://www.linkedin.com/pub/lauren-talbot/21/4b0/741', 'social_accounts': [u'http://www.linkedin.com/pub/lauren-talbot/21/4b0/741', u'http://facebook.com/people/_/213344', u'https://plus.google.com/114331116808631299757/about', u'http://www.goodreads.com/user/show/1648277', u'http://www.facebook.com/laurentracytalbot']})
 
     def test_pipl_from_url(self):
         request = PiplRequest("http://www.linkedin.com/pub/gordon-ritter/1/b95/a97", type="url", level="social")
         data = request.process()
-        self.assertEqual(data, {'images': [u'http://graph.facebook.com/552796269/picture?type=large',
-                  u'http://media.licdn.com/mpr/mpr/p/1/000/002/275/3e677fb.jpg'],
-                 'linkedin_id': u'5919955',
-                 'linkedin_urls': u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97',
-                 'social_accounts': [u'http://www.facebook.com/people/_/552796269',
-                  u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97',
-                  u'http://www.flickr.com/people/47088076@N06/',
-                  u'http://www.facebook.com/gordon.ritter.92']})
+        self.assertEqual(data, {'images': [u'https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAADHAAAAJDg5YjlmOTg4LTBkZjgtNDliOS1hY2QwLTNiMTY5YjAyMWMzNA.jpg', u'http://graph.facebook.com/552796269/picture?type=large'], 'linkedin_id': u'5919955', 'linkedin_urls': u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97', 'social_accounts': [u'http://www.linkedin.com/pub/gordon-ritter/1/b95/a97', u'http://www.facebook.com/people/_/552796269', u'http://www.flickr.com/people/47088076@N06/', u'http://teamaconcagua.blogspot.com/', u'http://www.linkedin.com/in/gordonpritter', u'http://www.emcap.com/people/gordon-ritter', u'http://www.facebook.com/gordon.ritter.92', u'http://unobviousventures.blogspot.com']})
 
 class TestClearbitPersonService(unittest.TestCase):
 
