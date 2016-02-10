@@ -6,6 +6,7 @@ from prime.processing_service.constants import REDIS_URL
 
 listen = ['high', 'default', 'low']
 
+
 def retry_if_connection_error(ex):
     """
     Return True if we should retry, else return False
@@ -21,11 +22,16 @@ def do_work():
     Activate the Redis worker, retrying up to 10 times at 5 second intervals
     should redis not be immediately available
     """
+
+    # FIXME: This cannot live in a 4th and counting configuration
+    # file.
+    REDIS_URL = os.getenv('AC_REDIS_URL', 'redis://localhost')
+
     try:
         if os.getenv('AC_CONFIG', 'default') == 'beta':
             conn = Redis.from_url(url=REDIS_URL, db=0)
         else:
-            conn = Redis.from_url(url='redis://localhost', db=0)
+            conn = Redis.from_url(url=REDIS_URL, db=0)
 
         with Connection(conn):
             worker = Worker(map(Queue, listen))
