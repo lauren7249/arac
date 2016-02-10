@@ -1,7 +1,7 @@
 import os
 import datetime
 import logging
-
+import re
 from flask import current_app
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -24,8 +24,8 @@ from sqlalchemy.engine.url import URL
 
 from prime import db, login_manager
 from prime.prospects.models import Prospect
-from prime.users.models import User
 from prime.customers.models import Customer
+from prime.users.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -39,20 +39,67 @@ _manager_users = db.Table('manager_users',
 
 
 class ManagerProfile(db.Model, UserMixin):
+
     __tablename__ = 'managers'
 
     manager_id = db.Column(postgresql.INTEGER, primary_key=True)
 
-    user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True)
+    user_id = db.Column(Integer, ForeignKey("users.user_id"), index=True, unique=True)
     user = relationship('User', foreign_keys='ManagerProfile.user_id',
             backref='manager_profile')
 
     users = db.relationship(User, secondary=_manager_users,
             backref=db.backref('users'), lazy='dynamic')
 
-    created = db.Column(Date)
-    json = db.Column(JSON, default={})
+    name_suffix = db.Column(String(500))
+    certifications = db.Column(String(500))
+    address = db.Column(String(1000), nullable=False)
+    phone = db.Column(String(30))
+    created = db.Column(Date, default=datetime.datetime.today())
 
+    @property 
+    def invitations_sent(self):
+        return int(self.users.count())
+
+    @property 
+    def prescreens_completed(self):
+        return int(self.users.filter(User.hiring_screen_completed==True).count())
+
+    @property 
+    def candidates_hired(self):
+        return int(self.users.filter(User.p200_started==True).count())
+
+    @property 
+    def p200s_completed(self):
+        return int(self.users.filter(User.p200_submitted_to_manager==True).count())
+
+    @property 
+    def title(self):
+        title = self.user.first_name + " " + self.user.last_name
+        if self.name_suffix:
+            title += ', ' + self.name_suffix
+        if self.certifications:
+            title += ', ' + self.certifications
+        return title
+
+    @property 
+    def address_1(self):
+        return self.address.split("\n")[0]
+
+    @property 
+    def address_2(self):
+        return self.address.split("\n")[-1]
+
+    @property 
+    def html_signature(self):
+        signature = "<p>" + self.title + "</p>"
+        if self.address:
+            signature += '<p>' + self.address.replace("\\n","</p><p>") + "</p>"
+        if self.phone:
+            signature += '<p>' + self.phone + "</p>"
+        if self.user.email:
+            signature += '<p>' + self.user.email + "</p>"
+        return signature
 
     def get_id(self):
         return unicode(self.manager_id)
@@ -65,3 +112,8 @@ class ManagerProfile(db.Model, UserMixin):
         return 'Manager: {} {} ({})'.format(self.user.first_name,
                 self.user.last_name, self.user.user_id)
 
+    @property
+    def image(self):
+        if self.main_profile_image:
+            return self.main_profile_image
+        return "/static/img/shadow-avatar.png"

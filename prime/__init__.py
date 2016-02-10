@@ -1,3 +1,6 @@
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 import logging
 from logging.handlers import SysLogHandler
 
@@ -11,8 +14,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
 from webassets import Bundle
 from flask.ext.admin import Admin
-from flask.ext.admin.contrib.sqla import ModelView
-
+# from flask.ext.admin.contrib.sqla import ModelView
+from flask_sslify import SSLify
 
 from config import config
 
@@ -27,8 +30,8 @@ def create_app(config_name):
 
     log_format = ('%(asctime)s %(levelname)s: %(message)s '
                   '[%(pathname)s:%(lineno)d]')
-    app.debug_log_format = log_format
-    app.logger.setLevel(logging.DEBUG)
+    #app.debug_log_format = log_format
+    #app.logger.setLevel(logging.DEBUG)
     app.logger.info('Using config: {}'.format(config_name))
     db.init_app(app)
     login_manager.init_app(app)
@@ -37,20 +40,21 @@ def create_app(config_name):
     #mail.init_app(app)
     init_assets(app)
     register_blueprints(app)
-    init_admin(app)
+    #init_admin(app)
     add_template_globals(app)
     RQ(app)
-
+    if config == 'beta':
+        SSLify(app)
     return app
 
-def init_admin(app):
-    from .users.models import User
-    admin = Admin(app)
-    admin.add_view(ModelView(User, db.session))
+# def init_admin(app):
+#     from .users.models import User
+#     admin = Admin(app)
+#     admin.add_view(ModelView(User, db.session))
 
 def init_assets(app):
     assets_environment = Environment(app)
-    css = Bundle('css/gh-buttons.css', 'css/chosen.css', 'css/app.css', 'css/main.css',
+    css = Bundle('css/chosen.css', 'css/hint.css', 'css/poppins.css', 'css/master.css',
                  output='css/gen/main.%(version)s-min.css',
                  filters='cssmin')
     assets_environment.register('css_all', css)
@@ -76,4 +80,12 @@ def add_template_globals(app):
     @app.template_global()
     def static_url():
         return app.config.get('STATIC_URL')
+
+def whoisthis(func):
+    def tellme(*args, **kwargs):
+        print func
+        print current_user
+        print request
+        return func(*args, **kwargs)
+    return tellme
 

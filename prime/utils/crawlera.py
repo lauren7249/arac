@@ -1,22 +1,16 @@
 import re
 import json
 
-def reformat_crawlera(json):
-    if not json or not json.keys():
-        return {}
-    for key in json.keys():
-        if json[key] is None: json.pop(key)
-    image = json.get("image_url")
-    linkedin_id = json.get("linkedin_id")
-    full_name = json.get("full_name")
-    headline = json.get("headline")
+def reformat_schools(educations):
     schools = []
-    for education in json.get("education",[]):
+    if not educations:
+        return schools
+    for education in educations:
         school = {}
         if education.get("degrees"):
             school["degree"] = ", ".join(education.get("degrees"))
         elif education.get("degree") and education.get("major"):
-            school["degree"] = education.get("degree") + ", " + education.get("major")
+            school["degree"] =  "{}, {}".format(education.get("degree"), education.get("major"))
         elif education.get("degree"):
             school["degree"] = education.get("degree")
         elif education.get("major"):
@@ -31,8 +25,13 @@ def reformat_crawlera(json):
         school["major"] = education.get("major")
         school["degree_type"] = education.get("degree")
         schools.append(school)
+    return schools
+
+def reformat_jobs(jobs):
     experiences = []
-    for job in json.get("experience",[]):
+    if not jobs:
+        return experiences
+    for job in jobs:      
         experience = {}
         experience["description"] = job.get("description")
         experience["end_date"] = job.get("end")
@@ -46,12 +45,16 @@ def reformat_crawlera(json):
         experience["start_date"] = job.get("start")
         experience["duration"] = job.get("duration")
         experience["location"] = job.get("location")
-        experiences.append(experience)
-    skills = json.get("skills")
-    people = json.get("also_viewed")
-    connections = json.get("num_connections")
-    location = json.get("locality")
-    industry = json.get("industry")
+        experiences.append(experience)    
+    return experiences
+
+def reformat_crawlera(json):
+    if not json or not json.keys():
+        return {}
+    for key in json.keys():
+        if json[key] is None: json.pop(key)
+    schools = reformat_schools(json.get("education",[]))
+    experiences = reformat_jobs(json.get("experience",[]))
     groups = []
     for group in json.get("groups",[]):
         if group.get("profile_url") and group.get("profile_url").split("=")[-1].isdigit():
@@ -75,33 +78,26 @@ def reformat_crawlera(json):
                 project["start_date"] = dates[0].strip()
                 project["end_date"] = dates[0].strip()
         projects.append(project)
-    success = True
-    complete = True
-    interests = json.get("interests")
     causes = json.get("volunteering",[{}])[0].get("causes")
-    organizations = json.get("organizations")
-    source_url = json.get("url")
     return {
-        'image': image,
-        'linkedin_id': linkedin_id,
-        'full_name': full_name,
-        'headline': headline,
+        'image': json.get("image_url"),
+        'linkedin_id': json.get("linkedin_id"),
+        'full_name': json.get("full_name"),
+        'headline': json.get("headline"),
         'schools': schools,
         'experiences': experiences,
-        'skills': skills,
-        'people': people,
-        'connections': connections,
-        'location': location,
-        'industry': industry,
+        'skills': json.get("skills"),
+        'people': json.get("also_viewed"),
+        'connections': json.get("num_connections"),
+        'location': json.get("locality"),
+        'industry': json.get("industry"),
         "groups": groups,
         "projects": projects,
-        "success": success,
-        "complete": complete,
-        "urls":people,
-        "interests": interests,
+        "urls":json.get("also_viewed"),
+        "interests": json.get("interests"),
         "causes":causes,
-        "organizations":organizations,
-        "source_url": source_url,
+        "organizations":json.get("organizations"),
+        "source_url": json.get("url"),
         "family_name": json.get("family_name"),
         "given_name": json.get("given_name"),
         "updated": json.get("updated"),

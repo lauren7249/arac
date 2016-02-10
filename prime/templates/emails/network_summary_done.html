@@ -1,0 +1,10 @@
+{% extends 'email.html' %}
+{% block content %}
+<h1>A new Network Summary is ready for {{ name }}</h1>
+<br/>
+<p><a style='background: #3A539B;padding: 15px 50px;margin: 20px auto;font-weight: bold;text-transform: uppercase; color:#fff;text-decoration:none;' href='{{ url }}/managers/agent/{{ agent_id }}'>View the Network Summary</a></p>
+<br/>
+<p>Thanks!</p>
+<p>Jeff Tompkins</p>
+<p>Founder @ Advisorconnect</p>
+{% endblock %}

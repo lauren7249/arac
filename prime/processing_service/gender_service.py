@@ -22,25 +22,28 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def wrapper(person):
-    genders = person.get("clearbit_genders",[])
-    malecount= genders.count("male") 
-    femalecount = genders.count("female")
-    firstname = get_firstname(person.get("linkedin_data",{}).get("full_name"))
-    if malecount and not femalecount:
-        person["gender"] = "male"
-    elif femalecount and not malecount:
-        person["gender"] = "female"
-    else:
-        is_male = GenderRequest(firstname).process()
-        if is_male is None:
-            person["gender"] = "unknown"
-        elif is_male:
+    try:
+        genders = person.get("clearbit_genders",[])
+        malecount= genders.count("male") 
+        femalecount = genders.count("female")
+        firstname = get_firstname(person.get("linkedin_data",{}).get("full_name"))
+        if malecount and not femalecount:
             person["gender"] = "male"
+        elif femalecount and not malecount:
+            person["gender"] = "female"
         else:
-            person["gender"] = "female"  
-    logger.info(firstname + " is " + person.get("gender"))
-    return person
-
+            is_male = GenderRequest(firstname).process()
+            if is_male is None:
+                person["gender"] = "unknown"
+            elif is_male:
+                person["gender"] = "male"
+            else:
+                person["gender"] = "female"  
+        logger.info("{} is {}".format(firstname, person.get("gender")))
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
      
 class GenderService(Service):
     """

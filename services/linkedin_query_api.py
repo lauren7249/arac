@@ -9,35 +9,12 @@ urls = (
     '/get_person_by_url', 'get_person_by_url'
 )
 
-CONNECTION_STRING = "dbname='p200_production' user='arachnid' host='babel.priv.advisorconnect.co' password='devious8ob8'"
+CONNECTION_STRING = "dbname='p200_production' user='arachnid' host='10.143.114.188' password='devious8ob8'"
 PEOPLE_TABLE = 'people'
-COMPANY_TABLE = 'crawlera_linkedin_companies_u'
+COMPANY_TABLE = 'companies'
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
-def get_people(urls=[], version='1.0.0'):
-    if version=='1.0.0':
-        if not urls:
-            return []
-        try:
-            conn = psycopg2.connect(CONNECTION_STRING)
-        except:
-            print "unable to connect to the database"
-            return []
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        urls_string = "('" + "','".join(urls) + "')"
-        query = """SELECT * from %s where url in %s""" % (PEOPLE_TABLE, urls_string)
-        cur.execute(query)
-        rows = cur.fetchall()
-        if not rows:
-            return []
-        output_rows = []
-        for row in rows:
-            out_row = dict(row)
-            output = reformat_crawlera(out_row)
-            output_rows.append(output)
-        return output_rows
-    return []
 
 def get_people_viewed_also(url=None, version='1.0.0'):
     if version=='1.0.0':

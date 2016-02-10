@@ -16,20 +16,16 @@ class PiplRequest(S3SavedRequest):
         self.type = type
         self.level = level
         self.json_format = "&pretty=true"
-        pipl_url_v3 = "http://api.pipl.com/search/v3/json/?key="
-        pipl_url_v4 = "http://api.pipl.com/search/v4/?key="
+        pipl_url_v3 = "https://api.pipl.com/search/v3/json/?key="
+        pipl_url_v4 = "https://api.pipl.com/search/v4/?key="
         shuffle(PIPL_SOCIAL_KEYS)
         shuffle(PIPL_PROFES_KEYS)
         if self.level == "social":
             self.pipl_key = PIPL_SOCIAL_KEYS[0]
         else:
             self.pipl_key = PIPL_PROFES_KEYS[0]
-        if self.type=="url":
-            self.pipl_url = pipl_url_v4
-            self.pipl_version = 4
-        else:
-            self.pipl_url = pipl_url_v3
-            self.pipl_version = 3
+        self.pipl_url = pipl_url_v4
+        self.pipl_version = 4
         self.api_url = "".join([self.pipl_url, self.pipl_key, self.json_format])
         self.query = query
         logging.getLogger(__name__)
@@ -38,7 +34,7 @@ class PiplRequest(S3SavedRequest):
         
 
     def _build_url(self):
-        if not self.query:
+        if not self.query or not self.api_url:
             return
         if self.type == 'email':
             url = self.api_url + "&email=" + self.query
@@ -54,59 +50,32 @@ class PiplRequest(S3SavedRequest):
         social_accounts = []
         if pipl_json is None:
             return social_accounts
-        if self.pipl_version == 3:
-            for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-                if not record.get('@query_params_match',True) or not \
-                        record.get("source") or not \
-                        record.get("source").get("url") or \
-                        record.get("source").get("@is_sponsored"):
-                    continue
-                link = record.get("source").get("url")
-                social_accounts.append(link)
-        else:
-            for record in pipl_json.get("person",{}).get("urls",[]):
-                link = record.get("url")
-                social_accounts.append(link)
+        for record in pipl_json.get("person",{}).get("urls",[]):
+            link = record.get("url")
+            social_accounts.append(link)
         return social_accounts
 
     def _images(self, pipl_json):
         images = []
         if pipl_json is None:
             return images
-        if self.pipl_version == 3:
-            for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-                if not record.get('@query_params_match',True): continue
-                for image in record.get("images",[]):
-                    url = image.get("url")
-                    if url and url not in images and url.find("gravatar.com")==-1:
-                        images.append(url)
-        else:
-            for record in pipl_json.get("person",{}).get("images",[]):
-                url = record.get("url")
-                if url and url not in images and url.find("gravatar.com")==-1:
-                    images.append(url)
+        for record in pipl_json.get("person",{}).get("images",[]):
+            url = record.get("url")
+            if url and url not in images and url.find("gravatar.com")==-1:
+                images.append(url)
         return images
 
     def _linkedin_id(self, pipl_json):
         linkedin_id = None
         if not pipl_json:
             return None
-        if self.pipl_version == 4:
-            for record in pipl_json.get("person",{}).get("user_ids",[]):
-                user_id = record.get("content")
-                if not user_id or user_id.find("@linkedin") == -1:
-                    continue
-                linkedin_id = user_id.split("@")[0]
-                if linkedin_id.isdigit():
-                    return linkedin_id
-        else:
-            for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-                if not record.get('@query_params_match',True): continue
-                if record.get("source",{}).get("domain") != "linkedin.com": continue
-                for user_id in record.get("user_ids",[]):
-                    linkedin_id = user_id.get("content")
-                    if linkedin_id.isdigit():
-                        return linkedin_id
+        for record in pipl_json.get("person",{}).get("user_ids",[]):
+            user_id = record.get("content")
+            if not user_id or user_id.find("@linkedin") == -1:
+                continue
+            linkedin_id = user_id.split("@")[0]
+            if linkedin_id.isdigit():
+                return linkedin_id
         return None
 
     def _linkedin_url(self, social_accounts):
@@ -119,47 +88,49 @@ class PiplRequest(S3SavedRequest):
 
     def _emails(self, pipl_json):
         emails = []
-        if not pipl_json: return emails
-        for record in pipl_json.get("records",[]) + [pipl_json.get("person",{})]:
-            if not record.get('@query_params_match',True) or not record.get("emails"): continue
-            for email in record.get("emails",[]):
-                url = email.get("address") 
-                domain = url.split("@")[-1]
-                if url and url not in emails and domain != 'facebook.com': 
-                    emails.append(url)
+        if not pipl_json: 
+            return emails
+        for record in pipl_json.get("person",{}).get("emails",[]):
+            email = record.get("address")
+            domain = email.split("@")[-1]          
+            if email and email not in emails and domain != 'facebook.com':
+                emails.append(email)
         return emails  
-        
 
-    def get_emails(self):
-        self.level = "email"
-        self._build_url()
-        if self.url is None:
-            return {}
-        self.pipl_json = None
-        tries = 0
-        while self.pipl_json is None and tries<3:
-            try:
-                html = self._make_request()
-                self.pipl_json = json.loads(html)
-            except:
-                time.sleep(1)
-                pass
-            tries+=1
-        emails = self._emails(self.pipl_json)
-        return emails
+    def _phones(self, pipl_json):
+        phones = []
+        if not pipl_json: 
+            return phones
+        for record in pipl_json.get("person",{}).get("phones",[]):
+            phone = record.get("display")       
+            if phone and phone not in phones:
+                phones.append(phone)
+        return phone  
+
+    def _addresses(self, pipl_json):
+        addresses = []
+        if not pipl_json: 
+            return addresses
+        for record in pipl_json.get("person",{}).get("addresses",[]):
+            address = "{} {}".format(record.get("display"), record.get("zip_code",""))      
+            if address and address not in addresses and record.get("@type") != "work":
+                addresses.append(address)
+        return addresses  
 
     def process(self):
         self.logger.info('Pipl Request: %s', 'Starting')
         self._build_url()
         if self.url is None:
             return {}
+        print self.url
         self.pipl_json = None
         tries = 0
         while self.pipl_json is None and tries<3:
             try:
-                html = self._make_request()
-                self.pipl_json = json.loads(html)
-            except:
+                html = self._make_request(proxies={"https":"https://pp-suibscag:eenamuts@66.90.79.52:11332"})
+                self.pipl_json = json.loads(html.decode("utf-8-sig"))
+            except Exception, e:
+                print "Error: " + str(e)
                 time.sleep(1)
                 pass
             tries+=1
@@ -174,7 +145,11 @@ class PiplRequest(S3SavedRequest):
         if self.level == "social":
             return data
         emails = self._emails(self.pipl_json)
+        phones = self._phones(self.pipl_json)
+        addresses = self._addresses(self.pipl_json)
         data["emails"] = emails
+        data["phones"] = phones
+        data["addresses"] = addresses
         return data
 
 

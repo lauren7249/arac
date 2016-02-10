@@ -6,7 +6,7 @@
 
 # Changes in your files should also trigger an auto-rebuild automatically.
 
-
+exit  99
 docker-compose --file ../docker-compose.yml build --pull
 
 if (test -z $1 gt 0)

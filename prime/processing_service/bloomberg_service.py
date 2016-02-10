@@ -13,22 +13,27 @@ from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from helper import get_domain
 from person_request import PersonRequest
+from helpers.stringhelpers import domestic_area
 
 def wrapper(person):
-    company_website = person.get("company_website")
-    company_domain = get_domain(company_website)
-    request = BloombergRequest(None)
-    phone = request._get_phone_from_website(company_domain)   
-    if phone:
-        person["phone_number"]= phone
-    else:
-        company = PersonRequest()._current_job(person).get("company")
-        phone, website = request._get_phone_from_name(company, company_domain)
+    try:
+        company_website = person.get("company_website")
+        company_domain = get_domain(company_website)
+        request = BloombergRequest(None)
+        phone = request._get_phone_from_website(company_domain)   
         if phone:
             person["phone_number"]= phone
-        if website:
-            person["company_website"] = website    
-    return person
+        else:
+            company = PersonRequest()._current_job(person).get("company")
+            phone, website = request._get_phone_from_name(company, company_domain)
+            if phone:
+                person["phone_number"]= phone
+            if website:
+                person["company_website"] = website    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person        
 
 class BloombergPhoneService(Service):
     """
@@ -42,6 +47,7 @@ class BloombergPhoneService(Service):
         self.data = data
         self.wrapper = wrapper
         self.output = []
+        self.pool_size=20
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -72,7 +78,7 @@ class BloombergRequest(S3SavedRequest):
             phone = data.get("phone")
             website = data.get("website")
             #if we already know the website and it does not match, keep trying other bloomberg pages
-            if website and company_domain == get_domain(website) and phone: 
+            if website and company_domain == get_domain(website) and domestic_area(phone): 
                 return phone
         return None   
 
@@ -175,7 +181,7 @@ class BloombergRequest(S3SavedRequest):
                     gender = "Female"
                 elif personalTitle in ["mr"]:
                     gender = "Male"
-            memberPage = "http://www.bloomberg.com/research/stocks/private/" + member.get("href")
+            memberPage = "http://www.bloomberg.com/research/stocks/private/{}".format(member.get("href")) 
             details = officer.xpath(".//div/div")
             if len(details) > 1:
                 title = details[1].text_content().strip()

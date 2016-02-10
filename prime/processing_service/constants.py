@@ -12,10 +12,7 @@ AWS_BUCKET = "aconn"
 user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 GLOBAL_HEADERS ={'User-Agent':user_agent, 'Accept-Language': 'en-US,en;q=0.8', "Content-Language":"en"}
 
-new_redis_host='129.41.154.147'
-new_redis_dbname=0
-new_redis_port=6379
-new_redis_password='d78bde1a8e50bd337323fdfcda13dcbd'
+REDIS_URL='redis://169.55.28.216'
 
 facebook_re = '^https*?://(www.)*facebook.com/(_/people/)*[^/]+'
 pub_profile_re = '^https*?://(www.)*linkedin.com/pub(?!/dir/)(/.*)+'
@@ -33,7 +30,7 @@ ALCHEMY_API_KEYS = ["b8d4b7af348984ce7113a4e9aeefdaaa7f906991","d0a43371f6ba8fa7
 CLEARBIT_KEY = 'f2512e10a605e3dcaff606205dbd3758'
 SCRAPING_API_KEY = "0ca62d4f6c0345ef80af1c4a9868da0f"
 bing_api_keys = ["xmiHcP6HHtkUtpRk/c6o9XCtuVvbQP3vi4WSKK1pKGg","VnjbIn8siy+aS9U2hjEmBgBGyhmiShWaTBARvh8lR1s","ETjsWwqMuHtuwV0366GtgJEt57BkFPbhnV4oT8lcfgU","CAkR9NrxB+9brLGVtRotua6LzxC/nZKqKuclWf9GjKU","hysOYscBLj0xtRDUst5wJLj2vWLyiueCDof6wGYD5Ls","FWyMRXjzB9NT1GXTFGxIdS0JdG3UsGHS9okxGx7mKZ0","U7ObwzZDTxyaTPbqwDkhPJ2wy+XfgMuVJ7k2BR/8HcE","VzTO15crpGKTYwkA8qqRThohTliVQTznqphD+WA5eVA"]
-PIPL_SOCIAL_KEYS = ["ml2msz8le74d4nno7dyk0v7c"]
+PIPL_SOCIAL_KEYS = ["ml2msz8le74d4nno7dyk0v7c",'24xx1svc2722l72m5fhmu94w','6yuvscvato7o16zxk8y8mmcb','lvtgjr2zjoztsdqp4dovid92','1jjs6mju38n6wpjcndkzikx1']
 PIPL_PROFES_KEYS = ["uegvyy86ycyvyxjhhbwsuhj9","6cuq3648nfbqgch5verhcfte","z2ppf95933pmtqb2far8bnkd"]
 
 CODER_WORDS = ["engineer","hacker","developer","programmer","coder","cto","data scientist","software","computer"]
@@ -189,6 +186,7 @@ INDUSTRY_CATEGORIES = {'Accounting': 'Finance',
                      'Recreational Facilities and Services': 'Services',
                      'Religious Institutions': 'Non-Profit Organizations',
                      'Renewables & Environmental': 'Manufacturing',
+                     'Renewables & Environment': 'Manufacturing',
                      'Research': 'Research',
                      'Restaurants': 'Entertainment & Leisure',
                      'Retail': 'Goods & Retail',
@@ -213,3 +211,63 @@ INDUSTRY_CATEGORIES = {'Accounting': 'Finance',
                      'Wine and Spirits': 'Goods & Retail',
                      'Wireless': 'Technology',
                      'Writing and Editing': 'Print Media'}
+
+US_STATES = {
+        'AK': 'Alaska',
+        'AL': 'Alabama',
+        'AR': 'Arkansas',
+        'AS': 'American Samoa',
+        'AZ': 'Arizona',
+        'CA': 'California',
+        'CO': 'Colorado',
+        'CT': 'Connecticut',
+        'DC': 'District of Columbia',
+        'DE': 'Delaware',
+        'FL': 'Florida',
+        'GA': 'Georgia',
+        'GU': 'Guam',
+        'HI': 'Hawaii',
+        'IA': 'Iowa',
+        'ID': 'Idaho',
+        'IL': 'Illinois',
+        'IN': 'Indiana',
+        'KS': 'Kansas',
+        'KY': 'Kentucky',
+        'LA': 'Louisiana',
+        'MA': 'Massachusetts',
+        'MD': 'Maryland',
+        'ME': 'Maine',
+        'MI': 'Michigan',
+        'MN': 'Minnesota',
+        'MO': 'Missouri',
+        'MP': 'Northern Mariana Islands',
+        'MS': 'Mississippi',
+        'MT': 'Montana',
+        'NA': 'National',
+        'NC': 'North Carolina',
+        'ND': 'North Dakota',
+        'NE': 'Nebraska',
+        'NH': 'New Hampshire',
+        'NJ': 'New Jersey',
+        'NM': 'New Mexico',
+        'NV': 'Nevada',
+        'NY': 'New York',
+        'OH': 'Ohio',
+        'OK': 'Oklahoma',
+        'OR': 'Oregon',
+        'PA': 'Pennsylvania',
+        'PR': 'Puerto Rico',
+        'RI': 'Rhode Island',
+        'SC': 'South Carolina',
+        'SD': 'South Dakota',
+        'TN': 'Tennessee',
+        'TX': 'Texas',
+        'UT': 'Utah',
+        'VA': 'Virginia',
+        'VI': 'Virgin Islands',
+        'VT': 'Vermont',
+        'WA': 'Washington',
+        'WI': 'Wisconsin',
+        'WV': 'West Virginia',
+        'WY': 'Wyoming'
+}

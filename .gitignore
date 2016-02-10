@@ -1,4 +1,7 @@
 temp_data/
+migrations/
+*.dump
+selenium/
 kombu/
 nohup.out
 training_data/
@@ -25,3 +28,4 @@ include
 out/
 .DS_Store/
 *.log
+pip-selfcheck.json

@@ -12,25 +12,18 @@ from boto.s3.key import Key
 from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
+from prime.processing_service.person_request import PersonRequest
+from prime.processing_service.social_profiles_service import SocialProfilesRequest
+from prime.processing_service.profile_builder_service import ProfileBuilderRequest
 from prime.processing_service.helper import parse_date, uu
-from prime import create_app
-from flask.ext.sqlalchemy import SQLAlchemy
 from prime.users.models import ClientProspect
 from prime.prospects.models import Prospect, Job, Education, get_or_create
 from prime.users.models import User
-try:
-    app = create_app(os.getenv('AC_CONFIG', 'development'))
-    db = SQLAlchemy(app)
-    session = db.session
-except:
-    from prime import db
-    session = db.session
 
 class ResultService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
         self.client_data = client_data
-        self.session = session
         self.data = data
         self.output = []
         logging.getLogger(__name__)
@@ -47,30 +40,31 @@ class ResultService(Service):
         client_prospect.lead_score = profile.get("lead_score")
         client_prospect.stars = profile.get("stars")
         client_prospect.common_schools = profile.get("common_schools")
-        client_prospect.updated = datetime.datetime.today()  
+        client_prospect.sources = profile.get("sources")
+        client_prospect.updated = datetime.datetime.today()
         self.session.add(client_prospect)
         self.session.commit()
-        self.logger.info("client prospect updated")        
+        self.logger.info("client prospect updated")
         return client_prospect
 
     def _create_or_update_prospect(self, profile):
         if not profile:
             self.logger.error("No person")
-            return None            
+            return None
         if profile.get('linkedin_id') is None:
             self.logger.error("No linkedin id")
             return None
         prospect = get_or_create(self.session, Prospect, linkedin_id=profile.get('linkedin_id').strip())
         for key, value in profile.iteritems():
             if hasattr(Prospect, key):
-                setattr(prospect, key, value)      
-        prospect.updated = datetime.datetime.today()  
+                setattr(prospect, key, value)
+        prospect.updated = datetime.datetime.today()
         self.session.add(prospect)
         self.session.commit()
         self.logger.info("Prospect updated")
         return prospect
 
-    def _create_or_update_schools(self, new_prospect, profile):     
+    def _create_or_update_schools(self, new_prospect, profile):
         schools = profile.get("schools_json",[])
         new_schools = []
         for info_school in schools:
@@ -82,7 +76,7 @@ class ResultService(Service):
                         #"school_linkedin_id": info_school.get("college_id")
                         "end_date": parse_date(info_school.get("end_date"))
                         })
-                    self.logger.info("Education updated: {}".format(uu(info_school.get("college"))))
+                    #self.logger.info("Education updated: {}".format(uu(info_school.get("college"))))
                     new = False
                     break
             if new:
@@ -107,9 +101,8 @@ class ResultService(Service):
                 )
         self.session.add(new_education)
         self.session.flush()
-        self.logger.info("Education added: {}".format(uu(college.get("college"))))
 
-    def _create_or_update_jobs(self, new_prospect, profile):      
+    def _create_or_update_jobs(self, new_prospect, profile):
         jobs = profile.get("jobs_json",[])
         new_jobs = []
         for info_job in jobs:
@@ -124,7 +117,7 @@ class ResultService(Service):
                         #"company_linkedin_id": info_job.get("company_id")
                         "end_date": parse_date(info_job.get("end_date"))
                         })
-                    self.logger.info("Job updated: {}".format(uu(info_job.get("company"))))
+                    #self.logger.info("Job updated: {}".format(uu(info_job.get("company"))))
                     new = False
                     break
             if new:
@@ -147,37 +140,60 @@ class ResultService(Service):
             **extra
         )
         self.session.add(new_job)
-        self.session.flush()
-        self.logger.info("Job added: {}".format(uu(job.get("company"))))
-
-    def _get_user(self):
-        user = session.query(User).filter_by(email=self.client_data.get("email")).first()
-        return user
+        self.session.commit()
 
     def multiprocess(self):
         return self.process()
-        
+
+    def get_agent_prospect(self):
+        email = self.client_data.get("email")
+        url = self.client_data.get("url")
+        profile = PersonRequest()._get_profile_by_any_url(url)
+        person = {"email_addresses":[email], "linkedin_data":profile}
+        person = SocialProfilesRequest(person).process()
+        request = ProfileBuilderRequest(person)
+        profile = request.process()
+        profile = request._get_job_fields(profile, person)
+        prospect = self._create_or_update_prospect(profile)
+        self._create_or_update_schools(prospect, profile)
+        self._create_or_update_jobs(prospect, profile)
+        return prospect
+
     def process(self):
         self.logstart()
-        user = self._get_user()
-        if user is None:
-            self.logger.error("No user found for %s", self.client_data.get("email"))
-            return None
-        for profile in self.data:
-            prospect = self._create_or_update_prospect(profile)
-            if not prospect:
-                self.logger.error("no prospect %s", json.dumps(profile))
-                continue
-            self._create_or_update_schools(prospect, profile)
-            self._create_or_update_jobs(prospect, profile)
-            client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
-            if not client_prospect:
-                self.logger.error("no client prospect")
-                continue
-            self.output.append(client_prospect.to_json())
-        if user:
-            self.logger.info("Stats: %s", json.dumps(user.build_statistics()))
-        else:
-            self.logger.error("NO USER!")
+        try:
+            user = self._get_user()
+            if not user:
+                self.logger.error("No user found for %s", self.client_data.get("email"))
+                return []
+            
+            for profile in self.data:
+                prospect = self._create_or_update_prospect(profile)
+                if not prospect:
+                    self.logger.error("no prospect %s", unicode(json.dumps(profile, ensure_ascii=False)))
+                    continue
+                self._create_or_update_schools(prospect, profile)
+                self._create_or_update_jobs(prospect, profile)
+                client_prospect = self._create_or_update_client_prospect(prospect, user, profile)
+                if not client_prospect:
+                    self.logger.error("no client prospect")
+                    continue
+                print prospect.us_state
+                self.output.append(client_prospect.to_json())
+
+            agent_prospect = self.get_agent_prospect()
+            if agent_prospect:
+                user.prospect_id = agent_prospect.id
+
+            #If the agent is hired in the data then we know the p200 has been fully
+            #run and we can mark that as true also. Otherwise just the
+            #hiring screen has been completed
+            user.hiring_screen_completed = True
+            if self.client_data.get("hired"):
+                user.p200_completed = True
+            self.session.add(user)
+            self.session.commit()   
+        except:
+            self.logerror()
         self.logend()
         return self.output

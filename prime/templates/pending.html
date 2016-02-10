@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}    
+
+<div class='signup' id="signup">
+  <div class="card">
+    <header>
+      <div class="header-logo"></div>
+    </header>
+    <h2>Thanks for connecting your contacts, {{ current_user.first_name }}</h2>
+    <p>We found {{ '{0:,}'.format(contact_count | int) }} unique prospects in your network.</p>
+    {% if contact_count == 0 %}
+      <p>If this seems incorrect, please email jeff@advisorconnect.co for support.</p>    
+    {% else %}
+      <p>You will receive an email once your Network Summary is ready to view.</p>   
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+{% block footer %}{% endblock %}

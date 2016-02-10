@@ -1,133 +1,448 @@
 {% extends 'base.html' %}
 {% block content %}    
-<script>
-      $(function() {
-        $.get("./geolocations.txt", function(data) {
-            var items = data.split('"');
-            $( "#geolocation" ).autocomplete({
-              source: items
-            });            
-        });        
-      });
-    </script>
-    <script>
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '1608721912712330',
-          xfbml      : true,
-          version    : 'v2.4'
-        });        
-      };
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "https://connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk'));
-
-    </script>
-    <script type="text/javascript">
-        
-        // Setup an event listener to make an API call once auth is complete
-        function onLinkedInLoad() {
-            IN.Event.on(IN, "auth", getProfileData);
-        }
-
-        // Handle the successful return from the API call
-        function onSuccess(data) {
-            console.log(data);
-            geolocation = data.location.name;
-            public_url = data.publicProfileUrl;
-            email_address = data.emailAddress;
-            firstName = data.firstName;
-            document.getElementById("owner_email").innerHTML = email_address;
-            document.getElementById("owner_geolocation").innerHTML = geolocation;
-            document.getElementById("owner_img").src = data.pictureUrl;
-            document.getElementById("owner_name").innerHTML = "Welcome, " + firstName;
-            $("div#enter_email").hide();
-            $("div#upload_area").show();            
-        }
-
-        // Handle an error response from the API call
-        function onError(error) {
-            console.log(error);
-        }
-
-        // Use the API call wrapper to request the member's basic profile data
-        function getProfileData() {
-            IN.API.Raw("people/~:(id,num-connections,picture-url,location,industry,public-profile-url,email-address,first-name,last-name)").result(onSuccess).error(onError);
-        }
-
-    </script>    
-  <div class='overlay'>
-    <div class='email modal'>
-      <h3>Select Email Provider</h3>
-      <ol>
-        <li type="Submit" id='gmail'><a><i class='fa fa-google'></i> Gmail</a></li>
-        <li type="Submit" id='yahoo' ><a><i class='fa fa-yahoo'></i> Yahoo</a></li>
-        <li type="Submit" id='windowslive' ><a><i class='fa fa-windows'></i> WindowsLive</a></li>
-    </div>
-    <div class='waiting modal'>
-      <div class='logo'>
-        <img src='{{ static_url() }}img/spinner_192.gif' />
-      </div>
-    </div>    
-  </div>
-
-  <div class='signup' id="signup">
-    <div class='logo'>
-      <img src='{{ static_url() }}img/AC_logo.png' />
-    </div>
-    <div id="enter_export_id" hidden>
-      <p>Copy and paste the confirmation code into the box to proceed to the next step</p>
-      <input type='text' id="export_id"/>
-      <button id="submit" class='button' type="Submit">Submit</button>
-    </div>       
-    <div id="enter_email" >
-      <h2 hidden>Welcome</h2>
-      <p >Please sign in through LinkedIn to continue.</p>
-      <p hidden>Enter the email address where you would like to receive your P200.</p>
-      <script id="li_button" type="in/Login">Log In to Linkedin to continue</script>
-      <input hidden type='email' id="email_address" />
-      <p hidden>Enter your target region</p>
-      <div hidden class="ui-widget">
-        <input hidden id="geolocation"/>
-      </div>
-      <button style="display: none;" id="enter" class='button' type="Submit">Enter</button>
-    </div>       
- 
-    <div id="upload_area" hidden>
-      <h2 id="owner_name"></h2>
-      <img id="owner_img" />
-      <p>Upload contacts from LinkedIn, and as many of your email accounts as possible.</p>
-      <p hidden id="owner_email"></p>
-      <p hidden id="owner_geolocation"></p>
-      <h2 hidden>Upload contacts</h2>
-      <div id="linkedin_area">
-        <button class='button' id='ln' type="Submit">Add Linkedin Connections <i class='fa fa-linkedin'></i></button>
-      </div>
-      <div id="email_area">
-        <button class='button' id='em' type="Submit">Add Multiple Email Accounts <i class='fa fa-envelope-o'></i></button>
-      </div>
-      <div hidden id="csv_area">
-        <button class='button' type="Submit" id='csv'>Add Contacts from CSV File <i class='fa fa-cog'></i></button>
-      </div>
-      <br/>
-      <br/>
-      <a ><button id="next" type="Submit" class='button'>Finish &amp; Upload &raquo;</button></a>
-    </div>
-  </div>
   <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-  <script type='text/javascript' >
-
+  <script type="text/javascript" src="//platform.linkedin.com/in.js">
+      api_key:   77kimruenyqspn
+      authorize: true
+      onLoad: onLinkedInLoad
+  </script>
+  <script type="text/javascript">
+    function onLinkedInLoad() {
+      $("#li_button").click(function() {
+        IN.User.authorize(getProfileData);
+      });
+    }
+    
     var domain_key='VB652MMUEG24H4JF3SGL';
     var domain_password='GSrAxStb9Zk5EOmD';    
     var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
     var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     var contacts_array = [];
+    var cloudsponge_status = '';
     var test = (window.location.href.indexOf("testing") > -1) ? true : false;
+    var downloadWindow = null;
+    var public_url = null;
 
+    // Handle the successful return from the API call
+    function onSuccess(data) {
+        $("#owner_email").html(data.emailAddress);
+        $("#owner_geolocation").html(data.location.name);
+        $("#owner_url").html(data.publicProfileUrl);
+        $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
+        $("#owner_name").html("Welcome, " + data.firstName);
+        $("#owner_first_name").html(data.firstName);
+        $("#owner_last_name").html(data.lastName);
+        $("#step-2").hide(); 
+        $("#step-3").slideDown();     
+        $.ajax({
+            type: 'POST',
+            url: '/save_linkedin_data',
+            crossDomain: true,
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(responseData, textStatus, jqXHR) {
+              document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
+              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;                 
+            },
+            error: function (responseData, textStatus, errorThrown) {
+            }
+        });                    
+    }
+
+    function skip_linkedin() {
+        $("#owner_email").html("{{ agent.email }}");
+        $("#owner_geolocation").html("{{ agent.location }}");
+        $("#owner_first_name").html("{{ agent.first_name }}");
+        $("#owner_last_name").html("{{ agent.last_name }}");     
+        public_url = null;
+        attemptFinish(); 
+    }
+    
+    // Handle an error response from the API call
+    function onError(error) {
+        console.log(error);
+    }
+
+    // Use the API call wrapper to request the member's basic profile data
+    function getProfileData() {
+        IN.API.Raw("people/~:(id,num-connections,picture-url,location,industry,public-profile-url,email-address,first-name,last-name)").result(onSuccess).error(onError);
+    }  
+
+    function download_linkedin() {
+      document.getElementById('mainDiv').class="disableWin";
+      var link = "http://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook";
+      var viewportwidth = document.documentElement.clientWidth;
+
+      if ("{{ newWindow }}" == 'false') {
+        downloadWindow = window.open(link);
+      }
+      else {
+        downloadWindow = window.open(link, "Linkedin's Contact Download", "width=500, height=300, left="+(viewportwidth-100)+",top=350");   
+
+        downloadWindow.focus(); 
+        $(".overlay").fadeIn();
+        $(".waiting").hide();          
+      }
+
+      document.getElementById("step1").style = "font-weight: lighter"
+      // document.getElementById("step2").style =  "font-weight: bolder"
+      $('html, body').animate({
+            scrollTop: $("li#step3").offset().top + 'px'
+      }, 'fast');
+      var timer = setInterval(function() {
+          if ("{{ newWindow }}" == 'false') {
+            $(document).click(function(){
+                $(document).off( "click")
+                clearInterval(timer);      
+                afterDownloadedClick();   
+                downloadWindow.close();                         
+            });        
+          } 
+          else {
+            if(downloadWindow.closed) {
+                clearInterval(timer);      
+                $("#step3").html("Click on the Upload Area to the right and select the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from your Downloads folder.")            
+                afterDownloadedClick();                         
+            }                        
+            $(".overlay").click(function(){
+              clearInterval(timer);    
+              $(".overlay").off( "click")
+              afterDownloadedClick();
+              downloadWindow.focus();         
+            }) ;          
+          }
+
+       
+      }, 1000);      
+    }      
+
+    function afterDownloadedClick() {
+      $(".overlay").fadeOut(); 
+      document.getElementById("step3").style =  "font-weight: normal"
+      $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');                      
+    }
+    function testFilepick(){
+      $("#step-1").hide();
+      $("#step-3").show();  
+      
+      download_linkedin()      
+      downloadWindow.close()
+    }   
+    function testDrag(){
+      $("#step-1").hide();
+      $("#step-3").show();  
+      
+      download_linkedin()      
+      eventFire(document.getElementById('overlay'), 'click');  
+    }   
+
+    $( document ).ready(function() {
+      var ua = navigator.userAgent.toLowerCase();
+     
+      console.log(ua);
+      if (/chrome/.test(ua) && "{{ newWindow }}" == 'false') {
+        console.log("is chrome");
+        $("#after_download_instruction").text('After your file downloads, close the tab and come back to this page.');
+        
+      }
+      else if (!/opera/.test(ua) && /msie/.test(ua)) {
+        $("#after_download_instruction").text('After your file downloads, click Save download when prompted by the window, then click "Open Folder" and come back to this page.');
+      } 
+      else if ("{{ newWindow }}" == 'true') {
+        $("#after_download_instruction").text('After your file downloads, come back to this page.');
+      }
+      if ({{ agent.unique_contacts_uploaded | int }} > 0) {
+        var message = "Welcome back! You've uploaded {{ '{0:,}'.format(agent.unique_contacts_uploaded | int) }} unique contacts so far, and it's not too late to add more. You don't need to re-connect any accounts you've already connected, but it's OK if you do. We're keeping track of everything for you." ;
+        showSuccess(message);
+        console.log(message);
+      }
+      
+    });    
+
+    function eventFire(el, etype){
+      if (el.fireEvent) {
+        el.fireEvent('on' + etype);
+      } else {
+        var evObj = document.createEvent('Events');
+        evObj.initEvent(etype, true, false);
+        el.dispatchEvent(evObj);
+      }
+    }
+
+    $(function(){
+      Dropzone.options.linkedInImport = {
+        maxFilesize: 10,
+        addRemoveLinks: true,
+        dictDefaultMessage: 'Drag and drop your file here',
+        dictResponseError: 'Server not Configured',
+        acceptedFiles: ".csv",
+        previewsContainer: document.getElementById("previewsContainer"),
+        init:function(){
+          var self = this;
+          // config
+          self.options.addRemoveLinks = true;
+          self.options.dictRemoveFile = "Delete";
+
+          //New file added
+          self.on("addedfile", function (file) {
+          });
+          // Send file starts
+          self.on("sending", function (file) {
+            console.log('upload started', file);
+            $(".overlay").fadeIn();
+            $(".waiting").show();             
+          });
+          
+          // File upload Progress
+          self.on("totaluploadprogress", function (progress) {
+            console.log("progress ", progress);
+
+          });
+
+          self.on("complete", function (file) {
+            console.log("complete", file.name);           
+          });
+          self.on("success", function (file, data) {
+            console.log("success", data);    
+            //if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }  
+            var count = data.count;
+            contacts = data.contacts;
+            contacts_owner = data.contacts_owner;
+            if (contacts !=undefined && contacts.length) {
+              console.log(contacts.length);
+              for (i = 0; i < contacts.length; i++) { 
+                var contact = contacts[i];
+                contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:"LinkedIn"});
+           
+              }
+              $(".contact-count").find("small").html(count.toLocaleString() + " Total Contacts Added")
+              //$(".final-contact-count").html(contacts_array.length.toLocaleString())
+              $(".contact-count").show();
+              attemptFinish(); 
+                         
+            }
+            else {                                                   
+              showSuccess("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.");
+            }                          
+          });      
+
+          self.on("error", function (file, errorMessage) {
+            console.log(errorMessage);
+            $(".overlay").fadeOut();
+            $(".waiting").hide();           
+            showSuccess("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.")
+          });
+
+        }
+      };
+    })  
+
+  </script>
+
+  <div class="wrap section onboarding" id="mainDiv">
+      <!-- Onboard Step 1-->
+    <div class="onboard" id="step-1">
+      <div class="wizard">
+        <ol>
+          <li >
+            <label>Step One</label>
+            <p>Connect Your Email Accounts</p>
+          </li>
+          <li class="idle">
+            <label>Step Two</label>
+            <p>Connect Your LinkedIn Account</p>
+          </li>            
+          <li class="idle">
+            <label>Step Three</label>
+            <p>Finish</p>
+          </li>
+        </ol>
+      </div>
+      <div class="onboard-body">
+        <div class="wrap">
+          <div class="col-6">
+            <div class="note">
+              <h2>Welcome to AdvisorConnect!</h2>
+              <p>Let's get started by connecting your email accounts.</p>
+              <p>Select your account from the right and then follow the instructions.</p>
+              <p>You can repeat this step until you have chosen all of your email accounts. If you don't see your email provider to the right, skip to step 2.</p>
+              <small>Don't worry, none of your personal messages or your contacts’ personal information will be shared with New York Life.</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div id='gmail-area' class="connect-email">
+              <img id='gmail' type="Submit" src="/static/img/gmail-40.png"/>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to Gmail and add contacts from your email accounts. You can connect more than one Gmail account by clicking this button more than once.">Add Gmail Account</div>
+              <div class='connected_area'></div>                  
+            </div>
+            <div id='yahoo-area' class="connect-email">
+              <img id='yahoo' type="Submit" src="/static/img/yahoo-mail-40.png"/>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to Yahoo and add contacts from your email accounts. You can connect more than one Yahoo account by clicking this button more than once.">Add Yahoo! Account</div>
+              <div class='connected_area'></div>
+            </div>
+            <div id='windowslive-area' class="connect-email">
+              <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live Account</div>
+              <div class='connected_area'></div>
+            </div>
+            <div id='aol-area' class="connect-email">
+              <img id='aol'  type="Submit" src="/static/img/aol-40.png"/>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once.">Add AOL Account</div>
+              <div class='connected_area'></div>
+            </div>              
+          </div>
+        </div>
+      </div>
+      <div class="onboard-footer">
+        <button  data-next='1' class="button dark-blue">Next</button>
+      </div>
+    </div>       
+    <div class="wrap">
+      <div class="onboard-header">
+        <div id="owner_img" style="" class="face"></div>
+        <h1 id="owner_name"></h1>
+        <p hidden id="owner_email"></p>
+        <p hidden id="owner_geolocation"></p>
+        <p hidden id="owner_first_name"></p>
+        <p hidden id="owner_last_name"></p>
+        <p hidden id="owner_url"></p>
+        <div class="contact-count"><img src="/static/img/contact-card.svg"/><small></small></div>
+      </div>
+      <!-- Onboard Step 2-->
+      <div class="onboard" id="step-2">
+        <div class="wizard">
+          <ol>
+            <li class="complete">
+              <label>Step One</label>
+              <p>Connect Your Email Accounts</p>
+            </li>
+            <li >
+              <label>Step Two</label>
+              <p>Connect Your LinkedIn Account</p>
+            </li>            
+            <li class="idle">
+              <label>Step Three</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+          <div class="wrap">
+            <div class="col-6">
+              <div class="note">
+                <h2>Sign in through Linkedin.</h2>
+                <p>Click on the Sign In with LinkedIn button to the right. If you are not already signed in to LinkedIn, you will see a popup window where you will need to enter your LinkedIn username and password.</p>
+              </div>
+            </div>
+            <div class="col-5">
+              <div class="onboard-signin">
+                <div id="li_button" data-hint="Click here to sign in to LinkedIn" type="in/Login" class="hint--top button linkedin large fluid"><span>Sign In With LinkedIn</span></div>
+                <div class="text-center">
+                  <small>Don’t have LinkedIn? <a href="javascript:skip_linkedin();">Click Here</a></small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+   
+      <!-- Onboard Step 3-->
+      <div class="onboard" id="step-3">
+        <div class="wizard">
+          <ol>
+            <li class="complete">
+              <label>Step One</label>
+              <p>Connect Your Email Accounts</p>
+            </li>
+            <li >
+              <label>Step Two</label>
+              <p>Connect Your LinkedIn Account</p>
+            </li>            
+            <li class="idle">
+              <label>Step Three</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+
+          <div  id="linkedin-upload">
+
+            <div class="wrap">
+              <div class="col-6">
+                <div class="note">
+                  <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
+                  <ol>
+                    <li id="step1">
+                      {%if newWindow == 'false' %}
+
+                        Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button>
+                        <small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p></small>
+                      {%else%}
+                        Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." Enter the code and click Continue.<p id="after_download_instruction"></p> <button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button><small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of the popup's browser window.">Not sure your contacts downloaded?</p></small>
+                      {%endif%}
+                    </li>
+                    <br/>
+                    <li  id="step3">
+                      Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of the window into the Upload Area on the right.<br/><small><p class="hint--top" data-hint="Click on the Upload Area to the right and navigate to your downloads file. Select the file.">Don't see the file?</p></small>
+                    </li>
+                  </ol>
+                </div>
+                <div class="text-center">    
+                  <br/>            
+                </div>                 
+              </div>              
+              <div class="col-6">
+                <div class="dropzone-previews" id="previewsContainer" style="display:none"></div>
+                <div class="get-contacts hint--top" data-hint="Can't find the file? Click here and navigate to your Downloads folder and select the file linkedin_connections_export_microsoft_outlook.csv">
+                  <form action="/upload_csv" method="post"  class="dropzone needsclick dz-clickable dz-started" id="linkedInImport"></form>
+                </div>
+              </div>
+            </div>
+
+          </div>  
+
+        </div>    
+        <div class="onboard-footer"><small>
+          <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
+        </div>                    
+      </div>
+
+      <!-- Onboard Step 4-->
+      <div class="onboard" id="step-4">
+        <div class="wizard">
+          <ol>
+            <li class="complete">
+              <label>Step One</label>
+              <p>Connect Your Email Accounts</p>
+            </li>
+            <li  class="complete">
+              <label>Step Two</label>
+              <p>Connect Your LinkedIn Account</p>
+            </li>            
+            <li >
+              <label>Step Three</label>
+              <p>Finish</p>
+            </li>
+          </ol>
+        </div>
+        <div class="onboard-body">
+          <div class="wrap">            
+            <div class="note text-center">
+              <h1>Congratulations!</h1>
+              <h3 class="text-teal">You’ve successfully uploaded a total of <span class='final-contact-count'></span> Contacts!</h3>
+              <p>We will email you when your Network Summary is complete.</p>
+              <small>Still want to add more contacts? <a href="/">Go Back to Step 1</a></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script type='text/javascript' >
+    var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     function do_import(service, divid, win) {     
       $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
         function(data) {
@@ -136,215 +451,187 @@
           var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           console.log(tempcontactsurl);
-          win.location = cloudsponge_url;
-          //var win = window.open(cloudsponge_url);
+
+          win.location.href = cloudsponge_url;
           var timer = setInterval(function() {   
-              if(win.closed) {
-                  console.log("window closed");
-                  $(".overlay").fadeIn();
-                  $(".waiting").show();                
-                  clearInterval(timer); 
-                  $.getJSON(tempeventsurl, function(data){
-                    events = data.events;
+            if(win.closed) {
+              clearInterval(timer);              
+              handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service);
 
-                    for (i = 0; i < events.length; i++) { 
-                        cloudsponge_status = events[i].status;
-                        if (cloudsponge_status == 'COMPLETED') {
-                          var timer2 = setInterval(function() {  
-                            $.getJSON(tempcontactsurl, function() {
-                            })
-                            .success(function(data) {
-                              clearInterval(timer2); 
-                              contacts = data.contacts;
-                              if (contacts !=undefined && contacts.length) { 
-                                contacts_owner = data.contacts_owner;
+            }  
+          }, 500);              
 
-                                for (i = 0; i < contacts.length; i++) { 
-                                    var contact = contacts[i];
-                                    contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
-                             
-                                }
-                                var response_string = contacts.length.toLocaleString() + " " +  service + " contacts added ";
-                                if (contacts_owner) {
-
-                                  response_string = response_string + "from " + contacts_owner.email[0].address;
-                                }
-                              
-                                $(".waiting").hide();   
-                                $(".overlay").fadeOut();
-                                $(divid).append("<i class='fa fa-check-circle' style='margin: 6px 6px 6px 6px;''> " + response_string + "</i>"); 
-                                contacts = [];
-                              } 
-                              else {
-                                $(".waiting").hide();   
-                                $(".overlay").fadeOut();                                
-                                alert('Invalid input');
-                              }                             
-                            });                          
-                          }, 1000); 
-                          break;
-                        }
-                    }     
-                  }); 
-              }  
-          }, 500);             
+           
         });      
     }
 
+    function handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service) {
+      console.log(tempeventsurl);
+      $.getJSON(tempeventsurl, function(data){
+        events = data.events;
+
+        for (i = 0; i < events.length; i++) { 
+          cloudsponge_status = events[i].status;
+          console.log(cloudsponge_status);
+          if (cloudsponge_status == 'COMPLETED') {
+            $(".overlay").fadeIn();
+            $(".waiting").show();   
+            var timer2 = setInterval(function() {  
+              $.getJSON(tempcontactsurl, function() {
+              })
+              .success(function(data) {
+                clearInterval(timer2); 
+                contacts = data.contacts;
+                if (contacts !=undefined && contacts.length) { 
+                  contacts_owner = data.contacts_owner;
+                  response_element_id = contacts_owner.email[0].address + "_response";
+
+                  status_field = document.getElementById(response_element_id);
+                  if (status_field == null || status_field == undefined) {
+                    for (i = 0; i < contacts.length; i++) { 
+                        var contact = contacts[i];
+                        contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
+                 
+                    }
+                    var response_string = "Added " + contacts.length.toLocaleString() + " contacts from " + contacts_owner.email[0].address;
+                    $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
+                    //$(".final-contact-count").html(contacts_array.length.toLocaleString())
+                    $(".contact-count").show();
+
+                    $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
+                    $(".waiting").hide();
+                    $(".overlay").fadeOut();
+                    return true;
+                  }
+                  else {
+                    $(".waiting").hide();   
+                    $(".overlay").fadeOut();     
+                    return true;                               
+                  }
+                  contacts = [];
+                  return true;
+                } 
+                else {
+                  $(".waiting").hide();   
+                  $(".overlay").fadeOut();                                
+                  return true;
+                }                             
+              });                          
+            }, 1000); 
+            break;
+          } 
+          else if (cloudsponge_status =="ERROR") {
+            $(".waiting").hide();   
+            $(".overlay").fadeOut();     
+            break;    
+            return true;                   
+          }
+        }   
+      });       
+    }
+
+    function attemptFinish() {
+      if (contacts_array.length>0) {
+        upload()         
+      } else {
+        var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
+        showSuccess(message);
+      }      
+    }
+  
     $(function() {
+      $("[data-next]").click(function() {
+        var id = $(this).data('next');
+        var next_id = id + 1;
 
-      $("#export_id").keyup(function(event){
-          if(event.keyCode == 13){
-              $("#submit").click();
-          }
-      });        
-      $("#enter_email").keyup(function(event){
-          if(event.keyCode == 13){
-              $("#geolocation").focus();
-          }
-      });         
-      $("#geolocation").keyup(function(event){
-          if(event.keyCode == 13){
-              $("#enter").click();
-          }
-      });      
-      $("#submit").click(function() {
-        var export_id_string = document.getElementById("export_id").value;
-        $.getJSON('http://169.55.28.212:8080/get_phone_export/id=' + export_id_string, 
-          function(data) {
-            try {
-              var email_str = data.email;
-              email_address = email_str.split("<")[1].split(">")[0];
-              email_name = email_str.split("<")[0];
-              document.getElementById("owner_name").innerHTML = email_name;   
-              document.getElementById("owner_email").innerHTML = email_address;   
-              document.getElementById("owner_geolocation").innerHTML = geolocation; 
-              $("div#upload_area").show();        
-            } 
-            catch (err) {
-              console.log("Err");
-              alert("Invalid code");
-            }
-
-        })
-        .error(function() { alert("Invalid code"); });               
-      });
-      $("#enter").click(function() {
-        email_address = document.getElementById("email_address").value;
-        geolocation = document.getElementById("geolocation").value;
-        if (email_address != "" && geolocation != "") {
-          document.getElementById("owner_email").innerHTML = email_address;
-          document.getElementById("owner_geolocation").innerHTML = geolocation;
-          $("div#enter_email").hide();
-          $("div#upload_area").show();
+        if (next_id==4) {
+          attemptFinish();       
+        } 
+        else {
+          $("#step-" + id).hide()
+          $("#step-" + next_id).slideDown()          
         }
       });
-
-      $("#vcard").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        cloudsponge_status = 'NONE';   
-        var len = do_import('addressbook','div#mac_area',win);
-      });
-
-      $("#em").click(function() {
-        $(".overlay").fadeIn();
-        $(".email").slideDown();
-      });
-
-      $("#gmail").click(function(e) {
-        cloudsponge_status = 'NONE';   
-        e.preventDefault();
-        var win = window.open('');        
-        var len = do_import('Gmail','div#email_area',win);
-        $(".email").hide();
-        // if (len>0) {$("#gmail").hide();}
-        $(".overlay").fadeOut();
-      });
-
-      $("#yahoo").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        cloudsponge_status = 'NONE';   
-        var len =do_import('Yahoo','div#email_area',win);
-        $(".email").hide();
-        // if (len>0) { $("#yahoo").hide();}
-        $(".overlay").fadeOut();
-      });
-
-      $("#windowslive").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        cloudsponge_status = 'NONE';   
-        var len = do_import('WindowsLive','div#email_area',win);
-        $(".email").hide();
-        // if (len>0) {$("#windowslive").hide();}
-        $(".overlay").fadeOut();
-      });
-
-      $("#ln").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');
-        // $(".overlay").fadeIn();
-        var len = do_import('LinkedIn','div#linkedin_area',win);
-      });
-
-      $("#csv").click(function(e) {
-        e.preventDefault();
-        var win = window.open('');        
-        // $(".overlay").fadeIn();
-        var len = do_import('CSV','div#csv_area',win);
-        // if (len>0) {$("#csv").hide();}
-      });
-
-      $("#next").click(function() {
-        if (contacts_array.length > 0) {
-          $(".overlay").fadeIn();
-          $(".waiting").show();   
-          var csrf_token = $("[_csrf_token]").val()
-          if (test) {
-            contacts_array = contacts_array.slice(0, 20)
-          }
-
-          var outData = {csrf_token:csrf_token, geolocation:geolocation, firstName: firstName, public_url:public_url, user_email:email_address, contacts_array: contacts_array}          
-          $.ajax({
-              type: 'POST',
-              url: '/upload_cloudsponge',
-              crossDomain: true,
-              data: JSON.stringify(outData),
-              dataType: 'json',
-              contentType: 'application/json; charset=utf-8',
-              success: function(responseData, textStatus, jqXHR) {
-                  $(".waiting").hide();   
-                  $(".overlay").fadeOut();                
-                  var unique_contacts = JSON.parse(responseData);
-                  var n_unique = Object.keys(unique_contacts).length;
-                  $("div#upload_area").hide();
-                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + contacts_array.length.toLocaleString() + " total records uploaded " + "</i>"); 
-                  $("div#signup").append("<i class='fa fa-check-circle' style='font-size: 150%; margin: 6px 6px 6px 6px;''> " + n_unique.toLocaleString() + " unique contacts found " + "</i>");                   
-                  $("div#signup").append("<p>Congratulations on uploading your contacts. An email has been sent to " + email_address + " with further details on next steps.</p>");                   
-                  //alert('uploaded ' + contacts_array.length + ' contacts!')
-              },
-              error: function (responseData, textStatus, errorThrown) {
-                  debugger;
-                  $(".waiting").hide();   
-                  $(".overlay").fadeOut();                
-                  alert('upload failed.');
-              }
-          });   
-        } else {
-          alert('No contacts added!');
-        }     
-        //$("#csv").hide();
-      });
-
-      $(".overlay").click(function(e) {
-        if (e.target.className == "overlay") {
-            $(".linkedin").hide();
-            $(".email").hide();
-            $(this).hide();
-          }
-      });
+      bindEmailButtons()
     });
-  </script>
-  {% endblock %}
+
+    function upload() {
+
+        $("#next").hide()
+        $(".overlay").fadeIn();
+        $(".waiting").show();   
+        var csrf_token = $("[_csrf_token]").val()
+        if (test) {
+          contacts_array = contacts_array.slice(0, 20)
+        }
+
+        var outData = {csrf_token:csrf_token, geolocation:$("#owner_geolocation").text(), firstName: $("#owner_first_name").text(), lastName:$("#owner_last_name").text(), public_url:$("#owner_url").text(), user_email:$("#owner_email").text(), contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
+        $.ajax({
+            type: 'POST',
+            url: '/upload_cloudsponge',
+            crossDomain: true,
+            data: JSON.stringify(outData),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(responseData, textStatus, jqXHR) {
+              console.log(responseData);
+              $(".final-contact-count").html(responseData.contacts.toLocaleString()) 
+              $("#step-1").hide(); 
+              $("#step-2").hide(); 
+              $("#step-3").hide()
+              $("#step-4").slideDown()   
+              $(".waiting").hide();   
+              $(".overlay").fadeOut();              
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                $(".waiting").hide();   
+                $(".overlay").fadeOut();                
+                showSuccess("It appears there was an issue with the upload. An error report has been sent. We apologize for the inconvenience.");
+            }
+        });   
+ 
+    }
+   
+    function bindEmailButtons() {
+  
+      $("#gmail-area").click(function(e) {
+        cloudsponge_status = 'NONE';   
+        e.preventDefault();
+        var win = window.open('');        
+        var len = do_import('Gmail','#gmail-area',win);
+        $(".email").hide();
+        $(".overlay").fadeOut();
+      });
+
+      $("#yahoo-area").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len =do_import('Yahoo','#yahoo-area',win);
+        $(".email").hide();
+        $(".overlay").fadeOut();
+      });
+
+      $("#windowslive-area").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len = do_import('WindowsLive','#windowslive-area',win);
+        $(".email").hide();
+        $(".overlay").fadeOut();
+      });
+
+      $("#aol-area").click(function(e) {
+        e.preventDefault();
+        var win = window.open('');        
+        cloudsponge_status = 'NONE';   
+        var len = do_import('aol','#aol-area',win);
+        $(".email").hide();
+        $(".overlay").fadeOut();
+      });   
+
+    }  
+
+  </script>  
+
+{% endblock %}

@@ -22,11 +22,6 @@ urls = (
 app = web.application(urls, globals())
 web_session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 
-def email_about_contacts(user_email, client_first_name, n_contacts):
-    to = user_email
-    subject = client_first_name + ', Congratulations on uploading your contacts'
-    body = client_first_name + ', \n\nYou uploaded ' + str(n_contacts) + " unique contacts. We are processing your data and will notify you when the analysis is complete. \n\n\nThank you, \n\nThe AdvisorConnect Team"   
-    sendgrid_email(to, subject, body)
 
 class add:
     def POST(self):
@@ -36,9 +31,9 @@ class add:
         web.header('Access-Control-Allow-Methods','*')
         i = web.data()
         indata = json.loads(i)
-        user_email = indata.get("user_email")
-        client_first_name = indata.get("firstName")
-        f = open('data/' + user_email + '.json','w')
+        user_email = indata.get("user_email","")
+        client_first_name = indata.get("firstName","")
+        f = open('data/{}.json'.format(user_email),'w')
         f.write(json.dumps(indata)) 
         contacts_array = indata.get("contacts_array")  
         by_email = set()         
@@ -57,7 +52,7 @@ class add:
                 by_email.add(email_address)      
         thr = threading.Thread(target=email_about_contacts, args=(user_email,client_first_name,len(by_email)))
         thr.start()        
-        return json.dumps(contacts_array)
+        return json.dumps(by_email)
 
 class clearbit_webhook:
     def POST(self):

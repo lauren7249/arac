@@ -16,12 +16,17 @@ from clearbit_service_webhooks import ClearbitRequest
 from url_validator import UrlValidatorRequest
 from prime.utils.alchemyapi import AlchemyAPI
 from random import shuffle
+import timeout_decorator
 
 def wrapper(person):
-    request = SocialProfilesRequest(person)
-    person = request.process()    
-    return person
-
+    try:
+        request = SocialProfilesRequest(person)
+        person = request.process()    
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        return person
+        
 class SocialProfilesService(Service):
     """
     Expected input is JSON with good leads
@@ -34,6 +39,7 @@ class SocialProfilesService(Service):
         self.data = data
         self.output = []
         self.wrapper = wrapper
+        self.pool_size = 20
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -55,6 +61,7 @@ class SocialProfilesRequest(S3SavedRequest):
         self.api_key = ALCHEMY_API_KEYS[0]
         self.alchemyapi = AlchemyAPI(self.api_key)
 
+    @timeout_decorator.timeout(5)
     def _get_extra_pipl_data(self):
         linkedin_id = self.person.get("linkedin_data",{}).get("linkedin_id")
         if linkedin_id:
@@ -82,12 +89,15 @@ class SocialProfilesRequest(S3SavedRequest):
         good_links = []
         for url in social_accounts:
             domain = url.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
-            if domain not in SOCIAL_DOMAINS: 
+            if domain not in SOCIAL_DOMAINS or domain is None: 
                 continue            
             req = UrlValidatorRequest(url, is_image=False)
             _link = req.process()        
             if _link:
                 good_links.append(_link)
+                #self.logger.info(_link + " was AWESOME")
+            else:
+                self.logger.warn("{} was invalid".format(_link))
         return good_links
 
     def _get_alchemy_tags(self, url):
@@ -101,7 +111,7 @@ class SocialProfilesRequest(S3SavedRequest):
         if boto_key.exists():
             html = boto_key.get_contents_as_string()
             try:
-                return json.loads(html)
+                return json.loads(html.decode("utf-8-sig"))
             except:
                 return {}
         else:
@@ -110,7 +120,7 @@ class SocialProfilesRequest(S3SavedRequest):
                 output = response.get("imageKeywords")
             else:
                 output = {}
-            boto_key.set_contents_from_string(json.dumps(output))
+            boto_key.set_contents_from_string(unicode(json.dumps(output, ensure_ascii=False)))
             return output
         return {}
 
@@ -133,6 +143,8 @@ class SocialProfilesRequest(S3SavedRequest):
     def _process_images(self, images):
         good_links = {}
         for url in images:
+            if not url:
+                continue
             req = UrlValidatorRequest(url, is_image=True)
             _link = req.process()        
             if _link:
@@ -142,10 +154,14 @@ class SocialProfilesRequest(S3SavedRequest):
         return good_links
 
     def process(self):
-        pipl_data = self._get_extra_pipl_data()
+        try:
+            pipl_data = self._get_extra_pipl_data()
+        except:
+            print "PIPL timed out in SocialProfilesService"
+            pipl_data = {}
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
-        self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]))
+        self.images = set(pipl_data.get("images",[]) + self.person.get("images",[]) + [self.person.get("linkedin_data",{}).get("image")])
         self.genders = []
         for email in self.emails:
             self._update_profile(email)                           

@@ -13,13 +13,16 @@ from constants import GLOBAL_HEADERS
 from helper import get_specific_url
 import multiprocessing
 
-HIRED = False
 
 def wrapper(person):
-    person["wealthscore"] = WealthScoreRequest(person).process()
-    if HIRED:
+    try:
+        person["wealthscore"] = WealthScoreRequest(person).process()
         person["lead_score"] = LeadScoreRequest(person).process()    
-    return person
+        return person
+    except Exception, e:
+        print __name__ + str(e)
+        person["lead_score"] = -99
+        return person
 
 class ScoringService(Service):
     """
@@ -33,7 +36,7 @@ class ScoringService(Service):
         self.data = data
         self.output = []
         self.wrapper = wrapper
-        HIRED = self.client_data.get("hired")
+        self.hired = self.client_data.get("hired")
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -43,8 +46,10 @@ class ScoringService(Service):
         for i in range(len(self.output)):
             profile = self.output[i]
             percentile = stats.percentileofscore(all_scores, profile.get("lead_score"))
-            if percentile > 66: score = 3
-            elif percentile > 33: score = 2
+            if percentile >=80: score = 5
+            elif percentile >= 60: score = 4
+            elif percentile >= 40: score = 3
+            elif percentile >=20: score = 2
             else: score = 1
             profile["stars"] = score
             self.output[i] = profile
@@ -53,22 +58,26 @@ class ScoringService(Service):
 
     def multiprocess(self):
         self.logstart()
-        self.pool = multiprocessing.Pool(self.pool_size)
-        self.output = self.pool.map(self.wrapper, self.data)
-        self.pool.close()
-        self.pool.join()
-        if HIRED:  
+        try:
+            self.pool = multiprocessing.Pool(self.pool_size)
+            self.output = self.pool.map(self.wrapper, self.data)
+            self.pool.close()
+            self.pool.join()
             self.output = self.compute_stars()
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
     def process(self):
         self.logstart()
-        for person in self.data:
-            person = self.wrapper(person)
-            self.output.append(person)
-        if HIRED:  
+        try:
+            for person in self.data:
+                person = self.wrapper(person)
+                self.output.append(person)
             self.output = self.compute_stars()
+        except:
+            self.logerror()
         self.logend()
         return self.output
 
@@ -90,7 +99,7 @@ class WealthScoreRequest(S3SavedRequest):
     def process(self):
         if not self.max_salary:
             return None
-        self.url = "http://www.shnugi.com/income-percentile-calculator/?min_age=18&max_age=100&income=" + str(self.max_salary)
+        self.url = "http://www.shnugi.com/income-percentile-calculator/?min_age=18&max_age=100&income={}".format(str(self.max_salary))
         html = self._make_request()
         try:
             percentile = re.search('(?<=ranks at: )[0-9]+(?=(\.|\%))',html).group(0)

@@ -1,48 +1,38 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class='signup'>
-  <div class='row'>
-    <div class='logo'>
-      <img src='{{ static_url() }}img/NewYorkLife.png' />
-    </div>
-    <br/>
-  </div>
-  <div class='well col-lg-7 center'>
-    <div class='row'>
-      <form class="form-horizontal" method='POST'>
-        {% if form.errors %}
-        <div class='alert alert-dismissable alert-danger'>
-          {% for error in form.errors.items() %}
-          <div>
-            <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
-          </div>
-          {% endfor %}
-        </div>
-        {%endif%}
-        {{ form.csrf_token }}
-        <fieldset>
-          <legend>Enter your credentials below</legend>
-          <div class="form-group">
-            <label for="inputEmail" class="col-lg-2 control-label">Email</label>
-            <div class="col-lg-10">
-              <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputPassword" class="col-lg-2 control-label">Password</label>
-            <div class="col-lg-10">
-              <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="col-lg-10 col-lg-offset-2">
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-          </div>
-        </fieldset>
-      </form>
-    </div>
-  </div>
-  <div class='clear'></div>
-</div>
+{% block header %}
+
 {% endblock %}
+{% block content %}
+
+<div class='signup'>
+  <form class="card" method='POST'>
+  <header>
+    <div class="header-logo"></div>
+  </header>    
+    {% if form.errors %}
+    <div class='error'>
+      {% for error in form.errors.items() %}
+      <div>
+        <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
+      </div>
+      {% endfor %}
+    </div>
+    {%endif%}
+    {{ form.csrf_token }}
+    <h2>Enter your credentials below</h2>
+    <div class="form-group">
+      <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+      <input type="text" name='email' class="form-control" id="inputEmail" placeholder="Email">
+    </div>
+    <div class="form-group">
+      <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+      <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
+    </div> 
+    <button type="submit" class="button teal">Submit</button>
+  </form>
+  <h5>
+    <a href='{{ url_for('.forgot') }}'>Forgot Password</a>
+  </h5>
+</div>  
+{% endblock %}
+{% block footer %}{% endblock %}

@@ -1,21 +1,18 @@
 <!doctype html>
-<html xmlns:fb="http://ogp.me/ns/fb#">
+<html>
+
   <head>
     <title>AdvisorConnect</title>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link rel="stylesheet" href="/static/css/jquery-ui.css">
     {% assets "css_all" %}
       <link rel='stylesheet' href="{{ ASSET_URL }}">
     {% endassets %}
 
-    <link rel='shortcut icon' href='/favicon.ico' />
-    <link rel='apple-touch-icon' href="">
-
     <meta name='title' content='' />
     <meta name='description' content='' />
     <meta name='keywords' content='' />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Google Site Verification -->
     <meta name='google-site-verification' content="" />
 
@@ -32,37 +29,157 @@
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/react-with-addons-0.12.2.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    <script type="text/javascript" src="//platform.linkedin.com/in.js">
-        api_key:   77kimruenyqspn
-        authorize: true
-        onLoad: onLinkedInLoad
-    </script>
+    <script src="/static/js/jquery-ui.js"></script>
+    <script src="/static/js/dropzone.js"></script>
+
   </head>
   <body>
-  <header>
-    <div class="wrap">
-      <div class="col-6">
-        <div class="header-logo"></div>
-      </div>
-      <div class="col-6">
-        {% if current_user.is_authenticated() %}
-        <div class="nav-right text-right">
-          <span><div class="contacts-left">300 Contacts Left</div></span>
-          <span><div id='settings'><a class="user">{{ current_user.name }}</a>
-              <div class='autocomplete'>
-                <ul>
-                  <li><a href='/auth/logout'>Logout</a></li>
-                </ul>
-              </div>
+  
+    {% block header %}
+      <header>
+        <div class="wrap">
+          <div class="col-6">
+            <div class="header-logo"></div>
+          </div>
+          <div class="col-6">
+            {% if current_user.is_authenticated() %}
+            <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right" data-step="4" data-intro="You can add up to 200 of your best contacts but remember you need at least 50 to complete your Project 200.">
+                {% if not current_user.is_manager and current_user.p200_completed %}
+                  <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
+                {% endif %}
+                <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
+                    <div class='autocomplete'>
+                      <ul>
+                        <li><a href='/auth/logout'>Logout</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </span>
+                <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+    {% endblock %}
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="wrap flashed-messages">
+          {% for message in messages %}
+            <div class='success'>
+              <span>{{ message }}</span>
             </div>
-          </span>
-          <span style="background-image:url(https://s3.amazonaws.com/uifaces/faces/twitter/davidburlton/128.jpg)" class="face"></span></div>
-        {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <div class='overlay' style="max-height:100%; max-width:100%;" id="overlay">
+      <div class='waiting modal' style="max-height:100%; max-width:100%;">        
+        <img src='/static/img/spinner_192.gif' style="max-height:100%; max-width:100%;"/>
+      </div>    
+    </div>     
+    <dialog id='success' style="display:none;">
+      <div class='success'>
+        <img id="spinner" style="display:none; max-height:100%; max-width:100%;" src='/static/img/spinner_192.gif' />
+        <span  id="p200_success_message" style="display:none;" >
+          <b>Success!</b>
+        </span>
       </div>
-    </div>
-  </header>
+    </dialog> 
+    <script type='text/javascript'>
+      console.log("{{active}}")
+    </script>    
+    <script type='text/javascript'>
+      $("#success").click(function(){
+        $("#success").css("display","none");  
+        document.getElementById("success").close();    
+      });
+
+      function showSuccess(message) {
+        $("#p200_success_message").text(message);
+        $("#spinner").css("display","none");    
+        $("#p200_success_message").css("display","inline");      
+        $("#success").css("display","inline");      
+        document.getElementById("success").showModal();      
+      }
+      var csrftoken = "{{ csrf_token() }}"
+      $(function() {
+
+        $("[id$=_p200_button]").click(function() {
+          console.log("clik")
+          var user_id = $(this).data("p200-id");
+          var name = $(this).name;
+          if (user_id != undefined && user_id != null && user_id != '') {
+            document.getElementById("p200_success_message").style.display = "none";         
+            document.getElementById("spinner").style.display = "inline";                 
+            document.getElementById("success").style.display = "inline";   
+            document.getElementById("success").showModal();       
+            $.post("/managers/request_p200", {user_id:user_id}, function(data){
+              if (data.name != undefined && data.name !=null && data.name != '') {
+                showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");
+                document.getElementById(user_id + "_p200_button").style.display = "none";     
+                document.getElementById(user_id + "_p200_pending").style.display = "inline";   
+              }
+
+            });          
+          }
+
+        });
+      });
+
+      $(function() {
+         var $page = 1;
+         var isSearching = false;
+
+         function bindPagination() {
+           $("[data-page]").click(function() {
+             showLoader()
+             $page = $(this).data('page');
+             search()
+           });
+         }
+
+         function hideLoader() {
+           $(".loading").fadeOut();
+         }
+
+         function showLoader() {
+           $(".loading").show();
+         }
+
+        function search() {
+           if (isSearching) {
+             return false;
+           }
+           isSearching = true;
+           $('html, body').animate({scrollTop: "221px"});
+           $("#connections-section").load(window.location.pathname + "?p=" + $page + " #connections", function() {
+               isSearching = false;
+               bindPagination();
+               hideLoader();
+               $("[data-page]").removeClass("active")
+               $("[data-page='" + $page + "']").addClass("active")
+           });
+        }
+        bindPagination();
+      });
+
+    </script>   
     {% block content %}{% endblock %}
-    </body>
+    
+    {% block footer %}    
+      <footer>
+        <div class="wrap">        
+          <div class="copyright">&copy; 2016 AdvisorConnect</div>
+          <div class="footer-links">
+            <span><a href="/faq">FAQs</a></span>
+            <span><a href="/terms">Terms</a></span>
+            <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
+          </div>        
+        </div>
+      </footer>
+    {% endblock %}
+  </body>
+
 </html>
 
