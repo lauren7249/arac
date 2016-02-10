@@ -8,6 +8,7 @@ from sqlalchemy.engine.url import URL
 from prime import db
 import dateutil.parser
 from prime.processing_service.helper import uu
+from prime.processing_service.constants import SOCIAL_DOMAINS
 from sqlalchemy import and_, not_
 
 def get_or_create(session, model, **kwargs):
@@ -63,18 +64,9 @@ class Prospect(db.Model):
     mailto = db.Column(String(1024))
     phone = db.Column(String(100))
     #social profiles
-    facebook = db.Column(String(1024))
-    twitter = db.Column(String(1024))
-    angel = db.Column(String(1024))
-    flickr = db.Column(String(1024))
-    soundcloud = db.Column(String(1024))
-    slideshare = db.Column(String(1024))
-    plus = db.Column(String(1024))
-    pinterest = db.Column(String(1024))
-    amazon = db.Column(String(1024))
-    linkedin = db.Column(String(1024))
-    foursquare = db.Column(String(1024))
-    github = db.Column(String(1024))
+    for domain in SOCIAL_DOMAINS:
+        exec(domain + " = db.Column(String(500))")
+
     #for filtering and network summary: TODO: ADD IN
     industry_category = db.Column(String(100), index=True)
     industry_icon = db.Column(String(200))

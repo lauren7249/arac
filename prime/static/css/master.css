@@ -1017,6 +1017,12 @@ table.contacts-table .contact-buttons .button {
 .contact-links a.flickr {
   background-image: url("/static/img/social/flickr-blue.png");
 }
+.contact-links a.tumblr {
+  background-image: url("/static/img/social/tumblr-blue.png");
+}
+.contact-links a.goodreads {
+  background-image: url("/static/img/social/goodreads-blue.png");
+}
 .contact-links a.email {
   background-image: url("/static/img/social/email-blue.png");
 }
