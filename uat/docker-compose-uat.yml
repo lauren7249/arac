@@ -1,0 +1,84 @@
+---
+version: '2'
+
+volumes:
+  data: {}
+  pgdata: {}
+
+services:
+  # The Postgres container holding the latest version of postgres and
+  # binds to the storage volume, pgdata where persistent data is kept.
+  db:
+    restart: always
+    image: postgres:9.5
+    domainname: advisorconnect.co
+    cpu_shares: 30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: ""
+      LC_ALL: "en_US.utf8"
+
+  redis:
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+    domainname: advisorconnect.co
+    restart: always
+    image: redis:3
+    volumes:
+      - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
+      - data:/data
+    ports:
+      - "6379:6379"
+    environment:
+      LC_ALL: "en_US.utf8"
+    cpu_shares: 10
+
+  #nginx:
+  #  command: >
+  #          nginx -g "daemon off";
+  #  domainname: advisorconnect.co
+  #  hostname: "beta"
+  #  restart: always
+  #  build: ./misc/nginx/
+  #  links:
+  #    - prime:p200
+  #  ports:
+  #    - "80:80"
+  #    - "443:443"
+  #  volumes_from:
+  #    - prime
+  #  environment:
+  #    LC_ALL: "en_US.utf8"
+
+
+  # Prime is the main application, which up execution will run the make
+  # command within the container, with a default target of 'test' if not
+  # otherwise overridden on the command line.
+  prime:
+    hostname: test
+    restart: on-failure:10
+    domainname: advisorconnect.co
+    build: ..
+    depends_on:
+      - redis
+      - db
+    cpu_shares: 33
+    links:
+      - db:dev-db
+      - redis:redis
+    ports:
+      - "5000:80"
+  #  extra_hosts:
+  #    - "babel:10.143.114.177"
+    environment:
+      PG_HOST: "dev-db"
+      PRIME_DB_USER: "arachnid"
+      PRIME_DB_PASS: ""
+      S3_BUCKET: "arachid-results"
+      AC_CONFIG: "development"
+      REDIS_URL: "redis://redis:6379"
+      DB_URL: "postgresql://arachnid@dev-db:5432/arachnid"
+      AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
+      AWS_SECRET_ACCESS_KEY_PVLL: "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"
+      LC_ALL: "en_US.utf8"
