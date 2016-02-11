@@ -12,9 +12,9 @@ functionality of the website. That costs developers time and money.
 **Responsive** has been built with that in mind. It is the result of thousands of hours of real, client driven web development and
 testing; specifically developed to be as lightweight as possible to prevent the need to undo styles set by the framework itself
 and allow developers to write efficient code and lower costs.
-  
-**Responsive is tiny**. The combined output CSS and JavaScript is **only 20.3kb minified and gzipped** but there is a lot of functionality 
-built into the framework with touch, right-to-left language, and accessibility support. It's designed to be dropped-in, as-is to your website 
+
+**Responsive is tiny**. The combined output CSS and JavaScript is **only 20.3kb minified and gzipped** but there is a lot of functionality
+built into the framework with touch, right-to-left language, and accessibility support. It's designed to be dropped-in, as-is to your website
 such as you would with [Normalize.css](http://necolas.github.io/normalize.css/).
 
 Browser support covers IE9+ as well as all other modern browsers.
@@ -42,10 +42,10 @@ Learn more about using Jekyll by reading its [documentation](http://jekyllrb.com
 
 ##Contributing
 
-Contribution is most welcome, that's the whole idea! Together as a community we can build a boilerplate for building 
-responsive sites that will ensure that high standards can be delivered across all devices.   
+Contribution is most welcome, that's the whole idea! Together as a community we can build a boilerplate for building
+responsive sites that will ensure that high standards can be delivered across all devices.
 
-Please adhere to existing JavaScript and Sass styles though when submitting code and ensure 
+Please adhere to existing JavaScript and Sass styles though when submitting code and ensure
 that you test thoroughly on multiple devices.
 
 Please take a moment to review the [guidelines for contributing](CONTRIBUTING.md).

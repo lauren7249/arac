@@ -49,11 +49,11 @@ def get_specific_url(social_accounts, type="linkedin.com"):
 
 def sort_social_accounts(social_accounts):
     d = {}
-    for link in social_accounts: 
+    for link in social_accounts:
         domain = link.replace("https://","").replace("http://","").split("/")[0].replace("www.","").split(".")[0].lower()
-        if domain in SOCIAL_DOMAINS: 
-            d[domain] = link  
-    return d  
+        if domain in SOCIAL_DOMAINS:
+            d[domain] = link
+    return d
 
 def xor_crypt_string(plaintext, key):
     ciphertext = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(plaintext, cycle(key)))
@@ -99,5 +99,5 @@ def get_linkedin_csv_captcha(driver):
     return cookies
     # cookies_dict = {}
     # for cookie in cookies:
-    #     cookies_dict[cookie.get("name")] = cookie.get("value")    
+    #     cookies_dict[cookie.get("name")] = cookie.get("value")
     # return cookies_dict

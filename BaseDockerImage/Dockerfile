@@ -19,7 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Allow for new requirements to be added when a subsequent build occurs
 ONBUILD COPY requirements.txt /usr/src/app/
-ONBUILD RUN pip install --no-cache-dir -r requirements.txt
+ONBUILD RUN  pip install --upgrade pip
+ONBUILD RUN  pip install --no-cache-dir -r requirements.txt
 
 # Copy source into the app folder
 ONBUILD COPY . /usr/src/app

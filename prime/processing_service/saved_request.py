@@ -10,7 +10,7 @@ from helper import uu, resolve_email
 from constants import AWS_KEY, AWS_SECRET, AWS_BUCKET, GLOBAL_HEADERS
 import sys
 
-reload(sys) 
+reload(sys)
 sys.setdefaultencoding('utf-8')
 
 class S3SavedRequest(object):
@@ -48,7 +48,7 @@ class S3SavedRequest(object):
                 return html
         try:
             self.response = requests.get(self.url, headers=self.headers, proxies=proxies)
-            if self.response.status_code !=404:
+            if self.response.status_code != 404:
                 html = self.response.content
             else:
                 html = '{"status_code":404}'

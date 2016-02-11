@@ -53,10 +53,10 @@ def for_jake(line):
     linkedin_data = reformat_crawlera(linkedin_data)
     educations = linkedin_data.get("schools",[])
     experiences = linkedin_data.get("experiences",[])
-    dob_year_range = get_dob_year_range(educations, experiences)    
-    if not max(dob_year_range): 
+    dob_year_range = get_dob_year_range(educations, experiences)
+    if not max(dob_year_range):
         return []
-    dob_year_mid = numpy.mean(dob_year_range)    
+    dob_year_mid = numpy.mean(dob_year_range)
     age = 2016 - dob_year_mid
     if age<22 or age>40:
         return []
@@ -69,12 +69,12 @@ def for_jake(line):
     geopoint = GeoPoint(latlng[0],latlng[1])
     for location in local_locations:
         latlng = location.get("latlng")
-        lead_geopoint = GeoPoint(latlng[0],latlng[1])                    
+        lead_geopoint = GeoPoint(latlng[0],latlng[1])
         miles_apart = geopoint.distance_to(lead_geopoint)
         if miles_apart < 75:
             print linkedin_data.get("location")
             connection = happybase.Connection('172.17.0.2')
-            data_table = connection.table('url_xwalk')      
+            data_table = connection.table('url_xwalk')
             row = data_table.row(url)
             linkedin_id = row.get("keys:linkedin_id")
             connection.close()
@@ -83,9 +83,9 @@ def for_jake(line):
             else:
                 pipl_data = PiplRequest(url, type="url").process()
                 linkedin_id = pipl_data.get("linkedin_id")
-                if linkedin_id: 
-                    linkedin_data["linkedin_id"] = linkedin_id            
-            return [{"linkedin_data":linkedin_data, "location_coordinates": lead_location}]   
+                if linkedin_id:
+                    linkedin_data["linkedin_id"] = linkedin_id
+            return [{"linkedin_data":linkedin_data, "location_coordinates": lead_location}]
     return []
 
 def qualified(person):
@@ -97,11 +97,11 @@ def qualified(person):
         print str(e)
         return []
     lead_service = LeadService(client_data, None)
-    same_person = lead_service._is_same_person(person)   
+    same_person = lead_service._is_same_person(person)
     if same_person:
         #print "SAME PERSON " + str(person)
-        return []  
-    competitor = lead_service._is_competitor(person)    
+        return []
+    competitor = lead_service._is_competitor(person)
     if competitor:
         #print "COMPETITOR " + str(person)
         return []

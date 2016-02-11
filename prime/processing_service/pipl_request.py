@@ -32,7 +32,7 @@ class PiplRequest(S3SavedRequest):
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        
+
 
     def _build_url(self):
         if not self.query or not self.api_url:
@@ -89,34 +89,34 @@ class PiplRequest(S3SavedRequest):
 
     def _emails(self, pipl_json):
         emails = []
-        if not pipl_json: 
+        if not pipl_json:
             return emails
         for record in pipl_json.get("person",{}).get("emails",[]):
             email = record.get("address")
-            domain = email.split("@")[-1]          
+            domain = email.split("@")[-1]
             if email and email not in emails and domain != 'facebook.com':
                 emails.append(email)
-        return emails  
+        return emails
 
     def _phones(self, pipl_json):
         phones = []
-        if not pipl_json: 
+        if not pipl_json:
             return phones
         for record in pipl_json.get("person",{}).get("phones",[]):
-            phone = record.get("display")       
+            phone = record.get("display")
             if phone and phone not in phones:
                 phones.append(phone)
-        return phones 
+        return phones
 
     def _addresses(self, pipl_json):
         addresses = []
-        if not pipl_json: 
+        if not pipl_json:
             return addresses
         for record in pipl_json.get("person",{}).get("addresses",[]):
-            address = "{} {}".format(record.get("display"), record.get("zip_code",""))      
+            address = "{} {}".format(record.get("display"), record.get("zip_code",""))
             if address and address not in addresses and record.get("@type") != "work":
                 addresses.append(address)
-        return addresses  
+        return addresses
 
     def process(self):
         self.logger.info('Pipl Request: %s', 'Starting')

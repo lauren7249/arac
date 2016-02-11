@@ -1,84 +1,85 @@
 ---
-### Data volume container to support persistent data in redis.
-#data:
-#  image: busybox:latest
-#  command: "/bin/true"
-#  domainname: advisorconnect.co
-#  volumes:
-#    - /data
-#    - /tmp
-#    - /var/lib/postgresql/data
+version: '2'
+
 volumes:
-  data:
-    external: false
+  data: {}
+  pgdata: {}
 
-# The Postgres container holding the latest version of postgres and
-# binds to the storage volume, pgdata where persistent data is kept.
-db:
-  restart: always
-  image: postgres:latest
-  domainname: advisorconnect.co
-  ports:
-    - "5432:5432"
-  volumes:
-    - data:/var/run/postgresql
-  environment:
-    POSTGRES_USER: "postgres"
-    POSTGRES_PASSWORD: ""
-    LC_ALL: "en_US.utf8"
+services:
+  # The Postgres container holding the latest version of postgres and
+  # binds to the storage volume, pgdata where persistent data is kept.
+  db:
+    restart: always
+    image: postgres:9.5
+    domainname: advisorconnect.co
+    cpu_shares: 30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: ""
+      LC_ALL: "en_US.utf8"
 
-redis:
-  command: "redis-server /usr/local/etc/redis/redis.conf"
-  domainname: advisorconnect.co
-  restart: always
-  image: redis:latest
-  volumes:
-    - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
-  ports:
-    - "6379:6379"
-  environment:
-    LC_ALL: "en_US.utf8"
+  redis:
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+    domainname: advisorconnect.co
+    restart: always
+    image: redis:3
+    volumes:
+      - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
+      - data:/data
+    ports:
+      - "6379:6379"
+    environment:
+      LC_ALL: "en_US.utf8"
+    cpu_shares: 10
 
-#nginx:
-#  command: >
-#          nginx -g "daemon off";
-#  domainname: advisorconnect.co
-#  hostname: "beta"
-#  restart: always
-#  build: ./misc/nginx/
-#  links:
-#    - prime:p200
-#  ports:
-#    - "80:80"
-#    - "443:443"
-#  volumes_from:
-#    - prime
-#  environment:
-#    LC_ALL: "en_US.utf8"
+  #nginx:
+  #  command: >
+  #          nginx -g "daemon off";
+  #  domainname: advisorconnect.co
+  #  hostname: "beta"
+  #  restart: always
+  #  build: ./misc/nginx/
+  #  links:
+  #    - prime:p200
+  #  ports:
+  #    - "80:80"
+  #    - "443:443"
+  #  volumes_from:
+  #    - prime
+  #  environment:
+  #    LC_ALL: "en_US.utf8"
 
 
-# Prime is the main application, which up execution will run the make
-# command within the container, with a default target of 'test' if not
-# otherwise overridden on the command line.
-prime:
-  restart: always
-  domainname: advisorconnect.co
-  build: .
-  links:
-    - db:babel
-    - redis:redis
-  ports:
-    - "80:80"
-    - "443:443"
-#  extra_hosts:
-#    - "babel:10.143.114.177"
-  environment:
-    PRIME_DB_USER: "arachnid"
-    PRIME_DB_PASS: ""
-    S3_BUCKET: "arachid-results"
-    AC_CONFIG: "development"
-    REDIS_URL: "redis://redis:6379"
-    DB_URL: "postgresql://arachnid@babel/arachnid"
-    AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
-    AWS_SECRET_ACCESS_KEY_PVLL: "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"
-    LC_ALL: "en_US.utf8"
+  # Prime is the main application, which up execution will run the make
+  # command within the container, with a default target of 'test' if not
+  # otherwise overridden on the command line.
+  prime:
+    hostname: prime
+    restart: on-failure:10
+    domainname: advisorconnect.co
+    build: .
+    depends_on:
+      - redis
+      - db
+    cpu_shares: 33
+    links:
+      - db:oracle
+      - redis:redis
+    ports:
+      - "80:80"
+      - "443:443"
+  #  extra_hosts:
+  #    - "babel:10.143.114.177"
+    environment:
+      PG_HOST: "oracle"
+      PRIME_DB_USER: "arachnid"
+      PRIME_DB_PASS: ""
+      S3_BUCKET: "arachid-results"
+      AC_CONFIG: "development"
+      REDIS_URL: "redis://redis:6379"
+      DB_URL: "postgresql://arachnid@oracle:5432/arachnid"
+      AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
+      AWS_SECRET_ACCESS_KEY_PVLL: "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"
+      LC_ALL: "en_US.utf8"

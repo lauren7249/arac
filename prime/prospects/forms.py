@@ -9,11 +9,11 @@ class LinkedinLoginForm(Form):
 
     def validate(self, email):
         if not Form.validate(self):
-            return False        
+            return False
         #todo: remove
         #return True
         if check_linkedin_creds(email, self.password.data):
             return True
         self.password.errors.append("Incorrect Linkedin Password")
-        return False        
+        return False
 

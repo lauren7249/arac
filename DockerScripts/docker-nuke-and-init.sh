@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+exit 99
 clear
 
 echo "This script will remove all images from the docker machine and upon"

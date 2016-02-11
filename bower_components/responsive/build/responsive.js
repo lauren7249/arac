@@ -690,7 +690,7 @@
     // No conflict.
     var old = $.fn.autoSize;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.autoSize = function (options) {
 
         return this.each(function () {
@@ -1077,7 +1077,7 @@
             });
         }
 
-        // We use ensure here as IOS7 can sometimes not fire 
+        // We use ensure here as IOS7 can sometimes not fire
         // the event if a scroll is accidentally triggered.
         $activeItem.onTransitionEnd(complete).ensureTransitionEnd();
 
@@ -1284,7 +1284,7 @@
     // No conflict.
     var old = $.fn.carousel;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.carousel = function (options) {
 
         return this.each(function () {
@@ -1463,7 +1463,7 @@
     // No conflict.
     var old = $.fn.conditional;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.conditional = function (options) {
 
         return this.each(function () {
@@ -1512,7 +1512,7 @@
 
 }(jQuery, window, ".r.conditional", ".data-api"));
 /*
- * Responsive Dismiss 
+ * Responsive Dismiss
  */
 
 /*global jQuery*/
@@ -1599,7 +1599,7 @@
     // No conflict.
     var old = $.fn.dismiss;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.dismiss = function (options) {
 
         return this.each(function () {
@@ -1648,7 +1648,7 @@
 
 }(jQuery, window, ".r.dismiss", ".data-api"));
 /*
- * Responsive Dropdown 
+ * Responsive Dropdown
  */
 /*jshint expr:true*/
 /*global jQuery*/
@@ -1924,7 +1924,7 @@
     // No conflict.
     var old = $.fn.dropdown;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.dropdown = function (options) {
         return this.each(function () {
             var $this = $(this),
@@ -2280,7 +2280,7 @@
                 return false;
             }
 
-            // If the regex doesn't match return true . 
+            // If the regex doesn't match return true .
             return !rexternalHost.test(locationParts[2]);
         };
 
@@ -2666,7 +2666,7 @@
     // No conflict.
     var old = $.fn.modal;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.modal = function (options) {
 
         return this.each(function () {
@@ -2907,7 +2907,7 @@
     // No conflict.
     var old = $.fn.navigation;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.navigation = function (options) {
 
         return this.each(function () {
@@ -3036,7 +3036,7 @@
     // No conflict.
     var old = $.fn.tablelist;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.tablelist = function (options) {
 
         return this.each(function () {
@@ -3268,7 +3268,7 @@
     // No conflict.
     var old = $.fn.tabs;
 
-    // Plug-in definition 
+    // Plug-in definition
     $.fn.tabs = function (options) {
 
         return this.each(function () {

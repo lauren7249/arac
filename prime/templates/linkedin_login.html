@@ -20,7 +20,6 @@
         {% endfor %}
       </div>
     {%endif%}
-    
     {{ form.csrf_token }}
 
     <h4 id="inputEmail">
@@ -43,17 +42,18 @@
 <script type="text/javascript">
   $("#check_linkedin_button").click(function(){
     $(".overlay").fadeIn();
-    $(".waiting").show();       
+    $(".waiting").show();
   });
   $( document ).ready(function() {
     $(".overlay").fadeOut();
-    $(".waiting").hide();   
+    $(".waiting").hide();
     if ("{{ valid }}" == "True") {
       $('#overlay', window.parent.document).hide();
       $('#hack_next', window.parent.document).trigger("click");
       $('div[class*="ui-dialog"]', window.parent.document).remove();
+
+    }
       
-    }     
   });
 </script>
 {% endblock %}

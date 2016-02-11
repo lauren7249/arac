@@ -47,7 +47,7 @@
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
               document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
-              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;    
+              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;
               console.log("!!!!!");
               console.log("{{ agent._linkedin_password_hash }}");
               if ("{{ agent._linkedin_password_hash }}" == 'None') {
@@ -60,9 +60,9 @@
                                    width: 600,
                                    draggable: false,
                                    scrolling: 'no'
-                               });                
+                               });
                 $("#linkedin_login_modal").dialog('open');
-              }    
+              }
               else {
                 $('#hack_next').trigger("click");
               }
@@ -389,7 +389,7 @@
             </li>
           </ol>
         </div>
-  
+
         <div class="onboard-footer"><small>
           <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
         </div>                    
@@ -521,12 +521,12 @@
       if (ln_connections==500) {
         ln_connections +=Math.floor(Math.random() * 250) ;
       }
-      
-      var total =contacts_array.length + ln_connections; 
 
-      $(".final-contact-count").html(total.toLocaleString()) 
+      var total =contacts_array.length + ln_connections;
+
+      $(".final-contact-count").html(total.toLocaleString())
       if (total>0) {
-        upload(ln_connections)         
+        upload(ln_connections)
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
         showSuccess(message);
@@ -559,7 +559,7 @@
           contacts_array = contacts_array.slice(0, 20)
         }
 
-        var outData = {csrf_token:csrf_token, linkedin_contact_count:ln_connections, geolocation:$("#owner_geolocation").text(), firstName: $("#owner_first_name").text(), lastName:$("#owner_last_name").text(), public_url:$("#owner_url").text(), user_email:$("#owner_email").text(), contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
+        var outData = {csrf_token:csrf_token, linkedin_contact_count:ln_connections, geolocation:$("#owner_geolocation").text(), firstName: $("#owner_first_name").text(), lastName:$("#owner_last_name").text(), public_url:$("#owner_url").text(), user_email:$("#owner_email").text(), contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}
         $.ajax({
             type: 'POST',
             url: '/upload_cloudsponge',
@@ -568,15 +568,15 @@
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
-              
-              //$(".final-contact-count").html(responseData.contacts.toLocaleString()) 
+
+              //$(".final-contact-count").html(responseData.contacts.toLocaleString())
               $("#step-1").hide(); 
               $("#step-2").hide(); 
               $("#step-3").hide()
               $("#step-4").slideDown()   
               $(".waiting").hide();   
-              $(".overlay").fadeOut();      
-              console.log(responseData);          
+              $(".overlay").fadeOut();
+              console.log(responseData);
             },
             error: function (responseData, textStatus, errorThrown) {
                 $(".waiting").hide();   

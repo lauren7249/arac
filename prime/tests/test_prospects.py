@@ -140,8 +140,7 @@ class TestPiplService(unittest.TestCase):
     def test_pipl_from_email(self):
         self.service = PiplService(None, self.emails)
         data1 = self.service.multiprocess()
-        self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), 
-            [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0', u'https://plus.google.com/106226923266702208073/about', u'http://www.linkedin.com/in/jamesjohnsona', u'http://jamesjohnsona.tumblr.com', u'http://www.corporaterenew.com'])
+        self.assertEqual(data1[0].get("jamesjohnson11@gmail.com").get("social_accounts"), [u'http://www.linkedin.com/pub/james-johnson/a/431/7a0', u'https://plus.google.com/106226923266702208073/about', u'http://www.linkedin.com/in/jamesjohnsona', u'http://jamesjohnsona.tumblr.com', u'http://www.corporaterenew.com'])
 
     def test_pipl_from_username(self):
         request = PiplRequest("laurentracytalbot", type="facebook", level="social")
@@ -412,7 +411,3 @@ class BingServiceLinkedinExtended(unittest.TestCase):
         expected = "https://www.linkedin.com/in/megwhitman"
         data = self.service.process()
         assert(expected in data)
-
-def test_all():
-    unittest.main()
-    pass
