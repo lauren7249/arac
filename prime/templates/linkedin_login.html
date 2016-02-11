@@ -42,30 +42,18 @@
 <script type="text/javascript">
   $("#check_linkedin_button").click(function(){
     $(".overlay").fadeIn();
-<<<<<<< HEAD
     $(".waiting").show();
   });
   $( document ).ready(function() {
     $(".overlay").fadeOut();
     $(".waiting").hide();
-=======
-    $(".waiting").show();       
-  });
-  $( document ).ready(function() {
-    $(".overlay").fadeOut();
-    $(".waiting").hide();   
->>>>>>> cddfeaada0045c74ee679146fcc358d0cd85af6f
     if ("{{ valid }}" == "True") {
       $('#overlay', window.parent.document).hide();
       $('#hack_next', window.parent.document).trigger("click");
       $('div[class*="ui-dialog"]', window.parent.document).remove();
-<<<<<<< HEAD
 
     }
-=======
       
-    }     
->>>>>>> cddfeaada0045c74ee679146fcc358d0cd85af6f
   });
 </script>
 {% endblock %}
