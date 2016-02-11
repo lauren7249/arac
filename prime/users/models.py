@@ -139,6 +139,8 @@ class User(db.Model, UserMixin):
 
     @property
     def linkedin_password(self):
+        if self._linkedin_password_hash is None:
+            return None
         return xor_decrypt_string(self._linkedin_password_hash, self._password_hash[:15])
 
     def check_password(self, password):

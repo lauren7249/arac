@@ -49,8 +49,8 @@
               document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
               document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;    
               console.log("!!!!!");
-              console.log("{{ agent.linkedin_password_hash }}");
-              if ("{{ agent._linkedin_password_hash }}" == '') {
+              console.log("{{ agent._linkedin_password_hash }}");
+              if ("{{ agent._linkedin_password_hash }}" == 'None') {
                 $('<div id="linkedin_login_modal"></div>')
                                .html('<iframe src="/linkedin_login" width="100%" height="100%"></iframe>')
                                .dialog({
@@ -526,7 +526,7 @@
 
       $(".final-contact-count").html(total.toLocaleString()) 
       if (total>0) {
-        upload()         
+        upload(ln_connections)         
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
         showSuccess(message);
@@ -549,7 +549,7 @@
       bindEmailButtons()
     });
 
-    function upload() {
+    function upload(ln_connections) {
 
         $("#next").hide()
         $(".overlay").fadeIn();
@@ -559,7 +559,7 @@
           contacts_array = contacts_array.slice(0, 20)
         }
 
-        var outData = {csrf_token:csrf_token, geolocation:$("#owner_geolocation").text(), firstName: $("#owner_first_name").text(), lastName:$("#owner_last_name").text(), public_url:$("#owner_url").text(), user_email:$("#owner_email").text(), contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
+        var outData = {csrf_token:csrf_token, linkedin_contact_count:ln_connections, geolocation:$("#owner_geolocation").text(), firstName: $("#owner_first_name").text(), lastName:$("#owner_last_name").text(), public_url:$("#owner_url").text(), user_email:$("#owner_email").text(), contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}          
         $.ajax({
             type: 'POST',
             url: '/upload_cloudsponge',
