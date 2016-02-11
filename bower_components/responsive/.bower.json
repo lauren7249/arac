@@ -1,0 +1,52 @@
+{
+  "name": "responsive",
+  "description": "A powerful, accessible, developer friendly framework for building responsive websites.",
+  "version": "4.1.2",
+  "homepage": "http://responsivebp.com",
+  "authors": [
+    "James South"
+  ],
+  "keywords": [
+    "html",
+    "css",
+    "js",
+    "javascript",
+    "sass",
+    "mobile-first",
+    "responsive",
+    "rwd",
+    "front-end",
+    "framework",
+    "boilerplate",
+    "web"
+  ],
+  "license": "MIT",
+  "main": [
+    "./build/responsive.js",
+    "./build/responsive.min.js",
+    "./build/responsive.css",
+    "./build/responsive.min.css",
+    "./build/template.html"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src",
+    "dist",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "2.1.4"
+  },
+  "_release": "4.1.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "4.1.2",
+    "commit": "db5f0bc0fe1fdc59d108e1ddd2ab6fb0088a9a69"
+  },
+  "_source": "git://github.com/ResponsiveBP/Responsive.git",
+  "_target": "~4.1.2",
+  "_originalSource": "responsive",
+  "_direct": true
+}
