@@ -213,25 +213,24 @@ def upload():
         indata = request.json
         contacts_array = indata.get("contacts_array")
         linkedin_contact_count = indata.get("linkedin_contact_count",0)
-        print linkedin_contact_count
         contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array)
-        print len(contacts_array)
         manager = current_user.manager
         if not manager:
             print "Error: no manager for current_user {}".format(current_user.user_id)
             to_email = "missing_manager@advisorconnect.co"
         else:
             to_email = manager.user.email
-        client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
-                "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
-                "to_email":to_email}
         env = Environment()
         env.loader = FileSystemLoader("prime/templates")
         tmpl = env.get_template('emails/contacts_uploaded.html')
         body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
         sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(user.unique_contacts_uploaded + linkedin_contact_count)), body)
-        q = get_q()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
+        if not linkedin_contact_count:
+            client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
+                    "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
+                    "to_email":to_email, "linkedin_contact_count":linkedin_contact_count}
+            q = get_q()
+            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": user.unique_contacts_uploaded + linkedin_contact_count})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
