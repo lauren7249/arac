@@ -10,6 +10,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from itertools import izip, cycle
+from captcha_solver import CaptchaSolver
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -86,8 +87,12 @@ def check_linkedin_creds(username, password):
 def get_linkedin_csv_captcha(driver):
     driver.get(LINKEDIN_EXPORT_URL)
     driver.save_screenshot("screenshot.png")
+    solver = CaptchaSolver('browser')
+    with open('screenshot.png', 'rb') as inp:
+        raw_data = inp.read()
+    captcha = solver.solve_captcha(raw_data)
     captcha_input = driver.find_element_by_id("recaptcha_response_field")
-    captcha_input.send_keys("1008")
+    captcha_input.send_keys(captcha)
     export_button = driver.find_element_by_name("exportNetwork")
     export_button.click()
     cookies = driver.get_cookies()
