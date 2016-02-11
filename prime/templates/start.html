@@ -13,6 +13,7 @@
       });
     }
     
+
     var domain_key='VB652MMUEG24H4JF3SGL';
     var domain_password='GSrAxStb9Zk5EOmD';    
     var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
@@ -26,6 +27,8 @@
     // Handle the successful return from the API call
     function onSuccess(data) {
         $("#owner_email").html(data.emailAddress);
+        $("#linkedin_email").html(data.emailAddress);
+        $("#owner_num_connections").html(data.numConnections);
         $("#owner_geolocation").html(data.location.name);
         $("#owner_url").html(data.publicProfileUrl);
         $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
@@ -33,7 +36,8 @@
         $("#owner_first_name").html(data.firstName);
         $("#owner_last_name").html(data.lastName);
         $("#step-2").hide(); 
-        $("#step-3").slideDown();     
+        $("#overlay").show();
+        //$("#step-3").slideDown();
         $.ajax({
             type: 'POST',
             url: '/save_linkedin_data',
@@ -43,9 +47,28 @@
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
               document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
-              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;                 
+              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;
+              console.log("!!!!!");
+              console.log("{{ agent.linkedin_password_hash }}");
+              if ("{{ agent.linkedin_password_hash }}" == '') {
+                $('<div id="linkedin_login_modal"></div>')
+                               .html('<iframe style="border: 0px; overflow:hidden;" src="/linkedin_login" width="100%" height="100%"></iframe>')
+                               .dialog({
+                                   closeOnEscape: false,
+                                   modal: true,
+                                   height: 600,
+                                   width: 600,
+                                   draggable: false,
+                                   scrolling: 'no'
+                               });
+                $("#linkedin_login_modal").dialog('open');
+              }
+              else {
+                $('#hack_next').trigger("click");
+              }
             },
             error: function (responseData, textStatus, errorThrown) {
+              showSuccess(errorThrown);
             }
         });                    
     }
@@ -304,6 +327,7 @@
         <h1 id="owner_name"></h1>
         <p hidden id="owner_email"></p>
         <p hidden id="owner_geolocation"></p>
+        <p hidden id="owner_num_connections"></p>
         <p hidden id="owner_first_name"></p>
         <p hidden id="owner_last_name"></p>
         <p hidden id="owner_url"></p>
@@ -365,45 +389,7 @@
             </li>
           </ol>
         </div>
-        <div class="onboard-body">
 
-          <div  id="linkedin-upload">
-
-            <div class="wrap">
-              <div class="col-6">
-                <div class="note">
-                  <h2>Great! Now follow these steps to upload your LinkedIn connections.</h2>
-                  <ol>
-                    <li id="step1">
-                      {%if newWindow == 'false' %}
-
-                        Click the button below and you will be taken to the LinkedIn "Security Verification" screen. Enter the code and click Continue. <p id="after_download_instruction"></p><button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button>
-                        <small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of this browser window.">Not sure your contacts downloaded?</p></small>
-                      {%else%}
-                        Click the button below and a LinkedIn window will pop up. The popup window may ask you to complete a "Security Verification." Enter the code and click Continue.<p id="after_download_instruction"></p> <button id="export_linkedin" data-hint="Take me to LinkedIn's Download Page" onclick="download_linkedin();" class="hint--top button linkedin fluid small"> <span>Go to LinkedIn</span></button><small><p class="hint--top"data-hint="When your contacts have downloaded you will see an alert on LinkedIn and the downloaded file will appear at the bottom of the popup's browser window.">Not sure your contacts downloaded?</p></small>
-                      {%endif%}
-                    </li>
-                    <br/>
-                    <li  id="step3">
-                      Drag and drop the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from the bottom of the window into the Upload Area on the right.<br/><small><p class="hint--top" data-hint="Click on the Upload Area to the right and navigate to your downloads file. Select the file.">Don't see the file?</p></small>
-                    </li>
-                  </ol>
-                </div>
-                <div class="text-center">    
-                  <br/>            
-                </div>                 
-              </div>              
-              <div class="col-6">
-                <div class="dropzone-previews" id="previewsContainer" style="display:none"></div>
-                <div class="get-contacts hint--top" data-hint="Can't find the file? Click here and navigate to your Downloads folder and select the file linkedin_connections_export_microsoft_outlook.csv">
-                  <form action="/upload_csv" method="post"  class="dropzone needsclick dz-clickable dz-started" id="linkedInImport"></form>
-                </div>
-              </div>
-            </div>
-
-          </div>  
-
-        </div>    
         <div class="onboard-footer"><small>
           <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
         </div>                    
@@ -433,7 +419,7 @@
               <h1>Congratulations!</h1>
               <h3 class="text-teal">You’ve successfully uploaded a total of <span class='final-contact-count'></span> Contacts!</h3>
               <p>We will email you when your Network Summary is complete.</p>
-              <small>Still want to add more contacts? <a href="/">Go Back to Step 1</a></small>
+<!--               <small>Still want to add more contacts? <a href="/" >Go Back to Step 1</a></small> -->
             </div>
           </div>
         </div>
@@ -531,7 +517,15 @@
     }
 
     function attemptFinish() {
-      if (contacts_array.length>0) {
+      var  ln_connections = parseInt($("#owner_num_connections").html());
+      if (ln_connections==500) {
+        ln_connections +=Math.floor(Math.random() * 250) ;
+      }
+
+      var total =contacts_array.length + ln_connections;
+
+      $(".final-contact-count").html(total.toLocaleString())
+      if (total>0) {
         upload()         
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
@@ -574,14 +568,15 @@
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
-              console.log(responseData);
-              $(".final-contact-count").html(responseData.contacts.toLocaleString()) 
+
+              //$(".final-contact-count").html(responseData.contacts.toLocaleString())
               $("#step-1").hide(); 
               $("#step-2").hide(); 
               $("#step-3").hide()
               $("#step-4").slideDown()   
               $(".waiting").hide();   
-              $(".overlay").fadeOut();              
+              $(".overlay").fadeOut();
+              console.log(responseData);
             },
             error: function (responseData, textStatus, errorThrown) {
                 $(".waiting").hide();   

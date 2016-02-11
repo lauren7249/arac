@@ -125,6 +125,18 @@ header a.user .face {
   vertical-align: middle;
 }
 
+.ui-dialog-titlebar-close {
+  visibility: hidden;
+}
+
+.ui-dialog-titlebar {
+  display: none;
+}
+
+div.linkedin_login_modal {
+  overflow: hidden;
+}
+
 footer .wrap {
   border-top: 2px solid #DADFE1;
   margin-top: 40px;

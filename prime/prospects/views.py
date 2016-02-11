@@ -13,6 +13,7 @@ import csv
 import random
 import requests
 import datetime
+from flask import current_app
 import json
 from urllib import unquote_plus
 from flask import render_template, request, redirect, url_for, flash, session as flask_session, jsonify, make_response
@@ -27,11 +28,15 @@ from sqlalchemy import select, cast, extract, or_, and_, func
 from sqlalchemy.orm import joinedload, subqueryload, outerjoin
 from sqlalchemy.orm import aliased
 from flask.ext.rq import job
+from .forms import LinkedinLoginForm
 from jinja2.environment import Environment
 from jinja2 import FileSystemLoader
 from prime.users.models import ClientProspect
 from prime.utils.email import sendgrid_email
 from prime.utils.helpers import STATES
+import xlsxwriter
+import flask, urllib
+import pandas
 
 ################
 ##  HELPERS   ##
@@ -159,7 +164,6 @@ def save_linkedin_data():
 @csrf.exempt
 @prospects.route("/upload_csv", methods=['POST'])
 def upload_csv():
-    import pandas
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
@@ -180,6 +184,23 @@ def upload_csv():
         data.append(contact)
     return jsonify({"count":len(s),"contacts":data, "contacts_owner":None})
 
+@csrf.exempt
+@prospects.route('/linkedin_login', methods=['GET', 'POST'])
+def linkedin_login():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    form = LinkedinLoginForm()
+    valid = None
+    if form.is_submitted():
+        if form.validate(current_user.linkedin_email):
+            valid = True
+            current_user.set_linkedin_password(form.password.data)
+            return render_template('linkedin_login.html', form=form, valid=valid)
+        valid = False
+        form.password.data = ''
+    return render_template('linkedin_login.html', form=form, valid=valid)
 
 @csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
@@ -426,8 +447,8 @@ def submit_p200_to_manager():
             ClientProspect.user==agent,
             ).join(Prospect).order_by(Prospect.name)
     #TODO disabling 50 connection rule.
-    #if connections.count() < 50:
-    #    return jsonify({"error": "You must have at least 50 connections"})
+    if connections.count() < 50:
+       return jsonify({"error": "You must have at least 50 connections"})
     agent.submit_to_manager()
     agent.p200_submitted_to_manager = True
     session.add(agent)
@@ -438,8 +459,6 @@ def submit_p200_to_manager():
 
 @prospects.route("/contacts_export", methods=['GET'])
 def contacts_export():
-    import xlsxwriter
-    import flask, urllib
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
