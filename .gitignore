@@ -1,6 +1,7 @@
 migrations/env.py
 userdir/
 metastore_db/
+metastore_db/*
 temp_data/
 migrations/
 *.dump
