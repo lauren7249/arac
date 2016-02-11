@@ -1364,6 +1364,58 @@ form.dropzone {
 
 }
 
+$modal-width: 800px;
+
+.ui-dialog {
+  top: 30% !important;
+  left: 50% !important;
+  margin-left: -($modal-width / 2) !important;
+  width: $modal-width !important;
+  display: block !important;
+  z-index: 101 !important;
+  position: absolute !important;
+  padding: 0 !important;
+  @include border-radius(0 !important);
+
+  @media only screen and (max-width: 800px) {
+    width: 90% !important;
+    margin: 10px auto !important;
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+}
+
+#linkedin_login_modal {
+  padding: 0 !important;
+  height: 500px !important;
+  display: block !important;
+  width: 100% !important;
+  iframe {
+    border: 0px;
+    overflow: hidden;
+    padding: 0;
+  }
+
+}
+
+#linkedin_password_form {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+  form.card {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  input {
+    height: 50px !important;
+  }
+}
+
 
 // Loading & Spinners ==================================
 

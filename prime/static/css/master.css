@@ -1328,6 +1328,59 @@ form.dropzone.dz-success {
   border-color: #6CCC48;
 }
 
+.ui-dialog {
+  top: 30% !important;
+  left: 50% !important;
+  margin-left: -400px !important;
+  width: 800px !important;
+  display: block !important;
+  z-index: 101 !important;
+  position: absolute !important;
+  padding: 0 !important;
+  -webkit-border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+  -ms-border-radius: 0 !important;
+  border-radius: 0 !important;
+}
+@media only screen and (max-width: 800px) {
+  .ui-dialog {
+    width: 90% !important;
+    margin: 10px auto !important;
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+}
+
+#linkedin_login_modal {
+  padding: 0 !important;
+  height: 500px !important;
+  display: block !important;
+  width: 100% !important;
+}
+#linkedin_login_modal iframe {
+  border: 0px;
+  overflow: hidden;
+  padding: 0;
+}
+
+#linkedin_password_form {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+}
+#linkedin_password_form form.card, #linkedin_password_form form.wizard, #linkedin_password_form form.onboard-body, #linkedin_password_form form.onboard-footer, #linkedin_password_form form.note {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+#linkedin_password_form input {
+  height: 50px !important;
+}
+
 div.loading {
   position: absolute;
   top: 0;

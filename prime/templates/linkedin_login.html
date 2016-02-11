@@ -1,37 +1,44 @@
 {% extends 'base.html' %}
-{% block header %}
+{% block header %}{% endblock %}
 
-{% endblock %}
 {% block content %}
 
-<div class='signup' id="linkedin_password_form">
+<div id="linkedin_password_form">
   <form class="card" method='POST'>
-  <header>
-    <div class="header-logo"></div>
-  </header>
+    <header>
+      <div class="header-logo"></div>
+    </header>
+    <h3>Please re-enter your Linkedin password so we can securely connect your contacts.</h3>
+    <hr>
+
     {% if form.errors %}
-    <div class='error'>
-      {% for error in form.errors.items() %}
-      <div>
-        <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
+      <div class='error'>
+        {% for error in form.errors.items() %}
+        <div>
+          <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
     {%endif%}
+
     {{ form.csrf_token }}
-    <p>Please re-enter your Linkedin password so we can securely connect your contacts.</p>
-    <div class="form-group" >
-      <strong class="form-control" id="inputEmail">{{ current_user.linkedin_email }}</strong>
+
+    <h4 id="inputEmail">
+      {{ current_user.linkedin_email }}
+    </h4>
+
+    <div class="col-8">
+      <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Enter Your LinkedIn Password">
     </div>
-    <div class="form-group">
-      <label for="inputPassword" class="col-lg-2 control-label">Linkedin Password</label>
-      <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Password">
+    <div class="col-4">
+      <button id="check_linkedin_button" type="submit" class="button fluid linkedin">Connect Linkedin Contacts</button>
     </div>
-    <button id="check_linkedin_button" type="submit" class="button teal">Connect Linkedin Contacts</button>
+    <div>
+      <small>
+        <a href='https://www.linkedin.com/uas/request-password-reset?trk=uno-reg-guest-home-forgot-password' target="_blank">Forgot Your Linkedin Password?</a>
+      </small>
+    </div>
   </form>
-  <h5>
-    <a href='https://www.linkedin.com/uas/request-password-reset?trk=uno-reg-guest-home-forgot-password' target="_blank">Forgot Your Linkedin Password?</a>
-  </h5>
 </div>
 <script type="text/javascript">
   $("#check_linkedin_button").click(function(){
@@ -50,4 +57,9 @@
   });
 </script>
 {% endblock %}
+
+
+
+
+
 {% block footer %}{% endblock %}
