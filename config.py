@@ -41,7 +41,7 @@ class DevelopmentConfig(Config):
     ASSETS_DEBUG = False
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
-    BASE_URL = 'http://localhost:5000'
+    BASE_URL = 'https://beta.advisorconnect.co'
     SQLALCHEMY_ECHO = False
 
 class ProductionConfig(Config):
