@@ -53,7 +53,8 @@ dev_run() {
 # Run production
 # TODO Define
 prod_run() {
-    :
+    wait_until_is_ready
+    first_setup_check
 }
 
 # Run test scripts

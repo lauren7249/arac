@@ -28,7 +28,7 @@ class UrlValidatorRequest(S3SavedRequest):
 
     def process(self):
         html = self._make_request(content_type =self.content_type , bucket=self.bucket)
-        if len(html) > 0:
+        if len(html) > 0 and html != '{"status_code":404}':
             if self.is_image:
                 return self.boto_key.generate_url(expires_in=0, query_auth=False)
             else:
