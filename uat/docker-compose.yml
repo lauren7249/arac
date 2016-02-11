@@ -1,0 +1,79 @@
+---
+version: '2'
+
+volumes:
+  data: {}
+  pgdata: {}
+
+services:
+  # The Postgres container holding the latest version of postgres and
+  # binds to the storage volume, pgdata where persistent data is kept.
+  db:
+    restart: on-failure:10
+    image: postgres:9.5
+    domainname: advisorconnect.co
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: ""
+      LC_ALL: "en_US.utf8"
+
+  redis:
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+    domainname: advisorconnect.co
+    restart: on-failure:10
+    image: redis:3
+    volumes:
+      - ./misc/redis.conf:/usr/local/etc/redis/redis.conf
+      - data:/data
+#    ports:
+#      - "6379:6379"
+    environment:
+      LC_ALL: "en_US.utf8"
+
+  #nginx:
+  #  command: >
+  #          nginx -g "daemon off";
+  #  domainname: advisorconnect.co
+  #  hostname: "beta"
+  #  restart: always
+  #  build: ./misc/nginx/
+  #  links:
+  #    - prime:p200
+  #  ports:
+  #    - "80:80"
+  #    - "443:443"
+  #  volumes_from:
+  #    - prime
+  #  environment:
+  #    LC_ALL: "en_US.utf8"
+
+
+  # Prime is the main application, which up execution will run the make
+  # command within the container, with a default target of 'test' if not
+  # otherwise overridden on the command line.
+  prime:
+    hostname: test
+    restart: on-failure:10
+    domainname: adisorconnect.co
+    build: ..
+    depends_on:
+      - redis
+      - db
+    links:
+      - db:dev-db
+      - redis:redis
+    ports:
+      - "5000:80"
+    environment:
+      PG_HOST: "dev-db"
+      PRIME_DB_USER: "arachnid"
+      PRIME_DB_PASS: ""
+      S3_BUCKET: "arachid-results"
+      AC_CONFIG: "development"
+      REDIS_URL: "redis://redis:6379"
+      DB_URL: "postgresql://arachnid@dev-db:5432/arachnid"
+      AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
+      AWS_SECRET_ACCESS_KEY_PVLL: "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"
+      LC_ALL: "en_US.utf8"
