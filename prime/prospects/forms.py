@@ -16,3 +16,4 @@ class LinkedinLoginForm(Form):
             return True
         self.password.errors.append("Incorrect Linkedin Password")
         return False
+

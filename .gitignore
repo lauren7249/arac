@@ -1,7 +1,11 @@
 migrations/env.py
 userdir/
+<<<<<<< HEAD
 metastore_db/
 metastore_db/*
+=======
+**/metastore_db/
+>>>>>>> cddfeaada0045c74ee679146fcc358d0cd85af6f
 temp_data/
 migrations/
 *.dump
@@ -31,6 +35,10 @@ include
 *.DS_Store
 *.iml
 out/
-.DS_Store/
+**/.DS_Store/
 *.log
+<<<<<<< HEAD
 pip-selfcheck.json
+=======
+bower_components/
+>>>>>>> cddfeaada0045c74ee679146fcc358d0cd85af6f
