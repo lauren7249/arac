@@ -1,11 +1,15 @@
 import re
 import logging
 from difflib import SequenceMatcher
-from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS
+from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS, BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL
 from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_firstname, resolve_email
 from helpers.datehelpers import parse_date, date_overlap
 from helpers.data_helpers import flatten, merge_by_key, most_common, parse_out, get_center
 from helpers.linkedin_helpers import common_institutions
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
+from itertools import izip, cycle
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -50,4 +54,45 @@ def sort_social_accounts(social_accounts):
             d[domain] = link  
     return d  
 
+def xor_crypt_string(plaintext, key):
+    ciphertext = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(plaintext, cycle(key)))
+    return ciphertext.encode('hex')
 
+def xor_decrypt_string(ciphertext, key):
+    ciphertext = ciphertext.decode('hex')
+    return ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(ciphertext, cycle(key)))
+
+def get_remote_driver():
+    desired_cap = {'browser': 'Firefox'}
+    driver = webdriver.Remote(
+    command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),
+    desired_capabilities=desired_cap)
+    #driver.set_window_size(150, 80)
+    return driver
+
+def check_linkedin_creds(username, password):
+    driver = get_remote_driver()
+    driver.get("https://www.linkedin.com")
+    email_el = driver.find_element_by_id("login-email")
+    pw_el = driver.find_element_by_id("login-password")
+    email_el.send_keys(username)
+    pw_el.send_keys(password)
+    button = driver.find_element_by_name("submit")
+    button.click()
+    if driver.title == u'Welcome! | LinkedIn':
+        return driver
+    return None
+
+def get_linkedin_csv_captcha(driver):
+    driver.get(LINKEDIN_EXPORT_URL)
+    driver.save_screenshot("screenshot.png")
+    captcha_input = driver.find_element_by_id("recaptcha_response_field")
+    captcha_input.send_keys("1008")
+    export_button = driver.find_element_by_name("exportNetwork")
+    export_button.click()
+    cookies = driver.get_cookies()
+    return cookies
+    # cookies_dict = {}
+    # for cookie in cookies:
+    #     cookies_dict[cookie.get("name")] = cookie.get("value")    
+    # return cookies_dict

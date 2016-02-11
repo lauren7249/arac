@@ -176,6 +176,15 @@ header {
   }
 }
 
+.ui-dialog-titlebar-close {
+  visibility: hidden;
+}
+.ui-dialog-titlebar {display:none}
+
+div.linkedin_login_modal {
+  overflow: hidden;
+}
+
 footer {
   .wrap {
     border-top: 2px solid $border;

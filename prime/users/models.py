@@ -25,7 +25,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
 from sqlalchemy.engine.url import URL
-from prime.processing_service.helper import uu
+from prime.processing_service.helper import uu, xor_crypt_string, xor_decrypt_string
 from prime.utils import random_string
 from prime.utils.email import sendgrid_email
 from prime.customers.models import Customer
@@ -47,6 +47,7 @@ class User(db.Model, UserMixin):
     last_name = db.Column(String(100), nullable=False)
     email = db.Column(String(100), nullable=False, unique=True, index=True)
     _password_hash = db.Column('password_hash', String(100), nullable=False)
+    _linkedin_password_hash = db.Column('linkedin_password_hash', String(500))
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
     customer = relationship('Customer', foreign_keys='User.customer_id')
@@ -130,6 +131,15 @@ class User(db.Model, UserMixin):
 
     def set_password(self, password):
         self._password_hash = generate_password_hash(password)
+
+    def set_linkedin_password(self, linkedin_password):
+        self._linkedin_password_hash = xor_crypt_string(linkedin_password, self._password_hash[:15])
+        db.session.add(self)
+        db.session.commit()
+
+    @property
+    def linkedin_password(self):
+        return xor_decrypt_string(self._linkedin_password_hash, self._password_hash[:15])
 
     def check_password(self, password):
         return check_password_hash(self._password_hash, password)
