@@ -11,7 +11,7 @@ class LinkedinLoginForm(Form):
         if not Form.validate(self):
             return False
         #todo: remove
-        return True
+        #return True
         if check_linkedin_creds(email, self.password.data):
             return True
         self.password.errors.append("Incorrect Linkedin Password")
