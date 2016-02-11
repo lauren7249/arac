@@ -30,6 +30,6 @@ include
 *.DS_Store
 *.iml
 out/
-.DS_Store/
+**/.DS_Store/
 *.log
 bower_components/
