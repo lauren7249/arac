@@ -86,7 +86,7 @@ def get_local_driver():
     return driver
 
 def check_linkedin_creds(username, password):
-    driver = get_local_driver()
+    driver = get_remote_driver()
     driver.get("https://www.linkedin.com")
     email_el = driver.find_element_by_id("login-email")
     pw_el = driver.find_element_by_id("login-password")
