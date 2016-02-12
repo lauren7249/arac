@@ -1,7 +1,7 @@
 import re
 import logging
 from difflib import SequenceMatcher
-from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS, BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS
+from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS, BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS, SAUCE_USERNAME, SAUCE_ACCESS_KEY
 from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_firstname, resolve_email
 from helpers.datehelpers import parse_date, date_overlap
 from helpers.data_helpers import flatten, merge_by_key, most_common, parse_out, get_center
@@ -72,10 +72,9 @@ def xor_decrypt_string(ciphertext, key):
     return ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(ciphertext, cycle(key)))
 
 def get_remote_driver():
-    desired_cap = {'browser': 'Firefox'}
-    driver = webdriver.Remote(
-    command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),
-    desired_capabilities=desired_cap)
+    # desired_cap = {'browser': 'Firefox'}
+    # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
+    driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
     #driver.set_window_size(150, 80)
     return driver
 
@@ -125,8 +124,8 @@ def get_linkedin_data(driver):
     captcha_input.send_keys(captcha)
     export_button = driver.find_element_by_name("exportNetwork")
     export_button.click()
-    # os.remove(cropped_fn)
-    # os.remove(screenshot_fn)
+    os.remove(cropped_fn)
+    os.remove(screenshot_fn)
     cookies = driver.get_cookies()
     req_cookies = {}
     for cookie in cookies:
