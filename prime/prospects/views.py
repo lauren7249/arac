@@ -188,25 +188,28 @@ def linkedin_login():
     form = LinkedinLoginForm()
     valid = None
     if form.is_submitted():
-        start = time.time()
-        driver = form.validate(current_user.linkedin_email)
-        if driver:
-            valid = True
-            #return render_template('linkedin_login.html', form=form, valid=valid)
-            current_user.set_linkedin_password(form.password.data)
-            data = None
-            tries = 0
-            while(data == None and tries<4):
-                data = get_linkedin_data(driver)
-                tries += 1
-            driver.stop_client()
-            done = time.time()
-            elapsed = done - start
-            print elapsed
-            contacts_array, user = current_user.refresh_contacts(new_contacts=data)
-            return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
-        valid = False
-        form.password.data = ''
+        try:
+            start = time.time()
+            driver = form.validate(current_user.linkedin_email)
+            if driver:
+                valid = True
+                #return render_template('linkedin_login.html', form=form, valid=valid)
+                current_user.set_linkedin_password(form.password.data)
+                data = None
+                tries = 0
+                while(data == None and tries<4):
+                    data = get_linkedin_data(driver)
+                    tries += 1
+                driver.stop_client()
+                done = time.time()
+                elapsed = done - start
+                print elapsed
+                contacts_array, user = current_user.refresh_contacts(new_contacts=data)
+                return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
+            valid = False
+            form.password.data = ''
+        except:
+            return render_template('start.html', agent=current_user, newWindow='false', status="all_done")
     return render_template('linkedin_login.html', form=form, valid=valid)
 
 @csrf.exempt
