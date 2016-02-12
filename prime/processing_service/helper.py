@@ -125,8 +125,8 @@ def get_linkedin_data(driver):
     captcha_input.send_keys(captcha)
     export_button = driver.find_element_by_name("exportNetwork")
     export_button.click()
-    os.remove(cropped_fn)
-    os.remove(screenshot_fn)
+    # os.remove(cropped_fn)
+    # os.remove(screenshot_fn)
     cookies = driver.get_cookies()
     req_cookies = {}
     for cookie in cookies:
