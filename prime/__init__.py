@@ -1,4 +1,5 @@
 import sys
+import os
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import logging
@@ -7,7 +8,7 @@ from logging.handlers import SysLogHandler
 from flask import Flask
 from flask.ext.assets import Environment
 from flask.ext.rq import RQ
-
+from redis import Redis
 from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -23,6 +24,16 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 csrf = CsrfProtect()
+
+def get_conn():
+    from prime.processing_service.constants import REDIS_URL
+    if os.getenv('AC_CONFIG') == 'beta':
+        conn = Redis.from_url(url=REDIS_URL, db=0)
+    elif os.getenv('REDIS_URL'):
+        conn = Redis.from_url(url=os.getenv('REDIS_URL'), db=0)
+    else:
+        conn = Redis.from_url(url='redis://localhost:6379', db=0)
+    return conn
 
 def create_app(config_name):
     app = Flask(__name__)

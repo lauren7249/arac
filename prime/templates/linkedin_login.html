@@ -51,9 +51,9 @@
     if ("{{ valid }}" == "True") {
       $('#overlay', window.parent.document).hide();
       //$('#hack_next', window.parent.document).trigger("click");
-      window.top.location.href = local + "/pending?status=all_done";
-      window.top.location.reload(true); 
-      console.log(local + "/pending?status=all_done");
+      window.top.location.href = local + "/?status=all_done";
+      //window.top.location.reload(true); 
+      console.log(window.top.location.href);
       $('div[class*="ui-dialog"]', window.parent.document).remove();
     }
       

@@ -20,9 +20,8 @@ from flask import render_template, request, redirect, url_for, flash, session as
 from flask.ext.login import current_user,  logout_user
 from . import prospects
 from prime.prospects.models import Prospect, Job, Education, get_or_create
-from prime import db, csrf, whoisthis
+from prime import db, csrf, get_conn
 from prime.users.models import User
-from prime.processing_service.constants import REDIS_URL
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast, extract, or_, and_, func
 from sqlalchemy.orm import joinedload, subqueryload, outerjoin
@@ -71,10 +70,7 @@ def uu(str):
 ################
 
 def get_q():
-    if socket.gethostname() == 'docker' or '.co' in socket.gethostname():
-        conn = Redis.from_url(url=REDIS_URL, db=0)
-    else:
-        conn = Redis.from_url(url='redis://localhost', db=0)
+    conn = get_conn()
     q = Queue('high',connection=conn)
     return q
 
@@ -88,7 +84,7 @@ def queue_processing_service(client_data, contacts_array):
 ##    VIEWS   ##
 ################
 
-#@whoisthis
+
 @prospects.route("/", methods=['GET', 'POST'])
 def start():
     if not current_user.is_authenticated():
@@ -103,6 +99,7 @@ def start():
         return redirect(url_for('prospects.connections'))
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
+    print request.args.get("status")
     return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"))
 
 @prospects.route("/pending", methods=['GET'])
@@ -119,6 +116,7 @@ def pending():
         return redirect(url_for('prospects.connections'))
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
+    print request.args.get("status")
     return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"))
 
 @prospects.route("/faq")

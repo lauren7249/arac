@@ -19,7 +19,7 @@ from prime.users.models import User
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
 try:
-    app = create_app(os.getenv('AC_CONFIG', 'development'))
+    app = create_app(os.getenv('AC_CONFIG', 'testing'))
     db = SQLAlchemy(app)
     session = db.session
 except Exception, e:

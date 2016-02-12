@@ -2,7 +2,7 @@ import os
 from redis import Redis, ConnectionError
 from rq import Worker, Queue, Connection
 from retrying import retry
-from prime.processing_service.constants import REDIS_URL
+from prime import get_conn
 
 listen = ['high', 'default', 'low']
 
@@ -23,16 +23,8 @@ def do_work():
     should redis not be immediately available
     """
 
-    # FIXME: This cannot live in a 4th and counting configuration
-    # file.
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost')
-
     try:
-        if os.getenv('AC_CONFIG', 'default') == 'beta':
-            conn = Redis.from_url(url=REDIS_URL, db=0)
-        else:
-            conn = Redis.from_url(url=REDIS_URL, db=0)
-
+        conn = get_conn()
         with Connection(conn):
             worker = Worker(map(Queue, listen))
             worker.work()
