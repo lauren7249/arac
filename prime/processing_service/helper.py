@@ -138,6 +138,7 @@ def get_linkedin_data(driver):
         export_button.click()
     except Exception, e:
         print str(e)
+        driver.save_screenshot("error.png")
         return None
     os.remove(cropped_fn)
     os.remove(screenshot_fn)
