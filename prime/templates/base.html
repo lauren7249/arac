@@ -33,8 +33,28 @@
     <script src="/static/js/dropzone.js"></script>
 
   </head>
-  <body>
-  
+  <body>        
+
+
+    {% block spinner %}
+      <div id="spinner" class="overlay">
+        <dialog>
+          <img src='/static/img/spinner_192.gif' />
+        </dialog>
+      </div>
+    {% endblock %}
+
+
+    {% block progress %}
+      <div id="progress" class="overlay">
+        <dialog>
+          <div class="progress-bar" value="" max="100" id="progress-bar"></div>
+          <small>Loading...</small>
+        </dialog>
+      </div>
+    {% endblock %}
+    
+
     {% block header %}
       <header>
         <div class="wrap">
@@ -62,6 +82,30 @@
       </header>
     {% endblock %}
 
+    {% block toasts %}
+    <div id='success' class="toast--success" style="display:none;">
+      <div class='wrap'>        
+        <div class="toast-message" id="p200_success_message" >
+          <b>Success!</b>
+        </div>
+        <div class="toast-close">
+          &times;
+        </div>
+      </div>
+    </div>
+    
+    <div id='error' class="toast--error" style="display:none;">
+      <div class='wrap'>
+        <div class="toast-message" id="p200_error_message" >
+          <b>Error!</b>
+        </div>
+        <div class="toast-close">
+          &times;
+        </div>
+      </div>
+    </div>
+    {% endblock %}
+
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div class="wrap flashed-messages">
@@ -73,22 +117,12 @@
         </div>
       {% endif %}
     {% endwith %}
-    <div class='overlay' style="max-height:100%; max-width:100%;" id="overlay">
-      <div class='waiting modal' style="max-height:100%; max-width:100%;">        
-        <img src='/static/img/spinner_192.gif' style="max-height:100%; max-width:100%;"/>
-      </div>    
-    </div>     
-    <dialog id='success' style="display:none;">
-      <div class='success'>
-        <img id="spinner" style="display:none; max-height:100%; max-width:100%;" src='/static/img/spinner_192.gif' />
-        <span  id="p200_success_message" style="display:none;" >
-          <b>Success!</b>
-        </span>
-      </div>
-    </dialog> 
+    
+    
     <script type='text/javascript'>
       console.log("{{active}}")
-    </script>    
+    </script>
+
     <script type='text/javascript'>
       $("#success").click(function(){
         $("#success").css("display","none");  
@@ -97,10 +131,9 @@
 
       function showSuccess(message) {
         $("#p200_success_message").text(message);
-        $("#spinner").css("display","none");    
-        $("#p200_success_message").css("display","inline");      
-        $("#success").css("display","inline");      
-        document.getElementById("success").showModal();      
+        $("#spinner").css("display","none");          
+        $("#success").css("display","block");      
+        // document.getElementById("success").showModal();
       }
       var csrftoken = "{{ csrf_token() }}"
       $(function() {
@@ -110,15 +143,15 @@
           var user_id = $(this).data("p200-id");
           var name = $(this).name;
           if (user_id != undefined && user_id != null && user_id != '') {
-            document.getElementById("p200_success_message").style.display = "none";         
-            document.getElementById("spinner").style.display = "inline";                 
-            document.getElementById("success").style.display = "inline";   
-            document.getElementById("success").showModal();       
+            // document.getElementById("p200_success_message").style.display = "none";     
+            document.getElementById("spinner").style.display = "block";                 
+            document.getElementById("success").style.display = "block";   
+            // document.getElementById("success").showModal();
             $.post("/managers/request_p200", {user_id:user_id}, function(data){
               if (data.name != undefined && data.name !=null && data.name != '') {
                 showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");
                 document.getElementById(user_id + "_p200_button").style.display = "none";     
-                document.getElementById(user_id + "_p200_pending").style.display = "inline";   
+                document.getElementById(user_id + "_p200_pending").style.display = "block";   
               }
 
             });          

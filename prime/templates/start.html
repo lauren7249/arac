@@ -11,8 +11,7 @@
       $("#li_button").click(function() {
         IN.User.authorize(getProfileData);
       });
-    }
-    
+    }    
 
     var domain_key='VB652MMUEG24H4JF3SGL';
     var domain_password='GSrAxStb9Zk5EOmD';    
@@ -35,7 +34,7 @@
         $("#owner_first_name").html(data.firstName);
         $("#owner_last_name").html(data.lastName);
         $("#step-2").hide(); 
-        $("#overlay").show();
+        // $("#overlay").show();
         //$("#step-3").slideDown();     
         $.ajax({
             type: 'POST',
@@ -324,8 +323,8 @@
           cloudsponge_status = events[i].status;
           console.log(cloudsponge_status);
           if (cloudsponge_status == 'COMPLETED') {
-            $(".overlay").fadeIn();
-            $(".waiting").show();   
+            $("#spinner").fadeIn();
+            // $(".waiting").show();   
             var timer2 = setInterval(function() {  
               $.getJSON(tempcontactsurl, function() {
               })
@@ -348,21 +347,21 @@
                     // $(".contact-count").show();
 
                     $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
-                    $(".waiting").hide();
-                    $(".overlay").fadeOut();
+                    // $(".waiting").hide();
+                    $("#spinner").fadeOut();
                     return true;
                   }
                   else {
-                    $(".waiting").hide();   
-                    $(".overlay").fadeOut();     
+                    // $(".waiting").hide();   
+                    $("#spinner").fadeOut();     
                     return true;                               
                   }
                   contacts = [];
                   return true;
                 } 
                 else {
-                  $(".waiting").hide();   
-                  $(".overlay").fadeOut();                                
+                  // $(".waiting").hide(); 
+                  $("#spinner").fadeOut();                                
                   return true;
                 }                             
               });                          
@@ -370,8 +369,8 @@
             break;
           } 
           else if (cloudsponge_status =="ERROR") {
-            $(".waiting").hide();   
-            $(".overlay").fadeOut();     
+            // $(".waiting").hide(); 
+            $("#spinner").fadeOut();     
             break;    
             return true;                   
           }
@@ -403,8 +402,8 @@
         }
       });
       $("#finish_email").click(function() {
-        $(".overlay").fadeIn()
-        $(".waiting").show();   
+        $("#spinner").fadeIn()
+        // $(".waiting").show();   
         $.ajax({
             type: 'POST',
             url: '/upload_cloudsponge',
@@ -415,14 +414,14 @@
             success: function(responseData, textStatus, jqXHR) {
               $("#step-1").hide(); 
               $("#step-2").slideDown();  
-              $(".waiting").hide();   
-              $(".overlay").fadeOut();
+              // $(".waiting").hide();   
+              $("#spinner").fadeOut();
               console.log(responseData);
 
             },
             error: function (responseData, textStatus, errorThrown) {
-                $(".waiting").hide();   
-                $(".overlay").fadeOut();                
+                // $(".waiting").hide();   
+                $("#spinner").fadeOut();                
                 showSuccess("It appears there was an issue with the upload. An error report has been sent. We apologize for the inconvenience.");
             }
         });              
@@ -433,8 +432,8 @@
     function upload() {
 
         $("#next").hide()
-        $(".overlay").fadeIn();
-        $(".waiting").show();   
+        $("#spinner").fadeIn();
+        // $(".waiting").show();   
         var csrf_token = $("[_csrf_token]").val()
 
         var outData = {csrf_token:csrf_token, contacts_array: contacts_array}
@@ -452,13 +451,13 @@
               $("#step-2").hide(); 
               $("#step-3").hide()
               $("#step-4").slideDown()   
-              $(".waiting").hide();   
-              $(".overlay").fadeOut();
+              // $(".waiting").hide();   
+              $("#spinner").fadeOut();
               console.log(responseData);
             },
             error: function (responseData, textStatus, errorThrown) {
-                $(".waiting").hide();   
-                $(".overlay").fadeOut();                
+                // $(".waiting").hide();   
+                $("#spinner").fadeOut();                
                 showSuccess("It appears there was an issue with the upload. An error report has been sent. We apologize for the inconvenience.");
             }
         });   
@@ -473,7 +472,7 @@
         var win = window.open('');        
         var len = do_import('Gmail','#gmail-area',win);
         $(".email").hide();
-        $(".overlay").fadeOut();
+        $("#spinner").fadeOut();
       });
 
       $("#yahoo-area").click(function(e) {
@@ -482,7 +481,7 @@
         cloudsponge_status = 'NONE';   
         var len =do_import('Yahoo','#yahoo-area',win);
         $(".email").hide();
-        $(".overlay").fadeOut();
+        $("#spinner").fadeOut();
       });
 
       $("#windowslive-area").click(function(e) {
@@ -491,7 +490,7 @@
         cloudsponge_status = 'NONE';   
         var len = do_import('WindowsLive','#windowslive-area',win);
         $(".email").hide();
-        $(".overlay").fadeOut();
+        $("#spinner").fadeOut();
       });
 
       $("#aol-area").click(function(e) {
@@ -500,7 +499,7 @@
         cloudsponge_status = 'NONE';   
         var len = do_import('aol','#aol-area',win);
         $(".email").hide();
-        $(".overlay").fadeOut();
+        $("#spinner").fadeOut();
       });   
 
     }  
