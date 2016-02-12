@@ -71,7 +71,7 @@ def uu(str):
 ################
 
 def get_q():
-    if socket.gethostname() == 'docker':
+    if socket.gethostname() == 'docker' or '.co' in socket.gethostname():
         conn = Redis.from_url(url=REDIS_URL, db=0)
     else:
         conn = Redis.from_url(url='redis://localhost', db=0)
