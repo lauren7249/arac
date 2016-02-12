@@ -20,7 +20,6 @@
     var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     var contacts_array = [];
     var cloudsponge_status = '';
-    var test = (window.location.href.indexOf("testing") > -1) ? true : false;
     var downloadWindow = null;
     var public_url = null;
 
@@ -93,60 +92,6 @@
         IN.API.Raw("people/~:(id,num-connections,picture-url,location,industry,public-profile-url,email-address,first-name,last-name)").result(onSuccess).error(onError);
     }  
 
-    function download_linkedin() {
-      document.getElementById('mainDiv').class="disableWin";
-      var link = "http://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook";
-      var viewportwidth = document.documentElement.clientWidth;
-
-      if ("{{ newWindow }}" == 'false') {
-        downloadWindow = window.open(link);
-      }
-      else {
-        downloadWindow = window.open(link, "Linkedin's Contact Download", "width=500, height=300, left="+(viewportwidth-100)+",top=350");   
-
-        downloadWindow.focus(); 
-        $(".overlay").fadeIn();
-        $(".waiting").hide();          
-      }
-
-      document.getElementById("step1").style = "font-weight: lighter"
-      // document.getElementById("step2").style =  "font-weight: bolder"
-      $('html, body').animate({
-            scrollTop: $("li#step3").offset().top + 'px'
-      }, 'fast');
-      var timer = setInterval(function() {
-          if ("{{ newWindow }}" == 'false') {
-            $(document).click(function(){
-                $(document).off( "click")
-                clearInterval(timer);      
-                afterDownloadedClick();   
-                downloadWindow.close();                         
-            });        
-          } 
-          else {
-            if(downloadWindow.closed) {
-                clearInterval(timer);      
-                $("#step3").html("Click on the Upload Area to the right and select the file <small><i>linkedin_connections_export_microsoft_outlook.csv</i></small> from your Downloads folder.")            
-                afterDownloadedClick();                         
-            }                        
-            $(".overlay").click(function(){
-              clearInterval(timer);    
-              $(".overlay").off( "click")
-              afterDownloadedClick();
-              downloadWindow.focus();         
-            }) ;          
-          }
-
-       
-      }, 1000);      
-    }      
-
-    function afterDownloadedClick() {
-      $(".overlay").fadeOut(); 
-      document.getElementById("step3").style =  "font-weight: normal"
-      $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');                      
-    }
-  
 
     $( document ).ready(function() {
       var ua = navigator.userAgent.toLowerCase();
@@ -165,8 +110,7 @@
       }
       if ("{{ status }}" == 'all_done') {
         $("#step-1").hide();
-        $("#step-2").show(); 
-        $("#owner_num_connections").html({{ contact_count }});      
+        $("#step-2").show();     
         attemptFinish();             
       }
       else if ("{{ status }}" == 'email_done') {
@@ -180,74 +124,6 @@
       }
       
     });    
-
-    $(function(){
-      Dropzone.options.linkedInImport = {
-        maxFilesize: 10,
-        addRemoveLinks: true,
-        dictDefaultMessage: 'Drag and drop your file here',
-        dictResponseError: 'Server not Configured',
-        acceptedFiles: ".csv",
-        previewsContainer: document.getElementById("previewsContainer"),
-        init:function(){
-          var self = this;
-          // config
-          self.options.addRemoveLinks = true;
-          self.options.dictRemoveFile = "Delete";
-
-          //New file added
-          self.on("addedfile", function (file) {
-          });
-          // Send file starts
-          self.on("sending", function (file) {
-            console.log('upload started', file);
-            $(".overlay").fadeIn();
-            $(".waiting").show();             
-          });
-          
-          // File upload Progress
-          self.on("totaluploadprogress", function (progress) {
-            console.log("progress ", progress);
-
-          });
-
-          self.on("complete", function (file) {
-            console.log("complete", file.name);           
-          });
-          self.on("success", function (file, data) {
-            console.log("success", data);    
-            //if (downloadWindow && downloadWindow.open)  {downloadWindow.close();   }  
-            var count = data.count;
-            contacts = data.contacts;
-            contacts_owner = data.contacts_owner;
-            if (contacts !=undefined && contacts.length) {
-              console.log(contacts.length);
-              for (i = 0; i < contacts.length; i++) { 
-                var contact = contacts[i];
-                contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:"LinkedIn"});
-           
-              }
-              $(".contact-count").find("small").html(count.toLocaleString() + " Total Contacts Added")
-              //$(".final-contact-count").html(contacts_array.length.toLocaleString())
-              $(".contact-count").show();
-              attemptFinish(); 
-                         
-            }
-            else {                                                   
-              showSuccess("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.");
-            }                          
-          });      
-
-          self.on("error", function (file, errorMessage) {
-            console.log(errorMessage);
-            $(".overlay").fadeOut();
-            $(".waiting").hide();           
-            showSuccess("It appears there was an issue with this file. Please try again, but contact support@advisorconnect.co if the issue persists.")
-          });
-
-        }
-      };
-    })  
 
   </script>
 
@@ -306,7 +182,7 @@
         </div>
       </div>
       <div class="onboard-footer">
-        <button  data-next='1' class="button dark-blue">Next</button>
+        <button id="finish_email" data-next='1' class="button dark-blue">Next</button>
       </div>
     </div>       
     <div class="wrap">
@@ -468,9 +344,8 @@
                  
                     }
                     var response_string = "Added " + contacts.length.toLocaleString() + " contacts from " + contacts_owner.email[0].address;
-                    $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
-                    //$(".final-contact-count").html(contacts_array.length.toLocaleString())
-                    $(".contact-count").show();
+                    // $(".contact-count").find("small").html(contacts_array.length.toLocaleString() + " Total Contacts Added")
+                    // $(".contact-count").show();
 
                     $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
                     $(".waiting").hide();
@@ -505,16 +380,9 @@
     }
 
     function attemptFinish() {
-      var  ln_connections = parseInt($("#owner_num_connections").html());
-      if (ln_connections==500) {
-        ln_connections +=Math.floor(Math.random() * 250) ;
-      }
-
-      var total =contacts_array.length + ln_connections;
-
-      $(".final-contact-count").html(total.toLocaleString())
-      if (total>0) {
-        upload(ln_connections)
+      var total =contacts_array.length;
+      if (total>0 || {{ current_user.unique_contacts_uploaded | int }} >0) {
+        upload()
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
         showSuccess(message);
@@ -534,30 +402,52 @@
           $("#step-" + next_id).slideDown()          
         }
       });
+      $("#finish_email").click(function() {
+        $(".overlay").fadeIn()
+        $(".waiting").show();   
+        $.ajax({
+            type: 'POST',
+            url: '/upload_cloudsponge',
+            crossDomain: true,
+            data: JSON.stringify({contacts_array:contacts_array}),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(responseData, textStatus, jqXHR) {
+              $("#step-1").hide(); 
+              $("#step-2").slideDown();  
+              $(".waiting").hide();   
+              $(".overlay").fadeOut();
+              console.log(responseData);
+
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                $(".waiting").hide();   
+                $(".overlay").fadeOut();                
+                showSuccess("It appears there was an issue with the upload. An error report has been sent. We apologize for the inconvenience.");
+            }
+        });              
+      });      
       bindEmailButtons()
     });
 
-    function upload(ln_connections) {
+    function upload() {
 
         $("#next").hide()
         $(".overlay").fadeIn();
         $(".waiting").show();   
         var csrf_token = $("[_csrf_token]").val()
-        if (test) {
-          contacts_array = contacts_array.slice(0, 20)
-        }
 
-        var outData = {csrf_token:csrf_token, linkedin_contact_count:ln_connections, geolocation:$("#owner_geolocation").text(), firstName: $("#owner_first_name").text(), lastName:$("#owner_last_name").text(), public_url:$("#owner_url").text(), user_email:$("#owner_email").text(), contacts_array: contacts_array, image_url:$("#owner_img").attr("src")}
+        var outData = {csrf_token:csrf_token, contacts_array: contacts_array}
         $.ajax({
             type: 'POST',
-            url: '/upload_cloudsponge',
+            url: '/upload_cloudsponge?complete=yes',
             crossDomain: true,
             data: JSON.stringify(outData),
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             success: function(responseData, textStatus, jqXHR) {
 
-              //$(".final-contact-count").html(responseData.contacts.toLocaleString())
+              $(".final-contact-count").html(responseData.contacts.toLocaleString())
               $("#step-1").hide(); 
               $("#step-2").hide(); 
               $("#step-3").hide()

@@ -210,7 +210,6 @@ def linkedin_login():
             print elapsed
             contacts_array, user = current_user.refresh_contacts(new_contacts=data)
             return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
-            #return render_template('start.html', agent=current_user, newWindow='false', status='all_done', contact_count=len(data), valid=valid)
         valid = False
         form.password.data = ''
     return render_template('linkedin_login.html', form=form, valid=valid)
@@ -224,27 +223,27 @@ def upload():
         return redirect(url_for("managers.manager_home"))
     if request.method == 'POST':
         indata = request.json
+        complete = request.args.get("complete")
         contacts_array = indata.get("contacts_array")
-        linkedin_contact_count = indata.get("linkedin_contact_count",0)
         contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array)
-        manager = current_user.manager
-        if not manager:
-            print "Error: no manager for current_user {}".format(current_user.user_id)
-            to_email = "missing_manager@advisorconnect.co"
-        else:
-            to_email = manager.user.email
-        env = Environment()
-        env.loader = FileSystemLoader("prime/templates")
-        tmpl = env.get_template('emails/contacts_uploaded.html')
-        body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-        sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(user.unique_contacts_uploaded + linkedin_contact_count)), body)
-        if not linkedin_contact_count:
+        if complete=='yes':
+            manager = current_user.manager
+            if not manager:
+                print "Error: no manager for current_user {}".format(current_user.user_id)
+                to_email = "missing_manager@advisorconnect.co"
+            else:
+                to_email = manager.user.email
+            env = Environment()
+            env.loader = FileSystemLoader("prime/templates")
+            tmpl = env.get_template('emails/contacts_uploaded.html')
+            body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
+            sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(user.unique_contacts_uploaded)), body)
             client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                     "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
-                    "to_email":to_email, "linkedin_contact_count":linkedin_contact_count}
+                    "to_email":to_email}
             q = get_q()
             q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
-    return jsonify({"contacts": user.unique_contacts_uploaded + linkedin_contact_count})
+    return jsonify({"contacts": user.unique_contacts_uploaded})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
