@@ -99,4 +99,5 @@ Whoosh==2.6.0
 WTForms==2.0.1
 XlsxWriter==0.8.4
 yappi==0.94
-captcha_solver
+captcha-solver==0.0.3
+Pillow==3.0.0
