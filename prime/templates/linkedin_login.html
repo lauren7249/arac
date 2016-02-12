@@ -52,6 +52,7 @@
       $('#overlay', window.parent.document).hide();
       //$('#hack_next', window.parent.document).trigger("click");
       window.top.location.href = local + "/pending?status=all_done";
+      window.top.location.reload(true); 
       console.log(local + "/pending?status=all_done");
       $('div[class*="ui-dialog"]', window.parent.document).remove();
     }
