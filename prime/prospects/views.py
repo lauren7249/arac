@@ -106,7 +106,7 @@ def start():
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
         return redirect(url_for('prospects.pending'))
-    return render_template('start.html', agent=current_user, newWindow='false')
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), contact_count=request.args.get("contact_count"))
 
 @prospects.route("/pending", methods=['GET'])
 def pending():
@@ -122,10 +122,7 @@ def pending():
         return redirect(url_for('prospects.connections'))
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
-    #User already has prospects, lets send them to the dashboard
-    # if current_user.unique_contacts_uploaded>0:
-    #     return render_template('pending.html', contact_count=current_user.unique_contacts_uploaded)
-    return render_template('start.html', agent=current_user, newWindow='false')
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), contact_count=request.args.get("contact_count"))
 
 @prospects.route("/faq")
 def faq():
@@ -187,6 +184,8 @@ def upload_csv():
 @csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
 def linkedin_login():
+    from prime.processing_service.helper import get_linkedin_data
+    import time
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
@@ -194,10 +193,24 @@ def linkedin_login():
     form = LinkedinLoginForm()
     valid = None
     if form.is_submitted():
-        if form.validate(current_user.linkedin_email):
+        start = time.time()
+        driver = form.validate(current_user.linkedin_email)
+        if driver:
             valid = True
+            #return render_template('linkedin_login.html', form=form, valid=valid)
             current_user.set_linkedin_password(form.password.data)
-            return render_template('linkedin_login.html', form=form, valid=valid)
+            data = None
+            tries = 0
+            while(data == None and tries<4):
+                data = get_linkedin_data(driver)
+                tries += 1
+            driver.stop_client()
+            done = time.time()
+            elapsed = done - start
+            print elapsed
+            contacts_array, user = current_user.refresh_contacts(new_contacts=data)
+            return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
+            #return render_template('start.html', agent=current_user, newWindow='false', status='all_done', contact_count=len(data), valid=valid)
         valid = False
         form.password.data = ''
     return render_template('linkedin_login.html', form=form, valid=valid)

@@ -1,7 +1,7 @@
 import re
 import logging
 from difflib import SequenceMatcher
-from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS, BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL
+from constants import profile_re, bloomberg_company_re, school_re, company_re, SOCIAL_DOMAINS, BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS
 from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_firstname, resolve_email
 from helpers.datehelpers import parse_date, date_overlap
 from helpers.data_helpers import flatten, merge_by_key, most_common, parse_out, get_center
@@ -10,7 +10,15 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from itertools import izip, cycle
+#https://github.com/lorien/captcha_solver
 from captcha_solver import CaptchaSolver
+import requests
+from PIL import Image
+from random import choice
+from string import ascii_uppercase
+import shlex
+from pyvirtualdisplay import Display
+import os
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -71,8 +79,14 @@ def get_remote_driver():
     #driver.set_window_size(150, 80)
     return driver
 
+def get_local_driver():
+    display = Display(visible=0, size=(1024,1024))
+    display.start()
+    driver = webdriver.Firefox()
+    return driver
+
 def check_linkedin_creds(username, password):
-    driver = get_remote_driver()
+    driver = get_local_driver()
     driver.get("https://www.linkedin.com")
     email_el = driver.find_element_by_id("login-email")
     pw_el = driver.find_element_by_id("login-password")
@@ -84,20 +98,65 @@ def check_linkedin_creds(username, password):
         return driver
     return None
 
-def get_linkedin_csv_captcha(driver):
+def random_string(length=12):
+    return ''.join(choice(ascii_uppercase) for i in range(length))
+
+def csv_line_to_list(line):
+    splitter = shlex.shlex(line, posix=True)
+    splitter.whitespace = ","
+    splitter.whitespace_split=True
+    return list(splitter)
+
+def get_linkedin_data(driver):
+    screenshot_fn = random_string() + ".png"
+    cropped_fn = random_string()  + ".png"
     driver.get(LINKEDIN_EXPORT_URL)
-    driver.save_screenshot("screenshot.png")
-    solver = CaptchaSolver('browser')
-    with open('screenshot.png', 'rb') as inp:
+    driver.save_screenshot(screenshot_fn)
+    img = Image.open(screenshot_fn)
+    img_cropped = img.crop( LINKEDIN_CAPTCHA_CROP_DIMS )
+    imagefile = open(cropped_fn, 'wb')
+    img_cropped.save(imagefile,"png",quality=100, **img.info)
+    img_cropped.close()
+    solver = CaptchaSolver('antigate', api_key=ANTIGATE_ACCESS_KEY)
+    with open(cropped_fn, 'rb') as inp:
         raw_data = inp.read()
     captcha = solver.solve_captcha(raw_data)
     captcha_input = driver.find_element_by_id("recaptcha_response_field")
     captcha_input.send_keys(captcha)
     export_button = driver.find_element_by_name("exportNetwork")
     export_button.click()
+    os.remove(cropped_fn)
+    os.remove(screenshot_fn)
     cookies = driver.get_cookies()
-    return cookies
-    # cookies_dict = {}
-    # for cookie in cookies:
-    #     cookies_dict[cookie.get("name")] = cookie.get("value")
-    # return cookies_dict
+    req_cookies = {}
+    for cookie in cookies:
+        req_cookies[cookie["name"]] = cookie["value"]
+    response = requests.get(LINKEDIN_DOWNLOAD_URL, cookies=req_cookies)
+    csv = response.content
+    lines = csv.splitlines()
+    if len(lines)<2:
+        return None
+    header = lines[0]
+    cols = csv_line_to_list(header)
+    first_name_index = cols.index('First Name')
+    last_name_index = cols.index('Last Name')
+    company_index = cols.index('Company')
+    job_title_index = cols.index('Job Title')
+    email_index = cols.index('E-mail Address')
+    if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
+        return None
+    data = []
+    for i in xrange(1, len(lines)):
+        line = csv_line_to_list(lines[i])
+        if len(line) <= max(first_name_index, last_name_index, company_index, job_title_index, email_index):
+            logger.warn("Linkedin csv line is wrong:\r\n{}".format(lines[i]))
+            continue
+        contact = {}
+        contact["first_name"] = line[first_name_index].decode('latin-1')
+        contact["last_name"] = line[last_name_index].decode('latin-1')
+        contact["companies"] = [line[company_index].decode('latin-1')]
+        contact["email"] = [{"address": line[email_index].decode('latin-1')}]
+        contact["job_title"] = line[job_title_index].decode('latin-1')
+        data.append({"contact":contact, "contacts_owner":None, "service":"LinkedIn"})        
+    return data
+

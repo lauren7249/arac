@@ -59,7 +59,7 @@ class TestingConfig(Config):
     TESTING = False
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
-    SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://localhost:5432/arachnid')
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/arachnid'
     ASSETS_DEBUG = False
     MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False

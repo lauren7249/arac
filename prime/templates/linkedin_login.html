@@ -47,10 +47,15 @@
   $( document ).ready(function() {
     $(".overlay").fadeOut();
     $(".waiting").hide();
+    var local = document.location.href.split("/").slice(0,3).join("/")
+    console.log(local);    
     if ("{{ valid }}" == "True") {
+      //console.log({{data}});
       $('#overlay', window.parent.document).hide();
-      $('#hack_next', window.parent.document).trigger("click");
+      //$('#hack_next', window.parent.document).trigger("click");
+      window.parent.location.href = local + "/pending?status=all_done&contact_count={{ contact_count }}";
       $('div[class*="ui-dialog"]', window.parent.document).remove();
+      
 
     }
       

@@ -12,8 +12,9 @@ class LinkedinLoginForm(Form):
             return False
         #todo: remove
         #return True
-        if check_linkedin_creds(email, self.password.data):
-            return True
+        driver = check_linkedin_creds(email, self.password.data)
+        if driver:
+            return driver
         self.password.errors.append("Incorrect Linkedin Password")
-        return False
+        return None
 

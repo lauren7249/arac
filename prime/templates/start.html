@@ -50,7 +50,8 @@
               document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;
               console.log("!!!!!");
               console.log("{{ agent._linkedin_password_hash }}");
-              if ("{{ agent._linkedin_password_hash }}" == 'None') {
+              //TODO: CHANGE BACK
+              if ("{{ agent._linkedin_password_hash }}" == 'None' || true) {
                 $('<div id="linkedin_login_modal"></div>')
                                .html('<iframe src="/linkedin_login" width="100%" height="100%"></iframe>')
                                .dialog({
@@ -145,20 +146,7 @@
       document.getElementById("step3").style =  "font-weight: normal"
       $('html, body').animate({scrollTop: $("#linkedInImport").offset().top + 'px'}, 'fast');                      
     }
-    function testFilepick(){
-      $("#step-1").hide();
-      $("#step-3").show();  
-      
-      download_linkedin()      
-      downloadWindow.close()
-    }   
-    function testDrag(){
-      $("#step-1").hide();
-      $("#step-3").show();  
-      
-      download_linkedin()      
-      eventFire(document.getElementById('overlay'), 'click');  
-    }   
+  
 
     $( document ).ready(function() {
       var ua = navigator.userAgent.toLowerCase();
@@ -175,23 +163,23 @@
       else if ("{{ newWindow }}" == 'true') {
         $("#after_download_instruction").text('After your file downloads, come back to this page.');
       }
-      if ({{ agent.unique_contacts_uploaded | int }} > 0) {
+      if ("{{ status }}" == 'all_done') {
+        $("#step-1").hide();
+        $("#step-2").show(); 
+        $("#owner_num_connections").html({{ contact_count }});      
+        attemptFinish();             
+      }
+      else if ("{{ status }}" == 'email_done') {
+        $("#step-1").hide()
+        $("#step-2").show()           
+      }
+      else if ({{ agent.unique_contacts_uploaded | int }} > 0) {
         var message = "Welcome back! You've uploaded {{ '{0:,}'.format(agent.unique_contacts_uploaded | int) }} unique contacts so far, and it's not too late to add more. You don't need to re-connect any accounts you've already connected, but it's OK if you do. We're keeping track of everything for you." ;
         showSuccess(message);
         console.log(message);
       }
       
     });    
-
-    function eventFire(el, etype){
-      if (el.fireEvent) {
-        el.fireEvent('on' + etype);
-      } else {
-        var evObj = document.createEvent('Events');
-        evObj.initEvent(etype, true, false);
-        el.dispatchEvent(evObj);
-      }
-    }
 
     $(function(){
       Dropzone.options.linkedInImport = {

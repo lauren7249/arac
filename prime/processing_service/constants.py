@@ -26,7 +26,10 @@ email_re = '[^@]+@[^@]+\.[^@]+'
 
 BROWSERSTACK_KEY='7qc2so9ApZBP6SWyGy7A'
 BROWSERSTACK_USERNAME='laurentalbot1'
-LINKEDIN_EXPORT_URL='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook'
+LINKEDIN_EXPORT_URL  ='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook'
+LINKEDIN_DOWNLOAD_URL='https://www.linkedin.com/addressBookExport?exportNetworkRedirect=&outputType=microsoft_outlook'
+LINKEDIN_CAPTCHA_CROP_DIMS = (20, 158, 319, 215)
+ANTIGATE_ACCESS_KEY='0bebb0a526e59df337e4340f89a8e56b'
 
 SOCIAL_DOMAINS = ["twitter","soundcloud","slideshare","plus","pinterest","facebook","linkedin","amazon","angel","foursquare","github","flickr","tumblr","goodreads"]
 #image processing -- 1K calls/day

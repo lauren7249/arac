@@ -7,7 +7,7 @@ import re
 from prime import create_app, db
 from prime.prospects.views import get_q
 
-app = create_app(os.getenv('AC_CONFIG', 'development'))
+app = create_app(os.getenv('AC_CONFIG', 'testing'))
 #app.debug=True
 
 migrate = Migrate(app, db)
