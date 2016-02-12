@@ -74,6 +74,17 @@ def xor_decrypt_string(ciphertext, key):
 def get_remote_driver():
     # desired_cap = {'browser': 'Firefox'}
     # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
+    PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
+
+    webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+        "httpProxy":PROXY,
+        "ftpProxy":PROXY,
+        "sslProxy":PROXY,
+        "noProxy":None,
+        "proxyType":"MANUAL",
+        "class":"org.openqa.selenium.Proxy",
+        "autodetect":False
+    }    
     driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
     #driver.set_window_size(150, 80)
     return driver
@@ -85,7 +96,7 @@ def get_local_driver():
     return driver
 
 def check_linkedin_creds(username, password):
-    driver = get_remote_driver()
+    driver = get_local_driver()
     driver.get("https://www.linkedin.com")
     email_el = driver.find_element_by_id("login-email")
     pw_el = driver.find_element_by_id("login-password")
