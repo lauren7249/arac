@@ -106,7 +106,7 @@ def start():
     #User already has prospects, lets send them to the dashboard
     if current_user.unique_contacts_uploaded>0:
         return redirect(url_for('prospects.pending'))
-    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), contact_count=request.args.get("contact_count"))
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"))
 
 @prospects.route("/pending", methods=['GET'])
 def pending():
@@ -122,7 +122,7 @@ def pending():
         return redirect(url_for('prospects.connections'))
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
-    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), contact_count=request.args.get("contact_count"))
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"))
 
 @prospects.route("/faq")
 def faq():
