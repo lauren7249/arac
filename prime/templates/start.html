@@ -49,22 +49,7 @@
               console.log("!!!!!");
               console.log("{{ agent._linkedin_password_hash }}");
               //TODO: CHANGE BACK
-              if ("{{ agent._linkedin_password_hash }}" == 'None' || true) {
-                $('<div id="linkedin_login_modal"></div>')
-                               .html('<iframe src="/linkedin_login" width="100%" height="100%"></iframe>')
-                               .dialog({
-                                   closeOnEscape: false,
-                                   modal: true,
-                                   height: 600,
-                                   width: 600,
-                                   draggable: false,
-                                   scrolling: 'no'
-                               });
-                $("#linkedin_login_modal").dialog('open');
-              }
-              else {
-                $('#hack_next').trigger("click");
-              }
+              openLogin()
             },
             error: function (responseData, textStatus, errorThrown) {
               showSuccess(errorThrown);
@@ -72,6 +57,25 @@
         });                    
     }
 
+    function openLogin() {
+      if ("{{ agent._linkedin_password_hash }}" == 'None' || true) {
+        $('<div id="linkedin_login_modal"></div>')
+                       .html('<iframe src="/linkedin_login" width="100%" height="100%"></iframe>')
+                       .dialog({
+                           closeOnEscape: false,
+                           modal: true,
+                           height: 600,
+                           width: 600,
+                           draggable: false,
+                           scrolling: 'no'
+                       });
+        $("#linkedin_login_modal").dialog('open');
+      }
+      else {
+        $('#hack_next').trigger("click");
+      }      
+    }
+    
     function skip_linkedin() {
         $("#owner_email").html("{{ agent.email }}");
         $("#owner_geolocation").html("{{ agent.location }}");

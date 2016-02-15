@@ -40,9 +40,9 @@ class HBaseLoader(object):
     #30 minutes?
     def load_people_table(self):          
         #does not overwrite existing table; acts as an update -- 36 minutes
-        # self.conf["hbase.mapred.outputtable"]="people"  
-        # datamap = self.data.flatMap(load_people)
-        # datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+        self.conf["hbase.mapred.outputtable"]="people"  
+        datamap = self.data.flatMap(load_people)
+        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
         self.conf["hbase.mapred.outputtable"]="url_xwalk"  
         datamap = self.data.flatMap(load_url_xwalk)
