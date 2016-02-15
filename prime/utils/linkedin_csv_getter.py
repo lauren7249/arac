@@ -19,7 +19,9 @@ class LinkedinCsvGetter(object):
 
     def quit(self):
         self.driver.quit()
+        self.display.stop()
         self.display.popen.terminate()
+        self.display.popen.kill()
 
     def get_remote_driver(self):
         # desired_cap = {'browser': 'Firefox'}
