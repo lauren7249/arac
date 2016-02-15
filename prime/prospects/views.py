@@ -179,7 +179,7 @@ def upload_csv():
 @csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
 def linkedin_login():
-    from prime.processing_service.helper import get_linkedin_data
+    #from prime.utils.linkedin_csv_getter import get_linkedin_data
     import time
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
@@ -190,17 +190,18 @@ def linkedin_login():
     if form.is_submitted():
         try:
             start = time.time()
-            driver = form.validate(current_user.linkedin_email)
-            if driver:
+            getter = form.validate()
+            if getter:
                 valid = True
                 #return render_template('linkedin_login.html', form=form, valid=valid)
+                current_user.linkedin_login_email
                 current_user.set_linkedin_password(form.password.data)
                 data = None
                 tries = 0
                 while(data == None and tries<4):
-                    data = get_linkedin_data(driver)
+                    data = getter.get_linkedin_data()
                     tries += 1
-                driver.stop_client()
+                getter.quit()
                 done = time.time()
                 elapsed = done - start
                 print elapsed
@@ -208,7 +209,8 @@ def linkedin_login():
                 return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
             valid = False
             form.password.data = ''
-        except:
+        except Exception, e:
+            print str(e)
             return render_template('start.html', agent=current_user, newWindow='false', status="all_done")
     return render_template('linkedin_login.html', form=form, valid=valid)
 

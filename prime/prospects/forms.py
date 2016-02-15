@@ -1,20 +1,20 @@
 from flask.ext.wtf import Form
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email
-from prime.processing_service.helper import check_linkedin_creds
+from prime.utils.linkedin_csv_getter import LinkedinCsvGetter
 
 class LinkedinLoginForm(Form):
-
+    email = StringField('Email', validators=[InputRequired(), Email()])
     password = PasswordField('Password', validators=[InputRequired()])
 
-    def validate(self, email):
+    def validate(self):
         if not Form.validate(self):
             return False
         #todo: remove
         #return True
-        driver = check_linkedin_creds(email, self.password.data)
-        if driver:
-            return driver
-        self.password.errors.append("Incorrect Linkedin Password")
+        getter = LinkedinCsvGetter(self.email.data, self.password.data)
+        if getter.check_linkedin_creds():
+            return getter
+        self.password.errors.append("Incorrect Linkedin Email/Password Combination")
         return None
 

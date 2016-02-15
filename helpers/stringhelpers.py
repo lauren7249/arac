@@ -1,6 +1,11 @@
 import re
 from difflib import SequenceMatcher
 import logging
+from itertools import izip, cycle
+from random import choice
+from string import ascii_uppercase
+import shlex
+import os
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -95,4 +100,19 @@ def domestic_area(phone):
     return area_code
 
 
+def xor_crypt_string(plaintext, key):
+    ciphertext = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(plaintext, cycle(key)))
+    return ciphertext.encode('hex')
 
+def xor_decrypt_string(ciphertext, key):
+    ciphertext = ciphertext.decode('hex')
+    return ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(ciphertext, cycle(key)))
+
+def random_string(length=12):
+    return ''.join(choice(ascii_uppercase) for i in range(length))
+
+def csv_line_to_list(line):
+    splitter = shlex.shlex(line, posix=True)
+    splitter.whitespace = ","
+    splitter.whitespace_split=True
+    return list(splitter)

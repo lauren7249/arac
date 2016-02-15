@@ -47,7 +47,6 @@ class User(db.Model, UserMixin):
     last_name = db.Column(String(100), nullable=False)
     email = db.Column(String(100), nullable=False, unique=True, index=True)
     _password_hash = db.Column('password_hash', String(100), nullable=False)
-    _linkedin_password_hash = db.Column('linkedin_password_hash', String(500))
     is_admin = db.Column(postgresql.BOOLEAN, nullable=False, server_default="FALSE")
     customer_id = db.Column(Integer, ForeignKey("customers.id"))
     customer = relationship('Customer', foreign_keys='User.customer_id')
@@ -60,6 +59,9 @@ class User(db.Model, UserMixin):
     image_url = db.Column(String(1024))
     linkedin_email = db.Column(String(1024))
     created = db.Column(DateTime, default=datetime.datetime.today())
+
+    linkedin_login_email = db.Column(String(500))
+    _linkedin_password_hash = db.Column('linkedin_password_hash', String(500))
 
     unique_contacts_uploaded = db.Column(Integer, default=0)
     contacts_from_linkedin = db.Column(Integer, default=0)

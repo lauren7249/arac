@@ -22,10 +22,12 @@
     {%endif%}
     {{ form.csrf_token }}
 
-    <h4 id="inputEmail">
+<!--     <h4 id="inputEmail">
       {{ current_user.linkedin_email }}
-    </h4>
-
+    </h4> -->
+    <div class="col-8">
+      <input type="email" name='email' class="form-control" id="inputEmail" placeholder="Enter Your LinkedIn Email Address">
+    </div>
     <div class="col-8">
       <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Enter Your LinkedIn Password">
     </div>
