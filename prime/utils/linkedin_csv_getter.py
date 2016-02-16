@@ -9,6 +9,8 @@ import requests
 from PIL import Image
 from prime.processing_service.helper import  random_string, csv_line_to_list
 import os
+import signal 
+import subprocess
 
 class LinkedinCsvGetter(object):
 
@@ -17,10 +19,23 @@ class LinkedinCsvGetter(object):
         self.password = password
         self.driver = self.get_local_driver()
 
+
+    def kill_firefox_and_xvfb(self):
+        p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        for i, line in enumerate(out.splitlines()):
+            if i > 0:
+                if 'firefox' in line or 'xvfb' in line.lower():
+                    print line
+                    pid = int(line.split(None, 1)[0])
+                    os.kill(pid, signal.SIGKILL)
+                    print "killed"
+
     def quit(self):
         self.driver.quit()
         self.display.sendstop()
-
+        self.kill_firefox_and_xvfb()
+        
     def get_remote_driver(self):
         # desired_cap = {'browser': 'Firefox'}
         # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
