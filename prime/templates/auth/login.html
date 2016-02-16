@@ -7,7 +7,7 @@
 <div class='signup'>
   <form class="card" method='POST'>
   <header>
-    <div class="header-logo"></div>
+    <div id="header_logo"></div>
   </header>    
     {% if form.errors %}
     <div class='error'>
@@ -35,4 +35,16 @@
   </h5>
 </div>  
 {% endblock %}
+<script type='text/javascript'>
+  $( document ).ready(function() {
+    var local = document.location.href.split("/").slice(2,3).join("/").trim().toLowerCase();
+    console.log(local);
+    if (local == 'demo.advisorconnect.co') {
+      $("#header_logo").attr('class', 'generic-logo');
+    } else {
+      $("#header_logo").attr('class', 'header-logo'); 
+    }
+      
+  }); 
+</script>
 {% block footer %}{% endblock %}
