@@ -70,7 +70,7 @@ services:
       PG_HOST: "dev-db"
       PRIME_DB_USER: "arachnid"
       PRIME_DB_PASS: ""
-      OWNER: "Your Hiring Manager"
+      OWNER: "your Hiring Manager"
       S3_BUCKET: "arachid-results"
       AC_CONFIG: "demo"
       REDIS_URL: "redis://redis:6379"

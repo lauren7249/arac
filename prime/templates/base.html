@@ -125,7 +125,7 @@
 
     <script type='text/javascript'>
       $( document ).ready(function() {
-        var local = document.location.href.split("/").slice(2,3).join("/")
+        var local = document.location.href.split("/").slice(2,3).join("/").trim().toLowerCase();
         console.log(local);
         if (local == 'demo.advisorconnect.co') {
           $("#header_logo").attr('class', 'generic-logo');
