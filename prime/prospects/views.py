@@ -127,31 +127,6 @@ def faq():
 def terms():
     return render_template('terms.html')
 
-@csrf.exempt
-@prospects.route("/save_linkedin_data", methods=['GET', 'POST'])
-def save_linkedin_data():
-    if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    if request.method == 'POST':
-        first_name = request.json.get("firstName",)
-        last_name = request.json.get("lastName")
-        email = request.json.get("emailAddress","").lower()
-        location = request.json.get("location",{}).get("name")
-        url = request.json.get('publicProfileUrl',"").lower()
-        image_url = request.json.get("pictureUrl")
-        industry = request.json.get("industry")
-        current_user.image_url = image_url
-        current_user.linkedin_url = url
-        current_user.first_name = first_name
-        current_user.last_name = last_name
-        current_user.linkedin_email = email
-        current_user.linkedin_location = location
-        current_user.linkedin_industry = industry
-        session.add(current_user)
-        session.commit()
-    return jsonify(request.json)
 
 @csrf.exempt
 @prospects.route("/upload_csv", methods=['POST'])
@@ -179,19 +154,20 @@ def upload_csv():
 @csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
 def linkedin_login():
-    #from prime.utils.linkedin_csv_getter import get_linkedin_data
+    from prime.utils.linkedin_csv_getter import LinkedinCsvGetter
     import time
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    form = LinkedinLoginForm()
+    form = LinkedinLoginForm()  
     valid = None
     if form.is_submitted():
-        try:
+        form.password.errors = []
+        if form.validate():
+            getter = LinkedinCsvGetter(form.email.data, form.password.data)
             start = time.time()
-            getter = form.validate()
-            if getter:
+            if getter.check_linkedin_creds():
                 valid = True
                 #return render_template('linkedin_login.html', form=form, valid=valid)
                 current_user.linkedin_login_email
@@ -207,11 +183,11 @@ def linkedin_login():
                 print elapsed
                 contacts_array, user = current_user.refresh_contacts(new_contacts=data)
                 return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
-            valid = False
-            form.password.data = ''
-        except Exception, e:
-            print str(e)
-            return render_template('start.html', agent=current_user, newWindow='false', status="all_done")
+            else:
+                form.password.errors.append("Incorrect Linkedin Email/Password Combination")
+        valid = False
+        form.password.data = ''
+        form.email.data = ''
     return render_template('linkedin_login.html', form=form, valid=valid)
 
 @csrf.exempt
