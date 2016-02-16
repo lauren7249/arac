@@ -178,8 +178,8 @@ class User(db.Model, UserMixin):
     def invite(self):
         code = self.generate_reset_token
         body = render_template("emails/invite.html", manager=self.manager, agent=self,
-                base_url=current_app.config.get("BASE_URL"), code=code)
-        subject = "Invitation from New York Life"
+                base_url=current_app.config.get("BASE_URL"), code=code, inviter=current_app.config.get("OWNER"))
+        subject = "Invitation from {}".format(current_app.config.get("OWNER"))
         sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
         return True
 

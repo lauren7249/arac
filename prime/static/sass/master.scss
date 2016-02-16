@@ -90,13 +90,20 @@ header {
   background: white;
   height: $header-height;
   padding: 0;
+  .generic-logo {
+    @extend %bg-img;
+    margin-top: 20px;
+    width: 178px;
+    height: 60px;
+    background-image: url("/static/img/AC_logo.png");
+  }
   .header-logo {
     @extend %bg-img;
     margin-top: 20px;
     width: 178px;
     height: 60px;
     background-image: url("/static/img/logo-lockup.png");
-  }
+  }  
   .nav-right {
     height: $header-height;
     line-height: $header-height;

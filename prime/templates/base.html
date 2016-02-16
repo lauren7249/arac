@@ -59,7 +59,7 @@
       <header>
         <div class="wrap">
           <div class="col-6">
-            <div class="header-logo"></div>
+            <div id="header_logo"></div>
           </div>
           <div class="col-6">
             {% if current_user.is_authenticated() %}
@@ -124,6 +124,18 @@
     </script>
 
     <script type='text/javascript'>
+      $( document ).ready(function() {
+        var local = document.location.href.split("/").slice(2,3).join("/")
+        console.log(local);
+        if (local == 'demo.advisorconnect.co') {
+          $("#header_logo").attr('class', 'generic-logo');
+          $("#faq").css("display","none");  
+        } else {
+          $("#header_logo").attr('class', 'header-logo');
+          $("#faq").css("display","inline");  
+        }
+          
+      });    
       $("#success").click(function(){
         $("#success").css("display","none");  
         document.getElementById("success").close();    
@@ -205,7 +217,7 @@
         <div class="wrap">        
           <div class="copyright">&copy; 2016 AdvisorConnect</div>
           <div class="footer-links">
-            <span><a href="/faq">FAQs</a></span>
+            <span id="faq"><a href="/faq">FAQs</a></span>
             <span><a href="/terms">Terms</a></span>
             <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
           </div>        

@@ -27,11 +27,9 @@ class Config(object):
     SENDGRID_EMAIL = 'lauren7249'
     SENDGRID_PASSWORD = '1250downllc'
     SENDGRID_FROM_EMAIL = 'contacts@advisorconnect.co'
-
+    OWNER = os.getenv("OWNER","New York Life")
 
 class BetaConfig(Config):
-    # SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@babel/arachnid'
-    # SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@10.143.114.188/arachnid'
     SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://oracle:5432/arachnid')
     BASE_URL = 'https://prime.advisorconnect.co'
 
@@ -47,12 +45,16 @@ class DevelopmentConfig(Config):
     BASE_URL = 'https://beta.advisorconnect.co'
     SQLALCHEMY_ECHO = False
 
-
-class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql://arachnid:devious8ob8@arachnid.cc540uqgo1bi.us-east-1.rds.amazonaws.com' \
-                              ':5432/arachnid'
-    BASE_URL = 'https://prime.advisorconnect.co'
-
+class DemoConfig(Config):
+    DEBUG = False
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://dev-db:5432/arachnid')
+    ASSETS_DEBUG = False
+    MAIL_SUPPRESS_SEND = True
+    COOKIE_SECURE = False
+    BASE_URL = 'https://demo.advisorconnect.co'
+    SQLALCHEMY_ECHO = False
 
 class TestingConfig(Config):
     DEBUG = False
@@ -67,9 +69,9 @@ class TestingConfig(Config):
 
 
 config = {
-    'development': DevelopmentConfig,
-    'beta'       : BetaConfig,
-    'default'    : DevelopmentConfig,
-    'production' : ProductionConfig,
-    'testing'    : TestingConfig
+    'development': DevelopmentConfig, #beta.advisorconnect.co
+    'beta'       : BetaConfig,  #prime.advisorconnect
+    'testing'    : TestingConfig, #localhost
+    'demo'       : DemoConfig #demo.advisorconnect.co
+    
 }

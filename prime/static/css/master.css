@@ -12,7 +12,7 @@
   transform: translate(-50%, -50%);
 }
 
-.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before, header .header-logo, .subheader .back-link:before, .contact-info .name span.stars, .contact-links a, .icon-linkedin, form.dropzone:before {
+.manager-dashboard .completed.yes, .wizard ol li.complete:before, .connect-email .connected:before, header .generic-logo, header .header-logo, .subheader .back-link:before, .contact-info .name span.stars, .contact-links a, .icon-linkedin, form.dropzone:before {
   background-repeat: no-repeat;
   background-position: 50% 50%;
   -webkit-background-size: 100%;
@@ -44,6 +44,12 @@ header {
   background: white;
   height: 100px;
   padding: 0;
+}
+header .generic-logo {
+  margin-top: 20px;
+  width: 178px;
+  height: 60px;
+  background-image: url("/static/img/AC_logo.png");
 }
 header .header-logo {
   margin-top: 20px;

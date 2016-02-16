@@ -4,7 +4,7 @@ import time
 import json
 import logging
 from collections import OrderedDict
-from flask import render_template
+from flask import render_template, current_app
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from random import shuffle
@@ -43,7 +43,7 @@ class ProcessingService(Service):
 
     def __init__(self, client_data, data, *args, **kwargs):
         super(ProcessingService, self).__init__(*args, **kwargs)
-        self.web_url = config[os.getenv('AC_CONFIG', 'default')].BASE_URL
+        self.web_url = config[os.getenv('AC_CONFIG', 'testing')].BASE_URL
         self.client_data = client_data
         self.data = data
         self.saved_data = None
@@ -118,11 +118,11 @@ class ProcessingService(Service):
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 if self.client_data.get("hired"):
-                    subject = "Congratulations from New York Life"
+                    subject = "Congratulations from {}".format(current_app.config.get("OWNER"))
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
                     manager = self.session.query(ManagerProfile).get(self.user.manager_id)
-                    body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url)
+                    body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=current_app.config.get("OWNER"))
                     sendgrid_email(to_email, subject, body) 
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \

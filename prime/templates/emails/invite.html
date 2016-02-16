@@ -1,6 +1,6 @@
 {% extends 'email.html' %}
 {% block content %}
-<h1>Invitation from New York Life</h1>
+<h1>Invitation from {{ inviter }}</h1>
 <p>Dear {{ agent.first_name }},</p>
 <br>
 <p>I’m pleased to invite you to complete an analysis of your network as part of our Project 200 initial market development process.  You’ll be asked to connect your accounts using the AdvisorConnect platform to better understand your current network (for example, key information such as occupation and industry information).  Remember that the more accounts you connect, the more valuable this tool will be to your marketing and prospecting efforts.</p>
@@ -9,7 +9,7 @@
 <br>
 <p>You can also cut and paste the following link into your browser:<br><a href='{{ base_url }}/auth/signup?code={{ code }}'>{{ base_url }}/auth/signup?code={{ code }}</a></p>
 <br>
-<p>After uploading your contacts, you’ll be able to view a summary analysis of your network.  New York Life will only receive a summary of your network.  None of your contacts’ personal information (including contact information) will be shared with New York Life. </p>
+<p>After uploading your contacts, you’ll be able to view a summary analysis of your network.  {{ inviter }} will only receive a summary of your network.  None of your contacts’ personal information (including contact information) will be shared with {{ inviter }}. </p>
 <br>
 {%if manager.phone %}
 <p>If you have any questions, please call or email me.</p>

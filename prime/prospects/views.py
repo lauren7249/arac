@@ -100,24 +100,7 @@ def start():
     if current_user.hiring_screen_completed:
         return redirect(url_for('prospects.dashboard'))
     print request.args.get("status")
-    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"))
-
-@prospects.route("/pending", methods=['GET'])
-def pending():
-    if not current_user.is_authenticated():
-        return redirect(url_for("auth.login"))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))
-    if current_user.p200_submitted_to_manager:
-        return redirect(url_for('prospects.p200'))
-    if current_user.p200_completed:
-        return redirect(url_for('prospects.connections'))
-    if current_user.hiring_screen_completed:
-        return redirect(url_for('prospects.dashboard'))
-    print request.args.get("status")
-    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"))
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), inviter=current_app.config.get("OWNER"))
 
 @prospects.route("/faq")
 def faq():
@@ -228,8 +211,6 @@ def dashboard():
     if current_user.hiring_screen_completed:
         agent = current_user
         return render_template("dashboard.html", agent=agent, active = "dashboard")
-    if current_user.unique_contacts_uploaded > 0:
-        return redirect(url_for('prospects.pending'))
     return redirect(url_for('prospects.start'))
 
 class SearchResults(object):
@@ -296,7 +277,7 @@ def connections():
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
-        return redirect(url_for('prospects.pending'))
+        return redirect(url_for('prospects.start'))
     page = int(request.args.get("p", 1))
     order = request.args.get("order", "a-z")
     agent = current_user
@@ -328,7 +309,7 @@ def p200():
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
-        return redirect(url_for('prospects.pending'))
+        return redirect(url_for('prospects.start'))
     page = int(request.args.get("p", 1))
     agent = current_user
     connections = ClientProspect.query.filter(
