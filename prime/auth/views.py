@@ -21,14 +21,6 @@ from prime.utils.email import sendgrid_email
 
 logger = logging.getLogger(__name__)
 
-def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ))
-
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     from prime.users.models import User
@@ -100,9 +92,6 @@ def signup():
             db.session.commit()
             login_user(user, True)
             return redirect("/")
-        #form did not validate
-        if form.errors and request.method == 'POST':
-            flash_errors(form)
         return render_template('auth/signup.html', signup_form=form, code=code, reset=reset, user=user)
     #displaying the form
     code = request.args.get("code")

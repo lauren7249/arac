@@ -17,8 +17,8 @@ class LinkedinCsvGetter(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
+        self.display = None
         self.driver = self.get_local_driver()
-
 
     def kill_firefox_and_xvfb(self):
         p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
@@ -35,24 +35,24 @@ class LinkedinCsvGetter(object):
         self.driver.quit()
         self.display.sendstop()
         self.kill_firefox_and_xvfb()
-        
-    def get_remote_driver(self):
-        # desired_cap = {'browser': 'Firefox'}
-        # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
-        PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
 
-        webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-            "httpProxy":PROXY,
-            "ftpProxy":PROXY,
-            "sslProxy":PROXY,
-            "noProxy":None,
-            "proxyType":"MANUAL",
-            "class":"org.openqa.selenium.Proxy",
-            "autodetect":False
-        }    
-        self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
-        #driver.set_window_size(150, 80)
-        return self.driver
+    # def get_remote_driver(self):
+    #     # desired_cap = {'browser': 'Firefox'}
+    #     # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
+    #     PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
+
+    #     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+    #         "httpProxy":PROXY,
+    #         "ftpProxy":PROXY,
+    #         "sslProxy":PROXY,
+    #         "noProxy":None,
+    #         "proxyType":"MANUAL",
+    #         "class":"org.openqa.selenium.Proxy",
+    #         "autodetect":False
+    #     }    
+    #     self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
+    #     #driver.set_window_size(150, 80)
+    #     return self.driver
 
     def get_local_driver(self):
         self.display = Display(visible=0, size=(1024,1024))
