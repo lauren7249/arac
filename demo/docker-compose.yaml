@@ -72,7 +72,7 @@ services:
       PRIME_DB_PASS: ""
       OWNER: "Your Hiring Manager"
       S3_BUCKET: "arachid-results"
-      AC_CONFIG: "development"
+      AC_CONFIG: "demo"
       REDIS_URL: "redis://redis:6379"
       DB_URL: "postgresql://arachnid@dev-db:5432/arachnid"
       AWS_ACCESS_KEY_ID_PVLL: "AKIAIXDDAEVM2ECFIPTA"
