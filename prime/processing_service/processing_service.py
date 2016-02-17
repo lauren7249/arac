@@ -17,6 +17,7 @@ from prime.utils.email import sendgrid_email
 from prime import config
 from prime.managers.models import ManagerProfile
 from service import Service
+from saved_request import UserRequest
 from cloudsponge_service import CloudSpongeService
 from person_service import PersonService
 from age_service import AgeService
@@ -49,12 +50,16 @@ class ProcessingService(Service):
         self.saved_data = None
         self.output = []
         self.user = self._get_user()
+        #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
+        if not self.data:
+            user_request = UserRequest(self.client_data.get("email"))
+            self.data = user_request.lookup_data()
         self.saved_data = self.user.refresh_hiring_screen_data()
         if len(self.saved_data) < 100 :
             self.saved_data = None    
         if self.saved_data:     
             self.logger.info("Using saved data")
-            self.data = self.saved_data       
+            self.data = self.saved_data    
         if client_data.get("hired"):
             if self.saved_data:
                 CLASS_LIST = CONTACT_INFO + WRAP_UP

@@ -184,7 +184,9 @@ def upload():
         indata = request.json
         complete = request.args.get("complete")
         contacts_array = indata.get("contacts_array")
-        contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array)
+        if contacts_array:
+            print "Refreshing contacts array"
+            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array)     
         if complete=='yes':
             manager = current_user.manager
             if not manager:
@@ -196,13 +198,13 @@ def upload():
             env.loader = FileSystemLoader("prime/templates")
             tmpl = env.get_template('emails/contacts_uploaded.html')
             body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-            sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(user.unique_contacts_uploaded)), body)
+            sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(current_user.unique_contacts_uploaded)), body)
             client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                     "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                     "to_email":to_email}
             q = get_q()
-            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
-    return jsonify({"contacts": user.unique_contacts_uploaded})
+            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)   
+    return jsonify({"contacts": current_user.unique_contacts_uploaded})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():

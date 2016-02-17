@@ -32,7 +32,7 @@
         $("#step-1").hide();
         attemptFinish();             
       }
-      else if ({{ agent.unique_contacts_uploaded | int }} > 0) {
+      else if ({{ agent.unique_contacts_uploaded | int }} > 0 && "{{ status }}" != "in_progress") {
         var message = "Welcome back! You've uploaded {{ '{0:,}'.format(agent.unique_contacts_uploaded | int) }} unique contacts so far, and it's not too late to add more. You don't need to re-connect any accounts you've already connected, but it's OK if you do. We're keeping track of everything for you." ;
         showSuccess(message);
         console.log(message);
@@ -159,7 +159,8 @@
           var timer = setInterval(function() {   
             if(win.closed) {
               clearInterval(timer);   
-              location.reload(true);
+              //location.reload(true);
+              window.location.href = '/?status=in_progress';
               // var response_element_id = "linkedin_response"; 
               // var response_string = "Added {{ '{0:,}'.format(current_user.contacts_from_linkedin | int) }} contacts from LinkedIn";
               // $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
@@ -230,9 +231,9 @@
                         dataType: 'json',
                         contentType: 'application/json; charset=utf-8',
                         success: function(responseData, textStatus, jqXHR) {
-                          location.reload(true);
-                          // var response_string = "Added " + contacts_array.length.toLocaleString() + " contacts from " + contacts_owner.email[0].address;
-                          // $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
+                          //location.reload(true);
+                          //window.location.assign('/?status=in_progress');
+                          window.location.href = '/?status=in_progress';
                           $("#spinner").fadeOut();
                           return true;
                         },
@@ -280,13 +281,29 @@
     });
 
     function upload() {
-
-        $("#next").hide()
-        $(".final-contact-count").html("{{ '{0:,}'.format(current_user.unique_contacts_uploaded | int) }}")
-        $("#step-1").hide(); 
-        $("#step-2").slideDown()   
-        $("#spinner").fadeOut();         
-
+        $("#spinner").fadeIn();  
+        var csrf_token = $("[_csrf_token]").val() 
+        var outData = {csrf_token:csrf_token, contacts_array: []}
+        $.ajax({
+            type: 'POST',
+            url: '/upload_cloudsponge?complete=yes',
+            crossDomain: true,
+            data: JSON.stringify(outData),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(responseData, textStatus, jqXHR) {
+              $("#next").hide()
+              $(".final-contact-count").html("{{ '{0:,}'.format(current_user.unique_contacts_uploaded | int) }}")
+              $("#step-1").hide(); 
+              $("#step-2").slideDown()   
+              $("#spinner").fadeOut();   
+              console.log(responseData);
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                $("#spinner").fadeOut();                
+                showSuccess("It appears there was an issue with the upload. An error report has been sent. We apologize for the inconvenience.");
+            }
+        });  
     }
    
     function bindEmailButtons() {
