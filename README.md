@@ -20,4 +20,5 @@ Make your changes and push up to git, then ssh into the server and run the follo
 
 2. To Log into the docker container to check the logs
 
-  `docker exec -t -i d72255a815bf /bin/bash`
+  `docker ps to find the prime container hash`
+  `docker exec -t -i <hashcode here> /bin/bash`
