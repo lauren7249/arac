@@ -252,7 +252,7 @@ class User(db.Model, UserMixin):
             user_request._make_request(by_linkedin_id.values())
         return by_linkedin_id.values()
 
-    def refresh_contacts(self, new_contacts=[]):
+    def refresh_contacts(self, new_contacts=[], service_filter=None):
         user_request = UserRequest(self.email)
         contacts_array = user_request.lookup_data()
         from_linkedin = set()
@@ -281,6 +281,9 @@ class User(db.Model, UserMixin):
             if not email_address:
                 continue
             by_source[email_address+service] = record
+            from_all.add(email_address)
+            if service_filter and service.lower() != service_filter.lower():
+                continue            
             if service=='linkedin':
                 from_linkedin.add(email_address)
             elif service=='gmail':
@@ -293,13 +296,18 @@ class User(db.Model, UserMixin):
                 from_aol.add(email_address)
             else:
                 continue
-            from_all.add(email_address)
+            
         self.unique_contacts_uploaded = len(from_all)
-        self.contacts_from_linkedin = len(from_linkedin)
-        self.contacts_from_gmail = len(from_gmail)
-        self.contacts_from_yahoo = len(from_yahoo)
-        self.contacts_from_windowslive = len(from_windowslive)
-        self.contacts_from_aol = len(from_aol)
+        if len(from_linkedin):
+            self.contacts_from_linkedin = len(from_linkedin)
+        if len(from_gmail):
+            self.contacts_from_gmail = len(from_gmail)
+        if len(from_yahoo):
+            self.contacts_from_yahoo = len(from_yahoo)
+        if len(from_windowslive):
+            self.contacts_from_windowslive = len(from_windowslive)
+        if len(from_aol):
+            self.contacts_from_aol = len(from_aol)
         self.account_sources = account_sources
         self._statistics = None
         db.session.add(self)

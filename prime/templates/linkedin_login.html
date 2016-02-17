@@ -47,10 +47,10 @@
     $(".overlay").fadeOut();
     $(".waiting").hide();
     var local = document.location.href.split("/").slice(0,3).join("/")
-    if ("{{ valid }}" == "True") {
+    if ("{{ valid }}" == "True" || "{{ contact_count }}" ==-1) {
       $('#overlay', window.parent.document).hide();
       window.close();
-    }
+    } 
       
   });
 </script>

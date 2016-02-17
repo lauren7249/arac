@@ -65,6 +65,7 @@ def get_firstname(str):
     return firstname
 
 def resolve_email(email):
+    email = email.lower().strip()
     email = email.split("@")[0].replace('.','') + "@" + email.split("@")[-1]
     return re.sub('\+[^@]+(?=@)','', email)
 

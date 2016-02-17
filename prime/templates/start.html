@@ -159,11 +159,7 @@
           var timer = setInterval(function() {   
             if(win.closed) {
               clearInterval(timer);   
-              //location.reload(true);
               window.location.href = '/?status=in_progress';
-              // var response_element_id = "linkedin_response"; 
-              // var response_string = "Added {{ '{0:,}'.format(current_user.contacts_from_linkedin | int) }} contacts from LinkedIn";
-              // $(divid).find(".connected_area").append("<div class='connected' id=" + response_element_id + ">" + response_string + '</div>')
               $("#spinner").fadeOut();       
             }  
           }, 500);  
@@ -225,7 +221,7 @@
                     var outData = {csrf_token:csrf_token, contacts_array: contacts_array}
                     $.ajax({
                         type: 'POST',
-                        url: '/upload_cloudsponge',
+                        url: '/upload_cloudsponge?service=' + service,
                         crossDomain: true,
                         data: JSON.stringify(outData),
                         dataType: 'json',

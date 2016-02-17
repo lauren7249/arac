@@ -113,7 +113,6 @@ if __name__ == '__main__':
         q.enqueue(queue_processing_service, client_data, data, timeout=14400)
 
 
-
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))
     #manager.add_command('shell', Shell(make_context=make_shell_context, use_ipython=True))

@@ -20,7 +20,7 @@ def wrapper(person):
         person["lead_score"] = LeadScoreRequest(person).process()    
         return person
     except Exception, e:
-        print __name__ + str(e)
+        print __name__ + " " + str(e)
         person["lead_score"] = -99
         return person
 
@@ -104,7 +104,8 @@ class WealthScoreRequest(S3SavedRequest):
         try:
             percentile = re.search('(?<=ranks at: )[0-9]+(?=(\.|\%))',html).group(0)
             return int(re.sub("[^0-9]","",percentile))    
-        except:
+        except Exception, e:
+            print __name__ + " " + str(e)
             return None
 
 class LeadScoreRequest(S3SavedRequest):
@@ -118,15 +119,27 @@ class LeadScoreRequest(S3SavedRequest):
         self.amazon = person.get("amazon")
         self.indeed_salary = person.get("indeed_salary")
         self.glassdoor_salary = person.get("glassdoor_salary")
-        self.social_accounts = person.get("social_accounts",[])
         self.salary = max(self.indeed_salary, self.glassdoor_salary)
         if not self.salary:
             self.salary = -1
+        self.social_accounts = person.get("social_accounts",[])
         self.common_schools = person.get("common_schools",[])
         self.referrers = person.get("referrers",[])
         self.emails = person.get("email_addresses",[])
         self.sources = person.get("sources",[])
         self.images = person.get("profile_image_urls",[])
+        if not self.social_accounts:
+            self.social_accounts = []
+        if not self.common_schools:
+            self.common_schools = []
+        if not self.referrers:
+            self.referrers = []
+        if not self.emails:
+            self.emails = []
+        if not self.sources:
+            self.sources = []
+        if not self.images:
+            self.images = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)        

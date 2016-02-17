@@ -148,11 +148,13 @@ def linkedin_login():
     if form.is_submitted():
         form.password.errors = []
         if form.validate():
+            contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
+            if user.contacts_from_linkedin>0:
+                return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
             getter = LinkedinCsvGetter(form.email.data, form.password.data)
             start = time.time()
             if getter.check_linkedin_creds():
                 valid = True
-                #return render_template('linkedin_login.html', form=form, valid=valid)
                 current_user.linkedin_login_email
                 current_user.set_linkedin_password(form.password.data)
                 data = None
@@ -164,8 +166,12 @@ def linkedin_login():
                 done = time.time()
                 elapsed = done - start
                 print elapsed
-                contacts_array, user = current_user.refresh_contacts(new_contacts=data)
-                return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
+                if data:
+                    contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin')
+                    return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
+                else:
+                    #form.email.errors.append("Linkedin Download Failed")
+                    return render_template('linkedin_login.html', form=form, valid=valid, contact_count=-1)
             else:
                 form.password.errors.append("Incorrect Linkedin Email/Password Combination")
         valid = False
@@ -183,10 +189,11 @@ def upload():
     if request.method == 'POST':
         indata = request.json
         complete = request.args.get("complete")
+        service = request.args.get("service")
         contacts_array = indata.get("contacts_array")
         if contacts_array:
             print "Refreshing contacts array"
-            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array)     
+            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array, service_filter=service)     
         if complete=='yes':
             manager = current_user.manager
             if not manager:
