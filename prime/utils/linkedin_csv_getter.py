@@ -14,11 +14,14 @@ import subprocess
 
 class LinkedinCsvGetter(object):
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, local=True):
         self.username = username
         self.password = password
         self.display = None
-        self.driver = self.get_local_driver()
+        if local:
+            self.driver = self.get_local_driver()
+        else:
+            self.driver = self.get_remote_driver()
 
     def kill_firefox_and_xvfb(self):
         p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
@@ -36,23 +39,31 @@ class LinkedinCsvGetter(object):
         self.display.sendstop()
         self.kill_firefox_and_xvfb()
 
-    # def get_remote_driver(self):
-    #     # desired_cap = {'browser': 'Firefox'}
-    #     # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
-    #     PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
+    def give_pin(self, pin):
+        pin_form = self.driver.find_element_by_id("verification-code")
+        pin_form.send_keys(pin)
+        button = self.driver.find_element_by_name("submit")
+        button.click()
+        if self.driver.title == u'Welcome! | LinkedIn':
+            return True
+        return False
+    def get_remote_driver(self):
+        # desired_cap = {'browser': 'Firefox'}
+        # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
+        # PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
 
-    #     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-    #         "httpProxy":PROXY,
-    #         "ftpProxy":PROXY,
-    #         "sslProxy":PROXY,
-    #         "noProxy":None,
-    #         "proxyType":"MANUAL",
-    #         "class":"org.openqa.selenium.Proxy",
-    #         "autodetect":False
-    #     }    
-    #     self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
-    #     #driver.set_window_size(150, 80)
-    #     return self.driver
+        # webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+        #     "httpProxy":PROXY,
+        #     "ftpProxy":PROXY,
+        #     "sslProxy":PROXY,
+        #     "noProxy":None,
+        #     "proxyType":"MANUAL",
+        #     "class":"org.openqa.selenium.Proxy",
+        #     "autodetect":False
+        # }    
+        self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
+        #driver.set_window_size(150, 80)
+        return self.driver
 
     def get_local_driver(self):
         self.display = Display(visible=0, size=(1024,1024))
@@ -60,7 +71,7 @@ class LinkedinCsvGetter(object):
         self.driver = webdriver.Firefox()
         return self.driver
 
-    def check_linkedin_creds(self):
+    def check_linkedin_login_errors(self):
         self.driver.get("https://www.linkedin.com")
         email_el = self.driver.find_element_by_id("login-email")
         pw_el = self.driver.find_element_by_id("login-password")
@@ -69,8 +80,23 @@ class LinkedinCsvGetter(object):
         button = self.driver.find_element_by_name("submit")
         button.click()
         if self.driver.title == u'Welcome! | LinkedIn':
-            return True
-        return False
+            return None, None
+        if self.driver.current_url=='https://www.linkedin.com/uas/consumer-email-challenge':
+            cookies = self.driver.get_cookies()
+            req_cookies = {}
+            for cookie in cookies:
+                req_cookies[cookie["name"]] = cookie["value"]        
+            message = self.driver.find_element_by_class_name("descriptor-text")
+            if message:
+                return message.text.split(". ")[-1], req_cookies
+            return "Please enter the verification code sent to your email address to finish signing in.", req_cookies           
+        pw_error = self.driver.find_element_by_id("session_password-login-error") 
+        if pw_error:
+            return pw_error.text, None
+        email_error = self.driver.find_element_by_id("session_key-login-error")
+        if email_error:
+            return email_error.text, None
+        return "Unknown error", None
 
     def get_linkedin_data(self):
         screenshot_fn = random_string() + ".png"

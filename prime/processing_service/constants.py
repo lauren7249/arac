@@ -31,6 +31,7 @@ SAUCE_ACCESS_KEY='7ccb2a6b-5d79-4f5e-8663-7e1eabd952e6'
 SAUCE_USERNAME='lauren7249'
 LINKEDIN_EXPORT_URL  ='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook'
 LINKEDIN_DOWNLOAD_URL='https://www.linkedin.com/addressBookExport?exportNetworkRedirect=&outputType=microsoft_outlook'
+LINKEDIN_PIN_CHALLENGE_URL="https://www.linkedin.com/uas/ato-pin-challenge-submit?PinVerificationForm_pinParam="
 LINKEDIN_CAPTCHA_CROP_DIMS = (20, 158, 319, 215)
 ANTIGATE_ACCESS_KEY='0bebb0a526e59df337e4340f89a8e56b'
 

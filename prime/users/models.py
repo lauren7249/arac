@@ -62,6 +62,7 @@ class User(db.Model, UserMixin):
 
     linkedin_login_email = db.Column(String(500))
     _linkedin_password_hash = db.Column('linkedin_password_hash', String(500))
+    linkedin_cookies = db.Column(JSONB, default={})
 
     unique_contacts_uploaded = db.Column(Integer, default=0)
     contacts_from_linkedin = db.Column(Integer, default=0)
