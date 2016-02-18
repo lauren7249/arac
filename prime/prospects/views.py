@@ -196,7 +196,7 @@ def start_linkedin_login_bot(email, password, user_id):
         q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
         conn.hset("linkedin_login_outcome", email, "pin_requested:{}".format(error))
         return True
-
+    #username or password was wrong
     conn.hset("linkedin_login_outcome", email, "error:{}".format(error))
     return True
 
@@ -260,7 +260,7 @@ def linkedin_login():
             #We are going to get the users existing linkedin contacts from S3.
             contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
 
-            #If the user already has linkedin contacts, we can skip all the logic
+            #If the user already has linkedin contacts, we can skip all the logic. valid=True will cause the window to close.
             if user.contacts_from_linkedin>0:
                 return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
 
@@ -276,8 +276,9 @@ def linkedin_login():
 @csrf.exempt
 @prospects.route('/linkedin_pin', methods=['GET', 'POST'])
 def linkedin_pin():
-    pin_worked = False
+    pin_worked = None
     pin = request.args.get("pin")
+    message = request.args.get("message")
     email = current_user.linkedin_login_email
     if pin and email:
         pin_worked = give_pin(email, pin)      
@@ -291,11 +292,12 @@ def linkedin_login_status():
     if conn.hexists("linkedin_login_outcome", email):
         #we see here if the Linkedin bot is finished running.
         status, error = conn.hget("linkedin_login_outcome", email).split(":")
-        conn.hdel("linkedin_login_outcome", "jamesjohnson11@gmail.com")
+        #do we really need to delete this?
+        conn.hdel("linkedin_login_outcome", email)
         if status == "success":
             return jsonify({"success": True, "finished": True})
         if status == "pin":
-            return jsonify({"pin": True, "finished": True})
+            return jsonify({"pin": True, "finished": True, "error": error})
         return jsonify({"success": False, "error": error, "finished": True})
 
     return jsonify({"finished": False})

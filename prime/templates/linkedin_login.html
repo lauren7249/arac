@@ -31,20 +31,43 @@
 </div>
 <script type="text/javascript">
   $(function(){
+
+    function finishMe() {
+      $('#overlay', window.parent.document).hide();
+      window.close();      
+    }
+    if ("{{ valid }}" == "True" || "{{ contact_count }}" ==-1) {
+      finishMe();
+    }
+
     var listening;
 
     function didLinkedinLoginWork() {
+      //this will check redis, which is where the login task publishes its results 
       $.get("/linkedin_login_status", function(data){
+        //the task had some outcome, good or bad
         if (data.finished) {
+          var error = data.error;
+          //it logged in
           if (data.success) {
-            window.close()
-          } else if (data.pin) {
-            window.location.href = '/linkedin_pin'
+            finishMe();
+          } 
+          //it sent a pin to the user's email. the "error" just says the email account that the pin was sent to
+          else if (data.pin) {
+            window.location.href = '/linkedin_pin?message=' + error;
           } else {
-            clearInterval(listening)
+            clearInterval(listening);
             $(".overlay").fadeOut();
             $(".waiting").hide();
-            alert("There was an error with your email and password. Please try again.")
+            //linkedin told us what was wrong, we will pass the message along
+            if (error.length > 0) {
+              showSuccess(error);
+            }
+            //no frickin clue what happened, just act like everything ok and move along
+            else {
+              finishMe();
+            }
+            
           }
         } else {
           console.log("Not Finished")
@@ -52,31 +75,32 @@
       })
     }
 
+    //the linkedin credentials checker task will publish results when it is finished, so we are listening for them
     function listenForSuccess() {
       listening = setInterval(function() {
         didLinkedinLoginWork()
-      }, 5000);
+      }, 1000);
     }
 
+    //user clicks the button to submit credentials
     $("#linkedin-login-form").submit(function(e){
+      //prevent form from giving its status
       e.preventDefault();
       $(".overlay").fadeIn();
       $(".waiting").show();
       var data = {email:$("#inputEmail").val(),password:$("#inputPassword").val()}
       $.post("/linkedin_login", data, function(data){
         if (data.success) {
+          //view has launched a task to try the login
+          //the task will publish results when it is finished, so we are listening for them
           listenForSuccess()
         } else {
-          alert("Email and Password required!")
+          //view returns false if one of the args is missing
+          showSuccess("You must enter Email and Password.")
         }
       });
     });
 
-    if ("{{ valid }}" == "True" || "{{ contact_count }}" ==-1) {
-      $('#overlay', window.parent.document).hide();
-      window.close();
-    }
-      
   });
 </script>
 {% endblock %}
