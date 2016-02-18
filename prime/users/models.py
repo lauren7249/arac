@@ -62,6 +62,7 @@ class User(db.Model, UserMixin):
 
     linkedin_login_email = db.Column(String(500))
     _linkedin_password_hash = db.Column('linkedin_password_hash', String(500))
+    linkedin_cookies = db.Column(JSONB, default={})
 
     unique_contacts_uploaded = db.Column(Integer, default=0)
     contacts_from_linkedin = db.Column(Integer, default=0)
@@ -252,7 +253,7 @@ class User(db.Model, UserMixin):
             user_request._make_request(by_linkedin_id.values())
         return by_linkedin_id.values()
 
-    def refresh_contacts(self, new_contacts=[], service_filter=None):
+    def refresh_contacts(self, new_contacts=[], service_filter=None, session=db.session):
         user_request = UserRequest(self.email)
         contacts_array = user_request.lookup_data()
         from_linkedin = set()
@@ -310,8 +311,8 @@ class User(db.Model, UserMixin):
             self.contacts_from_aol = len(from_aol)
         self.account_sources = account_sources
         self._statistics = None
-        db.session.add(self)
-        db.session.commit()
+        session.add(self)
+        session.commit()
         if new_contacts:
             user_request._make_request(by_source.values())
         return by_source.values(), self

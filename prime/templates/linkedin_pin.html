@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block header %}{% endblock %}
+
+{% block content %}
+
+<div id="linkedin_pin_form">
+  <form class="card" autocomplete="false">
+    <header>
+      <div class="header-logo"></div>
+    </header>
+    <h3>{{ message }}</h3>
+    <hr>
+    <div class="col-8">
+      <input type="text" name='pin' id="inputPin" placeholder="Enter PIN" autocomplete="new-pin">
+    </div>
+    <div class="col-4">
+      <button id="submit_pin" class="button fluid linkedin">Submit</button>
+    </div>
+  </form>
+</div>
+<script type="text/javascript">  
+$( document ).ready(function() {
+    $(".overlay").fadeOut();
+    $(".waiting").hide();
+    if ("{{ pin_worked }}" == "True") {
+      $('#overlay', window.parent.document).hide();
+      window.close();
+    } 
+    else if("{{ pin_worked }}" == "False") {
+            $("#inputPin").val('');
+            showSuccess("Incorrect PIN. Please try again.");
+    }
+      
+  });
+
+  $("#submit_pin").click(function(){
+    $(".overlay").fadeIn();
+    $(".waiting").show();
+                 
+    var csrf_token = $("[_csrf_token]").val()
+
+    var outData = {csrf_token:csrf_token}    
+    $.ajax({
+        type: 'POST',
+        url: '/give_pin?pin=' + $("#inputPin").val(),
+        crossDomain: true,
+        data: JSON.stringify(outData),
+        dataType: 'json',
+        contentType: 'application/json; charset=utf-8',        
+        success: function(responseData, textStatus, jqXHR) {
+          // $(".overlay").fadeOut();
+          // $(".waiting").hide();
+          // if (responseData.success) {
+          //   $('#overlay', window.parent.document).hide();
+          //   window.close();            
+          // } else {
+          //   $("#inputPin").val('');
+          //   showSuccess("Incorrect PIN");
+          // }
+
+        },
+        error: function (responseData, textStatus, errorThrown) {
+          // $(".overlay").fadeOut();
+          // $(".waiting").hide();
+          // $('#overlay', window.parent.document).hide();
+          // window.close();
+        }
+    });     
+  });
+</script>
+{% endblock %}
+
+
+
+
+
+{% block footer %}{% endblock %}

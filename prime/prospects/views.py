@@ -117,29 +117,50 @@ def faq():
 def terms():
     return render_template('terms.html')
 
+def selenium_state_holder(getter, user_id):
+    import os
+    from prime import create_app
+    from prime.users.models import User
+    from flask.ext.sqlalchemy import SQLAlchemy
+    try:
+        app = create_app(os.getenv('AC_CONFIG', 'testing'))
+        db = SQLAlchemy(app)
+        session = db.session
+    except Exception, e:
+        from prime import db
+        session = db.session
+    import time
+    current_user = session.query(User).get(user_id)
+    email = current_user.linkedin_login_email
+    conn = get_conn()
+    while not conn.hexists("pins",email):
+        time.sleep(1)
+    pin = conn.hget("pins",email)
+    success = getter.give_pin(pin)
+    if not success:
+        conn.hdel("pins",email)
+        selenium_state_holder(getter, current_user.user_id)
+    data = None
+    tries = 0
+    while(data == None and tries<4):
+        data = getter.get_linkedin_data()
+        tries += 1
+    getter.quit()
+    if data:
+        contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
+        conn.hset("pin_accepted",email,True)
+        conn.hdel("pins",email)
 
-@csrf.exempt
-@prospects.route("/upload_csv", methods=['POST'])
-def upload_csv():
-    if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    f = request.files['file']
-    if not f:
-        return "No file"
-    s = pandas.read_csv(f.stream)
-    s.fillna("", inplace=True)
-    data = []
-    for index, row in s.iterrows():
-        contact = {}
-        contact["first_name"] = row["First Name"].decode('latin-1')
-        contact["last_name"] = row["Last Name"].decode('latin-1')
-        contact["companies"] = [row["Company"].decode('latin-1')]
-        contact["email"] = [{"address": row["E-mail Address"].decode('latin-1')}]
-        contact["job_title"] = row["Job Title"].decode('latin-1')
-        data.append(contact)
-    return jsonify({"count":len(s),"contacts":data, "contacts_owner":None})
+def give_pin(email, pin):
+    import time
+    conn = get_conn()
+    conn.hset("pins",email,pin)
+    while conn.hexists("pins",email):
+        time.sleep(1)
+        print "sleep"
+    if conn.hexists("pin_accepted",email):
+        return True
+    return False
 
 @csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
@@ -150,6 +171,13 @@ def linkedin_login():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
+    pin = request.args.get("pin")
+    email = current_user.linkedin_login_email
+    print pin
+    print email
+    if pin and email:
+        pin_worked = give_pin(email, pin)
+        return render_template('linkedin_pin.html',pin_worked=pin_worked)
     form = LinkedinLoginForm()
     valid = None
     if form.is_submitted():
@@ -158,29 +186,33 @@ def linkedin_login():
             contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
             if user.contacts_from_linkedin>0:
                 return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
-            getter = LinkedinCsvGetter(form.email.data, form.password.data)
+            getter = LinkedinCsvGetter(form.email.data, form.password.data, local=False)
             start = time.time()
-            if getter.check_linkedin_creds():
+            error, cookies = getter.check_linkedin_login_errors()
+            if error is None:
                 valid = True
-                current_user.linkedin_login_email
+                current_user.linkedin_login_email = form.email.data
                 current_user.set_linkedin_password(form.password.data)
-                data = None
-                tries = 0
-                while(data == None and tries<4):
-                    data = getter.get_linkedin_data()
-                    tries += 1
-                getter.quit()
-                done = time.time()
-                elapsed = done - start
-                print elapsed
-                if data:
-                    contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin')
-                    return render_template('linkedin_login.html', form=form, valid=valid, contact_count=len(data))
-                else:
-                    #form.email.errors.append("Linkedin Download Failed")
-                    return render_template('linkedin_login.html', form=form, valid=valid, contact_count=-1)
+                return render_template('linkedin_login.html', form=form, valid=valid)
             else:
-                form.password.errors.append("Incorrect Linkedin Email/Password Combination")
+                if cookies:
+                    current_user.linkedin_login_email = form.email.data
+                    current_user.linkedin_cookies = cookies
+                    current_user.set_linkedin_password(form.password.data)
+                    session.add(current_user)
+                    session.commit()
+                    print current_user.linkedin_login_email
+                    q = get_q()
+                    q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
+                    return render_template('linkedin_pin.html',message=error)
+                elif error.find("password")>-1:
+                    form.password.errors.append(error)
+                elif error.find("email")>-1 and error.find("recognize")>-1:
+                    form.email.errors.append(error)
+                else:
+                    #WE DONT KNOW WHAT HAPPENED HERE, but start.html will PRETEND EVERYTHING IS OK
+                    return render_template('linkedin_login.html', form=form, valid=valid, contact_count=-1)
+
         valid = False
         form.password.data = ''
         form.email.data = ''
@@ -527,28 +559,35 @@ def export():
 
     string_io = StringIO.StringIO()
     writer = csv.writer(string_io)
-    headers = ["Prefix", "First Name", "Salutation (Preferred name, nickname)",
-            "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
+    headers = ["dearName", "First Name", "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
             "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
-            "Name of Business", "Fax Number"]
+            "CompanyName", "Fax Number"]
     writer.writerow(headers)
+    writer.writerow(["", agent.first_name, agent.last_name])
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
         name = connection.prospect.name
         try:
             state = STATES[connection.prospect.us_state]
         except:
-            state = connection.prospect.us_state
+            state = None
+            #state = connection.prospect.us_state
+
         try:
-            first_name, last_name = name.split(" ")
+            first_name = name.split(" ")[0]
+            last_name = " ".join(name.split(" ")[1:])
         except:
-            try:
-                first_name = name.split(" ")[0]
-                last_name = " ".join(name.split(" ")[1:])
-            except:
-                first_name = name
-                last_name = None
-        row = ["", first_name, "", last_name, "", email1,
+            first_name = name
+            last_name = None
+
+        if connection.prospect.gender == 'male':
+            dearName = 'Mr.'
+        elif connection.prospect.gender == 'female':
+            dearName = 'Ms.'
+        else:
+            dearName = ''
+
+        row = [dearName, first_name, last_name, "", email1,
             "", "", connection.prospect.linkedin_location_raw,
             state, "", "", "",
             connection.prospect.company, ""]
