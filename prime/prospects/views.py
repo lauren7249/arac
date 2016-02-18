@@ -84,6 +84,13 @@ def queue_processing_service(client_data, contacts_array):
 ##    VIEWS   ##
 ################
 
+@prospects.route("/auth-proxy.html")
+def auth_proxy():
+    return render_template("auth_proxy.html")
+
+@prospects.route("/auth-proxy.js")
+def auth_proxy_js():
+    return render_template("auth_proxy.js")
 
 @prospects.route("/", methods=['GET', 'POST'])
 def start():
@@ -143,7 +150,7 @@ def linkedin_login():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    form = LinkedinLoginForm()  
+    form = LinkedinLoginForm()
     valid = None
     if form.is_submitted():
         form.password.errors = []
@@ -193,7 +200,7 @@ def upload():
         contacts_array = indata.get("contacts_array")
         if contacts_array:
             print "Refreshing contacts array"
-            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array, service_filter=service)     
+            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array, service_filter=service)
         if complete=='yes':
             manager = current_user.manager
             if not manager:
@@ -210,7 +217,7 @@ def upload():
                     "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                     "to_email":to_email}
             q = get_q()
-            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)   
+            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": current_user.unique_contacts_uploaded})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
@@ -451,7 +458,7 @@ def contacts_export():
     data = [["Name", "Location", "State", "Industry", "Business Phone", "Linkedin Profile","Email", "Subject", "Body","Email Addresses","Email Template"]]
     output = StringIO.StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet("Contacts")    
+    worksheet = workbook.add_worksheet("Contacts")
     i = 1
     for connection in connections:
         i+=1
