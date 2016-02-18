@@ -82,6 +82,43 @@ def queue_processing_service(client_data, contacts_array):
     service.process()
     return True
 
+################
+##    VIEWS   ##
+################
+
+@prospects.route("/auth-proxy.html")
+def auth_proxy():
+    return render_template("auth_proxy.html")
+
+@prospects.route("/auth-proxy.js")
+def auth_proxy_js():
+    return render_template("auth_proxy.js")
+
+@prospects.route("/", methods=['GET', 'POST'])
+def start():
+    if not current_user.is_authenticated():
+        return redirect(url_for("auth.login"))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    if current_user.p200_approved:
+        return redirect(url_for('prospects.p200'))
+    if current_user.p200_submitted_to_manager:
+        return redirect(url_for('prospects.p200'))
+    if current_user.p200_completed:
+        return redirect(url_for('prospects.connections'))
+    if current_user.hiring_screen_completed:
+        return redirect(url_for('prospects.dashboard'))
+    print request.args.get("status")
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), inviter=current_app.config.get("OWNER"))
+
+@prospects.route("/faq")
+def faq():
+    return render_template('faq.html')
+
+@prospects.route("/terms")
+def terms():
+    return render_template('terms.html')
+
 def selenium_state_holder(getter, user_id):
     import os
     from prime import create_app
@@ -93,26 +130,26 @@ def selenium_state_holder(getter, user_id):
         session = db.session
     except Exception, e:
         from prime import db
-        session = db.session    
+        session = db.session
     import time
     current_user = session.query(User).get(user_id)
     email = current_user.linkedin_login_email
     conn = get_conn()
     while not conn.hexists("pins",email):
-        time.sleep(1)    
+        time.sleep(1)
     pin = conn.hget("pins",email)
     success = getter.give_pin(pin)
     if not success:
         conn.hdel("pins",email)
         selenium_state_holder(getter, current_user.user_id)
     data = None
-    tries = 0   
+    tries = 0
     while(data == None and tries<4):
         data = getter.get_linkedin_data()
         tries += 1
     getter.quit()
-    if data:      
-        contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)    
+    if data:
+        contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
         conn.hset("pin_accepted",email,True)
         conn.hdel("pins",email)
 
@@ -169,7 +206,7 @@ def give_pin(email, pin):
     conn = get_conn()
     conn.hset("pins",email,pin)
     while conn.hexists("pins",email):
-        time.sleep(1)    
+        time.sleep(1)
         print "sleep"
     if conn.hexists("pin_accepted",email):
         return True
@@ -280,7 +317,7 @@ def upload():
         contacts_array = indata.get("contacts_array")
         if contacts_array:
             print "Refreshing contacts array"
-            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array, service_filter=service)     
+            contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array, service_filter=service)
         if complete=='yes':
             manager = current_user.manager
             if not manager:
@@ -297,7 +334,7 @@ def upload():
                     "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                     "to_email":to_email}
             q = get_q()
-            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)   
+            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": current_user.unique_contacts_uploaded})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])
@@ -538,7 +575,7 @@ def contacts_export():
     data = [["Name", "Location", "State", "Industry", "Business Phone", "Linkedin Profile","Email", "Subject", "Body","Email Addresses","Email Template"]]
     output = StringIO.StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet("Contacts")    
+    worksheet = workbook.add_worksheet("Contacts")
     i = 1
     for connection in connections:
         i+=1
