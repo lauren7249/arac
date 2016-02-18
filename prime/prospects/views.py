@@ -13,6 +13,8 @@ import csv
 import random
 import requests
 import datetime
+import time
+
 from flask import current_app
 import json
 from urllib import unquote_plus
@@ -80,36 +82,6 @@ def queue_processing_service(client_data, contacts_array):
     service.process()
     return True
 
-################
-##    VIEWS   ##
-################
-
-
-@prospects.route("/", methods=['GET', 'POST'])
-def start():
-    if not current_user.is_authenticated():
-        return redirect(url_for("auth.login"))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))
-    if current_user.p200_submitted_to_manager:
-        return redirect(url_for('prospects.p200'))
-    if current_user.p200_completed:
-        return redirect(url_for('prospects.connections'))
-    if current_user.hiring_screen_completed:
-        return redirect(url_for('prospects.dashboard'))
-    print request.args.get("status")
-    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), inviter=current_app.config.get("OWNER"))
-
-@prospects.route("/faq")
-def faq():
-    return render_template('faq.html')
-
-@prospects.route("/terms")
-def terms():
-    return render_template('terms.html')
-
 def selenium_state_holder(getter, user_id):
     import os
     from prime import create_app
@@ -144,6 +116,54 @@ def selenium_state_holder(getter, user_id):
         conn.hset("pin_accepted",email,True)
         conn.hdel("pins",email)
 
+def start_linkedin_login_bot(email, password, user_id):
+    import os
+    from prime import create_app
+    from prime.users.models import User
+    from flask.ext.sqlalchemy import SQLAlchemy
+    try:
+        app = create_app(os.getenv('AC_CONFIG', 'testing'))
+        db = SQLAlchemy(app)
+        session = db.session
+    except Exception, e:
+        from prime import db
+        session = db.session    
+    from prime.utils.linkedin_csv_getter import LinkedinCsvGetter
+    getter = LinkedinCsvGetter(email, password, local=False)
+    start = time.time()
+    current_user = session.query(User).get(user_id)
+
+    #There are three potential outcomes here with corresponding cases
+    # success Everyhing worked and you are now logged in
+    # pin Second is linkedin asked for a pin, which they sent via email
+    # credentials Uername is wrong, or password is wrong
+    # unknown TODO unknown negative outcome
+    error, pin_requested = getter.check_linkedin_login_errors()
+    if error is None:
+        #Everything worked
+        current_user.linkedin_login_email = email
+        current_user.set_linkedin_password(password, session=session)
+        session.add(current_user)
+        session.commit()
+        conn = get_conn()
+        conn.hset("linkedin_login_outcome", email, "success:True")
+        return True
+    
+    if pin_requested:
+        #linkedin requested a pin
+        current_user.linkedin_login_email = email
+        current_user.set_linkedin_password(password, session=session)
+        session.add(current_user)
+        session.commit()  
+        q = get_q()
+        q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
+        conn.hset("linkedin_login_outcome", email, "pin_requested:{}".format(error))
+        return True
+
+    conn.hset("linkedin_login_outcome", email, "error:{}".format(error))
+    return True
+
+
 def give_pin(email, pin):
     import time
     conn = get_conn()
@@ -155,61 +175,96 @@ def give_pin(email, pin):
         return True
     return False
 
+
+################
+##    VIEWS   ##
+################
+
+
+@prospects.route("/", methods=['GET', 'POST'])
+def start():
+    if not current_user.is_authenticated():
+        return redirect(url_for("auth.login"))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    if current_user.p200_approved:
+        return redirect(url_for('prospects.p200'))
+    if current_user.p200_submitted_to_manager:
+        return redirect(url_for('prospects.p200'))
+    if current_user.p200_completed:
+        return redirect(url_for('prospects.connections'))
+    if current_user.hiring_screen_completed:
+        return redirect(url_for('prospects.dashboard'))
+    print request.args.get("status")
+    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), inviter=current_app.config.get("OWNER"))
+
+@prospects.route("/faq")
+def faq():
+    return render_template('faq.html')
+
+@prospects.route("/terms")
+def terms():
+    return render_template('terms.html')
+
+
 @csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
 def linkedin_login():
-    from prime.utils.linkedin_csv_getter import LinkedinCsvGetter
-    import time
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    pin = request.args.get("pin")
-    email = current_user.linkedin_login_email
-    print pin
-    print email
-    if pin and email:
-        pin_worked = give_pin(email, pin)      
-        return render_template('linkedin_pin.html',pin_worked=pin_worked)      
-    form = LinkedinLoginForm()  
+        return redirect(url_for("managers.manager_home")) 
     valid = None
-    if form.is_submitted():
-        form.password.errors = []
-        if form.validate():
+    form = LinkedinLoginForm
+    if request.method == 'POST':
+        email = request.form.get("email")
+        password = request.form.get("password")
+        if email and password:
+            #We are going to get the users existing linkedin contacts from S3.
             contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
+
+            #If the user already has linkedin contacts, we can skip all the logic
             if user.contacts_from_linkedin>0:
                 return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
-            getter = LinkedinCsvGetter(form.email.data, form.password.data, local=False)
-            start = time.time()
-            error, cookies = getter.check_linkedin_login_errors()
-            if error is None:
-                valid = True
-                current_user.linkedin_login_email = form.email.data
-                current_user.set_linkedin_password(form.password.data)
-                return render_template('linkedin_login.html', form=form, valid=valid)
-            else:
-                if cookies:
-                    current_user.linkedin_login_email = form.email.data
-                    current_user.linkedin_cookies = cookies
-                    current_user.set_linkedin_password(form.password.data)  
-                    session.add(current_user)
-                    session.commit()  
-                    print current_user.linkedin_login_email
-                    q = get_q()
-                    q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)                      
-                    return render_template('linkedin_pin.html',message=error)                
-                elif error.find("password")>-1:
-                    form.password.errors.append(error)
-                elif error.find("email")>-1 and error.find("recognize")>-1:
-                    form.email.errors.append(error)
-                else:
-                    #WE DONT KNOW WHAT HAPPENED HERE, but start.html will PRETEND EVERYTHING IS OK
-                    return render_template('linkedin_login.html', form=form, valid=valid, contact_count=-1)
-                                    
-        valid = False
-        form.password.data = ''
-        form.email.data = ''
+
+            #Otherwise, we need to run a task
+            q = get_q()
+            task = q.enqueue(start_linkedin_login_bot, email, password, current_user.user_id, timeout=1404000)
+            return jsonify({"success":True})
+        else:
+            return jsonify({"success":False})
     return render_template('linkedin_login.html', form=form, valid=valid)
+
+
+@csrf.exempt
+@prospects.route('/linkedin_pin', methods=['GET', 'POST'])
+def linkedin_pin():
+    pin_worked = False
+    pin = request.args.get("pin")
+    email = current_user.linkedin_login_email
+    if pin and email:
+        pin_worked = give_pin(email, pin)      
+    return render_template('linkedin_pin.html',pin_worked=pin_worked)
+
+@csrf.exempt
+@prospects.route('/linkedin_login_status', methods=['GET', 'POST'])
+def linkedin_login_status():
+    email = current_user.linkedin_login_email
+    conn = get_conn()
+    if conn.hexists("linkedin_login_outcome", email):
+        #we see here if the Linkedin bot is finished running.
+        status, error = conn.hget("linkedin_login_outcome", email).split(":")
+        conn.hdel("linkedin_login_outcome", "jamesjohnson11@gmail.com")
+        if status == "success":
+            return jsonify({"success": True, "finished": True})
+        if status == "pin":
+            return jsonify({"pin": True, "finished": True})
+        return jsonify({"success": False, "error": error, "finished": True})
+
+    return jsonify({"finished": False})
+        
+
+
 
 @csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])

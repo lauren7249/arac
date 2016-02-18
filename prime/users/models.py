@@ -135,10 +135,10 @@ class User(db.Model, UserMixin):
     def set_password(self, password):
         self._password_hash = generate_password_hash(password)
 
-    def set_linkedin_password(self, linkedin_password):
+    def set_linkedin_password(self, linkedin_password, session=db.session):
         self._linkedin_password_hash = xor_crypt_string(linkedin_password, self._password_hash[:15])
-        db.session.add(self)
-        db.session.commit()
+        session.add(self)
+        session.commit()
 
     @property
     def linkedin_password(self):

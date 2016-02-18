@@ -98,6 +98,8 @@ def manager_invite_agent():
 def manager_reinvite_agent():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
+        return redirect(url_for('auth.login'))
     if request.method == 'POST':
         user_id = int(request.form.get('user_id'))
         user = User.query.filter(User.user_id == user_id).first()
@@ -108,6 +110,8 @@ def manager_reinvite_agent():
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
 def agent(agent_id):
     if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
         return redirect(url_for('auth.login'))
     agent = User.query.get(agent_id)
     manager = agent.manager
@@ -120,6 +124,8 @@ def agent(agent_id):
 @manager.route("/p200/<int:agent_id>", methods=['GET', 'POST'])
 def agent_p200(agent_id):
     if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
         return redirect(url_for('auth.login'))
     page = int(request.args.get("p", 1))
     agent = User.query.get(agent_id)
@@ -145,6 +151,9 @@ def agent_p200(agent_id):
 @manager.route("/pdf/<int:agent_id>", methods=['GET', 'POST'])
 def pdf(agent_id):
     if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
+        logout_user()
         return redirect(url_for('auth.login'))
     page = int(request.args.get("p", 1))
     agent = User.query.get(agent_id)

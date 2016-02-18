@@ -4,22 +4,13 @@
 {% block content %}
 
 <div id="linkedin_password_form">
-  <form class="card" method='POST' autocomplete="false">
+  <form class="card" id='linkedin-login-form' method='POST' autocomplete="false">
     <header>
       <div class="header-logo"></div>
     </header>
     <h3>Please enter your Linkedin username (email) and password so we can securely connect your contacts.</h3>
     <hr>
 
-    {% if form.errors %}
-      <div class='error'>
-        {% for error in form.errors.items() %}
-        <div>
-          <strong>{{ error[0] }}:</strong> {{ error[1][0] }}
-        </div>
-        {% endfor %}
-      </div>
-    {%endif%}
     {{ form.csrf_token }}
 
     <div class="col-8">
@@ -39,18 +30,52 @@
   </form>
 </div>
 <script type="text/javascript">
-  $("#check_linkedin_button").click(function(){
-    $(".overlay").fadeIn();
-    $(".waiting").show();
-  });
-  $( document ).ready(function() {
-    $(".overlay").fadeOut();
-    $(".waiting").hide();
-    var local = document.location.href.split("/").slice(0,3).join("/")
+  $(function(){
+    var listening;
+
+    function didLinkedinLoginWork() {
+      $.get("/linkedin_login_status", function(data){
+        if (data.finished) {
+          if (data.success) {
+            window.close()
+          } else if (data.pin) {
+            window.location.href = '/linkedin_pin'
+          } else {
+            clearInterval(listening)
+            $(".overlay").fadeOut();
+            $(".waiting").hide();
+            alert("There was an error with your email and password. Please try again.")
+          }
+        } else {
+          console.log("Not Finished")
+        }
+      })
+    }
+
+    function listenForSuccess() {
+      listening = setInterval(function() {
+        didLinkedinLoginWork()
+      }, 5000);
+    }
+
+    $("#linkedin-login-form").submit(function(e){
+      e.preventDefault();
+      $(".overlay").fadeIn();
+      $(".waiting").show();
+      var data = {email:$("#inputEmail").val(),password:$("#inputPassword").val()}
+      $.post("/linkedin_login", data, function(data){
+        if (data.success) {
+          listenForSuccess()
+        } else {
+          alert("Email and Password required!")
+        }
+      });
+    });
+
     if ("{{ valid }}" == "True" || "{{ contact_count }}" ==-1) {
       $('#overlay', window.parent.document).hide();
       window.close();
-    } 
+    }
       
   });
 </script>
