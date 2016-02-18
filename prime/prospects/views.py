@@ -112,7 +112,6 @@ def terms():
 
 def selenium_state_holder(getter, user_id):
     import os
-    import traceback
     from prime import create_app
     from prime.users.models import User
     from flask.ext.sqlalchemy import SQLAlchemy
@@ -121,48 +120,27 @@ def selenium_state_holder(getter, user_id):
         db = SQLAlchemy(app)
         session = db.session
     except Exception, e:
-        exc_info = sys.exc_info()
-        traceback.print_exception(*exc_info)
-        exception_str = traceback.format_exception(*exc_info)
-        if not exception_str: exception_str=[""]    
-        print "ERROR: " + str(e)
-        print "ERROR: " + "".join(exception_str)
         from prime import db
         session = db.session    
     import time
     current_user = session.query(User).get(user_id)
     email = current_user.linkedin_login_email
-    f = open("sleeneeiero.txt",'wb')
-    f.write("started")
-    f.close()
     conn = get_conn()
     while not conn.hexists("pins",email):
-        time.sleep(1)
-    f = open("sleeneeiero.txt",'wb')
-    f.write("got pin")
-    f.close()        
+        time.sleep(1)    
     pin = conn.hget("pins",email)
     success = getter.give_pin(pin)
     if not success:
-        f = open("sleeneeiero.txt",'wb')
-        f.write("pin failed")
-        f.close()        
         conn.hdel("pins",email)
         selenium_state_holder(getter, current_user.user_id)
     data = None
-    tries = 0
-    f = open("sleeneeiero.txt",'wb')
-    f.write("pin succeeded")
-    f.close()    
+    tries = 0   
     while(data == None and tries<4):
         data = getter.get_linkedin_data()
         tries += 1
     getter.quit()
-    if data:
-        f = open("sleeneeiero.txt",'wb')
-        f.write("data acquired")
-        f.close()        
-        contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin')    
+    if data:      
+        contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)    
         conn.hset("pin_accepted",email,True)
         conn.hdel("pins",email)
 
@@ -201,7 +179,7 @@ def linkedin_login():
             contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
             if user.contacts_from_linkedin>0:
                 return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
-            getter = LinkedinCsvGetter(form.email.data, form.password.data, local=False)
+            getter = LinkedinCsvGetter(form.email.data, form.password.data, local=True)
             start = time.time()
             error, cookies = getter.check_linkedin_login_errors()
             if error is None:
@@ -218,7 +196,7 @@ def linkedin_login():
                     session.commit()  
                     print current_user.linkedin_login_email
                     q = get_q()
-                    q.enqueue(selenium_state_holder, getter, current_user.user_id)                      
+                    q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)                      
                     return render_template('linkedin_pin.html',message=error)                
                 elif error.find("password")>-1:
                     form.password.errors.append(error)
@@ -574,28 +552,35 @@ def export():
 
     string_io = StringIO.StringIO()
     writer = csv.writer(string_io)
-    headers = ["Prefix", "First Name", "Salutation (Preferred name, nickname)",
-            "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
+    headers = ["dearName", "First Name", "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
             "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
-            "Name of Business", "Fax Number"]
+            "CompanyName", "Fax Number"]
     writer.writerow(headers)
+    writer.writerow(["", agent.first_name, agent.last_name])
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
         name = connection.prospect.name
         try:
             state = STATES[connection.prospect.us_state]
         except:
-            state = connection.prospect.us_state
+            state = None
+            #state = connection.prospect.us_state
+
         try:
-            first_name, last_name = name.split(" ")
+            first_name = name.split(" ")[0]
+            last_name = " ".join(name.split(" ")[1:])
         except:
-            try:
-                first_name = name.split(" ")[0]
-                last_name = " ".join(name.split(" ")[1:])
-            except:
-                first_name = name
-                last_name = None
-        row = ["", first_name, "", last_name, "", email1,
+            first_name = name
+            last_name = None
+
+        if connection.prospect.gender == 'male':
+            dearName = 'Mr.'
+        elif connection.prospect.gender == 'female':
+            dearName = 'Ms.'
+        else:
+            dearName = ''
+
+        row = [dearName, first_name, last_name, "", email1,
             "", "", connection.prospect.linkedin_location_raw,
             state, "", "", "",
             connection.prospect.company, ""]

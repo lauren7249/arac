@@ -181,6 +181,7 @@
            showLoader()
            $page = $(this).data('page');
            search()
+           hideLoader()
          });
         }
 
@@ -207,6 +208,7 @@
            });
         }
         bindPagination();
+        hideLoader();
       });
 
     </script>   

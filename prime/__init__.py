@@ -15,7 +15,6 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
 from webassets import Bundle
 from flask.ext.admin import Admin
-# from flask.ext.admin.contrib.sqla import ModelView
 from flask_sslify import SSLify
 
 from config import config
@@ -58,11 +57,6 @@ def create_app(config_name):
         SSLify(app)
     return app
 
-# def init_admin(app):
-#     from .users.models import User
-#     admin = Admin(app)
-#     admin.add_view(ModelView(User, db.session))
-
 def init_assets(app):
     assets_environment = Environment(app)
     css = Bundle('css/chosen.css', 'css/hint.css', 'css/poppins.css', 'css/master.css',
@@ -91,12 +85,4 @@ def add_template_globals(app):
     @app.template_global()
     def static_url():
         return app.config.get('STATIC_URL')
-
-def whoisthis(func):
-    def tellme(*args, **kwargs):
-        print func
-        print current_user
-        print request
-        return func(*args, **kwargs)
-    return tellme
 

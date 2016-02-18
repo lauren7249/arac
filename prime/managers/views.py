@@ -17,7 +17,7 @@ from . import manager
 from prime.prospects.models import Prospect, Job, Education
 from prime.users.models import User, ClientProspect
 from prime.utils import random_string
-from prime import db, csrf, whoisthis
+from prime import db, csrf
 
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast

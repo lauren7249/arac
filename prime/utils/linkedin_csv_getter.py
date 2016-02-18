@@ -1,5 +1,4 @@
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from prime.processing_service.constants import BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS, SAUCE_USERNAME, SAUCE_ACCESS_KEY
 from pyvirtualdisplay import Display
@@ -11,6 +10,8 @@ from prime.processing_service.helper import  random_string, csv_line_to_list
 import os
 import signal 
 import subprocess
+from selenium.webdriver.common.keys import Keys
+import time
 
 class LinkedinCsvGetter(object):
 
@@ -35,21 +36,26 @@ class LinkedinCsvGetter(object):
                     print "killed"
 
     def quit(self):
-        self.driver.quit()
-        self.display.sendstop()
+        if self.driver:
+            self.driver.quit()
+        if self.display:
+            self.display.sendstop()
         self.kill_firefox_and_xvfb()
 
     def give_pin(self, pin):
         pin_form = self.driver.find_element_by_id("verification-code")
+        pin_form.clear()
         pin_form.send_keys(pin)
-        button = self.driver.find_element_by_name("submit")
-        button.click()
+        time.sleep(1)
+        pin_form.send_keys(Keys.RETURN)
+        time.sleep(4)
         if self.driver.title == u'Welcome! | LinkedIn':
             return True
         return False
+
     def get_remote_driver(self):
         # desired_cap = {'browser': 'Firefox'}
-        # driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
+        # #driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
         # PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
 
         # webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
@@ -62,7 +68,6 @@ class LinkedinCsvGetter(object):
         #     "autodetect":False
         # }    
         self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
-        #driver.set_window_size(150, 80)
         return self.driver
 
     def get_local_driver(self):
@@ -82,6 +87,7 @@ class LinkedinCsvGetter(object):
         if self.driver.title == u'Welcome! | LinkedIn':
             return None, None
         if self.driver.current_url=='https://www.linkedin.com/uas/consumer-email-challenge':
+            self.driver.save_screenshot("challenge.png")
             cookies = self.driver.get_cookies()
             req_cookies = {}
             for cookie in cookies:
