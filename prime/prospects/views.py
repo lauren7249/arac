@@ -179,7 +179,7 @@ def linkedin_login():
             contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
             if user.contacts_from_linkedin>0:
                 return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
-            getter = LinkedinCsvGetter(form.email.data, form.password.data, local=True)
+            getter = LinkedinCsvGetter(form.email.data, form.password.data, local=False)
             start = time.time()
             error, cookies = getter.check_linkedin_login_errors()
             if error is None:
