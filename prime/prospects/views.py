@@ -82,43 +82,6 @@ def queue_processing_service(client_data, contacts_array):
     service.process()
     return True
 
-################
-##    VIEWS   ##
-################
-
-@prospects.route("/auth-proxy.html")
-def auth_proxy():
-    return render_template("auth_proxy.html")
-
-@prospects.route("/auth-proxy.js")
-def auth_proxy_js():
-    return render_template("auth_proxy.js")
-
-@prospects.route("/", methods=['GET', 'POST'])
-def start():
-    if not current_user.is_authenticated():
-        return redirect(url_for("auth.login"))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))
-    if current_user.p200_submitted_to_manager:
-        return redirect(url_for('prospects.p200'))
-    if current_user.p200_completed:
-        return redirect(url_for('prospects.connections'))
-    if current_user.hiring_screen_completed:
-        return redirect(url_for('prospects.dashboard'))
-    print request.args.get("status")
-    return render_template('start.html', agent=current_user, newWindow='false', status=request.args.get("status"), inviter=current_app.config.get("OWNER"))
-
-@prospects.route("/faq")
-def faq():
-    return render_template('faq.html')
-
-@prospects.route("/terms")
-def terms():
-    return render_template('terms.html')
-
 def selenium_state_holder(getter, user_id):
     import os
     from prime import create_app
@@ -164,7 +127,7 @@ def start_linkedin_login_bot(email, password, user_id):
         session = db.session
     except Exception, e:
         from prime import db
-        session = db.session    
+        session = db.session
     from prime.utils.linkedin_csv_getter import LinkedinCsvGetter
     getter = LinkedinCsvGetter(email, password, local=False)
     start = time.time()
@@ -183,15 +146,23 @@ def start_linkedin_login_bot(email, password, user_id):
         session.add(current_user)
         session.commit()
         conn = get_conn()
+        data = None
+        #tries = 0
+        #while(data == None and tries<4):
+        #    data = getter.get_linkedin_data()
+        #    tries += 1
+        #getter.quit()
+        #if data:
+        #    contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
         conn.hset("linkedin_login_outcome", email, "success:True")
         return True
-    
+
     if pin_requested:
         #linkedin requested a pin
         current_user.linkedin_login_email = email
         current_user.set_linkedin_password(password, session=session)
         session.add(current_user)
-        session.commit()  
+        session.commit()
         q = get_q()
         q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
         conn.hset("linkedin_login_outcome", email, "pin_requested:{}".format(error))
@@ -213,10 +184,18 @@ def give_pin(email, pin):
     return False
 
 
+
 ################
 ##    VIEWS   ##
 ################
 
+@prospects.route("/auth-proxy.html")
+def auth_proxy():
+    return render_template("auth_proxy.html")
+
+@prospects.route("/auth-proxy.js")
+def auth_proxy_js():
+    return render_template("auth_proxy.js")
 
 @prospects.route("/", methods=['GET', 'POST'])
 def start():
@@ -250,7 +229,7 @@ def linkedin_login():
     if not current_user.is_authenticated():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
-        return redirect(url_for("managers.manager_home")) 
+        return redirect(url_for("managers.manager_home"))
     valid = None
     form = LinkedinLoginForm
     if request.method == 'POST':
@@ -261,8 +240,9 @@ def linkedin_login():
             contacts_array, user = current_user.refresh_contacts(service_filter='linkedin')
 
             #If the user already has linkedin contacts, we can skip all the logic. valid=True will cause the window to close.
-            if user.contacts_from_linkedin>0:
-                return render_template('linkedin_login.html', form=form, valid=True, contact_count=user.contacts_from_linkedin)
+            #TODO reimplement this. Need to add another flag on front end
+            #if user.contacts_from_linkedin>0:
+            #    return jsonify({"success":True})
 
             #Otherwise, we need to run a task
             q = get_q()
@@ -281,7 +261,7 @@ def linkedin_pin():
     message = request.args.get("message")
     email = current_user.linkedin_login_email
     if pin and email:
-        pin_worked = give_pin(email, pin)      
+        pin_worked = give_pin(email, pin)
     return render_template('linkedin_pin.html',pin_worked=pin_worked)
 
 @csrf.exempt
@@ -301,7 +281,7 @@ def linkedin_login_status():
         return jsonify({"success": False, "error": error, "finished": True})
 
     return jsonify({"finished": False})
-        
+
 
 
 
