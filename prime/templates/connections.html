@@ -51,6 +51,9 @@
 <hr/>
 <div class="section" id='connections-section'>
   <div class="wrap" id='connections'>
+    {% if not current_user.is_manager and current_user.p200_completed %}
+      <div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div>
+    {% endif %}
     {% include "_partials/connections_table.html" %}
   </div>
 </div>

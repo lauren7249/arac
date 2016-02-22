@@ -115,9 +115,6 @@ header {
       margin-right: 30px;
     }
   }
-  .contacts-left {    
-    color: $purple;
-  }
   #settings {
     position: relative;
 
@@ -753,6 +750,12 @@ $padcount: 5;
     font-size: 18px;
     font-weight: 600;
   }
+  th.agent-hired,
+  td.agent-hired {
+    select {
+      width: auto;
+    }
+  }
   td.agent {
     width: 300px;
     span {
@@ -1079,25 +1082,54 @@ table.contacts-table {
 }
 
 
-div.pagination {
-  width: 100%;
-  display: block;
-  margin: 20px auto;
-  border: 1px solid #eee;
+// Paginations ==================================
+
+.pagination {
+  display: table;
+  margin: 40px auto;
   padding: 0;
 
-  a {
-    margin: 0;
-    display: inline-block;
-    cursor: pointer;
-    padding: 15px 20px;
-    border-right: 1px solid #eee;
-    color: #3084CE;
+  ul {
+    margin: 0 0 10px 0;
+    padding: 0;
+    @extend %clearfix;
+    a {
+      margin: 0;
+      display: block;
+      float: left;
+      cursor: pointer;
+      padding: 10px 20px;
+      margin-right: -1px;
+      background: white;
+      border: 1px solid $border;
+      color: $blue;
+
+      &.first {
+        @include border-radius(4px 0 0 4px);
+      }
+      &.last {
+        @include border-radius(0 4px 4px 0);
+      }
+      &.disabled {
+        cursor: default;
+        color: $border;
+        &:hover {
+          background: white;
+        }
+      }
+      &.active,
+      &:hover {
+        background: darken(white, 5%);
+      }
+      &.active {
+        cursor: default;
+      }
+      
+    }
   }
 
-  a.active {
-    background: #fff;
-  }
+
+  
 }
 
 #connections {
@@ -1112,6 +1144,11 @@ div.pagination {
     float: left;
     margin-right: 10px;
   }
+}
+
+.contacts-left {    
+  color: $purple;
+  margin-bottom: 20px;
 }
 
 
@@ -1546,6 +1583,15 @@ $progress-bar: 15px;
 @keyframes grow-bar {
   0%   { width: 0%; }
   100% { width: 100%; }
+}
+
+.loading {
+  text-align: center;
+  margin: 20px 0;
+  img {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 
