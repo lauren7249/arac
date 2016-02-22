@@ -46,11 +46,9 @@ class LinkedinCsvGetter(object):
         pin_form = self.driver.find_element_by_id("verification-code")
         pin_form.clear()
         pin_form.send_keys(pin)
-        time.sleep(5)
-        import pdb
-        pdb.set_trace()
+        time.sleep(6)
         pin_form.send_keys(Keys.RETURN)
-        time.sleep(5)
+        time.sleep(6)
         if self.driver.title == u'Welcome! | LinkedIn':
             return True
         return False
