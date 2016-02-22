@@ -68,9 +68,6 @@ header .nav-right span {
   vertical-align: middle;
   margin-right: 30px;
 }
-header .contacts-left {
-  color: #9F81EB;
-}
 header #settings {
   position: relative;
 }
@@ -545,15 +542,15 @@ hr {
   border: none !important;
 }
 
-.wrap, .onboard-header {
+.wrap, .pagination ul, .onboard-header {
   *zoom: 1;
 }
-.wrap:before, .onboard-header:before, .wrap:after, .onboard-header:after {
+.wrap:before, .pagination ul:before, .onboard-header:before, .wrap:after, .pagination ul:after, .onboard-header:after {
   display: table;
   content: '';
   line-height: 0;
 }
-.wrap:after, .onboard-header:after {
+.wrap:after, .pagination ul:after, .onboard-header:after {
   clear: both;
 }
 
@@ -720,6 +717,10 @@ hr {
 .manager-dashboard td {
   font-size: 18px;
   font-weight: 600;
+}
+.manager-dashboard th.agent-hired select,
+.manager-dashboard td.agent-hired select {
+  width: auto;
 }
 .manager-dashboard td.agent {
   width: 300px;
@@ -1090,23 +1091,50 @@ table.contacts-table .contact-buttons .button {
   background-image: url("/static/img/social/location-blue.png");
 }
 
-div.pagination {
-  width: 100%;
-  display: block;
-  margin: 20px auto;
-  border: 1px solid #eee;
+.pagination {
+  display: table;
+  margin: 40px auto;
   padding: 0;
 }
-div.pagination a {
-  margin: 0;
-  display: inline-block;
-  cursor: pointer;
-  padding: 15px 20px;
-  border-right: 1px solid #eee;
-  color: #3084CE;
+.pagination ul {
+  margin: 0 0 10px 0;
+  padding: 0;
 }
-div.pagination a.active {
-  background: #fff;
+.pagination ul a {
+  margin: 0;
+  display: block;
+  float: left;
+  cursor: pointer;
+  padding: 10px 20px;
+  margin-right: -1px;
+  background: white;
+  border: 1px solid #DADFE1;
+  color: #27B4F4;
+}
+.pagination ul a.first {
+  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  -ms-border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
+}
+.pagination ul a.last {
+  -webkit-border-radius: 0 4px 4px 0;
+  -moz-border-radius: 0 4px 4px 0;
+  -ms-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+}
+.pagination ul a.disabled {
+  cursor: default;
+  color: #DADFE1;
+}
+.pagination ul a.disabled:hover {
+  background: white;
+}
+.pagination ul a.active, .pagination ul a:hover {
+  background: #f2f2f2;
+}
+.pagination ul a.active {
+  cursor: default;
 }
 
 #connections {
@@ -1117,6 +1145,11 @@ div.pagination a.active {
   display: block;
   float: left;
   margin-right: 10px;
+}
+
+.contacts-left {
+  color: #9F81EB;
+  margin-bottom: 20px;
 }
 
 .onboard-header {
@@ -1522,6 +1555,15 @@ form.dropzone.dz-success {
     width: 100%;
   }
 }
+.loading {
+  text-align: center;
+  margin: 20px 0;
+}
+.loading img {
+  width: 50px;
+  height: 50px;
+}
+
 .signup {
   width: 50%;
   max-width: 800px;
