@@ -4,26 +4,25 @@
 {% block content %}
 
 <div id="linkedin_pin_form">
-  <form class="card" autocomplete="false">
-    <header>
-      <div class="header-logo"></div>
-    </header>
-    <h3>A security pin was sent to your email. Please paste the pin in the box below and submit.</h3>
-    <hr>
-    <div class="col-8">
-      <input type="text" name='pin' id="inputPin" placeholder="Enter PIN" autocomplete="new-pin">
-    </div>
-    <div class="col-4">
-      <button id="submit_pin" class="button fluid linkedin">Submit</button>
-    </div>
-  </form>
+  <header>
+    <div class="header-logo"></div>
+  </header>
+  <h3>A security pin was sent to your email. Please paste the pin in the box below and submit.</h3>
+  <hr>
+  <div class="col-8">
+    <input type="text" name='pin' id="inputPin" placeholder="Enter PIN" autocomplete="new-pin">
+  </div>
+  <div class="col-4">
+    <button id="submit_pin" class="button fluid linkedin">Submit</button>
+  </div>
 </div>
 <script type="text/javascript">  
 $(function() {
   $(".overlay").fadeOut();
   $(".waiting").hide();
 
-  $("#submit_pin").click(function(){
+  $("#submit_pin").click(function(e){
+    e.preventDefault();
     $(".overlay").fadeIn();
     $(".waiting").show();
     var csrf_token = $("[_csrf_token]").val()
