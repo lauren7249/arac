@@ -389,57 +389,46 @@ def connections():
         return redirect(url_for("auth.login"))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    if current_user.p200_approved:
-        return redirect(url_for('prospects.p200'))
     if not current_user.p200_completed:
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
         return redirect(url_for('prospects.start'))
     page = int(request.args.get("p", 1))
+    p200 = bool(request.args.get("p200",False))
     order = request.args.get("order", "a-z")
     agent = current_user
-    connections = ClientProspect.query.filter(
+    if p200:
+        active="p200"
+        template="p200.html"
+        connections = ClientProspect.query.filter(
+            ClientProspect.good==True,
+            ClientProspect.user==agent,
+            ).join(Prospect).order_by(FILTER_DICT[order])          
+    else:
+        active="connections"
+        template="connections.html"
+        connections = ClientProspect.query.filter(
             ClientProspect.processed==False,
             ClientProspect.user==agent,
             ClientProspect.good==False,
             ClientProspect.stars>0,
-            ).join(Prospect).order_by(FILTER_DICT[order])
+            ).join(Prospect).order_by(FILTER_DICT[order])    
     if connections.filter(ClientProspect.extended==False).count() > 1:
         connections = connections.filter(ClientProspect.extended == False)
     query, industry, state, stars = get_args(request)
     search = SearchResults(connections, query=query, industry=industry, state=state, stars=stars)
     connections = search.results().paginate(page, 25, False)
-    return render_template("connections.html",
+    return render_template(template,
             agent=agent,
             page=page,
             connections=connections.items,
             pagination=connections,
-            active="connections")
+            active=active)
 
 @csrf.exempt
 @prospects.route("/p200", methods=['GET', 'POST'])
 def p200():
-    if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    if not current_user.p200_completed:
-        if current_user.hiring_screen_completed:
-            return redirect(url_for('prospects.dashboard'))
-        return redirect(url_for('prospects.start'))
-    page = int(request.args.get("p", 1))
-    agent = current_user
-    connections = ClientProspect.query.filter(
-            ClientProspect.good==True,
-            ClientProspect.user==agent,
-            ).join(Prospect).order_by(Prospect.name)
-    connections = connections.paginate(page, 25, False)
-    return render_template("p200.html",
-            agent=agent,
-            page=page,
-            connections=connections.items,
-            pagination=connections,
-            active="p200")
+    return redirect(url_for("prospects.connections", p200="True"))
 
 @csrf.exempt
 @prospects.route("/add-connections", methods=['GET', 'POST'])
