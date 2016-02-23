@@ -1,0 +1,186 @@
+<script type='text/javascript'>
+$(function() {
+   var $industry = $("[name='market']");
+   var $state = $("[name='state']")
+   var $stars = $("[name='stars']");
+   var $query = $("[name='search-box']");
+   var $order = 'a-z';
+   var $page = 1;
+   var isSearching = false;
+
+   if ($industry.val()=='' && window.location.search.indexOf("industry=")>0) {
+      var industry_name = window.location.search.split("industry=")[window.location.search.split("industry=").length - 1];
+      document.getElementById("market").value = decodeURIComponent(industry_name);
+      showLoader()
+      search()      
+   }
+
+   if ($state.val()=='' && window.location.search.indexOf("state=")>0) {
+      var state_name = window.location.search.split("state=")[window.location.search.split("state=").length - 1];
+      document.getElementById("state").value = decodeURIComponent(state_name);
+      showLoader()
+      search()      
+   }
+
+   if ($query.val()=='' && window.location.search.indexOf("query=")>0) {
+      var query_name = window.location.search.split("query=")[window.location.search.split("query=").length - 1];
+      document.getElementById("search-box").value = decodeURIComponent(query_name);
+   } else {
+      document.getElementById("search-box").value = '';
+   }
+
+   $("[name='search-box']").keyup(function() {
+     delay(function(){
+       showLoader()
+       search()
+    }, 1000 );
+   });
+
+   $("label.sort-abc").click(function() {
+     $order = $(this).data("sort");
+     showLoader()
+     search()
+   });
+
+  function bindStars() {
+     $("[name='stars']").change(function() {
+       showLoader()
+       search()
+     });
+   }
+
+   function bindMarket() {
+     $("[name='market']").change(function() {
+       showLoader()
+       search()
+     });
+   }
+
+   function bindState() {
+     $("[name='state']").change(function() {
+       showLoader()
+       search()
+     });
+   }
+
+   function bindPagination() {
+     $("[data-page]").click(function() {
+       showLoader()
+       $page = $(this).data('page');
+       search()
+     });
+   }
+
+   function bindPageFunctions() {
+     addConnection();
+     skipConnection();
+     addAll();
+     skipAll();
+     selectAll();
+     bindStars()
+     bindMarket()
+     bindState()
+     bindPagination()
+   }
+
+    var delay = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+    })();
+ 
+
+   function showLoader() {
+     $(".loading").show();
+   }
+
+   function hideLoader() {
+     $(".loading").fadeOut();
+   }
+
+  function search() {
+     if (isSearching) {
+       return false;
+     }
+     isSearching = true;
+     $('html, body').animate({scrollTop: "221px"});
+     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&state=" + encodeURIComponent($state.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&order=" + $order + "&p=" + $page + " #connections", function() {
+         isSearching = false;
+         bindPageFunctions();
+         $("[data-page]").removeClass("active")
+         $("[data-page='" + $page + "']").addClass("active")
+         hideLoader();
+     });
+  }
+
+  function addConnection() {
+    $("[data-add]").click(function() {
+        var id = $(this).data("add");
+        var params = {id: id}
+        //var n = agent.p200_count;
+        $.post("/add-connections", params, function() {
+          $("[data-row=" + id + "]").slideUp();
+          window.location.reload(true);
+        });
+    });
+  }
+
+  function skipConnection() {
+    $("[data-skip]").click(function() {
+        var id = $(this).data("skip");
+        var params = {id: id}
+        $.post("/skip-connections", params, function() {
+          $("[data-row=" + id + "]").slideUp();
+        });
+    });
+  }
+
+  function addAll() {
+    $("#add-all").click(function() {
+        var ids = $(".connection-checkbox:checked").map(function () {
+          return $(this).data("connection-id");
+        }).get();
+        var ids = ids.join()
+        var params = {id:ids, multi:true}
+        $.post("/add-connections", params, function() {
+          var saved = ids.split(",");
+          for (var j=0;j<saved.length;j++) {
+            $("[data-row='" + saved[j] + "']").slideUp();
+          }
+          window.location.reload(true);
+        });
+    });
+  }
+
+  function skipAll() {
+    $("#skip-all").click(function() {
+        var ids = $(".connection-checkbox:checked").map(function () {
+          return $(this).data("connection-id");
+        }).get();
+        var ids = ids.join()
+        var params = {id:ids, multi:true}
+        $.post("/skip-connections", params, function() {
+          var saved = ids.split(",")
+          for (var j=0;j<saved.length;j++) {
+            $("[data-row='" + saved[j] + "']").slideUp();
+          }
+        });
+    });
+  }
+
+  function selectAll() {
+    $("[name='select-all']").click(function() {
+        if ($(this).is(":checked")) {
+          $(".connection-checkbox").prop("checked", true)
+        } else {
+          $(".connection-checkbox").prop("checked", false)
+        }
+    });
+  }
+  hideLoader()
+  bindPageFunctions()
+  
+ });
+</script>
