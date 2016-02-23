@@ -36,15 +36,9 @@ class LinkedinCompanyService(Service):
     Output is going to be existig data enriched with linkedin company info
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(LinkedinCompanyService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(LinkedinCompanyService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
 
 class LinkedinCompanyRequest(S3SavedRequest):

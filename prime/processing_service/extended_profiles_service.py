@@ -9,10 +9,10 @@ def wrapper(person):
     try:
         person_profile = person.get("linkedin_data")
         associated_profiles = PersonRequest()._get_associated_profiles(person_profile)
-        associated_profiles = Service()._dedupe_profiles(associated_profiles)
+        associated_profiles = Service({})._dedupe_profiles(associated_profiles)
         return associated_profiles
     except Exception, e:
-        print __name__ + str(e)
+        print __name__ + " " + str(e)
         return person
         
 class ExtendedProfilesService(Service):
@@ -21,17 +21,11 @@ class ExtendedProfilesService(Service):
     Output is going to be array of extended profiles
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(ExtendedProfilesService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(ExtendedProfilesService, self).__init__(data, *args, **kwargs)
         self.intermediate_output = []
         self.pool_size = 20
         self.wrapper = wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
 
     def _collapse(self):
         extended_referrers = {}
@@ -84,7 +78,7 @@ class ExtendedProfilesService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}
 
     def process(self):
         self.logstart()
@@ -96,4 +90,4 @@ class ExtendedProfilesService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}

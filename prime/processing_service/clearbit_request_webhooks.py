@@ -121,7 +121,7 @@ class ClearbitRequest(S3SavedRequest):
         linkedin_url = self._linkedin_url(social_accounts)
         images = self._images()
         data = {"social_accounts": social_accounts,
-                "linkedin_urls": linkedin_url,
+                "linkedin_url": linkedin_url,
                 "images": images,
                 "clearbit_fields": self.clearbit_json}
         if self.clearbit_json and self.clearbit_json.get("gender"):

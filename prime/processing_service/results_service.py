@@ -22,14 +22,8 @@ from prime.users.models import User
 
 class ResultService(Service):
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        self.client_data = client_data
-        self.data = data
-        self.output = []
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-        super(ResultService, self).__init__(*args, **kwargs)
+    def __init__(self, data, *args, **kwargs):
+        super(ResultService, self).__init__(data, *args, **kwargs)
 
     def _create_or_update_client_prospect(self, prospect, user, profile):
         if not user or not prospect:
@@ -153,7 +147,6 @@ class ResultService(Service):
         person = SocialProfilesRequest(person).process()
         request = ProfileBuilderRequest(person)
         profile = request.process()
-        profile = request._get_job_fields(profile, person)
         prospect = self._create_or_update_prospect(profile)
         self._create_or_update_schools(prospect, profile)
         self._create_or_update_jobs(prospect, profile)
@@ -196,4 +189,4 @@ class ResultService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}

@@ -78,7 +78,7 @@ def get_q():
 
 def queue_processing_service(client_data, contacts_array):
     from prime.processing_service.processing_service import ProcessingService
-    service = ProcessingService(client_data, contacts_array)
+    service = ProcessingService({"client_data":client_data, "data":contacts_array})
     service.process()
     return True
 
@@ -541,6 +541,32 @@ def submit_p200_to_manager():
     return jsonify({"success": True})
 
 
+@prospects.route("/exclusions_report", methods=['GET'])
+def exclusions_export():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    resp = flask.Response("")
+    data = current_user.exclusions_report
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet("Exclusions")
+    for rownum in xrange(0, len(data)):
+        row = data[rownum]
+        for colnum in xrange(0, len(row)):
+            col = row[colnum]
+            try:
+                worksheet.write(rownum, colnum, col)
+            except:
+                worksheet.write(rownum, colnum, str(col))
+    workbook.close()
+    output.seek(0)
+    return flask.Response(
+        output.read(),
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-disposition":
+                 "attachment; filename=exclusions_report.xlsx"})
 
 @prospects.route("/contacts_export", methods=['GET'])
 def contacts_export():

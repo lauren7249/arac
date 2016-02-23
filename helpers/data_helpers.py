@@ -2,6 +2,7 @@ import collections
 import itertools
 import operator
 import numpy as np
+from collections import defaultdict
 
 def flatten(d, parent_key='', sep='_'):
     items = []
@@ -86,3 +87,25 @@ def get_center(coords, remove_outliers=False):
             min_total_distance = total_distance
             center = coord
     return center
+
+def json_array_to_matrix(json_array):
+    all_keys = defaultdict(int)
+    flattened_array = []
+    for rec in json_array:
+        flattened = flatten(rec)
+        flattened_array.append(flattened)
+        keys = flattened.keys()
+        for key in keys:
+            all_keys[key] += 1
+    columns = sorted(all_keys, key=all_keys.get, reverse=True)
+    #header
+    print columns
+    matrix = [columns]
+    for rec in flattened_array:
+        row = []
+        for column in columns:
+            row.append(rec.get(column))
+        matrix.append(row)
+    return matrix
+
+        

@@ -51,13 +51,9 @@ class GenderService(Service):
     Output is going to be existig data enriched with genders
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(GenderService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(GenderService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        self.logger = logger
 
 class GenderRequest(S3SavedRequest):
 

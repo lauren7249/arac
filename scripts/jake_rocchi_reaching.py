@@ -60,7 +60,8 @@ def for_jake(line):
     age = 2016 - dob_year_mid
     if age<22 or age>40:
         return []
-    lead_location = GeocodeRequest(linkedin_data).process()
+    location_raw = linkedin_data.get("location")
+    lead_location = GeocodeRequest(location_raw).process()
     if not lead_location:
         return []
     latlng =lead_location.get("latlng")

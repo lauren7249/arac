@@ -9,6 +9,7 @@ from boto.s3.key import Key
 import unittest
 from flask.ext.testing import TestCase, LiveServerTestCase
 from requests import session
+from geopy.geocoders import Nominatim
 from service import Service, S3SavedRequest
 from helper import parse_out, most_common, get_center, domain_match, name_match
 from constants import SCRAPING_API_KEY, GLOBAL_HEADERS
@@ -19,6 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(BASE_DIR.replace("/prime", ""))
 sys.path.append(BASE_DIR + "/processing_service")
 
+GEOLOCATOR = Nominatim()
 
 class MapQuestRequest(S3SavedRequest):
 
@@ -54,7 +56,20 @@ class MapQuestRequest(S3SavedRequest):
             geocode = self._geocode_from_json()
             if not geocode:
                 geocode = self._geocode_from_scraps()
+            if geocode and geocode.get("latlng") and not geocode.get("region"):
+                reverse = GEOLOCATOR.reverse(geocode.get("latlng"))
+                if not reverse or not reverse.raw or not reverse.raw.get("address"): 
+                    return geocode
+                state = reverse.raw.get("address").get("state")
+                geocode["region"] = state
+                if not geocode.get("locality"):
+                    city = reverse.raw.get("address").get("city")
+                    geocode["locality"] = city
+                if not geocode.get("country"):
+                    country = reverse.raw.get("address").get("country")
+                    geocode["country"] = country                    
             return geocode
+
         except Exception, e:
             self.logger.warn("Location Parsing Issue: %s", str(e))
             return None

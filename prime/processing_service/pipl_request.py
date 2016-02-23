@@ -123,12 +123,11 @@ class PiplRequest(S3SavedRequest):
         self._build_url()
         if self.url is None:
             return {}
-        print self.url
         self.pipl_json = None
         tries = 0
         while self.pipl_json is None and tries<3:
             try:
-                html = self._make_request(proxies=self.proxies)
+                html = self._make_request()
                 self.pipl_json = json.loads(html.decode("utf-8-sig"))
             except Exception, e:
                 print "Error: " + str(e)
@@ -140,7 +139,7 @@ class PiplRequest(S3SavedRequest):
         linkedin_id = self._linkedin_id(self.pipl_json)
         linkedin_url = self._linkedin_url(social_accounts)
         data = {"social_accounts": social_accounts,
-                "linkedin_urls": linkedin_url,
+                "linkedin_url": linkedin_url,
                 "linkedin_id": linkedin_id,
                 "images": images}
         if self.level == "social":

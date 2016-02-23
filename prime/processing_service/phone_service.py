@@ -49,49 +49,26 @@ class PhoneService(Service):
     Output is going to be existig data enriched with phone numbers
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(PhoneService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(PhoneService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
     def multiprocess(self):
         self.logstart()
         try:
-            self.service = LinkedinCompanyService(self.client_data, self.data)
-            self.data = self.service.multiprocess()        
-            self.service = BloombergPhoneService(self.client_data, self.data)
-            self.data = self.service.multiprocess()
+            self.service = LinkedinCompanyService(self.input_data)
+            self.input_data = self.service.multiprocess()        
+            self.service = BloombergPhoneService(self.input_data)
+            self.input_data = self.service.multiprocess()
             self.pool = multiprocessing.Pool(self.pool_size)
-            self.output = self.pool.map(self.wrapper, self.data)
+            self.output = self.pool.map(self.wrapper, self.input_data.get("data",[]))
             self.pool.close()
             self.pool.join()
-            self.service = ClearbitPhoneService(self.client_data, self.output)
-            self.output = self.service.multiprocess()
+            self.service = ClearbitPhoneService({"client_data":self.client_data,"data":self.output})
+            self.output_data = self.service.multiprocess()
             #elf.output = self.user.refresh_p200_data(self.output)  
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return self.output_data
 
-    def process(self, favor_mapquest=False):
-        self.logstart()
-        try:
-            self.service = LinkedinCompanyService(self.client_data, self.data)
-            self.data = self.service.process()          
-            self.service = BloombergPhoneService(self.client_data, self.data)
-            self.data = self.service.process()
-            for person in self.data:
-                person = wrapper(person, favor_mapquest=favor_mapquest)
-                self.output.append(person)
-            self.service = ClearbitPhoneService(self.client_data, self.output)
-            self.output = self.service.process()
-            #self.output = self.user.refresh_p200_data(self.output)  
-        except:
-            self.logerror()
-        self.logend()
-        return self.output

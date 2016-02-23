@@ -28,15 +28,9 @@ class CollegeDegreeService(Service):
     Output is going to be existig data enriched with college_grad boolean
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(CollegeDegreeService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(CollegeDegreeService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
 
 class CollegeDegreeRequest(S3SavedRequest):
 

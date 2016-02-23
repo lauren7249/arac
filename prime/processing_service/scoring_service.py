@@ -30,16 +30,9 @@ class ScoringService(Service):
     Output is going to be existig data enriched with wealth scores
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(ScoringService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(ScoringService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        self.hired = self.client_data.get("hired")
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
     def compute_stars(self):
         all_scores = [profile.get("lead_score") for profile in self.output]
@@ -67,7 +60,7 @@ class ScoringService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}
 
     def process(self):
         self.logstart()
@@ -79,7 +72,7 @@ class ScoringService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}
 
 class WealthScoreRequest(S3SavedRequest):
 
@@ -127,7 +120,7 @@ class LeadScoreRequest(S3SavedRequest):
         self.referrers = person.get("referrers",[])
         self.emails = person.get("email_addresses",[])
         self.sources = person.get("sources",[])
-        self.images = person.get("profile_image_urls",[])
+        self.images = person.get("profile_image_urls",{})
         if not self.social_accounts:
             self.social_accounts = []
         if not self.common_schools:
@@ -139,7 +132,7 @@ class LeadScoreRequest(S3SavedRequest):
         if not self.sources:
             self.sources = []
         if not self.images:
-            self.images = []
+            self.images = {}
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)        

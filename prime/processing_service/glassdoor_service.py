@@ -26,16 +26,10 @@ class GlassdoorService(Service):
     Expected input is JSON of Linkedin Data
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(GlassdoorService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(GlassdoorService, self).__init__(data, *args, **kwargs)
         self.pool_size = 20
         self.wrapper = wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
 class GlassdoorRequest(S3SavedRequest):
 

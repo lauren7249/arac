@@ -31,12 +31,14 @@ def get_people_viewed_also(url=None, version='1.0.0'):
         cur.execute(query)
         rows = cur.fetchall()
         if not rows:
+            conn.close()
             return []
         output_rows = []
         for row in rows:
             out_row = dict(row)
             output = reformat_crawlera(out_row)
             output_rows.append(output)
+        conn.close()
         return output_rows
     return []
 
@@ -59,16 +61,18 @@ def get_company(url=None, linkedin_id=None, version='1.0.0'):
             cur.execute(query)
             row = cur.fetchone()
             if not row:
+                conn.close()
                 return {}
             row = dict(row)
+            conn.close()
             return row
         except:
             pass
     return {}
 
-def get_person(url=None, linkedin_id=None, version='1.0.0'):
+def get_person(url=None, linkedin_id=None, name=None, headline=None, version='1.0.0'):
     if version=='1.0.0':
-        if not url and not linkedin_id:
+        if (not url and not linkedin_id) and (not headline or not name):
             return {}
         try:
             conn = psycopg2.connect(CONNECTION_STRING)
@@ -79,24 +83,20 @@ def get_person(url=None, linkedin_id=None, version='1.0.0'):
         if url:
             url = url.replace("https://","http://")
             query = """SELECT * from %s where url='%s'""" % (PEOPLE_TABLE, url)
-        else:
+        elif linkedin_id:
             query = """SELECT * from %s where linkedin_id='%s'""" % (PEOPLE_TABLE, linkedin_id)
+        elif headline and name:
+            headline = headline.replace("'","''")
+            name = name.replace("'","''")
+            query = """SELECT * from %s where headline='%s' and full_name='%s' """ % (PEOPLE_TABLE, headline, name)
         cur.execute(query)
         row = cur.fetchone()
         if not row:
+            conn.close()
             return {}
         row = dict(row)
         output = reformat_crawlera(row)
+        conn.close()
         return output
     return {}
 
-class get_person_by_url:
-    def POST(self):
-        d = json.loads(web.data())
-        url = d.get("url","")
-        version = d.get("api_version")
-        person = get_profile_by_any_url(url)
-        return json.dumps(person)
-
-if __name__ == "__main__":
-    app.run()

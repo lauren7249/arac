@@ -15,55 +15,52 @@ from clearbit_request_webhooks import ClearbitRequest
 from helpers.stringhelpers import domestic_area
 
 def person_wrapper(person):
-    email = person.keys()[0]
-    data = person.values()[0]
-    # if data.get("linkedin_urls"):
-    #     return {email:data}   
+    email = person.get("email")
     try:
         request = ClearbitRequest(email)
         data = request.get_person()
-        return {email:data}   
+        person.update(data)
+        return person
     except Exception, e:
-        print __name__ + str(e)
-        return {email:{}}
+        print __name__ + ": " + str(e)
+        return person
 
 class ClearbitPersonService(Service):
     """
+
+    Input:
+            {"data":[{email, info}]} 
+    Output:
+            {"data":[{email, clearbit info}]} 
     Expected input is JSON of unique email addresses from cloudsponge
     Output is going to be social accounts and Linkedin IDs via clearbit
     rate limit is 600/minute
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(ClearbitPersonService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(ClearbitPersonService, self).__init__(data, *args, **kwargs)
         self.wrapper = person_wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
     def _merge(self, original_data, output_data):
         _linkedin_urls_found  = 0
         for i in xrange(0, len(original_data)):
-            original_person = original_data[i].values()[0]
-            output_person = output_data[i].values()[0]
+            original_person = original_data[i]
+            output_person = output_data[i]
             social_accounts = original_person.get("social_accounts",[]) + output_person.get("social_accounts",[])
             sources = original_person.get("sources",[]) + output_person.get("sources",[])
             images = original_person.get("images",[]) + output_person.get("images",[])
-            linkedin_urls = original_person.get("linkedin_urls") if original_person.get("linkedin_urls") else output_person.get("linkedin_urls")
-            if linkedin_urls:
+            linkedin_url = original_person.get("linkedin_url") if original_person.get("linkedin_url") else output_person.get("linkedin_url")
+            if linkedin_url:
                 _linkedin_urls_found+=1
-            output_data[i][output_data[i].keys()[0]]["social_accounts"] = social_accounts
-            output_data[i][output_data[i].keys()[0]]["linkedin_urls"] = linkedin_urls
-            output_data[i][output_data[i].keys()[0]]["images"] = images
-            output_data[i][output_data[i].keys()[0]]["sources"] = sources
+            output_data[i]["social_accounts"] = social_accounts
+            output_data[i]["linkedin_url"] = linkedin_url
+            output_data[i]["images"] = images
+            output_data[i]["sources"] = sources
             #the one that has the job title is the linkedin record
-            output_data[i][output_data[i].keys()[0]]["job_title"] = original_person.get("job_title") if original_person.get("job_title") else output_person.get("job_title")
-            output_data[i][output_data[i].keys()[0]]["companies"] = original_person.get("companies") if original_person.get("job_title") else output_person.get("companies")
-            output_data[i][output_data[i].keys()[0]]["first_name"] = original_person.get("first_name") if original_person.get("job_title") else output_person.get("first_name")
-            output_data[i][output_data[i].keys()[0]]["last_name"] = original_person.get("last_name") if original_person.get("job_title") else output_person.get("last_name")      
+            output_data[i]["job_title"] = original_person.get("job_title") if original_person.get("job_title") else output_person.get("job_title")
+            output_data[i]["companies"] = original_person.get("companies") if original_person.get("job_title") else output_person.get("companies")
+            output_data[i]["first_name"] = original_person.get("first_name") if original_person.get("job_title") else output_person.get("first_name")
+            output_data[i]["last_name"] = original_person.get("last_name") if original_person.get("job_title") else output_person.get("last_name")      
         self.logger.info("{} linkedin urls found".format(_linkedin_urls_found))      
         return output_data
 
@@ -77,7 +74,7 @@ class ClearbitPersonService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}
 
     def multiprocess(self):
         self.logstart()
@@ -90,7 +87,7 @@ class ClearbitPersonService(Service):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}
 
 def phone_wrapper(person, overwrite=False):
     try:
@@ -114,14 +111,9 @@ class ClearbitPhoneService(Service):
     rate limit is 600/minute with webhooks
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(ClearbitPhoneService, self).__init__(*args, **kwargs)
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(ClearbitPhoneService, self).__init__(data, *args, **kwargs)
         self.wrapper = phone_wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
 
 
 

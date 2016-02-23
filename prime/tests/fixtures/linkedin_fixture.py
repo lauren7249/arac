@@ -135,13 +135,13 @@ expected = [
             "projects": [],
             "complete": True
         },
-        "julia.mailander@gmail.com": {
-            "linkedin_urls": "http://www.linkedin.com/pub/julia-mailander/11/898/614",
-            "social_accounts": [
-                "http://www.linkedin.com/pub/julia-mailander/11/898/614",
-                "https://plus.google.com/103608304178303305879/about"
-            ]
-        }
+        "email": "julia.mailander@gmail.com",
+        "linkedin_url": "http://www.linkedin.com/pub/julia-mailander/11/898/614",
+        "social_accounts": [
+            "http://www.linkedin.com/pub/julia-mailander/11/898/614",
+            "https://plus.google.com/103608304178303305879/about"
+        ]
+        
     },
     {
         "linkedin_data":
@@ -233,7 +233,7 @@ expected = [
                 "projects": [],
                 "complete": True
             },
-        "laurentracytalbot@gmail.com": { }
+        "email": "laurentracytalbot@gmail.com"
     },
     {
         "linkedin_data": {
@@ -364,12 +364,12 @@ expected = [
             "projects": [],
             "complete": True
         },
-        "julia.mailander@gmail.com": {
-            "linkedin_urls": "http://www.linkedin.com/in/juliamailander",
-            "social_accounts": [
-                "http://www.linkedin.com/in/juliamailander",
-                "https://plus.google.com/103608304178303305879/about"
-            ]
-        }
+        "email": "julia.mailander@gmail.com",
+        "linkedin_url": "http://www.linkedin.com/in/juliamailander",
+        "social_accounts": [
+            "http://www.linkedin.com/in/juliamailander",
+            "https://plus.google.com/103608304178303305879/about"
+        ]
+
     }
 ]

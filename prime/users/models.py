@@ -6,6 +6,7 @@ import traceback
 from collections import Counter
 import datetime
 import logging
+from helpers.data_helpers import json_array_to_matrix
 from flask import current_app, render_template
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -317,6 +318,17 @@ class User(db.Model, UserMixin):
             user_request._make_request(by_source.values())
         return by_source.values(), self
 
+    def generate_exclusions_report(self, excluded):
+        matrix = json_array_to_matrix(excluded)
+        user_request = UserRequest(self.email, type='excluded')
+        user_request._make_request(matrix)
+
+    @property
+    def exclusions_report(self):
+        user_request = UserRequest(self.email, type='excluded')
+        matrix = user_request.lookup_data()
+        return matrix
+
     @property
     def manager(self):
         from prime.managers.models import ManagerProfile
@@ -468,10 +480,9 @@ class User(db.Model, UserMixin):
 
     def build_statistics(self):
         """
-        Calculate most popular schools,
+        Calculate most popular states,
         industries, average gender, age, college degree, and wealth score
         """
-        schools = {}
         industries = {}
         locations = {}
         gender = {"female":0,"male":0,"unknown":0}
@@ -534,8 +545,6 @@ class User(db.Model, UserMixin):
                 logger.warn("{} has industry_category=None )".format(client_prospect.prospect.linkedin_industry_raw))
             if client_prospect.prospect and client_prospect.prospect.us_state:
                 locations[client_prospect.prospect.us_state] = locations.get(client_prospect.prospect.us_state, 0) + 1
-            for school in client_prospect.common_schools:
-                schools[school] = schools.get(school, 0) + 1
         males = float(gender["male"])
         females = float(gender["female"])
         #Can't divide by 0
@@ -564,8 +573,7 @@ class User(db.Model, UserMixin):
         else:
             wealth_score = sum(wealth_score)/len(wealth_score)
 
-        data = {"schools": schools,
-                "network_size": first_degree_count,
+        data = {"network_size": first_degree_count,
                 "count_extended": extended_count,
                 "industries": industries,
                 "male_percentage": male_percentage,
@@ -626,7 +634,6 @@ class ClientProspect(db.Model):
     referrers = db.Column(JSONB, default=[])
     lead_score = db.Column(Integer)
     stars = db.Column(Integer)
-    common_schools = db.Column(JSONB, default=[])
     sources = db.Column(JSONB, default=[])
 
     @property

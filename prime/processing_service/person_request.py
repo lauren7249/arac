@@ -129,12 +129,11 @@ class PersonRequest(object):
             current_job = {"title": person.get("job_title"), "company": person.get("company")}
         return current_job
 
-    def _get_linkedin_url(self, person):
-        try:
-            return person.values()[0]["linkedin_urls"]
-        except:
-            return person.values()[0]["source_url"]
-
+    def _get_profile(self, url=None, headline=None, name=None):
+        if url:
+            return self._get_profile_by_any_url(url)
+        return get_person(headline=headline, name=name)
+        
     def _get_profile_by_any_url(self,url):
         profile = get_person(url=url)
         if profile:
@@ -162,6 +161,6 @@ class PersonRequest(object):
         if len(viewed_also) == 0:
             request = PiplRequest(linkedin_id, type="linkedin", level="social")
             pipl_data = request.process()
-            new_url = pipl_data.get("linkedin_urls")
+            new_url = pipl_data.get("linkedin_url")
             viewed_also = get_people_viewed_also(url=new_url)
         return also_viewed + viewed_also

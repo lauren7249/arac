@@ -31,7 +31,6 @@ from social_profiles_service import SocialProfilesService
 from scoring_service import ScoringService
 from extended_profiles_service import ExtendedProfilesService
 from extended_lead_service import ExtendedLeadService
-SAVE_OUTPUTS = False
 
 #DO NOT REORDER THESE
 FIRST_DEGREE_NETWORK = [CloudSpongeService, PersonService, LeadService]
@@ -42,13 +41,10 @@ WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 
 class ProcessingService(Service):
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(ProcessingService, self).__init__(*args, **kwargs)
+    def __init__(self, data, *args, **kwargs):
+        super(ProcessingService, self).__init__(data, *args, **kwargs)
         self.web_url = config[os.getenv('AC_CONFIG', 'testing')].BASE_URL
-        self.client_data = client_data
-        self.data = data
         self.saved_data = None
-        self.output = []
         self.user = self._get_user()
         #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
         if not self.data:
@@ -60,7 +56,7 @@ class ProcessingService(Service):
         if self.saved_data:     
             self.logger.info("Using saved data")
             self.data = self.saved_data    
-        if client_data.get("hired"):
+        if self.client_data.get("hired"):
             if self.saved_data:
                 CLASS_LIST = CONTACT_INFO + WRAP_UP
             else:
@@ -75,8 +71,6 @@ class ProcessingService(Service):
             SERVICES[str(CLASS).split(".")[-1].split("'")[0]] = CLASS
         self.services = SERVICES
         self.completed_services = {}
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         self.start = time.time()
         
 
@@ -111,12 +105,12 @@ class ProcessingService(Service):
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
                 if key == self.services.keys()[0]:
-                    service = self.services[key](self.client_data,self.data)
+                    service = self.services[key](self.input_data)
                 else:
-                    service = self.services[key](self.client_data,self.output)
-                self.output = service.multiprocess()
-                if SAVE_OUTPUTS:
-                    save_output(self.output, self.client_data.get("email"), service.__class__.__name__)
+                    # import pdb
+                    # pdb.set_trace()
+                    service = self.services[key](self.output_data)
+                self.output_data = service.multiprocess()
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
             if self.user and not self.client_data.get("suppress_emails"): 
@@ -150,14 +144,6 @@ class ProcessingService(Service):
         except:
             self.logerror()
 
-def save_output(output, user_email, service):
-    _file = open("temp_data/{}_{}.txt".format(user_email, service), "w+")
-    try:
-        _file.write(output)
-    except:
-        _file.write(unicode(json.dumps(output, ensure_ascii=False)))
-    _file.close()
-
 if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     # data = json.loads(_file.read().decode("utf-8-sig"))
@@ -168,6 +154,5 @@ if __name__ == '__main__':
                     "location":"New York, New York","url":"http://www.linkedin.com/in/jukarl", "hired":False, "to_email":"jimmy@advisorconnect.co"}
     # logger.info("Input: {}".format(data))
     # data = data[:19]
-    data = []
-    processing_service = ProcessingService(client_data = client_data,data=data)
+    processing_service = ProcessingService({"client_data":client_data})
     processing_service.process()

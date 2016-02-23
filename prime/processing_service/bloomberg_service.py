@@ -41,16 +41,10 @@ class BloombergPhoneService(Service):
     Output is going to be existig data enriched with bloomberg phone numbers
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(BloombergPhoneService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
+    def __init__(self, data, *args, **kwargs):
+        super(BloombergPhoneService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        self.output = []
         self.pool_size=20
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
 class BloombergRequest(S3SavedRequest):
 

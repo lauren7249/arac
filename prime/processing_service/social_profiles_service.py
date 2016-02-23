@@ -33,16 +33,10 @@ class SocialProfilesService(Service):
     Output is going to be existig data enriched with more email accounts and social accounts, as well as other saucy details
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(SocialProfilesService, self).__init__(*args, **kwargs)
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(SocialProfilesService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
         self.pool_size = 20
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
         
                    
 class SocialProfilesRequest(S3SavedRequest):
@@ -165,7 +159,7 @@ class SocialProfilesRequest(S3SavedRequest):
             self._update_profile(email)                           
         self.person["email_addresses"] = list(self.emails)   
         self.person["social_accounts"] = self._process_social_accounts(self.social_accounts)
-        self.person["images"] = self._process_images(self.images)
+        self.person["images_with_tags"] = self._process_images(self.images)
         self.person["clearbit_genders"] = self.genders    
         self.person["pipl_phone_numbers"] = self.phone_numbers
         self.person["pipl_addresses"] = self.addresses

@@ -30,6 +30,7 @@ if __name__ == '__main__':
         mp.user = user
         session.add(mp)
         session.commit()
+        print "Manager id: {}".format(mp.manager_id)
 
     @manager.command
     def add_user(first_name, last_name, email, password, manager_id):
@@ -63,14 +64,15 @@ if __name__ == '__main__':
                 "to_email":user.manager.user.email, "hired": (hired == "True"),
                 "suppress_emails":True, "other_locations":other_locations}
         print client_data
-        q = get_q()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
         if flush=='True':
+            user.clear_data()
             for client_prospect in user.client_prospects:
                 session.delete(client_prospect)
             user._statistics = None
             session.add(user)
             session.commit()
+        q = get_q()
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
 
     @manager.command
     def delete_user(email):

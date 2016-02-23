@@ -37,9 +37,13 @@ sys.setdefaultencoding('utf-8')
 
 class Service(object):
 
-    def __init__(self):
+    def __init__(self, input_data):
         self.pool_size = 10
         self.session = session
+        self.input_data = input_data if input_data else {}
+        self.client_data = self.input_data.get("client_data",{})
+        self.data = self.input_data.get("data",[])        
+        self.excluded = self.input_data.get("excluded",[])
         self.output = []
         logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -66,9 +70,11 @@ class Service(object):
 
     def logstart(self):
         self.logger.info('Starting Process: %s with %d inputs', self.__class__.__name__, len(self.data))
+        self.logger.info('Starting Process: %s with %d exclusions', self.__class__.__name__, len(self.excluded))
 
     def logend(self):
         self.logger.info('Ending Process: %s with %d outputs', self.__class__.__name__, len(self.output))
+        self.logger.info('Ending Process: %s with %d exclusions', self.__class__.__name__, len(self.excluded))
 
     def logerror(self):
         exc_info = sys.exc_info()
@@ -88,7 +94,7 @@ class Service(object):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data, "excluded":self.excluded}
 
     def process(self):
         self.logstart()
@@ -99,7 +105,7 @@ class Service(object):
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data, "excluded":self.excluded}
 
 
 

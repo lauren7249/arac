@@ -74,7 +74,8 @@ def in_set(line):
     is_male = GenderRequest(firstname).process()
     if is_male!=False:
         return []  
-    coords = GeocodeRequest(linkedin_data).process()
+    location_raw = linkedin_data.get("location")
+    coords = GeocodeRequest(location_raw).process()        
     if not in_area(coords):
         return []
     return [(linkedin_id, technical_degree.get("degree"), pr._current_job_linkedin(linkedin_data).get("title"), numpy.mean([min_age,max_age]), firstname, coords.get("locality"), coords.get("region"))]

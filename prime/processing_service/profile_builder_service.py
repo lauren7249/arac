@@ -10,17 +10,11 @@ from constants import SOCIAL_DOMAINS, INDUSTRY_CATEGORIES, CATEGORY_ICONS, US_ST
 from url_validator import UrlValidatorRequest
 from person_request import PersonRequest
 
-global AGENT_SCHOOLS
-AGENT_SCHOOLS = set()
-
 def wrapper(person):
     profile = {}
     try:
         request = ProfileBuilderRequest(person)
         profile = request.process()
-        profile = request._get_job_fields(profile, person)
-        global AGENT_SCHOOLS
-        profile = request._get_common_schools(profile, AGENT_SCHOOLS)
         return profile
     except Exception, e:
         print __name__ + str(e)
@@ -30,21 +24,11 @@ class ProfileBuilderService(Service):
     '''
     Add "profile" key to json for simplifying results service
     '''
-    def __init__(self, client_data, data, *args, **kwargs):
-        super(ProfileBuilderService, self).__init__(*args, **kwargs)
-        self.data = data
-        self.client_data = client_data
-        self.data = data
-        self.output = []
+    def __init__(self, data, *args, **kwargs):
+        super(ProfileBuilderService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-        person = PersonRequest()._get_profile_by_any_url(self.client_data.get("url"))
-        schools = person.get("schools") if person.get("schools") else []
-        global AGENT_SCHOOLS
-        AGENT_SCHOOLS = set([school.get("college") for school in schools])
 
+        
 class ProfileBuilderRequest(S3SavedRequest):
 
     """
@@ -59,25 +43,13 @@ class ProfileBuilderRequest(S3SavedRequest):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _get_job_fields(self, profile, person):
-        if not profile:
-            profile = {}
-        if not person:
-            return profile
-        current_job = PersonRequest()._current_job(person)
-        profile['company'] = current_job.get("company")
-        profile["job"] = current_job.get("title")
-        return profile
-
-    def _get_common_schools(self,profile, agent_schools):
-        prospect_schools = set([school.get("college") for school in profile.get("schools_json",[])])
-        common_schools = set()
-        for school1 in prospect_schools:
-            for school2 in agent_schools:
-                if school1 and school2 and name_match(school1,school2):
-                    common_schools.add(school2)
-        profile["common_schools"] = list(common_schools)
-        return profile
+    def _get_job_fields(self):
+        if not self.person:
+            return self.profile
+        current_job = PersonRequest()._current_job(self.person)
+        self.profile['company'] = current_job.get("company")
+        self.profile["job"] = current_job.get("title")
+        return self.profile
 
     def _get_main_profile_image(self):
         linkedin_image = self.person.get("linkedin_data",{}).get("image")
@@ -85,7 +57,7 @@ class ProfileBuilderRequest(S3SavedRequest):
             _link = UrlValidatorRequest(linkedin_image, is_image=True).process()
             if _link:
                 return _link
-        images = self.person.get("images")
+        images = self.person.get("images_with_tags")
         if not images:
             return None
         best_person_score = 0.0
@@ -135,11 +107,11 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["glassdoor_salary"] = self.person.get("glassdoor_salary")
         self.profile["dob_min_year"] = self.person.get("dob_min")
         self.profile["dob_max_year"] = self.person.get("dob_max")
-        self.profile["referrers"] = self.person.get("referrers",[])
-        self.profile["extended"] = self.person.get("extended")
         self.profile["sources"] = self.person.get("sources",[])
+        self.profile["extended"] = self.person.get("extended")
+        self.profile["referrers"] = self.person.get("referrers",[])
         self.profile["email_addresses"] = self.person.get("email_addresses")
-        self.profile["profile_image_urls"] = self.person.get("images")
+        self.profile["profile_image_urls"] = self.person.get("images_with_tags")
         self.profile["main_profile_image"] = self._get_main_profile_image()
         self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
         self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
@@ -190,4 +162,5 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile = self._get_linkedin_fields()
         self.profile = self._get_person_fields()
         self.profile = self._get_industry_fields()
+        self.profile = self._get_job_fields()
         return self.profile

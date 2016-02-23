@@ -14,12 +14,8 @@ class ExtendedLeadService(LeadService):
     Output is filtered to qualified leads only
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)      
-        super(ExtendedLeadService, self).__init__(client_data, data, *args, **kwargs)  
-        self.user = self._get_user()  
+    def __init__(self, data, *args, **kwargs):     
+        super(ExtendedLeadService, self).__init__(data, *args, **kwargs)  
 
     def multiprocess(self):
         return self.process()
@@ -36,10 +32,8 @@ class ExtendedLeadService(LeadService):
                     continue
                 if self._valid_lead(person):
                     self.output.append(person)
-                else:
-                    self.bad_leads.append(person)
             self.user.refresh_hiring_screen_data(self.output)                  
         except:
             self.logerror()
         self.logend()
-        return self.output
+        return {"data":self.output, "client_data":self.client_data}

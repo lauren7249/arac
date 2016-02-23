@@ -47,6 +47,7 @@ class S3SavedRequest(object):
             if html:
                 return html
         try:
+            self.logger.info("Hitting url: {}".format(self.url))
             self.response = requests.get(self.url, headers=self.headers, proxies=proxies)
             if self.response.status_code != 404:
                 html = self.response.content

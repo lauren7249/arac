@@ -8,22 +8,17 @@ import json
 class CloudSpongeService(Service):
 
     """
-    Expected input is raw JSON of cloudsponge records
-    Save to database and output denormalized output by contact email
-
+    Input 
+            {"data":[{raw cloudsponge}]}
+    Output 
+            {"data":[{processed cloudsponge}]} unique by email 
     TODO: add name resolution to improve relationship scoring
     """
 
-    def __init__(self, client_data, data, *args, **kwargs):
-        self.client_data = client_data
-        self.data = data
+    def __init__(self, data, *args, **kwargs):
+        super(CloudSpongeService, self).__init__(data, *args, **kwargs)
         self.excluded_words = EXCLUDED_EMAIL_WORDS
         self.unique_emails = {}
-        self.output = []
-        logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-        super(CloudSpongeService, self).__init__(*args, **kwargs)
 
     def real_person(self, contact_email):
         if len(contact_email.split("@")[0])>33:
@@ -39,7 +34,7 @@ class CloudSpongeService(Service):
         return self.process()
 
     def process(self):
-        self.logger.info('Starting Process: %s', 'Cloud Sponge Service')
+        self.logstart()
         try:
             for record in self.data:
                 contact = record.get("contact",{})
@@ -63,23 +58,25 @@ class CloudSpongeService(Service):
                         sources.append('linkedin')
                 elif account_email and account_email not in sources:
                     sources.append(account_email)
-                if not self.real_person(contact_email):
-                    self.logger.warn("Not a real person %s", contact_email)
-                else:
-                    job_title = contact.get("job_title")
-                    companies = contact.get("companies")
-                    first_name = contact.get("first_name")
-                    last_name = contact.get("last_name")                          
-                    self.logger.info("Person Email: %s, Job: %s, Companies: %s, Sources: %s", contact_email, job_title, companies, str(len(sources)))
-                    self.unique_emails[contact_email] = {"job_title": job_title,
-                                                    "companies": companies,
-                                                    "first_name": first_name,
-                                                    "last_name": last_name,
-                                                    "sources": sources}                      
-            for key, value in self.unique_emails.iteritems():
-                self.output.append({key:value})
-            self.logger.info('Emails Found: %s', len(self.unique_emails))
-            self.logger.info('Ending Process: %s', 'Cloud Sponge Service')  
+
+                job_title = contact.get("job_title")
+                companies = contact.get("companies")
+                first_name = contact.get("first_name")
+                last_name = contact.get("last_name")                          
+                #self.logger.info("Person Email: %s, Job: %s, Companies: %s, Sources: %s", contact_email, job_title, companies, str(len(sources)))
+                self.unique_emails[contact_email] = {"job_title": job_title,
+                                                "companies": companies,
+                                                "first_name": first_name,
+                                                "last_name": last_name,
+                                                "sources": sources}                      
+            for email, info in self.unique_emails.iteritems():
+                if 'linkedin' not in info.get("sources") and not self.real_person(email):
+                    self.logger.warn("Not a real person %s", email)
+                    self.excluded.append({"email":email, "sources":sources, "reason":"Email address did not identify a real person","step":"CloudSpongeService"})
+                    continue              
+                info["email"] = email
+                self.output.append(info)
+            self.logend()
         except:
             self.logerror()          
-        return self.output
+        return {"data":self.output, "client_data":self.client_data, "excluded":self.excluded}
