@@ -44,18 +44,23 @@ class ProcessingService(Service):
     def __init__(self, data, *args, **kwargs):
         super(ProcessingService, self).__init__(data, *args, **kwargs)
         self.web_url = config[os.getenv('AC_CONFIG', 'testing')].BASE_URL
-        self.saved_data = None
+        self.saved_data = []
         self.user = self._get_user()
         #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
         if not self.data:
             user_request = UserRequest(self.client_data.get("email"))
             self.data = user_request.lookup_data()
-        self.saved_data = self.user.refresh_hiring_screen_data()
+            if self.data:
+                self.input_data = {"client_data": self.client_data, "data":self.data}
+                self.logger.info("Using saved data from upload")
+        if self.user:
+            self.saved_data = self.user.refresh_hiring_screen_data()
         if len(self.saved_data) < 100 :
             self.saved_data = None    
         if self.saved_data:     
-            self.logger.info("Using saved data")
+            self.logger.info("Using saved data from last hiring screen")
             self.data = self.saved_data    
+            self.input_data = {"client_data": self.client_data, "data":self.data}
         if self.client_data.get("hired"):
             if self.saved_data:
                 CLASS_LIST = CONTACT_INFO + WRAP_UP
@@ -107,8 +112,6 @@ class ProcessingService(Service):
                 if key == self.services.keys()[0]:
                     service = self.services[key](self.input_data)
                 else:
-                    # import pdb
-                    # pdb.set_trace()
                     service = self.services[key](self.output_data)
                 self.output_data = service.multiprocess()
             end = time.time()

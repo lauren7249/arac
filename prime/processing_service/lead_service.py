@@ -173,7 +173,8 @@ class LeadService(Service):
             for person in data:
                 if self._valid_lead(person):
                     self.output.append(person)
-            self.user.generate_exclusions_report(self.excluded)                  
+            if self.user:
+                self.user.generate_exclusions_report(self.excluded)                  
         except:
             self.logerror()
         self.logend()
