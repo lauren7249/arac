@@ -36,9 +36,6 @@
       $('#overlay', window.parent.document).hide();
       window.close();      
     }
-    if ("{{ valid }}" == "True" || "{{ contact_count }}" ==-1) {
-      finishMe();
-    }
 
     var listening;
 
@@ -67,7 +64,6 @@
             else {
               finishMe();
             }
-            
           }
         } else {
           console.log("Not Finished")

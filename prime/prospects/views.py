@@ -138,6 +138,7 @@ def start_linkedin_login_bot(email, password, user_id):
     # pin Second is linkedin asked for a pin, which they sent via email
     # credentials Uername is wrong, or password is wrong
     # unknown TODO unknown negative outcome
+    conn = get_conn()
     error, pin_requested = getter.check_linkedin_login_errors()
     if error is None:
         #Everything worked
@@ -145,15 +146,14 @@ def start_linkedin_login_bot(email, password, user_id):
         current_user.set_linkedin_password(password, session=session)
         session.add(current_user)
         session.commit()
-        conn = get_conn()
         data = None
-        #tries = 0
-        #while(data == None and tries<4):
-        #    data = getter.get_linkedin_data()
-        #    tries += 1
-        #getter.quit()
-        #if data:
-        #    contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
+        tries = 0
+        while(data == None and tries<4):
+            data = getter.get_linkedin_data()
+            tries += 1
+        getter.quit()
+        if data:
+            contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
         conn.hset("linkedin_login_outcome", email, "success:True")
         return True
 
@@ -163,11 +163,12 @@ def start_linkedin_login_bot(email, password, user_id):
         current_user.set_linkedin_password(password, session=session)
         session.add(current_user)
         session.commit()
+        conn.hset("linkedin_login_outcome", email, "pin:{}".format(error))
         q = get_q()
         q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
-        conn.hset("linkedin_login_outcome", email, "pin_requested:{}".format(error))
         return True
     #username or password was wrong
+    conn = get_conn()
     conn.hset("linkedin_login_outcome", email, "error:{}".format(error))
     return True
 
@@ -257,11 +258,12 @@ def linkedin_login():
 @prospects.route('/linkedin_pin', methods=['GET', 'POST'])
 def linkedin_pin():
     pin_worked = None
-    pin = request.args.get("pin")
-    message = request.args.get("message")
-    email = current_user.linkedin_login_email
-    if pin and email:
-        pin_worked = give_pin(email, pin)
+    if request.method == 'POST':
+        pin = request.form.get("pin")
+        email = current_user.linkedin_login_email
+        if pin and email:
+            pin_worked = give_pin(email, pin)
+        return jsonify({"success": True, "finished": True})
     return render_template('linkedin_pin.html',pin_worked=pin_worked)
 
 @csrf.exempt
@@ -652,11 +654,14 @@ def export():
 
     string_io = StringIO.StringIO()
     writer = csv.writer(string_io)
-    headers = ["dearName", "First Name", "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
-            "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
-            "CompanyName", "Fax Number"]
+    headers = ["dearName", "prefix", "firstName", "lastName", "suffix",
+            "companyName", "addressLine1", "addressLine2", "city",
+            "stateProvince", "postalCode", "emailAddress", "phoneNumber",
+            "faxNumber", "cellNumber"]
+
     writer.writerow(headers)
-    writer.writerow(["", agent.first_name, agent.last_name])
+    #TODO Should this be here?
+    #writer.writerow(["", agent.first_name, agent.last_name])
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
         name = connection.prospect.name
@@ -680,10 +685,14 @@ def export():
         else:
             dearName = ''
 
-        row = [dearName, first_name, last_name, "", email1,
-            "", "", connection.prospect.linkedin_location_raw,
-            state, "", "", "",
-            connection.prospect.company, ""]
+        row = ["", dearName, first_name, last_name, "",
+                connection.prospect.company, "", "", "", state, "", email1,
+                connection.prospect.phone, "", ""]
+
+        #row = [dearName, first_name, last_name, "", email1,
+        #    "", "", connection.prospect.linkedin_location_raw,
+        #    state, "", "", "",
+        #    connection.prospect.company, ""]
         writer.writerow(row)
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"

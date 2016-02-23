@@ -8,7 +8,7 @@ import requests
 from PIL import Image
 from prime.processing_service.helper import  random_string, csv_line_to_list
 import os
-import signal 
+import signal
 import subprocess
 from selenium.webdriver.common.keys import Keys
 import time
@@ -46,9 +46,9 @@ class LinkedinCsvGetter(object):
         pin_form = self.driver.find_element_by_id("verification-code")
         pin_form.clear()
         pin_form.send_keys(pin)
-        time.sleep(1)
+        time.sleep(6)
         pin_form.send_keys(Keys.RETURN)
-        time.sleep(4)
+        time.sleep(6)
         if self.driver.title == u'Welcome! | LinkedIn':
             return True
         return False
@@ -66,7 +66,7 @@ class LinkedinCsvGetter(object):
         #     "proxyType":"MANUAL",
         #     "class":"org.openqa.selenium.Proxy",
         #     "autodetect":False
-        # }    
+        # }
         self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
         return self.driver
 
@@ -91,12 +91,12 @@ class LinkedinCsvGetter(object):
             cookies = self.driver.get_cookies()
             req_cookies = {}
             for cookie in cookies:
-                req_cookies[cookie["name"]] = cookie["value"]        
+                req_cookies[cookie["name"]] = cookie["value"]
             message = self.driver.find_element_by_class_name("descriptor-text")
             if message:
                 return message.text.split(". ")[-1], req_cookies
-            return "Please enter the verification code sent to your email address to finish signing in.", req_cookies           
-        pw_error = self.driver.find_element_by_id("session_password-login-error") 
+            return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
+        pw_error = self.driver.find_element_by_id("session_password-login-error")
         if pw_error:
             return pw_error.text, None
         email_error = self.driver.find_element_by_id("session_key-login-error")
@@ -159,5 +159,5 @@ class LinkedinCsvGetter(object):
             contact["companies"] = [line[company_index].decode('latin-1')]
             contact["email"] = [{"address": line[email_index].decode('latin-1')}]
             contact["job_title"] = line[job_title_index].decode('latin-1')
-            data.append({"contact":contact, "contacts_owner":None, "service":"LinkedIn"})        
+            data.append({"contact":contact, "contacts_owner":None, "service":"LinkedIn"})
         return data

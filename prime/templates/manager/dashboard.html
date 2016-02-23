@@ -62,6 +62,7 @@
           <th>Primary Network</th>
           <th>Extended Network</th>
           <th class="completed">Pre-Screen</th>
+          <!-- <th class="agent-hired">Hired</th> -->
         </thead>
         <tbody>
           {% for agent in agents %}
@@ -91,7 +92,17 @@
                       <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
                     {% endif %}      
                   {% endif %}
-                </td>              
+                </td>
+                <!-- <td class="agent-hired">
+                  <select>
+                    <option>Background Financial<option>
+                    <option>Background Criminal<option>
+                    <option>Cultural Fit (are they coachable, do they show up on time)<option>
+                    <option>Agent Declined Offer<option>
+                    <option>Poor Initial Market<option>
+                    <option>Did Not Pass State Exam<option>
+                  </select>
+                </td> -->             
               </tr>
             {%endif%}
           {% endfor %}

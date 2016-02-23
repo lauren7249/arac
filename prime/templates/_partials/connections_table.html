@@ -1,4 +1,4 @@
-<div class='loading'><img src='https://s3.amazonaws.com/snowpak/img/loader.gif' /></div>
+<div class='loading'><img src='/static/img/loading.gif' /></div>
 <table class="contacts-table">
   <thead data-step="3" data-intro="Hint: You can also Add or Skip all the contacts on the page at once.">
     {% if active == "p200" or active == "pdf" %}
@@ -35,11 +35,32 @@
   </tbody>
 </table>
 <div class='pagination'>
-  {% for _page in range(1, pagination.pages + 1) %}
-    {% if 1 == _page %}
-      <a class='active' data-page='{{ _page }}'>{{ _page }}</a>
-    {% else %}
-      <a data-page='{{ _page }}'>{{ _page }}</a>
-    {% endif %}
-  {% endfor %}
+  <ul>
+
+    <!-- First Page Button -->
+    <a class='first disabled' data-page='{{ _page }}'>&#171;</a>    
+    <!-- First Page Button -->
+
+    {% for _page in range(1, pagination.pages + 1) %}
+      {% if 1 == _page %}
+        <a class='active' data-page='{{ _page }}'>{{ _page }}</a>
+      {% else %}
+        <a data-page='{{ _page }}'>{{ _page }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    <!-- Last Page Button -->
+    
+    <a class='last'>&#187;</a>
+    
+    <!-- Last Page Button -->
+
+  </ul>
+  
+  
+  <div class="text-center">
+    <small>Page <span data-page='{{ pagination.page }}'>{{ pagination.page }}</span> of {{ pagination.pages }}</small>
+  </div>
+  
+
 </div>

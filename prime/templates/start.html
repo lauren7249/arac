@@ -165,7 +165,8 @@
           }, 500);  
       } 
       else {
-        $.getJSON(cloudsponge_base_url + 'begin_import/user_consent.json?service=' + service + '&' + cloudsponge_params + '&callback=?', 
+        var url = cloudsponge_base_url + 'begin_import/user_consent.json';
+        $.getJSON(url + '?service=' + service + '&' + cloudsponge_params + '&callback=?', 
         function(data) {
           var cloudsponge_url = data.url;
           var import_id = data.import_id;
