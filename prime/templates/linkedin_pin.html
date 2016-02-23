@@ -31,6 +31,8 @@ $(function() {
     $.post("/linkedin_pin", outData, function(data) {
       if (data.error) {
         $("#inputPin").val('')
+        $(".overlay").fadeOut();
+        $(".waiting").hide();
         alert("That pin is not correct. Please re enter the pin and try again");
         return false;
       } else {
