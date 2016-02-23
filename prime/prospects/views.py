@@ -105,16 +105,22 @@ def selenium_state_holder(getter, user_id):
     if not success:
         conn.hdel("pins",email)
         selenium_state_holder(getter, current_user.user_id)
+        return True
     data = None
     tries = 0
     while(data == None and tries<4):
-        data = getter.get_linkedin_data()
+        try:
+            data = getter.get_linkedin_data()
+        except Exception, e:
+            print e
+            pass
         tries += 1
     getter.quit()
     if data:
         contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
         conn.hset("pin_accepted",email,True)
         conn.hdel("pins",email)
+    return True
 
 def start_linkedin_login_bot(email, password, user_id):
     import os
@@ -132,7 +138,7 @@ def start_linkedin_login_bot(email, password, user_id):
     getter = LinkedinCsvGetter(email, password, local=False)
     start = time.time()
     current_user = session.query(User).get(user_id)
-    
+
     #There are three potential outcomes here with corresponding cases
     # success Everyhing worked and you are now logged in
     # pin Second is linkedin asked for a pin, which they sent via email
@@ -150,7 +156,11 @@ def start_linkedin_login_bot(email, password, user_id):
         data = None
         tries = 0
         while(data == None and tries<4):
-            data = getter.get_linkedin_data()
+            try:
+                data = getter.get_linkedin_data()
+            except Exception, e:
+                print e
+                pass
             tries += 1
         getter.quit()
         if data:
@@ -166,7 +176,7 @@ def start_linkedin_login_bot(email, password, user_id):
         session.commit()
         conn.hset("linkedin_login_outcome", current_user.email, "pin:{}".format(error))
         q = get_q()
-        q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
+        q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=3600)
         return True
     #username or password was wrong
     conn = get_conn()
@@ -264,7 +274,9 @@ def linkedin_pin():
         email = current_user.linkedin_login_email
         if pin and email:
             pin_worked = give_pin(email, pin)
-        return jsonify({"success": True, "finished": True})
+            if pin_worked:
+                return jsonify({"success": True})
+        return jsonify({"success": False, "error": True})
     return render_template('linkedin_pin.html',pin_worked=pin_worked)
 
 @csrf.exempt
@@ -405,7 +417,7 @@ def connections():
         connections = ClientProspect.query.filter(
             ClientProspect.good==True,
             ClientProspect.user==agent,
-            ).join(Prospect).order_by(FILTER_DICT[order])          
+            ).join(Prospect).order_by(FILTER_DICT[order])
     else:
         active="connections"
         template="connections.html"
@@ -414,7 +426,7 @@ def connections():
             ClientProspect.user==agent,
             ClientProspect.good==False,
             ClientProspect.stars>0,
-            ).join(Prospect).order_by(FILTER_DICT[order])    
+            ).join(Prospect).order_by(FILTER_DICT[order])
     if connections.filter(ClientProspect.extended==False).count() > 1:
         connections = connections.filter(ClientProspect.extended == False)
     query, industry, state, stars = get_args(request)

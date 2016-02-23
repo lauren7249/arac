@@ -20,19 +20,24 @@
 </div>
 <script type="text/javascript">  
 $(function() {
-    $(".overlay").fadeOut();
-    $(".waiting").hide();
-      
+  $(".overlay").fadeOut();
+  $(".waiting").hide();
 
   $("#submit_pin").click(function(){
     $(".overlay").fadeIn();
     $(".waiting").show();
-                 
     var csrf_token = $("[_csrf_token]").val()
 
     var outData = {csrf_token:csrf_token,pin:$("#inputPin").val()}
     $.post("/linkedin_pin", outData, function(data) {
-      window.close()
+      if (data.error) {
+        $("#inputPin").val('')
+        alert("That pin is not correct. Please re enter the pin and try again");
+        return false;
+      } else {
+        window.close()
+        return false;
+      }
     });
   });
 });
