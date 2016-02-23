@@ -271,7 +271,7 @@ def linkedin_pin():
     pin_worked = None
     if request.method == 'POST':
         pin = request.form.get("pin")
-        email = current_user.linkedin_login_email
+        email = current_user.email
         if pin and email:
             pin_worked = give_pin(email, pin)
             if pin_worked:

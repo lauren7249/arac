@@ -18,11 +18,17 @@
 </div>
 <script type="text/javascript">  
 $(function() {
+
+  $(".error").text("");
+  $(".error").css("display","none");    
+
   $(".overlay").fadeOut();
   $(".waiting").hide();
 
   $("#submit_pin").click(function(e){
     e.preventDefault();
+    $(".error").text("");
+    $(".error").css("display","none");        
     $(".overlay").fadeIn();
     $(".waiting").show();
     var csrf_token = $("[_csrf_token]").val()
@@ -33,7 +39,8 @@ $(function() {
         $("#inputPin").val('')
         $(".overlay").fadeOut();
         $(".waiting").hide();
-        alert("That pin is not correct. Please re enter the pin and try again");
+        $(".error").text("That pin is not correct. Please re enter the pin and try again");
+        $(".error").css("display","inline");          
         return false;
       } else {
         window.close()

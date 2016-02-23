@@ -87,7 +87,8 @@
             error: function (data, textStatus, errorThrown) {
               $(".overlay").fadeOut();
               $(".waiting").hide();           
-              showSuccess("It appears there was an issue with the login. An error report has been sent. We apologize for the inconvenience.");
+              $(".error").text("There was an unknown issue. An error report was sent. Please close the window and move on to the next step.")
+              $(".error").css("display","inline");  
             }
         }); 
 
