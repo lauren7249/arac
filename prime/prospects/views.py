@@ -628,11 +628,14 @@ def export():
 
     string_io = StringIO.StringIO()
     writer = csv.writer(string_io)
-    headers = ["dearName", "First Name", "Last Name", "Suffix", "Email Address", "Address 1", "Address 2",
-            "City", "State", "Zip Code", "Home Phone", "Other/Cell Phone",
-            "CompanyName", "Fax Number"]
+    headers = ["dearName", "prefix", "firstName", "lastName", "suffix",
+            "companyName", "addressLine1", "addressLine2", "city",
+            "stateProvince", "postalCode", "emailAddress", "phoneNumber",
+            "faxNumber", "cellNumber"]
+
     writer.writerow(headers)
-    writer.writerow(["", agent.first_name, agent.last_name])
+    #TODO Should this be here?
+    #writer.writerow(["", agent.first_name, agent.last_name])
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
         name = connection.prospect.name
@@ -656,10 +659,14 @@ def export():
         else:
             dearName = ''
 
-        row = [dearName, first_name, last_name, "", email1,
-            "", "", connection.prospect.linkedin_location_raw,
-            state, "", "", "",
-            connection.prospect.company, ""]
+        row = ["", dearName, first_name, last_name, "",
+                connection.prospect.company, "", "", "", state, "", email1,
+                connection.prospect.phone, "", ""]
+
+        #row = [dearName, first_name, last_name, "", email1,
+        #    "", "", connection.prospect.linkedin_location_raw,
+        #    state, "", "", "",
+        #    connection.prospect.company, ""]
         writer.writerow(row)
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
