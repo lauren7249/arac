@@ -2,16 +2,17 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-
+<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 <div id="linkedin_password_form">
   <form class="card" id='linkedin-login-form' method='POST' autocomplete="false">
     <header>
       <div class="header-logo"></div>
     </header>
+    <div class='error'>
+
+    </div> 
     <h3>Please enter your Linkedin username (email) and password so we can securely connect your contacts.</h3>
     <hr>
-
-    {{ form.csrf_token }}
 
     <div class="col-8">
       <input type="email" name='email' class="form-control" id="inputEmail" placeholder="Enter Your LinkedIn Email Address" autocomplete="new-email">
@@ -32,6 +33,9 @@
 <script type="text/javascript">
   $(function(){
 
+    $(".error").text("");
+    $(".error").css("display","none");  
+
     function finishMe() {
       $('#overlay', window.parent.document).hide();
       window.close();      
@@ -41,34 +45,53 @@
 
     function didLinkedinLoginWork() {
       //this will check redis, which is where the login task publishes its results 
-      $.get("/linkedin_login_status", function(data){
-        //the task had some outcome, good or bad
-        if (data.finished) {
-          var error = data.error;
-          //it logged in
-          if (data.success) {
-            finishMe();
-          } 
-          //it sent a pin to the user's email. the "error" just says the email account that the pin was sent to
-          else if (data.pin) {
-            window.location.href = '/linkedin_pin?message=' + error;
-          } else {
-            clearInterval(listening);
-            $(".overlay").fadeOut();
-            $(".waiting").hide();
-            //linkedin told us what was wrong, we will pass the message along
-            if (error.length > 0) {
-              showSuccess(error);
+        var csrf_token = $("[_csrf_token]").val() 
+        var outData = {csrf_token:csrf_token}
+        $.ajax({
+            type: 'GET',
+            url: '/linkedin_login_status',
+            crossDomain: true,
+            data: JSON.stringify(outData),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function(data, textStatus, jqXHR) {
+              if (data.finished) {
+                var error = data.error;
+
+                //it logged in
+                if (data.success) {
+                  finishMe();
+                } 
+                //it sent a pin to the user's email. the "error" just says the email account that the pin was sent to
+                else if (data.pin) {
+                  window.location.href = '/linkedin_pin?message=' + error;
+                } else {
+                  clearInterval(listening);
+                  $(".overlay").fadeOut();
+                  $(".waiting").hide();
+                  //linkedin told us what was wrong, we will pass the message along
+                  if (error.length > 0) {
+                    console.log(error);
+                    $(".error").text(error)
+                    $(".error").css("display","inline");  
+                  }
+                  //no frickin clue what happened, just act like everything ok and move along
+                  else {
+                    finishMe();
+                  }
+                }
+              } else {
+                console.log("Not Finished")
+              }
+            },
+            error: function (data, textStatus, errorThrown) {
+              $(".overlay").fadeOut();
+              $(".waiting").hide();           
+              showSuccess("It appears there was an issue with the login. An error report has been sent. We apologize for the inconvenience.");
             }
-            //no frickin clue what happened, just act like everything ok and move along
-            else {
-              finishMe();
-            }
-          }
-        } else {
-          console.log("Not Finished")
-        }
-      })
+        }); 
+
+
     }
 
     //the linkedin credentials checker task will publish results when it is finished, so we are listening for them
@@ -82,8 +105,20 @@
     $("#linkedin-login-form").submit(function(e){
       //prevent form from giving its status
       e.preventDefault();
+      if ($("#inputEmail").val().length==0) {
+        $(".error").text("You must enter email");
+        $(".error").css("display","inline");  
+        return;        
+      }
+      if ($("#inputPassword").val().length==0) {
+        $(".error").text("You must enter password");
+        $(".error").css("display","inline");  
+        return;        
+      }      
       $(".overlay").fadeIn();
       $(".waiting").show();
+      $(".error").text("");
+      $(".error").css("display","none");        
       var data = {email:$("#inputEmail").val(),password:$("#inputPassword").val()}
       $.post("/linkedin_login", data, function(data){
         if (data.success) {
@@ -92,7 +127,8 @@
           listenForSuccess()
         } else {
           //view returns false if one of the args is missing
-          showSuccess("You must enter Email and Password.")
+          $(".error").text("You must enter email and password");
+          $(".error").css("display","inline");  
         }
       });
     });

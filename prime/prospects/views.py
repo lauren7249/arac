@@ -96,7 +96,7 @@ def selenium_state_holder(getter, user_id):
         session = db.session
     import time
     current_user = session.query(User).get(user_id)
-    email = current_user.linkedin_login_email
+    email = current_user.email
     conn = get_conn()
     while not conn.hexists("pins",email):
         time.sleep(1)
@@ -132,7 +132,7 @@ def start_linkedin_login_bot(email, password, user_id):
     getter = LinkedinCsvGetter(email, password, local=False)
     start = time.time()
     current_user = session.query(User).get(user_id)
-
+    
     #There are three potential outcomes here with corresponding cases
     # success Everyhing worked and you are now logged in
     # pin Second is linkedin asked for a pin, which they sent via email
@@ -140,6 +140,7 @@ def start_linkedin_login_bot(email, password, user_id):
     # unknown TODO unknown negative outcome
     conn = get_conn()
     error, pin_requested = getter.check_linkedin_login_errors()
+    print error
     if error is None:
         #Everything worked
         current_user.linkedin_login_email = email
@@ -154,7 +155,7 @@ def start_linkedin_login_bot(email, password, user_id):
         getter.quit()
         if data:
             contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
-        conn.hset("linkedin_login_outcome", email, "success:True")
+        conn.hset("linkedin_login_outcome", current_user.email, "success:True")
         return True
 
     if pin_requested:
@@ -163,13 +164,13 @@ def start_linkedin_login_bot(email, password, user_id):
         current_user.set_linkedin_password(password, session=session)
         session.add(current_user)
         session.commit()
-        conn.hset("linkedin_login_outcome", email, "pin:{}".format(error))
+        conn.hset("linkedin_login_outcome", current_user.email, "pin:{}".format(error))
         q = get_q()
         q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=140400)
         return True
     #username or password was wrong
     conn = get_conn()
-    conn.hset("linkedin_login_outcome", email, "error:{}".format(error))
+    conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))
     return True
 
 
@@ -269,7 +270,7 @@ def linkedin_pin():
 @csrf.exempt
 @prospects.route('/linkedin_login_status', methods=['GET', 'POST'])
 def linkedin_login_status():
-    email = current_user.linkedin_login_email
+    email = current_user.email
     conn = get_conn()
     if conn.hexists("linkedin_login_outcome", email):
         #we see here if the Linkedin bot is finished running.
@@ -280,6 +281,7 @@ def linkedin_login_status():
             return jsonify({"success": True, "finished": True})
         if status == "pin":
             return jsonify({"pin": True, "finished": True, "error": error})
+        print error
         return jsonify({"success": False, "error": error, "finished": True})
 
     return jsonify({"finished": False})

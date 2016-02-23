@@ -140,11 +140,16 @@ class LinkedinCsvGetter(object):
             return None
         header = lines[0]
         cols = csv_line_to_list(header)
-        first_name_index = cols.index('First Name')
-        last_name_index = cols.index('Last Name')
-        company_index = cols.index('Company')
-        job_title_index = cols.index('Job Title')
-        email_index = cols.index('E-mail Address')
+        try:
+            first_name_index = cols.index('First Name') 
+            last_name_index = cols.index('Last Name') 
+            company_index = cols.index('Company')
+            job_title_index = cols.index('Job Title')
+            email_index = cols.index('E-mail Address')
+        except Exception, e:
+            print str(e)
+            print csv
+            return None
         if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
             return None
         data = []
