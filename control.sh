@@ -46,6 +46,11 @@ dev_run() {
     drop_db
     create_dev_db
     run_worker
+    run_worker
+    run_worker
+    run_worker
+    run_worker
+    run_worker
     run_uwsgi
     return $?;
 }
