@@ -1520,7 +1520,7 @@ form.dropzone.dz-success {
   width: auto;
   height: 15px;
   background: #02C2B9;
-  animation: grow-bar 35s ease-in;
+  animation: grow-bar 100s ease-in;
 }
 
 @-webkit-keyframes grow-bar {
