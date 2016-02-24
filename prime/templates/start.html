@@ -10,46 +10,6 @@
     var downloadWindow = null;
     var public_url = null;
 
-<<<<<<< HEAD
-=======
-    // Handle the successful return from the API call
-    function onSuccess(data) {
-        $("#owner_num_connections").html(data.numConnections);
-        $("#owner_email").html(data.emailAddress);
-        $("#owner_geolocation").html(data.location.name);
-        $("#owner_url").html(data.publicProfileUrl);
-        $("#owner_img").attr("style",  "background-image:url(" + data.pictureUrl + ");");
-        $("#owner_name").html("Welcome, " + data.firstName);
-        $("#owner_first_name").html(data.firstName);
-        $("#owner_last_name").html(data.lastName);
-        $("#step-2").hide(); 
-        $("#step-3").slideDown();     
-        $.ajax({
-            type: 'POST',
-            url: '/save_linkedin_data',
-            crossDomain: true,
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            success: function(responseData, textStatus, jqXHR) {
-              document.getElementById("current_user_image").setAttribute('style', "background-image:url(" +  responseData.pictureUrl+ ")");
-              document.getElementById("current_user_name").innerHTML = responseData.firstName + " " + responseData.lastName;                 
-            },
-            error: function (responseData, textStatus, errorThrown) {
-            }
-        });                    
-    }
-
-    function skip_linkedin() {
-        $("#owner_email").html("{{ agent.email }}");
-        $("#owner_geolocation").html("{{ agent.location }}");
-        $("#owner_first_name").html("{{ agent.first_name }}");
-        $("#owner_last_name").html("{{ agent.last_name }}");     
-        public_url = null;
-        attemptFinish(); 
-    }
-    
->>>>>>> cbb3bcb32f0a6d1e48f3f2645c9770ea2f0991d1
     // Handle an error response from the API call
     function onError(error) {
         console.log(error);
@@ -162,22 +122,6 @@
       </div>     
     </div>       
     <div class="wrap">
-<<<<<<< HEAD
-
-=======
-      <div class="onboard-header">
-        <div id="owner_img" style="" class="face"></div>
-        <h1 id="owner_name"></h1>
-        <p hidden id="owner_email"></p>
-        <p hidden id="owner_geolocation"></p>
-        <p hidden id="owner_num_connections"></p>
-        <p hidden id="owner_first_name"></p>
-        <p hidden id="owner_last_name"></p>
-        <p hidden id="owner_url"></p>
-        <div class="contact-count"><img src="/static/img/contact-card.svg"/><small></small></div>
-      </div>
-      <!-- Onboard Step 2-->
->>>>>>> cbb3bcb32f0a6d1e48f3f2645c9770ea2f0991d1
       <div class="onboard" id="step-2">
         <div class="wizard">
           <ol>
