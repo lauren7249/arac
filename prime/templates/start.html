@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="col-6">
-            <div id='linkedin-area' class="connect-email">
+            <div id='linkedin-area' class="connect-email" onclick="linkedin();">
               <img id='linkedin' type="Submit" src="/static/img/linkedin-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to LinkedIn and add contacts from your profile.">Add LinkedIn Account</div>           
               <div class='connected_area'>
@@ -75,7 +75,7 @@
                 {%endif%}             
               </div>                  
             </div>            
-            <div id='gmail-area' class="connect-email">
+            <div id='gmail-area' class="connect-email" onclick="gmail();">
               <img id='gmail' type="Submit" src="/static/img/gmail-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to Gmail and add contacts from your email accounts. You can connect more than one Gmail account by clicking this button more than once.">Add Gmail Account</div>
               <div class='connected_area'>
@@ -84,7 +84,7 @@
                 {%endif%}                  
               </div>                  
             </div>
-            <div id='yahoo-area' class="connect-email">
+            <div id='yahoo-area' class="connect-email" onclick="yahoo();">
               <img id='yahoo' type="Submit" src="/static/img/yahoo-mail-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to Yahoo and add contacts from your email accounts. You can connect more than one Yahoo account by clicking this button more than once.">Add Yahoo! Account</div>
               <div class='connected_area'>
@@ -93,7 +93,7 @@
                 {%endif%}                 
               </div>
             </div>
-            <div id='windowslive-area' class="connect-email">
+            <div id='windowslive-area' class="connect-email" onclick="windowslive();">
               <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live (Hotmail, Outlook) Account</div>
               <div class='connected_area'>
@@ -102,7 +102,7 @@
                 {%endif%}                  
               </div>
             </div>
-            <div id='aol-area' class="connect-email">
+            <div id='aol-area' class="connect-email" onclick="aol();">
               <img id='aol'  type="Submit" src="/static/img/aol-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once.">Add AOL Account</div>
               <div class='connected_area'>
@@ -266,10 +266,6 @@
         showSuccess(message);
       }      
     }
-  
-    $(function() {
-      bindEmailButtons();
-    });
 
     function upload() {
         $("#spinner").fadeIn();  
@@ -295,55 +291,45 @@
             }
         });  
     }
-   
-    function bindEmailButtons() {
+    
+    function aol() {
+      var win = window.open('about:blank');        
+      cloudsponge_status = 'NONE';   
+      var len = do_import('aol','#aol-area',win);
+      $(".email").hide();
+      $("#spinner").fadeOut();      
+    }
+    function yahoo(){
+      var win = window.open('about:blank');        
+      cloudsponge_status = 'NONE';   
+      var len =do_import('Yahoo','#yahoo-area',win);
+      $(".email").hide();
+      $("#spinner").fadeOut();      
+    }
 
-      $("#linkedin-area").click(function(e) {
-        cloudsponge_status = 'NONE';   
-        e.preventDefault();
-        var win = window.open('about:blank');        
-        var len = do_import('LinkedIn','#linkedin-area',win);
-        $(".linkedin").hide();
-        $("#spinner").fadeOut();
-      });
+    function gmail() {
+      cloudsponge_status = 'NONE';   
+      var win = window.open('about:blank');        
+      var len = do_import('Gmail','#gmail-area',win);
+      $(".email").hide();
+      $("#spinner").fadeOut();      
+    }
 
-      $("#gmail-area").click(function(e) {
-        cloudsponge_status = 'NONE';   
-        e.preventDefault();
-        var win = window.open('about:blank');        
-        var len = do_import('Gmail','#gmail-area',win);
-        $(".email").hide();
-        $("#spinner").fadeOut();
-      });
+    function linkedin() {
+      cloudsponge_status = 'NONE';   
+      var win = window.open('about:blank');        
+      var len = do_import('LinkedIn','#linkedin-area',win);
+      $(".linkedin").hide();
+      $("#spinner").fadeOut();      
+    }
 
-      $("#yahoo-area").click(function(e) {
-        e.preventDefault();
-        var win = window.open('about:blank');        
-        cloudsponge_status = 'NONE';   
-        var len =do_import('Yahoo','#yahoo-area',win);
-        $(".email").hide();
-        $("#spinner").fadeOut();
-      });
-
-      $("#windowslive-area").click(function(e) {
-        e.preventDefault();
-        var win = window.open('about:blank');        
-        cloudsponge_status = 'NONE';   
-        var len = do_import('WindowsLive','#windowslive-area',win);
-        $(".email").hide();
-        $("#spinner").fadeOut();
-      });
-
-      $("#aol-area").click(function(e) {
-        e.preventDefault();
-        var win = window.open('about:blank');        
-        cloudsponge_status = 'NONE';   
-        var len = do_import('aol','#aol-area',win);
-        $(".email").hide();
-        $("#spinner").fadeOut();
-      });   
-
-    }  
+    function windowslive() {
+      var win = window.open('about:blank');        
+      cloudsponge_status = 'NONE';   
+      var len = do_import('WindowsLive','#windowslive-area',win);
+      $(".email").hide();
+      $("#spinner").fadeOut();      
+    }
 
   </script>  
 
