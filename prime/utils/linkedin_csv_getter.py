@@ -64,30 +64,14 @@ class LinkedinCsvGetter(object):
         pin_form.send_keys(pin)
         time.sleep(8)
         self.driver.save_screenshot("pin_typed.png")
-        pin_form.send_keys(Keys.TAB)
-        pin_form.send_keys(Keys.RETURN)
-        import pdb
-        pdb.set_trace()
+        button = self.driver.find_element_by_xpath("//input[@type='submit']")
+        button.click()
         time.sleep(10)
         self.logger.info("Pin Submitted Title: {}".format(self.driver.title))
         self.driver.save_screenshot("pin_submitted.png")
         if self.driver.title == u'Welcome! | LinkedIn':
             self.logger.info("Pin Success")
             return True
-        try:
-            pin_form = self.driver.find_element_by_id("verification-code")
-            pin_form.clear()
-            pin_form.send_keys(pin)
-            time.sleep(4)
-            pin_form.send_keys(Keys.TAB)
-            pin_form.send_keys(Keys.RETURN)
-            time.sleep(8)
-            self.logger.info("Pin Submitted Title: {}".format(self.driver.title))
-            if self.driver.title == u'Welcome! | LinkedIn':
-                self.logger.info("Pin Success")
-                return True
-        except:
-            pass
         self.logger.info("Pin Failure")
         return False
 
