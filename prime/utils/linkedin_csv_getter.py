@@ -52,6 +52,11 @@ class LinkedinCsvGetter(object):
         time.sleep(6)
         if self.driver.title == u'Welcome! | LinkedIn':
             return True
+        time.sleep(6)
+        pin_form.send_keys(Keys.RETURN)
+        time.sleep(6)
+        if self.driver.title == u'Welcome! | LinkedIn':
+            return True
         return False
 
     def get_remote_driver(self, proxy=False):
@@ -152,8 +157,8 @@ class LinkedinCsvGetter(object):
         header = lines[0]
         cols = csv_line_to_list(header)
         try:
-            first_name_index = cols.index('First Name') 
-            last_name_index = cols.index('Last Name') 
+            first_name_index = cols.index('First Name')
+            last_name_index = cols.index('Last Name')
             company_index = cols.index('Company')
             job_title_index = cols.index('Job Title')
             email_index = cols.index('E-mail Address')

@@ -176,13 +176,12 @@ def start_linkedin_login_bot(email, password, user_id):
         session.commit()
         conn.hset("linkedin_login_outcome", current_user.email, "pin:{}".format(error))
         q = get_q()
-        q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=3600)
+        q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=36000)
         return True
     #username or password was wrong
     conn = get_conn()
     conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))
     return True
-
 
 def wait_for_pin_status(email, pin):
     import time
