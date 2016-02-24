@@ -98,12 +98,12 @@ def selenium_state_holder(getter, user_id):
     current_user = session.query(User).get(user_id)
     email = current_user.email
     conn = get_conn()
-    while not conn.hexists("pins",email):
+    while not conn.hexists("pins",current_user.email):
         time.sleep(1)
-    pin = conn.hget("pins",email)
-    success = getter.give_pin(pin)
+    pin = conn.hget("pins",current_user.email)
+    success = getter.give_pin(current_user.email)
     if not success:
-        conn.hdel("pins",email)
+        conn.hdel("pins",current_user.email)
         selenium_state_holder(getter, current_user.user_id)
         return True
     data = None
@@ -118,8 +118,8 @@ def selenium_state_holder(getter, user_id):
     getter.quit()
     if data:
         contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
-        conn.hset("pin_accepted",email,True)
-        conn.hdel("pins",email)
+        conn.hset("pin_accepted",current_user.email,True)
+        conn.hdel("pins",current_user.email)
     return True
 
 def start_linkedin_login_bot(email, password, user_id):
@@ -184,7 +184,7 @@ def start_linkedin_login_bot(email, password, user_id):
     return True
 
 
-def give_pin(email, pin):
+def wait_for_pin_status(email, pin):
     import time
     conn = get_conn()
     conn.hset("pins",email,pin)
@@ -273,7 +273,7 @@ def linkedin_pin():
         pin = request.form.get("pin")
         email = current_user.email
         if pin and email:
-            pin_worked = give_pin(email, pin)
+            pin_worked = wait_for_pin_status(current_user.email, pin)
             if pin_worked:
                 return jsonify({"success": True})
         return jsonify({"success": False, "error": True})
@@ -282,13 +282,12 @@ def linkedin_pin():
 @csrf.exempt
 @prospects.route('/linkedin_login_status', methods=['GET', 'POST'])
 def linkedin_login_status():
-    email = current_user.email
     conn = get_conn()
-    if conn.hexists("linkedin_login_outcome", email):
+    if conn.hexists("linkedin_login_outcome", current_user.email):
         #we see here if the Linkedin bot is finished running.
-        status, error = conn.hget("linkedin_login_outcome", email).split(":")
+        status, error = conn.hget("linkedin_login_outcome", current_user.email).split(":")
         #do we really need to delete this?
-        conn.hdel("linkedin_login_outcome", email)
+        conn.hdel("linkedin_login_outcome", current_user.email)
         if status == "success":
             return jsonify({"success": True, "finished": True})
         if status == "pin":

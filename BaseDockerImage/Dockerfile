@@ -9,7 +9,7 @@ RUN apt-get update && \
       fftw-dev sfftw-dev libfftw3-dev python2.7-dev libpython2.7-dev libpython-all-dev  liblapack-dev \
       apt-utils binfmt-support gfortran postgresql-client libpq-dev libpq5 libpqxx-dev libhiredis-dev libghc-hedis-dev redis-tools locales-all \
       libjansson4 libmatheval1 libonig2 libperl4-corelibs-perl libpgm-5.1-0 libqdbm14 libsodium13 libzmq3 lsof \
-      psmisc iceweasel xvfb
+      psmisc iceweasel xvfb vim
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app

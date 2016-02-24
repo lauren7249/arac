@@ -11,6 +11,7 @@ import os
 import signal
 import subprocess
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.proxy import Proxy, ProxyType
 import time
 
 class LinkedinCsvGetter(object):
@@ -53,21 +54,26 @@ class LinkedinCsvGetter(object):
             return True
         return False
 
-    def get_remote_driver(self):
-        # desired_cap = {'browser': 'Firefox'}
-        # #driver = webdriver.Remote(command_executor='http://{}:{}@hub.browserstack.com:80/wd/hub'.format(BROWSERSTACK_USERNAME, BROWSERSTACK_KEY),desired_capabilities=desired_cap)
-        # PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
+    def get_remote_driver(self, proxy=False):
 
-        # webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-        #     "httpProxy":PROXY,
-        #     "ftpProxy":PROXY,
-        #     "sslProxy":PROXY,
-        #     "noProxy":None,
-        #     "proxyType":"MANUAL",
-        #     "class":"org.openqa.selenium.Proxy",
-        #     "autodetect":False
-        # }
-        self.driver = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.FIREFOX,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
+        if proxy:
+            PROXY = "https://pp-suibscag:eenamuts@66.90.79.52:11332"
+
+            proxy = Proxy({
+                'proxyType': ProxyType.MANUAL,
+                'httpProxy': PROXY,
+                'ftpProxy': PROXY,
+                'sslProxy': PROXY,
+                'noProxy': '' # set this value as desired
+                })
+
+            driver = webdriver.Firefox(proxy=proxy)
+            desired_capabilities = webdriver.DesiredCapabilities.FIREFOX.copy()
+            proxy.add_to_capabilities(desired_capabilities)
+            driver.quit()
+        else:
+            desired_capabilities = webdriver.DesiredCapabilities.FIREFOX
+        self.driver = webdriver.Remote(desired_capabilities=desired_capabilities,command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' %(SAUCE_USERNAME, SAUCE_ACCESS_KEY))
         return self.driver
 
     def get_local_driver(self):
@@ -108,27 +114,32 @@ class LinkedinCsvGetter(object):
         screenshot_fn = random_string() + ".png"
         cropped_fn = random_string()  + ".png"
         self.driver.get(LINKEDIN_EXPORT_URL)
-        self.driver.save_screenshot(screenshot_fn)
-        img = Image.open(screenshot_fn)
-        img_cropped = img.crop( LINKEDIN_CAPTCHA_CROP_DIMS )
-        imagefile = open(cropped_fn, 'wb')
-        img_cropped.save(imagefile,"png",quality=100, **img.info)
-        img_cropped.close()
-        solver = CaptchaSolver('antigate', api_key=ANTIGATE_ACCESS_KEY)
-        with open(cropped_fn, 'rb') as inp:
-            raw_data = inp.read()
         try:
-            captcha = solver.solve_captcha(raw_data)
             captcha_input = self.driver.find_element_by_id("recaptcha_response_field")
-            captcha_input.send_keys(captcha)
-            export_button = self.driver.find_element_by_name("exportNetwork")
-            export_button.click()
-        except Exception, e:
-            print str(e)
-            self.driver.save_screenshot("error.png")
-            return None
-        os.remove(cropped_fn)
-        os.remove(screenshot_fn)
+            captcha_exists = True
+        except:
+            captcha_exists = False
+        if captcha_exists:
+            self.driver.save_screenshot(screenshot_fn)
+            img = Image.open(screenshot_fn)
+            img_cropped = img.crop( LINKEDIN_CAPTCHA_CROP_DIMS )
+            imagefile = open(cropped_fn, 'wb')
+            img_cropped.save(imagefile,"png",quality=100, **img.info)
+            img_cropped.close()
+            solver = CaptchaSolver('antigate', api_key=ANTIGATE_ACCESS_KEY)
+            with open(cropped_fn, 'rb') as inp:
+                raw_data = inp.read()
+            os.remove(cropped_fn)
+            os.remove(screenshot_fn)                
+            try:
+                captcha = solver.solve_captcha(raw_data)
+                captcha_input.send_keys(captcha)
+            except Exception, e:
+                print str(e)
+                self.driver.save_screenshot("error.png")
+                return None
+        export_button = self.driver.find_element_by_name("exportNetwork")
+        export_button.click()            
         cookies = self.driver.get_cookies()
         req_cookies = {}
         for cookie in cookies:
