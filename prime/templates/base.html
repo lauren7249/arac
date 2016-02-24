@@ -1,6 +1,14 @@
 <!doctype html>
 <html>
+<script type="text/javascript">
+  var ua = navigator.userAgent.toLowerCase();
+  
+  if (/msie 9/.test(ua)) {
+    alert("Internet Explorer 9 is not supported by this application. Please upgrade to Internet Explorer 10 or 11, or use Firefox, Chrome, or Safari.");
+    window.location = "about:blank";
+  } 
 
+</script>
   <head>
     <title>AdvisorConnect</title>
     <link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">

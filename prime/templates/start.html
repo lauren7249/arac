@@ -10,22 +10,7 @@
     var downloadWindow = null;
     var public_url = null;
 
-    // Handle an error response from the API call
-    function onError(error) {
-    }
-
     $( document ).ready(function() {
-      var ua = navigator.userAgent.toLowerCase();
-     
-      if (/chrome/.test(ua)) {
-        
-      }
-      else if (!/opera/.test(ua) && /msie/.test(ua)) {
-
-      } 
-      else if ("{{ newWindow }}" == 'true') {
-
-      }
       if ("{{ status }}" == 'all_done') {
         $("#step-1").hide();
         attemptFinish();             
