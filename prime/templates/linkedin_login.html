@@ -71,7 +71,6 @@
                   $(".waiting").hide();
                   //linkedin told us what was wrong, we will pass the message along
                   if (error.length > 0) {
-                    console.log(error);
                     $(".error").text(error)
                     $(".error").css("display","inline");  
                   }
@@ -81,7 +80,6 @@
                   }
                 }
               } else {
-                console.log("Not Finished")
               }
             },
             error: function (data, textStatus, errorThrown) {

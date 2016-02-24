@@ -130,7 +130,7 @@ class User(db.Model, UserMixin):
         if self.user_id==312:
             return max(7000 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)
         if self.user_id==302:
-            return max(1000 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)            
+            return max(1000 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)
         return max(200 - int(self.prospects.filter(ClientProspect.good==True).count()), 0)
 
     def set_password(self, password):
@@ -265,6 +265,8 @@ class User(db.Model, UserMixin):
         from_all = set()
         account_sources = {}
         by_source = {}
+        if not contacts_array:
+            contacts_array = []
         for record in contacts_array + new_contacts:
             owner = record.get("contacts_owner")
             if owner:
@@ -285,7 +287,7 @@ class User(db.Model, UserMixin):
             by_source[email_address+service] = record
             from_all.add(email_address)
             if service_filter and service.lower() != service_filter.lower():
-                continue            
+                continue
             if service=='linkedin':
                 from_linkedin.add(email_address)
             elif service=='gmail':
@@ -298,7 +300,7 @@ class User(db.Model, UserMixin):
                 from_aol.add(email_address)
             else:
                 continue
-            
+
         self.unique_contacts_uploaded = len(from_all)
         if len(from_linkedin):
             self.contacts_from_linkedin = len(from_linkedin)
