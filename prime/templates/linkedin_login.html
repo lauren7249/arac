@@ -3,8 +3,8 @@
 
 {% block content %}
 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-<div id="linkedin_password_form">
-  <form class="card" id='linkedin-login-form' method='POST' autocomplete="false">
+<div class="wrap" id="linkedin_password_form">
+  <form class="signup card" id='linkedin-login-form' method='POST' autocomplete="false">
     <header>
       <div class="header-logo"></div>
     </header>
@@ -14,20 +14,20 @@
     <h3>Please enter your Linkedin username (email) and password so we can securely connect your contacts.</h3>
     <hr>
 
-    <div class="col-8">
+    
+    <div class="form-group">
       <input type="email" name='email' class="form-control" id="inputEmail" placeholder="Enter Your LinkedIn Email Address" autocomplete="new-email">
     </div>
-    <div class="col-8">
+    <div class="form-group">
       <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Enter Your LinkedIn Password" autocomplete="new-password">
     </div>
-    <div class="col-4">
-      <button id="check_linkedin_button" type="submit" class="button fluid linkedin">Connect Linkedin Contacts</button>
-    </div>
-    <div>
+    <button id="check_linkedin_button" type="submit" class="button linkedin">Connect Linkedin Contacts</button>
+    
+    <p>
       <small>
         <a href='https://www.linkedin.com/uas/request-password-reset?trk=uno-reg-guest-home-forgot-password' target="_blank">Forgot Your Linkedin Password?</a>
       </small>
-    </div>
+    </p>
   </form>
 </div>
 <script type="text/javascript">
