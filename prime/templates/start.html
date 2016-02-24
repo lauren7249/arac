@@ -308,7 +308,7 @@
       $("#linkedin-area").click(function(e) {
         cloudsponge_status = 'NONE';   
         e.preventDefault();
-        var win = window.open('');        
+        var win = window.open('about:blank');        
         var len = do_import('LinkedIn','#linkedin-area',win);
         $(".linkedin").hide();
         $("#spinner").fadeOut();
@@ -317,7 +317,7 @@
       $("#gmail-area").click(function(e) {
         cloudsponge_status = 'NONE';   
         e.preventDefault();
-        var win = window.open('');        
+        var win = window.open('about:blank');        
         var len = do_import('Gmail','#gmail-area',win);
         $(".email").hide();
         $("#spinner").fadeOut();
@@ -325,7 +325,7 @@
 
       $("#yahoo-area").click(function(e) {
         e.preventDefault();
-        var win = window.open('');        
+        var win = window.open('about:blank');        
         cloudsponge_status = 'NONE';   
         var len =do_import('Yahoo','#yahoo-area',win);
         $(".email").hide();
@@ -334,7 +334,7 @@
 
       $("#windowslive-area").click(function(e) {
         e.preventDefault();
-        var win = window.open('');        
+        var win = window.open('about:blank');        
         cloudsponge_status = 'NONE';   
         var len = do_import('WindowsLive','#windowslive-area',win);
         $(".email").hide();
@@ -343,7 +343,7 @@
 
       $("#aol-area").click(function(e) {
         e.preventDefault();
-        var win = window.open('');        
+        var win = window.open('about:blank');        
         cloudsponge_status = 'NONE';   
         var len = do_import('aol','#aol-area',win);
         $(".email").hide();
