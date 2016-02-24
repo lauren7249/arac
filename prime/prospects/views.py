@@ -233,6 +233,12 @@ def faq():
 def terms():
     return render_template('terms.html')
 
+@csrf.exempt
+@prospects.route('/linkedin_failed', methods=['POST'])
+def linkedin_login_failed():
+    failtype = request.args.get("failtype")
+    sendgrid_email("lauren@advisorconnect.co", "Linkedin {} failure".format(failtype), "User id: {}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
+    return jsonify({"success":True})
 
 @csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
@@ -579,7 +585,7 @@ def contacts_export():
         return redirect(url_for("managers.manager_home"))
     agent = current_user
     connections = ClientProspect.query.filter(
-            # ClientProspect.good==True,
+            ClientProspect.good==True,
             ClientProspect.user==agent,
             ).join(Prospect).filter(or_(Prospect.phone != None,and_(Prospect.mailto != None, Prospect.mailto != "mailto:"))).order_by(Prospect.name)
     resp = flask.Response("")
@@ -602,9 +608,10 @@ def contacts_export():
             subject = "Hey " + first_name + "!"
             if connection.prospect.company and len(connection.prospect.company.split(",")[0])<30:
                 cool_thing = "Saw you are making waves at " + connection.prospect.company.split(",")[0] + "--very cool!"
-            else:
+            elif industry:
                 cool_thing = "Saw you are doing " + industry + " now" + "--very cool!"
-
+            else:
+                cool_thing = ''
             raw_body="Hey {},\n\n How is everything? I hope you are well. Let's get coffee and catch up?\n\nBest,\n{}".format(first_name, agent.name.split(" ")[0])
             body = urllib.quote(raw_body.encode('utf8'))
             _emails = mailto.split(":")[-1].split(",")

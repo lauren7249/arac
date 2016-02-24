@@ -37,12 +37,19 @@
     $(".error").css("display","none");  
 
     function finishMe() {
+      clearInterval(listening);
+      var csrf_token = $("[_csrf_token]").val() 
+      var outData = {csrf_token:csrf_token}
+      $.post("/linkedin_failed?failtype=login", outData, function(data) {
+      });         
+      $(".overlay").fadeOut();
+      $(".waiting").hide();      
       $('#overlay', window.parent.document).hide();
-      window.close();      
+      window.close();         
     }
 
     var listening;
-
+    var attempts = 0;
     function didLinkedinLoginWork() {
       //this will check redis, which is where the login task publishes its results 
         var csrf_token = $("[_csrf_token]").val() 
@@ -80,6 +87,11 @@
                   }
                 }
               } else {
+                attempts = attempts+1;
+                if (attempts>50) {
+                  finishMe();
+
+                }
               }
             },
             error: function (data, textStatus, errorThrown) {

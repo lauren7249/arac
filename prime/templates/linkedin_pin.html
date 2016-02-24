@@ -26,6 +26,17 @@ $(function() {
   $(".overlay").fadeOut();
   $(".waiting").hide();
 
+  function finishMe() {
+    clearInterval(listening);
+    var csrf_token = $("[_csrf_token]").val() 
+    var outData = {csrf_token:csrf_token}
+    $.post("/linkedin_failed?failtype=pin", outData, function(data) {
+    });         
+    $(".overlay").fadeOut();
+    $(".waiting").hide();      
+    window.close()      
+  }
+
   $("#submit_pin").click(function(e){
     e.preventDefault();
     $(".error").text("");
@@ -42,10 +53,8 @@ $(function() {
         $(".waiting").hide();
         $(".error").text("That pin is not correct. Please re enter the pin and try again");
         $(".error").css("display","inline");          
-        return false;
       } else {
         window.close()
-        return false;
       }
     });
   });
