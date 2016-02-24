@@ -12,13 +12,11 @@
 
     // Handle an error response from the API call
     function onError(error) {
-        console.log(error);
     }
 
     $( document ).ready(function() {
       var ua = navigator.userAgent.toLowerCase();
      
-      console.log(ua);
       if (/chrome/.test(ua)) {
         
       }
@@ -35,7 +33,6 @@
       else if ({{ agent.unique_contacts_uploaded | int }} > 0 && "{{ status }}" != "in_progress") {
         var message = "Welcome back! You've uploaded {{ '{0:,}'.format(agent.unique_contacts_uploaded | int) }} unique contacts so far, and it's not too late to add more. You don't need to re-connect any accounts you've already connected, but it's OK if you do. We're keeping track of everything for you." ;
         showSuccess(message);
-        console.log(message);
       }
       
     });    
@@ -172,7 +169,6 @@
           var import_id = data.import_id;
           var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
           var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
-          console.log(tempcontactsurl);
 
           win.location.href = cloudsponge_url;
           var timer = setInterval(function() {   
@@ -189,13 +185,11 @@
     }
 
     function handle_cloudsponge(tempcontactsurl, tempeventsurl, divid, service) {
-      console.log(tempeventsurl);
       $.getJSON(tempeventsurl, function(data){
         events = data.events;
 
         for (i = 0; i < events.length; i++) { 
           cloudsponge_status = events[i].status;
-          console.log(cloudsponge_status);
           if (cloudsponge_status == 'COMPLETED') {
             $("#spinner").fadeIn();
             var timer2 = setInterval(function() {  
@@ -294,7 +288,6 @@
               $("#step-1").hide(); 
               $("#step-2").slideDown()   
               $("#spinner").fadeOut();   
-              console.log(responseData);
             },
             error: function (responseData, textStatus, errorThrown) {
                 $("#spinner").fadeOut();                
