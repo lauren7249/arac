@@ -50,6 +50,7 @@ $(function() {
     var csrf_token = $("[_csrf_token]").val()
 
     var outData = {csrf_token:csrf_token,pin:$("#inputPin").val()}
+    $.ajaxSetup({ cache: false });
     $.post("/linkedin_pin", outData, function(data) {
       if (tries >= 3) {
         finishMe(true);

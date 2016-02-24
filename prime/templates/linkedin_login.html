@@ -56,6 +56,7 @@
       //this will check redis, which is where the login task publishes its results 
         var csrf_token = $("[_csrf_token]").val() 
         var outData = {csrf_token:csrf_token}
+        $.ajaxSetup({ cache: false });
         $.ajax({
             type: 'GET',
             url: '/linkedin_login_status',
