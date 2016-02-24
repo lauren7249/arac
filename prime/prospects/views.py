@@ -101,7 +101,7 @@ def selenium_state_holder(getter, user_id):
     while not conn.hexists("pins",current_user.email):
         time.sleep(1)
     pin = conn.hget("pins",current_user.email)
-    success = getter.give_pin(current_user.email)
+    success = getter.give_pin(pin.strip())
     if not success:
         conn.hdel("pins",current_user.email)
         selenium_state_holder(getter, current_user.user_id)
