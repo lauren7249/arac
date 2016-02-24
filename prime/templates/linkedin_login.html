@@ -38,7 +38,6 @@
 
     function finishMe(err) {
       clearInterval(listening);
-      console.log("finished and error is " + err);
       var csrf_token = $("[_csrf_token]").val() 
       var outData = {csrf_token:csrf_token}
       if (err) {
