@@ -26,12 +26,14 @@ $(function() {
   $(".overlay").fadeOut();
   $(".waiting").hide();
 
-  function finishMe() {
+  function finishMe(err) {
     clearInterval(listening);
     var csrf_token = $("[_csrf_token]").val() 
     var outData = {csrf_token:csrf_token}
-    $.post("/linkedin_failed?failtype=pin", outData, function(data) {
-    });         
+    if (err) {
+      $.post("/linkedin_failed?failtype=pin", outData, function(data) {
+      }); 
+    }        
     $(".overlay").fadeOut();
     $(".waiting").hide();      
     window.close()      

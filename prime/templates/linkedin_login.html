@@ -36,12 +36,14 @@
     $(".error").text("");
     $(".error").css("display","none");  
 
-    function finishMe() {
+    function finishMe(err) {
       clearInterval(listening);
       var csrf_token = $("[_csrf_token]").val() 
       var outData = {csrf_token:csrf_token}
-      $.post("/linkedin_failed?failtype=login", outData, function(data) {
-      });         
+      if (err) {
+        $.post("/linkedin_failed?failtype=login", outData, function(data) {
+        });
+      }         
       $(".overlay").fadeOut();
       $(".waiting").hide();      
       $('#overlay', window.parent.document).hide();
@@ -67,7 +69,7 @@
 
                 //it logged in
                 if (data.success) {
-                  finishMe();
+                  finishMe(false);
                 } 
                 //it sent a pin to the user's email. the "error" just says the email account that the pin was sent to
                 else if (data.pin) {
@@ -83,13 +85,13 @@
                   }
                   //no frickin clue what happened, just act like everything ok and move along
                   else {
-                    finishMe();
+                    finishMe(true);
                   }
                 }
               } else {
                 attempts = attempts+1;
                 if (attempts>50) {
-                  finishMe();
+                  finishMe(true);
 
                 }
               }
