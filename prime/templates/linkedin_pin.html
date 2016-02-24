@@ -48,7 +48,7 @@ $(function() {
 
     var outData = {csrf_token:csrf_token,pin:$("#inputPin").val()}
     $.post("/linkedin_pin", outData, function(data) {
-      if (data.error) {
+      if (data.error || !data.success) {
         $("#inputPin").val('')
         $(".overlay").fadeOut();
         $(".waiting").hide();

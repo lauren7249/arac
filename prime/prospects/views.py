@@ -290,8 +290,10 @@ def linkedin_pin():
         if pin and email:
             pin_worked = wait_for_pin_status(current_user.email, pin)
             if pin_worked:
+                print "Pin worked!"
                 return jsonify({"success": True})
-        return jsonify({"success": False, "error": True})
+            print "pin did not work"
+            return jsonify({"success": False, "error": True})
     return render_template('linkedin_pin.html',pin_worked=pin_worked, message=message)
 
 @csrf.exempt
