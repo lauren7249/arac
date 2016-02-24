@@ -2,7 +2,7 @@
 @import url(/static/css/poppins.css);
 @import url(normalize.css);
 @import url(hint.css);
-.overlay dialog, .signup {
+.overlay .dialog, .signup {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1442,23 +1442,6 @@ form.dropzone.dz-success {
   padding: 0;
 }
 
-#linkedin_password_form {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: none;
-}
-#linkedin_password_form form.card, #linkedin_password_form form.wizard, #linkedin_password_form form.onboard-body, #linkedin_password_form form.onboard-footer, #linkedin_password_form form.note {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-#linkedin_password_form input {
-  height: 50px !important;
-}
-
 .overlay {
   display: none;
   position: fixed;
@@ -1469,8 +1452,9 @@ form.dropzone.dz-success {
   width: 100%;
   z-index: 9998;
 }
-.overlay dialog {
+.overlay .dialog {
   display: block;
+  background: white;
   border: none;
   z-index: 9999;
   margin: 0;
@@ -1479,25 +1463,25 @@ form.dropzone.dz-success {
   -ms-border-radius: 4px;
   border-radius: 4px;
 }
-.overlay dialog img {
+.overlay .dialog img {
   width: 100%;
   height: 100%;
 }
 
-#spinner dialog {
+#spinner .dialog {
   width: 100px;
   height: 100px;
 }
 
-#progress dialog {
+#progress .dialog {
   width: 400px;
   height: auto;
   padding: 50px;
 }
-#progress dialog .progress-bar {
+#progress .dialog .progress-bar {
   width: 100%;
 }
-#progress dialog small {
+#progress .dialog small {
   font-weight: normal;
   color: #02C2B9;
 }
@@ -1520,6 +1504,9 @@ form.dropzone.dz-success {
   width: auto;
   height: 15px;
   background: #02C2B9;
+  -webkit-animation: grow-bar 100s ease-in;
+  -ms-animation: grow-bar 100s ease-in;
+  -o-animation: grow-bar 100s ease-in;
   animation: grow-bar 100s ease-in;
 }
 
@@ -1540,6 +1527,14 @@ form.dropzone.dz-success {
   }
 }
 @-o-keyframes grow-bar {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+@-ms-keyframes grow-bar {
   0% {
     width: 0%;
   }

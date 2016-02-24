@@ -38,19 +38,19 @@
 
     {% block spinner %}
       <div id="spinner" class="overlay">
-        <dialog>
+        <div class="dialog">
           <img src='/static/img/loading.gif'/>
-        </dialog>
+        </div>
       </div>
     {% endblock %}
 
 
     {% block progress %}
       <div id="progress" class="overlay">
-        <dialog>
+        <div class="dialog">
           <div class="progress-bar" value="" max="100" id="progress-bar"></div>
           <small>Loading...</small>
-        </dialog>
+        </div>
       </div>
     {% endblock %}
     
