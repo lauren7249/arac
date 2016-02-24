@@ -1,4 +1,5 @@
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import logging
 from selenium import webdriver
 from prime.processing_service.constants import BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS, SAUCE_USERNAME, SAUCE_ACCESS_KEY
 from pyvirtualdisplay import Display
@@ -16,9 +17,22 @@ import time
 
 class LinkedinCsvGetter(object):
 
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        if 'logger' in d.keys():
+            d['logger'] = d['logger'].name
+        return d
+
+    def __setstate__(self, d):
+        if 'logger' in d.keys():
+            d['logger'] = logging.getLogger(d['logger'])
+        self.__dict__.update(d)
+
     def __init__(self, username, password, local=True):
         self.username = username
         self.password = password
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
         self.display = None
         if local:
             self.driver = self.get_local_driver()
@@ -44,19 +58,37 @@ class LinkedinCsvGetter(object):
         self.kill_firefox_and_xvfb()
 
     def give_pin(self, pin):
+        self.logger.info("Pin Started: {}".format(pin))
         pin_form = self.driver.find_element_by_id("verification-code")
         pin_form.clear()
         pin_form.send_keys(pin)
-        print pin
-        time.sleep(4)
+        time.sleep(8)
         self.driver.save_screenshot("pin_typed.png")
         pin_form.send_keys(Keys.TAB)
         pin_form.send_keys(Keys.RETURN)
-        #pin_form.send_keys(Keys.RETURN)
-        time.sleep(6)
+        import pdb
+        pdb.set_trace()
+        time.sleep(10)
+        self.logger.info("Pin Submitted Title: {}".format(self.driver.title))
         self.driver.save_screenshot("pin_submitted.png")
         if self.driver.title == u'Welcome! | LinkedIn':
+            self.logger.info("Pin Success")
             return True
+        try:
+            pin_form = self.driver.find_element_by_id("verification-code")
+            pin_form.clear()
+            pin_form.send_keys(pin)
+            time.sleep(4)
+            pin_form.send_keys(Keys.TAB)
+            pin_form.send_keys(Keys.RETURN)
+            time.sleep(8)
+            self.logger.info("Pin Submitted Title: {}".format(self.driver.title))
+            if self.driver.title == u'Welcome! | LinkedIn':
+                self.logger.info("Pin Success")
+                return True
+        except:
+            pass
+        self.logger.info("Pin Failure")
         return False
 
     def get_remote_driver(self, proxy=False):
@@ -119,6 +151,7 @@ class LinkedinCsvGetter(object):
         screenshot_fn = random_string() + ".png"
         cropped_fn = random_string()  + ".png"
         self.driver.get(LINKEDIN_EXPORT_URL)
+        self.logger.info("Linkedin Export URL: {}".format(self.driver.title))
         try:
             captcha_input = self.driver.find_element_by_id("recaptcha_response_field")
             captcha_exists = True
@@ -135,7 +168,7 @@ class LinkedinCsvGetter(object):
             with open(cropped_fn, 'rb') as inp:
                 raw_data = inp.read()
             os.remove(cropped_fn)
-            os.remove(screenshot_fn)                
+            os.remove(screenshot_fn)
             try:
                 captcha = solver.solve_captcha(raw_data)
                 captcha_input.send_keys(captcha)
@@ -144,7 +177,7 @@ class LinkedinCsvGetter(object):
                 self.driver.save_screenshot("error.png")
                 return None
         export_button = self.driver.find_element_by_name("exportNetwork")
-        export_button.click()            
+        export_button.click()
         cookies = self.driver.get_cookies()
         req_cookies = {}
         for cookie in cookies:
