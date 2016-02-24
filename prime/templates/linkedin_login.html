@@ -8,9 +8,9 @@
     <header>
       <div class="header-logo"></div>
     </header>
-    <div class='error'>
+    <small><div class='error'>
 
-    </div> 
+    </div> </small>
     <h3>Please enter your Linkedin username (email) and password so we can securely connect your contacts.</h3>
     <hr>
 
@@ -38,6 +38,7 @@
 
     function finishMe(err) {
       clearInterval(listening);
+      console.log("finished and error is " + err);
       var csrf_token = $("[_csrf_token]").val() 
       var outData = {csrf_token:csrf_token}
       if (err) {
@@ -73,6 +74,7 @@
                 } 
                 //it sent a pin to the user's email. the "error" just says the email account that the pin was sent to
                 else if (data.pin) {
+                  attempts = 0;
                   window.location.href = '/linkedin_pin?message=' + error;
                 } else {
                   clearInterval(listening);
@@ -82,6 +84,7 @@
                   if (error.length > 0) {
                     $(".error").text(error)
                     $(".error").css("display","inline");  
+                    attempts = 0;
                   }
                   //no frickin clue what happened, just act like everything ok and move along
                   else {

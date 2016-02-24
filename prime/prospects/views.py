@@ -101,11 +101,16 @@ def selenium_state_holder(getter, user_id):
     while not conn.hexists("pins",current_user.email):
         time.sleep(1)
     pin = conn.hget("pins",current_user.email)
-    success = getter.give_pin(pin.strip())
+    success=False
+    tries = 0
+    while not success:
+        success = getter.give_pin(pin.strip())
+        tries+=1
+        if tries>=2: break
     if not success:
         conn.hdel("pins",current_user.email)
-        selenium_state_holder(getter, current_user.user_id)
         return True
+    conn.hset("pin_accepted",current_user.email,True)
     data = None
     tries = 0
     while(data == None and tries<4):
@@ -118,7 +123,6 @@ def selenium_state_holder(getter, user_id):
     getter.quit()
     if data:
         contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
-        conn.hset("pin_accepted",current_user.email,True)
         conn.hdel("pins",current_user.email)
     return True
 
@@ -187,9 +191,14 @@ def wait_for_pin_status(email, pin):
     import time
     conn = get_conn()
     conn.hset("pins",email,pin)
+    tries = 0
     while conn.hexists("pins",email):
+        tries +=1
         time.sleep(1)
         print "sleep"
+        if tries>150:
+            print "done sleeping!"
+            break
     if conn.hexists("pin_accepted",email):
         return True
     return False
@@ -274,6 +283,7 @@ def linkedin_login():
 @prospects.route('/linkedin_pin', methods=['GET', 'POST'])
 def linkedin_pin():
     pin_worked = None
+    message = request.args.get("message","A security pin was sent to your email. Please paste the pin in the box below and submit.")
     if request.method == 'POST':
         pin = request.form.get("pin")
         email = current_user.email
@@ -282,7 +292,7 @@ def linkedin_pin():
             if pin_worked:
                 return jsonify({"success": True})
         return jsonify({"success": False, "error": True})
-    return render_template('linkedin_pin.html',pin_worked=pin_worked)
+    return render_template('linkedin_pin.html',pin_worked=pin_worked, message=message)
 
 @csrf.exempt
 @prospects.route('/linkedin_login_status', methods=['GET', 'POST'])

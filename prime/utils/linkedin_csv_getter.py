@@ -123,12 +123,15 @@ class LinkedinCsvGetter(object):
             if message:
                 return message.text.split(". ")[-1], req_cookies
             return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
-        pw_error = self.driver.find_element_by_id("session_password-login-error")
-        if pw_error:
-            return pw_error.text, None
         email_error = self.driver.find_element_by_id("session_key-login-error")
-        if email_error:
-            return email_error.text, None
+        if email_error and email_error.text:
+            self.driver.save_screenshot("email_error.png")
+            return email_error.text, None            
+        pw_error = self.driver.find_element_by_id("session_password-login-error")
+        if pw_error and pw_error.text:
+            self.driver.save_screenshot("pw_error.png")
+            return pw_error.text, None
+        self.driver.save_screenshot("Unknown_error.png")
         return "Unknown error", None
 
     def get_linkedin_data(self):

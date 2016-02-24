@@ -8,7 +8,7 @@
     <div class="header-logo"></div>
   </header>
   <div class='error'></div> 
-  <h3>A security pin was sent to your email. Please paste the pin in the box below and submit.</h3>
+  <h3>{{ message }}</h3>
   <hr>
   <div class="col-8">
     <input type="text" name='pin' id="inputPin" placeholder="Enter PIN" autocomplete="new-pin">
@@ -27,7 +27,6 @@ $(function() {
   $(".waiting").hide();
 
   function finishMe(err) {
-    clearInterval(listening);
     var csrf_token = $("[_csrf_token]").val() 
     var outData = {csrf_token:csrf_token}
     if (err) {
@@ -53,10 +52,10 @@ $(function() {
         $("#inputPin").val('')
         $(".overlay").fadeOut();
         $(".waiting").hide();
-        $(".error").text("That pin is not correct. Please re enter the pin and try again");
+        $(".error").text("We weren't sure about that PIN. Would you mind trying again? Or, close the window and we can redeem your LinkedIn contacts later.");
         $(".error").css("display","inline");          
       } else {
-        window.close()
+        finishMe(false);
       }
     });
   });
