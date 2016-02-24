@@ -108,8 +108,9 @@ def selenium_state_holder(getter, user_id):
         tries+=1
         if tries>=2: break
     if not success:
+        conn.hdel("pin_accepted",current_user.email)
         conn.hdel("pins",current_user.email)
-        return True
+        selenium_state_holder(getter,user_id)
     conn.hset("pin_accepted",current_user.email,True)
     data = None
     tries = 0
@@ -200,7 +201,9 @@ def wait_for_pin_status(email, pin):
             print "done sleeping!"
             break
     if conn.hexists("pin_accepted",email):
+        print "pin accepted according to redis"
         return True
+    print "pin rejected according to redis"
     return False
 
 
@@ -293,7 +296,7 @@ def linkedin_pin():
                 print "Pin worked!"
                 return jsonify({"success": True})
             print "pin did not work"
-            return jsonify({"success": False, "error": True})
+            return jsonify({"success": False})
     return render_template('linkedin_pin.html',pin_worked=pin_worked, message=message)
 
 @csrf.exempt

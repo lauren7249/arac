@@ -20,6 +20,8 @@
 <script type="text/javascript">  
 $(function() {
 
+  var tries = 0;
+
   $(".error").text("");
   $(".error").css("display","none");    
 
@@ -44,11 +46,15 @@ $(function() {
     $(".error").css("display","none");        
     $(".overlay").fadeIn();
     $(".waiting").show();
+    tries = tries + 1;
     var csrf_token = $("[_csrf_token]").val()
 
     var outData = {csrf_token:csrf_token,pin:$("#inputPin").val()}
     $.post("/linkedin_pin", outData, function(data) {
-      if (data.error || !data.success) {
+      if (tries >= 3) {
+        finishMe(true);
+      }
+      if (!data.success) {
         $("#inputPin").val('')
         $(".overlay").fadeOut();
         $(".waiting").hide();
