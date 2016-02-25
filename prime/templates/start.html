@@ -57,7 +57,7 @@
               <div class='connected_area'>
                 {%if agent.contacts_from_linkedin | int > 0 %}
                   <div class='connected' id="linkedin_response">Added {{ '{0:,}'.format(agent.contacts_from_linkedin | int) }} contacts from LinkedIn</div>
-                {%elif agent.linkedin_password %}
+                {%elif agent.linkedin_password and agent.linkedin_login_email %}
                   <div class='connected' id="linkedin_response">Connected LinkedIn account for {{ agent.linkedin_login_email }}</div>
                 {%endif%}             
               </div>                  
