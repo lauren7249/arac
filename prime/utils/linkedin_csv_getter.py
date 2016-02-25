@@ -193,12 +193,13 @@ class LinkedinCsvGetter(object):
         if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
             return None
         data = []
+        self.logger.info("Processing CSV")
         for i in xrange(1, len(lines)):
             line = csv_line_to_list(lines[i])
             if len(line) <= max(first_name_index, last_name_index, company_index, job_title_index, email_index):
                 logger.warn("Linkedin csv line is wrong:\r\n{}".format(lines[i]))
                 continue
-            logger.info(line)
+            self.logger.info(line)
             contact = {}
             contact["first_name"] = line[first_name_index].decode('latin-1')
             contact["last_name"] = line[last_name_index].decode('latin-1')
