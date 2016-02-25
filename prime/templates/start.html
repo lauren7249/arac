@@ -102,7 +102,9 @@
         </div>
       </div>
       <div class="onboard-footer"><small>
-        <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
+        {%if current_user.unique_contacts_uploaded | int  > 0 %}
+          <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
+        {%endif%}
       </div>     
     </div>       
     <div class="wrap">

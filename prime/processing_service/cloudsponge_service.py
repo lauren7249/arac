@@ -18,7 +18,7 @@ class CloudSpongeService(Service):
     def __init__(self, data, *args, **kwargs):
         super(CloudSpongeService, self).__init__(data, *args, **kwargs)
         self.excluded_words = EXCLUDED_EMAIL_WORDS
-        self.unique_emails = {}
+        self.unique_people = {}
 
     def real_person(self, contact_email):
         if len(contact_email.split("@")[0])>33:
@@ -47,11 +47,19 @@ class CloudSpongeService(Service):
                 if owner:
                     account_email = owner.get("email",[{}])[0].get("address","").lower()   
                 else: 
-                    account_email = None    
+                    account_email = None   
+                service = record.get("service","").lower()
+
+                if contact_email:
+                    key = contact_email
+                elif service=="linkedin":
+                    key = str(contact.values())
+                if not key:
+                    continue                     
+
                 first_name = re.sub('[^a-z]','',contact.get("first_name","").lower())
                 last_name = re.sub('[^a-z]','',contact.get("last_name","").lower().replace('[^a-z ]',''))             
-                service = record.get("service","").lower()
-                info = self.unique_emails.get(contact_email,{})
+                info = self.unique_people.get(key,{})
                 sources = info.get("sources",[])
                 if service.lower()=='linkedin':
                     if 'linkedin' not in sources: 
@@ -64,12 +72,14 @@ class CloudSpongeService(Service):
                 first_name = contact.get("first_name")
                 last_name = contact.get("last_name")                          
                 #self.logger.info("Person Email: %s, Job: %s, Companies: %s, Sources: %s", contact_email, job_title, companies, str(len(sources)))
-                self.unique_emails[contact_email] = {"job_title": job_title,
+                self.unique_people[key] = {"job_title": job_title,
                                                 "companies": companies,
                                                 "first_name": first_name,
                                                 "last_name": last_name,
-                                                "sources": sources}                      
-            for email, info in self.unique_emails.iteritems():
+                                                "sources": sources,
+                                                "email": contact_email}                      
+            for key, info in self.unique_people.iteritems():
+                email = info.get("email")
                 if 'linkedin' not in info.get("sources") and not self.real_person(email):
                     self.logger.warn("Not a real person %s", email)
                     self.excluded.append({"email":email, "sources":sources, "reason":"Email address did not identify a real person","step":"CloudSpongeService"})
