@@ -14,6 +14,9 @@ import subprocess
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 import time
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 class LinkedinCsvGetter(object):
 
@@ -184,6 +187,7 @@ class LinkedinCsvGetter(object):
             email_index = cols.index('E-mail Address')
         except Exception, e:
             print str(e)
+            self.driver.save_screenshot("csv_error.png")
             #print csv
             return None
         if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
@@ -194,6 +198,7 @@ class LinkedinCsvGetter(object):
             if len(line) <= max(first_name_index, last_name_index, company_index, job_title_index, email_index):
                 logger.warn("Linkedin csv line is wrong:\r\n{}".format(lines[i]))
                 continue
+            logger.info(line)
             contact = {}
             contact["first_name"] = line[first_name_index].decode('latin-1')
             contact["last_name"] = line[last_name_index].decode('latin-1')
