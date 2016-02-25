@@ -4,7 +4,6 @@ import time
 import json
 import logging
 from collections import OrderedDict
-from flask import render_template, current_app
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from random import shuffle
@@ -12,6 +11,8 @@ BASE_DIR = os.path.dirname(__file__)
 PRIME_DIR =  os.path.split(os.path.split(BASE_DIR)[0])[0]
 sys.path.append(PRIME_DIR)
 logger = logging.getLogger(__name__)
+
+from flask import render_template
 
 from prime.utils.email import sendgrid_email
 from prime import config
@@ -56,10 +57,10 @@ class ProcessingService(Service):
         if self.user:
             self.saved_data = self.user.refresh_hiring_screen_data()
         if len(self.saved_data) < 100 :
-            self.saved_data = None    
-        if self.saved_data:     
+            self.saved_data = None
+        if self.saved_data:
             self.logger.info("Using saved data from last hiring screen")
-            self.data = self.saved_data    
+            self.data = self.saved_data
             self.input_data = {"client_data": self.client_data, "data":self.data}
         if self.client_data.get("hired"):
             if self.saved_data:
@@ -77,7 +78,7 @@ class ProcessingService(Service):
         self.services = SERVICES
         self.completed_services = {}
         self.start = time.time()
-        
+
 
     def _validate_data(self):
         if self.saved_data:
@@ -106,7 +107,7 @@ class ProcessingService(Service):
             if self.user and self.client_data.get("hired"):
                 self.user.p200_started = True
                 self.session.add(self.user)
-                self.session.commit()                
+                self.session.commit()
             self.logger.info('Data Valid')
             for key, _ in self.services.iteritems():
                 if key == self.services.keys()[0]:
@@ -116,32 +117,32 @@ class ProcessingService(Service):
                 self.output_data = service.multiprocess()
             end = time.time()
             self.logger.info('Total Run Time: %s', end - self.start)
-            if self.user and not self.client_data.get("suppress_emails"): 
+            if self.user and not self.client_data.get("suppress_emails"):
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
                 if self.client_data.get("hired"):
-                    subject = "Congratulations from {}".format(current_app.config.get("OWNER"))
+                    subject = "Congratulations from {}".format(config[os.getenv('AC_CONFIG', 'testing')].OWNER)
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
                     manager = self.session.query(ManagerProfile).get(self.user.manager_id)
-                    body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=current_app.config.get("OWNER"))
-                    #sendgrid_email(to_email, subject, body) 
+                    body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=config[os.getenv('AC_CONFIG', 'testing')].OWNER)
+                    #sendgrid_email(to_email, subject, body)
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
                         self.client_data.get("last_name"))
                     subject = "{}'s Network Summary is ready".format(name)
                     to_email = self.client_data.get("to_email")
-                    tmpl = env.get_template('emails/network_summary_done.html')  
-                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)  
-                    sendgrid_email(to_email, subject, body) 
+                    tmpl = env.get_template('emails/network_summary_done.html')
+                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)
+                    sendgrid_email(to_email, subject, body)
                     subject = "Your Network Summary is ready to view"
                     to_email = self.client_data.get("email")
-                    tmpl = env.get_template('emails/network_summary_done_agent.html')  
-                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)  
-                    #sendgrid_email(to_email, subject, body)                     
+                    tmpl = env.get_template('emails/network_summary_done_agent.html')
+                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)
+                    #sendgrid_email(to_email, subject, body)
             else:
                 self.logger.error("no user")
-            self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))             
+            self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
             self.logend()
             return self.output
         except:
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     _file = open('data/bigtext.json', 'r')
     # data = json.loads(_file.read().decode("utf-8-sig"))
     #shuffle(data)
-    
+
     #user = User("James","Johnson","jamesjohnson11@gmail.com", "password")
     client_data = { "first_name":"Julia","last_name":"Karl", "email":"juliakarl2@gmail.com",
                     "location":"New York, New York","url":"http://www.linkedin.com/in/jukarl", "hired":False, "to_email":"jimmy@advisorconnect.co"}
