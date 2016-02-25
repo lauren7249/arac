@@ -100,7 +100,9 @@
           {%endif%}
         </table>
       </div>
-      <span><small><a href='/exclusions_report'>Download detailed exclusions report</a></small></span>
+      {% if not current_user.is_manager %}
+        <span><small><a href='/exclusions_report'>Download detailed exclusions report</a></small></span>
+      {%endif%}
     </div>
     <div class="col-5">
       <div class="card">
