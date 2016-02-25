@@ -184,7 +184,7 @@ class LinkedinCsvGetter(object):
             email_index = cols.index('E-mail Address')
         except Exception, e:
             print str(e)
-            print csv
+            #print csv
             return None
         if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
             return None

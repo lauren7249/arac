@@ -8,9 +8,7 @@
     <header>
       <div class="header-logo"></div>
     </header>
-    <small><div class='error'>
-
-    </div> </small>
+    <small><div class='error'></div> </small>
     <h3>Please enter your Linkedin username (email) and password so we can securely connect your contacts.</h3>
     <hr>
 
@@ -100,10 +98,7 @@
               }
             },
             error: function (data, textStatus, errorThrown) {
-              $(".overlay").fadeOut();
-              $(".waiting").hide();           
-              $(".error").text("There was an unknown issue. An error report was sent. Please close the window and move on to the next step.")
-              $(".error").css("display","inline");  
+              finishMe(true);
             }
         }); 
 

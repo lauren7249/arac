@@ -188,25 +188,6 @@ def start_linkedin_login_bot(email, password, user_id):
     conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))
     return True
 
-def wait_for_pin_status(email, pin):
-    import time
-    conn = get_conn()
-    conn.hset("pins",email,pin)
-    tries = 0
-    while conn.hexists("pins",email):
-        tries +=1
-        time.sleep(1)
-        print "sleep"
-        if tries>150:
-            print "done sleeping!"
-            break
-    if conn.hexists("pin_accepted",email):
-        print "pin accepted according to redis"
-        return True
-    print "pin rejected according to redis"
-    return False
-
-
 
 ################
 ##    VIEWS   ##
@@ -259,6 +240,13 @@ def linkedin_login():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
+    if request.method == 'GET':
+        #delete old redis keys when they start the login process
+        print "Deleting old redis keys"
+        conn = get_conn()
+        conn.hdel("linkedin_login_outcome", current_user.email)
+        conn.hdel("pin_accepted",current_user.email)
+        conn.hdel("pins",current_user.email)
     valid = None
     form = LinkedinLoginForm
     if request.method == 'POST':
@@ -283,21 +271,21 @@ def linkedin_login():
 
 
 @csrf.exempt
-@prospects.route('/linkedin_pin', methods=['GET', 'POST'])
+@prospects.route('/linkedin_pin', methods=['GET'])
 def linkedin_pin():
-    pin_worked = None
     message = request.args.get("message","A security pin was sent to your email. Please paste the pin in the box below and submit.")
-    if request.method == 'POST':
-        pin = request.form.get("pin")
-        email = current_user.email
-        if pin and email:
-            pin_worked = wait_for_pin_status(current_user.email, pin)
-            if pin_worked:
-                print "Pin worked!"
-                return jsonify({"success": True})
-            print "pin did not work"
-            return jsonify({"success": False})
-    return render_template('linkedin_pin.html',pin_worked=pin_worked, message=message)
+    return render_template('linkedin_pin.html', message=message)
+
+@csrf.exempt
+@prospects.route('/linkedin_pin_giver', methods=['POST'])
+def linkedin_pin_giver():
+    pin = request.form.get("pin")
+    email = current_user.email
+    if pin and email:
+        conn = get_conn()
+        conn.hset("pins",email,pin)
+        return jsonify({"success": True})
+    return jsonify({"success": False})
 
 @csrf.exempt
 @prospects.route('/linkedin_login_status', methods=['GET', 'POST'])
@@ -318,7 +306,19 @@ def linkedin_login_status():
     return jsonify({"finished": False})
 
 
-
+@csrf.exempt
+@prospects.route('/linkedin_pin_status', methods=['GET'])
+def linkedin_pin_status():
+    email = current_user.email
+    conn = get_conn()
+    if conn.hexists("pins",email):
+        return jsonify({"finished": False})
+    if conn.hexists("pin_accepted",email):
+        print "pin accepted according to redis"
+        conn.hdel("pin_accepted",email)
+        return jsonify({"finished": True, "success":True})
+    print "pin rejected according to redis"
+    return jsonify({"finished": True, "success":False})
 
 @csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])

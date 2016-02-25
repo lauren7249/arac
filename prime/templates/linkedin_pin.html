@@ -2,20 +2,24 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-
-<div id="linkedin_pin_form">
-  <header>
-    <div class="header-logo"></div>
-  </header>
-  <div class='error'></div> 
-  <h3>{{ message }}</h3>
-  <hr>
-  <div class="col-8">
-    <input type="text" name='pin' id="inputPin" placeholder="Enter PIN" autocomplete="new-pin">
-  </div>
-  <div class="col-4">
-    <button id="submit_pin" class="button fluid linkedin">Submit</button>
-  </div>
+<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+<div class="wrap">
+  <form class="signup card">
+    <div id="linkedin_pin_form">
+      <header>
+        <div class="header-logo"></div>
+      </header>
+      <small><div class='error'></div> </small>
+      <h3>{{ message }}</h3>
+      <hr>
+      <div class="col-8">
+        <input type="text" name='pin' id="inputPin" placeholder="Enter PIN" autocomplete="new-pin">
+      </div>
+      <div class="col-4">
+        <button id="submit_pin" class="button fluid linkedin">Submit</button>
+      </div>
+    </div>
+  </form>
 </div>
 <script type="text/javascript">  
 $(function() {
@@ -24,9 +28,6 @@ $(function() {
 
   $(".error").text("");
   $(".error").css("display","none");    
-
-  $(".overlay").fadeOut();
-  $(".waiting").hide();
 
   function finishMe(err) {
     var csrf_token = $("[_csrf_token]").val() 
@@ -39,7 +40,59 @@ $(function() {
     $(".waiting").hide();      
     window.close()      
   }
+  var listening;
+  var attempts = 0;
 
+  function didLinkedinPinWork() {
+    //this will check redis, which is where the login task publishes its results 
+    var csrf_token = $("[_csrf_token]").val() 
+    var outData = {csrf_token:csrf_token}
+    $.ajaxSetup({ cache: false });
+    $.ajax({
+      type: 'GET',
+      url: '/linkedin_pin_status',
+      crossDomain: true,
+      data: JSON.stringify(outData),
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      success: function(data, textStatus, jqXHR) {
+        if (data.finished) {
+          if (!data.success) {
+            $("#inputPin").val('')
+            $(".overlay").fadeOut();
+            $(".waiting").hide();
+            clearInterval(listening);      
+            if (tries >= 3) {
+              finishMe(true);
+            }             
+            $(".error").text("We weren't sure about that PIN. Would you mind trying again?");
+            $(".error").css("display","inline");    
+            
+          } 
+          else {
+            //pin worked!
+            finishMe(false);
+          }
+         } 
+        else {
+          attempts = attempts+1;
+          //cant wait forever!
+          if (attempts>90) {
+            finishMe(true);
+          }
+        }
+      },
+      error: function (data, textStatus, errorThrown) {
+        finishMe(true);
+      }
+    }); 
+  }
+  //the linkedin credentials checker task will publish results when it is finished, so we are listening for them
+  function listenForSuccess() {
+    listening = setInterval(function() {
+      didLinkedinPinWork()
+    }, 1000);
+  }  
   $("#submit_pin").click(function(e){
     e.preventDefault();
     $(".error").text("");
@@ -51,27 +104,21 @@ $(function() {
 
     var outData = {csrf_token:csrf_token,pin:$("#inputPin").val()}
     $.ajaxSetup({ cache: false });
-    $.post("/linkedin_pin", outData, function(data) {
-      if (tries >= 3) {
-        finishMe(true);
-      }
-      if (!data.success) {
-        $("#inputPin").val('')
-        $(".overlay").fadeOut();
-        $(".waiting").hide();
-        $(".error").text("We weren't sure about that PIN. Would you mind trying again? Or, close the window and we can redeem your LinkedIn contacts later.");
-        $(".error").css("display","inline");          
+    $.post("/linkedin_pin_giver", outData, function(data) {
+      if (data.success) {
+        //view has launched a task to try the login
+        //the task will publish results when it is finished, so we are listening for them
+        listenForSuccess()
       } else {
-        finishMe(false);
+          $(".overlay").fadeOut();
+          $(".waiting").hide();              
+          //view returns false if one of the args is missing
+          $(".error").text("You must enter a PIN");
+          $(".error").css("display","inline");         
       }
     });
   });
 });
 </script>
 {% endblock %}
-
-
-
-
-
 {% block footer %}{% endblock %}
