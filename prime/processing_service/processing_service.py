@@ -125,7 +125,7 @@ class ProcessingService(Service):
                     tmpl = env.get_template('emails/p200_done.html')
                     manager = self.session.query(ManagerProfile).get(self.user.manager_id)
                     body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=current_app.config.get("OWNER"))
-                    sendgrid_email(to_email, subject, body) 
+                    #sendgrid_email(to_email, subject, body) 
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
                         self.client_data.get("last_name"))
@@ -138,7 +138,7 @@ class ProcessingService(Service):
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/network_summary_done_agent.html')  
                     body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)  
-                    sendgrid_email(to_email, subject, body)                     
+                    #sendgrid_email(to_email, subject, body)                     
             else:
                 self.logger.error("no user")
             self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))             
