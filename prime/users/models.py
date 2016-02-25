@@ -282,22 +282,26 @@ class User(db.Model, UserMixin):
             except Exception, e:
                 email_address = ''
                 #print contact
-            if not email_address:
+            if email_address:
+                key = email_address
+            elif service=="linkedin":
+                key = str(contact.values())
+            if not key:
                 continue
-            by_source[email_address+service] = record
-            from_all.add(email_address)
+            by_source[key+service] = record
+            from_all.add(key)
             if service_filter and service.lower() != service_filter.lower():
                 continue
             if service=='linkedin':
-                from_linkedin.add(email_address)
+                from_linkedin.add(key)
             elif service=='gmail':
-                from_gmail.add(email_address)
+                from_gmail.add(key)
             elif service=='yahoo':
-                from_yahoo.add(email_address)
+                from_yahoo.add(key)
             elif service=='windowslive':
-                from_windowslive.add(email_address)
+                from_windowslive.add(key)
             elif service=='aol':
-                from_aol.add(email_address)
+                from_aol.add(key)
             else:
                 continue
 
