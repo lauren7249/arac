@@ -1,9 +1,12 @@
 import logging
+import sys
 import datetime
-from helpers.stringhelpers import uu, name_match
+from helpers.stringhelpers import uu, name_match, random_string, csv_line_to_list
 from helpers.data_helpers import merge_by_key
 from helpers.datehelpers import parse_date, date_overlap
 
+reload(sys) 
+sys.setdefaultencoding('utf-8')
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -201,3 +204,45 @@ def get_work_milestones(jobs):
             first_quitting_year = end_date.year
     return {"first_year_experience":first_year_experience, "first_quitting_year":first_quitting_year}
 
+def process_csv(csv):
+    if not csv:
+        return None
+    lines = csv.splitlines()
+    if len(lines)<2:
+        return None
+    header = lines[0]
+    cols = csv_line_to_list(header)
+    try:
+        first_name_index = cols.index('First Name')
+        last_name_index = cols.index('Last Name')
+        company_index = cols.index('Company')
+        job_title_index = cols.index('Job Title')
+        email_index = cols.index('E-mail Address')
+    except Exception, e:
+        try:
+            #yahoo format
+            first_name_index = cols.index('First')
+            last_name_index = cols.index('Last')
+            company_index = cols.index('Company')
+            job_title_index = cols.index('Title')
+            email_index = cols.index('Email')     
+        except:
+            return None
+    if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
+        return None
+    data = []
+    print "Processing CSV"
+    for i in xrange(1, len(lines)):
+        line = csv_line_to_list(lines[i])
+        if len(line) <= max(first_name_index, last_name_index, company_index, job_title_index, email_index):
+            print "Linkedin csv line is wrong:\r\n{}".format(lines[i])
+            continue
+        print line
+        contact = {}
+        contact["first_name"] = line[first_name_index].decode('latin-1')
+        contact["last_name"] = line[last_name_index].decode('latin-1')
+        contact["companies"] = [line[company_index].decode('latin-1')]
+        contact["email"] = [{"address": line[email_index].decode('latin-1')}]
+        contact["job_title"] = line[job_title_index].decode('latin-1')
+        data.append({"contact":contact, "contacts_owner":None, "service":"LinkedIn"})
+    return data    
