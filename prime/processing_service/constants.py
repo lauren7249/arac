@@ -27,8 +27,8 @@ email_re = '[^@]+@[^@]+\.[^@]+'
 BROWSERSTACK_KEY='7qc2so9ApZBP6SWyGy7A'
 BROWSERSTACK_USERNAME='laurentalbot1'
 
-SAUCE_ACCESS_KEY='7ccb2a6b-5d79-4f5e-8663-7e1eabd952e6'
-SAUCE_USERNAME='lauren7249'
+SAUCE_ACCESS_KEY='5245ef28-5c9a-4242-b5fe-b9feaa85800a'
+SAUCE_USERNAME='laurenAC'
 LINKEDIN_EXPORT_URL  ='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook'
 LINKEDIN_DOWNLOAD_URL='https://www.linkedin.com/addressBookExport?exportNetworkRedirect=&outputType=microsoft_outlook'
 LINKEDIN_PIN_CHALLENGE_URL="https://www.linkedin.com/uas/ato-pin-challenge-submit?PinVerificationForm_pinParam="
