@@ -562,7 +562,7 @@ def submit_p200_to_manager():
     agent.p200_submitted_to_manager = True
     session.add(agent)
     session.commit()
-    return jsonify({"success": True})
+    return redirect("connections?p200=True")
 
 
 @prospects.route("/exclusions_report", methods=['GET'])

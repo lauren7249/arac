@@ -70,7 +70,7 @@
             <a href='pdf'><button id='export' class='button dark-blue'>Export as PDF</button></a>
           {% endif %}
           {% if not current_user.p200_submitted_to_manager and not current_user.p200_approved %}
-            <button id='submit' class='button teal'>Submit For Approval</button>
+          <a href='/submit_p200_to_manager'><button id='submit' class='button teal'>Submit For Approval</button></a>
           {% endif %}
 <!--           <button class='button teal'>View Skipped Connections</button> -->
         {% endif %}
