@@ -7,7 +7,6 @@ from pyvirtualdisplay import Display
 from captcha_solver import CaptchaSolver
 import requests
 from PIL import Image
-from prime.processing_service.helper import  random_string, csv_line_to_list
 import os
 import signal
 import subprocess
@@ -174,37 +173,5 @@ class LinkedinCsvGetter(object):
             req_cookies[cookie["name"]] = cookie["value"]
         response = requests.get(LINKEDIN_DOWNLOAD_URL, cookies=req_cookies)
         csv = response.content
-        lines = csv.splitlines()
-        if len(lines)<2:
-            return None
-        header = lines[0]
-        cols = csv_line_to_list(header)
-        try:
-            first_name_index = cols.index('First Name')
-            last_name_index = cols.index('Last Name')
-            company_index = cols.index('Company')
-            job_title_index = cols.index('Job Title')
-            email_index = cols.index('E-mail Address')
-        except Exception, e:
-            print str(e)
-            self.driver.save_screenshot("csv_error.png")
-            #print csv
-            return None
-        if min(first_name_index, last_name_index, company_index, job_title_index, email_index) < 0:
-            return None
-        data = []
-        self.logger.info("Processing CSV")
-        for i in xrange(1, len(lines)):
-            line = csv_line_to_list(lines[i])
-            if len(line) <= max(first_name_index, last_name_index, company_index, job_title_index, email_index):
-                logger.warn("Linkedin csv line is wrong:\r\n{}".format(lines[i]))
-                continue
-            self.logger.info(line)
-            contact = {}
-            contact["first_name"] = line[first_name_index].decode('latin-1')
-            contact["last_name"] = line[last_name_index].decode('latin-1')
-            contact["companies"] = [line[company_index].decode('latin-1')]
-            contact["email"] = [{"address": line[email_index].decode('latin-1')}]
-            contact["job_title"] = line[job_title_index].decode('latin-1')
-            data.append({"contact":contact, "contacts_owner":None, "service":"LinkedIn"})
+        data = process_csv(csv)
         return data

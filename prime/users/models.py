@@ -201,10 +201,18 @@ class User(db.Model, UserMixin):
                 from_email="jeff@advisorconnect.co")
         return True
 
-    def clear_data(self, remove_uploads=False):
+    def clear_data(self, remove_uploads=False, session=db.session):
         if remove_uploads:
             user_request = UserRequest(self.email)
             user_request.boto_key.delete()
+            self.contacts_from_linkedin = 0
+            self.contacts_from_gmail = 0
+            self.contacts_from_yahoo = 0
+            self.contacts_from_windowslive = 0
+            self.contacts_from_aol = 0
+            self.unique_contacts_uploaded = 0
+            session.add(self)
+            session.commit()
         user_request = UserRequest(self.email, type='actual-p200-data')
         user_request.boto_key.delete()
         user_request = UserRequest(self.email, type='hiring-screen-data')

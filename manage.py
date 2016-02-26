@@ -97,23 +97,16 @@ if __name__ == '__main__':
                 delete_user(email)
 
     @manager.command
-    def add_facebook(email, filename):
-        import pandas
-        from prime.users.models import User
+    def add_csv(email, filename):
+        from prime.users.models import User, db
         from prime.prospects.views import queue_processing_service
+        from helpers.linkedin_helpers import process_csv
         user = User.query.filter_by(email=email).first()
-        s = pandas.read_csv(filename, header=None)
-        s.fillna("", inplace=True)
-        data = []
-        for index, row in s.iterrows():
-            contact = {}
-            contact["email"] = [{"address": row[0].strip() + "@facebook.com"}]
-            data.append({"contact":contact, "contacts_owner":None, "service":"facebook"})
-        client_data = {"first_name":user.first_name,"last_name":user.last_name,\
-                "email":user.email,"location":user.location,"url":user.linkedin_url, "hired": True}
-        q = get_q()
-        q.enqueue(queue_processing_service, client_data, data, timeout=14400)
-
+        f = open(filename,'rb')
+        csv = f.read()
+        data = process_csv(csv)
+        contacts_array, user = user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=db.session)
+        print user.contacts_from_linkedin
 
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))
