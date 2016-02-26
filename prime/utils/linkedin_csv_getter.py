@@ -7,6 +7,7 @@ from pyvirtualdisplay import Display
 from captcha_solver import CaptchaSolver
 import requests
 from PIL import Image
+from prime.processing_service.helper import  random_string
 import os
 import signal
 import subprocess

@@ -137,7 +137,6 @@
   
   <script type='text/javascript' >
 
-    var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
     function do_import(service, divid, win) {     
       if(service == 'LinkedIn') {
           win.location.href = '/linkedin_login';
@@ -145,6 +144,12 @@
           var timer = setInterval(function() {   
             if(win.closed) {
               clearInterval(timer);   
+              var csrf_token = $("[_csrf_token]").val()
+              var outData = {csrf_token:csrf_token}      
+              if ("{{ agent.contacts_from_linkedin }}" == "0" && "{{ agent.linkedin_password }}".length>0 &&  "{{ agent.linkedin_login_email }}".length>0) {
+                $.post("/linkedin_failed?failtype=getting the csv; you need to download it", outData, function(data) {
+                }); 
+              }                                 
               window.location.href = '/?status=in_progress';
               $("#spinner").fadeOut();       
             }  
