@@ -29,6 +29,7 @@ BROWSERSTACK_USERNAME='laurentalbot1'
 
 SAUCE_ACCESS_KEY='5245ef28-5c9a-4242-b5fe-b9feaa85800a'
 SAUCE_USERNAME='laurenAC'
+LINKEDIN_YAHOO_DOWNLOAD_URL="https://www.linkedin.com/people/export-action?outputType=yahoo"
 LINKEDIN_EXPORT_URL  ='https://www.linkedin.com/addressBookExport?exportNetwork=Export&outputType=microsoft_outlook'
 LINKEDIN_DOWNLOAD_URL='https://www.linkedin.com/addressBookExport?exportNetworkRedirect=&outputType=microsoft_outlook'
 LINKEDIN_PIN_CHALLENGE_URL="https://www.linkedin.com/uas/ato-pin-challenge-submit?PinVerificationForm_pinParam="

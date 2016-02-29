@@ -5,7 +5,7 @@ from constants import profile_re, bloomberg_company_re, school_re, company_re, S
 from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_firstname, resolve_email, xor_crypt_string, xor_decrypt_string, random_string, csv_line_to_list
 from helpers.datehelpers import parse_date, date_overlap
 from helpers.data_helpers import flatten, merge_by_key, most_common, parse_out, get_center
-from helpers.linkedin_helpers import common_institutions
+from helpers.linkedin_helpers import common_institutions, process_csv
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
