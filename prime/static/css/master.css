@@ -26,10 +26,10 @@
 }
 
 .caps, .subheader .back-link, .tabset li, .form-group label {
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: .1rem;
-  font-weight: 600;
+  letter-spacing: .025rem;
+  font-weight: 500;
 }
 
 a {
@@ -213,6 +213,7 @@ footer .footer-links a {
 table {
   width: 100%;
   background: white;
+  border-collapse: collapse;
 }
 table th, table td {
   padding: 10px;
@@ -221,7 +222,6 @@ table th, table td {
 table th {
   background: white;
   font-weight: normal;
-  text-transform: uppercase;
   text-align: left;
   color: #787B80;
 }
@@ -303,6 +303,48 @@ table th {
   width: 100%;
   max-width: 100%;
   padding: 0;
+}
+
+.segmented {
+  display: table;
+  width: 100%;
+}
+.segmented .label {
+  display: table-cell;
+  background-color: white;
+  border: 1px #DADFE1;
+  border-style: solid none solid solid;
+  color: #787B80;
+  cursor: pointer;
+  float: left;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+  text-align: center;
+}
+.segmented :first-child .label {
+  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  -ms-border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
+}
+.segmented :last-child .label {
+  -webkit-border-radius: 0 4px 4px 0;
+  -moz-border-radius: 0 4px 4px 0;
+  -ms-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+  border-right-style: solid;
+}
+.segmented input {
+  display: none;
+}
+.segmented input:checked + .label {
+  background-color: #DADFE1;
+  border-color: #DADFE1;
+  color: white;
+}
+.segmented input:checked + span {
+  background: white;
 }
 
 input[type="checkbox"] {
@@ -711,27 +753,16 @@ hr {
 .manager-dashboard th:first-child, .manager-dashboard td:first-child {
   text-align: left;
 }
-.manager-dashboard th {
-  font-size: 14px;
-}
-.manager-dashboard td {
-  font-size: 18px;
-  font-weight: 600;
-}
-.manager-dashboard th.agent-hired select,
-.manager-dashboard td.agent-hired select {
-  width: auto;
-}
-.manager-dashboard td.agent {
+.manager-dashboard th.agent, .manager-dashboard td.agent {
   width: 300px;
 }
-.manager-dashboard td.agent span {
+.manager-dashboard th.agent span, .manager-dashboard td.agent span {
   display: inline-block;
   vertical-align: middle;
   font-size: 14px;
   font-weight: bold;
 }
-.manager-dashboard td.agent .email {
+.manager-dashboard th.agent .email, .manager-dashboard td.agent .email {
   display: block;
   font-size: 10px;
   font-weight: 600;
@@ -740,8 +771,49 @@ hr {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.manager-dashboard td.agent .face {
+.manager-dashboard th.agent .face, .manager-dashboard td.agent .face {
   margin-right: 10px;
+}
+.manager-dashboard th.agent-pre-screen span, .manager-dashboard th.agent-p200 span, .manager-dashboard td.agent-pre-screen span, .manager-dashboard td.agent-p200 span {
+  font-size: 12px;
+  text-transform: none;
+}
+.manager-dashboard th.agent-pre-screen span.pending, .manager-dashboard th.agent-p200 span.pending, .manager-dashboard td.agent-pre-screen span.pending, .manager-dashboard td.agent-p200 span.pending {
+  color: #FFA129;
+}
+.manager-dashboard th.agent-pre-screen span.in-progress, .manager-dashboard th.agent-p200 span.in-progress, .manager-dashboard td.agent-pre-screen span.in-progress, .manager-dashboard td.agent-p200 span.in-progress {
+  color: #FFA129;
+}
+.manager-dashboard th.agent-pre-screen span.requested, .manager-dashboard th.agent-p200 span.requested, .manager-dashboard td.agent-pre-screen span.requested, .manager-dashboard td.agent-p200 span.requested {
+  color: #16263D;
+}
+.manager-dashboard th.agent-hired, .manager-dashboard td.agent-hired {
+  width: 100px;
+}
+.manager-dashboard th.agent-hired .segmented .label, .manager-dashboard td.agent-hired .segmented .label {
+  padding: 0;
+  width: 50%;
+}
+.manager-dashboard th.agent-hired .segmented input[value="hired--yes"]:checked + .label, .manager-dashboard td.agent-hired .segmented input[value="hired--yes"]:checked + .label {
+  background-color: #02C2B9;
+  border-color: #02C2B9;
+}
+.manager-dashboard th.agent-hired .segmented input[value="hired--no"]:checked + .label, .manager-dashboard td.agent-hired .segmented input[value="hired--no"]:checked + .label {
+  background-color: #EB143E;
+  border-color: #EB143E;
+}
+.manager-dashboard th.agent-hr, .manager-dashboard td.agent-hr {
+  width: 240px;
+}
+.manager-dashboard th.agent-hr select, .manager-dashboard td.agent-hr select {
+  width: 100%;
+}
+.manager-dashboard th {
+  font-size: 14px;
+}
+.manager-dashboard td {
+  font-size: 18px;
+  font-weight: 600;
 }
 .manager-dashboard .completed {
   text-align: center;
@@ -751,11 +823,6 @@ hr {
   -moz-background-size: auto;
   -ms-background-size: auto;
   background-size: auto;
-}
-.manager-dashboard .pending {
-  text-transform: uppercase;
-  font-size: 15px;
-  color: #27B4F4;
 }
 
 .agent-header {

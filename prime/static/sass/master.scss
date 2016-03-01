@@ -16,6 +16,7 @@ $darkblue: #3A539B;
 $purple: #9F81EB;
 $error: #EB143E;
 $success: #6CCC48;
+$orange: #FFA129;
 
 $market-color-1: #10164B;
 $market-color-2: #1B2B7F;
@@ -65,10 +66,10 @@ $sans: 'Poppins', sans-serif;
 }
 
 %caps {
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: .1rem;
-  font-weight: 600;
+  letter-spacing: .025rem;
+  font-weight: 500;
 }
 
 .caps {
@@ -269,6 +270,7 @@ footer {
 table {
   width: 100%;
   background: white;
+  border-collapse: collapse;
   th, td {
     padding: 10px;
     border-bottom: 1px solid $border;
@@ -276,7 +278,6 @@ table {
   th {
     background: white;
     font-weight: normal;
-    text-transform: uppercase;
     text-align: left;
     color: $grey;
   }
@@ -370,6 +371,50 @@ table {
     padding: 0;
   }
 }
+
+
+
+// Segment Controls ============================
+
+.segmented {
+  display: table;
+  width: 100%;
+  .label {
+    display: table-cell;
+    background-color: white;
+    border: 1px $border;
+    border-style: solid none solid solid;
+    color: $grey;
+    cursor: pointer;
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+    text-align: center;      
+  }
+  :first-child .label {
+    @include border-radius(4px 0 0 4px);
+  }
+  :last-child .label {
+    @include border-radius(0 4px 4px 0);
+    border-right-style: solid;
+  }
+  input {
+    display: none;
+  }
+  input:checked + .label {
+    background-color: $border;
+    border-color: $border;
+    color: white;
+  }
+  .label {
+    // background: white;
+  }
+  input:checked + span {
+    background: white;
+  }
+}
+
 
 
 
@@ -742,6 +787,70 @@ $padcount: 5;
     &:first-child {
       text-align: left;
     }
+    
+    &.agent {
+      width: 300px;
+      span {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .email {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        display: block;
+        width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .face {
+        margin-right: 10px;
+      }
+    }
+
+    &.agent-pre-screen,
+    &.agent-p200 {
+      span {
+        font-size: 12px;
+        text-transform: none;
+        &.pending {
+          color: $orange;
+        }
+        &.in-progress {
+          color: $orange;
+        }
+        &.requested {
+          color: $black;
+        }
+      }
+      
+    }
+    &.agent-hired {
+      width: 100px;
+      .segmented {
+        .label {
+          padding: 0;
+          width: 50%;
+        }
+        input[value="hired--yes"]:checked + .label {
+          background-color: $teal;
+          border-color: $teal;
+        }
+        input[value="hired--no"]:checked + .label {
+          background-color: $error;
+          border-color: $error;
+        }
+      }
+    }
+    &.agent-hr {
+      width: 240px;
+      select {
+        width: 100%;
+      }
+    }
+
   }
   th {
     font-size: 14px;
@@ -750,33 +859,6 @@ $padcount: 5;
     font-size: 18px;
     font-weight: 600;
   }
-  th.agent-hired,
-  td.agent-hired {
-    select {
-      width: auto;
-    }
-  }
-  td.agent {
-    width: 300px;
-    span {
-      display: inline-block;
-      vertical-align: middle;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .email {
-      display: block;
-      font-size: 10px;
-      font-weight: 600;
-      display: block;
-      width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .face {
-      margin-right: 10px;
-    }
-  }
   .completed {
     text-align: center;
     &.yes {
@@ -784,11 +866,11 @@ $padcount: 5;
       @include background-size(auto);
     }
   }
-  .pending {
-    text-transform: uppercase;
-    font-size: 15px;
-    color: $blue;
-  }
+  // .pending {
+  //   text-transform: uppercase;
+  //   font-size: 15px;
+  //   color: $blue;
+  // }
 }
 
 

@@ -1,10 +1,15 @@
 {% block content %}
 <div class="subheader" id="subheader">
   <div class="wrap">
+    <div class="col-4">
+      <h2>Your Dashboard</h2>
+    </div>
+    
     {% if active != "selected" %}
       <a class="back-link" href="/managers/dashboard">Back to Dashboard</a>
       <h2>Network Summary</h2>
     {% endif %}      
+    
     <div class="col-8">        
       <div class="subnav">     
         <ul id="active_cell">   

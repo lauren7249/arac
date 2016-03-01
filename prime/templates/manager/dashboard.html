@@ -3,7 +3,6 @@
   {% include "_partials/manager_header.html" with context %}
 
   <script type='text/javascript'>
-
     window.onload = function() { 
       selectCurrent(); 
     }
@@ -60,9 +59,10 @@
         <thead>
           <th>Candidate</th>
           <th>Primary Network</th>
-          <th>Extended Network</th>
-          <th class="completed">Pre-Screen</th>
-          <!-- <th class="agent-hired">Hired</th> -->
+          <th>Extended</th>
+          <th class="agent-pre-screen">Pre-Screen</th>
+          <th class="agent-hired">Hired</th>
+          <th class="agent-hr">HR</th>
         </thead>
         <tbody>
           {% for agent in agents %}
@@ -78,7 +78,7 @@
                   <td>-</td>
                   <td>-</td>                
                 {%endif%}
-                <td data-td='{{ agent.user_id }}'>
+                <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
                   {% if agent.hiring_screen_completed %}
                     <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
       <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
@@ -89,20 +89,32 @@
                     {% if agent.account_created %}
                       <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
                     {% else %}
-                      <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
+                      <span class='requested hint--top' data-hint='Invite sent, response pending'>Requested</span>
                     {% endif %}      
                   {% endif %}
                 </td>
-                <!-- <td class="agent-hired">
+                <td class="agent-hired">
+                  <span class="segmented">
+                    <label>
+                      <input type="radio" name="{{ agent.user_id }}" value="hired--yes">
+                      <span class="label">Yes</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="{{ agent.user_id }}" value="hired--no">
+                      <span class="label">No</span>
+                    </label>
+                  </span>
+                </td>
+                <td class="agent-hr">
                   <select>
-                    <option>Background Financial<option>
-                    <option>Background Criminal<option>
-                    <option>Cultural Fit (are they coachable, do they show up on time)<option>
-                    <option>Agent Declined Offer<option>
-                    <option>Poor Initial Market<option>
-                    <option>Did Not Pass State Exam<option>
+                    <option>Background Financial</option>
+                    <option>Background Criminal</option>
+                    <option>Cultural Fit</option>
+                    <option>Agent Declined Offer</option>
+                    <option>Poor Initial Market</option>
+                    <option>Did Not Pass State Exam</option>
                   </select>
-                </td> -->             
+                </td>             
               </tr>
             {%endif%}
           {% endfor %}
@@ -113,11 +125,11 @@
         <thead>
           <th>Agent</th>
           <th>Primary Network</th>
-          <th>Extended Network</th>
+          <th>Extended</th>
           <th>Avg Income Score</th>
           <th>Avg Age</th>            
-          <th class="completed">Pre-Screen</th>
-          <th class="completed">P200</th>
+          <th class="agent-pre-screen">Pre-Screen</th>
+          <th class="agent-p200">P200</th>
         </thead>
         <tbody>
           {% for agent in agents %}
@@ -130,26 +142,26 @@
                 <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
                 <td>{{ agent.average_income_score }}</td>
                 <td>{{ agent.average_age }}</td>                  
-                <td data-td='{{ agent.user_id }}'>
+                <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
                   {% if agent.hiring_screen_completed %}
                     <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
                   {% elif agent.unique_contacts_uploaded > 0 %}
-                    <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
+                    <span class='in-progress hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>   
                   {% else %}
                     {% if agent.account_created %}
                       <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
                     {% else %}
-                      <span class='pending hint--top' data-hint='Invite sent, response pending'>Requested</span>
+                      <span class='requested hint--top' data-hint='Invite sent, response pending'>Requested</span>
                     {% endif %}      
                   {% endif %}
                 </td>  
-                <td data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
+                <td class="agent-p200" data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
                   {%if agent.p200_submitted_to_manager %}
                     <a target='_self' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
                   {% elif agent.p200_completed %}
                     <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections available, pending agent P200 submission.'>Pending</span> 
                   {% elif agent.p200_started %}
-                    <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
+                    <span class='in-progress hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
                   {% elif agent.hiring_screen_completed  %}               <!-- -->
                     <button data-hint='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small hint--top'>Request</button>    
                     <span style="display:none;" class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='P200 is running and will be available within 24 hours.'>In Progress</span>                 
