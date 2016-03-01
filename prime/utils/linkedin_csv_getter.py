@@ -204,6 +204,20 @@ class LinkedinCsvGetter(object):
             if message:
                 return message.text.split(". ")[-1], req_cookies
             return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
+        if self.driver.page_source.find("Change your password") > -1:           
+            self.driver.get("https://www.linkedin.com/people/export-settings")
+            if self.driver.current_url == 'https://www.linkedin.com/people/export-settings':
+                return None, None             
+            if self.driver.current_url=='https://www.linkedin.com/uas/consumer-email-challenge':
+                self.driver.save_screenshot("challenge.png")
+                cookies = self.driver.get_cookies()
+                req_cookies = {}
+                for cookie in cookies:
+                    req_cookies[cookie["name"]] = cookie["value"]
+                message = self.driver.find_element_by_class_name("descriptor-text")
+                if message:
+                    return message.text.split(". ")[-1], req_cookies
+                return "Please enter the verification code sent to your email address to finish signing in.", req_cookies            
         email_error = self.driver.find_element_by_id("session_key-login-error")
         if email_error and email_error.text:
             self.driver.save_screenshot("email_error.png")
