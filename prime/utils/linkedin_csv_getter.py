@@ -44,6 +44,10 @@ class LinkedinCsvGetter(object):
             self.driver = self.get_local_driver()
         else:
             self.driver = self.get_remote_driver()
+        if self.via_google:
+            self.desired_title = "My Contacts: Export LinkedIn Connections | LinkedIn"
+        else:
+            self.desired_title = 'Welcome! | LinkedIn'
 
     def kill_firefox_and_xvfb(self):
         p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
@@ -75,7 +79,7 @@ class LinkedinCsvGetter(object):
         time.sleep(5)
         self.logger.info("Pin Submitted Title: {}".format(self.driver.title))
         self.driver.save_screenshot("pin_submitted.png")
-        if self.driver.title == u'Welcome! | LinkedIn':
+        if self.driver.title == self.desired_title:
             self.logger.info("Pin Success")
             return True
         self.logger.info("Pin Failure")
@@ -156,7 +160,7 @@ class LinkedinCsvGetter(object):
         pw_el.send_keys(self.password)
         button = self.driver.find_element_by_name("submit")
         button.click()
-        if self.driver.title == u'Welcome! | LinkedIn':
+        if self.driver.title == self.desired_title:
             return None, None
         if self.driver.current_url=='https://www.linkedin.com/uas/consumer-email-challenge':
             self.driver.save_screenshot("challenge.png")
