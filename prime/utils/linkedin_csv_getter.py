@@ -204,7 +204,8 @@ class LinkedinCsvGetter(object):
             if message:
                 return message.text.split(". ")[-1], req_cookies
             return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
-        if self.driver.page_source.find("Change your password") > -1:           
+        try:
+            change_password = self.driver.find_element_by_id("li-dialog-aria-label")       
             self.driver.get("https://www.linkedin.com/people/export-settings")
             if self.driver.current_url == 'https://www.linkedin.com/people/export-settings':
                 return None, None             
@@ -217,15 +218,20 @@ class LinkedinCsvGetter(object):
                 message = self.driver.find_element_by_class_name("descriptor-text")
                 if message:
                     return message.text.split(". ")[-1], req_cookies
-                return "Please enter the verification code sent to your email address to finish signing in.", req_cookies            
-        email_error = self.driver.find_element_by_id("session_key-login-error")
-        if email_error and email_error.text:
-            self.driver.save_screenshot("email_error.png")
-            return email_error.text, None            
-        pw_error = self.driver.find_element_by_id("session_password-login-error")
-        if pw_error and pw_error.text:
-            self.driver.save_screenshot("pw_error.png")
-            return pw_error.text, None
+                return "Please enter the verification code sent to your email address to finish signing in.", req_cookies  
+        except:
+            pass
+        try:          
+            email_error = self.driver.find_element_by_id("session_key-login-error")
+            if email_error and email_error.text:
+                self.driver.save_screenshot("email_error.png")
+                return email_error.text, None            
+            pw_error = self.driver.find_element_by_id("session_password-login-error")
+            if pw_error and pw_error.text:
+                self.driver.save_screenshot("pw_error.png")
+                return pw_error.text, None
+        except:
+            pass
         self.driver.save_screenshot("Unknown_error.png")
         return "Unknown error", None
 
@@ -245,10 +251,13 @@ class LinkedinCsvGetter(object):
         return data
 
     def get_linkedin_data_yahoo(self):
-        select = Select(self.driver.find_element_by_id('outputType-exportSettingsForm'))
-        select.select_by_visible_text('Yahoo! Mail (.CSV file)')
-        button = self.driver.find_element_by_class_name("btn-primary")
-        button.click()
+        try:
+            select = Select(self.driver.find_element_by_id('outputType-exportSettingsForm'))
+            select.select_by_visible_text('Yahoo! Mail (.CSV file)')
+            button = self.driver.find_element_by_class_name("btn-primary")
+            button.click()
+        except:
+            self.driver.save_screenshot("selecting_yahoo.png")
         captcha_solved = self.do_captcha()
         if not captcha_solved:
             return None
