@@ -1,0 +1,8 @@
+<h2>{{ agent.first_name }} {{ agent.last_name }}'s Prospects</h2>
+<table class="contacts-table">
+  <tbody>
+    {% for connection in connections %}
+      {% include "_partials/connection_pdf.html" %}
+    {% endfor %}
+  </tbody>
+</table>

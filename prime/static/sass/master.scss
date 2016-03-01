@@ -1083,16 +1083,16 @@ table.contacts-table {
         &.one-star {
           background-image: url("/static/img/one-star.png");
         }
-        &.two-star {
+        &.two-stars {
           background-image: url("/static/img/two-stars.png");
         }
-        &.three-star {
+        &.three-stars {
           background-image: url("/static/img/three-stars.png");
         }
-        &.four-star {
+        &.four-stars {
           background-image: url("/static/img/four-stars.png");
         }      
-        &.five-star {
+        &.five-stars {
           background-image: url("/static/img/five-stars.png");
         }      
       }
@@ -1232,6 +1232,64 @@ table.contacts-table {
   color: $purple;
   margin-bottom: 20px;
 }
+
+
+
+
+.pdf-p200 {
+  font-size: 11pt;
+  .contacts-table {
+    margin: 10px 0;
+    border-top: 1px solid $border;
+    border-bottom: 1px solid $border;
+    
+    td {
+      &.pic {
+        vertical-align: top;
+        width: 100px;
+        height: 100px;
+        img {
+          width: 100%;
+        }
+      }
+      &.main-info {
+        .name {
+          span {
+            img {
+              margin-left: 15px;
+              width: 95px;
+              height: 14px;
+            }
+          }
+        }
+        .tags {
+          span {
+            background: none;
+            border: 1px solid $border;
+          }
+        }
+      }
+      &.pdf-p200-social {
+        a {
+          display: block;
+          float: left;
+          width: 25px;
+          height: 25px;
+          margin-right: 10px;
+          img {
+            width: 100%;
+            border: 1px solid $blue;
+          }
+        }
+      }
+    } 
+  }
+}
+@media print {
+  -webkit-print-color-adjust: exact;
+}
+
+
 
 
 // Onboarding ==================================

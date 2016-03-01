@@ -1041,16 +1041,16 @@ table.contacts-table .contact-buttons .button {
 .contact-info .name span.stars.one-star {
   background-image: url("/static/img/one-star.png");
 }
-.contact-info .name span.stars.two-star {
+.contact-info .name span.stars.two-stars {
   background-image: url("/static/img/two-stars.png");
 }
-.contact-info .name span.stars.three-star {
+.contact-info .name span.stars.three-stars {
   background-image: url("/static/img/three-stars.png");
 }
-.contact-info .name span.stars.four-star {
+.contact-info .name span.stars.four-stars {
   background-image: url("/static/img/four-stars.png");
 }
-.contact-info .name span.stars.five-star {
+.contact-info .name span.stars.five-stars {
   background-image: url("/static/img/five-stars.png");
 }
 .contact-info .job {
@@ -1219,6 +1219,46 @@ table.contacts-table .contact-buttons .button {
   margin-bottom: 20px;
 }
 
+.pdf-p200 {
+  font-size: 11pt;
+}
+.pdf-p200 .contacts-table {
+  margin: 10px 0;
+  border-top: 1px solid #DADFE1;
+  border-bottom: 1px solid #DADFE1;
+}
+.pdf-p200 .contacts-table td.pic {
+  vertical-align: top;
+  width: 100px;
+  height: 100px;
+}
+.pdf-p200 .contacts-table td.pic img {
+  width: 100%;
+}
+.pdf-p200 .contacts-table td.main-info .name span img {
+  margin-left: 15px;
+  width: 95px;
+  height: 14px;
+}
+.pdf-p200 .contacts-table td.main-info .tags span {
+  background: none;
+  border: 1px solid #DADFE1;
+}
+.pdf-p200 .contacts-table td.pdf-p200-social a {
+  display: block;
+  float: left;
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+.pdf-p200 .contacts-table td.pdf-p200-social a img {
+  width: 100%;
+  border: 1px solid #27B4F4;
+}
+
+@media print {
+  -webkit-print-color-adjust: exact;
+}
 .onboard-header {
   padding: 30px 0 0;
   display: none;

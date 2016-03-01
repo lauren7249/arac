@@ -1,14 +1,19 @@
 {% extends 'base.html' %}
+
+{% block header %}{% endblock %}
+
 {% block content %}
-{% with header="Project 200" %}
-{% endwith %}
+<!-- {% with header="Project 200" %}
+{% endwith %} -->
 <script type='text/javascript'>
   window.onload = function() { window.print(); }
   console.log("{{active}}")
 </script>
-<div class="section" id='connections-section'>
-  <div class="wrap" id='connections'>
-    {% include "_partials/connections_table.html" %}
+<div class="pdf-p200">
+  <div id='connections-section'>
+    <div class="wrap" id='connections'>
+      {% include "_partials/connections_table_pdf.html" %}
+    </div>
   </div>
 </div>
 {% endblock %}

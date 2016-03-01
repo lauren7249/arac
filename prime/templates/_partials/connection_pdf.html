@@ -1,0 +1,98 @@
+<tr>
+  <td class="pic">    
+    <img src='{{ connection.prospect.image }}' />
+  </td>
+  <td class="main-info">
+    <div class="contact-info">                  
+      <div class="name"> <span>{{ connection.prospect.name }}</span><span><img src="/static/img/{{ connection.stars_display }}.png"></span></div>
+      <div class="job">{{ connection.prospect.headline }}</div>
+      <div class="location">{{ connection.prospect.linkedin_location_raw }}</div>
+      <div class="tags">
+        {% for referrer in connection.referrers %}
+        {% if referrer['referrer_connection'].startswith('Worked') %}
+        Worked with 
+        {% else %}
+        {{referrer['referrer_connection'].split(" together ")[0]}} with 
+        {% endif %}
+        {%if current_user.is_manager %}
+          <a class="location">
+            <span>
+              {{referrer['referrer_name']}}
+            </span> 
+          </a>              
+        {%else%}
+          <a href="/connections?query={{referrer['referrer_name']}}" class="location">
+            <span>
+              {{referrer['referrer_name']}}
+            </span> 
+          </a>
+        {%endif%}
+        {% if referrer['referrer_connection'].startswith('Worked') %}
+        at {{referrer['referrer_connection'].split("Worked at ")[-1].replace(" together "," ")}}
+        {% else %}
+        {{referrer['referrer_connection'].split(" ")[-1]}}  
+        {% endif %}
+        <br>
+        {% endfor %}
+      </div>              
+      <div class="tags">
+        {% for tag in connection.prospect.tags %}<span>{{ tag }}</span>{% endfor %}
+      </div>
+    </div>
+  </td>
+  <td class="pdf-p200-social">
+    <p class="wrap">
+      {% if connection.prospect.facebook %}
+        <a href="{{ connection.prospect.facebook }}"><img src="/static/img/social/facebook-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.linkedin %}
+        <a href="{{ connection.prospect.linkedin }}"><img src="/static/img/social/linkedin-blue.png"></a>
+      {% else %}
+        <a href="{{ connection.prospect.linkedin_url }}"><img src="/static/img/social/linkedin-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.twitter %}
+        <a href="{{ connection.prospect.twitter }}"><img src="/static/img/social/twitter-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.pinterest %}
+        <a href="{{ connection.prospect.pinterest }}"><img src="/static/img/social/pinterest-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.amazon %}
+        <a href="{{ connection.prospect.amazon }}"><img src="/static/img/social/amazon-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.soundcloud %}
+        <a href="{{ connection.prospect.soundcloud }}"><img src="/static/img/social/soundcloud-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.slideshare %}
+        <a href="{{ connection.prospect.slideshare }}"><img src="/static/img/social/slideshare-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.plus %}
+        <a href="{{ connection.prospect.plus }}"><img src="/static/img/social/google-plus-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.angel %}
+        <a href="{{ connection.prospect.angel }}"><img src="/static/img/social/angellist-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.foursquare %}
+        <a href="{{ connection.prospect.foursquare }}"><img src="/static/img/social/foursquare-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.github %}
+        <a href="{{ connection.prospect.github }}"><img src="/static/img/social/github-blue.png"></a>
+      {% endif %}
+      {% if connection.prospect.flickr %}
+        <a href="{{ connection.prospect.flickr }}"><img src="/static/img/social/flickr-blue.png"></a>
+      {% endif %}
+      {% if agent.prospect.tumblr %}
+        <a href="{{ agent.prospect.tumblr }}"><img src="/static/img/social/tumblr-blue.png"></a>
+      {% endif %}
+      {% if agent.prospect.goodreads %}
+        <a href="{{ agent.prospect.goodreads }}"><img src="/static/img/social/goodreads-blue.png"></a>
+      {% endif %}
+    </p>
+    {% if connection.prospect.emails %}
+      <p>{{ connection.prospect.emails }}</p>
+    {% endif %}
+    {% if connection.prospect.phone %}
+      <p>{{ connection.prospect.phone }}</p>
+    {% endif %}
+  </td>
+</tr>
+

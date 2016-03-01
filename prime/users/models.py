@@ -655,14 +655,14 @@ class ClientProspect(db.Model):
         try:
             star_dict = {
                     1: 'one-star',
-                    2: 'two-star',
-                    3: 'three-star',
-                    4: 'four-star',
-                    5: 'five-star'
+                    2: 'two-stars',
+                    3: 'three-stars',
+                    4: 'four-stars',
+                    5: 'five-stars'
                     }
             return star_dict[self.stars]
         except:
-            return "three-star"
+            return "three-stars"
 
     def __repr__(self):
         return '{} {}'.format(self.prospect.linkedin_url, self.user.name)
