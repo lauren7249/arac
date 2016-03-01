@@ -132,15 +132,22 @@
       $(".error").css("display","none");        
       var data = {email:$("#inputEmail").val(),password:$("#inputPassword").val()}
       $.post("/linkedin_login", data, function(data){
-        if (data.success) {
-          //view has launched a task to try the login
-          //the task will publish results when it is finished, so we are listening for them
-          listenForSuccess()
-        } else {
-          //view returns false if one of the args is missing
-          $(".error").text("You must enter email and password");
-          $(".error").css("display","inline");  
+        if (data.complete) {
+          //got from s3
+          finishMe(false);
+        } 
+        else {
+          if (data.success) {
+            //view has launched a task to try the login
+            //the task will publish results when it is finished, so we are listening for them
+            listenForSuccess()
+          } else {
+            //view returns false if one of the args is missing
+            $(".error").text("You must enter email and password");
+            $(".error").css("display","inline");  
+          }          
         }
+
       });
     });
 

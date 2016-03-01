@@ -259,7 +259,7 @@ def linkedin_login():
             #If the user already has linkedin contacts, we can skip all the logic. valid=True will cause the window to close.
             #TODO reimplement this. Need to add another flag on front end
             if user.contacts_from_linkedin>0:
-               return jsonify({"success":True})
+               return jsonify({"complete":True})
 
             #Otherwise, we need to run a task
             q = get_q()
