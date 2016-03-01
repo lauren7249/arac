@@ -184,6 +184,7 @@ def start_linkedin_login_bot(email, password, user_id):
         q.enqueue(selenium_state_holder, getter, current_user.user_id, timeout=36000)
         return True
     #username or password was wrong
+    getter.quit()
     conn = get_conn()
     conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))
     return True
