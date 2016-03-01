@@ -117,26 +117,33 @@ class LinkedinCsvGetter(object):
         return self.req_cookies
 
     def do_captcha(self):
-        screenshot_fn = random_string() + ".png"
-        cropped_fn = random_string()  + ".png"        
-        self.driver.save_screenshot(screenshot_fn)
-        img = Image.open(screenshot_fn)
-        img_cropped = img.crop( LINKEDIN_CAPTCHA_CROP_DIMS )
-        imagefile = open(cropped_fn, 'wb')
-        img_cropped.save(imagefile,"png",quality=100, **img.info)
-        img_cropped.close()
-        solver = CaptchaSolver('antigate', api_key=ANTIGATE_ACCESS_KEY)
-        with open(cropped_fn, 'rb') as inp:
-            raw_data = inp.read()
-        os.remove(cropped_fn)
-        os.remove(screenshot_fn)
+        self.logger.info("Linkedin Export URL: {}".format(self.driver.title))
         try:
-            captcha = solver.solve_captcha(raw_data)
-            captcha_input.send_keys(captcha)
-        except Exception, e:
-            print str(e)
-            self.driver.save_screenshot("error.png")
-            return False
+            captcha_input = self.driver.find_element_by_id("recaptcha_response_field")
+            captcha_exists = True
+        except:
+            captcha_exists = False
+        if captcha_exists:        
+            screenshot_fn = random_string() + ".png"
+            cropped_fn = random_string()  + ".png"        
+            self.driver.save_screenshot(screenshot_fn)
+            img = Image.open(screenshot_fn)
+            img_cropped = img.crop( LINKEDIN_CAPTCHA_CROP_DIMS )
+            imagefile = open(cropped_fn, 'wb')
+            img_cropped.save(imagefile,"png",quality=100, **img.info)
+            img_cropped.close()
+            solver = CaptchaSolver('antigate', api_key=ANTIGATE_ACCESS_KEY)
+            with open(cropped_fn, 'rb') as inp:
+                raw_data = inp.read()
+            os.remove(cropped_fn)
+            os.remove(screenshot_fn)
+            try:
+                captcha = solver.solve_captcha(raw_data)
+                captcha_input.send_keys(captcha)
+            except Exception, e:
+                print str(e)
+                self.driver.save_screenshot("error.png")
+                return False
         return True     
 
     def check_linkedin_login_errors(self):
@@ -208,16 +215,9 @@ class LinkedinCsvGetter(object):
         if self.via_google:
             return self.get_linkedin_data_yahoo()
         self.driver.get(LINKEDIN_EXPORT_URL)
-        self.logger.info("Linkedin Export URL: {}".format(self.driver.title))
-        try:
-            captcha_input = self.driver.find_element_by_id("recaptcha_response_field")
-            captcha_exists = True
-        except:
-            captcha_exists = False
-        if captcha_exists:
-            captcha_solved = self.do_captcha()
-            if not captcha_solved:
-                return None            
+        captcha_solved = self.do_captcha()
+        if not captcha_solved:
+            return None            
         export_button = self.driver.find_element_by_name("exportNetwork")
         export_button.click()
         self.req_cookies = self.get_request_cookies()
@@ -231,16 +231,9 @@ class LinkedinCsvGetter(object):
         select.select_by_visible_text('Yahoo! Mail (.CSV file)')
         button = self.driver.find_element_by_class_name("btn-primary")
         button.click()
-        self.logger.info("Linkedin Export URL: {}".format(self.driver.title))
-        try:
-            captcha_input = self.driver.find_element_by_id("recaptcha_response_field")
-            captcha_exists = True
-        except:
-            captcha_exists = False
-        if captcha_exists:
-            captcha_solved = self.do_captcha()
-            if not captcha_solved:
-                return None
+        captcha_solved = self.do_captcha()
+        if not captcha_solved:
+            return None
         button = self.driver.find_element_by_class_name("btn-primary")
         button.click()
         self.req_cookies = self.get_request_cookies()
