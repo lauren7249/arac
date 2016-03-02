@@ -5,10 +5,14 @@
 
 {% endwith %}
 
-<div class="section">
+<div class="section" style="margin-top:-30px;">
   {%if current_user == agent %}
     <div class="wrap">
-      <div class="col-9">
+      <div class="search">
+        <input type="search" name='search-box' id='search-box' placeholder="Search By Name"/>
+        <button id="search-button"></button>
+      </div>
+      <div class="col-12">
         <div class="filters">
           <span>
             <select name='stars'>
@@ -35,17 +39,19 @@
               <option value='{{ state[0] }}'>{{ state[0] }}</option>
               {% endfor %}
             </select>
-          </span>        
+          </span>
+          <span>
+            <select name='age' id='age'>
+              <option value=''>Any Age</option>
+              <option>Young Professionals (21-45)</option>
+              <option>Pre-Retirees (45-60)</option>
+              <option>Retirees (60+)</option>
+            </select>
+          </span>      
           <span>
             <label data-sort='a-z' class="sort-abc sort-down active">A - Z</label>
             <label data-sort='z-a' class="sort-abc sort-down active">Z - A</label>
           </span>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="search">
-          <input type="search" name='search-box' id='search-box' placeholder="Search By Name"/>
-          <button id="search-button"></button>
         </div>
       </div>
     </div>

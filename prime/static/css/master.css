@@ -946,6 +946,7 @@ hr {
   position: relative;
   text-align: right;
   width: 100%;
+  margin-bottom: 20px;
 }
 .search input[type="search"] {
   box-sizing: border-box;
