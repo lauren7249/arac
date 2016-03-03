@@ -142,6 +142,11 @@ class ResultService(Service):
     def get_agent_prospect(self):
         email = self.client_data.get("email")
         url = self.client_data.get("url")
+        if not url:
+            #If we don't have hte url, we need to query on email
+            request = PiplRequest(email, type="email", level="social")
+            pipl_data = request.process()
+            url = pipl_data.get("linkedin_url")
         profile = PersonRequest()._get_profile_by_any_url(url)
         person = {"email_addresses":[email], "linkedin_data":profile}
         person = SocialProfilesRequest(person).process()
@@ -159,7 +164,7 @@ class ResultService(Service):
             if not user:
                 self.logger.error("No user found for %s", self.client_data.get("email"))
                 return []
-            
+
             for profile in self.data:
                 prospect = self._create_or_update_prospect(profile)
                 if not prospect:
@@ -185,7 +190,7 @@ class ResultService(Service):
             if self.client_data.get("hired"):
                 user.p200_completed = True
             self.session.add(user)
-            self.session.commit()   
+            self.session.commit()
         except:
             self.logerror()
         self.logend()
