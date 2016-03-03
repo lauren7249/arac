@@ -88,7 +88,7 @@
                   <div class='connected' id="windowslive_response">Added {{ '{0:,}'.format(agent.contacts_from_windowslive | int) }} contacts from Windows Live</div>
                 {%endif%}                  
               </div>
-            </div>
+            </div>        
             <div id='aol-area' class="connect-email" onclick="_aol();">
               <img id='aol'  type="Submit" src="/static/img/aol-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to AOL and add contacts from your email accounts. You can connect more than one account from AOL by clicking this button more than once.">Add AOL Account</div>
@@ -97,7 +97,16 @@
                   <div class='connected' id="aol_response">Added {{ '{0:,}'.format(agent.contacts_from_aol | int) }} contacts from AOL</div>
                 {%endif%}                  
               </div>
-            </div>              
+            </div>  
+            <div id='csv-area' class="connect-email" onclick="_csv();">
+              <img id='csv' type="Submit" src="/static/img/csv-40.png"/>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to [jeff add copy]">Add CSV</div>
+              <div class='connected_area'>
+                {%if agent.contacts_from_csv | int > 0 %}
+                  <div class='connected' id="csv_response">Added {{ '{0:,}'.format(agent.contacts_from_csv | int) }} contacts from CSV</div>
+                {%endif%}                  
+              </div>
+            </div>                            
           </div>
         </div>
       </div>
@@ -201,13 +210,20 @@
               .success(function(data) {
                 clearInterval(timer2); 
                 contacts = data.contacts;
+
                 if (contacts !=undefined && contacts.length) { 
                   var contacts_array = [];
                   contacts_owner = data.contacts_owner;
-                  response_element_id = contacts_owner.email[0].address + "_response";
-
+                  if(service=='CSV'){
+                    response_element_id = "csv_response";
+                  } 
+                  else {
+                    response_element_id = contacts_owner.email[0].address + "_response";
+                  }
+                  
                   status_field = document.getElementById(response_element_id);
-                  if (status_field == null || status_field == undefined) {
+                  //this condition is no longer relevant since we are collapsing
+                  if (status_field == null || status_field == undefined || true) {
                     for (i = 0; i < contacts.length; i++) { 
                         var contact = contacts[i];
                         contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:service});
@@ -330,6 +346,14 @@
       var win = window.open('about:blank');        
       cloudsponge_status = 'NONE';   
       var len = do_import('WindowsLive','#windowslive-area',win);
+      $(".email").hide();
+      $("#spinner").fadeOut();      
+    }
+
+    function _csv() {
+      var win = window.open('about:blank');        
+      cloudsponge_status = 'NONE';   
+      var len = do_import('CSV','#csv-area',win);
       $(".email").hide();
       $("#spinner").fadeOut();      
     }
