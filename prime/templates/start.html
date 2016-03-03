@@ -127,7 +127,7 @@
               <h1>Congratulations!</h1>
               <h3 class="text-teal">You’ve successfully uploaded a total of <span class='final-contact-count'></span> Contacts!</h3>
               <p>We will email you when your Network Summary is complete.</p>
-              <div class='center'><a href='/auth/logout'><button class='button teal'>Close</button></a></div>
+              <div class='center'><a id='close_href' href='/auth/logout'><button class='button teal'>Close</button></a></div>
             </div>
           </div>
         </div>
@@ -136,6 +136,15 @@
   </div>
   
   <script type='text/javascript' >
+    $( document ).ready(function() {
+      var local = document.location.href.split("/").slice(2,3).join("/").trim().toLowerCase();
+      if (local == 'demo.advisorconnect.co') {
+        $("#close_href").attr('href', '/auth/logout');
+      } else {
+        $("#close_href").attr('href', 'http://www.newyorklife.com/careers/sales-careers');
+      }
+        
+    }); 
 
     function do_import(service, divid, win) {     
       if(service == 'LinkedIn') {
