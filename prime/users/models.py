@@ -86,6 +86,7 @@ class User(db.Model, UserMixin):
     p200_approved = db.Column(postgresql.BOOLEAN, default=False)
     hired = db.Column(postgresql.BOOLEAN, default=False)
     not_hired = db.Column(postgresql.BOOLEAN, default=False)
+    not_hired_reason = db.Column(String(500))
     _statistics = db.Column(JSONB, default={})
 
     intro_js_seen = db.Column(postgresql.BOOLEAN, default=False)

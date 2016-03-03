@@ -249,7 +249,9 @@ def skip_agent(agent_id):
     agent = User.query.get(agent_id)
     if agent.manager_id != current_user.manager_profile[0].manager_id:
         return jsonify({"sucess": False})
+    reason = request.args.get("reason")
     agent.not_hired = True
+    agent.not_hired_reason = reason
     session.add(agent)
     session.commit()
     return jsonify({"sucess": True})

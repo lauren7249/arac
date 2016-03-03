@@ -254,7 +254,8 @@
 
     $("[data-select]").change(function() {
       var agentId = $(this).data("select");
-      $.get("/managers/skip_agent/" + agentId, function(data) {
+      var reason = $(this).val();
+      $.get("/managers/skip_agent/" + agentId + "?reason=" + reason, function(data) {
         $("[data-agent-row='" + agentId + "']").fadeOut('slow');
           window.location.reload();
       });
