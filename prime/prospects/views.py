@@ -145,7 +145,7 @@ def start_linkedin_login_bot(email, password, user_id):
     current_user = session.query(User).get(user_id)
 
     #There are three potential outcomes here with corresponding cases
-    # success Everyhing worked and you are now logged in
+    # success Everything worked and you are now logged in
     # pin Second is linkedin asked for a pin, which they sent via email
     # credentials Uername is wrong, or password is wrong
     # unknown TODO unknown negative outcome

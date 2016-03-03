@@ -37,10 +37,17 @@ def manager_home():
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
     manager = current_user.manager_profile[0]
-    agents = manager.users.order_by(User.first_name, User.last_name, User.email).all()
-    agent_count = manager.users.count()
-    return render_template('manager/dashboard.html', agents=agents, manager=manager,
-                           agent_count=int(agent_count), active="selected", agent_type='prospective')
+    agents = manager.users.order_by(User.first_name, User.last_name, User.email)
+    hired_agents = agents.filter(User.hired == True).all()
+    candidates = agents.filter(User.hired == False, User.not_hired ==\
+            False).all()
+    not_hired = agents.filter(User.not_hired == True).all()
+    return render_template('manager/dashboard.html',
+            hired_agents=hired_agents,
+            candidates=candidates,
+            not_hired=not_hired,
+            manager=manager,
+            active="selected")
 
 
 @manager.route('/invite', methods=['GET', 'POST'])
@@ -219,6 +226,33 @@ def approve_p200(agent_id):
     session.commit()
     return redirect(url_for('.agent_p200', agent_id=agent_id))
 
+@manager.route("/make_agent/<int:agent_id>", methods=['GET', 'POST'])
+def make_agent(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
+        return "You are not authorized to view this content."
+    agent = User.query.get(agent_id)
+    if agent.manager_id != current_user.manager_profile[0].manager_id:
+        return jsonify({"sucess": False})
+    agent.hired = True
+    session.add(agent)
+    session.commit()
+    return jsonify({"sucess": True})
+
+@manager.route("/skip_agent/<int:agent_id>", methods=['GET', 'POST'])
+def skip_agent(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
+        return "You are not authorized to view this content."
+    agent = User.query.get(agent_id)
+    if agent.manager_id != current_user.manager_profile[0].manager_id:
+        return jsonify({"sucess": False})
+    agent.not_hired = True
+    session.add(agent)
+    session.commit()
+    return jsonify({"sucess": True})
 
 @manager.route("/test_email", methods=['GET'])
 def test_email():

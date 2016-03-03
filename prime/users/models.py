@@ -84,9 +84,12 @@ class User(db.Model, UserMixin):
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)
     p200_submitted_to_manager = db.Column(postgresql.BOOLEAN, default=False)
     p200_approved = db.Column(postgresql.BOOLEAN, default=False)
+    hired = db.Column(postgresql.BOOLEAN, default=False)
+    not_hired = db.Column(postgresql.BOOLEAN, default=False)
     _statistics = db.Column(JSONB, default={})
 
     intro_js_seen = db.Column(postgresql.BOOLEAN, default=False)
+
 
     prospect_id = db.Column(Integer, ForeignKey("prospect.id"))
     prospect = relationship("Prospect", \
@@ -98,10 +101,6 @@ class User(db.Model, UserMixin):
         self.last_name = last_name.title()
         self.email = email.lower()
         self.set_password(password)
-
-    @property
-    def hired(self):
-        return self.p200_started or self.p200_completed or self.p200_submitted_to_manager or self.p200_approved
 
     @property
     def location(self):
