@@ -56,7 +56,7 @@ class ProcessingService(Service):
                 self.logger.info("Using saved data from upload")
         if self.user:
             self.saved_data = self.user.refresh_hiring_screen_data()
-        if len(self.saved_data) < 100 :
+        if len(self.saved_data) < 50 :
             self.saved_data = None
         if self.saved_data:
             self.logger.info("Using saved data from last hiring screen")

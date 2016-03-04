@@ -13,6 +13,7 @@ from prime.processing_service.service import Service, S3SavedRequest
 from prime.processing_service.constants import SOCIAL_DOMAINS
 
 from prime.processing_service.person_request import PersonRequest
+from prime.processing_service.person_service import wrapper as person_wrapper
 from prime.processing_service.social_profiles_service import SocialProfilesRequest
 from prime.processing_service.profile_builder_service import ProfileBuilderRequest
 from prime.processing_service.helper import parse_date, uu
@@ -141,14 +142,7 @@ class ResultService(Service):
 
     def get_agent_prospect(self):
         email = self.client_data.get("email")
-        url = self.client_data.get("url")
-        if not url:
-            #If we don't have hte url, we need to query on email
-            request = PiplRequest(email, type="email", level="social")
-            pipl_data = request.process()
-            url = pipl_data.get("linkedin_url")
-        profile = PersonRequest()._get_profile_by_any_url(url)
-        person = {"email_addresses":[email], "linkedin_data":profile}
+        person = person_wrapper({"email":email})
         person = SocialProfilesRequest(person).process()
         request = ProfileBuilderRequest(person)
         profile = request.process()

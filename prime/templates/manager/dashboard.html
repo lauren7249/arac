@@ -50,7 +50,10 @@
         <tbody>
           {% for agent in hired_agents %}
           <tr>
-            <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+            <td class="agent">
+              {% if agent.prospect %}
+                <span style="background-image:url({{ agent.prospect.image }})" class="face"></span>
+              {% endif %}
               <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
             </td>
             <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
@@ -105,7 +108,10 @@
         <tbody>
           {% for agent in candidates %}
           <tr data-agent-row='{{ agent.user_id }}'>
-            <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+            <td class="agent">
+              {% if agent.prospect %}
+                <span style="background-image:url({{ agent.prospect.image }})" class="face"></span>
+              {% endif %}
               <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
             </td>
             {% if agent.hiring_screen_completed %}
@@ -175,7 +181,10 @@
         <tbody>
           {% for agent in not_hired %}
           <tr data-agent-row='{{ agent.user_id }}'>
-            <td class="agent"><span style="background-image:url({{ agent.image_url }})" class="face"></span>
+            <td class="agent">
+              {% if agent.prospect %}
+                <span style="background-image:url({{ agent.prospect.image }})" class="face"></span>
+              {% endif %}
               <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
             </td>
             {% if agent.hiring_screen_completed %}

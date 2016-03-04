@@ -1,17 +1,19 @@
 <div class="section" data-step="5" data-intro="Once you're finished adding your contacts click on View Project 200, review, and then submit to your manager for approval.">
-  <div class="wrap agent-header card">
+  {%if current_user.user_id != agent.user_id and agent.prospect %}
+    <div class="wrap agent-header card">
+        
       <div class="pic">
-        <img src="{{ agent.image }}"/>
+        <img src="{{ agent.prospect.image }}"/>
       </div>
       <div class="agent-info">
         <div class="name">
-          <span>{{ agent.name }}</span>
+          <span>{{ agent.prospect.name }}</span>
         </div>
-      </div>
-      {%if current_user.user_id != agent.user_id and agent.prospect %}
-        {% with connection=agent %}
-          {% include "_partials/social.html" %}
-        {% endwith %}
-      {%endif%}
-  </div>
+      </div>      
+      {% with connection=agent %}
+        {% include "_partials/social.html" %}
+      {% endwith %}
+        
+    </div>
+  {%endif%}
 </div>
