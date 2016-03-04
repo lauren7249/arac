@@ -71,6 +71,7 @@ class User(db.Model, UserMixin):
     contacts_from_yahoo = db.Column(Integer, default=0)
     contacts_from_aol = db.Column(Integer, default=0)
     contacts_from_windowslive = db.Column(Integer, default=0)
+    contacts_from_csv = db.Column(Integer, default=0)
     account_sources = db.Column(JSONB, default={})
 
     prospects = db.relationship('Prospect', secondary="client_prospect",
@@ -209,6 +210,7 @@ class User(db.Model, UserMixin):
             self.contacts_from_gmail = 0
             self.contacts_from_yahoo = 0
             self.contacts_from_windowslive = 0
+            self.contacts_from_csv = 0
             self.contacts_from_aol = 0
             self.unique_contacts_uploaded = 0
             session.add(self)
@@ -269,6 +271,7 @@ class User(db.Model, UserMixin):
         from_gmail = set()
         from_yahoo = set()
         from_windowslive = set()
+        from_csv = set()
         from_aol = set()
         from_all = set()
         account_sources = {}
@@ -308,6 +311,8 @@ class User(db.Model, UserMixin):
                 from_yahoo.add(key)
             elif service=='windowslive':
                 from_windowslive.add(key)
+            elif service=='csv':
+                from_csv.add(key)                
             elif service=='aol':
                 from_aol.add(key)
             else:
@@ -322,6 +327,8 @@ class User(db.Model, UserMixin):
             self.contacts_from_yahoo = len(from_yahoo)
         if len(from_windowslive):
             self.contacts_from_windowslive = len(from_windowslive)
+        if len(from_csv):
+            self.contacts_from_csv = len(from_csv)            
         if len(from_aol):
             self.contacts_from_aol = len(from_aol)
         self.account_sources = account_sources
@@ -393,6 +400,10 @@ class User(db.Model, UserMixin):
     @property
     def from_windowslive(self):
         return self.statistics().get("from_windowslive", 0)
+
+    @property
+    def from_csv(self):
+        return self.statistics().get("from_csv", 0)
 
     @property
     def from_aol(self):
@@ -514,6 +525,7 @@ class User(db.Model, UserMixin):
         from_gmail = 0
         from_yahoo = 0
         from_windowslive = 0
+        from_csv = 0
         from_aol = 0
         account_sources = self.account_sources
         for client_prospect in self.client_prospects:
@@ -533,6 +545,8 @@ class User(db.Model, UserMixin):
                     from_yahoo+=1
                 elif source =='windowslive':
                     from_windowslive+=1
+                elif source =='csv':
+                    from_csv+=1                    
                 elif source=='aol':
                     from_aol+=1
             if not client_prospect.prospect:
@@ -605,6 +619,7 @@ class User(db.Model, UserMixin):
                 "from_gmail": from_gmail,
                 "from_yahoo": from_yahoo,
                 "from_windowslive": from_windowslive,
+                "from_csv": from_csv,
                 "from_aol": from_aol}
         return data
 

@@ -97,6 +97,13 @@
                 <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol | int) }}</td>
               </tr>
             {%endif%}
+            {%if agent.contacts_from_csv %}
+              <tr>
+                <td><img src="/static/img/csv-40.png"> <b>CSV</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_csv | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_csv | int) }}</td>
+              </tr>
+            {%endif%}            
           {%endif%}
         </table>
       </div>
