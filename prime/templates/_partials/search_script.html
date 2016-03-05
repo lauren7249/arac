@@ -4,6 +4,7 @@ $(function() {
    var $state = $("[name='state']")
    var $stars = $("[name='stars']");
    var $query = $("[name='search-box']");
+   var $age = $("[name='age']");
    var $order = 'a-z';
    var $page = 1;
    var isSearching = false;
@@ -27,6 +28,13 @@ $(function() {
       document.getElementById("search-box").value = decodeURIComponent(query_name);
    } else {
       document.getElementById("search-box").value = '';
+   }
+
+   if ($age.val()=='' && window.location.search.indexOf("age=")>0) {
+      var age_name = window.location.search.split("age=")[window.location.search.split("age=").length - 1];
+      document.getElementById("age").value = decodeURIComponent(age_name);
+      showLoader()
+      search()      
    }
 
    $("[name='search-box']").keyup(function() {
@@ -71,6 +79,14 @@ $(function() {
      });
    }
 
+   function bindAge() {
+     $("[name='age']").change(function() {
+       $age = $(this).val();
+       showLoader()
+       search()
+     });
+   }
+
    function bindPageFunctions() {
      addConnection();
      skipConnection();
@@ -80,6 +96,7 @@ $(function() {
      bindStars()
      bindMarket()
      bindState()
+     bindAge();
      bindPagination()
    }
 
@@ -106,7 +123,7 @@ $(function() {
      }
      isSearching = true;
      $('html, body').animate({scrollTop: "221px"});
-     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&state=" + encodeURIComponent($state.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&order=" + $order + "&p=" + $page + " #connections", function() {
+     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&state=" + encodeURIComponent($state.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&order=" + $order + "&age=" + $age + "&p=" + $page + " #connections", function() {
          isSearching = false;
          bindPageFunctions();
          $("[data-page]").removeClass("active")
