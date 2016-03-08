@@ -684,6 +684,7 @@ def export():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
+    from prime.processing_service.constants import US_STATES
     agent = current_user
     connections = ClientProspect.query.filter(
             ClientProspect.good==True,
@@ -708,6 +709,8 @@ def export():
         except:
             state = None
             #state = connection.prospect.us_state
+        if state not in US_STATES:
+            state = None
 
         try:
             first_name = name.split(" ")[0]
