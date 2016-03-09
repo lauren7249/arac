@@ -74,12 +74,13 @@
                 else if (data.pin) {
                   attempts = 0;
                   window.location.href = '/linkedin_pin?message=' + error;
-                } else {
+                } 
+                else {
                   clearInterval(listening);
                   $(".overlay").fadeOut();
                   $(".waiting").hide();
                   //linkedin told us what was wrong, we will pass the message along
-                  if (error.length > 0) {
+                  if (error.length > 0 && error != "Unknown error") {
                     $(".error").text(error)
                     $(".error").css("display","inline");  
                     attempts = 0;

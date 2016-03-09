@@ -121,22 +121,38 @@ class OpenStreetMapsRequest(S3SavedRequest):
         if boto_key.exists():
             self.logger.info('OpenStreetMapsRequest: %s', 'Using S3')
             html = boto_key.get_contents_as_string()
-            coords = json.loads(html.decode("utf-8-sig"))
-            return coords
-        else:         
-            self.logger.info('OpenStreetMapsRequest: %s', 'Querying openstreetmaps')       
-            try:
-                location = GEOLOCATOR.geocode(self.query)
-                country = None
-                locality = None
-                if location and location.latitude and location.longitude:
-                    try:
-                        country = location.address.split(",")[-1].strip()
-                        locality = ",".join(location.address.split(",")[:-1]).strip()
-                    except:
-                        pass
-                    coords = {"latlng":(location.latitude, location.longitude), "locality":locality, "country":country}
-            except:
-                coords = {}
-            boto_key.set_contents_from_string(unicode(json.dumps(coords, ensure_ascii=False)))
-        return coords
+            geocode = json.loads(html.decode("utf-8-sig"))
+            if geocode.get("region"):
+                return geocode
+        geocode = {}
+        self.logger.info('OpenStreetMapsRequest: %s', 'Querying openstreetmaps')       
+        try:
+            location = GEOLOCATOR.geocode(self.query)
+            country = None
+            locality = None
+            if location and location.latitude and location.longitude:
+                try:
+                    country = location.address.split(",")[-1].strip()
+                    locality = ",".join(location.address.split(",")[:-1]).strip()
+                except:
+                    pass
+                geocode = {"latlng":(location.latitude, location.longitude), "locality":locality, "country":country}
+                try:
+                    reverse = GEOLOCATOR.reverse(geocode.get("latlng"))
+                except:
+                    return geocode
+                if not reverse or not reverse.raw or not reverse.raw.get("address"): 
+                    return geocode
+                state = reverse.raw.get("address").get("state")
+                geocode["region"] = state
+                city = reverse.raw.get("address").get("city")
+                if city:
+                    geocode["locality"] = city
+                country = reverse.raw.get("address").get("country")
+                if country:
+                    geocode["country"] = country    
+                boto_key.set_contents_from_string(unicode(json.dumps(geocode, ensure_ascii=False)))
+                return geocode                  
+        except:
+            pass
+        return geocode
