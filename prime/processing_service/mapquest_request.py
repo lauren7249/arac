@@ -57,7 +57,10 @@ class MapQuestRequest(S3SavedRequest):
             if not geocode:
                 geocode = self._geocode_from_scraps()
             if geocode and geocode.get("latlng") and not geocode.get("region"):
-                reverse = GEOLOCATOR.reverse(geocode.get("latlng"))
+                try:
+                    reverse = GEOLOCATOR.reverse(geocode.get("latlng"))
+                except:
+                    return geocode
                 if not reverse or not reverse.raw or not reverse.raw.get("address"): 
                     return geocode
                 state = reverse.raw.get("address").get("state")
