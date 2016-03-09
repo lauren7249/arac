@@ -172,6 +172,14 @@ def start_linkedin_login_bot(email, password, user_id):
             contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=session)
         conn.hset("linkedin_login_outcome", current_user.email, "success:True")
         return True
+    if error == "Unknown error":
+        current_user.linkedin_login_email = email
+        current_user.set_linkedin_password(password, session=session)
+        session.add(current_user)
+        session.commit()     
+        getter.quit()
+        conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))      
+        return True
 
     if pin_requested:
         #linkedin requested a pin
@@ -301,7 +309,7 @@ def linkedin_login_status():
         if status == "pin":
             return jsonify({"pin": True, "finished": True, "error": error})
         print error
-        return jsonify({"success": False, "error": error, "finished": True})
+        return jsonify({"success": False, "finished": True, "error": error})
 
     return jsonify({"finished": False})
 
