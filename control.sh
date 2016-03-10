@@ -21,7 +21,7 @@ declare -x PG_USER="${DB_USER:-postgres}"
 declare -x PG_PASS="${DB_PASS}"
 declare -x PG_DB="${PG_DB:-arachnid}"
 declare -x PG_HOST="${PG_HOST}"
-declare -x PG_DUMP_FILE="${PG_DUMP_FILE:-mydb.dump}"
+declare -x PG_DUMP_FILE="${PG_DUMP_FILE:-${PWD}/mydb.dump}"
 
 # List of databases command
 declare -r PG_LIST="${PG_BINDIR}/psql -h ${PG_HOST} -U ${PG_USER} -l "
