@@ -1006,6 +1006,47 @@ table.contacts-table .contact-buttons .button {
   padding: 0;
 }
 
+.network-summary-print .hint--top:after,
+.network-summary-print .hint--top:before {
+  display: none !important;
+}
+.network-summary-print .card-header {
+  height: 40px;
+  line-height: 40px;
+  padding: 0;
+}
+.network-summary-print .card-header h4 {
+  padding: 0 10px;
+  line-height: 40px;
+}
+.network-summary-print .qualified-contacts h2,
+.network-summary-print .network-breakdown h2 {
+  width: 100%;
+}
+.network-summary-print .qualified-contacts canvas,
+.network-summary-print .network-breakdown canvas {
+  display: block;
+  margin: 0 auto;
+}
+.network-summary-print * {
+  font-size: 14px;
+}
+.network-summary-print .potential-markets [class^='market-'] {
+  font-size: 14px;
+  margin-right: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid;
+  display: inline-block;
+}
+.network-summary-print .qualified-contacts {
+  margin: 0 auto;
+}
+@media print {
+  .network-summary-print {
+    font-size: 75% !important;
+  }
+}
+
 .contact-info {
   position: relative;
   display: table;

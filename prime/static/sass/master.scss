@@ -1051,6 +1051,51 @@ table.contacts-table {
   }
 }
 
+.network-summary-print {
+  .hint--top:after,
+  .hint--top:before {
+    display: none !important;
+  }
+
+  .card-header {
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    h4 {
+      padding: 0 10px;
+      line-height: 40px;
+    }
+  }
+
+  .qualified-contacts,
+  .network-breakdown {
+    h2 {
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+  }
+
+  * {
+    font-size: 14px;
+  }
+  .potential-markets [class^='market-'] {
+      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid;
+      display: inline-block;
+  }
+  .qualified-contacts {
+    margin: 0 auto;
+  }
+  @media print {
+    font-size: 75% !important;
+  }
+}
+
 
 // Contacts Card ==================================
 
