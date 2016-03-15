@@ -30,7 +30,7 @@ class LeadService(Service):
         self.other_locations = []
         self.schools = []
         self.salary_threshold = 35000
-        self.location_threshhold = 50
+        self.location_threshhold = 75
         self.user = self._get_user()  
 
     def _filter_same_locations(self, person):
