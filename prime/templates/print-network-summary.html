@@ -200,7 +200,7 @@ industries.push({label: "{{ industry[0] }}".replace('&amp;', '&'), fillColor:"" 
 states.push({label: "{{ state[0] }}", fillColor:"" + randColor(colors), value: {{ state[1] }}})
 {% endfor %}
 
-
+window.print();
 $(function(){
 
     for (var i in industries) {
@@ -225,36 +225,15 @@ $(function(){
         }]}
 
     //Chart.defaults.global.responsive = true;
-    var industry_chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {});
-    var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, {});
-
-    if ( "{{ current_user.is_manager }}" != "True") {
-      $("#state").click(function(evt){
-        var activePoints = state_chart.getSegmentsAtEvent(evt);
-        if (activePoints.length>0){
-          var point = activePoints[0];
-          var label = point.label;
-          var url = "/connections?state=" + label;
-          window.location.href=url;
-        }
-      });
-      $("#industry").click(function(evt){
-        var activePoints = industry_chart.getSegmentsAtEvent(evt);
-        if (activePoints.length>0){
-          var point = activePoints[0];
-          var label = point.label;
-          console.log(label);
-          var url = "/connections?industry=" + label;
-          window.location.href=url;
-        }
-      });          
-    }
+    var industry_chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {animation: false});
+    var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, {animation: false});
 
     var bar_options = {
+      animation: false,
       showScale: false
     }
     var connections_chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, bar_options);
-
+    
  });
 </script>
 {% endblock %}
