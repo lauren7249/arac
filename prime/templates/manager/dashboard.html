@@ -80,7 +80,7 @@
                 <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections available, pending agent P200 submission.'>Pending</span> 
               {% elif agent.p200_started %}
                 <span class='in-progress hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
-              {% elif agent.hiring_screen_completed  %}               <!-- -->
+              {% elif agent.hiring_screen_completed and agent.hired %}               <!-- -->
                 <button data-hint='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small hint--top'>Request</button>    
                 <span style="display:none;" class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='P200 is running and will be available within 24 hours.'>In Progress</span>                 
               {% endif %}
@@ -124,8 +124,6 @@
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
                 <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-  <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
-                <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
               {% elif agent.unique_contacts_uploaded > 0 %}
                 <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>
               {% else %}
@@ -197,8 +195,6 @@
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
               <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-              <!--               <button data-p200-id='{{ agent.user_id }}' class='button teal small'>Request P200</button>
-                <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button dark-blue small'>Request</button></a> -->
                 {% elif agent.unique_contacts_uploaded > 0 %}
                 <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>
                 {% else %}

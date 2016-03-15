@@ -37,7 +37,6 @@ from prime.utils.email import sendgrid_email
 from prime.utils.helpers import STATES
 import xlsxwriter
 import flask, urllib
-import pandas
 
 ################
 ##  HELPERS   ##
