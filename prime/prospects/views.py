@@ -37,7 +37,6 @@ from prime.utils.email import sendgrid_email
 from prime.utils.helpers import STATES
 import xlsxwriter
 import flask, urllib
-import pandas
 
 ################
 ##  HELPERS   ##
@@ -369,6 +368,16 @@ def dashboard():
     if current_user.hiring_screen_completed:
         agent = current_user
         return render_template("dashboard.html", agent=agent, active = "dashboard")
+    return redirect(url_for('prospects.start'))
+
+@csrf.exempt
+@prospects.route("/dashboard_pdf", methods=['GET', 'POST'])
+def dashboard_pdf():
+    if not current_user.is_authenticated():
+        return redirect(url_for("auth.login"))
+    if current_user.hiring_screen_completed:
+        agent = current_user
+        return render_template("print-network-summary.html", agent=agent, active = "dashboard")
     return redirect(url_for('prospects.start'))
 
 class SearchResults(object):

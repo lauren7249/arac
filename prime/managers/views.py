@@ -155,6 +155,19 @@ def agent_p200(agent_id):
 
 
 @csrf.exempt
+@manager.route("/dashboard_pdf/<int:agent_id>", methods=['GET', 'POST'])
+def dashboard_pdf(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if not current_user.is_manager:
+        return redirect(url_for('auth.login'))
+    agent = User.query.get(agent_id)
+    manager = agent.manager
+    if current_user.user_id != manager.user_id:
+        return "You are not authorized to view this content."
+    return render_template("print-network-summary.html", agent=agent, active="dashboard")
+
+@csrf.exempt
 @manager.route("/pdf/<int:agent_id>", methods=['GET', 'POST'])
 def pdf(agent_id):
     if not current_user.is_authenticated():

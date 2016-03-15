@@ -17,7 +17,7 @@
             {%if agent.p200_submitted_to_manager or not current_user.is_manager %}
               <li><a href="{% if not current_user.is_manager %}/p200{%else%}/managers/p200/{{ agent.user_id }}{%endif%}" class="{% if active == 'p200' %}selected{% endif %}">View Project 200</a></li>
             {%endif%}
-          {% elif not agent.p200_completed and not agent.p200_started and current_user.is_manager %} 
+          {% elif not agent.p200_completed and not agent.p200_started and current_user.is_manager and agent.hired %} 
             <li><a href="#" type="Submit" class="" id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}'>Request P200</a></li>
           {% endif %}                       
         </ul>
