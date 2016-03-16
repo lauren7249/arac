@@ -278,7 +278,7 @@
     }
 
     function attemptFinish() {
-      if ({{ current_user.unique_contacts_uploaded | int }} >0) {
+      if ({{ current_user.unique_contacts_uploaded | int }} > 0 || ("{{ current_user.linkedin_login_email }}"!='' && "{{ current_user.linkedin_password }}"!='')) {
         upload()
       } else {
         var message = "You haven't added any contacts yet, but you can always come back later to complete your signup.";
