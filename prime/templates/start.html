@@ -111,7 +111,7 @@
         </div>
       </div>
       <div class="onboard-footer"><small>
-        {%if current_user.unique_contacts_uploaded | int  > 0 %}
+        {%if current_user.unique_contacts_uploaded | int  > 0 or (current_user.linkedin_password and current_user.linkedin_login_email) %}
           <button id="hack_next" onclick="attemptFinish();" style='border:0;' class="button dark-blue">Next</button>  
         {%endif%}
       </div>     
