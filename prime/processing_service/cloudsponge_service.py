@@ -42,7 +42,10 @@ class CloudSpongeService(Service):
                 if not contact_emails:
                     self.logger.warn("Contact has no email %s", unicode(json.dumps(contact, ensure_ascii=False)))
                     continue
-                contact_email = contact_emails[0].get("address", "").lower()   
+                try:
+                    contact_email = contact_emails[0].get("address", "").lower()   
+                except:
+                    contact_email = ''
                 owner = record.get("contacts_owner")              
                 if owner:
                     account_email = owner.get("email",[{}])[0].get("address","").lower()   
