@@ -354,6 +354,9 @@ def upload():
             tmpl = env.get_template('emails/contacts_uploaded.html')
             body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
             sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(current_user.unique_contacts_uploaded)), body)
+            #if linkedin login creds were entered successfully, but the linkedin contacts were not uploaded, don't run the network summary
+            if current_user.linkedin_password and current_user.linkedin_login_email and not current_user.contacts_from_linkedin:
+                return jsonify({"contacts": current_user.unique_contacts_uploaded})
             client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                     "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                     "to_email":to_email}
