@@ -237,7 +237,7 @@ def terms():
 @prospects.route('/linkedin_failed', methods=['POST'])
 def linkedin_login_failed():
     failtype = request.args.get("failtype")
-    sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
+    sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}, user email:{}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.email, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
     return jsonify({"success":True})
 
 @csrf.exempt

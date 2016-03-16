@@ -109,6 +109,22 @@ if __name__ == '__main__':
         contacts_array, user = user.refresh_contacts(new_contacts=data, service_filter='linkedin', session=db.session)
         print user.contacts_from_linkedin
 
+    #this replaces add_csv and uses local selenium to download the data when it fails on saucelabs. only run locally
+    @manager.command
+    def upload_csv(email, linkedin_email, linkedin_password):
+        from prime import db
+        from prime.users.models import User
+        from prime.utils.linkedin_csv_getter import LinkedinCsvGetter
+        getter = LinkedinCsvGetter(linkedin_email, linkedin_password, local=True)
+        errors = getter.check_linkedin_login_errors()
+        data = getter.get_linkedin_data()
+        getter.quit()
+        u = User.query.filter_by(email=email).first()
+        if not u:
+            u = User('', '', email, '')
+        contacts_array, user = u.refresh_contacts(new_contacts=data, service_filter='linkedin', session=db.session)
+        print len(contacts_array)
+
     manager.add_command('db', MigrateCommand)
     manager.add_command('shell', Shell(use_ipython=True))
     #manager.add_command('shell', Shell(make_context=make_shell_context, use_ipython=True))
