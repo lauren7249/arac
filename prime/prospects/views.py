@@ -342,7 +342,7 @@ def upload():
         if contacts_array:
             print "Refreshing contacts array"
             contacts_array, user = current_user.refresh_contacts(new_contacts=contacts_array, service_filter=service)
-        if complete=='yes':
+        if complete=='yes' and current_user.unique_contacts_uploaded > 0:
             manager = current_user.manager
             if not manager:
                 print "Error: no manager for current_user {}".format(current_user.user_id)
