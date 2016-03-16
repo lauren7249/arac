@@ -48,7 +48,7 @@ if __name__ == '__main__':
         session.commit()
 
     @manager.command
-    def rerun_contacts(email, hired, flush):
+    def rerun_contacts(email, hired, flush, suppress_emails):
         from prime.users.models import db, User
         from prime.prospects.views import queue_processing_service
         session = db.session
@@ -62,9 +62,10 @@ if __name__ == '__main__':
         client_data = {"first_name":user.first_name,"last_name":user.last_name,\
                 "email":user.email,"location":user.location,"url":user.linkedin_url,\
                 "to_email":user.manager.user.email, "hired": (hired == "True"),
-                "suppress_emails":True, "other_locations":other_locations}
-        print client_data
+                "suppress_emails":(suppress_emails == "True"), "other_locations":other_locations}
+        print json.dumps(client_data, indent=3)
         if flush=='True':
+            print "flushing old data"
             user.clear_data()
             for client_prospect in user.client_prospects:
                 session.delete(client_prospect)
