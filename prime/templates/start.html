@@ -134,7 +134,7 @@
           <div class="wrap">            
             <div class="note text-center">
               <h1>Congratulations!</h1>
-              <h3 class="text-teal">You’ve successfully uploaded a total of <span class='final-contact-count'></span> Contacts!</h3>
+              <h3 class="text-teal">You’ve successfully uploaded {%if current_user.unique_contacts_uploaded | int > 0 %}a total of <span class='final-contact-count'></span>{%else%}your{%endif%} contacts!</h3>
               <p>We will email you when your Network Summary is complete.</p>
               <div class='center'><a id='close_href' href='/auth/logout'><button class='button teal'>Close</button></a></div>
             </div>
