@@ -103,6 +103,8 @@ if __name__ == '__main__':
         from prime.prospects.views import queue_processing_service
         from helpers.linkedin_helpers import process_csv
         user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User('', '', email, '')
         f = open(filename,'rb')
         csv = f.read()
         data = process_csv(csv)
