@@ -37,6 +37,11 @@ class HBaseLoader(object):
         self.data = self.sc.textFile(self.filenames)
         return self.data
 
+    def load_url_xwalk(self):
+        self.conf["hbase.mapred.outputtable"]="url_xwalk"  
+        datamap = self.data.flatMap(load_url_xwalk)
+        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+
     #30 minutes?
     def load_people_table(self):          
         #does not overwrite existing table; acts as an update -- 36 minutes
@@ -44,15 +49,10 @@ class HBaseLoader(object):
         datamap = self.data.flatMap(load_people)
         datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
 
-        self.conf["hbase.mapred.outputtable"]="url_xwalk"  
-        datamap = self.data.flatMap(load_url_xwalk)
-        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
-
-        if self.PERIOD == "2015_12":
-            #one-time deal since linkeidn id is becoming obsolete
-            self.conf["hbase.mapred.outputtable"]="linkedin_id_xwalk"  
-            datamap = self.data.flatMap(load_linkedin_id_xwalk)
-            datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)
+    def load_linkedin_id_xwalk(self):
+        self.conf["hbase.mapred.outputtable"]="linkedin_id_xwalk"  
+        datamap = self.data.flatMap(load_linkedin_id_xwalk)
+        datamap.saveAsNewAPIHadoopDataset(conf=self.conf,keyConverter=self.keyConv_write,valueConverter=self.valueConv_write)        
 
     # #still in dev -- probably will just use sql functionality
     # def load_extended(self):     
