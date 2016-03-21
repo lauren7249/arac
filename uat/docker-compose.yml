@@ -65,7 +65,7 @@ services:
       - db:dev-db
       - redis:redis
     ports:
-      - "5000:80"
+      - "80:80"
     environment:
       PG_HOST: "dev-db"
       PRIME_DB_USER: "arachnid"
