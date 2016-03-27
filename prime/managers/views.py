@@ -81,10 +81,12 @@ def manager_invite_agent():
             agent.p200_approved = False
             agent._statistics = None
             user = agent
-            # session.delete(agent)
-            # session.commit()
-            # error_message = "This agent already exists in our system. Please \
-            #         contact jeff@adivsorconnect.co if this seems incorrect to you"
+            #remove the user from their previous manager's dashboard.
+            if user.manager:
+                old_manager = user.manager
+                old_manager.users.remove(user)
+                session.add(old_manager)
+                session.commit()
         else:
             user = User(first_name, last_name, to_email, '')
         manager = current_user.manager_profile[0]

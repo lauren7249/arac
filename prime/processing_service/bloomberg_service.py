@@ -14,6 +14,8 @@ from constants import GLOBAL_HEADERS
 from helper import get_domain
 from person_request import PersonRequest
 from helpers.stringhelpers import domestic_area
+from geoindex import GeoPoint
+from geocode_service import GeocodeRequest
 
 def wrapper(person):
     try:
@@ -61,6 +63,81 @@ class BloombergRequest(S3SavedRequest):
         self.urls = []
         self.index = 0
         super(BloombergRequest, self).__init__()
+
+    def closest_geo_match(self, bloomberg_matches, person_geopoint):
+        if not bloomberg_matches or not person_geopoint:
+            return None
+        for i in xrange(0, len(bloomberg_matches)):
+            bloomberg_match = bloomberg_matches[i]
+            address = bloomberg_match.get("address")
+            if address:
+                geocode = GeocodeRequest(address).process()
+                if geocode:
+                    latlng = geocode.get("latlng")
+                else:
+                    latlng = None
+            else:
+                latlng = None
+            
+            if not latlng:
+                bloomberg_match["distance"] = 99999
+            else:
+                geopoint = GeoPoint(latlng[0],latlng[1])
+                bloomberg_match["distance"] = geopoint.distance_to(person_geopoint)
+            bloomberg_matches[i] = bloomberg_match
+        return sorted(bloomberg_matches, key=lambda k: k['distance'])[0]    
+
+
+    def pages_matching_website(self, company_domain):
+        if not company_domain:
+            return None
+        self.company = company_domain.split(".")[0]
+        self.query_type = "bloomberg_website"
+        matches = []
+        while self.has_next_url():
+            data = self.process_next()
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if website and company_domain == get_domain(website) and domestic_area(phone): 
+                matches.append(data)
+        return matches   
+
+    def pages_matching_name(self, company, company_domain):
+        if not company:
+            return None
+        self.company = company.replace("&"," ")
+        self.query_type = "bloomberg_company"
+        matches = []
+        while self.has_next_url():
+            data = self.process_next()
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if company_domain and website and company_domain != get_domain(website): 
+                continue
+            #found phone and website matches, we are done
+            matches.append(data)
+        return matches
+
+    def _get_phone_from_name(self, company, company_domain):
+        phone = None
+        website = None
+        if not company:
+            return phone, website
+        self.company = company
+        self.query_type = "bloomberg_company"
+        while self.has_next_url():
+            data = self.process_next()
+            phone = data.get("phone")
+            website = data.get("website")
+            #if we already know the website and it does not match, keep trying other bloomberg pages
+            if company_domain and website and company_domain != get_domain(website): 
+                phone = None
+                website = None
+                continue
+            #found phone and website matches, we are done
+            if phone:
+                return phone, website
+        return phone, website 
 
     def _get_phone_from_website(self, company_domain):
         if not company_domain:

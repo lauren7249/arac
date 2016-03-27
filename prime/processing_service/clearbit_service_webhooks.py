@@ -98,7 +98,9 @@ def phone_wrapper(person, overwrite=False):
         request = ClearbitRequest(get_domain(website))
         company = request.get_company()
         if domestic_area(company.get("phone_number")):
-            person.update({"phone_number": company.get("phone_number")})
+            person["phone_number"] = company.get("phone_number")
+        if company.get("company_address"):
+            person["company_address"] = company.get("company_address")
         return person
     except Exception, e:
         print __name__ + str(e)

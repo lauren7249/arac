@@ -28,10 +28,15 @@ class MapQuestRequest(S3SavedRequest):
     Given an email address, This will return geocode JSON from mapquest
     """
 
-    def __init__(self, query):
+    def __init__(self, query, extra_info=None):
         super(MapQuestRequest, self).__init__()
-        self.url = "https://classic.mapquest.com/?q={}".format(query)
-        self.query = query
+        if not query:
+            query = ""
+        self.query = query.replace("&",' ')
+        if extra_info:
+            self.url = "https://classic.mapquest.com/?q={} {}".format(self.query, extra_info)
+        else:
+            self.url = "https://classic.mapquest.com/?q={}".format(self.query)
         self.headers = GLOBAL_HEADERS
         self.unresolved_locations = []
         self.json_locations = []
@@ -107,6 +112,40 @@ class MapQuestRequest(S3SavedRequest):
         if record.get("inputQuery") and isinstance(record.get("inputQuery"), dict) and record.get("inputQuery").get("categories"):
             business.update({"business_categories":record.get("inputQuery").get("categories")})
         return business
+
+    def get_closest_businesses(self, website=None, latlng=None, threshold_miles=75):
+        unresolved = self._get_unresolved_locations()
+        geopoint= None
+        if latlng:
+            geopoint = GeoPoint(latlng[0],latlng[1])
+        matches = []
+        for record in unresolved:
+            if not record:
+                continue
+            if geopoint and threshold_miles:
+                lat, lng = self._find_lat_lng(record)
+                if lat and lng:
+                    _geopoint = GeoPoint(lat,lng)
+                    if geopoint.distance_to(_geopoint) > threshold_miles:     
+                        continue           
+            _website = record.get("website")
+            _name = record.get("name")
+            if _website and website and domain_match(_website, website):
+                matches.append(self._get_business_info(record))
+            elif name_match(_name, self.query):
+                matches.append(self._get_business_info(record))
+        if not matches:
+            return None
+        for i in xrange(0, len(matches)):
+            match = matches[i]
+            _latlng = match.get("company_latlng")
+            if not _latlng:
+                match["distance"] = 99999
+            else:
+                _geopoint = GeoPoint(_latlng[0],_latlng[1])
+                match["distance"] = geopoint.distance_to(_geopoint)
+            matches[i] = match
+        return sorted(matches, key=lambda k: k['distance'])[0]                    
 
     def get_business(self, website=None, latlng=None, threshold_miles=75):
         unresolved = self._get_unresolved_locations()
