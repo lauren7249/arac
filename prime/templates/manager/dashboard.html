@@ -103,7 +103,7 @@
           <th>Extended</th>
           <th class="agent-pre-screen">Network Analysis</th>
           <th class="agent-hired">Hired</th>
-          <th class="agent-hr">HR</th>
+          <th class="agent-hr">Candidate Disposition</th>
           <th class="agent-resend">Resend Invite</th>
         </thead>
         <tbody>
@@ -178,6 +178,7 @@
           <th>Candidate</th>
           <th>Primary Network</th>
           <th>Extended</th>
+          <th>Candidate Disposition</th>
           <th class="agent-pre-screen">Network Analysis</th>
         </thead>
         <tbody>
@@ -193,6 +194,7 @@
             <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
             <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
             {%else%}
+            <td>-</td>
             <td>-</td>
             <td>-</td>                
             {%endif%}
