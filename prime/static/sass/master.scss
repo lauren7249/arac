@@ -964,45 +964,49 @@ $padcount: 5;
   }
 }
 
+
+// Filters & Search 
 .filters {
-  b {
-    color: $grey;
-    margin-right: 10px;
-  }  
-  span {
-    margin-right: 10px;
+  @extend %clearfix;
+}
+
+[class*="filter-"] {
+  width: 20%;
+  padding-right: 10px;
+  float: left;
+  &:last-child {
+    padding-right: 0px !important;
   }
-  .sort-abc {
-    cursor: pointer;
-    &.active {
-      color: $blue;
-    }
-    &.sort-up:after {
-      content: "↑";
-    }
-    &.sort-down:after {
-      content: "↓";
-    }
-    &:after {
-      content: "↑";
-      display: inline-block;
-      margin-left: 4px;
-      font-size: 75%;
-    }
+  select {
+    width: 100%;
   }
 }
 
-.search {
+.filter--search {
+  width: 25%;
+}
+.filter--stars {
+  width: 15%;
+}
+.filter--market {
+  width: 20%;
+}
+.filter--state {
+  width: 20%;
+}
+.filter--age {
+  width: 20%;
+}
+
+.filter--search {
   position: relative;
   text-align: right;
-  width: 100%;
-  margin-bottom: 20px;
   input[type="search"] {
     box-sizing: border-box;
     width: 100%;
-    padding: 0 60px 0 20px;
+    padding: 0 60px 0 10px;
     height: 40px;
-    line-height: 40px;
+    line-height: 42px;
     border: 1px solid $border;
     @include border-radius(4px);
     font-size: 13px;
@@ -1026,6 +1030,51 @@ $padcount: 5;
     @include background-size(18px);
   }
 }
+.filter--abc {
+  width: 100%;
+  margin: 10px 0;
+  float: none;
+  @extend %clearfix;
+  b {
+    display: block;
+    float: left;
+    color: $grey;
+    cursor: pointer;
+    font-size: 10px;
+    margin: 0;
+    padding: 10px 0;
+    width: 3.8468%;
+    text-align: center;
+    border-bottom: 2px solid transparent;
+    &:hover {
+      border-color: $border;
+    }
+    &.active {
+      border-color: $blue;
+    }
+  }
+}
+
+// .sort-abc {
+//   cursor: pointer;
+//   &.active {
+//     color: $blue;
+//   }
+//   &.sort-up:after {
+//     content: "↑";
+//   }
+//   &.sort-down:after {
+//     content: "↓";
+//   }
+//   &:after {
+//     content: "↑";
+//     display: inline-block;
+//     margin-left: 4px;
+//     font-size: 75%;
+//   }
+// }
+
+
 
 table.network-stats {
   .text-right {
