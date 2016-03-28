@@ -33,7 +33,25 @@
       {% include "_partials/connection.html" %}
     {% endfor %}
   </tbody>
+  <tfoot>
+    <th class="select-all-buttons">
+      {% if active == "p200" %}     
+      {% elif active == "pdf" %}     
+        Contact Information    
+      {% else %}
+        <div class="wrap">
+          <div class="col-6">
+            <button id='add-all' class="button teal">Add Selected</button>
+          </div>
+          <div class="col-6">
+            <button id='skip-all' class="button grey">Skip Selected</button>
+          </div>
+        </div>
+      {% endif %}
+    </th>
+  </tfoot>
 </table>
+
 <div class='pagination'>
   <ul>
 
