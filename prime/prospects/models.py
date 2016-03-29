@@ -113,10 +113,7 @@ class Prospect(db.Model):
         if self.schools:
             schools = list(set([s.school_name for s in self.schools]))
         return schools
-
-    @property 
-    def address(self):
-        
+ 
     @property
     def emails(self):
         if not self.mailto:

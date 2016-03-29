@@ -7,14 +7,14 @@
     
     {% if active != "selected" %}
       <a class="back-link" href="/managers/dashboard">Back to Dashboard</a>
-      <h2>Network Summary</h2>
+      <h2>Network Analysis</h2>
     {% endif %}      
     
     <div class="col-8">        
       <div class="subnav">     
         <ul id="active_cell">   
           {% if active != "dashboard" and active != "invite" %}
-            <li class="hint--bottom" data-hint="Invite a prospective agent to complete a network summary by uploading their contacts"><a href="/managers/invite">Request Network Analysis</a></li>
+            <li class="hint--bottom" data-hint="Invite a prospective agent to complete a Network Analysis by uploading their contacts"><a href="/managers/invite">Request Network Analysis</a></li>
           {% endif %}       
           {% if active == "dashboard" and agent is not none and agent.p200_completed != true and agent.p200_started != true and agent.hired %} <!--  -->
             <li><button id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}' class="selected">Request P200</button></li>

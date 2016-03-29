@@ -4,12 +4,12 @@
       {% if current_user.is_manager %}
         <a class="back-link" href="/managers/dashboard">Back to Dashboard</a>
       {% endif %}
-      <h2>{% if header %}{{ header }}{% else %}Network Summary{% endif %}</h2>
+      <h2>{% if header %}{{ header }}{% else %}Network Analysis{% endif %}</h2>
     </div>
     <div class="col-8">
       <div class="subnav">
         <ul>
-          <li><a href="{% if not current_user.is_manager %}/dashboard{%else%}/managers/agent/{{ agent.user_id }}{%endif%}" class="{% if active == 'dashboard' %}selected{% endif %}">Network Summary</a></li>
+          <li><a href="{% if not current_user.is_manager %}/dashboard{%else%}/managers/agent/{{ agent.user_id }}{%endif%}" class="{% if active == 'dashboard' %}selected{% endif %}">Network Analysis</a></li>
           {%if agent.p200_completed %}
             {%if not agent.p200_approved and not current_user.is_manager and not agent.p200_submitted_to_manager %}
               <li><a href="/connections" class="{% if active == "connections" %}selected{% endif %}">Build Project 200</a></li>

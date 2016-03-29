@@ -133,12 +133,12 @@ class ProcessingService(Service):
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
                         self.client_data.get("last_name"))
-                    subject = "{}'s Network Summary is ready".format(name)
+                    subject = "{}'s Network Analysis is ready".format(name)
                     to_email = self.client_data.get("to_email")
                     tmpl = env.get_template('emails/network_summary_done.html')
                     body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)
                     sendgrid_email(to_email, subject, body)
-                    subject = "Your Network Summary is ready to view"
+                    subject = "Your Network Analysis is ready to view"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/network_summary_done_agent.html')
                     body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)
