@@ -466,6 +466,27 @@ class User(db.Model, UserMixin):
             return None
 
     @property
+    def young_professional_percentage(self):
+        try:
+            return int(round(self.statistics().get("young_professional_percentage")))
+        except:
+            return "N/A"
+
+    @property
+    def pre_retiree_percentage(self):
+        try:
+            return int(round(self.statistics().get("pre_retiree_percentage")))
+        except:
+            return "N/A"
+
+    @property
+    def retiree_percentage(self):
+        try:
+            return int(round(self.statistics().get("retiree_percentage")))
+        except:
+            return "N/A"
+
+    @property
     def female_percentage(self):
         try:
             return int(round(self.statistics().get("female_percentage")))
@@ -511,6 +532,7 @@ class User(db.Model, UserMixin):
         industries = {}
         locations = {}
         gender = {"female":0,"male":0,"unknown":0}
+        age_category = {"young_professionals":0, "pre_retirees":0, "retirees":0}
         college_degree = {True:0,False:0,None:0}
         wealth_score = []
         average_age = []
@@ -555,7 +577,14 @@ class User(db.Model, UserMixin):
             if client_prospect.prospect.wealthscore:
                 wealth_score.append(client_prospect.prospect.wealthscore)
             if client_prospect.prospect.age:
-                average_age.append(client_prospect.prospect.age)
+                _age = client_prospect.prospect.age
+                average_age.append(_age)
+                if _age<45:
+                    age_category["young_professionals"]+=1
+                elif _age<60:
+                    age_category["pre_retirees"]+=1
+                else:
+                    age_category["retirees"]+=1
             if client_prospect.prospect.facebook: facebook+=1
             if client_prospect.prospect.linkedin_url or client_prospect.prospect.linkedin: linkedin+=1
             if client_prospect.prospect.amazon: amazon+=1
@@ -586,6 +615,22 @@ class User(db.Model, UserMixin):
         else:
             male_percentage = males/float(males + females) * 100
 
+        young_professionals = float(age_category["young_professionals"])
+        pre_retirees = float(age_category["pre_retirees"])
+        retirees = float(age_category["retirees"])
+        if young_professionals == 0:
+            young_professional_percentage = 0
+        else:
+            young_professional_percentage = young_professionals/float(young_professionals + pre_retirees + retirees) * 100
+        if pre_retirees == 0:
+            pre_retiree_percentage = 0
+        else:
+            pre_retiree_percentage = pre_retirees/float(young_professionals + pre_retirees + retirees) * 100
+        if retirees == 0:
+            retiree_percentage = 0
+        else:
+            retiree_percentage = retirees/float(young_professionals + pre_retirees + retirees) * 100   
+
         if college_degree[True] + college_degree[False] == 0:
             college_percentage = 0
         else:
@@ -604,6 +649,9 @@ class User(db.Model, UserMixin):
         data = {"network_size": first_degree_count,
                 "count_extended": extended_count,
                 "industries": industries,
+                "young_professional_percentage": young_professional_percentage,
+                "pre_retiree_percentage": pre_retiree_percentage,
+                "retiree_percentage": retiree_percentage,
                 "male_percentage": male_percentage,
                 "female_percentage": female_percentage,
                 "locations": locations,
