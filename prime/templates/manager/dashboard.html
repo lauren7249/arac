@@ -103,7 +103,8 @@
           <th>Extended</th>
           <th class="agent-pre-screen">Network Analysis</th>
           <th class="agent-hired">Hired</th>
-          <th class="agent-hr">HR</th>
+          <th class="agent-hr">Candidate Disposition</th>
+          <th class="agent-resend">Resend Invite</th>
         </thead>
         <tbody>
           {% for agent in candidates %}
@@ -158,6 +159,9 @@
                 <option value='Did Not Pass State Exam'>Did Not Pass State Exam</option>
               </select>
             </td>
+            <td class="agent-resend">
+              <button class="button teal small">Resend</button>
+            </td>
           </tr>
           {% else %}
           <tr>
@@ -174,6 +178,7 @@
           <th>Candidate</th>
           <th>Primary Network</th>
           <th>Extended</th>
+          <th>Candidate Disposition</th>
           <th class="agent-pre-screen">Network Analysis</th>
         </thead>
         <tbody>
@@ -189,6 +194,7 @@
             <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
             <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
             {%else%}
+            <td>-</td>
             <td>-</td>
             <td>-</td>                
             {%endif%}

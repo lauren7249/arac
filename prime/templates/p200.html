@@ -8,13 +8,13 @@
 <div class="section" style="margin-top:-10px;">
   {%if current_user == agent %}
     <div class="wrap">
-      <div class="search">
-        <input type="search" name='search-box' id='search-box' placeholder="Search By Name"/>
-        <button id="search-button"></button>
-      </div>
       <div class="col-12">
         <div class="filters">
-          <span>
+          <span class="filter--search">
+            <input type="search" name='search-box' id='search-box' placeholder="Search By Name"/>
+            <button id="search-button"></button>
+          </span>
+          <span class="filter--stars">
             <select name='stars'>
               <option value=''>Any Rating</option>
               <option value='5'>Five Stars</option>
@@ -24,7 +24,7 @@
               <option value='1'>One Star</option>
             </select>
           </span>
-          <span>
+          <span class="filter--market">
             <select name='market' id='market'>
               <option value=''>Any Industry</option>
               {% for industry in agent.industries %}
@@ -32,7 +32,7 @@
               {% endfor %}
             </select>
           </span>
-          <span>
+          <span class="filter--state">
             <select name='state' id='state'>
               <option value=''>Any State</option>
               {% for state in agent.states %}
@@ -40,7 +40,7 @@
               {% endfor %}
             </select>
           </span>
-          <span>
+          <span class="filter--age">
             <select name='age' id='age'>
               <option value=''>Any Age</option>
               <option value='1'>Young Professionals (21-45)</option>
@@ -48,10 +48,36 @@
               <option value='3'>Retirees (60+)</option>
             </select>
           </span>
-          <span>
-            <label data-sort='a-z' class="sort-abc sort-down active">A - Z</label>
-            <label data-sort='z-a' class="sort-abc sort-down active">Z - A</label>
-          </span>
+        </div>
+        <div class="filter--abc">
+          <b data-sort='a-z' class="active">A</b>
+          <b data-sort='a-z'>B</b>
+          <b data-sort='a-z'>C</b>
+          <b data-sort='a-z'>D</b>
+          <b data-sort='a-z'>E</b>
+          <b data-sort='a-z'>F</b>
+          <b data-sort='a-z'>G</b>
+          <b data-sort='a-z'>H</b>
+          <b data-sort='a-z'>I</b>
+          <b data-sort='a-z'>J</b>
+          <b data-sort='a-z'>K</b>
+          <b data-sort='a-z'>L</b>
+          <b data-sort='a-z'>M</b>
+          <b data-sort='a-z'>N</b>
+          <b data-sort='a-z'>O</b>
+          <b data-sort='a-z'>P</b>
+          <b data-sort='a-z'>Q</b>
+          <b data-sort='a-z'>R</b>
+          <b data-sort='a-z'>S</b>
+          <b data-sort='a-z'>T</b>
+          <b data-sort='a-z'>U</b>
+          <b data-sort='a-z'>V</b>
+          <b data-sort='a-z'>W</b>
+          <b data-sort='a-z'>X</b>
+          <b data-sort='a-z'>Y</b>
+          <b data-sort='a-z'>Z</b>
+          <!-- <label data-sort='a-z' class="sort-abc sort-down active">A - Z</label>
+          <label data-sort='z-a' class="sort-abc sort-down active">Z - A</label> -->
         </div>
       </div>
     </div>

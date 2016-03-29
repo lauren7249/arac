@@ -55,11 +55,11 @@
       </div>              
     </div>
   </td>
-  <td class="contact-buttons">
+  <td class="contact-buttons text-center">
     {%if active == "p200" or active == "connections" %}
       {% if connection.good %}
-        <div style='display:none;' class="col-12">
-          <button data-remove='{{ connection.prospect.id }}' class="button teal">Remove</button>
+        <div class="col-6 col-center">
+          <button data-remove='{{ connection.prospect.id }}' class="button small teal">Remove Connection</button>
         </div>
       {% else %}
         <div class="wrap">
