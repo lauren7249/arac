@@ -12,18 +12,14 @@
         <div class="network-breakdown">
           <h2 class="text-center hint--top" data-hint="This has been set by the GO and includes the state(s) most commonly included for that GO (e.g. Greater New York GO includes NY, NJ and CT).">Initial Market in GO Territory</h2>        
           <div class="col-6">
-            <canvas width="160px" height="200px" id='industry'></canvas>
-            <h4 class="hint--top" data-hint="Qualified first-degree contacts broken down by industry.">Contacts by Industry</h4>
-          </div>
-          <div class="col-6">
-            <canvas width="160px" height="200px" id='state'></canvas>                      
+            <canvas width="320px" height="200px" id='state'></canvas>                      
             <h4 class="hint--top" data-hint="Qualified first-degree contacts broken down by state.">Contacts By State</h4>
           </div>
         </div>
       </div>
       <div class="col-6">
         <div class="qualified-contacts">
-          <h2 class="text-center">Qualified Overall Network</h2>
+          <h2 class="text-center">Market in GO Territory</h2>
           <canvas width="360px" height="200px" id='connections'></canvas>
           <h4 class="hint--top" data-hint="Number of qualified contacts in first-degree network." style='width: 100px;'>1st-Degree</h4>
           <h4 class="hint--top" data-hint="Number of qualified contacts in second-degree network." style='width: 100px;'>2nd-Degree</h4>
@@ -195,9 +191,6 @@ var states = [];
 function randColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)]
 }
-{% for industry in agent.industries %}
-industries.push({label: "{{ industry[0] }}".replace('&amp;', '&'), fillColor:"" + randColor(colors), value: {{ industry[1] }}});
-{% endfor %}
 
 {% for state in agent.states %}
 states.push({label: "{{ state[0] }}", fillColor:"" + randColor(colors), value: {{ state[1] }}})
@@ -214,7 +207,6 @@ $(function(){
       states[i].color = randColor(colors);
     }
 
-    var $industries = $("#industry")
     var $state = $("#state")
     var $connections = $("#connections")
     var connections = {
@@ -227,8 +219,6 @@ $(function(){
         data: [{{ agent.primary_network_size }}, {{ agent.extended_network_size }}, {{ agent.total_network_size }}]
         }]}
 
-    //Chart.defaults.global.responsive = true;
-    var industry_chart = new Chart($industries.get(0).getContext("2d")).Doughnut(industries, {animation: false});
     var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, {animation: false});
 
     var bar_options = {
