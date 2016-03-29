@@ -113,7 +113,7 @@ def manager_reinvite_agent():
         user_id = int(request.form.get('user_id'))
         user = User.query.filter(User.user_id == user_id).first()
         user.invite()
-    return jsonify({"sucess": True})
+    return redirect('/managers/dashboard#prospective-agents')
 
 
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])

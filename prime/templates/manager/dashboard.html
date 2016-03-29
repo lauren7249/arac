@@ -160,7 +160,9 @@
               </select>
             </td>
             <td class="agent-resend">
-              <button class="button teal small">Resend</button>
+              <form action="/managers/invite/again" method="post">
+                <button class="button teal small" name="user_id" value="{{ agent.user_id }}">Resend</button>
+              </form>
             </td>
           </tr>
           {% else %}
