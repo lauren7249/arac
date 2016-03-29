@@ -8,7 +8,7 @@
 {%if agent.primary_network_size | int > 0 %}
 <div class="section">
   <div class="wrap text-right">    
-    <a href='{% if current_user.is_manager %}/managers/dashboard_pdf/{{agent.user_id}}{%else%}/dashboard_pdf{%endif%}'><button id='export-network-summary' target="_blank" class='button dark-blue'>Export PDF</button></a>
+    <a href='{% if current_user.is_manager %}/managers/dashboard_pdf/{{agent.user_id}}{%else%}/dashboard_pdf{%endif%}' target="_blank"><button id='export-network-summary' target="_blank" class='button dark-blue'>Print/Export PDF</button></a>
     <br><br>
   </div>
   <div class="wrap card">

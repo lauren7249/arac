@@ -91,7 +91,7 @@
         {% if current_user.is_manager %}
           {% if agent.p200_approved %}
 <!--             <h2>Approved P200</h2> -->
-            <a href='/managers/pdf/{{ agent.user_id }}'><button id='export' class='button dark-blue'>Export as PDF</button></a>
+            <a href='/managers/pdf/{{ agent.user_id }}' target="_blank"><button id='export' class='button dark-blue'>Print/Export PDF</button></a>
           {% else %}
             <a href='/managers/approve/{{ agent.user_id }}'><button class='button teal'>Approve This P200 For Export</button></a>
           {% endif %}
