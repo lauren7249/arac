@@ -102,11 +102,22 @@ class MapQuestRequest(S3SavedRequest):
         if not record:
             return business
         if record.get("phone"):
-            business.update({"phone_number":record.get("phone")})
+            business["phone_number"] = record.get("phone")
         if record.get("website"):
-            business.update({"company_website":record.get("website")})
+            business["company_website"] = record.get("website")
         if record.get("address") and isinstance(record.get("address"),dict) and record.get("address").get("singleLineAddress"):
-            business.update({"company_address":record.get("address").get("singleLineAddress")})
+            address = record.get("address")
+            company_address = {}
+            if len(address.get("street","").split(",")) > 1:
+                company_address["addressLine1"] = ",".join(address.get("street").split(",")[:-1]).strip()
+                company_address["addressLine2"]= address.get("street").split(",")[-1].strip()               
+            else:
+                company_address["addressLine1"] = address.get("street")
+                company_address["addressLine2"]= None
+            company_address["city"] = address.get("locality")
+            company_address["stateProvince"] = address.get("region")
+            company_address["postalCode"] = address.get("postalCode")
+            business["company_address"] = company_address
         if self._find_lat_lng(record):
             business.update({"company_latlng": self._find_lat_lng(record)})
         if record.get("inputQuery") and isinstance(record.get("inputQuery"), dict) and record.get("inputQuery").get("categories"):

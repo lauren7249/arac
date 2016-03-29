@@ -99,11 +99,19 @@ def phone_wrapper(person, overwrite=False):
         company = request.get_company()
         if domestic_area(company.get("phone_number")):
             person["phone_number"] = company.get("phone_number")
-        if company.get("company_address"):
-            person["company_address"] = company.get("company_address")
+        if company.get("geo"):
+            geo = company.get("geo")
+            company_address = {}
+            company_address["addressLine1"] = "{} {}".format(geo.get("streetNumber"), geo.get("streetName"))
+            company_address["city"] = geo.get("city")
+            company_address["stateProvince"] = geo.get("stateCode")
+            company_address["postalCode"] = geo.get("postalCode")
+            company_address["lat"] = geo.get("lat")
+            company_address["lng"] = geo.get("lng")
+            person["company_address"] = company_address
         return person
     except Exception, e:
-        print __name__ + str(e)
+        print __name__ + ": " + str(e)
         return person
         
 class ClearbitPhoneService(Service):

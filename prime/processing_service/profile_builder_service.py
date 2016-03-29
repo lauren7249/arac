@@ -98,6 +98,7 @@ class ProfileBuilderRequest(S3SavedRequest):
         elif locality in US_STATES.keys():
             self.profile["us_state"] = US_STATES[locality]
         self.profile["phone"] = self.person.get("phone_number")
+        self.profile["company_address"] = self.person.get("company_address")
         self.profile["company_website"] = self.person.get("company_website")
         self.profile["company_headquarters"] = self.person.get("company_headquarters")
         self.profile["age"] = self.person.get("age")

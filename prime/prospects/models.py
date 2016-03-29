@@ -57,6 +57,7 @@ class Prospect(db.Model):
     company = db.Column(String(1024))
     company_website = db.Column(String(1024))
     company_headquarters = db.Column(String(1024))
+    company_address = db.Column(JSONB)
     job = db.Column(String(1024))
     name = db.Column(String(1024))
     main_profile_image = db.Column(String(1024))
@@ -113,6 +114,9 @@ class Prospect(db.Model):
             schools = list(set([s.school_name for s in self.schools]))
         return schools
 
+    @property 
+    def address(self):
+        
     @property
     def emails(self):
         if not self.mailto:

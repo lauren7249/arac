@@ -133,6 +133,6 @@ class ClearbitRequest(S3SavedRequest):
         response = {}
         self.clearbit_json = self._make_request("company")
         return {"phone_number": self.clearbit_json.get('phone'), 
-                "company_address": self.clearbit_json.get('location'), 
+                "geo": self.clearbit_json.get('geo'), 
                 "clearbit_fields":self.clearbit_json
                 }

@@ -13,7 +13,7 @@ from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from helper import get_domain
 from person_request import PersonRequest
-from helpers.stringhelpers import domestic_area
+from helpers.stringhelpers import domestic_area, parse_address
 from geoindex import GeoPoint
 from geocode_service import GeocodeRequest
 
@@ -85,8 +85,11 @@ class BloombergRequest(S3SavedRequest):
                 geopoint = GeoPoint(latlng[0],latlng[1])
                 bloomberg_match["distance"] = geopoint.distance_to(person_geopoint)
             bloomberg_matches[i] = bloomberg_match
-        return sorted(bloomberg_matches, key=lambda k: k['distance'])[0]    
-
+        closest = sorted(bloomberg_matches, key=lambda k: k['distance'])[0]  
+        address = closest.get("address") 
+        if address:
+            closest["company_address"] = parse_address(address)
+        return closest
 
     def pages_matching_website(self, company_domain):
         if not company_domain:
@@ -98,7 +101,7 @@ class BloombergRequest(S3SavedRequest):
             data = self.process_next()
             website = data.get("website")
             #if we already know the website and it does not match, keep trying other bloomberg pages
-            if website and company_domain == get_domain(website) and domestic_area(phone): 
+            if website and company_domain == get_domain(website): 
                 matches.append(data)
         return matches   
 

@@ -26,7 +26,7 @@ from gender_service import GenderService
 from college_degree_service import CollegeDegreeService
 from lead_service import LeadService
 from profile_builder_service import ProfileBuilderService
-from phone_service import PhoneService
+from phone_and_address_service import PhoneAndAddressService
 from results_service import ResultService
 from social_profiles_service import SocialProfilesService
 from scoring_service import ScoringService
@@ -37,7 +37,7 @@ from extended_lead_service import ExtendedLeadService
 FIRST_DEGREE_NETWORK = [CloudSpongeService, PersonService, LeadService]
 FOR_NETWORK_SUMMARY = [AgeService, GenderService, CollegeDegreeService]
 EXTENDED_NETWORK = [ExtendedProfilesService, ExtendedLeadService]
-CONTACT_INFO = [SocialProfilesService, PhoneService]
+CONTACT_INFO = [SocialProfilesService, PhoneAndAddressService]
 WRAP_UP = [ProfileBuilderService, ScoringService, ResultService]
 
 class ProcessingService(Service):
@@ -49,8 +49,11 @@ class ProcessingService(Service):
         self.user = self._get_user()
         #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
         if not self.data:
-            user_request = UserRequest(self.client_data.get("email"))
-            self.data = user_request.lookup_data()
+            if self.user:
+                self.data, self.user = user.refresh_contacts()
+            else:      
+                user_request = UserRequest(self.client_data.get("email"))
+                self.data = user_request.lookup_data()
             if self.data:
                 self.input_data = {"client_data": self.client_data, "data":self.data}
                 self.logger.info("Using saved data from upload")
@@ -140,9 +143,9 @@ class ProcessingService(Service):
                     tmpl = env.get_template('emails/network_summary_done_agent.html')
                     body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)
                     sendgrid_email(to_email, subject, body)
-            else:
+            elif not self.user:
                 self.logger.error("no user")
-            self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
+            #self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
             self.logend()
             return self.output
         except:

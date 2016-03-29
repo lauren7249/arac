@@ -117,3 +117,20 @@ def csv_line_to_list(line):
     splitter.whitespace = ","
     splitter.whitespace_split=True
     return list(splitter)
+
+def parse_address(address):
+    company_address = {}
+    if not address or len(address.split("\n"))<2:
+        return company_address
+    address_chunks = address.split("\n")
+    company_address["addressLine1"] = address_chunks[0]
+    for i in xrange(1, len(address_chunks)):
+        chunk = address_chunks[i]
+        if re.search("[A-Za-z\s]+, +[A-Za-z]{2}.+[0-9]{5}", chunk):
+            if i>1:
+                company_address["addressLine2"]= address_chunks[1]
+            company_address["city"] = chunk.split(",")[0]
+            company_address["stateProvince"] = re.search("[A-Za-z]{2}(?=.+[0-9]{5})", chunk.split(",")[1]).group(0)
+            company_address["postalCode"] = re.search("[0-9]{5}",chunk).group(0)
+            break    
+    return company_address
