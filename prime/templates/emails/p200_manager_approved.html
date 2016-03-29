@@ -1,15 +1,31 @@
 {% extends 'email.html' %}
 {% block content %}
 <h1>Your P200 is ready for Export</h1>
+<p>Dear {{ agent.first_name }},</p>
 <br>
-<p>Your manager has approved your P200. To view the p200 and export it, click below:</p>
+<p>I have approved your P200. To view or export the P200, click below:</p>
 <br>
 <p><a style='background: #3A539B;padding: 15px 50px;margin: 20px auto;font-weight: bold;text-transform: uppercase; color:#fff;text-decoration:none;' href='{{ base_url }}/p200'>View your P200</a></p>
 <br>
 <p>You can also cut and paste the following link into your browser:<br><a href='{{ base_url }}/p200''>{{ base_url }}/p200'>{{ base_url }}/p200''>{{ base_url }}/p200</a></p>
 <br>
+{%if agent.manager.phone %}
+<p>If you have any questions, please call or email me.</p>
+{%else%}
+<p>If you have any questions, please email me.</p>
+{%endif%}
+<br>
 <p>Sincerely,</p>
 <br>
-<p style='font-family: cursive;'>Support at Advisorconnect</p>
+<p style='font-family: cursive;'>{{ agent.manager.user.first_name }} {{ agent.manager.user.last_name }}</p>
 <br>
+<p>{{ agent.manager.title }}</p>
+{%if agent.manager.address is not none %}
+<p>{{ agent.manager.address_1 }}</p>
+<p>{{ agent.manager.address_2 }}</p>
+{%endif%}
+{%if agent.manager.phone %}
+<p>{{ agent.manager.phone }}</p>
+{%endif%}
+<p>{{ agent.manager.user.email }}</p>
 {% endblock %}

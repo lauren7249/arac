@@ -271,7 +271,3 @@ def skip_agent(agent_id):
     session.commit()
     return jsonify({"sucess": True})
 
-@manager.route("/test_email", methods=['GET'])
-def test_email():
-    return render_template("emails/invite.html", invited_by=current_user.name,
-                           )

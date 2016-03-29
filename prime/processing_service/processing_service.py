@@ -129,7 +129,7 @@ class ProcessingService(Service):
                     tmpl = env.get_template('emails/p200_done.html')
                     manager = self.session.query(ManagerProfile).get(self.user.manager_id)
                     body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=config[os.getenv('AC_CONFIG', 'testing')].OWNER)
-                    sendgrid_email(to_email, subject, body)
+                    sendgrid_email(to_email, subject, body, from_email=self.user.manager.user.email)
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
                         self.client_data.get("last_name"))
@@ -141,8 +141,8 @@ class ProcessingService(Service):
                     subject = "Your Network Analysis is ready to view"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/network_summary_done_agent.html')
-                    body = tmpl.render(url=self.web_url, name=name, agent_id=self.user.user_id)
-                    sendgrid_email(to_email, subject, body)
+                    body = tmpl.render(url=self.web_url, agent=self.user)
+                    sendgrid_email(to_email, subject, body, from_email=self.user.manager.user.email)
             elif not self.user:
                 self.logger.error("no user")
             #self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))

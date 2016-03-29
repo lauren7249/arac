@@ -1,10 +1,25 @@
 {% extends 'email.html' %}
 {% block content %}
 <h1>Your Network Analysis is ready to view</h1>
-<br/>
+<p>Dear {{ agent.first_name }},</p>
+<br>
+<p>The analysis of your network has completed and is ready to view.</p>
+<br>
 <p><a style='background: #3A539B;padding: 15px 50px;margin: 20px auto;font-weight: bold;text-transform: uppercase; color:#fff;text-decoration:none;' href='{{ url }}/dashboard'>View your Network Analysis</a></p>
 <br>
 <p>You can also cut and paste the following link into your browser:<br><a href='{{ url }}/dashboard'>{{ url }}/dashboard</a></p>
 <br>
-<br/>
+<p>Sincerely,</p>
+<br>
+<p style='font-family: cursive;'>{{ agent.manager.user.first_name }} {{ agent.manager.user.last_name }}</p>
+<br>
+<p>{{ agent.manager.title }}</p>
+{%if agent.manager.address is not none %}
+<p>{{ agent.manager.address_1 }}</p>
+<p>{{ agent.manager.address_2 }}</p>
+{%endif%}
+{%if agent.manager.phone %}
+<p>{{ agent.manager.phone }}</p>
+{%endif%}
+<p>{{ agent.manager.user.email }}</p>
 {% endblock %}

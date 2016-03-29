@@ -11,7 +11,7 @@
 <br>
 <p>After uploading your contacts, you’ll be able to view a summary analysis of your network.  {{ inviter }} will only receive a summary of your network.  None of your contacts’ personal information (including contact information) will be shared with {{ inviter }}. </p>
 <br>
-{%if manager.phone %}
+{%if agent.manager.phone %}
 <p>If you have any questions, please call or email me.</p>
 {%else%}
 <p>If you have any questions, please email me.</p>
@@ -19,15 +19,15 @@
 <br>
 <p>Sincerely,</p>
 <br>
-<p style='font-family: cursive;'>{{ manager.user.first_name }} {{ manager.user.last_name }}</p>
+<p style='font-family: cursive;'>{{ agent.manager.user.first_name }} {{ agent.manager.user.last_name }}</p>
 <br>
-<p>{{ manager.title }}</p>
-{%if manager.address is not none %}
-<p>{{ manager.address_1 }}</p>
-<p>{{ manager.address_2 }}</p>
+<p>{{ agent.manager.title }}</p>
+{%if agent.manager.address is not none %}
+<p>{{ agent.manager.address_1 }}</p>
+<p>{{ agent.manager.address_2 }}</p>
 {%endif%}
-{%if manager.phone %}
-<p>{{ manager.phone }}</p>
+{%if agent.manager.phone %}
+<p>{{ agent.manager.phone }}</p>
 {%endif%}
-<p>{{ manager.user.email }}</p>
+<p>{{ agent.manager.user.email }}</p>
 {% endblock %}

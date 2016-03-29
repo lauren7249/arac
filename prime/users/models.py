@@ -180,7 +180,7 @@ class User(db.Model, UserMixin):
 
     def invite(self):
         code = self.generate_reset_token
-        body = render_template("emails/invite.html", manager=self.manager, agent=self,
+        body = render_template("emails/invite.html", agent=self,
                 base_url=current_app.config.get("BASE_URL"), code=code, inviter=current_app.config.get("OWNER"))
         subject = "Invitation from {}".format(current_app.config.get("OWNER"))
         sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
@@ -195,7 +195,7 @@ class User(db.Model, UserMixin):
         return True
 
     def p200_manager_approved(self):
-        body = render_template("emails/p200_manager_approved.html", manager=self.manager, agent=self,
+        body = render_template("emails/p200_manager_approved.html", agent=self,
                 base_url=current_app.config.get("BASE_URL"))
         subject = "Your P200 is Ready to Export"
         sendgrid_email(self.email, subject, body,
