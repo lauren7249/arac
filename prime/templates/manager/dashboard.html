@@ -16,7 +16,7 @@
     </div>
     <div class="col-3">
       <div class="metric-block">
-        <h2 id="candidates_hired">{{ manager.candidates_hired }}</h2>
+        <h2 id="candidates_hired">{{ hired_agents|length }}</h2>
         <div class="caps">Candidates Hired</div>
       </div>
     </div>    
@@ -181,7 +181,7 @@
           <th>Primary Network</th>
           <th>Extended</th>
           <th>Candidate Disposition</th>
-          <th class="agent-pre-screen">Network Analysis</th>
+          <th class="agent-pre-screen">Reason</th>
         </thead>
         <tbody>
           {% for agent in not_hired %}
@@ -201,17 +201,7 @@
             <td>-</td>                
             {%endif%}
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
-              {% if agent.hiring_screen_completed %}
-              <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-                {% elif agent.unique_contacts_uploaded > 0 %}
-                <span class='pending hint--top' data-hint='Contacts have been uploaded and the hiring screen will be available within 24 hours.'>In Progress</span>
-                {% else %}
-                {% if agent.account_created %}
-                <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
-                {% else %}
-                <span class='requested hint--top' data-hint='Invite sent, response pending'>Requested</span>
-                {% endif %}      
-                {% endif %}
+              {{ agent.not_hired_reason }}
             </td>
           </tr>
           {% else %}

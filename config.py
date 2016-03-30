@@ -28,6 +28,7 @@ class Config(object):
     SENDGRID_PASSWORD = '1250downllc'
     SENDGRID_FROM_EMAIL = 'contacts@advisorconnect.co'
     OWNER = os.getenv("OWNER","New York Life")
+    EMAIL_LOGO = "https://s3-us-west-2.amazonaws.com/advisorconnect/images/nyl-logo.png"
 
 class BetaConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://oracle:5432/arachnid')
@@ -55,6 +56,7 @@ class DemoConfig(Config):
     COOKIE_SECURE = False
     BASE_URL = 'https://demo.advisorconnect.co'
     SQLALCHEMY_ECHO = False
+    EMAIL_LOGO = "https://s3.amazonaws.com/aconn/aconn.png"
 
 class TestingConfig(Config):
     DEBUG = False
@@ -73,5 +75,5 @@ config = {
     'beta'       : BetaConfig,  #prime.advisorconnect
     'testing'    : TestingConfig, #localhost
     'demo'       : DemoConfig #demo.advisorconnect.co
-    
+
 }

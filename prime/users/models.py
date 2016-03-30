@@ -173,7 +173,9 @@ class User(db.Model, UserMixin):
     def send_reset_password(self):
         code = self.generate_reset_token
         body = render_template("emails/reset.html",
-                base_url=current_app.config.get("BASE_URL"), code=code)
+                base_url=current_app.config.get("BASE_URL"),
+                logo=current_app.config.get("EMAIL_LOGO"),
+                code=code)
         subject = "Advisorconnect Password Reset"
         sendgrid_email(self.email, subject, body)
         return True
@@ -181,21 +183,30 @@ class User(db.Model, UserMixin):
     def invite(self):
         code = self.generate_reset_token
         body = render_template("emails/invite.html", agent=self,
-                base_url=current_app.config.get("BASE_URL"), code=code, inviter=current_app.config.get("OWNER"))
+                base_url=current_app.config.get("BASE_URL"),
+                code=code,
+                inviter=current_app.config.get("OWNER"),
+                logo=current_app.config.get("EMAIL_LOGO")
+                )
         subject = "Invitation from {}".format(current_app.config.get("OWNER"))
         sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
         return True
 
     def submit_to_manager(self):
-        body = render_template("emails/p200_submitted.html", agent=self,
-                base_url=current_app.config.get("BASE_URL"))
+        body = render_template("emails/p200_submitted.html",
+                agent=self,
+                base_url=current_app.config.get("BASE_URL"),
+                logo=current_app.config.get("EMAIL_LOGO")
+                )
         subject = "{} submitted a P200 for approval".format(self.name)
         sendgrid_email(self.manager.user.email, subject, body,
                 from_email="jeff@advisorconnect.co")
         return True
 
     def p200_manager_approved(self):
-        body = render_template("emails/p200_manager_approved.html", agent=self,
+        body = render_template("emails/p200_manager_approved.html",
+                agent=self,
+                logo=current_app.config.get("EMAIL_LOGO"),
                 base_url=current_app.config.get("BASE_URL"))
         subject = "Your P200 is Ready to Export"
         sendgrid_email(self.email, subject, body,
@@ -312,7 +323,7 @@ class User(db.Model, UserMixin):
             elif service=='windowslive':
                 from_windowslive.add(key)
             elif service=='csv':
-                from_csv.add(key)                
+                from_csv.add(key)
             elif service=='aol':
                 from_aol.add(key)
             else:
@@ -328,7 +339,7 @@ class User(db.Model, UserMixin):
         if len(from_windowslive):
             self.contacts_from_windowslive = len(from_windowslive)
         if len(from_csv):
-            self.contacts_from_csv = len(from_csv)            
+            self.contacts_from_csv = len(from_csv)
         if len(from_aol):
             self.contacts_from_aol = len(from_aol)
         self.account_sources = account_sources
@@ -568,7 +579,7 @@ class User(db.Model, UserMixin):
                 elif source =='windowslive':
                     from_windowslive+=1
                 elif source =='csv':
-                    from_csv+=1                    
+                    from_csv+=1
                 elif source=='aol':
                     from_aol+=1
             if not client_prospect.prospect:
@@ -629,7 +640,7 @@ class User(db.Model, UserMixin):
         if retirees == 0:
             retiree_percentage = 0
         else:
-            retiree_percentage = retirees/float(young_professionals + pre_retirees + retirees) * 100   
+            retiree_percentage = retirees/float(young_professionals + pre_retirees + retirees) * 100
 
         if college_degree[True] + college_degree[False] == 0:
             college_percentage = 0
