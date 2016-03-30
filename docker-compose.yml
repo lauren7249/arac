@@ -68,7 +68,7 @@ services:
       - db:oracle
       - redis:redis
     ports:
-      - "5000:80"
+      - "80:5000"
       - "443:443"
   #  extra_hosts:
   #    - "babel:10.143.114.177"
