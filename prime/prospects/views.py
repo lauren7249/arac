@@ -328,6 +328,30 @@ def linkedin_pin_status():
     return jsonify({"finished": True, "success":False})
 
 @csrf.exempt
+@prospects.route("/upload_dropzone", methods=['POST'])
+def upload_dropzone():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    emails = set()
+    email_regex = "[A-Za-z0-9\.]+@[A-Za-z0-9]+\.[a-zA-Z0-9]+"        
+    f = request.files['file']
+    for line in f.readlines():
+        if not re.search(email_regex,line): continue
+        email = re.search(email_regex,line).group(0)
+        if email: 
+            emails.add(email)
+    data = []
+    for email in emails:
+        contact = {}
+        contact["email"] = [{"address": email.decode('latin-1')}]
+        data.append({"contact":contact, "contacts_owner":None, "service":"CSV"})       
+    contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='CSV')
+    print len(contacts_array)
+    return jsonify({"finished": True, "success":True, "data":data})
+
+@csrf.exempt
 @prospects.route("/upload_cloudsponge", methods=['GET', 'POST'])
 def upload():
     if not current_user.is_authenticated():

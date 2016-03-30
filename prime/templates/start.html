@@ -50,7 +50,8 @@
               <small>Don't worry, none of your personal messages or your contacts’ personal information will be shared with {{ inviter }}.</small>
             </div>
           </div>
-          <div class="col-6">
+
+          <div class="col-6">         
             <div id='linkedin-area' class="connect-email" onclick="_linkedin();">
               <img id='linkedin' type="Submit" src="/static/img/linkedin-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to LinkedIn and add contacts from your profile.">Add LinkedIn Account</div>           
@@ -98,7 +99,7 @@
                 {%endif%}                  
               </div>
             </div>  
-            <div id='csv-area' class="connect-email" onclick="_csv();" style="display:none;">
+            <div id='csv-area' class="connect-email" onclick="_csv();" >
               <img id='csv' type="Submit" src="/static/img/csv-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to manually contacts using a CSV file.">Add CSV</div>
               <div class='connected_area'>
@@ -351,11 +352,7 @@
     }
 
     function _csv() {
-      var win = window.open('about:blank');        
-      cloudsponge_status = 'NONE';   
-      var len = do_import('CSV','#csv-area',win);
-      $(".email").hide();
-      $("#spinner").fadeOut();      
+      $("#dropzoneModal").fadeIn();      
     }
 
   </script>  

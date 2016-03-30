@@ -43,9 +43,33 @@
   </head>
   <body>        
 
+    {% block modal %}
+       <div id="dropzoneModal" class="overlay">
+        <div class="dialog">
+          <div class="toast-close">
+            <button type="button" onclick='$("#dropzoneModal").fadeOut();'>&times;</button>  
+          </div>  
+          <form action="/upload_dropzone" method="post" class="dropzone" id="my-awesome-dropzone"></form>
+        </div>
+        <script type="text/javascript">
+          Dropzone.options.myAwesomeDropzone = { 
+            acceptedFiles: ".csv",
+            init: function() {
+              var myDropzone = this;
+              myDropzone.on("complete", function (file) {
+                if (myDropzone.getUploadingFiles().length === 0 && myDropzone.getQueuedFiles().length === 0) {
+                  $("#dropzoneModal").fadeOut();
+                  window.location.reload();
+                }
+              });
+            }
+           }
+         </script>
+      </div>
+    {% endblock %}
 
     {% block spinner %}
-      <div id="spinner" class="overlay">
+      <div id="spinner" class="overlay">    
         <div class="dialog">
           <img src='/static/img/loading.gif'/>
         </div>

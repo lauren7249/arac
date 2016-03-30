@@ -3,6 +3,7 @@
 
 {% endblock %}
 {% block content %}
+
 <div class='signup'>
   <form class="card" method='POST'>
   <header>
@@ -33,6 +34,7 @@
     <a href='{{ url_for('.forgot') }}'>Forgot Password</a>
   </h5>
 </div>  
+
 {% endblock %}
 <script type='text/javascript'>
 
@@ -44,7 +46,7 @@
     } else {
       $("#header_logo").attr('class', 'header-logo'); 
     }
-   
   }); 
+
 </script>
 {% block footer %}{% endblock %}
