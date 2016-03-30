@@ -57,13 +57,14 @@ class Prospect(db.Model):
     company = db.Column(String(1024))
     company_website = db.Column(String(1024))
     company_headquarters = db.Column(String(1024))
-    company_address = db.Column(JSONB)
+    
     job = db.Column(String(1024))
     name = db.Column(String(1024))
     main_profile_image = db.Column(String(1024))
     main_profile_url = db.Column(String(1024))
     mailto = db.Column(String(1024))
     phone = db.Column(String(100))
+    company_address = db.Column(JSONB)
     #social profiles
     for domain in SOCIAL_DOMAINS:
         exec(domain + " = db.Column(String(500))")

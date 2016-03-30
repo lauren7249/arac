@@ -36,9 +36,9 @@ def wrapper(person):
         else:
             person_location = "{}, {}".format(person_coords.get("locality"), person_coords.get("region"))
         person_geopoint = GeoPoint(person_latlng[0], person_latlng[1])
+        company_domain = get_domain(person.get("company_website"))
         #try to use closest geographic match for bloomberg
-        if person.get("company_website"):
-            company_domain = get_domain(person.get("company_website"))
+        if company_domain:
             bloomberg_request = BloombergRequest(None)
             closest_local = MapQuestRequest(current_job.get("company"), extra_info=person_location).get_closest_businesses(latlng=person_latlng, website=person.get("company_website"))
             if closest_local:
@@ -69,15 +69,23 @@ def wrapper(person):
         #if we got to this point, we will resort to clearbit
         person = clearbit_phone_wrapper(person)
         if person.get("company_address"):
-            if person.get("company_address").get("lat") and person.get("company_address").get("lng")
+            if person.get("company_address").get("lat") and person.get("company_address").get("lng"):
                 geopoint = GeoPoint(person.get("company_address").get("lat"),person.get("company_address").get("lng"))
                 #if the clearbit distance is too far, we wont use it
                 if geopoint.distance_to(person_geopoint) > 75:
                     person["company_address"] = None
+                    person["phone_number"] = None
             else:
                 person["company_address"] = None
+                person["phone_number"] = None
         if not person.get("company_address"):
-            person["company_address"] = person.get("company_headquarters")
+            company_headquarters_address = person.get("company_headquarters_address")
+            if company_headquarters_address and company_headquarters_address.get("stateProvince") and company_headquarters_address.get("postalCode"):
+                company_headquarters_geocode = GeocodeRequest(person.get("company_headquarters")).process()
+                if company_headquarters_geocode and company_headquarters_geocode.get("latlng"):
+                    geopoint = GeoPoint(company_headquarters_geocode.get("latlng")[0],company_headquarters_geocode.get("latlng")[1])
+                    if geopoint.distance_to(person_geopoint) < 75:
+                        person["company_address"] = company_headquarters_address
     except Exception, e:
         print str(e)
     return person

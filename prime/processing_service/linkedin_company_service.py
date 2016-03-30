@@ -13,6 +13,7 @@ from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
 from services.linkedin_query_api import get_company
 from person_request import PersonRequest
+from prime.utils.helpers import STATES
 
 def wrapper(person):
     try:
@@ -22,9 +23,17 @@ def wrapper(person):
             data = request.process()
             if data:
                 #TODO: add more fields
-                person.update({"company_website": data.get("website")})
-                person.update({"company_industry": data.get("industry")})
-                person.update({"company_headquarters": data.get("hq")})
+                person["company_website"] = data.get("website")
+                person["company_industry"] = data.get("industry")
+                person["company_headquarters"] = data.get("hq")
+                company_address = {}
+                company_address["addressLine1"] = data.get("street_1")
+                company_address["addressLine2"] = data.get("street_2")
+                company_address["city"] = data.get("city")
+                company_address["stateProvince"] = STATES.get(data.get("state"))
+                company_address["postalCode"] = data.get("postal")
+                company_address["country"] = data.get("country")
+                person["company_headquarters_address"] = company_address
         return person
     except Exception, e:
         print __name__ + str(e)

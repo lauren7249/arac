@@ -724,13 +724,19 @@ def export():
     for connection in connections:
         email1, email2, email3 = get_emails_from_connection(connection.prospect.email_addresses)
         name = connection.prospect.name
-        try:
-            state = STATES[connection.prospect.us_state]
-        except:
-            state = None
-            #state = connection.prospect.us_state
-        if state not in US_STATES:
-            state = None
+        company_address = connection.prospect.company_address
+        if company_address and isinstance(company_address, dict) and company_address.get("stateProvince") and company_address.get("stateProvince") in STATES.values():
+            addressLine1 = company_address.get("addressLine1","")
+            addressLine2 = company_address.get("addressLine2","")
+            city = company_address.get("city","")
+            stateProvince = company_address.get("stateProvince","")
+            postalCode = company_address.get("postalCode","")
+        else:
+            addressLine1 = ''
+            addressLine2 = ''
+            city = ''
+            stateProvince = ''
+            postalCode = ''
 
         try:
             first_name = name.split(" ")[0]
@@ -747,7 +753,7 @@ def export():
             dearName = ''
 
         row = ["", dearName, first_name, last_name, "",
-                connection.prospect.company, "", "", "", state, "", email1,
+                connection.prospect.company, addressLine1, addressLine2, city, stateProvince, postalCode, email1,
                 connection.prospect.phone, "", ""]
 
         #row = [dearName, first_name, last_name, "", email1,
