@@ -175,9 +175,9 @@ def start_linkedin_login_bot(email, password, user_id):
         current_user.linkedin_login_email = email
         current_user.set_linkedin_password(password, session=session)
         session.add(current_user)
-        session.commit()     
+        session.commit()
         getter.quit()
-        conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))      
+        conn.hset("linkedin_login_outcome", current_user.email, "error:{}".format(error))
         return True
 
     if pin_requested:
@@ -518,13 +518,15 @@ def add_connections():
         cp = ClientProspect.query.filter(ClientProspect.user==user,
                 ClientProspect.prospect_id.in_(connection_ids))
         for c in cp:
+            if p200_count >= 200:
+                return redirect(url_for("prospects.p200"))
             c.good = True
             session.add(c)
             session.commit()
-            p200_count-=1
-            if p200_count <= 0:
-                return redirect(url_for("prospects.p200"))
+            p200_count+=1
     else:
+        if p200_count >= 200:
+            return redirect(url_for("prospects.p200"))
         connection_id = request.form.get("id")
         prospect = Prospect.query.get(int(connection_id))
         cp = ClientProspect.query.filter(ClientProspect.user==user,\
@@ -532,9 +534,6 @@ def add_connections():
         cp.good = True
         session.add(cp)
         session.commit()
-        p200_count-=1
-        if p200_count <= 0:
-            return redirect(url_for("prospects.p200"))
     return jsonify({"success":True})
 
 @csrf.exempt
@@ -563,6 +562,25 @@ def skip_connections():
         cp.processed = True
         session.add(cp)
         session.commit()
+    return jsonify({"success":True})
+
+@csrf.exempt
+@prospects.route("/remove-connections", methods=['GET', 'POST'])
+def remove_connections():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    if request.method != 'POST':
+        return redirect(url_for('prospects.dashboard'))
+    user = current_user
+    connection_id = request.form.get("id")
+    prospect = Prospect.query.get(int(connection_id))
+    cp = ClientProspect.query.filter(ClientProspect.user==user,\
+            ClientProspect.prospect==prospect).first()
+    cp.good = False
+    session.add(cp)
+    session.commit()
     return jsonify({"success":True})
 
 

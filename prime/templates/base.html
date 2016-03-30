@@ -72,9 +72,9 @@
           <div class="col-6">
             {% if current_user.is_authenticated() %}
             <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right" data-step="4" data-intro="You can add up to 200 of your best contacts but remember you need at least 50 to complete your Project 200.">
-                <!-- {% if not current_user.is_manager and current_user.p200_completed %}
-                  <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Left</div></span>
-                {% endif %} -->
+                {% if not current_user.is_manager and current_user.p200_completed %}
+                  <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts</div></span>
+                {% endif %}
                 <span><div id='settings'><a class="user" id="current_user_name">{{ current_user.name }}</a>
                     <div class='autocomplete'>
                       <ul>

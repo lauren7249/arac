@@ -123,7 +123,11 @@ $(function() {
      }
      isSearching = true;
      $('html, body').animate({scrollTop: "221px"});
-     $("#connections-section").load(window.location.pathname + "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&state=" + encodeURIComponent($state.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&order=" + $order + "&age=" + $age.val() + "&p=" + $page + " #connections", function() {
+     var query = "?query=" + encodeURIComponent($query.val()) + "&industry=" + encodeURIComponent($industry.val()) + "&state=" + encodeURIComponent($state.val()) + "&stars=" + encodeURIComponent($stars.val()) + "&order=" + $order + "&age=" + $age.val() + "&p=" + $page;
+     if (window.location.search.indexOf("p200=True") > -1) {
+       query += "&p200=True"
+     }
+     $("#connections-section").load(window.location.pathname + query + " #connections", function() {
          isSearching = false;
          bindPageFunctions();
          $("[data-page]").removeClass("active")
@@ -154,8 +158,18 @@ $(function() {
     });
   }
 
+  function skipConnection() {
+    $("[data-remove]").click(function() {
+        var id = $(this).data("remove");
+        var params = {id: id}
+        $.post("/remove-connections", params, function() {
+          $("[data-row=" + id + "]").slideUp();
+        });
+    });
+  }
+
   function addAll() {
-    $("#add-all").click(function() {
+    $(".add-all").click(function() {
         var ids = $(".connection-checkbox:checked").map(function () {
           return $(this).data("connection-id");
         }).get();
@@ -172,7 +186,7 @@ $(function() {
   }
 
   function skipAll() {
-    $("#skip-all").click(function() {
+    $(".skip-all").click(function() {
         var ids = $(".connection-checkbox:checked").map(function () {
           return $(this).data("connection-id");
         }).get();
