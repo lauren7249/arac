@@ -160,9 +160,11 @@
               </select>
             </td>
             <td class="agent-resend">
-              <form action="/managers/invite/again" method="post">
-                <button class="button teal small" name="user_id" value="{{ agent.user_id }}">Resend</button>
-              </form>
+              {%if agent.unique_contacts_uploaded | int == 0 %}
+                <form action="/managers/invite/again" method="post">
+                  <button class="button teal small" name="user_id" value="{{ agent.user_id }}">Resend</button>
+                </form>
+              {%endif%}
             </td>
           </tr>
           {% else %}
