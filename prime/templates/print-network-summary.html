@@ -36,8 +36,8 @@
       </div>
       <div class="card-body">
         <div class="potential-markets">
-          {% if agent.industries|length > 0 %}
-          {% for industry in agent.industries %}
+          {% if agent.industries()|length > 0 %}
+          {% for industry in agent.industries() %}
             <div class="market-{{ loop.index }}">
               {% if current_user.is_manager or current_user.p200_approved or not current_user.p200_completed %}
                 </a>
@@ -68,42 +68,42 @@
             <tr>
               <td><img src="/static/img/linkedin-40.png"> <b>LinkedIn</b></td>
               <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_linkedin | int) }}</td>
-              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_linkedin | int) }}</td>
+              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_linkedin() | int) }}</td>
             </tr>
           {%endif%}
           {%if agent.contacts_from_gmail %}
             <tr>
               <td><img src="/static/img/gmail-40.png"> <b>Gmail</b></td>
               <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_gmail | int) }}</td>
-              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_gmail | int) }}</td>
+              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_gmail() | int) }}</td>
             </tr>
           {%endif%}
           {%if agent.contacts_from_yahoo %}
             <tr>
               <td><img src="/static/img/yahoo-mail-40.png"> <b>Yahoo! Mail</b></td>
               <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_yahoo | int) }}</td>
-              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo | int) }}</td>
+              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo() | int) }}</td>
             </tr>
           {%endif%}
           {%if agent.contacts_from_windowslive %}
             <tr>
               <td><img src="/static/img/windows-live-40.png"> <b>Windows Live</b></td>
               <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_windowslive | int) }}</td>
-              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_windowslive | int) }}</td>
+              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_windowslive() | int) }}</td>
             </tr>
           {%endif%}
           {%if agent.contacts_from_aol %}
             <tr>
               <td><img src="/static/img/aol-40.png"> <b>Aol</b></td>
               <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_aol | int) }}</td>
-              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol | int) }}</td>
+              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol() | int) }}</td>
             </tr>
           {%endif%}
           {%if agent.contacts_from_csv %}
             <tr>
               <td><img src="/static/img/csv-40.png"> <b>CSV</b></td>
               <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_csv | int) }}</td>
-              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_csv | int) }}</td>
+              <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_csv() | int) }}</td>
             </tr>
           {%endif%}            
         {%endif%}
@@ -120,67 +120,67 @@
         <tr>
           <td><b>Young Professional (21-45)</b></td>
           <td>
-            <div class="text-right">{{ agent.young_professional_percentage }}%</div>
+            <div class="text-right">{{ agent.young_professional_percentage() }}%</div>
           </td>
         </tr>
         <tr>
           <td><b>Pre-Retiree (45-60)</b></td>
           <td>
-            <div class="text-right">{{ agent.pre_retiree_percentage }}%</div>
+            <div class="text-right">{{ agent.pre_retiree_percentage() }}%</div>
           </td>
         </tr>
         <tr>
           <td><b>Retiree (60+)</b></td>
           <td>
-            <div class="text-right">{{ agent.retiree_percentage }}%</div>
+            <div class="text-right">{{ agent.retiree_percentage() }}%</div>
           </td>
         </tr>            
         <tr>
           <td><b>Male</b></td>
           <td>
-            <div class="text-right">{{ agent.male_percentage }}%</div>
+            <div class="text-right">{{ agent.male_percentage() }}%</div>
           </td>
         </tr>
         <tr>
           <td><b>Female</b></td>
           <td>
-            <div class="text-right">{{ agent.female_percentage }}%</div>
+            <div class="text-right">{{ agent.female_percentage() }}%</div>
           </td>
         </tr>
         <tr>
           <td><b>College Degree</b></td>
           <td>
-            <div class="text-right">{{ agent.college_percentage }}%</div>
+            <div class="text-right">{{ agent.college_percentage() }}%</div>
           </td>
         </tr>
         <tr>
           <td><b class="hint--top" data-hint="The Wealth Score (0-100) is based on such factors as estimated salary and estimated investible assets.">Average Wealth Score</b></td>
           <td>
-            <div class="text-right">{{ agent.average_income_score }}/100</div>
+            <div class="text-right">{{ agent.average_income_score() }}/100</div>
           </td>
         </tr>
         <tr>
           <td><b>Average Age</b></td>
           <td>
-            <div class="text-right">{{ agent.average_age }}</div>
+            <div class="text-right">{{ agent.average_age() }}</div>
           </td>
         </tr>          
         <tr>
           <td><b>LinkedIn</b></td>
           <td>
-            <div class="text-right">{{ '{0:,}'.format(agent.linkedin | int) }}</div>
+            <div class="text-right">{{ '{0:,}'.format(agent.linkedin() | int) }}</div>
           </td>
         </tr>
         <tr>
           <td><b>Facebook</b></td>
           <td>
-            <div class="text-right">{{ '{0:,}'.format(agent.facebook | int) }}</div>
+            <div class="text-right">{{ '{0:,}'.format(agent.facebook() | int) }}</div>
           </td>
         </tr>
         <tr>
           <td><b>Twitter</b></td>
           <td>
-            <div class="text-right">{{ '{0:,}'.format(agent.twitter | int) }}</div>
+            <div class="text-right">{{ '{0:,}'.format(agent.twitter() | int) }}</div>
           </td>
         </tr>
    
@@ -199,7 +199,7 @@ function randColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)]
 }
 
-{% for state in agent.states %}
+{% for state in agent.states() %}
 states.push({label: "{{ state[0] }}", fillColor:"" + randColor(colors), value: {{ state[1] }}})
 {% endfor %}
 
@@ -223,7 +223,7 @@ $(function(){
         strokeColor: "rgba(220,220,220,0.8)",
         highlightFill: "#8dd8f7",
         highlightStroke: "#8dd8f7",
-        data: [{{ agent.primary_network_size }}, {{ agent.extended_network_size }}, {{ agent.total_network_size }}]
+        data: [{{ agent.primary_network_size() }}, {{ agent.extended_network_size() }}, {{ agent.total_network_size() }}]
         }]}
 
     var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, {animation: false});

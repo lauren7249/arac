@@ -56,10 +56,10 @@
               {% endif %}
               <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
             </td>
-            <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
-            <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
-            <td>{{ agent.average_income_score }}</td>
-            <td>{{ agent.average_age }}</td>                  
+            <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
+            <td>{{ agent.average_income_score() }}</td>
+            <td>{{ agent.average_age() }}</td>                  
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
                 <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            

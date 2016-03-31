@@ -89,7 +89,7 @@ class User(db.Model, UserMixin):
     not_hired = db.Column(postgresql.BOOLEAN, default=False)
     not_hired_reason = db.Column(String(500))
     _statistics = db.Column(JSONB, default={})
-
+    _statistics_p200 = db.Column(JSONB, default={})
     intro_js_seen = db.Column(postgresql.BOOLEAN, default=False)
 
 
@@ -340,6 +340,7 @@ class User(db.Model, UserMixin):
             self.contacts_from_aol = len(from_aol)
         self.account_sources = account_sources
         self._statistics = None
+        self._statistics_p200 = None
         session.add(self)
         session.commit()
         if new_contacts:
@@ -383,140 +384,122 @@ class User(db.Model, UserMixin):
     def has_prospects(self):
         return self.client_prospects and len(self.client_prospects) > 0
 
-    def statistics(self, refresh=False):
-        if not refresh and self._statistics and self._statistics.get("network_size"):
-            return self._statistics
-        stats = self.build_statistics()
-        self._statistics = stats
+    def statistics(self, refresh=False, p200=False):
+        if not refresh:
+            if not p200 and self._statistics and self._statistics.get("network_size"):
+                return self._statistics
+            if p200 and self._statistics_p200 and self._statistics_p200.get("network_size"):
+                return self._statistics_p200
+        stats = self.build_statistics(p200=p200)
+        if not p200:
+            self._statistics = stats
+        else:
+            self._statistics_p200 = stats
         db.session.add(self)
         db.session.commit()
         return stats
 
-    @property
-    def from_linkedin(self):
-        return self.statistics().get("from_linkedin", 0)
+    def from_linkedin(self, p200=False):
+        return self.statistics(p200=p200).get("from_linkedin", 0)
 
-    @property
-    def from_gmail(self):
-        return self.statistics().get("from_gmail", 0)
+    def from_gmail(self, p200=False):
+        return self.statistics(p200=p200).get("from_gmail", 0)
 
-    @property
-    def from_yahoo(self):
-        return self.statistics().get("from_yahoo", 0)
+    def from_yahoo(self, p200=False):
+        return self.statistics(p200=p200).get("from_yahoo", 0)
 
-    @property
-    def from_windowslive(self):
-        return self.statistics().get("from_windowslive", 0)
+    def from_windowslive(self, p200=False):
+        return self.statistics(p200=p200).get("from_windowslive", 0)
 
-    @property
-    def from_csv(self):
-        return self.statistics().get("from_csv", 0)
+    def from_csv(self, p200=False):
+        return self.statistics(p200=p200).get("from_csv", 0)
 
-    @property
-    def from_aol(self):
-        return self.statistics().get("from_aol", 0)
+    def from_aol(self, p200=False):
+        return self.statistics(p200=p200).get("from_aol", 0)
 
-    @property
-    def linkedin(self):
-        return self.statistics().get("linkedin", 0)
+    def linkedin(self, p200=False):
+        return self.statistics(p200=p200).get("linkedin", 0)
 
-    @property
-    def facebook(self):
-        return self.statistics().get("facebook", 0)
+    def facebook(self, p200=False):
+        return self.statistics(p200=p200).get("facebook", 0)
 
-    @property
-    def twitter(self):
-        return self.statistics().get("twitter", 0)
+    def twitter(self, p200=False):
+        return self.statistics(p200=p200).get("twitter", 0)
 
-    @property
-    def pinterest(self):
-        return self.statistics().get("pinterest", 0)
+    def pinterest(self, p200=False):
+        return self.statistics(p200=p200).get("pinterest", 0)
 
-    @property
-    def amazon(self):
-        return self.statistics().get("amazon", 0)
+    def amazon(self, p200=False):
+        return self.statistics(p200=p200).get("amazon", 0)
 
-    @property
-    def primary_network_size(self):
-        return self.statistics().get("network_size", 0)
+    def primary_network_size(self, p200=False):
+        return self.statistics(p200=p200).get("network_size", 0)
 
-    @property
-    def extended_network_size(self):
-        return self.statistics().get("count_extended", 0)
+    def extended_network_size(self, p200=False):
+        return self.statistics(p200=p200).get("count_extended", 0)
 
-    @property
-    def total_network_size(self):
-        return self.primary_network_size + self.extended_network_size
+    def total_network_size(self, p200=False):
+        return self.primary_network_size(p200=p200) + self.extended_network_size(p200=p200)
 
-    @property
-    def industries(self):
+    def industries(self, p200=False):
         results = []
-        for industry_category, count in self.statistics().get("industries").iteritems():
+        for industry_category, count in self.statistics(p200=p200).get("industries").iteritems():
             from prime.processing_service.constants import CATEGORY_ICONS
             industry_icon = CATEGORY_ICONS.get(industry_category)
             if industry_category and industry_icon:
                 results.append((industry_category, count,industry_icon, ))
         return sorted(results, key = lambda tup:tup[1], reverse=True)[:10]
 
-    @property
-    def states(self):
+    def states(self, p200=False):
         states = []
-        for state, count in self.statistics().get("locations").iteritems():
+        for state, count in self.statistics(p200=p200).get("locations").iteritems():
             states.append((state, count,))
         return states
 
-    @property
-    def average_age(self):
+    def average_age(self, p200=False):
         try:
-            return int(round(self.statistics().get("average_age")))
+            return int(round(self.statistics(p200=p200).get("average_age")))
         except:
             return None
 
-    @property
-    def young_professional_percentage(self):
+    def young_professional_percentage(self, p200=False):
         try:
-            return int(round(self.statistics().get("young_professional_percentage")))
+            return int(round(self.statistics(p200=p200).get("young_professional_percentage")))
         except:
             return "N/A"
 
-    @property
-    def pre_retiree_percentage(self):
+    def pre_retiree_percentage(self, p200=False):
         try:
-            return int(round(self.statistics().get("pre_retiree_percentage")))
+            return int(round(self.statistics(p200=p200).get("pre_retiree_percentage")))
         except:
             return "N/A"
 
-    @property
-    def retiree_percentage(self):
+    def retiree_percentage(self, p200=False):
         try:
-            return int(round(self.statistics().get("retiree_percentage")))
+            return int(round(self.statistics(p200=p200).get("retiree_percentage")))
         except:
             return "N/A"
 
-    @property
-    def female_percentage(self):
+    def female_percentage(self, p200=False):
         try:
-            return int(round(self.statistics().get("female_percentage")))
+            return int(round(self.statistics(p200=p200).get("female_percentage")))
         except:
             return "N/A"
 
-    @property
-    def male_percentage(self):
+    def male_percentage(self, p200=False):
         try:
-            return int(round(self.statistics().get("male_percentage")))
+            return int(round(self.statistics(p200=p200).get("male_percentage")))
         except:
             return "N/A"
 
-    @property
-    def college_percentage(self):
+    def college_percentage(self, p200=False):
         try:
-            return int(round(self.statistics().get("college_percentage")))
+            return int(round(self.statistics(p200=p200).get("college_percentage")))
         except:
             return "N/A"
 
-    @property
-    def average_income_score(self):
-        return self.statistics().get("wealth_score")
+    def average_income_score(self, p200=False):
+        return self.statistics(p200=p200).get("wealth_score")
 
     #creates edges by linkedin id -- for QA purposes
     @property
@@ -531,7 +514,7 @@ class User(db.Model, UserMixin):
                 g.append((referrer.get("referrer_url"), name_1))
         return g
 
-    def build_statistics(self):
+    def build_statistics(self, p200=False):
         """
         Calculate most popular states,
         industries, average gender, age, college degree, and wealth score
@@ -558,6 +541,8 @@ class User(db.Model, UserMixin):
         from_aol = 0
         account_sources = self.account_sources
         for client_prospect in self.client_prospects:
+            if p200 and not client_prospect.good:
+                continue
             if not client_prospect.stars:
                 logger.warn("{} has stars=None (ClientProspect id={})".format(uu(client_prospect.prospect.name), client_prospect.id))
                 continue
