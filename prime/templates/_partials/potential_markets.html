@@ -1,0 +1,18 @@
+<div class="card-body">
+  <div class="potential-markets">
+    {% if agent.industries(p200=p200) | length > 0 %}
+    {% for industry in agent.industries(p200=p200) %}
+      <div class="market-{{ loop.index }}">
+        {% if current_user.is_manager or current_user.p200_approved or not current_user.p200_completed %}
+          <a>
+        {% else %}
+          <a href="/connections?industry={{industry[0]}}">
+        {% endif %}
+          <span>{{ industry[0] }}</span><b>{{ industry[1] }}</b>
+        </a>
+      </div>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+  </div>
+</div>

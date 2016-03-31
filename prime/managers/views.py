@@ -126,7 +126,12 @@ def agent(agent_id):
     manager = agent.manager
     if current_user.user_id != manager.user_id:
         return "You are not authorized to view this content."
-    return render_template("dashboard.html", agent=agent, active="dashboard")
+    p200 = request.args.get("p200","False")
+    if p200=="False":
+        active = "dashboard"
+    else:
+        active = "p200_summary"             
+    return render_template("dashboard.html", agent=agent, active=active)
 
 
 @csrf.exempt
@@ -167,7 +172,12 @@ def dashboard_pdf(agent_id):
     manager = agent.manager
     if current_user.user_id != manager.user_id:
         return "You are not authorized to view this content."
-    return render_template("print-network-summary.html", agent=agent, active="dashboard")
+    p200 = request.args.get("p200","False")
+    if p200=="False":
+        active = "dashboard"
+    else:
+        active = "p200_summary"           
+    return render_template("print-network-summary.html", agent=agent, active=active)
 
 @csrf.exempt
 @manager.route("/pdf/<int:agent_id>", methods=['GET', 'POST'])

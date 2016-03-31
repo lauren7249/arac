@@ -1,0 +1,53 @@
+      <div class="card contacts-uploaded">
+        {%if agent.unique_contacts_uploaded %}
+          <div class="card-header">
+            <h4>Contacts Uploaded</h4>
+            <span class="text-right">Uploaded</span>
+            <span class="text-right text-teal">Initial Market</span>
+          </div>
+          <table>
+            {%if agent.contacts_from_linkedin %}
+              <tr>
+                <td><img src="/static/img/linkedin-40.png"> <b>LinkedIn</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_linkedin | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_linkedin(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_gmail %}
+              <tr>
+                <td><img src="/static/img/gmail-40.png"> <b>Gmail</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_gmail | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_gmail(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_yahoo %}
+              <tr>
+                <td><img src="/static/img/yahoo-mail-40.png"> <b>Yahoo! Mail</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_yahoo | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_windowslive %}
+              <tr>
+                <td><img src="/static/img/windows-live-40.png"> <b>Windows Live</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_windowslive | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_windowslive(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_aol %}
+              <tr>
+                <td><img src="/static/img/aol-40.png"> <b>Aol</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_aol | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_aol(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}
+            {%if agent.contacts_from_csv %}
+              <tr>
+                <td><img src="/static/img/csv-40.png"> <b>CSV</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_csv | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_csv(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}            
+          {%endif%}
+        </table>
+      </div>

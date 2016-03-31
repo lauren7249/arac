@@ -27,7 +27,7 @@
           <span class="filter--market">
             <select name='market' id='market'>
               <option value=''>Any Industry</option>
-              {% for industry in agent.industries %}
+              {% for industry in agent.industries() %}
               <option value='{{ industry[0] }}'>{{ industry[0] }}</option>
               {% endfor %}
             </select>
@@ -35,7 +35,7 @@
           <span class="filter--state">
             <select name='state' id='state'>
               <option value=''>Any State</option>
-              {% for state in agent.states %}
+              {% for state in agent.states() %}
               <option value='{{ state[0] }}'>{{ state[0] }}</option>
               {% endfor %}
             </select>
@@ -99,7 +99,7 @@
           {% if current_user.p200_submitted_to_manager and current_user.p200_approved %}
             <a href='/export'><button class='button grey'>Export for MOD</button></a>
             <a href='/contacts_export'><button class='button grey'>Export Contact Info</button></a>
-            <a href='pdf'><button id='export' class='button dark-blue'>Export as PDF</button></a>
+            <a href='pdf' target="_blank"><button id='export' class='button dark-blue'>Print/Export PDF</button></a>
           {% endif %}
           {% if not current_user.p200_submitted_to_manager and not current_user.p200_approved %}
           <a href='/submit_p200_to_manager'><button id='submit' class='button teal'>Submit For Approval</button></a>

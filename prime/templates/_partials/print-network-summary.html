@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- {% include "_partials/agent_nav.html" %} -->
+<div class="network-summary-print wrap">
+  
+  <div class="section">
+    <div class="wrap card">
+      <div class="col-6">
+        <div class="qualified-contacts">
+          <h2 class="text-center">Market in GO Territory</h2>
+          <canvas width="360px" height="200px" id='connections'></canvas>
+          <h4 class="hint--top" data-hint="Number of qualified contacts in first-degree network." style='width: 100px;'>Initial</h4>
+          <h4 class="hint--top" data-hint="Number of qualified contacts in second-degree network." style='width: 100px;'>Extended</h4>
+          <h4 class="hint--top" data-hint="Number of first-degree plus second-degree qualified network contacts." style='width: 100px;'>Total</h4>
+        </div>
+      </div>      
+      <div class="col-6">
+        <div class="network-breakdown">
+          <h2 class="text-center hint--top" data-hint="This has been set by the GO and includes the state(s) most commonly included for that GO (e.g. Greater New York GO includes NY, NJ and CT).">All Contacts by State</h2>        
+          <div class="col-6">
+            <canvas width="320px" height="200px" id='state'></canvas>                      
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="hint--top" data-hint="Markets within qualified first-degree contacts.">Potential Markets</h4>
+      </div>
+      {%include "_partials/potential_markets.html" %}
+    </div>
+  </div> 
+
+  <div class="section">
+    {%include "_partials/contacts_uploaded.html" %}
+  </div>
+
+  <div class="section">  
+    {%include "_partials/network_statistics.html" %}
+  </div>  
+
+</div>
+{%with print = true %}
+{%include "_partials/network_summary_script.html" %}
+{%endwith%}
+{% endblock %}
+

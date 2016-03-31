@@ -394,7 +394,12 @@ def dashboard():
         return redirect(url_for("auth.login"))
     if current_user.hiring_screen_completed:
         agent = current_user
-        return render_template("dashboard.html", agent=agent, active = "dashboard")
+        p200 = request.args.get("p200","False")
+        if p200=="False":
+            active = "dashboard"
+        else:
+            active = "p200_summary"        
+        return render_template("dashboard.html", agent=agent, active = active)
     return redirect(url_for('prospects.start'))
 
 @csrf.exempt
@@ -404,7 +409,12 @@ def dashboard_pdf():
         return redirect(url_for("auth.login"))
     if current_user.hiring_screen_completed:
         agent = current_user
-        return render_template("print-network-summary.html", agent=agent, active = "dashboard")
+        p200 = request.args.get("p200","False")
+        if p200=="False":
+            active = "dashboard"
+        else:
+            active = "p200_summary"
+        return render_template("print-network-summary.html", agent=agent, active = active)
     return redirect(url_for('prospects.start'))
 
 class SearchResults(object):

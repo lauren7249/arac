@@ -1,0 +1,59 @@
+<script type='text/javascript' src='{{ static_url() }}js/chart.js'></script>
+<script type='text/javascript'>
+var colors = ['#231A80', '#2A90C0', '#4DC0D4', '#7DD0D0', '#A7DFCD', '#d8efc9', '#150B4B'];
+var industries = []
+var states = [];
+function randColor(colors) {
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+
+{% for state in agent.states() %}
+states.push({label: "{{ state[0] }}", fillColor:"" + randColor(colors), value: {{ state[1] }}})
+{% endfor %}
+{%if print %}
+  window.print();
+{%endif%}
+$(function(){
+
+    for (var i in industries) {
+      industries[i].color = randColor(colors);
+    }
+
+    for (var i in states) {
+      states[i].color = randColor(colors);
+    }
+
+    var $state = $("#state")
+    var $connections = $("#connections")
+    var connections = {
+        labels:["First-Degree", "Second-Degree", "Total"],
+        datasets:[
+        {fillColor: "#0079c2",
+        strokeColor: "rgba(220,220,220,0.8)",
+        highlightFill: "#8dd8f7",
+        highlightStroke: "#8dd8f7",
+        data: [{{ agent.primary_network_size() }}, {{ agent.extended_network_size(p200=p200) }}, {{ agent.total_network_size(p200=p200) }}]
+        }]}
+
+    var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, { {%if print %} animation: false {%endif%} });
+
+    if ( "{{ current_user.is_manager }}" != "True") {
+      $("#state").click(function(evt){
+        var activePoints = state_chart.getSegmentsAtEvent(evt);
+        if (activePoints.length>0){
+          var point = activePoints[0];
+          var label = point.label;
+          var url = "/connections?state=" + label;
+          window.location.href=url;
+        }
+      });         
+    }
+
+    var bar_options = {
+      {%if print %} animation: false, {%endif%}
+      showScale: false
+    }
+    var connections_chart = new Chart($connections.get(0).getContext("2d")).Bar(connections, bar_options);
+
+ });
+</script>

@@ -179,7 +179,7 @@ class ResultService(Service):
 
             #If the agent is hired in the data then we know the p200 has been fully
             #run and we can mark that as true also. Otherwise just the
-            #hiring screen has been completed
+            #network analysis has been completed
             user.hiring_screen_completed = True
             if self.client_data.get("hired"):
                 user.p200_completed = True

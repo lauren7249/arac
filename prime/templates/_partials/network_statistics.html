@@ -1,0 +1,73 @@
+      <div class="card">
+        <div class="card-header">
+          <h4 class="hint--top" data-hint="Statistics for qualified first-degree contacts.">Network Statistics</h4>
+        </div>
+        <table class="network-stats">
+          <tr>
+            <td><b>Young Professional (21-45)</b></td>
+            <td>
+              <div class="text-right">{{ agent.young_professional_percentage(p200=p200) }}%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Pre-Retiree (45-60)</b></td>
+            <td>
+              <div class="text-right">{{ agent.pre_retiree_percentage(p200=p200) }}%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Retiree (60+)</b></td>
+            <td>
+              <div class="text-right">{{ agent.retiree_percentage(p200=p200) }}%</div>
+            </td>
+          </tr>             
+          <tr>
+            <td><b>Male</b></td>
+            <td>
+              <div class="text-right">{{ agent.male_percentage(p200=p200) }}%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Female</b></td>
+            <td>
+              <div class="text-right">{{ agent.female_percentage(p200=p200) }}%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>College Degree</b></td>
+            <td>
+              <div class="text-right">{{ agent.college_percentage(p200=p200) }}%</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b class="hint--top" data-hint="The Wealth Score (0-100) is based on such factors as estimated salary and estimated investible assets.">Average Wealth Score</b></td>
+            <td>
+              <div class="text-right">{{ agent.average_income_score(p200=p200) }}/100</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Average Age</b></td>
+            <td>
+              <div class="text-right">{{ agent.average_age(p200=p200) }}</div>
+            </td>
+          </tr>          
+          <tr>
+            <td><b>LinkedIn</b></td>
+            <td>
+              <div class="text-right">{{ '{0:,}'.format(agent.linkedin(p200=p200) | int) }}</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Facebook</b></td>
+            <td>
+              <div class="text-right">{{ '{0:,}'.format(agent.facebook(p200=p200) | int) }}</div>
+            </td>
+          </tr>
+          <tr>
+            <td><b>Twitter</b></td>
+            <td>
+              <div class="text-right">{{ '{0:,}'.format(agent.twitter(p200=p200) | int) }}</div>
+            </td>
+          </tr>      
+        </table>
+      </div>

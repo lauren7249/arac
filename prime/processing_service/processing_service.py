@@ -62,7 +62,7 @@ class ProcessingService(Service):
         if len(self.saved_data) < 50 :
             self.saved_data = None
         if self.saved_data:
-            self.logger.info("Using saved data from last hiring screen")
+            self.logger.info("Using saved data from last network analysis")
             self.data = self.saved_data
             self.input_data = {"client_data": self.client_data, "data":self.data}
         if self.client_data.get("hired"):
