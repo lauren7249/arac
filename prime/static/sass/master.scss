@@ -1717,29 +1717,35 @@ $modal-width: 800px;
 
 }
 
-// #linkedin_password_form {
-//   width: 100%;
-//   height: 100%;
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   border: none;
-//   form.card {
-//     width: 100%;
-//     height: 100%;
-//     border: none;
-//   }
-//   input {
-//     height: 50px !important;
-//   }
-// }
-
-
 // Progress & Loading Indicators ==================================
 
 $spinner: 100px;
 $progress: 400px;
 .overlay {
+  display: none; // USE JS TO SHOW OVERLAYS
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 9998;
+  .dialog {
+    display: block;
+    background: white;
+    border: none;
+    z-index: 9999;
+    margin: 0;
+    @include border-radius(4px); 
+    @extend %centered;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.dropzone_upload {
   display: none; // USE JS TO SHOW OVERLAYS
   position: fixed;
   top: 0;

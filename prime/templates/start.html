@@ -81,6 +81,15 @@
                 {%endif%}                 
               </div>
             </div>
+            <div id='icloud-area' class="connect-email" onclick="_icloud();">
+              <img id='icloud' type="Submit" src="/static/img/icloud-40.png"/>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to iCloud and add contacts from your iCloud accounts. You can connect more than one iCloud account by clicking this button more than once.">Add iCloud Account</div>
+              <div class='connected_area'>
+                {%if agent.contacts_from_icloud | int > 0 %}
+                  <div class='connected' id="icloud_response">Added {{ '{0:,}'.format(agent.contacts_from_icloud | int) }} contacts from iCloud</div>
+                {%endif%}                 
+              </div>
+            </div>            
             <div id='windowslive-area' class="connect-email" onclick="_windowslive();">
               <img id='windowslive' type="Submit" src="/static/img/windows-live-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to WindowsLive and add contacts from your email accounts. You can connect more than one account from WindowsLive by clicking this button more than once.">Add Windows Live (Hotmail, Outlook) Account</div>
@@ -174,6 +183,19 @@
             }  
           }, 500);  
       } 
+      else if(service == 'iCloud') {
+          win.location.href = '/icloud_login';
+          $("#spinner").fadeIn();
+          var timer = setInterval(function() {   
+            if(win.closed) {
+              clearInterval(timer);   
+              var csrf_token = $("[_csrf_token]").val()
+              var outData = {csrf_token:csrf_token}                                     
+              window.location.href = '/?status=in_progress';
+              $("#spinner").fadeOut();       
+            }  
+          }, 500);  
+      }       
       else {
         var url = cloudsponge_base_url + 'begin_import/user_consent.json';
         $.getJSON(url + '?service=' + service + '&' + cloudsponge_params + '&callback=?', 
@@ -323,6 +345,14 @@
       var win = window.open('about:blank');        
       cloudsponge_status = 'NONE';   
       var len =do_import('Yahoo','#yahoo-area',win);
+      $(".email").hide();
+      $("#spinner").fadeOut();      
+    }
+
+    function _icloud(){
+      var win = window.open('about:blank');        
+      cloudsponge_status = 'NONE';   
+      var len =do_import('iCloud','#icloud-area',win);
       $(".email").hide();
       $("#spinner").fadeOut();      
     }

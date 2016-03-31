@@ -69,6 +69,7 @@ class User(db.Model, UserMixin):
     contacts_from_linkedin = db.Column(Integer, default=0)
     contacts_from_gmail = db.Column(Integer, default=0)
     contacts_from_yahoo = db.Column(Integer, default=0)
+    contacts_from_icloud = db.Column(Integer, default=0)
     contacts_from_aol = db.Column(Integer, default=0)
     contacts_from_windowslive = db.Column(Integer, default=0)
     contacts_from_csv = db.Column(Integer, default=0)
@@ -216,6 +217,7 @@ class User(db.Model, UserMixin):
             self.contacts_from_linkedin = 0
             self.contacts_from_gmail = 0
             self.contacts_from_yahoo = 0
+            self.contacts_from_icloud = 0
             self.contacts_from_windowslive = 0
             self.contacts_from_csv = 0
             self.contacts_from_aol = 0
@@ -277,6 +279,7 @@ class User(db.Model, UserMixin):
         from_linkedin = set()
         from_gmail = set()
         from_yahoo = set()
+        from_icloud = set()
         from_windowslive = set()
         from_csv = set()
         from_aol = set()
@@ -316,6 +319,8 @@ class User(db.Model, UserMixin):
                 from_gmail.add(key)
             elif service=='yahoo':
                 from_yahoo.add(key)
+            elif service=='icloud':
+                from_icloud.add(key)                
             elif service=='windowslive':
                 from_windowslive.add(key)
             elif service=='csv':
@@ -332,6 +337,8 @@ class User(db.Model, UserMixin):
             self.contacts_from_gmail = len(from_gmail)
         if len(from_yahoo):
             self.contacts_from_yahoo = len(from_yahoo)
+        if len(from_icloud):
+            self.contacts_from_icloud = len(from_icloud)            
         if len(from_windowslive):
             self.contacts_from_windowslive = len(from_windowslive)
         if len(from_csv):
@@ -407,6 +414,9 @@ class User(db.Model, UserMixin):
 
     def from_yahoo(self, p200=False):
         return self.statistics(p200=p200).get("from_yahoo", 0)
+
+    def from_icloud(self, p200=False):
+        return self.statistics(p200=p200).get("from_icloud", 0)
 
     def from_windowslive(self, p200=False):
         return self.statistics(p200=p200).get("from_windowslive", 0)
@@ -536,6 +546,7 @@ class User(db.Model, UserMixin):
         from_linkedin = 0
         from_gmail = 0
         from_yahoo = 0
+        from_icloud = 0
         from_windowslive = 0
         from_csv = 0
         from_aol = 0
@@ -557,6 +568,8 @@ class User(db.Model, UserMixin):
                     from_gmail+=1
                 elif source=='yahoo':
                     from_yahoo+=1
+                elif source=='icloud':
+                    from_icloud+=1                    
                 elif source =='windowslive':
                     from_windowslive+=1
                 elif source =='csv':
@@ -658,6 +671,7 @@ class User(db.Model, UserMixin):
                 "from_linkedin": from_linkedin,
                 "from_gmail": from_gmail,
                 "from_yahoo": from_yahoo,
+                "from_icloud": from_icloud,
                 "from_windowslive": from_windowslive,
                 "from_csv": from_csv,
                 "from_aol": from_aol}

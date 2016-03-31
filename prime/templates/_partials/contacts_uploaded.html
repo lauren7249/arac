@@ -27,6 +27,13 @@
                 <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_yahoo(p200=p200) | int) }}</td>
               </tr>
             {%endif%}
+            {%if agent.contacts_from_icloud %}
+              <tr>
+                <td><img src="/static/img/icloud-40.png"> <b>iCloud</b></td>
+                <td class="text-right">{{ '{0:,}'.format(agent.contacts_from_icloud | int) }}</td>
+                <td class="text-right text-teal">{{ '{0:,}'.format(agent.from_icloud(p200=p200) | int) }}</td>
+              </tr>
+            {%endif%}            
             {%if agent.contacts_from_windowslive %}
               <tr>
                 <td><img src="/static/img/windows-live-40.png"> <b>Windows Live</b></td>

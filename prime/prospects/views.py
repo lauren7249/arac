@@ -241,6 +241,25 @@ def linkedin_login_failed():
     return jsonify({"success":True})
 
 @csrf.exempt
+@prospects.route('/icloud_login', methods=['GET', 'POST'])
+def icloud_login():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    valid = None
+    form = LinkedinLoginForm
+    if request.method == 'POST':
+        email = request.form.get("email")
+        password = request.form.get("password")
+        if email and password:
+            #TODO: add cloudsponge post request
+            return jsonify({"success":True})
+        else:
+            return jsonify({"success":False})
+    return render_template('icloud_login.html', form=form, valid=valid)
+
+@csrf.exempt
 @prospects.route('/linkedin_login', methods=['GET', 'POST'])
 def linkedin_login():
     if not current_user.is_authenticated():

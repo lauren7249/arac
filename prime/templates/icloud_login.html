@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block header %}{% endblock %}
+
+{% block content %}
+<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+<div class="wrap" id="linkedin_password_form">
+  <form class="signup card" id='linkedin-login-form' method='POST' autocomplete="false">
+    <header>
+      <div id="header_logo"></div>
+    </header>
+    <small><div class='error'></div> </small>
+    <h3>Please enter your iCloud email (Apple ID) and password so we can securely connect your contacts.</h3>
+    <hr>
+
+    
+    <div class="form-group">
+      <input type="email" name='email' class="form-control" id="inputEmail" placeholder="Enter Your Apple ID" autocomplete="new-email">
+    </div>
+    <div class="form-group">
+      <input type="password" name='password' class="form-control" id="inputPassword" placeholder="Enter Your Apple Password" autocomplete="new-password">
+    </div>
+    <button id="check_linkedin_button" type="submit" class="button linkedin">Connect iCloud Contacts</button>
+    
+    <p>
+      <small>
+        <a href='https://iforgot.apple.com/' target="_blank">Forgot Apple ID or Password?</a>
+      </small>
+    </p>
+  </form>
+</div>
+<script type="text/javascript">
+  $(function(){
+
+    $(".error").text("");
+    $(".error").css("display","none");  
+
+    function finishMe() {
+      var csrf_token = $("[_csrf_token]").val() 
+      var outData = {csrf_token:csrf_token}       
+      $(".overlay").fadeOut();
+      $(".waiting").hide();      
+      $('#overlay', window.parent.document).hide();
+      window.close();         
+    }
+
+    //user clicks the button to submit credentials
+    $("#linkedin-login-form").submit(function(e){
+      //prevent form from giving its status
+      e.preventDefault();
+      if ($("#inputEmail").val().length==0) {
+        $(".error").text("You must enter email");
+        $(".error").css("display","inline");  
+        return;        
+      }
+      if ($("#inputPassword").val().length==0) {
+        $(".error").text("You must enter password");
+        $(".error").css("display","inline");  
+        return;        
+      }      
+      $("#spinner").fadeIn();
+      $(".error").text("");
+      $(".error").css("display","none");        
+      var data = {username:$("#inputEmail").val(),password:$("#inputPassword").val(), service:"icloud", domain_key:"VB652MMUEG24H4JF3SGL", domain_password:"GSrAxStb9Zk5EOmD"}
+      var domain_key='VB652MMUEG24H4JF3SGL';
+      var domain_password='GSrAxStb9Zk5EOmD';    
+      var cloudsponge_params = 'domain_key=' + domain_key + '&domain_password=' + domain_password;
+      var cloudsponge_base_url = 'https://api.cloudsponge.com/'    ;
+      var url = cloudsponge_base_url + 'begin_import/import.json';
+      $.getJSON(url + '?service=' + 'icloud' + '&' + cloudsponge_params + "&username=" + $("#inputEmail").val()  + "&password=" + $("#inputPassword").val() + '&callback=?', function(data) {
+        if (data.status=="success" && data.import_id != null) {
+          console.log(data);
+          var import_id = data.import_id;
+          var tempcontactsurl = cloudsponge_base_url + 'contacts.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+          var tempeventsurl = cloudsponge_base_url + 'events.json/' + import_id + '?' + cloudsponge_params + '&callback=?';
+          console.log(tempeventsurl);
+          var timer = setInterval(function() {  
+            $.getJSON(tempeventsurl, function(data){
+              var events = data.events;
+              console.log(events);
+              for (i = 0; i < events.length; i++) { 
+                if (events[i].event_type != "COMPLETE") {
+                  continue;
+                }
+                cloudsponge_status = events[i].status;
+                if (cloudsponge_status =="ERROR") {
+                  $("#spinner").fadeOut();  
+                  console.log(events[i].description);
+                  $(".error").text(events[i].description);
+                  $(".error").css("display","inline");                      
+                  clearInterval(timer);        
+                  break;            
+                }                
+                else if (cloudsponge_status == 'COMPLETED') {
+                  clearInterval(timer); 
+                  $("#spinner").fadeIn();
+                  var timer2 = setInterval(function() {  
+                    $.getJSON(tempcontactsurl, function() {
+                    })
+                    .success(function(data) {
+                      clearInterval(timer2); 
+                      contacts = data.contacts;
+                      console.log(contacts);
+                      if (contacts !=undefined && contacts.length) { 
+                        var contacts_array = [];
+                        contacts_owner = data.contacts_owner;
+ 
+                        for (i = 0; i < contacts.length; i++) { 
+                            var contact = contacts[i];
+                            contacts_array.push({contact:contact, contacts_owner:contacts_owner, service:'iCloud'});
+                     
+                        }
+                        
+                        var csrf_token = $("[_csrf_token]").val()
+
+                        var outData = {csrf_token:csrf_token, contacts_array: contacts_array}
+                        $.ajax({
+                            type: 'POST',
+                            url: '/upload_cloudsponge?service=iCloud',
+                            crossDomain: true,
+                            data: JSON.stringify(outData),
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            success: function(responseData, textStatus, jqXHR) {
+                              finishMe();
+                            },
+                            error: function (responseData, textStatus, errorThrown) {              
+                              finishMe();
+                            }
+                        }); 
+
+                      } 
+                      else {
+                        $("#spinner").fadeOut();                                
+                        return true;
+                      }                             
+                    });                          
+                  }, 1000); 
+                  break;
+                } 
+              }   
+            });       
+          }, 500);                      
+        }
+        else {
+          $(".error").text("Login failed. Please re-try.");
+          $(".error").css("display","inline");            
+        }          
+         
+      });
+
+    });
+
+  });
+</script>
+{% endblock %}
+
+
+
+
+
+{% block footer %}{% endblock %}

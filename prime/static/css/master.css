@@ -1,7 +1,7 @@
 @import url(/static/css/poppins.css);
 @import url(normalize.css);
 @import url(hint.css);
-.overlay .dialog, .signup {
+.overlay .dialog, .dropzone_upload .dialog, .signup {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1641,6 +1641,32 @@ form.dropzone.dz-success {
   border-radius: 4px;
 }
 .overlay .dialog img {
+  width: 100%;
+  height: 100%;
+}
+
+.dropzone_upload {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 9998;
+}
+.dropzone_upload .dialog {
+  display: block;
+  background: white;
+  border: none;
+  z-index: 9999;
+  margin: 0;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  border-radius: 4px;
+}
+.dropzone_upload .dialog img {
   width: 100%;
   height: 100%;
 }
