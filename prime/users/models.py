@@ -307,6 +307,8 @@ class User(db.Model, UserMixin):
                 key = email_address
             elif service=="linkedin":
                 key = str(contact.values())
+            else:
+                key = None
             if not key:
                 continue
             by_source[key+service] = record
