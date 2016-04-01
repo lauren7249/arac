@@ -14,7 +14,8 @@ from glassdoor_service import GlassdoorService
 from indeed_service import IndeedService
 from geocode_service import GeoCodingService, MapQuestRequest
 from person_request import PersonRequest
-
+from prime.utils.helpers import STATES
+from collections import defaultdict
 
 class LeadService(Service):
     """
@@ -46,7 +47,12 @@ class LeadService(Service):
             person["reason"] = "No Location"
             person["step"] = "LeadService Location"
             self.excluded.append(person)                          
-            return False            
+            return False   
+        if lead_state:
+            if lead_state in STATES.values():
+                self.states.append(lead_state)
+            elif lead_state in STATES.keys():
+                self.states.append(STATES[lead_state])
         lead_geopoint = GeoPoint(lead_location[0], lead_location[1])
         miles_apart = geopoint.distance_to(lead_geopoint)
         self.logger.info("Location: {}, {} Miles Apart: {}".format(location_data.get("locality"),location_data.get("region"), miles_apart))
@@ -181,6 +187,17 @@ class LeadService(Service):
         except:
             self.logerror()
         self.logend()
+        print self.states
+        print len(self.states)
+        all_states = defaultdict(int)
+
+        for state in self.states:
+            all_states[state] += 1       
+        print all_states
+        self.user = self._get_user()
+        self.user.all_states = all_states
+        self.session.add(self.user)
+        self.session.commit()         
         return {"data":self.output, "client_data":self.client_data}
 
     def multiprocess(self):

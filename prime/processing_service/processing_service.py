@@ -16,6 +16,7 @@ from flask import render_template
 
 from prime.utils.email import sendgrid_email
 from prime import config, db
+from prime.users.models import User
 from prime.managers.models import ManagerProfile
 from service import Service
 from saved_request import UserRequest
@@ -50,7 +51,7 @@ class ProcessingService(Service):
         #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
         if not self.data:
             if self.user:
-                self.data, self.user = self.user.refresh_contacts(session=db.session)
+                self.data, self.user = self.user.refresh_contacts(session=self.session)
             else:      
                 user_request = UserRequest(self.client_data.get("email"))
                 self.data = user_request.lookup_data()
@@ -107,6 +108,7 @@ class ProcessingService(Service):
             self.logerror()
             return []
         try:
+            self.user = self._get_user()
             if self.user and self.client_data.get("hired"):
                 self.user.p200_started = True
                 self.session.add(self.user)
@@ -123,11 +125,11 @@ class ProcessingService(Service):
             if self.user and not self.client_data.get("suppress_emails"):
                 env = Environment()
                 env.loader = FileSystemLoader("prime/templates")
+                manager = self.session.query(ManagerProfile).get(self.user.manager_id)
                 if self.client_data.get("hired"):
                     subject = "Congratulations from {}".format(config[os.getenv('AC_CONFIG', 'testing')].OWNER)
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
-                    manager = self.session.query(ManagerProfile).get(self.user.manager_id)
                     body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=config[os.getenv('AC_CONFIG', 'testing')].OWNER)
                     sendgrid_email(to_email, subject, body, from_email=self.user.manager.user.email)
                 else:
@@ -141,8 +143,8 @@ class ProcessingService(Service):
                     subject = "Your Network Analysis is ready to view"
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/network_summary_done_agent.html')
-                    body = tmpl.render(url=self.web_url, agent=self.user)
-                    sendgrid_email(to_email, subject, body, from_email=self.user.manager.user.email)
+                    body = tmpl.render(url=self.web_url, agent=self.user, manager=manager)
+                    sendgrid_email(to_email, subject, body, from_email=manager.user.email)
             elif not self.user:
                 self.logger.error("no user")
             #self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))

@@ -91,6 +91,7 @@ class User(db.Model, UserMixin):
     not_hired_reason = db.Column(String(500))
     _statistics = db.Column(JSONB, default={})
     _statistics_p200 = db.Column(JSONB, default={})
+    all_states = db.Column(JSONB, default={})
     intro_js_seen = db.Column(postgresql.BOOLEAN, default=False)
 
 
@@ -463,8 +464,12 @@ class User(db.Model, UserMixin):
         return sorted(results, key = lambda tup:tup[1], reverse=True)[:10]
 
     def states(self, p200=False):
+        if not p200 and self.all_states:
+            locations = self.all_states
+        else:
+            locations = self.statistics(p200=p200).get("locations")
         states = []
-        for state, count in self.statistics(p200=p200).get("locations").iteritems():
+        for state, count in locations.iteritems():
             states.append((state, count,))
         return states
 

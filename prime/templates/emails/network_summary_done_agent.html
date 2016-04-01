@@ -11,15 +11,15 @@
 <br>
 <p>Sincerely,</p>
 <br>
-<p style='font-family: cursive;'>{{ agent.manager.user.first_name }} {{ agent.manager.user.last_name }}</p>
+<p style='font-family: cursive;'>{{ manager.user.first_name }} {{ manager.user.last_name }}</p>
 <br>
-<p>{{ agent.manager.title }}</p>
-{%if agent.manager.address is not none %}
-<p>{{ agent.manager.address_1 }}</p>
-<p>{{ agent.manager.address_2 }}</p>
+<p>{{ manager.title }}</p>
+{%if manager.address is not none %}
+<p>{{ manager.address_1 }}</p>
+<p>{{ manager.address_2 }}</p>
 {%endif%}
-{%if agent.manager.phone %}
-<p>{{ agent.manager.phone }}</p>
+{%if manager.phone %}
+<p>{{ manager.phone }}</p>
 {%endif%}
-<p>{{ agent.manager.user.email }}</p>
+<p>{{ manager.user.email }}</p>
 {% endblock %}
