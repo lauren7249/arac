@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 from flask import render_template
 
 from prime.utils.email import sendgrid_email
-from prime import config
+from prime import config, db
 from prime.managers.models import ManagerProfile
 from service import Service
 from saved_request import UserRequest
@@ -50,7 +50,7 @@ class ProcessingService(Service):
         #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
         if not self.data:
             if self.user:
-                self.data, self.user = self.user.refresh_contacts()
+                self.data, self.user = self.user.refresh_contacts(session=db.session)
             else:      
                 user_request = UserRequest(self.client_data.get("email"))
                 self.data = user_request.lookup_data()

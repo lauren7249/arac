@@ -32,6 +32,7 @@ class LeadService(Service):
         self.salary_threshold = 35000
         self.location_threshhold = 75
         self.user = self._get_user()  
+        self.states = []
 
     def _filter_same_locations(self, person):
         latlng = self.location.get("latlng")
@@ -150,10 +151,7 @@ class LeadService(Service):
     def _valid_lead(self, person):
         same_person = self._is_same_person(person)   
         if same_person:
-            return False          
-        location = self._filter_same_locations(person)    
-        if not location:
-            return False     
+            return False             
         competitor = self._is_competitor(person)    
         if competitor:
             return False                             
@@ -164,7 +162,12 @@ class LeadService(Service):
             self.excluded.append(person)                     
             return False
         salary = self._filter_salaries(person)
-        return salary and location and not same_person and not competitor
+        if not salary:
+            return False
+        location = self._filter_same_locations(person)    
+        if not location:
+            return False              
+        return True
         
     def process(self):
         self.logstart()
