@@ -50,7 +50,7 @@ class ProcessingService(Service):
         #to save the user time, we dont actually pass the array through when the user clicks upload. therefore, we grab it from S3 over here.
         if not self.data:
             if self.user:
-                self.data, self.user = user.refresh_contacts()
+                self.data, self.user = self.user.refresh_contacts()
             else:      
                 user_request = UserRequest(self.client_data.get("email"))
                 self.data = user_request.lookup_data()
