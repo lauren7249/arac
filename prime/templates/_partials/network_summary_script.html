@@ -37,7 +37,7 @@ $(function(){
         strokeColor: "rgba(220,220,220,0.8)",
         highlightFill: "#8dd8f7",
         highlightStroke: "#8dd8f7",
-        data: [{{ agent.primary_network_size() }}, {{ agent.extended_network_size(p200=p200) }}, {{ agent.total_network_size(p200=p200) }}]
+        data: [{{ agent.primary_network_size(p200=p200) }}, {{ agent.extended_network_size(p200=p200) }}, {{ agent.total_network_size(p200=p200) }}]
         }]}
 
     var state_chart= new Chart($state.get(0).getContext("2d")).Doughnut(states, { {%if print %} animation: false {%endif%} });
