@@ -809,6 +809,9 @@ def export():
             stateProvince = ''
             postalCode = ''
 
+        if not addressLine1 and not email1:
+            continue
+            
         try:
             first_name = name.split(" ")[0]
             last_name = " ".join(name.split(" ")[1:])
@@ -826,11 +829,6 @@ def export():
         row = ["", dearName, first_name, last_name, "",
                 connection.prospect.company, addressLine1, addressLine2, city, stateProvince, postalCode, email1,
                 connection.prospect.phone, "", ""]
-
-        #row = [dearName, first_name, last_name, "", email1,
-        #    "", "", connection.prospect.linkedin_location_raw,
-        #    state, "", "", "",
-        #    connection.prospect.company, ""]
         writer.writerow(row)
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
