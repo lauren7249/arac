@@ -710,7 +710,7 @@ def contacts_export():
             ClientProspect.user==agent,
             ).join(Prospect).filter(or_(Prospect.phone != None,and_(Prospect.mailto != None, Prospect.mailto != "mailto:"))).order_by(Prospect.name)
     resp = flask.Response("")
-    data = [["Name", "Location", "State", "Industry", "Business Phone", "Linkedin Profile","Email", "Subject", "Body","Email Addresses","Email Template"]]
+    data = [["Name", "Location", "State", "Industry", "Business Phone", "Linkedin Profile","Email", "Subject", "Body","Email Addresses"]]
     output = StringIO.StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet("Contacts")
@@ -748,7 +748,7 @@ def contacts_export():
             body=None
             hyperlink =None
             mailto=''
-        row = [name, location, state, industry, phone,linkedin_url, email,subject,body, mailto.split(":")[-1], hyperlink]
+        row = [name, location, state, industry, phone,linkedin_url, email,subject,body, mailto.split(":")[-1]]
         data.append(row)
     for rownum in xrange(0, len(data)):
         row = data[rownum]
@@ -811,7 +811,7 @@ def export():
 
         if not addressLine1 and not email1:
             continue
-            
+
         try:
             first_name = name.split(" ")[0]
             last_name = " ".join(name.split(" ")[1:])
