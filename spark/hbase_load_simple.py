@@ -30,9 +30,13 @@ class HBaseLoader(object):
                     "mapreduce.job.output.key.class": self.key_class,  
                      "mapreduce.job.output.value.class": self.value_class}
 
-    def get_s3_data(self):
+    def get_s3_keypaths(self):
         self.keys = self.S3_BUCKET.list("linkedin/people/" + self.PERIOD + "/")
         self.keypaths = ["s3a://" + self.AWS_KEY + ":" + self.AWS_SECRET + "@" + self.AWS_BUCKET_ZIPPED + "/" + key.name for key in self.keys]
+        return self.keypaths
+
+    def get_s3_data(self):
+        self.keypaths = self.get_s3_keypaths()
         self.filenames = ",".join(self.keypaths)
         self.data = self.sc.textFile(self.filenames)
         return self.data

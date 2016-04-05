@@ -21,7 +21,7 @@
         <span>
           <select name='market' id='market'>
             <option value=''>Any Industry</option>
-            {% for industry in agent.industries %}
+            {% for industry in agent.industries() %}
             <option value='{{ industry[0] }}'>{{ industry[0] }}</option>
             {% endfor %}
           </select>
@@ -29,7 +29,7 @@
         <span>
           <select name='state' id='state'>
             <option value=''>Any State</option>
-            {% for state in agent.states %}
+            {% for state in agent.states() %}
             <option value='{{ state[0] }}'>{{ state[0] }}</option>
             {% endfor %}
           </select>

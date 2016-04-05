@@ -1,4 +1,5 @@
-
+GOOGLE_CLOUD_STORAGE_ACCESS_KEY='GOOGJXX7IA4SFA2J5UCV'
+GOOGLE_CLOUD_STORAGE_SECRET='XJwRuAO+sF7O+xNd2EapxNp9dvluu9PAJQf3n19a'
 
 #For Deduping real emails
 EXCLUDED_EMAIL_WORDS = ["reply","support","sales","info","feedback","noreply",\
