@@ -463,8 +463,8 @@ class User(db.Model, UserMixin):
                 results.append((industry_category, count,industry_icon, ))
         return sorted(results, key = lambda tup:tup[1], reverse=True)[:10]
 
-    def states(self, p200=False):
-        if not p200 and self.all_states:
+    def states(self, p200=False, all_states=False):
+        if all_states and self.all_states:
             locations = self.all_states
         else:
             locations = self.statistics(p200=p200).get("locations")

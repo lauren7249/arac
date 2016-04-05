@@ -13,10 +13,11 @@
           {%if agent.p200_completed %}
             {%if not agent.p200_approved and not current_user.is_manager and not agent.p200_submitted_to_manager %}
               <li><a href="/connections" class="{% if active == "connections" %}selected{% endif %}">Build Project 200</a></li>
+            {% else %}
+              <li><a href="{% if not current_user.is_manager %}/dashboard{%else%}/managers/agent/{{ agent.user_id }}{%endif%}?p200=True" class="{% if active == 'p200_summary' %}selected{% endif %}">Project 200 Summary</a></li>
             {%endif%}
             {%if agent.p200_submitted_to_manager or not current_user.is_manager %}
               <li><a href="{% if not current_user.is_manager %}/p200{%else%}/managers/p200_summary/{{ agent.user_id }}{%endif%}" class="{% if active == 'p200' %}selected{% endif %}">View Project 200</a></li>
-              <li><a href="{% if not current_user.is_manager %}/dashboard{%else%}/managers/agent/{{ agent.user_id }}{%endif%}?p200=True" class="{% if active == 'p200_summary' %}selected{% endif %}">Project 200 Summary</a></li>
             {%endif%}
           {% elif not agent.p200_completed and not agent.p200_started and current_user.is_manager and agent.hired %} 
             <li><a href="#" type="Submit" class="" id='{{ agent.user_id }}_p200_button' data-p200-id='{{ agent.user_id }}'>Request P200</a></li>

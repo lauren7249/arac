@@ -131,7 +131,7 @@ class ProcessingService(Service):
                     to_email = self.client_data.get("email")
                     tmpl = env.get_template('emails/p200_done.html')
                     body = tmpl.render(manager=manager, agent=self.user,base_url=self.web_url, inviter=config[os.getenv('AC_CONFIG', 'testing')].OWNER)
-                    sendgrid_email(to_email, subject, body, from_email=self.user.manager.user.email)
+                    sendgrid_email(to_email, subject, body, from_email=manager.user.email)
                 else:
                     name = "{} {}".format(self.client_data.get("first_name"), \
                         self.client_data.get("last_name"))

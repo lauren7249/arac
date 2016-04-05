@@ -7,7 +7,12 @@ function randColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)]
 }
 
-{% for state in agent.states() %}
+{%if p200 %} 
+  {%set states = agent.states(p200=True) %}
+{%else %}
+  {%set states = agent.states(all_states=True) %}
+{%endif%}
+{% for state in states %}
 states.push({label: "{{ state[0] }}", fillColor:"" + randColor(colors), value: {{ state[1] }}})
 {% endfor %}
 {%if print %}
