@@ -111,10 +111,15 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["sources"] = self.person.get("sources",[])
         self.profile["extended"] = self.person.get("extended")
         self.profile["referrers"] = self.person.get("referrers",[])
+        self.profile["primary_emails"] = self.person.get("primary_emails")
         self.profile["email_addresses"] = self.person.get("email_addresses")
         self.profile["profile_image_urls"] = self.person.get("images_with_tags")
         self.profile["main_profile_image"] = self._get_main_profile_image()
-        self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
+        if self.profile["primary_emails"]:
+            #prioritizes the emails we get from the agent
+            self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("primary_emails",[]) + self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
+        else:
+            self.profile["mailto"] = 'mailto:' + ",".join([x for x in self.person.get("email_addresses",[]) if x and not x.endswith("@facebook.com")])
         self.profile = self._get_social_fields(self.person.get("social_accounts",[]))
         return self.profile
 

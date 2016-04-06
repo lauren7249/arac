@@ -50,6 +50,7 @@ class Prospect(db.Model):
     dob_min_year = db.Column(Integer)
     dob_max_year = db.Column(Integer)
 
+    primary_emails = db.Column(JSONB)
     email_addresses = db.Column(JSONB)
     profile_image_urls = db.Column(JSONB)
 

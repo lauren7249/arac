@@ -148,6 +148,7 @@ class SocialProfilesRequest(S3SavedRequest):
         return good_links
 
     def process(self):
+        self.person["primary_emails"] = self.person.get("email_addresses",[])
         pipl_data = self._get_extra_pipl_data()
         self.emails = set(pipl_data.get("emails",[]) + self.person.get("email_addresses",[]))
         self.social_accounts = set(pipl_data.get("social_accounts",[]) + self.person.get("social_accounts",[]))
@@ -157,7 +158,7 @@ class SocialProfilesRequest(S3SavedRequest):
         self.genders = []
         for email in self.emails:
             self._update_profile(email)                           
-        self.person["email_addresses"] = list(self.emails)   
+        self.person["email_addresses"] = [e for e in self.emails if e not in self.person.get("primary_emails",[])]   
         self.person["social_accounts"] = self._process_social_accounts(self.social_accounts)
         self.person["images_with_tags"] = self._process_images(self.images)
         self.person["clearbit_genders"] = self.genders    
