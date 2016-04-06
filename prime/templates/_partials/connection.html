@@ -57,7 +57,7 @@
     </div>
   </td>
   <td class="contact-buttons text-center">
-    {%if active == "p200" or active == "connections" %}
+    {%if (active == "p200" or active == "connections") and not current_user.is_manager %}
       {% if connection.good %}
         <div class="col-6 col-center">
           <button data-remove='{{ connection.prospect.id }}' class="button small teal">Remove Connection</button>
