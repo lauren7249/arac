@@ -12,7 +12,7 @@ from boto.s3.key import Key
 from requests import session
 from service import Service, S3SavedRequest
 from helper import parse_out, most_common, get_center, uu
-from constants import SCRAPING_API_KEY, GLOBAL_HEADERS
+from constants import GLOBAL_HEADERS
 
 from geoindex.geo_point import GeoPoint
 from mapquest_request import MapQuestRequest, GEOLOCATOR

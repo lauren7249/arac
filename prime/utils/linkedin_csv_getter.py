@@ -1,7 +1,7 @@
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import logging
 from selenium import webdriver
-from prime.processing_service.constants import BROWSERSTACK_USERNAME, BROWSERSTACK_KEY, LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS, SAUCE_USERNAME, SAUCE_ACCESS_KEY, LINKEDIN_YAHOO_DOWNLOAD_URL
+from prime.processing_service.constants import LINKEDIN_EXPORT_URL, LINKEDIN_DOWNLOAD_URL, ANTIGATE_ACCESS_KEY, LINKEDIN_CAPTCHA_CROP_DIMS, SAUCE_USERNAME, SAUCE_ACCESS_KEY, LINKEDIN_YAHOO_DOWNLOAD_URL
 from pyvirtualdisplay import Display
 #https://github.com/lorien/captcha_solver
 from captcha_solver import CaptchaSolver

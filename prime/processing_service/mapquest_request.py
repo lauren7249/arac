@@ -12,7 +12,7 @@ from requests import session
 from geopy.geocoders import Nominatim
 from service import Service, S3SavedRequest
 from helper import parse_out, most_common, get_center, domain_match, name_match
-from constants import SCRAPING_API_KEY, GLOBAL_HEADERS
+from constants import GLOBAL_HEADERS
 
 from geoindex.geo_point import GeoPoint
 
