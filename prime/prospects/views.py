@@ -468,7 +468,7 @@ class SearchResults(object):
                 ages[0]).filter(Prospect.age <= ages[1])
 
     def _search(self):
-        return self.sql_query.filter(Prospect.name.ilike("%{}%".format(self.query)))
+        return self.sql_query.filter(Prospect.name.contains(self.query.title()))
 
     def results(self):
         if self.query:
