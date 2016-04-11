@@ -182,8 +182,7 @@
           <th>Candidate</th>
           <th>Primary Network</th>
           <th>Extended</th>
-          <th>Candidate Disposition</th>
-          <th class="agent-pre-screen">Reason</th>
+          <th class="agent-pre-screen">Candidate Disposition</th>
         </thead>
         <tbody>
           {% for agent in not_hired %}
@@ -198,7 +197,6 @@
             <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
             <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
             {%else%}
-            <td>-</td>
             <td>-</td>
             <td>-</td>                
             {%endif%}
