@@ -99,17 +99,16 @@
                 {% if not current_user.is_manager and current_user.p200_completed %}
                   <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts</div></span>
                 {% endif %}
-                <span>
-                    <div id='settings' class="contacts-left">
-                      <a class="user" id="current_user_name">{{ current_user.name }} / {{ current_user.email }}</a>
-                    <div class='autocomplete'>
-                      <ul>
-                        <li><a href='/auth/logout'>Logout</a></li>
-                      </ul>
-                    </div>
+                <span id="settings">                  
+                  <a class="user" id="current_user_name">{{ current_user.name }}</a>
+                  <!-- <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span> -->
+                  <div class='autocomplete'>
+                    <ul>
+                      <li><small>{{ current_user.email }}</small></li>
+                      <li><a href='/auth/logout'>Logout</a></li>
+                    </ul>
                   </div>
                 </span>
-<!--                 <span style="background-image:url({{ current_user.image }})" class="face" id="current_user_image"></span></div> -->
             {% endif %}
           </div>
         </div>

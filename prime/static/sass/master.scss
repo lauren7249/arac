@@ -111,14 +111,18 @@ header {
     font-size: 12px;
     font-weight: 600;
     span {
+      line-height: $header-height;
       display: inline-block;
       vertical-align: middle;
       margin-right: 30px;
     }
   }
+  .contacts-left {    
+    color: $purple;
+  }
   #settings {
-    position: relative;
-
+    position: relative;    
+    // menu
     div.autocomplete {
       display: none;
       position: absolute;
@@ -129,28 +133,31 @@ header {
       background: white;
       height: auto;
       line-height: 0;
-      width: 200px;
+      min-width: 100px;
+      padding: 10px 20px 20px;
       z-index: 4;
       ul {
         list-style-type: none;
         padding: 0;
         margin: 0;
         li {
-          padding: 5px;
-          text-transform: uppercase;
           text-align: right;
+          font-size: 12px;
+          height: auto;
+          line-height: normal;
+          margin-bottom: 10px; 
+          // height: 40px;
+          // line-height: 40px;
+          // padding: 10px;
           a {
+            display: block;
             color: $blue;
             text-decoration: none;
-            font-size: 12px;
-            height: 40px;
-            line-height: 40px;
-            padding: 10px;
           }
         }
       }
     }
-
+    // show menu
     &:hover {
       div.autocomplete {
         display: block;
@@ -161,11 +168,11 @@ header {
     cursor: pointer;
     color: $grey;
     position: relative;
-      &:after {
+    &:after {
       position: absolute;
-      top: 8px;
+      top: 6px;
       right: 0;
-      margin-right: -15px;
+      margin-right: -20px;
       width: 0;
       border-top: 4px solid $grey;
       border-right: 4px solid transparent;
@@ -176,7 +183,7 @@ header {
     }
     .face {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: middle;      
     }
   }
 }
@@ -315,6 +322,8 @@ table {
   min-width: 100px;
   text-align: center;
   padding: 0 10px;
+  font-size: 14px;
+  font-weight: normal;
   color: white;
   @include border-radius(2px);
   border: none;
@@ -576,11 +585,11 @@ form {
   }
 }
 .toast--success {
-  width:300px;
-  position:fixed;
-  left:50%;
-  padding:15px;
-  margin-left:-150px; /* negative half the size of width */
+  // width:300px;
+  // position:fixed;
+  // left:50%;
+  // padding:15px;
+  // margin-left:-150px; /* negative half the size of width */
   background-color: $success;
   z-index: 10;
 }
@@ -773,16 +782,23 @@ $padcount: 5;
 .manager-team-metrics {
   margin-bottom: 20px;
   .metric-block {
+    position: relative;
     display: block;    
-    padding: 20px 10px;
+    padding: 20px;
+    min-height: 180px;
     background-color: white;
     @include border-radius(4px);
     text-align: center;
     h2 {
+      font-size: 50px;
+      line-height: 50px; 
       color: $teal;
       margin: 0;
+      padding-bottom: 20px;
+      border-bottom: 1px solid $border;
     }
     .caps {
+      margin-top: 20px;
       color: $grey;
     }
   }
@@ -1328,11 +1344,6 @@ table.contacts-table {
     float: left;
     margin-right: 10px;
   }
-}
-
-.contacts-left {    
-  color: $purple;
-  margin-bottom: 20px;
 }
 
 

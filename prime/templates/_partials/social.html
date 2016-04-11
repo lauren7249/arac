@@ -43,6 +43,9 @@
   {% if agent.prospect.goodreads %}
     <a href="{{ agent.prospect.goodreads }}"  target="_blank" class="goodreads hint--top" data-hint="{{ agent.prospect.goodreads }}"></a>
   {% endif %}
+  {% if agent.prospect.instagram %}
+    <a href="{{ agent.prospect.instagram }}"  target="_blank" class="instagram hint--top" data-hint="{{ agent.prospect.instagram }}"></a>
+  {% endif %}
   {% if connection.prospect.emails %}
     <a href="{{connection.prospect.mailto}}" target="_blank" class="email hint--top" data-hint="{{ connection.prospect.emails }}"></a>
   {% endif %}
