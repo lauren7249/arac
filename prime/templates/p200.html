@@ -101,8 +101,8 @@
             <a href='/contacts_export'><button class='button grey'>Export Contact Info</button></a>
             <a href='pdf' target="_blank"><button id='export' class='button dark-blue'>Print/Export PDF</button></a>
           {% endif %}
-          {% if not current_user.p200_submitted_to_manager and not current_user.p200_approved %}
-          <a href='/submit_p200_to_manager'><button id='submit' class='button teal'>Submit For Approval</button></a>
+          {% if not current_user.p200_submitted_to_manager and not current_user.p200_approved and current_user.p200_count | int >= 50 %}
+            <a href='/submit_p200_to_manager'><button id='submit' class='button teal'>Submit For Approval</button></a>
           {% endif %}
 <!--           <button class='button teal'>View Skipped Connections</button> -->
         {% endif %}
