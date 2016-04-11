@@ -1,8 +1,9 @@
 <script type='text/javascript'>
 $(function() {
-  {%if message is not none %}
+  if ("{{ message }}".length>0 && "{{ message }}" !="None") {
     showSuccess("{{message}}");
-  {%endif%}
+  }
+
    var $industry = $("[name='market']");
    var $state = $("[name='state']")
    var $stars = $("[name='stars']");

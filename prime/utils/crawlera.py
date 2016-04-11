@@ -116,7 +116,7 @@ def reformat_crawlera(json):
     }
 
 def test_refactor():
-    sample_data_path = "/Users/lauren/Documents/arachnid/prime/tests/fixtures/crawlera_sample.jsonl"
+    sample_data_path = "/Users/lauren/Documents/prime/prime/tests/fixtures/crawlera_sample.jsonl"
     f = open(sample_data_path,"r")
     lines = f.readlines()
     j = [json.loads(line) for line in lines]
@@ -128,7 +128,7 @@ def test_refactor():
         print key
 
     keynames = set()
-    sample_data_path = "/Users/lauren/Documents/arachnid/prime/tests/fixtures/crawlera_sample_companies.jsonl"
+    sample_data_path = "/Users/lauren/Documents/prime/prime/tests/fixtures/crawlera_sample_companies.jsonl"
     f = open(sample_data_path,"r")
     lines = f.readlines()
     j = [json.loads(line) for line in lines]
@@ -139,7 +139,7 @@ def test_refactor():
         print key
 
     keynames = set()
-    sample_data_path = "/Users/lauren/Documents/arachnid/prime/tests/fixtures/crawlera_sample_schools.jsonl"
+    sample_data_path = "/Users/lauren/Documents/prime/prime/tests/fixtures/crawlera_sample_schools.jsonl"
     f = open(sample_data_path,"r")
     lines = f.readlines()
     j = [json.loads(line) for line in lines]
