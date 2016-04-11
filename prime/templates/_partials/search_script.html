@@ -166,7 +166,8 @@ $(function() {
         var id = $(this).data("remove");
         var params = {id: id}
         $.post("/remove-connections", params, function() {
-          $("[data-row=" + id + "]").slideUp();
+          // $("[data-row=" + id + "]").slideUp();
+          window.location.reload(true);
         });
     });
   }
