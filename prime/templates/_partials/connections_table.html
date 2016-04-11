@@ -34,6 +34,17 @@
     {% endfor %}
   </tbody>
   <tfoot>
+    {% if active == "p200" or active == "pdf" %}
+    {% else %}
+      <th>
+        <input name='select-all' type="checkbox" />
+      </th>
+    {% endif %}
+    {% if active == "p200" or active == "pdf" %}
+      <th>{{ agent.first_name }} {{ agent.last_name }}'s Prospects</th>
+    {% else %}
+      <th>Select all on this page</th>
+    {% endif %}
     <th class="select-all-buttons">
       {% if active == "p200" %}     
       {% elif active == "pdf" %}     
