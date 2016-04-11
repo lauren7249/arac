@@ -180,10 +180,10 @@ $(function() {
         var ids = ids.join()
         var params = {id:ids, multi:true}
         $.post("/add-connections", params, function() {
-          var saved = ids.split(",");
-          for (var j=0;j<saved.length;j++) {
-            $("[data-row='" + saved[j] + "']").slideUp();
-          }
+          // var saved = ids.split(",");
+          // for (var j=0;j<saved.length;j++) {
+          //   $("[data-row='" + saved[j] + "']").slideUp();
+          // }
           window.location.reload(true);
         });
     });
