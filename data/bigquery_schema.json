@@ -143,11 +143,6 @@
         "mode": "REPEATED"
     },
     {
-        "name": "interests",
-        "type": "STRING",
-        "mode": "REPEATED"
-    },
-    {
         "name": "updated",
         "type": "STRING",
         "mode": "NULLABLE"
@@ -463,23 +458,6 @@
                 "name": "url",
                 "type": "STRING",
                 "mode": "NULLABLE"
-            },
-            {
-                "name": "authors",
-                "type": "RECORD",
-                "mode": "REPEATED",
-                "fields": [
-                    {
-                        "name": "full_name",
-                        "type": "STRING",
-                        "mode": "NULLABLE"
-                    },
-                    {
-                        "name": "url",
-                        "type": "STRING",
-                        "mode": "NULLABLE"
-                    }
-                ]
             }
         ]
     },
