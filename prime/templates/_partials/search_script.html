@@ -167,6 +167,7 @@ $(function() {
         var params = {id: id}
         $.post("/remove-connections", params, function() {
           // $("[data-row=" + id + "]").slideUp();
+          //counter wouldnt update otherwise
           window.location.reload(true);
         });
     });
@@ -184,6 +185,7 @@ $(function() {
           // for (var j=0;j<saved.length;j++) {
           //   $("[data-row='" + saved[j] + "']").slideUp();
           // }
+          //counter wouldnt update otherwise
           window.location.reload(true);
         });
     });
