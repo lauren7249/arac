@@ -159,16 +159,10 @@
         </div>
       {% endif %}
     {% endwith %}
-    
-    
-    <script type='text/javascript'>
-      console.log("{{active}}")
-    </script>
 
     <script type='text/javascript'>
       $( document ).ready(function() {
         var local = document.location.href.split("/").slice(2,3).join("/").trim().toLowerCase();
-        console.log(local);
         if (local == 'demo.advisorconnect.co') {
           $("#header_logo").attr('class', 'generic-logo');
           $("#faq").css("display","none");  
@@ -204,7 +198,6 @@
       $(function() {
 
         $("[id$=_p200_button]").click(function() {
-          console.log("clik")
           var user_id = $(this).data("p200-id");
           var name = $(this).name;
           if (user_id != undefined && user_id != null && user_id != '') {
