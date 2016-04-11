@@ -111,10 +111,14 @@ header {
     font-size: 12px;
     font-weight: 600;
     span {
+      line-height: $header-height;
       display: inline-block;
       vertical-align: middle;
       margin-right: 30px;
     }
+  }
+  .contacts-left {    
+    color: $purple;
   }
   #settings {
     position: relative;    
@@ -129,23 +133,26 @@ header {
       background: white;
       height: auto;
       line-height: 0;
-      width: 200px;
+      min-width: 100px;
+      padding: 10px 20px 20px;
       z-index: 4;
       ul {
         list-style-type: none;
         padding: 0;
         margin: 0;
         li {
-          padding: 5px;
-          text-transform: uppercase;
           text-align: right;
+          font-size: 12px;
+          height: auto;
+          line-height: normal;
+          margin-bottom: 10px; 
+          // height: 40px;
+          // line-height: 40px;
+          // padding: 10px;
           a {
+            display: block;
             color: $blue;
             text-decoration: none;
-            font-size: 12px;
-            height: 40px;
-            line-height: 40px;
-            padding: 10px;
           }
         }
       }
@@ -161,15 +168,11 @@ header {
     cursor: pointer;
     color: $grey;
     position: relative;
-    line-height: normal;
-    display: block;
-    height: 100px;
-    padding-top: 34px;
     &:after {
       position: absolute;
-      top: 50%;
+      top: 6px;
       right: 0;
-      margin-right: -30px;
+      margin-right: -20px;
       width: 0;
       border-top: 4px solid $grey;
       border-right: 4px solid transparent;
@@ -178,18 +181,9 @@ header {
       font-size: 0;
       line-height: 0; 
     }
-
-
-    div {
-      display: block;
-    }
-    small {
-      display: block;
-    }    
     .face {
       display: inline-block;
-      vertical-align: middle;
-      
+      vertical-align: middle;      
     }
   }
 }
@@ -1350,11 +1344,6 @@ table.contacts-table {
     float: left;
     margin-right: 10px;
   }
-}
-
-.contacts-left {    
-  color: $purple;
-  margin-bottom: 20px;
 }
 
 

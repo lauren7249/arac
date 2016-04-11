@@ -63,9 +63,13 @@ header .nav-right {
   font-weight: 600;
 }
 header .nav-right span {
+  line-height: 100px;
   display: inline-block;
   vertical-align: middle;
   margin-right: 30px;
+}
+header .contacts-left {
+  color: #9F81EB;
 }
 header #settings {
   position: relative;
@@ -80,7 +84,8 @@ header #settings div.autocomplete {
   background: white;
   height: auto;
   line-height: 0;
-  width: 200px;
+  min-width: 100px;
+  padding: 10px 20px 20px;
   z-index: 4;
 }
 header #settings div.autocomplete ul {
@@ -89,17 +94,16 @@ header #settings div.autocomplete ul {
   margin: 0;
 }
 header #settings div.autocomplete ul li {
-  padding: 5px;
-  text-transform: uppercase;
   text-align: right;
+  font-size: 12px;
+  height: auto;
+  line-height: normal;
+  margin-bottom: 10px;
 }
 header #settings div.autocomplete ul li a {
+  display: block;
   color: #27B4F4;
   text-decoration: none;
-  font-size: 12px;
-  height: 40px;
-  line-height: 40px;
-  padding: 10px;
 }
 header #settings:hover div.autocomplete {
   display: block;
@@ -108,16 +112,12 @@ header a.user {
   cursor: pointer;
   color: #787B80;
   position: relative;
-  line-height: normal;
-  display: block;
-  height: 100px;
-  padding-top: 34px;
 }
 header a.user:after {
   position: absolute;
-  top: 50%;
+  top: 6px;
   right: 0;
-  margin-right: -30px;
+  margin-right: -20px;
   width: 0;
   border-top: 4px solid #787B80;
   border-right: 4px solid transparent;
@@ -125,12 +125,6 @@ header a.user:after {
   content: " ";
   font-size: 0;
   line-height: 0;
-}
-header a.user div {
-  display: block;
-}
-header a.user small {
-  display: block;
 }
 header a.user .face {
   display: inline-block;
@@ -1302,11 +1296,6 @@ table.contacts-table .contact-buttons .button {
   display: block;
   float: left;
   margin-right: 10px;
-}
-
-.contacts-left {
-  color: #9F81EB;
-  margin-bottom: 20px;
 }
 
 .pdf-p200 {
