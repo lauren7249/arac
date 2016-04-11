@@ -6,8 +6,12 @@
 <!-- Contacts Table-->
 <div class="section" data-step="1" data-intro="Welcome back!  To help you build your Project 200, you can sort your contacts using the filters or you can search by name.">
   <div class="wrap">
-    <div class="col-9">
+    <div class="col-12">
       <div class="filters">
+        <span class="filter--search">
+          <input type="search" name='search-box' id='search-box' placeholder="Search By Name"/>
+          <button id="search-button"></button>
+        </span>        
         <span>
           <select name='stars'>
             <option value=''>Any Rating</option>
@@ -42,16 +46,36 @@
             <option value='3'>Retirees (60+)</option>
           </select>
         </span>
-        <span>
-          <label data-sort='a-z' class="sort-abc sort-down active">A - Z</label>
-          <label data-sort='z-a' class="sort-abc sort-down active">Z - A</label>
-        </span>
-      </div>
-    </div>
-    <div class="col-3">
-      <div class="search">
-        <input type="search" name='search-box' id='search-box' placeholder="Search By Name"/>
-        <button id="search-button"></button>
+        <div class="filter--abc">
+          <b data-sort='a-z' class="active">A</b>
+          <b data-sort='a-z'>B</b>
+          <b data-sort='a-z'>C</b>
+          <b data-sort='a-z'>D</b>
+          <b data-sort='a-z'>E</b>
+          <b data-sort='a-z'>F</b>
+          <b data-sort='a-z'>G</b>
+          <b data-sort='a-z'>H</b>
+          <b data-sort='a-z'>I</b>
+          <b data-sort='a-z'>J</b>
+          <b data-sort='a-z'>K</b>
+          <b data-sort='a-z'>L</b>
+          <b data-sort='a-z'>M</b>
+          <b data-sort='a-z'>N</b>
+          <b data-sort='a-z'>O</b>
+          <b data-sort='a-z'>P</b>
+          <b data-sort='a-z'>Q</b>
+          <b data-sort='a-z'>R</b>
+          <b data-sort='a-z'>S</b>
+          <b data-sort='a-z'>T</b>
+          <b data-sort='a-z'>U</b>
+          <b data-sort='a-z'>V</b>
+          <b data-sort='a-z'>W</b>
+          <b data-sort='a-z'>X</b>
+          <b data-sort='a-z'>Y</b>
+          <b data-sort='a-z'>Z</b>
+          <!-- <label data-sort='a-z' class="sort-abc sort-down active">A - Z</label>
+          <label data-sort='z-a' class="sort-abc sort-down active">Z - A</label> -->
+        </div>        
       </div>
     </div>
   </div>

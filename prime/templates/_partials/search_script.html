@@ -145,7 +145,8 @@ $(function() {
         var params = {id: id}
         //var n = agent.p200_count;
         $.post("/add-connections", params, function() {
-          $("[data-row=" + id + "]").slideUp();
+          // $("[data-row=" + id + "]").slideUp();
+          //counter wouldnt update otherwise
           window.location.reload(true);
         });
     });
@@ -156,7 +157,10 @@ $(function() {
         var id = $(this).data("skip");
         var params = {id: id}
         $.post("/skip-connections", params, function() {
-          $("[data-row=" + id + "]").slideUp();
+          // $("[data-row=" + id + "]").slideUp();
+          //counter wouldnt update otherwise
+
+          window.location.reload(true);
         });
     });
   }
