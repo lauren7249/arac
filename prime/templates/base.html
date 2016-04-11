@@ -170,17 +170,28 @@
         }
           
       });    
+
       $("#success").click(function(){
         $("#success").css("display","none");  
         document.getElementById("success").close();    
+      });
+      $("#error").click(function(){
+        $("#error").css("display","none");  
+        document.getElementById("error").close();    
       });
 
       function showSuccess(message) {
         $("#p200_success_message").text(message);
         $("#spinner").css("display","none");          
         $("#success").css("display","block");      
-        // document.getElementById("success").showModal();
       }
+
+      function showError(message) {
+        $("#p200_error_message").text(message);
+        $("#spinner").css("display","none");          
+        $("#error").css("display","block");      
+      }   
+
       var csrftoken = "{{ csrf_token() }}"
       $(function() {
 
