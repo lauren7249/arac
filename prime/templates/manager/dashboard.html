@@ -116,8 +116,8 @@
               <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
             </td>
             {% if agent.hiring_screen_completed %}
-              <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
-              <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+              <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
+              <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
             {%else%}
               <td>-</td>
               <td>-</td>                
@@ -195,8 +195,8 @@
               <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
             </td>
             {% if agent.hiring_screen_completed %}
-            <td>{{ '{0:,}'.format(agent.primary_network_size | int) }}</td>
-            <td>{{ '{0:,}'.format(agent.extended_network_size | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
             {%else%}
             <td>-</td>
             <td>-</td>
