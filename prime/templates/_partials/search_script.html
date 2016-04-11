@@ -1,5 +1,11 @@
 <script type='text/javascript'>
 $(function() {
+  {%if message is not none %}
+
+    showSuccess("{{message}}");
+    console.log("{{message}}");
+
+  {%endif%}
    var $industry = $("[name='market']");
    var $state = $("[name='state']")
    var $stars = $("[name='stars']");

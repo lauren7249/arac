@@ -458,9 +458,10 @@ class SearchResults(object):
 
     def _age(self):
         AGE_DICT = {
-                '1':[21, 45],
+                '1':[0, 45],
                 '2': [45, 60],
-                '3': [60, 200]
+                '3': [60, 200],
+                'null': [0, 200]
                 }
         ages = AGE_DICT[self.age]
         return self.sql_query.filter(Prospect.age >=
@@ -513,6 +514,7 @@ def connections():
         if current_user.hiring_screen_completed:
             return redirect(url_for('prospects.dashboard'))
         return redirect(url_for('prospects.start'))
+    message = request.args.get("message",None)
     page = int(request.args.get("p", 1))
     p200 = bool(request.args.get("p200",False))
     order = request.args.get("order", "a-z")
@@ -544,7 +546,8 @@ def connections():
             page=page,
             connections=connections.items,
             pagination=connections,
-            active=active)
+            active=active, 
+            message=message)
 
 @csrf.exempt
 @prospects.route("/p200", methods=['GET', 'POST'])
@@ -661,14 +664,11 @@ def submit_p200_to_manager():
             ClientProspect.good==True,
             ClientProspect.user==agent,
             ).join(Prospect).order_by(Prospect.name)
-    #TODO disabling 50 connection rule.
-    if connections.count() < 50:
-       return jsonify({"error": "You must have at least 50 connections"})
     agent.submit_to_manager()
     agent.p200_submitted_to_manager = True
     session.add(agent)
     session.commit()
-    return redirect("connections?p200=True")
+    return redirect("connections?p200=True&message=Your P200 has been submitted and is pending approval.")
 
 
 @prospects.route("/exclusions_report", methods=['GET'])
