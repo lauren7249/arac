@@ -110,7 +110,7 @@
             </div>  
             <div id='csv-area' class="connect-email" onclick="_csv();" >
               <img id='csv' type="Submit" src="/static/img/csv-40.png"/>
-              <div class="hint--top hint--big button teal small" data-hint="Click here to manually contacts using a CSV file.">Add CSV</div>
+              <div class="hint--top hint--big button teal small" data-hint="Click here to upload email addresses from a CSV file. Please note: the filename must have a '.csv' extension.">Add CSV</div>
               <div class='connected_area'>
                 {%if agent.contacts_from_csv | int > 0 %}
                   <div class='connected' id="csv_response">Added {{ '{0:,}'.format(agent.contacts_from_csv | int) }} contacts from CSV</div>
