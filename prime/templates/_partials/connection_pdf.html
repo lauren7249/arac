@@ -86,6 +86,9 @@
       {% if agent.prospect.goodreads %}
         <a href="{{ agent.prospect.goodreads }}"><img src="/static/img/social/goodreads-blue.png"></a>
       {% endif %}
+      {% if agent.prospect.instagram %}
+        <a href="{{ agent.prospect.instagram }}"><img src="/static/img/social/instagram-blue.png"></a>
+      {% endif %}
     </p>
     {% if connection.prospect.emails %}
       <p>{{ connection.prospect.emails }}</p>

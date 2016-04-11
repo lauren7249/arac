@@ -117,8 +117,8 @@ header {
     }
   }
   #settings {
-    position: relative;
-
+    position: relative;    
+    // menu
     div.autocomplete {
       display: none;
       position: absolute;
@@ -150,7 +150,7 @@ header {
         }
       }
     }
-
+    // show menu
     &:hover {
       div.autocomplete {
         display: block;
@@ -161,11 +161,15 @@ header {
     cursor: pointer;
     color: $grey;
     position: relative;
-      &:after {
+    line-height: normal;
+    display: block;
+    height: 100px;
+    padding-top: 34px;
+    &:after {
       position: absolute;
-      top: 8px;
+      top: 50%;
       right: 0;
-      margin-right: -15px;
+      margin-right: -30px;
       width: 0;
       border-top: 4px solid $grey;
       border-right: 4px solid transparent;
@@ -174,9 +178,18 @@ header {
       font-size: 0;
       line-height: 0; 
     }
+
+
+    div {
+      display: block;
+    }
+    small {
+      display: block;
+    }    
     .face {
       display: inline-block;
       vertical-align: middle;
+      
     }
   }
 }
@@ -315,6 +328,8 @@ table {
   min-width: 100px;
   text-align: center;
   padding: 0 10px;
+  font-size: 14px;
+  font-weight: normal;
   color: white;
   @include border-radius(2px);
   border: none;
@@ -576,11 +591,11 @@ form {
   }
 }
 .toast--success {
-  width:300px;
-  position:fixed;
-  left:50%;
-  padding:15px;
-  margin-left:-150px; /* negative half the size of width */
+  // width:300px;
+  // position:fixed;
+  // left:50%;
+  // padding:15px;
+  // margin-left:-150px; /* negative half the size of width */
   background-color: $success;
   z-index: 10;
 }
@@ -773,16 +788,23 @@ $padcount: 5;
 .manager-team-metrics {
   margin-bottom: 20px;
   .metric-block {
+    position: relative;
     display: block;    
-    padding: 20px 10px;
+    padding: 20px;
+    min-height: 180px;
     background-color: white;
     @include border-radius(4px);
     text-align: center;
     h2 {
+      font-size: 50px;
+      line-height: 50px; 
       color: $teal;
       margin: 0;
+      padding-bottom: 20px;
+      border-bottom: 1px solid $border;
     }
     .caps {
+      margin-top: 20px;
       color: $grey;
     }
   }

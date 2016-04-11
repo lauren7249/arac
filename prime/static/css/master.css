@@ -108,12 +108,16 @@ header a.user {
   cursor: pointer;
   color: #787B80;
   position: relative;
+  line-height: normal;
+  display: block;
+  height: 100px;
+  padding-top: 34px;
 }
 header a.user:after {
   position: absolute;
-  top: 8px;
+  top: 50%;
   right: 0;
-  margin-right: -15px;
+  margin-right: -30px;
   width: 0;
   border-top: 4px solid #787B80;
   border-right: 4px solid transparent;
@@ -121,6 +125,12 @@ header a.user:after {
   content: " ";
   font-size: 0;
   line-height: 0;
+}
+header a.user div {
+  display: block;
+}
+header a.user small {
+  display: block;
 }
 header a.user .face {
   display: inline-block;
@@ -248,6 +258,8 @@ table th {
   min-width: 100px;
   text-align: center;
   padding: 0 10px;
+  font-size: 14px;
+  font-weight: normal;
   color: white;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -498,12 +510,6 @@ form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
 }
 
 .toast--success {
-  width: 300px;
-  position: fixed;
-  left: 50%;
-  padding: 15px;
-  margin-left: -150px;
-  /* negative half the size of width */
   background-color: #6CCC48;
   z-index: 10;
 }
@@ -736,8 +742,10 @@ hr {
   margin-bottom: 20px;
 }
 .manager-team-metrics .metric-block {
+  position: relative;
   display: block;
-  padding: 20px 10px;
+  padding: 20px;
+  min-height: 180px;
   background-color: white;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -746,10 +754,15 @@ hr {
   text-align: center;
 }
 .manager-team-metrics .metric-block h2 {
+  font-size: 50px;
+  line-height: 50px;
   color: #02C2B9;
   margin: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #DADFE1;
 }
 .manager-team-metrics .metric-block .caps {
+  margin-top: 20px;
   color: #787B80;
 }
 
