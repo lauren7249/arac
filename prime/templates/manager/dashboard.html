@@ -63,7 +63,7 @@
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
                 <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-              {% elif agent.unique_contacts_uploaded > 0 %}
+              {% elif agent.unique_contacts_uploaded | int > 0 %}
                 <span class='in-progress hint--top' data-hint='Contacts have been uploaded and the Network Analysis will be available within 24 hours.'>In Progress</span>   
               {% else %}
                 {% if agent.account_created %}
@@ -125,7 +125,7 @@
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
                 <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-              {% elif agent.unique_contacts_uploaded > 0 %}
+              {% elif agent.unique_contacts_uploaded | int > 0 %}
                 <span class='pending hint--top' data-hint='Contacts have been uploaded and the Network Analysis will be available within 24 hours.'>In Progress</span>
               {% else %}
                 {% if agent.account_created %}
