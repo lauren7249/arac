@@ -504,6 +504,12 @@ form.card, form.wizard, form.onboard-body, form.onboard-footer, form.note {
 }
 
 .toast--success {
+  width: 300px;
+  position: fixed;
+  left: 50%;
+  padding: 15px;
+  margin-left: -150px;
+  /* negative half the size of width */
   background-color: #6CCC48;
   z-index: 10;
 }
