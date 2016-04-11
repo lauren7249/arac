@@ -110,12 +110,23 @@
     </div>
   </div>
 </div>
-<div class="section" id='connections-section'>
-  <div class="wrap" id='connections'>
-    {% include "_partials/connections_table.html" %}
-  </div>
-</div>
+{%if current_user.p200_count | int > 0 %}
+  <div class="section" id='connections-section'>
+    <div class="wrap" id='connections'>
 
+      {% include "_partials/connections_table.html" %}
+    </div>
+  </div>
+{%else%}
+<div class="section">
+  <div class="wrap">
+    <div class="note" style="text-align: center;">
+      <br/>
+      <p>You haven't added any contacts yet. Use the "Build Project 200" tab to start adding people to this list.</p>
+    </div>   
+  </div>
+<div>
+{%endif%}
 {% include "_partials/search_script.html" %}
 
 {% endblock %}
