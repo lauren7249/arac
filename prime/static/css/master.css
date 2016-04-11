@@ -1244,6 +1244,9 @@ table.contacts-table .contact-buttons .button {
 .contact-links a.amazon {
   background-image: url("/static/img/social/amazon-blue.png");
 }
+.contact-links a.instagram {
+  background-image: url("/static/img/social/instagram-blue.png");
+}
 .contact-links a.location {
   background-image: url("/static/img/social/location-blue.png");
 }
