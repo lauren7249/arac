@@ -73,8 +73,6 @@
           <b data-sort='a-z'>X</b>
           <b data-sort='a-z'>Y</b>
           <b data-sort='a-z'>Z</b>
-          <!-- <label data-sort='a-z' class="sort-abc sort-down active">A - Z</label>
-          <label data-sort='z-a' class="sort-abc sort-down active">Z - A</label> -->
         </div>        
       </div>
     </div>
@@ -83,9 +81,9 @@
 <hr/>
 <div class="section" id='connections-section'>
   <div class="wrap" id='connections'>
-    {% if not current_user.is_manager and current_user.p200_completed %}
+<!--     {% if not current_user.is_manager and current_user.p200_completed %}
       <div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts Selected</div>
-    {% endif %}
+    {% endif %} -->
     {% include "_partials/connections_table.html" %}
   </div>
 </div>
