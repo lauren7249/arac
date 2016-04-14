@@ -233,6 +233,10 @@ def faq():
 def terms():
     return render_template('terms.html')
 
+@prospects.route("/privacy")
+def terms():
+    return render_template('privacy.html')
+
 @csrf.exempt
 @prospects.route('/linkedin_failed', methods=['POST'])
 def linkedin_login_failed():
