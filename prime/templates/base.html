@@ -4,7 +4,7 @@
   var ua = navigator.userAgent.toLowerCase();
   
   if (!/msie 10/.test(ua) && //IE 10
-      ua != 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko'.toLowerCase() && //IE 11
+      !/rv:11\.0/.test(ua) && //IE 11
       !/chrome/.test(ua) 
       //TODO: add safari mozilla/5.0 (macintosh; intel mac os x 10_10_5) applewebkit/601.5.17 (khtml, like gecko) version/9.1 safari/601.5.17
       //TODO: add ipad
