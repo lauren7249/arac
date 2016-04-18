@@ -407,6 +407,9 @@ def upload():
             client_data = {"first_name":current_user.first_name,"last_name":current_user.last_name,\
                     "email":current_user.email,"location":current_user.location,"url":current_user.linkedin_url,\
                     "to_email":to_email}
+            current_user.hiring_screen_started = True
+            session.add(current_user)
+            session.commit()
             q = get_q()
             q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
     return jsonify({"contacts": current_user.unique_contacts_uploaded})

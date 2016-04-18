@@ -48,7 +48,7 @@
           <th class="agent-p200">P200</th>
         </thead>
         <tbody>
-          {% for agent in hired_agents %}
+          {% for agent in hired_agents if agent.manager_id == current_user.manager_profile[0].manager_id %}
           <tr>
             <td class="agent">
               {% if agent.prospect %}
@@ -63,7 +63,7 @@
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
                 <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-              {% elif agent.unique_contacts_uploaded | int > 0 %}
+              {% elif agent.hiring_screen_started %}
                 <span class='in-progress hint--top' data-hint='Contacts have been uploaded and the Network Analysis will be available within 24 hours.'>In Progress</span>   
               {% else %}
                 {% if agent.account_created %}
@@ -107,7 +107,7 @@
           <th class="agent-resend">Resend Invite</th>
         </thead>
         <tbody>
-          {% for agent in candidates %}
+          {% for agent in candidates if agent.manager_id == current_user.manager_profile[0].manager_id %}
           <tr data-agent-row='{{ agent.user_id }}'>
             <td class="agent">
               {% if agent.prospect %}
@@ -125,7 +125,7 @@
             <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
               {% if agent.hiring_screen_completed %}
                 <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
-              {% elif agent.unique_contacts_uploaded | int > 0 %}
+              {% elif agent.hiring_screen_started %}
                 <span class='pending hint--top' data-hint='Contacts have been uploaded and the Network Analysis will be available within 24 hours.'>In Progress</span>
               {% else %}
                 {% if agent.account_created %}
@@ -229,8 +229,11 @@
         $(tabName).show();
       }
     }
-    setScreen();
 
+    setScreen();
+    {%if reinvited is not none %}
+      showSuccess("Re-invitation sent to {{ reinvited }}. Previous data for this candidate has been reset until the new Network Analysis is complete.");
+    {%endif%}
 
     $("[data-tab]").click(function() {
       $(".tabset li").removeClass("active")

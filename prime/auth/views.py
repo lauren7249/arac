@@ -25,11 +25,7 @@ logger = logging.getLogger(__name__)
 def login():
     from prime.users.models import User
     if current_user.is_authenticated():
-        if current_user.is_manager:
-            return redirect(url_for('managers.manager_home'))
-        if current_user.p200_completed:
-            return redirect(url_for('prospects.dashboard'))
-        return redirect(url_for('prospects.start'))
+        logout_user()
     form = LoginForm()
     valid = True
     if form.is_submitted():

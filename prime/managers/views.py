@@ -4,6 +4,7 @@ import random
 import datetime
 import requests
 import json
+import re
 import urllib
 from flask import render_template, request, redirect, url_for, flash, session, \
     jsonify, current_app
@@ -36,6 +37,7 @@ def manager_home():
         return redirect(url_for('auth.login'))
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
+    reinvited = request.args.get("reinvited",None)
     manager = current_user.manager_profile[0]
     agents = manager.users.filter(User.email.contains("@")).order_by(User.first_name, User.last_name, User.email)
     hired_agents = agents.filter(User.hired == True).all()
@@ -47,6 +49,7 @@ def manager_home():
             candidates=candidates,
             not_hired=not_hired,
             manager=manager,
+            reinvited=reinvited,
             active="selected")
 
 
@@ -63,23 +66,21 @@ def manager_invite_agent():
         first_name = request.form.get("first_name")
         last_name = request.form.get("last_name")
         to_email = request.form.get("email").lower()
+        if not re.search(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", to_email):
+            error_message = "{} is not a valid email address.".format(to_email)
+            return render_template('manager/invite.html', active="invite", error_message=error_message,
+                                   success=False)            
         agent = session.query(User).filter(User.email == to_email).first()
         if agent:
             if agent.is_manager:
-                error_message = "This person exists in our system as a manager, therefore you cannot invite them as " \
+                error_message = "This candidate exists in our system as a manager, therefore you cannot invite them as " \
                                 "an agent."
                 return render_template('manager/invite.html', active="invite", error_message=error_message,
                                        success=False)
-            agent.clear_data()
-            agent.set_password('')
-            agent.account_created = False
-            agent.unique_contacts_uploaded = 0
-            agent.hiring_screen_completed = False
-            agent.p200_completed = False
-            agent.p200_started = False
-            agent.p200_submitted_to_manager = False
-            agent.p200_approved = False
-            agent._statistics = None
+            if not agent.not_hired:
+                error_message = "This candidate is still being evaluated by another manager, therefore you cannot invite them. For more information, feel free to email jeff@advisorconnect.co."
+                return render_template('manager/invite.html', active="invite", error_message=error_message,
+                                       success=False)                
             user = agent
             #remove the user from their previous manager's dashboard.
             if user.manager:
@@ -113,7 +114,7 @@ def manager_reinvite_agent():
         user_id = int(request.form.get('user_id'))
         user = User.query.filter(User.user_id == user_id).first()
         user.invite()
-    return redirect('/managers/dashboard#prospective-agents')
+    return redirect('/managers/dashboard?reinvited={}#prospective-agents'.format(user.email))
 
 
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
