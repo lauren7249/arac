@@ -234,7 +234,7 @@ def terms():
     return render_template('terms.html')
 
 @prospects.route("/privacy")
-def terms():
+def privacy():
     return render_template('privacy.html')
 
 @csrf.exempt
