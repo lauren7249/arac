@@ -37,7 +37,7 @@ def manager_home():
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
     manager = current_user.manager_profile[0]
-    agents = manager.users.order_by(User.first_name, User.last_name, User.email)
+    agents = manager.users.filter(User.email.contains("@")).order_by(User.first_name, User.last_name, User.email)
     hired_agents = agents.filter(User.hired == True).all()
     candidates = agents.filter(User.hired == False, User.not_hired ==\
             False).all()
