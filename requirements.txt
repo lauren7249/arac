@@ -101,3 +101,4 @@ XlsxWriter==0.8.4
 yappi==0.94
 captcha-solver==0.0.3
 Pillow==3.0.0
+google-api-python-client==1.4.2
