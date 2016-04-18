@@ -9,49 +9,49 @@
 </div>
 {% include "_partials/agent_nav.html" %}
 {%if agent.primary_network_size(p200=p200) | int > 0 %}
-<div class="section">
-  <div class="wrap card">
-    <div class="col-6">
-      <div class="qualified-contacts">
-        <h2 class="text-center">Market in GO Territory</h2>
-        <canvas width="400px" height="240px" id='connections'></canvas>
-        <h4 class="hint--top" data-hint="Number of qualified contacts in first-degree network." style='width: 130px;'>Initial</h4>
-        <h4 class="hint--top" data-hint="Number of qualified contacts in second-degree network." style='width: 130px;'>Extended</h4>
-        <h4 class="hint--top" data-hint="Number of first-degree plus second-degree qualified network contacts." style='width: 130px;'>Total</h4>
-      </div>
-    </div>
-    <div class="col-6">
-      <div class="network-breakdown">
-        <h2 class="text-center hint--top">All Contacts by State</h2>        
-        <canvas width="400px" height="240px" id='state'></canvas> 
-      </div>
-    </div>    
-  </div>
-</div>
-<div class="section">
-  <div class="wrap">
-    <div class="col-7">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="hint--top">Initial Market by Industry</h4>
+  <div class="section">
+    <div class="wrap card">
+      <div class="col-6">
+        <div class="qualified-contacts">
+          <h2 class="text-center">Market in GO Territory</h2>
+          <canvas width="400px" height="240px" id='connections'></canvas>
+          <h4 class="hint--top" data-hint="Number of qualified contacts in first-degree network." style='width: 130px;'>Initial</h4>
+          <h4 class="hint--top" data-hint="Number of qualified contacts in second-degree network." style='width: 130px;'>Extended</h4>
+          <h4 class="hint--top" data-hint="Number of first-degree plus second-degree qualified network contacts." style='width: 130px;'>Total</h4>
         </div>
-        {%include "_partials/potential_markets.html" %}
       </div>
-      <br>      
-      {%include "_partials/contacts_uploaded.html" %}
-      {% if not current_user.is_manager %}
-       <!--  <span><small><a href='/exclusions_report'>Download detailed exclusions report</a></small></span> -->
-      {%endif%}
-    </div>
-    <div class="col-5">
-      {%include "_partials/network_statistics.html" %}
+      <div class="col-6">
+        <div class="network-breakdown">
+          <h2 class="text-center hint--top">All Contacts by State</h2>        
+          <canvas width="400px" height="240px" id='state'></canvas> 
+        </div>
+      </div>    
     </div>
   </div>
-</div>  
-{%with print = false %}
-{%include "_partials/network_summary_script.html" %}
-{%endwith%}
-{%else%}
+  <div class="section">
+    <div class="wrap">
+      <div class="col-7">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="hint--top">Initial Market by Industry</h4>
+          </div>
+          {%include "_partials/potential_markets.html" %}
+        </div>
+        <br>      
+        {%include "_partials/contacts_uploaded.html" %}
+        {% if not current_user.is_manager %}
+         <!--  <span><small><a href='/exclusions_report'>Download detailed exclusions report</a></small></span> -->
+        {%endif%}
+      </div>
+      <div class="col-5">
+        {%include "_partials/network_statistics.html" %}
+      </div>
+    </div>
+  </div>  
+  {%with print = false %}
+    {%include "_partials/network_summary_script.html" %}
+  {%endwith%}
+{%elif not p200%}
   <div class="section">
     <div class="wrap">
       <div class="note" style="text-align: center;">

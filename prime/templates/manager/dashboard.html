@@ -74,7 +74,7 @@
               {% endif %}
             </td>  
             <td class="agent-p200" data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
-              {%if agent.p200_submitted_to_manager %}
+              {%if agent.p200_submitted_to_manager and agent.p200_count | int > 0 %}
                 <a target='_self' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
               {% elif agent.p200_completed %}
                 <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections available, pending agent P200 submission.'>Pending</span> 
