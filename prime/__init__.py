@@ -55,6 +55,8 @@ def create_app(config_name):
     RQ(app)
     if config == 'beta':
         SSLify(app)
+    from raven.contrib.flask import Sentry
+    sentry = Sentry(app, dsn='https://97521d50b8d647d2b25d7a29f4895ce1:7cd28a9ea427402987b40b1a08b834de@app.getsentry.com/74764')
     return app
 
 def init_assets(app):

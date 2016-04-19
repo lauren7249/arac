@@ -1,4 +1,6 @@
 import hashlib
+from raven import Client
+
 import sys
 import os
 import traceback
@@ -15,7 +17,7 @@ import dateutil
 from pipl_request import PiplRequest
 from person_request import PersonRequest
 from saved_request import S3SavedRequest
-from prime.users.models import User 
+from prime.users.models import User
 from prime import create_app
 from flask.ext.sqlalchemy import SQLAlchemy
 try:
@@ -26,13 +28,13 @@ except Exception, e:
     exc_info = sys.exc_info()
     traceback.print_exception(*exc_info)
     exception_str = traceback.format_exception(*exc_info)
-    if not exception_str: exception_str=[""]    
+    if not exception_str: exception_str=[""]
     print "ERROR: " + str(e)
     print "ERROR: " + "".join(exception_str)
     from prime import db
     session = db.session
 
-reload(sys) 
+reload(sys)
 sys.setdefaultencoding('utf-8')
 
 class Service(object):
@@ -42,7 +44,7 @@ class Service(object):
         self.session = session
         self.input_data = input_data if input_data else {}
         self.client_data = self.input_data.get("client_data",{})
-        self.data = self.input_data.get("data",[])        
+        self.data = self.input_data.get("data",[])
         self.excluded = self.input_data.get("excluded",[])
         self.output = []
         logging.getLogger(__name__)
@@ -82,8 +84,10 @@ class Service(object):
         exception_str = traceback.format_exception(*exc_info)
         if not exception_str: exception_str=[""]
         self.logger.error('Error in process {}: {}'.format(self.__class__.__name__,exception_str))
-        sendgrid_email('processing_script_error@advisorconnect.co','failed p200',"{}'s p200 failed during {} at {} outputs, with error {}".format(self.client_data.get("email"), self.__class__.__name__, str(len(self.output)), "\n".join(exception_str)), ccs=['jamesjohnson11@gmail.com'])          
-            
+        client = Client('https://97521d50b8d647d2b25d7a29f4895ce1:7cd28a9ea427402987b40b1a08b834de@app.getsentry.com/74764')
+        client.captureMessage('Error in process {}: {}'.format(self.__class__.__name__,exception_str))
+        sendgrid_email('processing_script_error@advisorconnect.co','failed p200',"{}'s p200 failed during {} at {} outputs, with error {}".format(self.client_data.get("email"), self.__class__.__name__, str(len(self.output)), "\n".join(exception_str)), ccs=['jamesjohnson11@gmail.com'])
+
     def multiprocess(self):
         self.logstart()
         try:
