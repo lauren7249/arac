@@ -89,7 +89,14 @@
 </div>
 
 {% include "_partials/search_script.html" %}
-{% if not current_user.intro_js_seen %}
 {% include "_partials/intro.html" %}
+{% if not current_user.intro_js_seen %}
+<script type='text/javascript'>
+$(function() {
+  introJs().start()
+    $.post("/intro_seen", function() {
+    });
+});
+</script>
 {% endif %}
 {% endblock %}
