@@ -61,7 +61,7 @@ spec:
         - name: REDIS_URL
           value: redis://$(REDIS_MASTER_SERVICE_HOST):$(REDIS_MASTER_SERVICE_PORT)
         - name: DB_URL
-          value: postgresql://$(DEV_POSTGRES_SERVICE_HOST):30433/arachnid_prod
+          value: postgresql://$(DEV_POSTGRES_SERVICE_HOST):$(DEV_POSTGRES_SERVICE_PORT)/arachnid_prod
         - name: AWS_ACCESS_KEY_ID_PVLL
           value: "AKIAIXDDAEVM2ECFIPTA"
         - name: AWS_SECRET_ACCESS_KEY_PVLL
