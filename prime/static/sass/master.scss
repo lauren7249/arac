@@ -1,7 +1,7 @@
-@import url(/static/css/poppins.css);
-@import url(normalize.css);
-@import url(hint.css);
-@import "compass/css3";
+
+// @import url(/static/css/normalize.css);
+// @import url(/static/css/hint.css);
+// @import "compass/css3";
 
 // Variables, Mixins, & Helpers ==================================
 $black: #16263D;
@@ -504,7 +504,7 @@ select {
   padding: 0 10px;
   @include border-radius(2px);
   &:active, &:focus {
-    outline: none;
+    outline: none !important;
     border-color: $black;
   }
 }
@@ -730,6 +730,469 @@ $padcount: 5;
     padding: ($i * 10px);
   }
 }
+
+
+
+// Progress & Loading Indicators ==================================
+
+$spinner: 100px;
+$progress: 400px;
+.overlay {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 9998;
+  .dialog {
+    display: block;
+    background: white;
+    border: none;
+    z-index: 9999;
+    margin: 0;
+    @include border-radius(4px); 
+    @extend %centered;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.dropzone_upload {
+  display: none; // USE JS TO SHOW OVERLAYS
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 9998;
+  .dialog {
+    display: block;
+    background: white;
+    border: none;
+    z-index: 9999;
+    margin: 0;
+    @include border-radius(4px); 
+    @extend %centered;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+#spinner {
+  .dialog {
+    width: $spinner;
+    height: $spinner;
+  }
+}
+
+#progress {
+  .dialog {
+    width: $progress;
+    height: auto;
+    padding: ($progress / 8);
+    .progress-bar {
+      width: 100%;
+    }
+    small {
+      font-weight: normal;
+      color: $teal;
+    }
+  }
+}
+
+$progress-bar: 15px;
+.progress-bar {
+  @include border-radius(100px);
+  background: $border;
+  position: relative;
+  height: $progress-bar;
+  overflow: hidden;
+  &:before {
+    content: "";
+    display: block;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: $progress-bar;
+    background: $teal;    
+    -webkit-animation: grow-bar 100s ease-in;
+        -ms-animation: grow-bar 100s ease-in;
+         -o-animation: grow-bar 100s ease-in;
+            animation: grow-bar 100s ease-in;
+  }
+}
+
+@-webkit-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@-moz-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@-o-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@-ms-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+.loading {
+  text-align: center;
+  margin: 20px 0;
+  img {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+
+@import 'onboarding.scss';
+
+
+// // Onboarding ==================================
+
+// .onboard-header {
+//   padding: 30px 0 0;
+//   display: none;
+
+//   @extend %clearfix;
+//   .face, h1, .contact-count {
+//     float: left;
+//   }
+//   .face {
+//     width: 5rem;
+//     height: 5rem;
+//     margin-right: 1rem;
+//   }
+//   .contact-count {
+//     float: right;
+//     border: 1px solid $teal;
+//     color: $teal;
+//     background: white;
+//     display: inline-block;
+//     display: none;
+//     padding: 1rem;
+//     @include border-radius(4px);
+//     * {
+//       display: inline-block;
+//       vertical-align: middle;
+//     }
+//     img {
+//       margin-right: .5rem;
+//     }
+//   }
+// }
+
+// .onboarding {
+//   #step-2, #step-3, #step-4 {
+//     display: none;
+//   }
+// }
+
+// .wizard {
+//   @extend .card;
+//   margin-bottom: -1px;
+//   ol {
+//     display: table;
+//     width: 100%;
+//     li {
+//       display: table-cell;
+//       position: relative;
+//       counter-increment: slideNum;
+//       padding-left: 3rem;
+//       &::before {
+//         content: "" counter(slideNum) "";
+//         display: block;
+//         background: $purple;
+//         color: white;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 40px;
+//         height: 40px;
+//         line-height: 40px;
+//         font-size: 16px;
+//         text-align: center;
+//         @include border-radius(100%);
+//       }
+//       label {
+//         margin: 0;
+//         font-size: .75rem;
+//         font-weight: 600;
+//         letter-spacing: .1rem;
+//         text-transform: uppercase;
+//         color: $grey;
+//       }
+//       p {
+//         margin: 0;
+//       }
+//       &.complete {
+//         &:before {
+//           background-color: transparent;
+//           @extend %circle-check;
+//           content: " ";
+//         }
+//       }
+//       &.idle {
+//         * {
+//           color: $border;
+//         }
+//         &:before {
+//           background-color: $border;
+//         }
+//       }
+//     }
+//   }
+// }
+
+// .onboard {
+//   margin: 2rem 0;
+// }
+// .onboard-body {
+//   @extend .card;
+//   padding: 2rem;
+// }
+// .onboard-footer {
+//   @extend .card;
+//   margin-top: -1px;
+//   padding: 1rem;
+//   text-align: right;
+//   small {
+//     color: $grey;
+//     margin-right: 2rem;
+//     a {
+//       color: inherit;
+//       text-decoration: underline;
+//     }
+//   }
+//   .button {
+    
+//   }
+// }
+
+// .note {
+//   @extend .card;
+//   padding: 1rem 1rem 3rem;
+//   color: $grey;
+//   h2 {
+//     color: initial;
+//   }
+//   p {
+    
+//   }
+//   small {
+//     display: block;
+//   }
+//   img {
+//     max-width: 100%;
+//     width: 100%;
+//     margin: 2rem 0;
+//   }
+// }
+
+// .get-contacts {  
+//   width: 100%;
+// }
+
+// .connect-email {
+//   margin-bottom: 20px;
+//   padding: 20px;    
+//   display: block;
+//   border: 1px solid $border;
+//   img {
+//     width: 60px;
+//     margin-right: 20px;
+//     display: inline-block;
+//     vertical-align: middle;
+//   }
+//   .button {
+//     display: inline-block;
+//     vertical-align: middle;
+//   }
+//   .connected_area {
+//     display: block;
+//   }
+//   .connected {
+//     margin: 20px 0 0;
+//     color: $grey;
+//     font-size: 12px;
+//     &:before {
+//       display: inline-block;
+//       content: "";
+//       width: 20%;
+//       height: 20%;      
+//       width: 2rem;
+//       height: 2rem;
+//       vertical-align: middle;
+//       margin-right: .5rem;
+//       @extend %circle-check;
+//     }
+//   }
+// }
+
+// .icon-linkedin {
+//   display: inline-block;
+//   width: 1rem;
+//   height: 1rem;
+//   margin-right: 1rem;
+//   background-image: url("/static/img/onboarding/linkedin-icon.png");
+//   @extend %bg-img;
+// }
+
+// .onboard-signin {
+//   margin-top: 2rem;
+//   .button {
+//     margin-bottom: 2rem;
+//   }
+// }
+
+// form.dropzone {
+//   position: relative;
+//   background-color: white;
+//   text-align: center;
+//   font-size: normal;
+//   padding: 120px 20px 60px;
+//   margin: 0;
+//   color: $grey;
+//   border: 2px dashed $border;
+//   @include border-radius(8px);
+//   cursor: pointer;
+//   &:before {
+//     position: absolute;
+//     top: 30px;
+//     left: 50%;
+//     content: "";
+//     display: block;
+//     width: 100px;
+//     height: 75px;
+//     margin-left: -50px;
+//     background-image: url("/static/img/onboarding/upload-icon.png");
+//     @extend %bg-img;
+//   }
+//   .dz-default.dz-message {
+//     text-align: center;
+//     span {
+//       font-size: 20px;
+//       color: $teal;
+//       &:before, &:after {
+//         text-align: center;
+//         display: block;
+//         font-size: 15px;
+//         margin: 10px 0;
+//       }
+//       &:before {
+//         content: "Upload Area"
+//       }      
+//       &:after {
+//         content: "Or click here to upload your file";
+//       }
+//     }
+//   }
+  
+//   .dz-preview { // Upload Preview
+//     border-top: 1px solid $border;
+//     margin-top: 20px;
+//     padding-top: 20px;
+//     .dz-details {
+//       margin-bottom: 10px;
+//       .dz-filename * {
+//         font-family: monospace;
+//       }
+//     }
+//     &.dz-file-preview {} 
+//     &.dz-error {}
+//     &.dz-complete {}
+    
+//     .dz-progress { // Progress Bar
+//       span.dz-upload {
+
+//       }
+//     }
+//     .dz-error-message {
+//       @extend .error;
+//     }
+//     .dz-success-message {
+//       @extend .success;
+//     }
+//   }
+  
+//   .dz-image, 
+//   .dz-success-mark,
+//   .dz-error-mark,
+//   .dz-size {
+//     display: none;
+//   }
+  
+//   &.dz-drag-hover { // Drag Hover
+//     border: 2px solid $border;
+//   }
+
+  
+//   &.dz-started { // Upload Started
+
+//   }
+
+//   &.dz-error {
+//     border-color: $error;
+//   }
+
+//   &.dz-success {
+//     border-color: $success;
+//   }
+  
+
+// }
+
+// $modal-width: 800px;
+
+// .ui-dialog {
+//   top: 30% !important;
+//   left: 50% !important;
+//   margin-left: -($modal-width / 2) !important;
+//   width: $modal-width !important;
+//   display: block !important;
+//   z-index: 101 !important;
+//   position: absolute !important;
+//   padding: 0 !important;
+//   @include border-radius(0 !important);
+
+//   @media only screen and (max-width: 800px) {
+//     width: 90% !important;
+//     margin: 10px auto !important;
+//     position: relative !important;
+//     left: 0 !important;
+//     top: 0 !important;
+//   }
+// }
+
+// #linkedin_login_modal {
+//   padding: 0 !important;
+//   height: 500px !important;
+//   display: block !important;
+//   width: 100% !important;
+//   iframe {
+//     border: 0px;
+//     overflow: hidden;
+//     padding: 0;
+//   }
+
+// }
+
+
 
 
 
@@ -1284,55 +1747,7 @@ table.contacts-table {
 }
 
 
-// Paginations ==================================
 
-.pagination {
-  display: table;
-  margin: 40px auto;
-  padding: 0;
-
-  ul {
-    margin: 0 0 10px 0;
-    padding: 0;
-    @extend %clearfix;
-    a {
-      margin: 0;
-      display: block;
-      float: left;
-      cursor: pointer;
-      padding: 10px 20px;
-      margin-right: -1px;
-      background: white;
-      border: 1px solid $border;
-      color: $blue;
-
-      &.first {
-        @include border-radius(4px 0 0 4px);
-      }
-      &.last {
-        @include border-radius(0 4px 4px 0);
-      }
-      &.disabled {
-        cursor: default;
-        color: $border;
-        &:hover {
-          background: white;
-        }
-      }
-      &.active,
-      &:hover {
-        background: darken(white, 5%);
-      }
-      &.active {
-        cursor: default;
-      }
-      
-    }
-  }
-
-
-  
-}
 
 #connections {
   position: relative;
@@ -1407,460 +1822,7 @@ table.contacts-table {
 
 
 
-// Onboarding ==================================
 
-.onboard-header {
-  padding: 30px 0 0;
-  display: none;
-
-  @extend %clearfix;
-  .face, h1, .contact-count {
-    float: left;
-  }
-  .face {
-    width: 5rem;
-    height: 5rem;
-    margin-right: 1rem;
-  }
-  .contact-count {
-    float: right;
-    border: 1px solid $teal;
-    color: $teal;
-    background: white;
-    display: inline-block;
-    display: none;
-    padding: 1rem;
-    @include border-radius(4px);
-    * {
-      display: inline-block;
-      vertical-align: middle;
-    }
-    img {
-      margin-right: .5rem;
-    }
-  }
-}
-
-.onboarding {
-  #step-2, #step-3, #step-4 {
-    display: none;
-  }
-}
-
-.wizard {
-  @extend .card;
-  margin-bottom: -1px;
-  ol {
-    display: table;
-    width: 100%;
-    li {
-      display: table-cell;
-      position: relative;
-      counter-increment: slideNum;
-      padding-left: 3rem;
-      &::before {
-        content: "" counter(slideNum) "";
-        display: block;
-        background: $purple;
-        color: white;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        font-size: 16px;
-        text-align: center;
-        @include border-radius(100%);
-      }
-      label {
-        margin: 0;
-        font-size: .75rem;
-        font-weight: 600;
-        letter-spacing: .1rem;
-        text-transform: uppercase;
-        color: $grey;
-      }
-      p {
-        margin: 0;
-      }
-      &.complete {
-        &:before {
-          background-color: transparent;
-          @extend %circle-check;
-          content: " ";
-        }
-      }
-      &.idle {
-        * {
-          color: $border;
-        }
-        &:before {
-          background-color: $border;
-        }
-      }
-    }
-  }
-}
-
-.onboard {
-  margin: 2rem 0;
-}
-.onboard-body {
-  @extend .card;
-  padding: 2rem;
-}
-.onboard-footer {
-  @extend .card;
-  margin-top: -1px;
-  padding: 1rem;
-  text-align: right;
-  small {
-    color: $grey;
-    margin-right: 2rem;
-    a {
-      color: inherit;
-      text-decoration: underline;
-    }
-  }
-  .button {
-    
-  }
-}
-
-.note {
-  @extend .card;
-  padding: 1rem 1rem 3rem;
-  color: $grey;
-  h2 {
-    color: initial;
-  }
-  p {
-    
-  }
-  small {
-    display: block;
-  }
-  img {
-    max-width: 100%;
-    width: 100%;
-    margin: 2rem 0;
-  }
-}
-
-.get-contacts {  
-  width: 100%;
-}
-
-.connect-email {
-  margin-bottom: 20px;
-  padding: 20px;    
-  display: block;
-  border: 1px solid $border;
-  img {
-    width: 60px;
-    margin-right: 20px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .button {
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .connected_area {
-    display: block;
-  }
-  .connected {
-    margin: 20px 0 0;
-    color: $grey;
-    font-size: 12px;
-    &:before {
-      display: inline-block;
-      content: "";
-      width: 20%;
-      height: 20%;      
-      width: 2rem;
-      height: 2rem;
-      vertical-align: middle;
-      margin-right: .5rem;
-      @extend %circle-check;
-    }
-  }
-}
-
-.icon-linkedin {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  margin-right: 1rem;
-  background-image: url("/static/img/onboarding/linkedin-icon.png");
-  @extend %bg-img;
-}
-
-.onboard-signin {
-  margin-top: 2rem;
-  .button {
-    margin-bottom: 2rem;
-  }
-}
-
-form.dropzone {
-  position: relative;
-  background-color: white;
-  text-align: center;
-  font-size: normal;
-  padding: 120px 20px 60px;
-  margin: 0;
-  color: $grey;
-  border: 2px dashed $border;
-  @include border-radius(8px);
-  cursor: pointer;
-  &:before {
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    content: "";
-    display: block;
-    width: 100px;
-    height: 75px;
-    margin-left: -50px;
-    background-image: url("/static/img/onboarding/upload-icon.png");
-    @extend %bg-img;
-  }
-  .dz-default.dz-message {
-    text-align: center;
-    span {
-      font-size: 20px;
-      color: $teal;
-      &:before, &:after {
-        text-align: center;
-        display: block;
-        font-size: 15px;
-        margin: 10px 0;
-      }
-      &:before {
-        content: "Upload Area"
-      }      
-      &:after {
-        content: "Or click here to upload your file";
-      }
-    }
-  }
-  
-  .dz-preview { // Upload Preview
-    border-top: 1px solid $border;
-    margin-top: 20px;
-    padding-top: 20px;
-    .dz-details {
-      margin-bottom: 10px;
-      .dz-filename * {
-        font-family: monospace;
-      }
-    }
-    &.dz-file-preview {} 
-    &.dz-error {}
-    &.dz-complete {}
-    
-    .dz-progress { // Progress Bar
-      span.dz-upload {
-
-      }
-    }
-    .dz-error-message {
-      @extend .error;
-    }
-    .dz-success-message {
-      @extend .success;
-    }
-  }
-  
-  .dz-image, 
-  .dz-success-mark,
-  .dz-error-mark,
-  .dz-size {
-    display: none;
-  }
-  
-  &.dz-drag-hover { // Drag Hover
-    border: 2px solid $border;
-  }
-
-  
-  &.dz-started { // Upload Started
-
-  }
-
-  &.dz-error {
-    border-color: $error;
-  }
-
-  &.dz-success {
-    border-color: $success;
-  }
-  
-
-}
-
-$modal-width: 800px;
-
-.ui-dialog {
-  top: 30% !important;
-  left: 50% !important;
-  margin-left: -($modal-width / 2) !important;
-  width: $modal-width !important;
-  display: block !important;
-  z-index: 101 !important;
-  position: absolute !important;
-  padding: 0 !important;
-  @include border-radius(0 !important);
-
-  @media only screen and (max-width: 800px) {
-    width: 90% !important;
-    margin: 10px auto !important;
-    position: relative !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-}
-
-#linkedin_login_modal {
-  padding: 0 !important;
-  height: 500px !important;
-  display: block !important;
-  width: 100% !important;
-  iframe {
-    border: 0px;
-    overflow: hidden;
-    padding: 0;
-  }
-
-}
-
-// Progress & Loading Indicators ==================================
-
-$spinner: 100px;
-$progress: 400px;
-.overlay {
-  display: none; // USE JS TO SHOW OVERLAYS
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0,0,0,0.5);
-  height: 100%;
-  width: 100%;
-  z-index: 9998;
-  .dialog {
-    display: block;
-    background: white;
-    border: none;
-    z-index: 9999;
-    margin: 0;
-    @include border-radius(4px); 
-    @extend %centered;
-    img {
-      width: 100%;
-      height: 100%;
-    }
-  }
-}
-
-.dropzone_upload {
-  display: none; // USE JS TO SHOW OVERLAYS
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0,0,0,0.5);
-  height: 100%;
-  width: 100%;
-  z-index: 9998;
-  .dialog {
-    display: block;
-    background: white;
-    border: none;
-    z-index: 9999;
-    margin: 0;
-    @include border-radius(4px); 
-    @extend %centered;
-    img {
-      width: 100%;
-      height: 100%;
-    }
-  }
-}
-
-#spinner {
-  .dialog {
-    width: $spinner;
-    height: $spinner;
-  }
-}
-
-#progress {
-  .dialog {
-    width: $progress;
-    height: auto;
-    padding: ($progress / 8);
-    .progress-bar {
-      width: 100%;
-    }
-    small {
-      font-weight: normal;
-      color: $teal;
-    }
-  }
-}
-
-$progress-bar: 15px;
-.progress-bar {
-  @include border-radius(100px);
-  background: $border;
-  position: relative;
-  height: $progress-bar;
-  overflow: hidden;
-  &:before {
-    content: "";
-    display: block;
-    top: 0;
-    left: 0;
-    width: auto;
-    height: $progress-bar;
-    background: $teal;    
-    -webkit-animation: grow-bar 100s ease-in;
-        -ms-animation: grow-bar 100s ease-in;
-         -o-animation: grow-bar 100s ease-in;
-            animation: grow-bar 100s ease-in;
-  }
-}
-
-@-webkit-keyframes grow-bar {
-  0%   { width: 0%; }
-  100% { width: 100%; }
-}
-@-moz-keyframes grow-bar {
-  0%   { width: 0%; }
-  100% { width: 100%; }
-}
-@-o-keyframes grow-bar {
-  0%   { width: 0%; }
-  100% { width: 100%; }
-}
-@-ms-keyframes grow-bar {
-  0%   { width: 0%; }
-  100% { width: 100%; }
-}
-@keyframes grow-bar {
-  0%   { width: 0%; }
-  100% { width: 100%; }
-}
-
-.loading {
-  text-align: center;
-  margin: 20px 0;
-  img {
-    width: 50px;
-    height: 50px;
-  }
-}
 
 
 
@@ -1883,4 +1845,54 @@ $progress-bar: 15px;
 
 .flashed-messages {
   margin: 40px auto;
+}
+
+
+
+
+// Paginations ==================================
+
+.pagination {
+  display: table;
+  margin: 40px auto;
+  padding: 0;
+
+  ul {
+    margin: 0 0 10px 0;
+    padding: 0;
+    @extend %clearfix;
+    a {
+      margin: 0;
+      display: block;
+      float: left;
+      cursor: pointer;
+      padding: 10px 20px;
+      margin-right: -1px;
+      background: white;
+      border: 1px solid $border;
+      color: $blue;
+
+      &.first {
+        @include border-radius(4px 0 0 4px);
+      }
+      &.last {
+        @include border-radius(0 4px 4px 0);
+      }
+      &.disabled {
+        cursor: default;
+        color: $border;
+        &:hover {
+          background: white;
+        }
+      }
+      &.active,
+      &:hover {
+        background: darken(white, 5%);
+      }
+      &.active {
+        cursor: default;
+      }
+      
+    }
+  }  
 }

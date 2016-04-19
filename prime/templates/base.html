@@ -6,7 +6,7 @@
   if (!/msie 10/.test(ua) //IE 10
       && !/rv:11\.0/.test(ua)  //IE 11
       && !/chrome/.test(ua) //chrome
-      // && !/safari/.test(ua)
+      && !/safari/.test(ua)
       //TODO: add safari mozilla/5.0 (macintosh; intel mac os x 10_10_5) applewebkit/601.5.17 (khtml, like gecko) version/9.1 safari/601.5.17
       //TODO: add ipad
       //TODO: add firefox
@@ -20,6 +20,7 @@
   <head>
     <title>AdvisorConnect</title>
     <link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link rel='stylesheet' href="/static/css/normalize.css">
     <link rel="stylesheet" href="/static/css/jquery-ui.css">
     {% assets "css_all" %}
       <link rel='stylesheet' href="{{ ASSET_URL }}">
@@ -278,6 +279,7 @@
           <div class="copyright">&copy; 2016 AdvisorConnect</div>
           <div class="footer-links">
             <span id="faq"><a href="/faq">FAQs</a></span>
+            <span><a href="/privacy">Privacy</a></span>
             <span><a href="/terms">Terms</a></span>
             <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
           </div>        
