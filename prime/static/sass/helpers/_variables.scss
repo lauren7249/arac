@@ -1,0 +1,87 @@
+$black: #16263D;
+$grey: #787B80;
+$background: #EEEEEE;
+$offwhite: #F6F6F6;
+$border: #DADFE1;
+$lightgrey: #BFBFBF;
+$blue: #27B4F4;
+$teal: #02C2B9;
+$darkblue: #3A539B;
+$purple: #9F81EB;
+$error: #EB143E;
+$success: #6CCC48;
+$orange: #FFA129;
+
+$market-color-1: #10164B;
+$market-color-2: #1B2B7F;
+$market-color-3: #3C91BE;
+$market-color-4: #62BED2;
+$market-color-5: #8ACDCE;
+$market-color-6: #AFDCCC;
+$market-color-7: #DCECC9;
+
+$linkedin: #0076B7;
+
+$sans: 'Poppins', sans-serif;
+
+@mixin border-radius($border-radius) {
+  -webkit-border-radius: $border-radius;
+     -moz-border-radius: $border-radius;
+      -ms-border-radius: $border-radius;
+          border-radius: $border-radius;
+}
+
+@mixin background-size($background-size) {
+  -webkit-background-size: $background-size;
+     -moz-background-size: $background-size;
+      -ms-background-size: $background-size;
+          background-size: $background-size;
+}
+
+@mixin box-shadow($box-shadow) {
+  -webkit-box-shadow: $box-shadow;
+     -moz-box-shadow: $box-shadow;
+      -ms-box-shadow: $box-shadow;
+          box-shadow: $box-shadow;
+}
+
+%centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+     -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+%bg-img {
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  @include background-size(100%);
+}
+
+%circle-check {
+  background-image: url("/static/img/circle-check.png");
+  @extend %bg-img;
+}
+
+%caps {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .025rem;
+  font-weight: 500;
+}
+
+%clearfix {
+  *zoom: 1;
+  &:before,
+  &:after {
+    display: table;
+    content:'';
+    line-height: 0;
+  }
+  &:after {
+    clear: both;
+  }
+}

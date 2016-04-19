@@ -1,0 +1,177 @@
+.contact-info {
+  position: relative;
+  display: table;
+  width: 100%;
+  .pic {
+    display: table-cell;
+    vertical-align: top;
+    padding-right: 20px;    
+    img {
+      width: 150px;
+      height: 150px;
+      @include border-radius(4px);
+    }
+  }
+  .main-info {
+    display: table-cell;
+  }
+  .name {
+    font-weight: 600;
+    font-size: 22px;
+    span {
+      display: inline;
+      &.stars {
+        display: inline-block;
+        margin-left: 10px;        
+        width: 95px;
+        height: 14px;
+        @extend %bg-img;
+        &.one-star {
+          background-image: url("/static/img/one-star.png");
+        }
+        &.two-stars {
+          background-image: url("/static/img/two-stars.png");
+        }
+        &.three-stars {
+          background-image: url("/static/img/three-stars.png");
+        }
+        &.four-stars {
+          background-image: url("/static/img/four-stars.png");
+        }      
+        &.five-stars {
+          background-image: url("/static/img/five-stars.png");
+        }      
+      }
+    }
+  }
+  .job {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  .location {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}
+
+.tags {
+  margin-top: 10px;
+  font-size: 12px;
+  a {
+    color: $black;
+    cursor: pointer;
+  }
+  span {
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 0 4px;
+    background-color: lighten($blue, 38%);
+    @include border-radius(2px);
+    &:hover {
+      background-color: lighten($blue, 28%);
+    }
+  }
+}
+
+.contact-links {
+  margin: 10px 0;
+  a {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    color: $blue;
+    border: 1px solid;
+    @include border-radius(3px);
+    @extend %bg-img;
+    &.financial {background-image: url("/static/img/social/financial-blue.png");}
+    &.facebook {background-image: url("/static/img/social/facebook-blue.png");}
+    &.linkedin {background-image: url("/static/img/social/linkedin-blue.png");}
+    &.twitter {background-image: url("/static/img/social/twitter-blue.png");}
+    &.phone {background-image: url("/static/img/social/phone-blue.png")}
+    &.pinterest {background-image: url("/static/img/social/pinterest-blue.png");}
+    &.soundcloud {background-image: url("/static/img/social/soundcloud-blue.png");}    
+    &.slideshare {background-image: url("/static/img/social/slideshare-blue.png");}    
+    &.plus {background-image: url("/static/img/social/google-plus-blue.png");}               
+    &.angel {background-image: url("/static/img/social/angellist-blue.png");}     
+    &.foursquare {background-image: url("/static/img/social/foursquare-blue.png");}       
+    &.github {background-image: url("/static/img/social/github-blue.png");}          
+    &.flickr {background-image: url("/static/img/social/flickr-blue.png");}
+    &.tumblr {background-image: url("/static/img/social/tumblr-blue.png");}
+    &.goodreads {background-image: url("/static/img/social/goodreads-blue.png");}
+    &.email {background-image: url("/static/img/social/email-blue.png");}
+    &.amazon {background-image: url("/static/img/social/amazon-blue.png");}
+    &.instagram {background-image: url("/static/img/social/instagram-blue.png");}
+    &.location {background-image: url("/static/img/social/location-blue.png");}
+  }
+}
+
+#connections {
+  position: relative;
+}
+
+
+.p200-actions {
+  .button {
+    display: block;
+    float: left;
+    margin-right: 10px;
+  }
+}
+
+.pdf-p200 {
+  font-size: 11pt;
+  .contacts-table {
+    margin: 10px 0;
+    border-top: 1px solid $border;
+    border-bottom: 1px solid $border;
+    
+    td {
+      &.pic {
+        vertical-align: top;
+        width: 100px;
+        height: 100px;
+        img {
+          width: 100%;
+        }
+      }
+      &.main-info {
+        .name {
+          span {
+            img {
+              margin-left: 15px;
+              width: 95px;
+              height: 14px;
+            }
+          }
+        }
+        .tags {
+          span {
+            background: none;
+            border: 1px solid $border;
+          }
+        }
+      }
+      &.pdf-p200-social {
+        a {
+          display: block;
+          float: left;
+          width: 25px;
+          height: 25px;
+          margin-right: 10px;
+          img {
+            width: 100%;
+            border: 1px solid $blue;
+          }
+        }
+      }
+    } 
+  }
+}
+@media print {
+  -webkit-print-color-adjust: exact;
+}

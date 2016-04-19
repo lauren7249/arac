@@ -1,0 +1,61 @@
+// Tabs ==================================
+.tabset {
+  li {
+    @extend %caps;
+    background-color: $offwhite;
+    color: $darkblue;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    display: inline-block;
+    margin-right: 10px;
+    padding: 0 20px;
+    cursor: pointer;
+    &.active {
+      color: $black;
+      background-color: white;
+    }
+  }
+}
+
+
+
+// Segment Controls ============================
+.segmented {
+  display: table;
+  width: 100%;
+  .label {
+    display: table-cell;
+    background-color: white;
+    border: 1px $border;
+    border-style: solid none solid solid;
+    color: $grey;
+    cursor: pointer;
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+    text-align: center;      
+  }
+  :first-child .label {
+    @include border-radius(4px 0 0 4px);
+  }
+  :last-child .label {
+    @include border-radius(0 4px 4px 0);
+    border-right-style: solid;
+  }
+  input {
+    display: none;
+  }
+  input:checked + .label {
+    background-color: $border;
+    border-color: $border;
+    color: white;
+  }
+  .label {
+    // background: white;
+  }
+  input:checked + span {
+    background: white;
+  }
+}

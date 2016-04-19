@@ -300,7 +300,8 @@
       });       
     }
 
-    function attemptFinish() {
+    function attemptFinish() {       
+      $("#success").css("display","none");      
       if ({{ current_user.unique_contacts_uploaded | int }} > 0 || ("{{ current_user.linkedin_login_email }}"!='' && "{{ current_user.linkedin_password }}"!='')) {
         upload()
       } else {
@@ -310,6 +311,7 @@
     }
 
     function upload() {
+
         $("#spinner").fadeIn();  
         var csrf_token = $("[_csrf_token]").val() 
         var outData = {csrf_token:csrf_token, contacts_array: []}

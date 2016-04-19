@@ -1,0 +1,116 @@
+.manager-team-metrics {
+  margin-bottom: 20px;
+  .metric-block {
+    position: relative;
+    display: block;    
+    padding: 20px;
+    min-height: 180px;
+    background-color: white;
+    @include border-radius(4px);
+    text-align: center;
+    h2 {
+      font-size: 50px;
+      line-height: 50px; 
+      color: $teal;
+      margin: 0;
+      padding-bottom: 20px;
+      border-bottom: 1px solid $border;
+    }
+    .caps {
+      margin-top: 20px;
+      color: $grey;
+    }
+  }
+}
+.manager-dashboard {
+  th, td {
+    text-align: center;
+    &:first-child {
+      text-align: left;
+    }
+    
+    &.agent {
+      width: 300px;
+      span {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .email {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        display: block;
+        width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .face {
+        margin-right: 10px;
+      }
+    }
+
+    &.agent-pre-screen,
+    &.agent-p200 {
+      span {
+        font-size: 12px;
+        text-transform: none;
+        &.pending {
+          color: $orange;
+        }
+        &.in-progress {
+          color: $orange;
+        }
+        &.requested {
+          color: $black;
+        }
+      }
+      
+    }
+    &.agent-hired {
+      width: 100px;
+      .segmented {
+        .label {
+          padding: 0;
+          width: 50%;
+        }
+        input[value="hired--yes"]:checked + .label {
+          background-color: $teal;
+          border-color: $teal;
+        }
+        input[value="hired--no"]:checked + .label {
+          background-color: $error;
+          border-color: $error;
+        }
+      }
+    }
+    &.agent-hr {
+      width: 240px;
+      select {
+        width: 100%;
+        display: none;
+      }
+    }
+
+  }
+  th {
+    font-size: 14px;
+  }
+  td {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .completed {
+    text-align: center;
+    &.yes {
+      @extend %circle-check;
+      @include background-size(auto);
+    }
+  }
+  // .pending {
+  //   text-transform: uppercase;
+  //   font-size: 15px;
+  //   color: $blue;
+  // }
+}

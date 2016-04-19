@@ -41,13 +41,13 @@
         <span class="filter--age">
           <select name='age' id='age'>
             <option value=''>Any Age</option>
-            <option value='1'>Young Professionals (21-45)</option>
+            <option value='1'>Young Consumers (21-45)</option>
             <option value='2'>Pre-Retirees (45-60)</option>
             <option value='3'>Retirees (60+)</option>
           </select>
         </span>
       </div>
-      <div class="filter--abc">
+      <div class="filter--abc" style="display:none;">
         <b data-sort='a-z' class="active">A</b>
         <b data-sort='a-z'>B</b>
         <b data-sort='a-z'>C</b>
@@ -89,7 +89,14 @@
 </div>
 
 {% include "_partials/search_script.html" %}
-{% if not current_user.intro_js_seen %}
 {% include "_partials/intro.html" %}
+{% if not current_user.intro_js_seen %}
+<script type='text/javascript'>
+$(function() {
+  introJs().start()
+    $.post("/intro_seen", function() {
+    });
+});
+</script>
 {% endif %}
 {% endblock %}

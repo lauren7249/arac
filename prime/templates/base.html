@@ -3,8 +3,16 @@
 <script type="text/javascript">
   var ua = navigator.userAgent.toLowerCase();
   
-  if (/msie 9/.test(ua)) {
-    alert("Internet Explorer 9 is not supported by this application. Please upgrade to Internet Explorer 10 or 11, or use Firefox, Chrome, or Safari.");
+  if (!/msie 10/.test(ua) //IE 10
+      && !/rv:11\.0/.test(ua)  //IE 11
+      && !/chrome/.test(ua) //chrome
+      && !/safari/.test(ua)
+      //TODO: add safari mozilla/5.0 (macintosh; intel mac os x 10_10_5) applewebkit/601.5.17 (khtml, like gecko) version/9.1 safari/601.5.17
+      //TODO: add ipad
+      //TODO: add firefox
+      ) {
+    alert("This browser is not supported by this application. Please use Chrome or Internet Explorer 10 or 11.");
+    // alert(ua);
     window.location = "about:blank";
   } 
 
@@ -12,7 +20,6 @@
   <head>
     <title>AdvisorConnect</title>
     <link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico">
-    <link rel="stylesheet" href="/static/css/jquery-ui.css">
     {% assets "css_all" %}
       <link rel='stylesheet' href="{{ ASSET_URL }}">
     {% endassets %}
@@ -97,6 +104,9 @@
             {% if current_user.is_authenticated() %}
             <div data-user-id='{{ current_user.user_id }}' class="nav-right text-right" data-step="4" data-intro="You can add up to 200 of your best contacts but remember you need at least 50 to complete your Project 200.">
                 {% if not current_user.is_manager and current_user.p200_completed %}
+                  {% if active == "connections" %}
+                    <span><div style="cursor: pointer;" onclick="introJs().start();">Need Help?</div></span>
+                  {%endif%}
                   <span><div class="contacts-left" id="contacts-left">{{ current_user.p200_count }} Contacts</div></span>
                 {% endif %}
                 <span id="settings">                  
@@ -170,7 +180,12 @@
           $("#faq").css("display","inline");  
         }
           
+        $("#spinner").hide();
+        $("#progress").hide();
+        $("#dropzoneModal").hide();          
       });    
+
+      $("#success").css("display","none");      
 
       $("#success").click(function(){
         $("#success").css("display","none");  
@@ -201,7 +216,6 @@
           var name = $(this).name;
           if (user_id != undefined && user_id != null && user_id != '') {
             document.getElementById("spinner").style.display = "block";                 
-            document.getElementById("success").style.display = "block";   
             $.post("/managers/request_p200", {user_id:user_id}, function(data){
               if (data.name != undefined && data.name !=null && data.name != '') {
                 showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");
@@ -263,6 +277,7 @@
           <div class="copyright">&copy; 2016 AdvisorConnect</div>
           <div class="footer-links">
             <span id="faq"><a href="/faq">FAQs</a></span>
+            <span><a href="/privacy">Privacy</a></span>
             <span><a href="/terms">Terms</a></span>
             <span><a href="mailto:support@advisorconnect.co" target="_blank">Contact</a></span>
           </div>        

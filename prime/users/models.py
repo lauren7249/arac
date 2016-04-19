@@ -82,6 +82,7 @@ class User(db.Model, UserMixin):
 
     account_created = db.Column(postgresql.BOOLEAN, default=False)
     hiring_screen_completed = db.Column(postgresql.BOOLEAN, default=False)
+    hiring_screen_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_started = db.Column(postgresql.BOOLEAN, default=False)
     p200_completed = db.Column(postgresql.BOOLEAN, default=False)
     p200_submitted_to_manager = db.Column(postgresql.BOOLEAN, default=False)
@@ -179,14 +180,30 @@ class User(db.Model, UserMixin):
         return True
 
     def invite(self):
-        code = self.generate_reset_token
+        if self.account_created:
+            self.p200_completed = False
+            self.p200_started = False
+            self.hiring_screen_started = False
+            self.hiring_screen_completed = False
+            self.p200_submitted_to_manager = False
+            self.p200_approved = False
+            self.hired = False
+            self.not_hired = False
+            self.not_hired_reason = None
+            self._statistics = {}
+            self._statistics_p200 = {}
+            self.all_states = {}
+            self.intro_js_seen = False
+            code = None
+        else:
+            code = self.generate_reset_token
+        subject = "Invitation from {}".format(current_app.config.get("OWNER"))
         body = render_template("emails/invite.html", agent=self,
                 base_url=current_app.config.get("BASE_URL"),
                 code=code,
                 inviter=current_app.config.get("OWNER"),
                 logo=current_app.config.get("EMAIL_LOGO")
                 )
-        subject = "Invitation from {}".format(current_app.config.get("OWNER"))
         sendgrid_email(self.email, subject, body, from_email=self.manager.user.email)
         return True
 
