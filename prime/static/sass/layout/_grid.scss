@@ -1,0 +1,44 @@
+// Grid System ==================================
+
+.section {
+  padding: 10px 0;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  @extend %clearfix;
+}
+
+[class*="col-"] {
+  width: 100%;
+  float: left;
+  padding-right: 1rem;
+  box-sizing: border-box;
+  &:last-child {
+    float: right;
+    padding: 0 !important;
+  }
+}
+
+.col-center {
+  float: none !important;
+  margin: 0 auto !important;
+}
+
+$colcount: 12;
+
+@for $i from 1 through $colcount {
+  .col-#{$i} {
+    max-width: ((100 / $colcount) * $i) * 1%;
+  }
+}
+
+$padcount: 5;
+
+@for $i from 1 through $padcount {
+  .padding-#{$i * 10} {
+    padding: ($i * 10px);
+  }
+}

@@ -1,0 +1,19 @@
+// Auth, Invite, Signup Pages ==================================
+
+.signup {
+  width: 50%;
+  max-width: 800px;
+  min-width: 400px;
+  @extend %centered;
+  .card {
+    padding: 30px;
+  }
+}
+
+.accept-terms {
+  margin-left: 10px;
+}
+
+.flashed-messages {
+  margin: 40px auto;
+}

@@ -1,0 +1,68 @@
+/*
+Error: File to import not found or unreadable: /base/normalize.scss.
+       Load paths:
+         Compass::SpriteImporter
+         /Users/andrewsass/Documents/ac/prime/prime/static/sass
+         /Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-core-1.0.3/stylesheets
+        on line 4 of /Users/andrewsass/Documents/ac/prime/prime/static/sass/master.scss
+
+1: // @import "compass/css3";
+2: 
+3: // Base ==============================================================
+4: @import '/base/normalize.scss';               // Normalize
+5: 
+6: // Helpers ===========================================================
+7: @import '/helpers/variables.scss';            // Sass variables
+8: 
+9: // Layout ============================================================
+
+Backtrace:
+/Users/andrewsass/Documents/ac/prime/prime/static/sass/master.scss:4
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/import_node.rb:67:in `rescue in import'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/import_node.rb:45:in `import'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/import_node.rb:28:in `imported_file'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/import_node.rb:37:in `css_import?'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:311:in `visit_import'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:158:in `block in visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/stack.rb:79:in `block in with_base'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/stack.rb:115:in `with_frame'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/stack.rb:79:in `with_base'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:158:in `visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/base.rb:52:in `map'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/base.rb:52:in `visit_children'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:167:in `block in visit_children'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:179:in `with_environment'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:166:in `visit_children'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/base.rb:36:in `block in visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:186:in `visit_root'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:157:in `visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/visitors/perform.rb:8:in `visit'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/root_node.rb:36:in `css_tree'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/tree/root_node.rb:20:in `render'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/engine.rb:278:in `render'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/plugin/compiler.rb:492:in `update_stylesheet'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/plugin/compiler.rb:209:in `each'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/sass-3.4.21/lib/sass/plugin/compiler.rb:293:in `watch'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/lib/compass/sass_compiler.rb:46:in `watch!'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/lib/compass/commands/watch_project.rb:41:in `perform'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/lib/compass/commands/base.rb:18:in `execute'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/lib/compass/commands/project_base.rb:19:in `execute'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/lib/compass/exec/sub_command_ui.rb:43:in `perform!'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/lib/compass/exec/sub_command_ui.rb:15:in `run!'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/bin/compass:30:in `block in <top (required)>'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/bin/compass:44:in `call'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-1.0.3/bin/compass:44:in `<top (required)>'
+/Users/andrewsass/.rvm/rubies/ruby-2.2.1/bin/compass:23:in `load'
+/Users/andrewsass/.rvm/rubies/ruby-2.2.1/bin/compass:23:in `<main>'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1/bin/ruby_executable_hooks:15:in `eval'
+/Users/andrewsass/.rvm/gems/ruby-2.2.1/bin/ruby_executable_hooks:15:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Error: File to import not found or unreadable: /base/normalize.scss.\A        Load paths:\A          Compass::SpriteImporter\A          /Users/andrewsass/Documents/ac/prime/prime/static/sass\A          /Users/andrewsass/.rvm/gems/ruby-2.2.1@global/gems/compass-core-1.0.3/stylesheets\A         on line 4 of /Users/andrewsass/Documents/ac/prime/prime/static/sass/master.scss\A \A 1: // @import \"compass/css3\";\A 2: \A 3: // Base ==============================================================\A 4: @import '/base/normalize.scss';               // Normalize\A 5: \A 6: // Helpers ===========================================================\A 7: @import '/helpers/variables.scss';            // Sass variables\A 8: \A 9: // Layout ============================================================"; }

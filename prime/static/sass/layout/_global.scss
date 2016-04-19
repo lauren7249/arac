@@ -1,0 +1,82 @@
+// TO DO: Organize these global styles
+
+* {
+  font-family: $sans;
+  box-sizing: border-box;
+}
+
+body {
+  background: $background;
+  color: $black;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $black;
+  text-decoration: none;
+}
+
+.caps {
+  @extend %caps;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-teal {
+  color: $teal;
+}
+
+hr {
+  border-color: transparent;
+  border-top: 1px solid $border;
+  display: block;
+  margin: 20px 0;
+}
+
+.face {
+  display: block;
+  height: 40px;
+  width: 40px;
+  background-repeat: no-repeat;
+  background-position: 50% 50%; 
+  @include background-size(125%);
+  @include border-radius(100px);
+}
+
+.card {
+  background: white;
+  border: 1px solid $border;
+  .card-header {
+    background-color: $offwhite;
+    border-bottom: 1px solid $border;
+    height: 80px;
+    h4 {
+      margin: 0;
+      padding: 0 30px;
+      line-height: 80px;
+    }
+  }
+  .card-body {
+    padding: 30px;
+  }
+  td {
+    padding-left: 30px;
+    padding-right: 30px;
+    border: none;
+    border-bottom: 1px solid $border;
+  }
+  tr:last-child td {
+    border: none !important;
+  }
+}
+
+.dropzone .dz-preview .dz-error-message {
+    display: none;
+}

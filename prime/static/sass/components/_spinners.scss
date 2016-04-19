@@ -1,0 +1,125 @@
+$spinner: 100px;
+$progress: 400px;
+.overlay {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 9998;
+  .dialog {
+    display: block;
+    background: white;
+    border: none;
+    z-index: 9999;
+    margin: 0;
+    @include border-radius(4px); 
+    @extend %centered;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.dropzone_upload {
+  display: none; // USE JS TO SHOW OVERLAYS
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 9998;
+  .dialog {
+    display: block;
+    background: white;
+    border: none;
+    z-index: 9999;
+    margin: 0;
+    @include border-radius(4px); 
+    @extend %centered;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+#spinner {
+  .dialog {
+    width: $spinner;
+    height: $spinner;
+  }
+}
+
+#progress {
+  .dialog {
+    width: $progress;
+    height: auto;
+    padding: ($progress / 8);
+    .progress-bar {
+      width: 100%;
+    }
+    small {
+      font-weight: normal;
+      color: $teal;
+    }
+  }
+}
+
+$progress-bar: 15px;
+.progress-bar {
+  @include border-radius(100px);
+  background: $border;
+  position: relative;
+  height: $progress-bar;
+  overflow: hidden;
+  &:before {
+    content: "";
+    display: block;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: $progress-bar;
+    background: $teal;    
+    -webkit-animation: grow-bar 100s ease-in;
+        -ms-animation: grow-bar 100s ease-in;
+         -o-animation: grow-bar 100s ease-in;
+            animation: grow-bar 100s ease-in;
+  }
+}
+
+@-webkit-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@-moz-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@-o-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@-ms-keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+@keyframes grow-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+.loading {
+  text-align: center;
+  margin: 20px 0;
+  img {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+

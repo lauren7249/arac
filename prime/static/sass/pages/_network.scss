@@ -1,0 +1,287 @@
+.agent-header {
+  padding: 10px;
+  display: table;
+  width: 100%;
+  .pic ,
+  .agent-info,
+  .contact-links {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .pic {
+    width: 100px;
+    padding-right: 20px;
+    img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+  .name {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 20px;
+  }
+  .contact-links {
+    text-align: right;
+    // display: inline-block;
+  }
+}
+
+.network-breakdown, 
+.qualified-contacts {
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+  margin: 20px 0 40px;
+  canvas {
+    margin: 0 10px;
+  }
+  h4 {
+    width: 200px;
+    margin: auto;
+    vertical-align: top;
+    display: inline-block;
+  }
+}
+
+.qualified-contacts {
+  
+}
+
+.potential-markets {
+  [class^='market-'] {
+    font-size: 24px;
+    margin-right: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid;
+    display: inline-block;
+    b {
+      vertical-align: middle;
+      display: inline-block;
+      background-color: $blue;
+      color: white;
+      margin-left: 5px;
+      font-size: 12px;
+      height: 22px;
+      line-height: 24px;
+      padding: 0 10px;
+      @include border-radius(100px);
+    }
+  }
+  
+  $market-colors: (1, $market-color-1),
+                  (2, $market-color-2),
+                  (3, $market-color-3),
+                  (4, $market-color-4),
+                  (5, $market-color-5),
+                  (6, $market-color-6),
+                  (7, $market-color-7);
+
+  @each $market-colors, $color in $market-colors {
+    .market-#{$market-colors} {
+      border-color: $color;
+    }
+  }
+}
+
+
+// Filters & Search 
+.filters {
+  @extend %clearfix;
+}
+
+[class*="filter-"] {
+  width: 20%;
+  padding-right: 10px;
+  float: left;
+  &:last-child {
+    padding-right: 0px !important;
+  }
+  select {
+    width: 100%;
+  }
+}
+
+.filter--search {
+  width: 25%;
+}
+.filter--stars {
+  width: 15%;
+}
+.filter--market {
+  width: 20%;
+}
+.filter--state {
+  width: 20%;
+}
+.filter--age {
+  width: 20%;
+}
+
+.filter--search {
+  position: relative;
+  text-align: right;
+  input[type="search"] {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0 60px 0 10px;
+    height: 40px;
+    line-height: 42px;
+    border: 1px solid $border;
+    @include border-radius(4px);
+    font-size: 13px;
+    &:active, &:focus {
+      border-color: darken($border, 10%);
+      outline: none;
+    }
+  }
+  button#search-button {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    border: none;
+    width: 50px;
+    height: 40px;
+    @include border-radius(0 4px 4px 0);
+    background: none;
+    background-image: url("/static/img/search.png");
+    background-repeat: no-repeat;
+    background-position: 45% 50%;
+    @include background-size(18px);
+  }
+}
+.filter--abc {
+  width: 100%;
+  margin: 10px 0;
+  float: none;
+  @extend %clearfix;
+  b {
+    display: block;
+    float: left;
+    color: $grey;
+    cursor: pointer;
+    font-size: 10px;
+    margin: 0;
+    padding: 10px 0;
+    width: 3.8468%;
+    text-align: center;
+    border-bottom: 2px solid transparent;
+    &:hover {
+      border-color: $border;
+    }
+    &.active {
+      border-color: $blue;
+    }
+  }
+}
+
+table.network-stats {
+  .text-right {
+    color: $teal;
+  }
+}
+
+table.contacts-table {
+  .select-all-buttons {
+    .button {
+      height: 40px;
+      line-height: 40px;
+      font-size: 12px;
+    }
+  }
+  .select-all-buttons,
+  .contact-buttons {
+    width: 25%;
+    .button {
+      width: 100%;
+      padding: 0;
+    }    
+  }
+}
+
+.network-summary-print {
+  .hint--top:after,
+  .hint--top:before {
+    display: none !important;
+  }
+
+  .card-header {
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    h4 {
+      padding: 0 10px;
+      line-height: 40px;
+    }
+  }
+
+  .qualified-contacts,
+  .network-breakdown {
+    h2 {
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+  }
+
+  * {
+    font-size: 14px;
+  }
+  .potential-markets [class^='market-'] {
+      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid;
+      display: inline-block;
+  }
+  .qualified-contacts {
+    margin: 0 auto;
+  }
+  @media print {
+    font-size: 75% !important;
+  }
+}
+
+.contacts-uploaded {
+  .card-header {
+    display: table;
+    width: 100%;
+    * {
+      padding-left: 30px;
+      padding-right: 30px;
+      display: table-cell;
+    }
+    h4 {
+      width: 50%;
+    }
+    span {
+      width: 25%;
+    }
+  }
+  table {
+    td {
+      &:first-child {
+        width: 50%;
+        img {
+          max-width: 40px;
+        }
+        * {
+          vertical-align: middle;
+        }
+        img {
+          margin-right: 10px;
+        }
+      }
+      &:nth-child(2)
+      &:nth-child(3) {
+        width: 25%;
+      }
+    }
+    tr.not-uploaded * {
+      font-weight: normal !important;
+      color: $lightgrey !important;
+    }
+  }
+}
