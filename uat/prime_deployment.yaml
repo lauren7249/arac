@@ -1,0 +1,81 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prime
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      name: http
+  selector:
+    name: prime-app
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prime-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: prime-app
+  template:
+    metadata:
+      labels:
+        name: prime-app
+    spec:
+      containers:
+      - name: prime-app
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /proc/net/tcp
+        image: gcr.io/advisorconnect-1238/aconn:v1
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          protocol: TCP
+          name: https
+        env:
+        - name: PRIME_DB_USER
+          value: arachcnid
+        - name: PG_HOST
+          value: $(DEV_POSTGRES_SERVICE_HOST)
+        - name: PRIME_DB_PASS
+          value: devious8ob8
+#          valueFrom:
+#              secretKeyRef:
+#                key: password
+#                name: dev-postgres
+        - name: S3_BUCKET
+          value: "arachnid-results"
+        - name: AC_CONFIG
+          value: "development"
+        - name: REDIS_URL
+          value: redis://$(REDIS_MASTER_SERVICE_HOST):$(REDIS_MASTER_SERVICE_PORT)
+        - name: DB_URL
+          value: postgresql://$(DEV_POSTGRES_SERVICE_HOST):$(DEV_POSTGRES_SERVICE_PORT)/arachnid
+        - name: AWS_ACCESS_KEY_ID_PVLL
+          value: "AKIAIXDDAEVM2ECFIPTA"
+        - name: AWS_SECRET_ACCESS_KEY_PVLL
+          value: "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"
+        - name: LC_ALL
+          value: "en_US.utf8"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prime-ingress
+spec:
+  backend:
+    serviceName: prime
+    servicePort: http
+#  tls:
+#  - hosts:
+#    - "nyl.advisorconnect.co"
+#    secretName: tls
