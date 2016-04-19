@@ -217,7 +217,6 @@
           var name = $(this).name;
           if (user_id != undefined && user_id != null && user_id != '') {
             document.getElementById("spinner").style.display = "block";                 
-            document.getElementById("success").style.display = "block";   
             $.post("/managers/request_p200", {user_id:user_id}, function(data){
               if (data.name != undefined && data.name !=null && data.name != '') {
                 showSuccess(data.name + "'s P200 has been requested and should be available within 24 hours.");

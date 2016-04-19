@@ -236,6 +236,7 @@
     {%endif%}
 
     $("[data-tab]").click(function() {
+      $("#success").css("display","none"); 
       $(".tabset li").removeClass("active")
       $(this).addClass("active")
       var tabName = $(this).data("tab") + "-agents"
