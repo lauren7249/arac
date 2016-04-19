@@ -43,7 +43,7 @@ printf -v LINE '%*s' "$LENGTH"
 dev_run() {
     wait_until_is_ready
     first_setup_check
-    drop_db
+    #drop_db
     #create_dev_db
     run_worker
     run_worker

@@ -2,7 +2,6 @@ migrations/env.py
 userdir/
 metastore_db/
 temp_data/
-migrations/
 *.dump
 dump.rdb
 selenium/
