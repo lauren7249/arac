@@ -44,7 +44,7 @@ dev_run() {
     wait_until_is_ready
     first_setup_check
     drop_db
-    create_dev_db
+    #create_dev_db
     run_worker
     run_worker
     run_worker
@@ -125,25 +125,25 @@ drop_db() {
 
 # Create the default app user and database
 # TODO: Handle failures
-create_dev_db() {
-    local CREATE_USR_CMD="${PG_BINDIR}/createuser -h ${PG_HOST} -U ${PG_USER} -d -s -w ${PG_DB}"
-    local CREATE_DB_CMD="${PG_BINDIR}/createdb -h ${PG_HOST} -l ${PG_LOCALE} -w -U ${PG_USER} ${PG_DB}"
-    local LOAD_DB_CMD="${PG_BINDIR}/psql ${PG_DB} -h ${PG_HOST} -w -U ${PG_USER} -f ${PG_DUMP_FILE}"
-    local MIGRATION_INIT_DB_CMD="./manage.py db init"
-    local MIGRATION_DB_CMD="./manage.py db migrate"
-    local UPGRADE_DB_CMD="./manage.py db upgrade"
+#create_dev_db() {
+    #local CREATE_USR_CMD="${PG_BINDIR}/createuser -h ${PG_HOST} -U ${PG_USER} -d -s -w ${PG_DB}"
+    #local CREATE_DB_CMD="${PG_BINDIR}/createdb -h ${PG_HOST} -l ${PG_LOCALE} -w -U ${PG_USER} ${PG_DB}"
+    #local LOAD_DB_CMD="${PG_BINDIR}/psql ${PG_DB} -h ${PG_HOST} -w -U ${PG_USER} -f ${PG_DUMP_FILE}"
+    #local MIGRATION_INIT_DB_CMD="./manage.py db init"
+    #local MIGRATION_DB_CMD="./manage.py db migrate"
+    #local UPGRADE_DB_CMD="./manage.py db upgrade"
 
-    $CREATE_USR_CMD
-    $CREATE_DB_CMD
-    $LOAD_DB_CMD
-    ${PG_BINDIR}/psql ${PG_DB} -h ${PG_HOST} -U ${PG_USER} -c "
-    drop table alembic_version;"
-    $MIGRATION_INIT_DB_CMD
-    $MIGRATION_DB_CMD
-    $UPGRADE_DB_CMD
+    #$CREATE_USR_CMD
+    #$CREATE_DB_CMD
+    #$LOAD_DB_CMD
+    #${PG_BINDIR}/psql ${PG_DB} -h ${PG_HOST} -U ${PG_USER} -c "
+    #drop table alembic_version;"
+    #$MIGRATION_INIT_DB_CMD
+    #$MIGRATION_DB_CMD
+    #$UPGRADE_DB_CMD
 
-    return $?;
-}
+    #return $?;
+#}
 
 # Block until the database is up and answering
 wait_until_is_ready() {
