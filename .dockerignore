@@ -1,5 +1,6 @@
 .idea/
-migrations/
+*.dump
+*.sql
 *.iml
 *.log
 out/**

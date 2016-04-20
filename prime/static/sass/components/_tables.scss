@@ -1,0 +1,15 @@
+table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  th, td {
+    padding: 10px;
+    border-bottom: 1px solid $border;
+  }
+  th {
+    background: white;
+    font-weight: normal;
+    text-align: left;
+    color: $grey;
+  }
+}

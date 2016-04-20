@@ -1,0 +1,42 @@
+.pagination {
+  display: table;
+  margin: 40px auto;
+  padding: 0;
+  ul {
+    margin: 0 0 10px 0;
+    padding: 0;
+    @extend %clearfix;
+    a {
+      margin: 0;
+      display: block;
+      float: left;
+      cursor: pointer;
+      padding: 10px 20px;
+      margin-right: -1px;
+      background: white;
+      border: 1px solid $border;
+      color: $blue;
+      &.first {
+        @include border-radius(4px 0 0 4px);
+      }
+      &.last {
+        @include border-radius(0 4px 4px 0);
+      }
+      &.disabled {
+        cursor: default;
+        color: $border;
+        &:hover {
+          background: white;
+        }
+      }
+      &.active,
+      &:hover {
+        background: darken(white, 5%);
+      }
+      &.active {
+        cursor: default;
+      }
+      
+    }
+  }  
+}

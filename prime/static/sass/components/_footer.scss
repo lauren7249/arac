@@ -1,0 +1,23 @@
+footer {
+  .wrap {
+    border-top: 2px solid $border;
+    margin-top: 40px;
+    padding: 40px 0;
+  }
+  .copyright {
+    font-size: 12px;
+    margin-bottom: 20px;
+    color: $purple;
+  }
+  .footer-links {
+    font-size: 12px;
+    span {
+      display: inline-block;
+      margin-right: 20px;
+    }
+    a {
+      color: $grey;
+      font-weight: bold;
+    }
+  }
+}

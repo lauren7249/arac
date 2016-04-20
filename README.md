@@ -22,3 +22,17 @@ Make your changes and push up to git, then ssh into the server and run the follo
 
   `docker ps to find the prime container hash`
   `docker exec -t -i <hashcode here> /bin/bash`
+
+Deploying live
+
+  `cd/uat`
+  `kubectl apply --record -f prime_deployment.yaml`
+
+Accessing a pod
+  
+  `kubectl get pods`
+  `kubectl exec -t -i <NAME> bash`
+
+Accessing a machine
+  
+  `gcloud compute ssh michael`
