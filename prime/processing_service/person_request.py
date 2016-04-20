@@ -7,7 +7,7 @@ from boto.s3.key import Key
 import re
 from helper import uu, parse_date
 from constants import CODER_WORDS, PROGRAMMING_LANGUAGES, TECH_DEGREE_WORDS
-from services.linkedin_query_api import get_person, get_people_viewed_also
+from services.linkedin_query_api_BT import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
 
 class PersonRequest(object):

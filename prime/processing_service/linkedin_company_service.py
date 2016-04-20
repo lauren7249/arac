@@ -11,7 +11,7 @@ from boto.s3.key import Key
 from service import Service, S3SavedRequest
 from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
-from services.linkedin_query_api import get_company
+from services.linkedin_query_api_BT import get_company
 from person_request import PersonRequest
 from prime.utils.helpers import STATES
 
