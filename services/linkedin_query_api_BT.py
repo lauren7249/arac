@@ -15,8 +15,8 @@ COMPANY_URL_TABLE = "company_urls"
 ALSO_VIEWED_REVERSE_TABLE = 'also_viewed_reverse'
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcloud-credentials.json"
-cl = Client(project='advisorconnect-1238')
-clust = cl.cluster('us-central1-b', 'crawlera')
+client = Client(project='advisorconnect-1238')
+clust = client.cluster('us-central1-b', 'crawlera')
 
 def get_person_by_key(key):
     try:
