@@ -27,9 +27,10 @@ def get_person_by_key(key):
     table = connection.table(PEOPLE_TABLE)
     row = table.row(key)
     if not row:
+        connection.close()
         return {}
     row = json.loads(row.values()[0])
-    # row = reformat_crawlera(row)
+    row = reformat_crawlera(row)
     connection.close()
     return row
 
@@ -52,6 +53,7 @@ def get_person(url=None, linkedin_id=None, name=None, headline=None):
         table = connection.table(NAME_HEADLINE_TABLE)
     person_key = table.row(key)
     if not person_key:
+        connection.close()
         return {}    
     person_key = person_key.values()[0]
     connection.close()
@@ -87,6 +89,7 @@ def get_company_by_key(key):
     table = connection.table(COMPANY_TABLE)
     row = table.row(key)
     if not row:
+        connection.close()
         return {}    
     row = json.loads(row.values()[0])
     connection.close()
@@ -108,6 +111,7 @@ def get_company(url=None, linkedin_id=None):
         table = connection.table(COMPANY_LINKEDIN_ID_TABLE)
     company_key = table.row(key)
     if not company_key:
+        connection.close()
         return {}
     company_key = company_key.values()[0]
     connection.close()
