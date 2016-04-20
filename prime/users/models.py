@@ -411,7 +411,7 @@ class User(db.Model, UserMixin):
     def has_prospects(self):
         return self.client_prospects and len(self.client_prospects) > 0
 
-    def statistics(self, refresh=False, p200=False):
+    def statistics(self, refresh=False, p200=False, session=db.session):
         if not refresh:
             if not p200 and self._statistics and self._statistics.get("network_size"):
                 return self._statistics
@@ -422,8 +422,8 @@ class User(db.Model, UserMixin):
             self._statistics = stats
         else:
             self._statistics_p200 = stats
-        db.session.add(self)
-        db.session.commit()
+        session.add(self)
+        session.commit()
         return stats
 
     def from_linkedin(self, p200=False):

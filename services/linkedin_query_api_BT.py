@@ -74,7 +74,7 @@ def get_people_viewed_also(url=None):
         connection.close()
         return []
     output_rows = []
-    for person_key in rows:
+    for person_key in set(rows):
         person = get_person_by_key(person_key)
         output_rows.append(person)
     connection.close()

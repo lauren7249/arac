@@ -112,7 +112,9 @@ def reformat_crawlera(json):
         "publications": json.get("publications"),
         "recommendations": json.get("recommendations"),
         "volunteering": json.get("volunteering"),
-        "patents": json.get("patents")
+        "patents": json.get("patents"),
+        "redirect_url": json.get("redirect_url"),
+        "previous_urls": json.get("previous_urls",[])
     }
 
 def test_refactor():

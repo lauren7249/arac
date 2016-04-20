@@ -144,21 +144,42 @@ class PersonRequest(object):
         profile = get_person(linkedin_id=profile_linkedin_id)
         return profile
 
+    def _get_url_versions(self, linkedin_data):
+        all_urls = []
+        url = linkedin_data.get("url")
+        if url not in all_urls:
+            all_urls.append(url)    
+        url = linkedin_data.get("canonical_url")
+        if url and url not in all_urls:
+            all_urls.append(url)  
+        url = linkedin_data.get("redirect_url")
+        if url and url not in all_urls:
+            all_urls.append(url)        
+        if not linkedin_data.get("previous_urls",[]):
+            return all_urls
+        for url in linkedin_data.get("previous_urls",[]):
+            if url and url not in all_urls:
+                all_urls.append(url)   
+        return all_urls
+
     def _get_associated_profiles(self, linkedin_data):
         if not linkedin_data:
-            return []
-        source_url = linkedin_data.get("source_url")
-        linkedin_id = linkedin_data.get("linkedin_id")
-        if not source_url or not linkedin_id:
             return []
         also_viewed_urls = linkedin_data.get("urls",[])
         also_viewed = []
         for url in also_viewed_urls:
             profile = self._get_profile_by_any_url(url)
             if profile:
-                also_viewed.append(profile)            
-        viewed_also = get_people_viewed_also(url=source_url)
-        if len(viewed_also) == 0:
+                also_viewed.append(profile)   
+        #try all the different url versions in crawlera for a person in "also_viewed" until we find them
+        url_versions = self._get_url_versions(linkedin_data)              
+        for url in url_versions:       
+            viewed_also = get_people_viewed_also(url=url)
+            if len(viewed_also) > 0: 
+                break
+        #if none of the crawlera profile urls work, try PIPL
+        if len(viewed_also) == 0 and linkedin_data.get("linkedin_id"):
+            linkedin_id = linkedin_data.get("linkedin_id")
             request = PiplRequest(linkedin_id, type="linkedin", level="social")
             pipl_data = request.process()
             new_url = pipl_data.get("linkedin_url")

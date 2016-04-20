@@ -147,7 +147,9 @@ class ProcessingService(Service):
                     sendgrid_email(to_email, subject, body, from_email=manager.user.email)
             elif not self.user:
                 self.logger.error("no user")
-            #self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
+            if self.user:
+                self.logger.info("{}'s stats for hired={}".format(self.client_data.get("email"), self.client_data.get("hired")))
+                print json.dumps(self.user.statistics(refresh=True, session=self.session))
             self.logend()
             return self.output
         except:
