@@ -18,16 +18,26 @@ if __name__ == '__main__':
     def add_manager(first_name, last_name, email, password, json_data):
         from prime.users.models import db, User
         from prime.managers.models import ManagerProfile
+        email = email.lower()
+        session = db.session
         json_data = json.loads(json_data)
-        mp = ManagerProfile()
+        user = User.query.filter(User.email==email).first()
+        mp = None
+        if not user:
+            user = User(first_name, last_name, email, password)
+            session.commit()
+            session.add(user)  
+        else:
+            user.set_password(password)            
+        mp = ManagerProfile.query.filter(ManagerProfile.user_id==user.user_id).first()
+        if not mp:
+            mp = ManagerProfile()
         mp.address = json_data.get("address")
         mp.name_suffix = json_data.get("name_suffix")
         mp.certifications = json_data.get("certifications")
         mp.phone = json_data.get("phone")
-        session = db.session
-        user = User(first_name, last_name, email, password)
-        session.add(user)
-        mp.user = user
+        mp.job_title = json_data.get("job_title")      
+        mp.user = user            
         session.add(mp)
         session.commit()
         print "Manager id: {}".format(mp.manager_id)
@@ -35,10 +45,13 @@ if __name__ == '__main__':
     @manager.command
     def add_user(first_name, last_name, email, password, manager_id):
         from prime.users.models import db, User
+        email = email.lower()
         session = db.session
         u = User.query.filter_by(email=email).first()
         if not u:
             u = User(first_name, last_name, email, password)
+        else:
+            u.set_password(password)   
         u.manager_id = int(manager_id)
         session.add(u)
         session.commit()
@@ -51,6 +64,7 @@ if __name__ == '__main__':
     def rerun_contacts(email, hired, flush, suppress_emails):
         from prime.users.models import db, User
         from prime.prospects.views import queue_processing_service
+        email = email.lower()
         session = db.session
         user = User.query.filter_by(email=email).first()
         contacts_array, user = user.refresh_contacts()
@@ -78,6 +92,7 @@ if __name__ == '__main__':
     @manager.command
     def delete_user(email):
         from prime.users.models import db, User
+        email = email.lower()
         user = User.query.filter_by(email=email).first()
         session = db.session
         prospects = user.client_prospects
@@ -92,7 +107,7 @@ if __name__ == '__main__':
         from prime.users.models import db, User
         users = User.query.all()
         for user in users:
-            email = user.email
+            email = user.email.lower()
             if re.search(pattern, email):
                 print email
                 delete_user(email)
@@ -102,6 +117,7 @@ if __name__ == '__main__':
         from prime.users.models import User, db
         from prime.prospects.views import queue_processing_service
         from helpers.linkedin_helpers import process_csv
+        email = email.lower()
         user = User.query.filter_by(email=email).first()
         if not user:
             user = User('', '', email, '')
@@ -121,6 +137,7 @@ if __name__ == '__main__':
         errors = getter.check_linkedin_login_errors()
         data = getter.get_linkedin_data()
         getter.quit()
+        email = email.lower()
         u = User.query.filter_by(email=email).first()
         if not u:
             u = User('', '', email, '')

@@ -1,3 +1,4 @@
+migrations/*
 migrations/env.py
 userdir/
 metastore_db/

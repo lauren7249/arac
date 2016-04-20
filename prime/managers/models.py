@@ -56,7 +56,8 @@ class ManagerProfile(db.Model, UserMixin):
     address = db.Column(String(1000), nullable=False)
     phone = db.Column(String(30))
     created = db.Column(Date, default=datetime.datetime.today())
-
+    job_title =  db.Column(String(1500))
+    
     @property 
     def invitations_sent(self):
         return int(self.users.count())
@@ -80,6 +81,8 @@ class ManagerProfile(db.Model, UserMixin):
             title += ', ' + self.name_suffix
         if self.certifications:
             title += ', ' + self.certifications
+        if self.job_title:
+            title += ", " + self.job_title
         return title
 
     @property 

@@ -40,6 +40,8 @@ geoindex==0.0.1
 geopy==1.11.0
 gnureadline==6.3.3
 greenlet==0.4.9
+gcloud==0.12.1
+grpcio==0.13.1
 ipython==2.3.0
 itsdangerous==0.24
 Jinja2==2.7.3
