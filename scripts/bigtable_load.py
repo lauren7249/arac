@@ -1,10 +1,5 @@
-
-# coding: utf-8
-
-# In[3]:
-
+import sys
 import json
-import itertools
 
 def output_company(line):
     linkedin_data = json.loads(line)
@@ -91,6 +86,8 @@ def output_name_headline(line):
 def output_also_viewed_reverse(line):
     linkedin_data = json.loads(line)
     unique_id = linkedin_data.get("unique_id")
+    if not unique_id:
+        unique_id = linkedin_data.get("_key")[2:]
     also_viewed = linkedin_data.get("also_viewed",[])
     output = []
     for url in also_viewed:
@@ -176,25 +173,14 @@ class BigTableLoader(object):
         datamap = self.data.flatMap(output_also_viewed_reverse)
         self.save(datamap, "also_viewed_reverse")
         
+if __name__ == "__main__":
+    period = sys.argv[1]
+    hb = BigTableLoader(period,sc) 
+    hb.load_people()
 
-
-# In[2]:
-
-hb = BigTableLoader("2016-04",sc) 
-#hb.load_people()
-hb.load_also_viewed_reverse()
-
-
-# In[4]:
-
-#one-time only
-# hb = BigTableLoader("2015_12",sc) 
-# hb.load_linkedin_ids()
-hb = BigTableLoader("2015-11",sc) 
-hb.load_companies()
-
-
-# In[ ]:
+    # #one-time only
+    # hb = BigTableLoader("2015-11",sc) 
+    # hb.load_companies()
 
 
 
