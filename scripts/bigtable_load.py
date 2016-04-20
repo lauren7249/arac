@@ -172,7 +172,11 @@ class BigTableLoader(object):
     def load_also_viewed_reverse(self):
         datamap = self.data.flatMap(output_also_viewed_reverse)
         self.save(datamap, "also_viewed_reverse")
-        
+
+'''
+You can run this on GC VM cluster-1-m using pyspark
+'''
+
 if __name__ == "__main__":
     period = sys.argv[1]
     hb = BigTableLoader(period,sc) 
