@@ -240,6 +240,8 @@ def privacy():
 @csrf.exempt
 @prospects.route('/linkedin_failed', methods=['POST'])
 def linkedin_login_failed():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))    
     failtype = request.args.get("failtype")
     if current_user.linkedin_login_email and current_user.linkedin_password and current_user.contacts_from_linkedin==0:
         sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}, user email: {}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.email, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
@@ -304,12 +306,16 @@ def linkedin_login():
 @csrf.exempt
 @prospects.route('/linkedin_pin', methods=['GET'])
 def linkedin_pin():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))    
     message = request.args.get("message","A security pin was sent to your email. Please paste the pin in the box below and submit.")
     return render_template('linkedin_pin.html', message=message)
 
 @csrf.exempt
 @prospects.route('/linkedin_pin_giver', methods=['POST'])
 def linkedin_pin_giver():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
     pin = request.form.get("pin")
     email = current_user.email
     if pin and email:
@@ -321,6 +327,8 @@ def linkedin_pin_giver():
 @csrf.exempt
 @prospects.route('/linkedin_login_status', methods=['GET', 'POST'])
 def linkedin_login_status():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
     conn = get_conn()
     if conn.hexists("linkedin_login_outcome", current_user.email):
         #we see here if the Linkedin bot is finished running.
@@ -340,6 +348,8 @@ def linkedin_login_status():
 @csrf.exempt
 @prospects.route('/linkedin_pin_status', methods=['GET'])
 def linkedin_pin_status():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
     email = current_user.email
     conn = get_conn()
     if conn.hexists("pins",email):
