@@ -9,7 +9,6 @@ class Config(object):
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
     ASSETS_DEBUG = False
-    MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
 
     MAIL_SERVER = 'aws_string_goes_here'
