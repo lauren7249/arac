@@ -13,3 +13,6 @@ docker-machine-up.sh
 BaseDockerImage/
 Dockerfile
 docker-compose.yml
+out/
+demo/
+.git/
