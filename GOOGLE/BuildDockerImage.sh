@@ -2,7 +2,7 @@
 
 REGISTRY="gcr.io/advisorconnect-1238/"
 IMAGE="aconn"
-VERSION="1.0.9"
+VERSION="1.0.10"
 
 BRANCH=`git branch | head -n 1 | cut -c 3-`
 COMMIT=`git log  | head -n1 | cut -c 8-16`
