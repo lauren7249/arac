@@ -185,7 +185,7 @@ class LinkedinCsvGetter(object):
 
     def check_creds_via_google(self):
         self.driver.get("https://www.linkedin.com/uas/login?session_redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Fpeople%2Fexport-settings&fromSignIn=true&trk=uno-reg-join-sign-in")
-        time.sleep(2)
+        time.sleep(4)
         email_el = self.driver.find_element_by_id("session_key-login")
         pw_el = self.driver.find_element_by_id("session_password-login")
         email_el.send_keys(self.username)
