@@ -45,7 +45,7 @@ kind: Deployment
 metadata:
   name: prime-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       name: prime-app
@@ -92,7 +92,9 @@ spec:
         - name: S3_BUCKET
           value: "arachnid-results"
         - name: AC_CONFIG
-          value: "nyl"    
+          value: "nyl"
+        - name: SUPPRESS_EMAIL
+          value: "True"
         - name: REDIS_URL
           value: redis://$(REDIS_MASTER_SERVICE_HOST):$(REDIS_MASTER_SERVICE_PORT)
         - name: DB_URL
