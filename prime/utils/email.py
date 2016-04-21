@@ -1,9 +1,10 @@
 import sendgrid
-
+import os
 def sendgrid_email(to, subject, body, ccs=['lauren@advisorconnect.co','jamesjohnson11@gmail.com'], from_email='support@advisorconnect.co'):
     sg = sendgrid.SendGridClient('lauren7249', '1250downllc')
     mail = sendgrid.Mail()
-    mail.add_to(to)
+    if not os.getenv("SUPPRESS_EMAIL"):
+        mail.add_to(to)
     if ccs:
         for cc in ccs:
             mail.add_bcc(cc)
