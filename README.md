@@ -23,6 +23,16 @@ Make your changes and push up to git, then ssh into the server and run the follo
   `docker ps to find the prime container hash`
   `docker exec -t -i <hashcode here> /bin/bash`
 
+Updating Kubernetes
+
+  `git pull origin <branch-to-be-deployed>`
+  `docker build -t gcr.io/advisorconnect-1238/aconn:<new_version_number> .`
+  `gcloud docker push gcr.io/advisorconnect-1238/aconn:<new_version_number>`
+  `cd uat`
+  `update prime_deployment.yaml to point to new version number`
+  `kubectl apply --record -f prime_deployment.yaml`
+
+
 Deploying live
 
   `cd/uat`
