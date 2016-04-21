@@ -214,8 +214,8 @@ class User(db.Model, UserMixin):
                 logo=current_app.config.get("EMAIL_LOGO")
                 )
         subject = "{} submitted a P200 for approval".format(self.name)
-        sendgrid_email(self.manager.user.email, subject, body,
-                from_email="jeff@advisorconnect.co")
+        #SUPPRESS_EMAIL
+        #sendgrid_email(self.manager.user.email, subject, body, from_email="jeff@advisorconnect.co")
         return True
 
     def p200_manager_approved(self):
@@ -224,8 +224,8 @@ class User(db.Model, UserMixin):
                 logo=current_app.config.get("EMAIL_LOGO"),
                 base_url=current_app.config.get("BASE_URL"))
         subject = "Your P200 is Ready to Export"
-        sendgrid_email(self.email, subject, body,
-                from_email="jeff@advisorconnect.co")
+        #SUPPRESS_EMAIL
+        #sendgrid_email(self.email, subject, body, from_email="jeff@advisorconnect.co")
         return True
 
     def clear_data(self, remove_uploads=False, session=db.session):

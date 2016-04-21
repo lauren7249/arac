@@ -11,5 +11,8 @@ docker-build-and-run.sh
 docker-machine-down.sh
 docker-machine-up.sh
 BaseDockerImage/
-Dockerfile
+GOOGLE/Dockerfile
 docker-compose.yml
+out/
+demo/
+.git/

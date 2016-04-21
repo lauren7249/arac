@@ -241,7 +241,8 @@ def privacy():
 @prospects.route('/linkedin_failed', methods=['POST'])
 def linkedin_login_failed():
     failtype = request.args.get("failtype")
-    sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}, user email: {}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.email, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
+    if current_user.linkedin_login_email and current_user.linkedin_password and current_user.contacts_from_linkedin==0:
+        sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}, user email: {}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.email, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
     return jsonify({"success":True})
 
 @csrf.exempt
@@ -400,7 +401,8 @@ def upload():
             env.loader = FileSystemLoader("prime/templates")
             tmpl = env.get_template('emails/contacts_uploaded.html')
             body = tmpl.render(first_name=current_user.first_name, last_name=current_user.last_name, email=current_user.email)
-            sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(current_user.unique_contacts_uploaded)), body)
+            #SUPPRESS_EMAIL
+            #sendgrid_email(to_email, "{} {} has imported a total of {} contacts into AdvisorConnect".format(current_user.first_name, current_user.last_name, "{:,d}".format(current_user.unique_contacts_uploaded)), body)
             #if linkedin login creds were entered successfully, but the linkedin contacts were not uploaded, don't run the network summary
             if current_user.linkedin_password and current_user.linkedin_login_email and not current_user.contacts_from_linkedin:
                 return jsonify({"contacts": current_user.unique_contacts_uploaded})

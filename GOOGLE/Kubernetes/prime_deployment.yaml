@@ -2,22 +2,50 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: prime
+  name: prime-app
+  labels:
+    name: prime-app
 spec:
   ports:
     - protocol: TCP
       port: 80
+      nodePort: 30380
       name: http
+#    - protocol: TCP
+#      port: 80
+#      nodePort: 30381
+#      name: https
+  sessionAffinity: ClientIP
+  type: LoadBalancer
+#  loadBalancerIP: 130.211.12.49
   selector:
     name: prime-app
-  type: LoadBalancer
+#---
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: prime-ingress
+#spec:
+#  rules:
+#  - host: nyl.advisorconnect.co
+#    http:
+#      paths:
+#      -  backend:
+#           serviceName: prime
+#           servicePort: http
+##           serviceName: prime
+##           servicePort: https
+#  tls:
+#  - hosts:
+#    - "*.advisorconnect.co"
+#    secretName: tls
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: prime-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       name: prime-app
@@ -33,7 +61,14 @@ spec:
             command:
             - cat
             - /proc/net/tcp
-        image: gcr.io/advisorconnect-1238/aconn:v4
+        image: gcr.io/advisorconnect-1238/aconn:1.0.9
+        resources:
+          requests:
+            cpu: 3
+            memory: "2Gi"
+          limits:
+            cpu: 5
+            memory: "10Gi"
         ports:
         - containerPort: 80
           name: http
@@ -57,7 +92,7 @@ spec:
         - name: S3_BUCKET
           value: "arachnid-results"
         - name: AC_CONFIG
-          value: "development"
+          value: "nyl"
         - name: REDIS_URL
           value: redis://$(REDIS_MASTER_SERVICE_HOST):$(REDIS_MASTER_SERVICE_PORT)
         - name: DB_URL
@@ -68,16 +103,4 @@ spec:
           value: "4BqkeSHz5SbcAyM/cyTBCB1SwBrB9DDu0Ug/VZaQ"
         - name: LC_ALL
           value: "en_US.utf8"
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: prime-ingress
-spec:
-  backend:
-    serviceName: prime
-    servicePort: http
-#  tls:
-#  - hosts:
-#    - "nyl.advisorconnect.co"
-#    secretName: tls
+

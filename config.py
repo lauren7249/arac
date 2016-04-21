@@ -9,7 +9,6 @@ class Config(object):
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
     ASSETS_DEBUG = False
-    MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
 
     MAIL_SERVER = 'aws_string_goes_here'
@@ -41,9 +40,18 @@ class DevelopmentConfig(Config):
     REMEMBER_COOKIE_SECURE = False
     SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://dev-db:5432/arachnid')
     ASSETS_DEBUG = False
-    MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
     BASE_URL = 'https://beta.advisorconnect.co'
+    SQLALCHEMY_ECHO = False
+
+class NYLConfig(Config):
+    DEBUG = False
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://dev-db:5432/arachnid')
+    ASSETS_DEBUG = False
+    COOKIE_SECURE = False
+    BASE_URL = 'http://nyl.advisorconnect.co'
     SQLALCHEMY_ECHO = False
 
 class DemoConfig(Config):
@@ -52,7 +60,6 @@ class DemoConfig(Config):
     REMEMBER_COOKIE_SECURE = False
     SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://dev-db:5432/arachnid')
     ASSETS_DEBUG = False
-    MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
     BASE_URL = 'https://demo.advisorconnect.co'
     SQLALCHEMY_ECHO = False
@@ -65,12 +72,12 @@ class TestingConfig(Config):
     REMEMBER_COOKIE_SECURE = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/arachnid'
     ASSETS_DEBUG = False
-    MAIL_SUPPRESS_SEND = True
     COOKIE_SECURE = False
     BASE_URL = 'http://localhost:5000'
 
 
 config = {
+    'nyl':  NYLConfig, #nyl.advisorconnect.co
     'development': DevelopmentConfig, #beta.advisorconnect.co
     'beta'       : BetaConfig,  #prime.advisorconnect
     'testing'    : TestingConfig, #localhost
