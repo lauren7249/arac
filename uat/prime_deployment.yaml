@@ -93,8 +93,6 @@ spec:
           value: "arachnid-results"
         - name: AC_CONFIG
           value: "nyl"
-        - name: SUPPRESS_EMAIL
-          value: "True"
         - name: REDIS_URL
           value: redis://$(REDIS_MASTER_SERVICE_HOST):$(REDIS_MASTER_SERVICE_PORT)
         - name: DB_URL
