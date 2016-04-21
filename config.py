@@ -52,7 +52,7 @@ class NYLConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv('DB_URL', 'postgresql://dev-db:5432/arachnid')
     ASSETS_DEBUG = False
     COOKIE_SECURE = False
-    BASE_URL = 'https://nyl.advisorconnect.co'
+    BASE_URL = 'http://nyl.advisorconnect.co'
     SQLALCHEMY_ECHO = False
 
 class DemoConfig(Config):

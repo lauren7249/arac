@@ -81,7 +81,8 @@ def signup():
                 env.loader = FileSystemLoader("prime/templates")
                 tmpl = env.get_template('emails/account_created.html')
                 body = tmpl.render(first_name=user.first_name, last_name=user.last_name, email=user.email)
-                sendgrid_email(user.manager.user.email, "{} {} created an AdvisorConnect account".format(user.first_name, user.last_name), body)
+                #SUPPRESS_EMAIL
+                #sendgrid_email(user.manager.user.email, "{} {} created an AdvisorConnect account".format(user.first_name, user.last_name), body)
             user.account_created = True
             user.set_password(form.password.data)
             db.session.add(user)
