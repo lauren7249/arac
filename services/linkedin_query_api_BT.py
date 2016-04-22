@@ -17,12 +17,15 @@ ALSO_VIEWED_REVERSE_TABLE = 'also_viewed_reverse'
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcloud-credentials.json"
 
 def get_person_by_key(key):
+    client = None
     try:
         client = Client(project='advisorconnect-1238')
         client.start()
         clust = client.cluster('us-central1-b', 'crawlera')        
         connection = Connection(cluster=clust)
     except Exception, e:
+        if client and client.is_started():
+            client.stop()
         print str(e)
         print "unable to connect to the database"
         return {}
@@ -30,21 +33,26 @@ def get_person_by_key(key):
     row = table.row(key)
     if not row:
         connection.close()
+        client.stop()
         return {}
     row = json.loads(row.values()[0])
     row = reformat_crawlera(row)
     connection.close()
+    client.stop()
     return row
 
 def get_person(url=None, linkedin_id=None, name=None, headline=None):
     if (not url and not linkedin_id) and (not headline or not name):
         return {}
+    client = None
     try:
         client = Client(project='advisorconnect-1238')
         client.start()
         clust = client.cluster('us-central1-b', 'crawlera')              
         connection = Connection(cluster=clust)
     except Exception, e:
+        if client and client.is_started():
+            client.stop()        
         print str(e)
         print "unable to connect to the database"
         return {}
@@ -70,12 +78,15 @@ def get_person(url=None, linkedin_id=None, name=None, headline=None):
 def get_people_viewed_also(url=None):
     if not url:
         return []
+    client = None
     try:
         client = Client(project='advisorconnect-1238')
         client.start()
         clust = client.cluster('us-central1-b', 'crawlera')              
         connection = Connection(cluster=clust)
     except Exception, e:
+        if client and client.is_started():
+            client.stop()        
         print str(e)
         print "unable to connect to the database"
         return []
@@ -95,12 +106,15 @@ def get_people_viewed_also(url=None):
     return output_rows
 
 def get_company_by_key(key):
+    client = None
     try:
         client = Client(project='advisorconnect-1238')
         client.start()
         clust = client.cluster('us-central1-b', 'crawlera')              
         connection = Connection(cluster=clust)
     except Exception, e:
+        if client and client.is_started():
+            client.stop()        
         print str(e)
         print "unable to connect to the database"
         return {}
@@ -118,12 +132,15 @@ def get_company_by_key(key):
 def get_company(url=None, linkedin_id=None):
     if not url and not linkedin_id:
         return {}
+    client = None
     try:
         client = Client(project='advisorconnect-1238')
         client.start()
         clust = client.cluster('us-central1-b', 'crawlera')              
         connection = Connection(cluster=clust)
     except Exception, e:
+        if client and client.is_started():
+            client.stop()        
         print str(e)
         print "unable to connect to the database"
         return {}

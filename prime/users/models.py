@@ -306,6 +306,9 @@ class User(db.Model, UserMixin):
         by_source = {}
         if not contacts_array:
             contacts_array = []
+        if not new_contacts:
+            new_contacts = []
+            print "NO NEW CONTACTS"
         for record in contacts_array + new_contacts:
             owner = record.get("contacts_owner")
             if owner:
