@@ -2,7 +2,7 @@
 
 REGISTRY="gcr.io/advisorconnect-1238/"
 IMAGE="aconn"
-VERSION="1.0.17"
+VERSION="1.0.18"
 
 BRANCH="no-linkedin-waiting"
 COMMIT=`git log  | head -n1 | cut -c 8-16`
