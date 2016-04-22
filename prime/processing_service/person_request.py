@@ -172,6 +172,7 @@ class PersonRequest(object):
             if profile:
                 also_viewed.append(profile)   
         #try all the different url versions in crawlera for a person in "also_viewed" until we find them
+        viewed_also = []
         url_versions = self._get_url_versions(linkedin_data)              
         for url in url_versions:       
             viewed_also = get_people_viewed_also(url=url)
@@ -183,5 +184,6 @@ class PersonRequest(object):
             request = PiplRequest(linkedin_id, type="linkedin", level="social")
             pipl_data = request.process()
             new_url = pipl_data.get("linkedin_url")
-            viewed_also = get_people_viewed_also(url=new_url)
+            if new_url and new_url not in url_versions:
+                viewed_also = get_people_viewed_also(url=new_url)
         return also_viewed + viewed_also
