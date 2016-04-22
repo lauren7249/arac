@@ -80,6 +80,7 @@ def reformat_crawlera(json):
         projects.append(project)
     causes = json.get("volunteering",[{}])[0].get("causes")
     return {
+        'unique_id': json.get("unique_id"),
         'image': json.get("image_url"),
         'linkedin_id': json.get("linkedin_id"),
         'full_name': json.get("full_name"),

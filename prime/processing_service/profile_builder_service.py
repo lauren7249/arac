@@ -142,6 +142,7 @@ class ProfileBuilderRequest(S3SavedRequest):
         self.profile["linkedin_url"] = data.get("source_url")
         self.profile["linkedin"] = data.get("source_url")
         self.profile["linkedin_id"] = data.get("linkedin_id")
+        self.profile["unique_id"] = data.get("unique_id")
         self.profile["linkedin_name"] = data.get('full_name',"")
         self.profile["linkedin_location_raw"] = data.get("location")
         self.profile["linkedin_industry_raw"] = data.get("industry")

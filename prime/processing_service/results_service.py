@@ -46,10 +46,14 @@ class ResultService(Service):
         if not profile:
             self.logger.error("No person")
             return None
-        if profile.get('linkedin_id') is None:
+        linkedin_id = profile.get('linkedin_id')
+        if linkedin_id is None:
+            linkedin_id = profile.get("unique_id")
+        if linkedin_id is None:
             self.logger.error("No linkedin id")
             return None
-        prospect = get_or_create(self.session, Prospect, linkedin_id=profile.get('linkedin_id').strip())
+        linkedin_id = linkedin_id.strip()
+        prospect = get_or_create(self.session, Prospect, linkedin_id=linkedin_id)
         for key, value in profile.iteritems():
             if hasattr(Prospect, key):
                 setattr(prospect, key, value)

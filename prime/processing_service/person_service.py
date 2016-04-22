@@ -20,17 +20,20 @@ def wrapper(person):
         linkedin_data = PersonRequest()._get_profile(headline=headline, name=full_name)   
         if linkedin_data: 
             person["linkedin_data"] = linkedin_data
+            print "FOUND crawlera"
             return person 
         print "no crawlera data found for {} | {}".format(full_name, headline)    
     person = pipl_wrapper(person)
     if person.get("linkedin_url"):
         person = linkedin_wrapper(person)
         if person.get("linkedin_data"):
+            print "FOUND crawlera"
             return person
     person = clearbit_wrapper(person)
     if person.get("linkedin_url"):
         person = linkedin_wrapper(person)
         if person.get("linkedin_data"):
+            print "FOUND crawlera"
             return person
     return person
 
@@ -78,6 +81,8 @@ class PersonService(Service):
         return self.output.values()
         
     def multiprocess(self):
+        #UNCOMMENT TO SWITCH OFF MULTIPROCESSING
+        #return self.process()
         try:
             self.logstart()
             self.pool = multiprocessing.Pool(self.pool_size)
