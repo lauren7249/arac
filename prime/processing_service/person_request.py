@@ -7,8 +7,8 @@ from boto.s3.key import Key
 import re
 from helper import uu, parse_date
 from constants import CODER_WORDS, PROGRAMMING_LANGUAGES, TECH_DEGREE_WORDS
-#from services.linkedin_query_api import get_person, get_people_viewed_also
-from services.linkedin_query_api_BT import get_person, get_people_viewed_also
+from services.linkedin_query_api import get_person, get_people_viewed_also
+#from services.linkedin_query_api_BT import get_person, get_people_viewed_also
 from pipl_request import PiplRequest
 
 class PersonRequest(object):
@@ -51,7 +51,7 @@ class PersonRequest(object):
             if title.find(alias)>-1:
                 programmer_points+=3
             if description.find(alias)>-1:
-                programmer_points+=1   
+                programmer_points+=1
         for language in PROGRAMMING_LANGUAGES:
             if language in skills:
                 programmer_points+=2
@@ -80,7 +80,7 @@ class PersonRequest(object):
             else:
                 degree = None
             if not degree:
-                continue  
+                continue
             clean_degree = re.sub('[^0-9a-z\s]','',degree.lower().strip())
             if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*(s(cience(s)*)*|e(ng(ineer(ing)*)*)*)($|\s)', clean_degree):
                 if re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*s(cience(s)*)*($|\s)', clean_degree) and not re.search('^(b(achelor(s)*( )+)*|m(aster(s)*( )+)*)( )*(of( )+)*(e(ng(ineer(ing)*)*)*)($|\s)', clean_degree):
@@ -134,7 +134,7 @@ class PersonRequest(object):
         if url:
             return self._get_profile_by_any_url(url)
         return get_person(headline=headline, name=name)
-        
+
     def _get_profile_by_any_url(self,url):
         profile = get_person(url=url)
         if profile:
@@ -149,18 +149,18 @@ class PersonRequest(object):
         all_urls = []
         url = linkedin_data.get("url")
         if url not in all_urls:
-            all_urls.append(url)    
+            all_urls.append(url)
         url = linkedin_data.get("canonical_url")
         if url and url not in all_urls:
-            all_urls.append(url)  
+            all_urls.append(url)
         url = linkedin_data.get("redirect_url")
         if url and url not in all_urls:
-            all_urls.append(url)        
+            all_urls.append(url)
         if not linkedin_data.get("previous_urls",[]):
             return all_urls
         for url in linkedin_data.get("previous_urls",[]):
             if url and url not in all_urls:
-                all_urls.append(url)   
+                all_urls.append(url)
         return all_urls
 
     def _get_associated_profiles(self, linkedin_data):
@@ -171,13 +171,13 @@ class PersonRequest(object):
         for url in also_viewed_urls:
             profile = self._get_profile_by_any_url(url)
             if profile:
-                also_viewed.append(profile)   
+                also_viewed.append(profile)
         #try all the different url versions in crawlera for a person in "also_viewed" until we find them
         viewed_also = []
-        url_versions = self._get_url_versions(linkedin_data)              
-        for url in url_versions:       
+        url_versions = self._get_url_versions(linkedin_data)
+        for url in url_versions:
             viewed_also = get_people_viewed_also(url=url)
-            if len(viewed_also) > 0: 
+            if len(viewed_also) > 0:
                 break
         #if none of the crawlera profile urls work, try PIPL
         if len(viewed_also) == 0 and linkedin_data.get("linkedin_id"):

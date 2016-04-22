@@ -11,8 +11,8 @@ from boto.s3.key import Key
 from service import Service, S3SavedRequest
 from bing_request import BingRequestMaker
 from constants import GLOBAL_HEADERS
-#from services.linkedin_query_api import get_company
-from services.linkedin_query_api_BT import get_company
+from services.linkedin_query_api import get_company
+#from services.linkedin_query_api_BT import get_company
 from person_request import PersonRequest
 from prime.utils.helpers import STATES
 
@@ -39,7 +39,7 @@ def wrapper(person):
     except Exception, e:
         print __name__ + str(e)
         return person
-        
+
 class LinkedinCompanyService(Service):
     """
     Expected input is JSON of unique email addresses from cloudsponge
@@ -49,7 +49,7 @@ class LinkedinCompanyService(Service):
     def __init__(self, data, *args, **kwargs):
         super(LinkedinCompanyService, self).__init__(data, *args, **kwargs)
         self.wrapper = wrapper
-        
+
 
 class LinkedinCompanyRequest(S3SavedRequest):
 
@@ -67,7 +67,7 @@ class LinkedinCompanyRequest(S3SavedRequest):
         self.company_linkedin_url = company.get("company_linkedin_url")
         self.company_id = company.get("company_id")
         if self.company_linkedin_url:
-            self.urls.append(self.company_linkedin_url)       
+            self.urls.append(self.company_linkedin_url)
         super(LinkedinCompanyRequest, self).__init__()
 
     def _get_urls(self):
@@ -100,7 +100,7 @@ class LinkedinCompanyRequest(S3SavedRequest):
                 return info
         while not info and self.has_next_url():
             info = self.process_next()
-            if info: 
+            if info:
                 return info
         return info
 
