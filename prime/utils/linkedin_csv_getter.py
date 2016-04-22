@@ -153,13 +153,17 @@ class LinkedinCsvGetter(object):
     def check_linkedin_login_errors(self):
         if self.via_google:
             return self.check_creds_via_google()
-        self.driver.get("https://www.linkedin.com")
-        email_el = self.driver.find_element_by_id("login-email")
-        pw_el = self.driver.find_element_by_id("login-password")
-        email_el.send_keys(self.username)
-        pw_el.send_keys(self.password)
-        button = self.driver.find_element_by_name("submit")
-        button.click()
+        try:
+            self.driver.get("https://www.linkedin.com")
+            email_el = self.driver.find_element_by_id("login-email")
+            pw_el = self.driver.find_element_by_id("login-password")
+            email_el.send_keys(self.username)
+            pw_el.send_keys(self.password)
+            button = self.driver.find_element_by_name("submit")
+            button.click()
+        except:
+            self.driver.save_screenshot("Unknown_error.png")
+            return "Unknown error", None            
         if self.driver.title == self.desired_title:
             return None, None
         if self.driver.current_url=='https://www.linkedin.com/uas/consumer-email-challenge':
@@ -189,12 +193,16 @@ class LinkedinCsvGetter(object):
     def check_creds_via_google(self):
         self.driver.get("https://www.linkedin.com/uas/login?session_redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Fpeople%2Fexport-settings&fromSignIn=true&trk=uno-reg-join-sign-in")
         time.sleep(4)
-        email_el = self.driver.find_element_by_id("session_key-login")
-        pw_el = self.driver.find_element_by_id("session_password-login")
-        email_el.send_keys(self.username)
-        pw_el.send_keys(self.password)
-        button = self.driver.find_element_by_id("btn-primary")
-        button.click()
+        try:
+            email_el = self.driver.find_element_by_id("session_key-login")
+            pw_el = self.driver.find_element_by_id("session_password-login")
+            email_el.send_keys(self.username)
+            pw_el.send_keys(self.password)
+            button = self.driver.find_element_by_id("btn-primary")
+            button.click()
+        except:
+            self.driver.save_screenshot("Unknown_error.png")
+            return "Unknown error", None            
         time.sleep(3)
         if self.driver.current_url == 'https://www.linkedin.com/people/export-settings':
             return None, None
