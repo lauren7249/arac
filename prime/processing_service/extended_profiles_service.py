@@ -46,8 +46,10 @@ class ExtendedProfilesService(Service):
                 try:
                     same_person_name = name_match(person_profile.get("full_name"), associated_profile.get("full_name"))
                 except:
-                    self.logger.info('person_profile: {}', json.dumps(person_profile))
-                    self.logger.info('associated_profile: {}', json.dumps(associated_profile))
+                    if not isinstance(person_profile, dict):
+                        self.logger.error('person_profile: {}', person_profile)
+                    if not isinstance(associated_profile, dict):
+                        self.logger.error('associated_profile: {}', associated_profile)
                     continue
                 if same_person_name:
                     continue

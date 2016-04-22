@@ -3,6 +3,7 @@ import hashlib
 import boto
 import lxml.html
 import re
+import json
 import dateutil
 from boto.s3.key import Key
 import multiprocessing
@@ -23,19 +24,50 @@ def wrapper(person):
             print "FOUND crawlera"
             return person 
         print "no crawlera data found for {} | {}".format(full_name, headline)    
-    person = pipl_wrapper(person)
-    if person.get("linkedin_url"):
-        person = linkedin_wrapper(person)
-        if person.get("linkedin_data"):
-            print "FOUND crawlera"
-            return person
-    person = clearbit_wrapper(person)
-    if person.get("linkedin_url"):
-        person = linkedin_wrapper(person)
-        if person.get("linkedin_data"):
-            print "FOUND crawlera"
-            return person
-    return person
+    return EmailRequest(person).process()
+
+class EmailRequest(S3SavedRequest):
+
+    def __init__(self, person):
+        super(EmailRequest, self).__init__()
+        self.logger = logging.getLogger(__name__)
+        self.person = person
+
+    def process(self):
+        if not self.person:
+            return self.person
+        self.email = self.person.get("email")
+        self.query = "EmailRequest" + self.email
+        try:
+            self.key = hashlib.md5(self.query).hexdigest()
+        except:
+            self.key = hashlib.md5(uu(self.query)).hexdigest()
+        self.boto_key = Key(self.bucket)
+        self.boto_key.key = self.key   
+        if self.boto_key.exists():
+            html = self.boto_key.get_contents_as_string()
+            person = json.loads(html.decode("utf-8-sig"))
+            if person:
+                self.logger.info('EmailRequest: %s', 'Using S3')
+                return person    
+        self.logger.info('EmailRequest: %s', 'Calculating')     
+        person = self.person  
+        person = pipl_wrapper(person)
+        if person.get("linkedin_url"):
+            person = linkedin_wrapper(person)
+            if person.get("linkedin_data"):
+                print "FOUND crawlera"
+                self.boto_key.set_contents_from_string(unicode(json.dumps(person, ensure_ascii=False)))
+                return person    
+        person = clearbit_wrapper(person)
+        if person.get("linkedin_url"):
+            person = linkedin_wrapper(person)
+            if person.get("linkedin_data"):
+                print "FOUND crawlera"
+                self.boto_key.set_contents_from_string(unicode(json.dumps(person, ensure_ascii=False)))
+                return person    
+        self.boto_key.set_contents_from_string(unicode(json.dumps(person, ensure_ascii=False)))
+        return person        
 
 class PersonService(Service):
     """

@@ -6,6 +6,7 @@ from helpers.stringhelpers import uu, get_domain, domain_match, name_match, get_
 from helpers.datehelpers import parse_date, date_overlap
 from helpers.data_helpers import flatten, merge_by_key, most_common, parse_out, get_center
 from helpers.linkedin_helpers import common_institutions, process_csv
+from helpers import timeout
 
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
