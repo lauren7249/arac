@@ -22,6 +22,7 @@ ALSO_VIEWED_REVERSE_TABLE = 'also_viewed_reverse'
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcloud-credentials.json"
 
 def get_connection():
+    print "getting connection"
     try:
         conn, client = get_conn_and_client()
         return conn, client

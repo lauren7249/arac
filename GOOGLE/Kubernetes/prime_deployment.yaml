@@ -61,7 +61,7 @@ spec:
             command:
             - cat
             - /proc/net/tcp
-        image: gcr.io/advisorconnect-1238/aconn:1.0.16
+        image: gcr.io/advisorconnect-1238/aconn:1.0.17
         resources:
           requests:
             cpu: 3
