@@ -4,6 +4,7 @@ from constants import GLOBAL_HEADERS, in_profile_re, pub_profile_re
 from helper import common_institutions, name_match
 from person_request import PersonRequest
 import multiprocessing
+import json
 
 def wrapper(person):
     try:
@@ -42,7 +43,15 @@ class ExtendedProfilesService(Service):
             first_degree_linkedin_ids.add(linkedin_id)
             self.output.append(person)
             for associated_profile in associated_profiles:
-                if name_match(person_profile.get("full_name"), associated_profile.get("full_name")):
+                try:
+                    same_person_name = name_match(person_profile.get("full_name"), associated_profile.get("full_name"))
+                except:
+                    if not isinstance(person_profile, dict):
+                        self.logger.error('person_profile: {}', person_profile)
+                    if not isinstance(associated_profile, dict):
+                        self.logger.error('associated_profile: {}', associated_profile)
+                    continue
+                if same_person_name:
                     continue
                 commonality = common_institutions(person_profile, associated_profile)
                 if not commonality:

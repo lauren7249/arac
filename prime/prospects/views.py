@@ -14,7 +14,7 @@ import random
 import requests
 import datetime
 import time
-
+from helpers.data_helpers import json_array_to_matrix
 from flask import current_app
 import json
 from urllib import unquote_plus
@@ -697,7 +697,8 @@ def exclusions_export():
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
     resp = flask.Response("")
-    data = current_user.exclusions_report
+    excluded = current_user.exclusions_report
+    data = json_array_to_matrix(excluded)
     output = StringIO.StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet("Exclusions")

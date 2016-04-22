@@ -6,7 +6,6 @@ import traceback
 from collections import Counter
 import datetime
 import logging
-from helpers.data_helpers import json_array_to_matrix
 from flask import current_app, render_template
 from flask.ext.login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -306,6 +305,9 @@ class User(db.Model, UserMixin):
         by_source = {}
         if not contacts_array:
             contacts_array = []
+        if not new_contacts:
+            new_contacts = []
+            print "NO NEW CONTACTS"
         for record in contacts_array + new_contacts:
             owner = record.get("contacts_owner")
             if owner:
@@ -375,9 +377,8 @@ class User(db.Model, UserMixin):
         return by_source.values(), self
 
     def generate_exclusions_report(self, excluded):
-        matrix = json_array_to_matrix(excluded)
         user_request = UserRequest(self.email, type='excluded')
-        user_request._make_request(matrix)
+        user_request._make_request(excluded)
 
     @property
     def exclusions_report(self):
