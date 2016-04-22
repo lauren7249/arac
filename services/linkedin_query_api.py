@@ -1,4 +1,5 @@
 import psycopg2
+import os
 import psycopg2.extras
 import web
 import json
@@ -9,7 +10,12 @@ urls = (
     '/get_person_by_url', 'get_person_by_url'
 )
 
-CONNECTION_STRING = "dbname='p200_production' user='arachnid' host='oracle' password='devious8ob8'"
+db_user = os.getenv('PRIME_DB_USER', 'arachnid')
+db_password = os.getenv('PRIME_DB_PASS', 'devious8ob8')
+db_host = os.getenv('PG_HOST')
+db_port = os.getenv('PG_PORT')
+
+CONNECTION_STRING = "dbname='p200_production' user='{}' host='{}'password='{}' port='{}'".format(db_user, db_password, db_host, db_port)
 PEOPLE_TABLE = 'people'
 COMPANY_TABLE = 'companies'
 app = web.application(urls, globals())

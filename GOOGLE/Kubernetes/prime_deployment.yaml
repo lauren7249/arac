@@ -85,6 +85,8 @@ spec:
           value: $(DEV_POSTGRES_SERVICE_HOST)
         - name: PRIME_DB_PASS
           value: devious8ob8
+        - name: PG_PORT
+          value: $(DEV_POSTGRES_SERVICE_PORT)
 #          valueFrom:
 #              secretKeyRef:
 #                key: password
