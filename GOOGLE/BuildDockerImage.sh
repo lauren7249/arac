@@ -2,9 +2,9 @@
 
 REGISTRY="gcr.io/advisorconnect-1238/"
 IMAGE="aconn"
-VERSION="1.0.13"
+VERSION="1.0.16"
 
-BRANCH=`git branch | head -n 1 | cut -c 3-`
+BRANCH="no-linkedin-waiting"
 COMMIT=`git log  | head -n1 | cut -c 8-16`
 
 echo "Building ${REGISTRY}${IMAGE}:${VERSION}"
