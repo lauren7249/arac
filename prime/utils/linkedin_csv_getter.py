@@ -117,7 +117,7 @@ class LinkedinCsvGetter(object):
         cookies = self.driver.get_cookies()
         self.req_cookies = {}
         for cookie in cookies:
-            self.req_cookies[cookie["name"]] = cookie["value"]        
+            self.req_cookies[cookie["name"]] = cookie["value"]
         return self.req_cookies
 
     def do_captcha(self):
@@ -127,9 +127,9 @@ class LinkedinCsvGetter(object):
             captcha_exists = True
         except:
             captcha_exists = False
-        if captcha_exists:        
+        if captcha_exists:
             screenshot_fn = random_string() + ".png"
-            cropped_fn = random_string()  + ".png"        
+            cropped_fn = random_string()  + ".png"
             self.driver.save_screenshot(screenshot_fn)
             img = Image.open(screenshot_fn)
             img_cropped = img.crop( LINKEDIN_CAPTCHA_CROP_DIMS )
@@ -148,7 +148,7 @@ class LinkedinCsvGetter(object):
                 print str(e)
                 self.driver.save_screenshot("error.png")
                 return False
-        return True     
+        return True
 
     def check_linkedin_login_errors(self):
         if self.via_google:
@@ -168,14 +168,17 @@ class LinkedinCsvGetter(object):
             req_cookies = {}
             for cookie in cookies:
                 req_cookies[cookie["name"]] = cookie["value"]
-            message = self.driver.find_element_by_class_name("descriptor-text")
+            try:
+                message = self.driver.find_element_by_class_name("descriptor-text")
+            except:
+                message = self.driver.find_element_by_id("verification-code")
             if message:
                 return message.text.split(". ")[-1], req_cookies
             return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
         email_error = self.driver.find_element_by_id("session_key-login-error")
         if email_error and email_error.text:
             self.driver.save_screenshot("email_error.png")
-            return email_error.text, None            
+            return email_error.text, None
         pw_error = self.driver.find_element_by_id("session_password-login-error")
         if pw_error and pw_error.text:
             self.driver.save_screenshot("pw_error.png")
@@ -201,32 +204,38 @@ class LinkedinCsvGetter(object):
             req_cookies = {}
             for cookie in cookies:
                 req_cookies[cookie["name"]] = cookie["value"]
-            message = self.driver.find_element_by_class_name("descriptor-text")
+            try:
+                message = self.driver.find_element_by_class_name("descriptor-text")
+            except:
+                message = self.driver.find_element_by_id("verification-code")
             if message:
                 return message.text.split(". ")[-1], req_cookies
             return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
         try:
-            change_password = self.driver.find_element_by_id("li-dialog-aria-label")       
+            change_password = self.driver.find_element_by_id("li-dialog-aria-label")
             self.driver.get("https://www.linkedin.com/people/export-settings")
             if self.driver.current_url == 'https://www.linkedin.com/people/export-settings':
-                return None, None             
+                return None, None
             if self.driver.current_url=='https://www.linkedin.com/uas/consumer-email-challenge':
                 self.driver.save_screenshot("challenge.png")
                 cookies = self.driver.get_cookies()
                 req_cookies = {}
                 for cookie in cookies:
                     req_cookies[cookie["name"]] = cookie["value"]
-                message = self.driver.find_element_by_class_name("descriptor-text")
+                try:
+                    message = self.driver.find_element_by_class_name("descriptor-text")
+                except:
+                    message = self.driver.find_element_by_id("verification-code")
                 if message:
                     return message.text.split(". ")[-1], req_cookies
-                return "Please enter the verification code sent to your email address to finish signing in.", req_cookies  
+                return "Please enter the verification code sent to your email address to finish signing in.", req_cookies
         except:
             pass
-        try:          
+        try:
             email_error = self.driver.find_element_by_id("session_key-login-error")
             if email_error and email_error.text:
                 self.driver.save_screenshot("email_error.png")
-                return email_error.text, None            
+                return email_error.text, None
             pw_error = self.driver.find_element_by_id("session_password-login-error")
             if pw_error and pw_error.text:
                 self.driver.save_screenshot("pw_error.png")
@@ -242,7 +251,7 @@ class LinkedinCsvGetter(object):
         self.driver.get(LINKEDIN_EXPORT_URL)
         captcha_solved = self.do_captcha()
         if not captcha_solved:
-            return None            
+            return None
         export_button = self.driver.find_element_by_name("exportNetwork")
         export_button.click()
         self.req_cookies = self.get_request_cookies()
