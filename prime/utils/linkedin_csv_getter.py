@@ -271,7 +271,8 @@ class LinkedinCsvGetter(object):
     def get_linkedin_data_yahoo(self):
         try:
             select = Select(self.driver.find_element_by_id('outputType-exportSettingsForm'))
-            select.select_by_visible_text('Yahoo! Mail (.CSV file)')
+            #select.select_by_visible_text('Yahoo! Mail (.CSV file)')
+            select.select_by_index(2)
             button = self.driver.find_element_by_class_name("btn-primary")
             button.click()
         except:
