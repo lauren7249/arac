@@ -62,7 +62,10 @@ class LinkedinCsvGetter(object):
 
     def quit(self):
         if self.driver:
-            self.driver.quit()
+            try:
+                self.driver.quit()
+            except:
+                pass
         if self.display:
             self.display.sendstop()
         self.kill_firefox_and_xvfb()
