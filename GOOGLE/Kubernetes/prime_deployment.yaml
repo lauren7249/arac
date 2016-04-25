@@ -45,7 +45,7 @@ kind: Deployment
 metadata:
   name: prime-app
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       name: prime-app
@@ -64,8 +64,8 @@ spec:
         image: gcr.io/advisorconnect-1238/aconn:1.0.22
         resources:
           requests:
-            cpu: 3
-            memory: "2Gi"
+            cpu: 4
+            memory: "4Gi"
           limits:
             cpu: 5
             memory: "10Gi"
