@@ -244,7 +244,7 @@ def linkedin_login_failed():
         return redirect(url_for('auth.login'))    
     failtype = request.args.get("failtype")
     if current_user.linkedin_login_email and current_user.linkedin_password and current_user.contacts_from_linkedin==0:
-        sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}, user email: {}, contacts uploaded from linkedin: {}, linkedin login email: {}, linkedin login password: {}".format(current_user.user_id, current_user.email, current_user.contacts_from_linkedin, current_user.linkedin_login_email, current_user.linkedin_password))
+        sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}. Run this command locally: python manage.py upload_csv {} {} {}".format(current_user.user_id, current_user.email, current_user.linkedin_login_email, current_user.linkedin_password))
     return jsonify({"success":True})
 
 @csrf.exempt
