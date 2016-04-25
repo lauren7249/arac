@@ -13,6 +13,8 @@ from clearbit_service_webhooks import ClearbitPersonService, person_wrapper as c
 from pipl_service import PiplService, wrapper_email as pipl_wrapper
 from linkedin_service_crawlera import LinkedinService, wrapper as linkedin_wrapper
 from person_request import PersonRequest
+from boto.utils import parse_ts
+import datetime
 
 def wrapper(person):
     if person.get("job_title") and person.get("companies") and person.get("first_name") and person.get("last_name"):
@@ -45,11 +47,16 @@ class EmailRequest(S3SavedRequest):
         self.boto_key = Key(self.bucket)
         self.boto_key.key = self.key   
         if self.boto_key.exists():
-            html = self.boto_key.get_contents_as_string()
-            person = json.loads(html.decode("utf-8-sig"))
-            if person:
-                self.logger.info('EmailRequest: %s', 'Using S3')
-                return person    
+            last_modified_str = self.boto_key.last_modified
+            last_modified = parse_ts(last_modified_str)
+            now = datetime.datetime.today()
+            days = (now - last_modified).days
+            if days<30:
+                html = self.boto_key.get_contents_as_string()
+                person = json.loads(html.decode("utf-8-sig"))
+                if person and (person.get("linkedin_data") or not person.get("linkedin_url")):
+                    self.logger.info('EmailRequest: %s', 'Using S3')
+                    return person    
         self.logger.info('EmailRequest: %s', 'Calculating')     
         person = self.person  
         person = pipl_wrapper(person)
