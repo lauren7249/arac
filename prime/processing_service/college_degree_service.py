@@ -53,7 +53,7 @@ class CollegeDegreeRequest(S3SavedRequest):
                 degree = school.get("degree")
             else:
                 degree = None
-            if degree is not None:
+            if degree:
                 clean_degree = re.sub('[^0-9a-z\s]','',degree.lower().strip())
                 if re.search('^bs($|\s)', clean_degree) or re.search('^ba($|\s)', clean_degree) or re.search('^ab($|\s)', clean_degree) or re.search('^bachelor[s]*($|\s)', clean_degree):
                     return True

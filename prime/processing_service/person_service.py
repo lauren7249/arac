@@ -52,10 +52,13 @@ class EmailRequest(S3SavedRequest):
         self.boto_key = Key(self.bucket)
         self.boto_key.key = self.key   
         if self.boto_key.exists():
-            last_modified_str = self.boto_key.last_modified
-            last_modified = parse_ts(last_modified_str)
-            now = datetime.datetime.today()
-            days = (now - last_modified).days
+            try:
+                last_modified_str = self.boto_key.last_modified
+                last_modified = parse_ts(last_modified_str)
+                now = datetime.datetime.today()
+                days = (now - last_modified).days
+            except:
+                days = 0
             if days<30:
                 html = self.boto_key.get_contents_as_string()
                 person = json.loads(html.decode("utf-8-sig"))
