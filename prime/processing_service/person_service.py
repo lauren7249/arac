@@ -17,16 +17,21 @@ from boto.utils import parse_ts
 import datetime
 
 def wrapper(person):
-    if person.get("job_title") and person.get("companies") and person.get("first_name") and person.get("last_name"):
-        full_name= "{} {}".format(person.get("first_name"),person.get("last_name")) 
-        headline = "{} at {}".format(person.get("job_title",""),person.get("companies")[0])  
-        linkedin_data = PersonRequest()._get_profile(headline=headline, name=full_name)   
-        if linkedin_data: 
-            person["linkedin_data"] = linkedin_data
-            print "FOUND crawlera"
-            return person 
-        print "no crawlera data found for {} | {}".format(full_name, headline)    
-    return EmailRequest(person).process()
+    try:
+        if person.get("job_title") and person.get("companies") and person.get("first_name") and person.get("last_name"):
+            full_name= "{} {}".format(person.get("first_name"),person.get("last_name")) 
+            headline = "{} at {}".format(person.get("job_title",""),person.get("companies")[0])  
+            linkedin_data = PersonRequest()._get_profile(headline=headline, name=full_name)   
+            if linkedin_data: 
+                person["linkedin_data"] = linkedin_data
+                print "FOUND crawlera"
+                return person 
+            print "no crawlera data found for {} | {}".format(full_name, headline)    
+        return EmailRequest(person).process()
+    except Exception, e:
+        print "exception in PersonService"
+        print str(e)
+        return person
 
 class EmailRequest(S3SavedRequest):
 
