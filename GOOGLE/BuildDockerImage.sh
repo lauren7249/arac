@@ -4,7 +4,7 @@ REGISTRY="gcr.io/advisorconnect-1238/"
 IMAGE="aconn"
 VERSION="1.0.21"
 
-BRANCH="no-linkedin-waiting"
+BRANCH=`git branch | head -n 1 | cut -c 3-`
 COMMIT=`git log  | head -n1 | cut -c 8-16`
 
 echo "Building ${REGISTRY}${IMAGE}:${VERSION}"
