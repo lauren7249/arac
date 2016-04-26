@@ -13,7 +13,7 @@ from flask.ext.login import current_user, login_required
 from rq import Queue
 from redis import Redis
 from rq import Queue
-
+from sqlalchemy import not_
 from . import manager
 from prime.prospects.models import Prospect, Job, Education
 from prime.users.models import User, ClientProspect
@@ -60,7 +60,8 @@ def godview():
         return redirect(url_for('auth.login'))
     reinvited = request.args.get("reinvited",None)
     manager = current_user.manager_profile[0]
-    agents = User.query.filter(User.email.contains("@"), User.manager_id != 2,\
+    agents = User.query.filter(User.email.contains("@"), \
+            not_(User.email.contains("@advisorconnect.co")), User.manager_id != 2,\
             User.manager_id != 8, User.manager_id != 10\
             ).order_by(User.first_name, User.last_name, User.email)
     hired_agents = agents.filter(User.hired == True).all()
