@@ -690,34 +690,6 @@ def submit_p200_to_manager():
     return redirect("connections?p200=True&message=Your P200 has been submitted and is pending approval.")
 
 
-@prospects.route("/exclusions_report", methods=['GET'])
-def exclusions_export():
-    if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))
-    if current_user.is_manager:
-        return redirect(url_for("managers.manager_home"))
-    resp = flask.Response("")
-    excluded = current_user.exclusions_report
-    data = json_array_to_matrix(excluded)
-    output = StringIO.StringIO()
-    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet("Exclusions")
-    for rownum in xrange(0, len(data)):
-        row = data[rownum]
-        for colnum in xrange(0, len(row)):
-            col = row[colnum]
-            try:
-                worksheet.write(rownum, colnum, col)
-            except:
-                worksheet.write(rownum, colnum, str(col))
-    workbook.close()
-    output.seek(0)
-    return flask.Response(
-        output.read(),
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-disposition":
-                 "attachment; filename=exclusions_report.xlsx"})
-
 @prospects.route("/contacts_export", methods=['GET'])
 def contacts_export():
     if not current_user.is_authenticated():

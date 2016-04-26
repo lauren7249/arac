@@ -6,10 +6,11 @@ import requests
 import json
 import re
 import urllib
+import xlsxwriter
 from flask import render_template, request, redirect, url_for, flash, session, \
     jsonify, current_app
 from flask.ext.login import current_user, login_required
-
+from helpers.data_helpers import json_array_to_matrix
 from rq import Queue
 from redis import Redis
 from rq import Queue
@@ -19,9 +20,10 @@ from prime.prospects.models import Prospect, Job, Education
 from prime.users.models import User, ClientProspect
 from prime.utils import random_string
 from prime import db, csrf
-
+import StringIO
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy import select, cast
+import flask
 
 session = db.session
 
@@ -140,6 +142,36 @@ def manager_reinvite_agent():
         user.invite()
     return redirect('/managers/dashboard?reinvited={}#prospective-agents'.format(user.email))
 
+
+@manager.route("/exclusions_report/<int:agent_id>", methods=['GET'])
+def exclusions_export(agent_id):
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.email != 'jimmy@advisorconnect.co':
+        return "You are not authorized to view this content."
+    agent = User.query.get(agent_id)
+    manager = agent.manager        
+    resp = flask.Response("")
+    excluded = agent.exclusions_report
+    data = json_array_to_matrix(excluded)
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet("Exclusions")
+    for rownum in xrange(0, len(data)):
+        row = data[rownum]
+        for colnum in xrange(0, len(row)):
+            col = row[colnum]
+            try:
+                worksheet.write(rownum, colnum, col)
+            except:
+                worksheet.write(rownum, colnum, str(col))
+    workbook.close()
+    output.seek(0)
+    return flask.Response(
+        output.read(),
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-disposition":
+                 "attachment; filename=exclusions_report_{}_{}.xlsx".format(agent.first_name, agent.last_name)})
 
 @manager.route("/agent/<int:agent_id>", methods=['GET', 'POST'])
 def agent(agent_id):
