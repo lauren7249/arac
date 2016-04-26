@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% block content %}
+  {% include "_partials/manager_header.html" with context %}
+  <div class="manager-team-metrics wrap">
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="invitations_sent">N/A</h2>
+        <div class="caps">Invitations Sent</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="prescreens_completed">N/A</h2>
+        <div class="caps">Network Analyses Completed</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="candidates_hired">N/A</h2>
+        <div class="caps">Candidates Hired</div>
+      </div>
+    </div>    
+    <div class="col-3">
+      <div class="metric-block">
+        <h2 id="p200s_completed">N/A</h2>
+        <div class="caps">P200s Completed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="wrap"> 
+      
+      <div class="tabset">
+        <li id='curr' class='active' data-tab='current'>Current Agents</li>
+        <li id='prosp' data-tab='prospective'>Candidates</li>
+        <li id='skip' data-tab='skipped'>Archived Agents</li>
+      </div>
+
+      <table id="current-agents" class="manager-dashboard" style="max-height:100%; max-width:100%;">
+        <thead>
+          <th>Agent</th>
+          <th>Primary Network</th>
+          <th>Extended</th>
+          <th>Avg Income Score</th>
+          <th>Avg Age</th>            
+          <th class="agent-pre-screen">Network Analysis</th>
+          <th class="agent-p200">P200</th>
+        </thead>
+        <tbody>
+          {% for agent in hired_agents %}
+          <tr>
+            <td class="agent">
+              {% if agent.prospect %}
+                <span style="background-image:url({{ agent.prospect.image }})" class="face"></span>
+              {% endif %}
+              <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+            </td>
+            <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
+            <td>{{ agent.average_income_score() }}</td>
+            <td>{{ agent.average_age() }}</td>                  
+            <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
+              {% if agent.hiring_screen_completed %}
+                <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+              {% elif agent.hiring_screen_started %}
+                <span class='in-progress hint--top' data-hint='Contacts have been uploaded and the Network Analysis will be available within 24 hours.'>In Progress</span>   
+              {% else %}
+                {% if agent.account_created %}
+                  <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
+                {% else %}
+                  <span class='requested hint--top' data-hint='Invite sent, response pending'>Requested</span>
+                {% endif %}      
+              {% endif %}
+            </td>  
+            <td class="agent-p200" data-td='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_cell'>
+              {%if agent.p200_submitted_to_manager and agent.p200_count | int > 0 %}
+                <a target='_self' href='/managers/p200/{{ agent.user_id }}'><button class='button teal small'>View</button></a>      
+              {% elif agent.p200_completed %}
+                <span class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections available, pending agent P200 submission.'>Pending</span> 
+              {% elif agent.p200_started %}
+                <span class='in-progress hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='Network connections are being enriched and will be available within 24 hours.'>In Progress</span>    
+              {% elif agent.hiring_screen_completed and agent.hired %}               <!-- -->
+                <button data-hint='Request P200' data-p200-id='{{ agent.user_id }}' id='{{ agent.user_id }}_p200_button' class='button dark-blue small hint--top'>Request</button>    
+                <span style="display:none;" class='pending hint--top' id='{{ agent.user_id }}_p200_pending' data-hint='P200 is running and will be available within 24 hours.'>In Progress</span>                 
+              {% endif %}
+            </td>                              
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan='7'>
+              <span>You have no current agents added. You can move someone to hired from the Candidates screen.</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table id="prospective-agents" class="manager-dashboard" style="max-height:100%; max-width:100%; display:none;">
+        <thead>
+          <th>Candidate</th>
+          <th>Primary Network</th>
+          <th>Extended</th>
+          <th class="agent-pre-screen">Network Analysis</th>
+          <th class="agent-hired">Hired</th>
+          <th class="agent-hr">Candidate Disposition</th>
+          <th class="agent-resend">Resend Invite</th>
+        </thead>
+        <tbody>
+          {% for agent in candidates%}
+          <tr data-agent-row='{{ agent.user_id }}'>
+            <td class="agent">
+              {% if agent.prospect %}
+                <span style="background-image:url({{ agent.prospect.image }})" class="face"></span>
+              {% endif %}
+              <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+            </td>
+            {% if agent.hiring_screen_completed %}
+              <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
+              <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
+            {%else%}
+              <td>-</td>
+              <td>-</td>                
+            {%endif%}
+            <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
+              {% if agent.hiring_screen_completed %}
+                <a target='_self' href='/managers/agent/{{ agent.user_id }}'><button class='button teal small'>View</button></a>            
+              {% elif agent.hiring_screen_started %}
+                <span class='pending hint--top' data-hint='Contacts have been uploaded and the Network Analysis will be available within 24 hours.'>In Progress</span>
+              {% else %}
+                {% if agent.account_created %}
+                  <span class='pending hint--top' data-hint='Account created, no contacts uploaded yet'>Pending</span>   
+                {% else %}
+                  <span class='requested hint--top' data-hint='Invite sent, response pending'>Requested</span>
+                {% endif %}      
+              {% endif %}
+            </td>
+            <td class="agent-hired">
+              <span class="segmented">
+                <label data-hire='{{ agent.user_id }}'>
+                  <input type="radio" name="{{ agent.user_id }}" value="hired--yes">
+                  <span class="label">Yes</span>
+                </label>
+                <label data-fire='{{ agent.user_id }}'>
+                  <input type="radio" name="{{ agent.user_id }}" value="hired--no">
+                  <span class="label">No</span>
+                </label>
+              </span>
+            </td>
+            <td class="agent-hr">
+              <span class='hide-dash'>-</span>
+              <select name='denial-reason' class='denial-select' data-select='{{ agent.user_id  }}'>
+                <option value=''>-------------</option>
+                <option value='Background Financial'>Background Financial</option>
+                <option value='Background Criminal'>Background Criminal</option>
+                <option value='Cultural Fit'>Cultural Fit</option>
+                <option value='Agent Declined Offer'>Agent Declined Offer</option>
+                <option value='Poor Initial Market'>Poor Initial Market</option>
+                <option value='Did Not Pass State Exam'>Did Not Pass State Exam</option>
+              </select>
+            </td>
+            <td class="agent-resend">
+
+              <form action="/managers/invite/again" method="post">
+                <button class="button teal small" name="user_id" value="{{ agent.user_id }}">Resend</button>
+              </form>
+
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan='7'>
+              <span>You have no Candidates added. You can invite them <a style='color: #02C2B9;' href='/managers/invite'>Here</a></span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table id="skipped-agents" class="manager-dashboard" style="max-height:100%; max-width:100%; display:none;">
+        <thead>
+          <th>Candidate</th>
+          <th>Primary Network</th>
+          <th>Extended</th>
+          <th class="agent-pre-screen">Candidate Disposition</th>
+        </thead>
+        <tbody>
+          {% for agent in not_hired %}
+          <tr data-agent-row='{{ agent.user_id }}'>
+            <td class="agent">
+              {% if agent.prospect %}
+                <span style="background-image:url({{ agent.prospect.image }})" class="face"></span>
+              {% endif %}
+              <span> {{ agent.first_name }} {{ agent.last_name }}<span class='email'> {{ agent.email }}</span></span>
+            </td>
+            {% if agent.hiring_screen_completed %}
+            <td>{{ '{0:,}'.format(agent.primary_network_size() | int) }}</td>
+            <td>{{ '{0:,}'.format(agent.extended_network_size() | int) }}</td>
+            {%else%}
+            <td>-</td>
+            <td>-</td>                
+            {%endif%}
+            <td class="agent-pre-screen" data-td='{{ agent.user_id }}'>
+              {{ agent.not_hired_reason }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan='7'>
+              <span>You have no archived agents.</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+  <script type='text/javascript'>
+  $(function() {
+
+    function setScreen() {
+      var tabName = window.location.hash;
+      if (tabName) {
+        var tab = tabName.split("#")[1].split("-")[0]
+        $(".tabset li").removeClass("active")
+        $("[data-tab='" + tab + "']").addClass("active")
+        $("table.manager-dashboard").hide();
+        $(tabName).show();
+      }
+    }
+
+    setScreen();
+    {%if reinvited is not none %}
+      showSuccess("Re-invitation sent to {{ reinvited }}. Previous data for this candidate has been reset until the new Network Analysis is complete.");
+    {%endif%}
+
+    $("[data-tab]").click(function() {
+      $("#success").css("display","none"); 
+      $(".tabset li").removeClass("active")
+      $(this).addClass("active")
+      var tabName = $(this).data("tab") + "-agents"
+      $("table.manager-dashboard").hide();
+      $("#" + tabName).show();
+      window.history.pushState('', 'AdvisorConnect', '/managers/dashboard#' + tabName);
+    });
+
+    $("[data-hire]").click(function() {
+      var agentId = $(this).data("hire");
+      $.get("/managers/make_agent/" + agentId, function(data) {
+        $("[data-agent-row='" + agentId + "']").fadeOut('slow');
+        window.location.reload();
+      });
+    });
+
+    $("[data-fire]").click(function() {
+      var agentId = $(this).data("fire");
+      $("[data-select='" + agentId + "']").parent().find("span").hide();
+      $("[data-select='" + agentId + "']").show()
+    });
+
+    $("[data-select]").change(function() {
+      var agentId = $(this).data("select");
+      var reason = $(this).val();
+      $.get("/managers/skip_agent/" + agentId + "?reason=" + reason, function(data) {
+        $("[data-agent-row='" + agentId + "']").fadeOut('slow');
+          window.location.reload();
+      });
+    })
+
+  });
+  </script>
+
+{% endblock %}

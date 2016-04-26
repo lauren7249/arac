@@ -37,6 +37,8 @@ def manager_home():
         return redirect(url_for('auth.login'))
     if not current_user.is_manager:
         return redirect(url_for('prospects.dashboard'))
+    if current_user.email == 'jimmy@advisorconnect.co':
+        return redirect(url_for('managers.godview'))
     reinvited = request.args.get("reinvited",None)
     manager = current_user.manager_profile[0]
     agents = manager.users.filter(User.email.contains("@")).order_by(User.first_name, User.last_name, User.email)
@@ -45,6 +47,27 @@ def manager_home():
             False).all()
     not_hired = agents.filter(User.not_hired == True).all()
     return render_template('manager/dashboard.html',
+            hired_agents=hired_agents,
+            candidates=candidates,
+            not_hired=not_hired,
+            manager=manager,
+            reinvited=reinvited,
+            active="selected")
+
+@manager.route('/godview', methods=['GET'])
+def godview():
+    if current_user.email != 'jimmy@advisorconnect.co':
+        return redirect(url_for('auth.login'))
+    reinvited = request.args.get("reinvited",None)
+    manager = current_user.manager_profile[0]
+    agents = User.query.filter(User.email.contains("@"), User.manager_id != 2,\
+            User.manager_id != 8, User.manager_id != 10\
+            ).order_by(User.first_name, User.last_name, User.email)
+    hired_agents = agents.filter(User.hired == True).all()
+    candidates = agents.filter(User.hired == False, User.not_hired ==\
+            False).all()
+    not_hired = agents.filter(User.not_hired == True).all()
+    return render_template('manager/godview.html',
             hired_agents=hired_agents,
             candidates=candidates,
             not_hired=not_hired,
@@ -69,7 +92,7 @@ def manager_invite_agent():
         if not re.search(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", to_email):
             error_message = "{} is not a valid email address.".format(to_email)
             return render_template('manager/invite.html', active="invite", error_message=error_message,
-                                   success=False)            
+                                   success=False)
         agent = session.query(User).filter(User.email == to_email).first()
         if agent:
             if agent.is_manager:
@@ -80,7 +103,7 @@ def manager_invite_agent():
             if not agent.not_hired:
                 error_message = "This candidate is still being evaluated by another manager, therefore you cannot invite them. For more information, feel free to email jeff@advisorconnect.co."
                 return render_template('manager/invite.html', active="invite", error_message=error_message,
-                                       success=False)                
+                                       success=False)
             user = agent
             #remove the user from their previous manager's dashboard.
             if user.manager:
@@ -131,7 +154,7 @@ def agent(agent_id):
     if p200=="False":
         active = "dashboard"
     else:
-        active = "p200_summary"             
+        active = "p200_summary"
     return render_template("dashboard.html", agent=agent, active=active)
 
 
@@ -177,7 +200,7 @@ def dashboard_pdf(agent_id):
     if p200=="False":
         active = "dashboard"
     else:
-        active = "p200_summary"           
+        active = "p200_summary"
     return render_template("print-network-summary.html", agent=agent, active=active)
 
 @csrf.exempt

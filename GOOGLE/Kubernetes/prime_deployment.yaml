@@ -45,7 +45,7 @@ kind: Deployment
 metadata:
   name: prime-app
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       name: prime-app
