@@ -168,7 +168,7 @@ def agent_p200(agent_id):
     page = int(request.args.get("p", 1))
     agent = User.query.get(agent_id)
     manager = agent.manager
-    if current_user.user_id != manager.user_id:
+    if current_user.user_id != manager.user_id and current_user.email != 'jimmy@advisorconnect.co':
         return "You are not authorized to view this content."
     if not agent.p200_submitted_to_manager:
         return "This agent has not yet submitted a p200 for you to view."
@@ -194,7 +194,7 @@ def dashboard_pdf(agent_id):
         return redirect(url_for('auth.login'))
     agent = User.query.get(agent_id)
     manager = agent.manager
-    if current_user.user_id != manager.user_id:
+    if current_user.user_id != manager.user_id and current_user.email != 'jimmy@advisorconnect.co':
         return "You are not authorized to view this content."
     p200 = request.args.get("p200","False")
     if p200=="False":
@@ -216,7 +216,7 @@ def pdf(agent_id):
     if not agent:
         return "Invalid link"
     manager = agent.manager
-    if current_user.user_id != manager.user_id:
+    if current_user.user_id != manager.user_id and current_user.email != 'jimmy@advisorconnect.co':
         return "You are not authorized to view this content."
     connections = ClientProspect.query.filter(
         ClientProspect.good == True,
