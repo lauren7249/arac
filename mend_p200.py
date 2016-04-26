@@ -23,10 +23,10 @@ if __name__=="__main__":
 		if not user:
 			sendgrid_email("jeff@advisorconnect.co", "this one didnt have an account: {}".format(email),"but i tried to run it manually",from_email="lauren@advisorconnect.co")
 			continue
+		contacts_array, user = user.refresh_contacts(session=session)
 		if user.unique_contacts_uploaded ==0:
 			sendgrid_email("jeff@advisorconnect.co", "this one didnt upload any contacts: {}".format(email),"but i tried to run it manually",from_email="lauren@advisorconnect.co")
 			continue			
-		contacts_array, user = user.refresh_contacts(session=session)
 		other_locations = []
 		manager = session.query(ManagerProfile).get(user.manager_id)
 		client_data = {"first_name":user.first_name,"last_name":user.last_name,"email":user.email,"location":manager.address_2,"url":user.linkedin_url,"hired": True,"suppress_emails":True, "other_locations":[]}
