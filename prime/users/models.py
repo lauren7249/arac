@@ -310,11 +310,11 @@ class User(db.Model, UserMixin):
             print "NO NEW CONTACTS"
         for record in contacts_array + new_contacts:
             owner = record.get("contacts_owner")
+            service = record.get("service","").lower()
             if owner:
                 account_email = owner.get("email",[{}])[0].get("address","").lower()
             else:
-                account_email = 'linkedin'
-            service = record.get("service","").lower()
+                account_email = service
             account_sources[account_email] = service
             contact = record.get("contact",{})
             emails = contact.get("email",[{}])
@@ -586,7 +586,7 @@ class User(db.Model, UserMixin):
                 extended_count+=1
                 continue
             for source in client_prospect.sources:
-                source = account_sources.get(source)
+                source = account_sources.get(source.lower())
                 if source=='linkedin':
                     from_linkedin+=1
                 elif source=='gmail':

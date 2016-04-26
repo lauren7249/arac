@@ -67,6 +67,9 @@ class CloudSpongeService(Service):
                 if service.lower()=='linkedin':
                     if 'linkedin' not in sources: 
                         sources.append('linkedin')
+                elif service.lower()=='csv':
+                    if 'csv' not in sources: 
+                        sources.append('csv')                        
                 elif account_email and account_email not in sources:
                     sources.append(account_email)
 
