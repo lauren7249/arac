@@ -1,0 +1,13 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prime-ingress
+spec:
+  backend:
+    serviceName: prime-app
+    servicePort: 30255
+  tls:
+#  - hosts:
+#    - "*.advisorconnect.co"
+   - secretName: tls
