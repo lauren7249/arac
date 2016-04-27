@@ -83,7 +83,19 @@ if __name__ == '__main__':
             user.clear_data()
             for client_prospect in user.client_prospects:
                 session.delete(client_prospect)
-            user._statistics = None
+            user.p200_completed = False
+            user.p200_started = False
+            user.hiring_screen_started = False
+            user.hiring_screen_completed = False
+            user.p200_submitted_to_manager = False
+            user.p200_approved = False
+            user.hired = False
+            user.not_hired = False
+            user.not_hired_reason = None
+            user._statistics = {}
+            user._statistics_p200 = {}
+            user.all_states = {}
+            user.intro_js_seen = False
             session.add(user)
             session.commit()
         q = get_q()
