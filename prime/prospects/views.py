@@ -368,14 +368,10 @@ def upload_dropzone():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    emails = set()
     email_regex = "[A-Za-z0-9\.]+@[A-Za-z0-9]+\.[a-zA-Z0-9]+"        
     f = request.files['file']
-    for line in f.readlines():
-        if not re.search(email_regex,line): continue
-        email = re.search(email_regex,line).group(0)
-        if email: 
-            emails.add(email)
+    data = f.read()
+    emails = set(re.findall(email_regex,data))
     data = []
     for email in emails:
         contact = {}
