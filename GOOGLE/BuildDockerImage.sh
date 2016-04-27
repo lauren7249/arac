@@ -2,7 +2,7 @@
 
 REGISTRY="gcr.io/advisorconnect-1238/"
 IMAGE="aconn"
-VERSION="1.0.30"
+VERSION="1.0.31"
 
 #BRANCH=`git branch | head -n 1 | cut -c 3-`
 #the previous way wasnt getting the right branch for me -lauren
