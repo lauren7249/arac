@@ -52,9 +52,9 @@
           </div>
 
           <div class="col-6">         
-            <div id='linkedin-area' class="connect-email" onclick="_linkedin();">
-              <img id='linkedin' type="Submit" src="/static/img/linkedin-40.png"/>
-              <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to LinkedIn and add contacts from your profile.">Add LinkedIn Account</div>           
+            <div id='linkedin-area' class="connect-email">
+              <img id='linkedin' src="/static/img/linkedin-40.png"/>
+              <a href="https://www.linkedin.com/people/export-settings" target="_blank"><div class="hint--top hint--big button teal small" data-hint="Click here to sign in to LinkedIn and download contacts from your profile to a CSV file. Then use the CSV upload button towards the bottom of the screen to upload them.">Add LinkedIn Account</div></a>       
               <div class='connected_area'>
                 {%if agent.contacts_from_linkedin | int > 0 %}
                   <div class='connected' id="linkedin_response">Added {{ '{0:,}'.format(agent.contacts_from_linkedin | int) }} contacts from LinkedIn</div>
