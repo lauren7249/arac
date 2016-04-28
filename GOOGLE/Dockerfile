@@ -13,5 +13,5 @@ CMD ["dev_run"]
 USER root
 
 # @formatter:off
-LABEL co.advisorconnect.repo=gcr.io/advisorconnect-1238/aconn co.advisorconnect.commit=COMMIT-- co.advisorconnect.branch=BRANCH--
+LABEL co.advisorconnect.repo=gcr.io/advisorconnect-1238/aconn co.advisorconnect.commit=COMMIT-- co.advisorconnect.branch=BRANCH-- co.advisorconnect.type=ENVIRON--
 # @formatter:on

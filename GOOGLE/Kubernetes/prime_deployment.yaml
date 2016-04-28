@@ -101,7 +101,6 @@ spec:
           value: "4BqkeSHz5SbcAyM/cyTBCB1SwBrB9DDu0Ug/VZaQ"
         - name: LC_ALL
           value: "en_US.utf8"
-
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
