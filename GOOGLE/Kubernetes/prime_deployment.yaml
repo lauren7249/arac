@@ -108,7 +108,7 @@ kind: Deployment
 metadata:
   name: prime-worker
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       name: prime-worker
