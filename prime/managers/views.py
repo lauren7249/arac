@@ -64,7 +64,7 @@ def godview():
     manager = current_user.manager_profile[0]
     agents = User.query.filter(User.email.contains("@"), \
             not_(User.email.contains("@advisorconnect.co")), User.manager_id != 2,\
-            User.manager_id != 8, User.manager_id != 10\
+            User.manager_id != 8, User.manager_id != 9, User.manager_id != 10\
             ).order_by(User.first_name, User.last_name, User.email)
     hired_agents = agents.filter(User.hired == True).all()
     candidates = agents.filter(User.hired == False, User.not_hired ==\

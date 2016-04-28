@@ -10,7 +10,8 @@ db = SQLAlchemy(app)
 session = db.session
 
 #when you think you are done, run this to check for stragglers:
-#select email from users where p200_completed=False and unique_contacts_uploaded>0 and manager_id not in (2, 8, 10) and email not like '%@advisorconnect.co%';
+#psql arachnid_prod -U arachnid  
+#select user_id, email from users where contacts_from_linkedin=0 and linkedin_login_email is not null and manager_id not in (2, 8, 9, 10) and email not like '%@advisorconnect.co%' and not p200_started;
 emails = set(open("emails.txt", "r").read().split("\n"))
 if __name__=="__main__":
 	from prime.users.models import User
