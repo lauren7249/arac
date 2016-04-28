@@ -55,6 +55,29 @@
             <div id='linkedin-area' class="connect-email" onclick="_linkedin();">
               <img id='linkedin' type="Submit" src="/static/img/linkedin-40.png"/>
               <div class="hint--top hint--big button teal small" data-hint="Click here to sign in to LinkedIn and add contacts from your profile.">Add LinkedIn Account</div>           
+               <div id="dropzoneModalLinkedin" class="dropzone_upload">
+                <div class="dialog">
+                  <div class="toast-close">
+                    <button type="button" onclick='$("#dropzoneModal").fadeOut();'>&times;</button>  
+                  </div>  
+                  <form action="/upload_dropzone" method="post" class="dropzone" id="my-awesome-dropzone"></form>
+                </div>
+                <script type="text/javascript">
+                  Dropzone.options.myAwesomeDropzone = { 
+                    acceptedFiles: ".csv",
+                    init: function() {
+                      var myDropzone = this;
+                      myDropzone.on("complete", function (file) {
+                        if (myDropzone.getUploadingFiles().length === 0 && myDropzone.getQueuedFiles().length === 0) {
+                          $("#dropzoneModalLinkedin").fadeOut();
+                          window.location.reload();
+                        }
+                      });
+                    }
+                   }
+                 </script>
+              </div>
+              
               <div class='connected_area'>
                 {%if agent.contacts_from_linkedin | int > 0 %}
                   <div class='connected' id="linkedin_response">Added {{ '{0:,}'.format(agent.contacts_from_linkedin | int) }} contacts from LinkedIn</div>
@@ -371,6 +394,7 @@
       cloudsponge_status = 'NONE';   
       var win = window.open('about:blank');        
       var len = do_import('LinkedIn','#linkedin-area',win);
+      $("#dropzoneModalLinkedin").fadeIn();
       $(".linkedin").hide();
       $("#spinner").fadeOut();      
     }
