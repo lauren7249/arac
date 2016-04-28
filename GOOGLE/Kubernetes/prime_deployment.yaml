@@ -57,7 +57,7 @@ spec:
             command:
             - cat
             - /proc/net/tcp
-        image: gcr.io/advisorconnect-1238/aconn:1.0.32
+        image: gcr.io/advisorconnect-1238/aconn:1.0.33
         resources:
           requests:
             cpu: 4
@@ -107,7 +107,7 @@ kind: Deployment
 metadata:
   name: prime-worker
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       name: prime-worker
@@ -123,7 +123,7 @@ spec:
             command:
             - cat
             - /proc/net/tcp
-        image: gcr.io/advisorconnect-1238/aconn:1.0.32
+        image: gcr.io/advisorconnect-1238/aconn:1.0.33
         args:
         - dev_run_worker
         resources:

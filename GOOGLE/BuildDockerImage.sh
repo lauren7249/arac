@@ -3,7 +3,7 @@
 REGISTRY="gcr.io/advisorconnect-1238/"
 IMAGE="aconn"
 BUILDTYPE="RELEASE"   # oneOF: RELEASE, DEVELOPMENT, TEST, STAGING
-VERSION="1.0.32"
+VERSION="1.0.33"
 
 BRANCH=`git branch | head -n 1 | cut -c 3-`
 # FIXME: Not pulling correct branch (MDB)
