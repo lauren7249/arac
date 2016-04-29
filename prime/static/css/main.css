@@ -404,6 +404,10 @@ textarea {
   /* 2 */
 }
 
+.dz-error-message {
+  display: none !important;
+}
+
 .overlay .dialog, .dropzone_upload .dialog, .signup {
   position: absolute;
   top: 50%;

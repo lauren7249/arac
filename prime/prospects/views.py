@@ -15,6 +15,7 @@ import requests
 import datetime
 import time
 from helpers.data_helpers import json_array_to_matrix
+from helpers.linkedin_helpers import process_csv
 from flask import current_app
 import json
 from urllib import unquote_plus
@@ -241,7 +242,7 @@ def privacy():
 @prospects.route('/linkedin_failed', methods=['POST'])
 def linkedin_login_failed():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))    
+        return redirect(url_for('auth.login'))
     failtype = request.args.get("failtype")
     if current_user.linkedin_login_email and current_user.linkedin_password and current_user.contacts_from_linkedin==0:
         sendgrid_email("jeff@advisorconnect.co", "Linkedin failed at {}".format(failtype), "User id: {}. Run this command locally: python manage.py upload_csv {} {} {}".format(current_user.user_id, current_user.email, current_user.linkedin_login_email, current_user.linkedin_password))
@@ -307,7 +308,7 @@ def linkedin_login():
 @prospects.route('/linkedin_pin', methods=['GET'])
 def linkedin_pin():
     if not current_user.is_authenticated():
-        return redirect(url_for('auth.login'))    
+        return redirect(url_for('auth.login'))
     message = request.args.get("message","A security pin was sent to your email. Please paste the pin in the box below and submit.")
     return render_template('linkedin_pin.html', message=message)
 
@@ -368,7 +369,7 @@ def upload_dropzone():
         return redirect(url_for('auth.login'))
     if current_user.is_manager:
         return redirect(url_for("managers.manager_home"))
-    email_regex = "[A-Za-z0-9\.]+@[A-Za-z0-9]+\.[a-zA-Z0-9]+"        
+    email_regex = "[A-Za-z0-9\.]+@[A-Za-z0-9]+\.[a-zA-Z0-9]+"
     f = request.files['file']
     data = f.read()
     emails = set(re.findall(email_regex,data))
@@ -376,8 +377,23 @@ def upload_dropzone():
     for email in emails:
         contact = {}
         contact["email"] = [{"address": email.decode('latin-1')}]
-        data.append({"contact":contact, "contacts_owner":None, "service":"CSV"})       
+        data.append({"contact":contact, "contacts_owner":None, "service":"CSV"})
     contacts_array, user = current_user.refresh_contacts(new_contacts=data, service_filter='CSV')
+    print len(contacts_array)
+    return jsonify({"finished": True, "success":True, "data":data})
+
+@csrf.exempt
+@prospects.route("/upload_linkedin_dropzone", methods=['POST'])
+def upload_linkedin_dropzone():
+    if not current_user.is_authenticated():
+        return redirect(url_for('auth.login'))
+    if current_user.is_manager:
+        return redirect(url_for("managers.manager_home"))
+    f = request.files['file']
+    data = f.read()
+    data = process_csv(data)
+    contacts_array, user = current_user.refresh_contacts(new_contacts=data,
+            service_filter='LinkedIn')
     print len(contacts_array)
     return jsonify({"finished": True, "success":True, "data":data})
 
@@ -432,7 +448,7 @@ def dashboard():
         if p200=="False":
             active = "dashboard"
         else:
-            active = "p200_summary"        
+            active = "p200_summary"
         return render_template("dashboard.html", agent=agent, active = active)
     return redirect(url_for('prospects.start'))
 
@@ -561,7 +577,7 @@ def connections():
             page=page,
             connections=connections.items,
             pagination=connections,
-            active=active, 
+            active=active,
             message=message)
 
 @csrf.exempt

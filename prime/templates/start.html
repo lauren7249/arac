@@ -52,9 +52,29 @@
           </div>
 
           <div class="col-6">         
-            <div id='linkedin-area' class="connect-email">
-              <img id='linkedin' src="/static/img/linkedin-40.png"/>
+            <div id='linkedin-area' class="connect-email" onclick='_linkedin()'>
+              <img id='linkedin' type="Submit" src="/static/img/linkedin-40.png"/>
               <a href="https://www.linkedin.com/people/export-settings" target="_blank"><div class="hint--top hint--big button teal small" data-hint="Click here to sign in to LinkedIn and download contacts from your profile to a CSV file. Then use the CSV upload button towards the bottom of the screen to upload them.">Add LinkedIn Account</div></a>       
+               <div id="dropzoneModalLinkedin" style='margin-top: 15px;display: none;'>
+                <div class="dialog">
+                  <form action="/upload_linkedin_dropzone" method="post" class="dropzone" id="my-awesome-dropzone"></form>
+                </div>
+                <script type="text/javascript">
+                  Dropzone.options.myAwesomeDropzone = { 
+                    acceptedFiles: ".csv",
+                    dictDefaultMessage: "Drag your Linkedin Export here. You can find it in your downloads folder.",
+                    init: function() {
+                      var myDropzone = this;
+                      myDropzone.on("complete", function (file) {
+                        if (myDropzone.getUploadingFiles().length === 0 && myDropzone.getQueuedFiles().length === 0) {
+                          $("#dropzoneModalLinkedin").fadeOut();
+                          window.location.reload();
+                        }
+                      });
+                    }
+                   }
+                 </script>
+              </div>
               <div class='connected_area'>
                 {%if agent.contacts_from_linkedin | int > 0 %}
                   <div class='connected' id="linkedin_response">Added {{ '{0:,}'.format(agent.contacts_from_linkedin | int) }} contacts from LinkedIn</div>
@@ -167,7 +187,6 @@
 
     function do_import(service, divid, win) {     
       if(service == 'LinkedIn') {
-          win.location.href = '/linkedin_login';
           $("#spinner").fadeIn();
           var timer = setInterval(function() {   
             if(win.closed) {
@@ -368,11 +387,11 @@
     }
 
     function _linkedin() {
-      cloudsponge_status = 'NONE';   
-      var win = window.open('about:blank');        
-      var len = do_import('LinkedIn','#linkedin-area',win);
-      $(".linkedin").hide();
-      $("#spinner").fadeOut();      
+      //cloudsponge_status = 'NONE';   
+      //var len = do_import('LinkedIn','#linkedin-area',win);
+      $("#dropzoneModalLinkedin").fadeIn();
+      //$(".linkedin").hide();
+      //$("#spinner").fadeOut();      
     }
 
     function _windowslive() {

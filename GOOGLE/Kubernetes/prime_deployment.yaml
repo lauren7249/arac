@@ -41,7 +41,7 @@ kind: Deployment
 metadata:
   name: prime-app
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       name: prime-app
@@ -57,7 +57,7 @@ spec:
             command:
             - cat
             - /proc/net/tcp
-        image: gcr.io/advisorconnect-1238/aconn:1.0.31
+        image: gcr.io/advisorconnect-1238/aconn:1.0.33
         resources:
           requests:
             cpu: 4
@@ -72,6 +72,67 @@ spec:
         - containerPort: 443
           protocol: TCP
           name: https
+        env:
+        - name: PRIME_DB_USER
+          value: arachnid
+        - name: PG_DB
+          value: arachnid_prod
+        - name: PG_HOST
+          value: $(DEV_POSTGRES_SERVICE_HOST)
+        - name: PRIME_DB_PASS
+          value: devious8ob8
+        - name: PG_PORT
+          value: $(DEV_POSTGRES_SERVICE_PORT)
+#          valueFrom:
+#              secretKeyRef:
+#                key: password
+#                name: dev-postgres
+        - name: S3_BUCKET
+          value: "arachnid-results"
+        - name: AC_CONFIG
+          value: "nyl"
+        - name: REDIS_URL
+          value: redis://$(REDIS_MASTER_SERVICE_HOST):$(REDIS_MASTER_SERVICE_PORT)
+        - name: DB_URL
+          value: postgresql://$(PRIME_DB_USER):$(PRIME_DB_PASS)@$(DEV_POSTGRES_SERVICE_HOST):$(DEV_POSTGRES_SERVICE_PORT)/arachnid_prod
+        - name: AWS_ACCESS_KEY_ID_PVLL
+          value: "AKIAIXDDAEVM2ECFIPTA"
+        - name: AWS_SECRET_ACCESS_KEY_PVLL
+          value: "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"
+        - name: LC_ALL
+          value: "en_US.utf8"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prime-worker
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      name: prime-worker
+  template:
+    metadata:
+      labels:
+        name: prime-worker
+    spec:
+      containers:
+      - name: prime-worker
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /proc/net/tcp
+        image: gcr.io/advisorconnect-1238/aconn:1.0.33
+        args:
+        - dev_run_worker
+        resources:
+          requests:
+            cpu: 4
+            memory: "4Gi"
+          limits:
+            cpu: 5
+            memory: "10Gi"
         env:
         - name: PRIME_DB_USER
           value: arachnid

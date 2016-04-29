@@ -45,8 +45,14 @@ dev_run() {
     first_setup_check
     #drop_db
     #create_dev_db
-    run_worker
     run_uwsgi
+    return $?;
+}
+
+dev_run_worker() {
+    wait_until_is_ready
+    first_setup_check
+    run_worker
     return $?;
 }
 
@@ -66,8 +72,10 @@ test_run() {
 # Launch worker in the background
 run_worker() {
     local WORKER_CMD="${PYTHON} ./worker.py"
-    { coproc worker { $WORKER_CMD ; }>&3; } 3>&1
-    return 0;
+    $WORKER_CMD
+    wait
+    #{ coproc worker { $WORKER_CMD ; }>&3; } 3>&1
+    return $?;
 }
 
 # Start the UWSGI container in foreground
