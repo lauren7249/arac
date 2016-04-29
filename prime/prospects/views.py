@@ -419,7 +419,7 @@ def upload():
             session.add(current_user)
             session.commit()
             q = get_q()
-            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=140400)
+            q.enqueue(queue_processing_service, client_data, contacts_array, timeout=240400)
     return jsonify({"contacts": current_user.unique_contacts_uploaded})
 
 @prospects.route("/dashboard", methods=['GET', 'POST'])

@@ -99,7 +99,7 @@ if __name__ == '__main__':
             session.add(user)
             session.commit()
         q = get_q()
-        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=14400)
+        q.enqueue(queue_processing_service, client_data, contacts_array, timeout=24400)
 
     @manager.command
     def delete_user(email):

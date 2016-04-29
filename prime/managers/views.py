@@ -287,7 +287,7 @@ def request_p200():
             session.commit()
             q = get_q()
             q.enqueue(queue_processing_service, client_data, contacts_array,
-                      timeout=140400)
+                      timeout=240400)
             return jsonify({"name": "{} {}".format(user.first_name, user.last_name)})
         except Exception, e:
             print str(e)
